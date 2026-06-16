@@ -1,0 +1,2216 @@
+{
+  "expanded_tasks": [
+    {
+      "id": "DISC-002",
+      "title": "Verify + harden useCuratedDiscovery against all five UC-DISC-04 ACs (row shape, center derivation, nearest/best, UI-enum archetypes, 0\u20131 scores, loading\u2260empty)",
+      "task_type": "FEATURE",
+      "status": "To Do",
+      "priority": "P1",
+      "effort": "S",
+      "agent": "implementer=react-native-ui-implementer | reviewer=react-native-ui-reviewer",
+      "proposed_by": "react-native-ui-planner",
+      "estimate_minutes": 60,
+      "runtime_commands": {
+        "test": "pnpm test hooks/use-curated-discovery.integration.test.ts",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check hooks/use-curated-discovery.ts hooks/use-curated-discovery.integration.test.ts"
+      },
+      "outcome": "useCuratedDiscovery returns live curated rows in the exact {id,name,lat,lng,archetype(UI enum),score(0-1),distanceMi} shape, with correct loading\u2260empty signals, location-derived center, nearest/best ordering, and unrescaled 0-1 scores, proven against live Convex.",
+      "critical_constraints": [
+        "NEVER rescale compositeScore to 0-100 in the hook \u2014 scores MUST pass through on the raw 0-1 scale (formatting is a render concern). A 0-100 escape is a hard fail.",
+        "NEVER conflate loading and empty: routes===undefined \u21d2 isLoading true; routes===[] \u21d2 isEmpty true. They must be distinguishable by the caller.",
+        "NEVER widen scope to the suggestion-card UI (that is DISC-016/017) or to the agent tool (DATA-008/008b) \u2014 this task owns the hook only.",
+        "This is a carried/BUILT hook: verify-and-harden, do NOT rewrite its public signature {center?,bbox?,state?,archetypes?,sort,limit} \u2192 {routes,isLoading,isEmpty} (downstream callers depend on it)."
+      ],
+      "done_when": [
+        "AC-1 GREEN: hook returns rows in the consumed shape against live Convex",
+        "AC-2 GREEN: loading (undefined) and empty ([]) are distinct signals",
+        "AC-3 GREEN: center derived from useCurrentLocation when none passed",
+        "AC-4 GREEN: nearest-first when located, best-first fallback",
+        "AC-5 GREEN: compositeScore carried at 0-1, never rescaled",
+        "pnpm test passes + pnpm type-check clean",
+        "Only SCOPE.writeAllowed files modified (git diff --name-only)"
+      ],
+      "specification": "hooks/use-curated-discovery.ts already wraps useQuery(api.curatedRoutes.listCuratedRoutes, params) and maps the flat Convex return (routeId, name, centroidLat, centroidLng, primaryArchetype, compositeScore, distanceMi) to the discovery-row shape {id,name,lat,lng,archetype,score,distanceMi}. This task adds the missing integration test coverage that proves all five UC-DISC-04 ACs against live Convex dev and hardens any gaps found. Verify: (1) the mapper preserves the UI-enum archetype produced by listCuratedRoutes' dbArchetypeToUi (curatedRoutes.ts:124) and never lets a raw DB value (mountain/desert/scenic_byway/coastal) through as `archetype`; (2) `derivedCenter` falls back to useCurrentLocation {lat,lng} when params.center absent (lines 44-45); (3) the queryArgs sort logic (line 54) sends sort:'nearest' with center only when located and degrades to 'best' otherwise; (4) `score` is `route.compositeScore` unmodified (line 70) \u2014 assert a representative non-trivial value such as 0.82 survives without becoming 82; (5) routes===undefined \u2194 isLoading and routes===[] \u2194 isEmpty (lines 76-80). Mount the hook in a renderHook harness wired to a real ConvexReactClient pointed at the live Convex dev deployment holding the 5,654-row catalog (mirror hooks/__tests__/use-chat-planning.integration.test.ts for the live-Convex provider pattern). Where the hook needs hardening, prefer minimal in-place fixes (e.g. an explicit UI-enum type guard on the mapped archetype) over signature changes. This maps to T-DISC-004 (10-e2e-testing-criteria.md).",
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "Returns consumed row shape from live Convex",
+          "primary": true,
+          "given": "a real ConvexReactClient pointed at live Convex dev with the seeded 5,654-route catalog and a center near a known riding region",
+          "when": "useCuratedDiscovery({ center, sort:'nearest', limit:5 }) resolves",
+          "then": "routes is a non-empty array whose first row has id,name,lat,lng,archetype(UI enum),score,distanceMi all populated",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)",
+          "tdd_state": "none",
+          "test_file": "hooks/use-curated-discovery.integration.test.ts",
+          "test_function": "returnsConsumedRowShapeAgainstLiveConvex",
+          "scenario": {
+            "start_ref": "live_catalog_near_asheville",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if listCuratedRoutes is disconnected (query never resolves)",
+                "would fail if useCuratedDiscovery is mocked/stubbed to return [] (empty)",
+                "would fail if the mapper drops fields so first row keys are undefined"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "stdout",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "live_catalog_near_asheville",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "mount useCuratedDiscovery({center:{lat:35.5951,lng:-82.5515}, sort:'nearest', limit:5}) against live Convex",
+                    "await routes !== undefined"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "routes.length >= 1",
+                    "a real road name string (non-empty, e.g. a catalog name like 'Blue Ridge Parkway')",
+                    "typeof routes[0].id === 'string' && routes[0].id.length > 0",
+                    "typeof routes[0].name === 'string' && routes[0].name.length > 0",
+                    "typeof routes[0].lat === 'number' && typeof routes[0].lng === 'number'",
+                    "typeof routes[0].score === 'number'",
+                    "Object.keys(routes[0]) includes all of id,name,lat,lng,archetype,score,distanceMi (7 keys present)"
+                  ],
+                  "must_not_observe": [
+                    "routes === undefined after resolve",
+                    "routes === [] (empty array)",
+                    "routes.length === 0",
+                    "routes[0].id === undefined (any of the 7 keys missing/undefined)",
+                    "archetype value 'mountain' | 'desert' | 'scenic_byway' | 'coastal' (raw DB enum)"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "Loading and empty are distinct signals",
+          "given": "the hook before the query resolves, and a query that resolves to []",
+          "when": "the consumer reads isLoading and isEmpty",
+          "then": "isLoading is true while routes===undefined and false once resolved; isEmpty is true only when routes===[]",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)",
+          "tdd_state": "none",
+          "test_file": "hooks/use-curated-discovery.integration.test.ts",
+          "test_function": "loadingIsDistinctFromEmpty",
+          "scenario": {
+            "start_ref": "live_catalog_empty_bbox",
+            "tier": "visible",
+            "negative_control": {
+              "would_fail_if": [
+                "isEmpty true while still loading (undefined treated as empty)",
+                "isLoading never flips false"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "stdout",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "mount the hook with a bbox over open ocean (zero matches)",
+                    "sample {isLoading,isEmpty,routes} before and after resolve"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "before resolve: isLoading===true AND isEmpty===false",
+                    "after resolve: isLoading===false AND isEmpty===true AND routes.length===0"
+                  ],
+                  "must_not_observe": [
+                    "isEmpty===true while routes===undefined",
+                    "isLoading stuck true after resolve"
+                  ]
+                }
+              }
+            ],
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)"
+          }
+        },
+        {
+          "id": "AC-3",
+          "name": "Center derived from useCurrentLocation",
+          "given": "useCurrentLocation returning a real {lat,lng} and no explicit center passed",
+          "when": "useCuratedDiscovery({ sort:'nearest', limit:5 }) builds its query args",
+          "then": "the query center equals the current-location coordinates and distanceMi is populated on returned rows",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev + useCurrentLocation (expo-location)",
+          "tdd_state": "none",
+          "test_file": "hooks/use-curated-discovery.integration.test.ts",
+          "test_function": "derivesCenterFromCurrentLocation",
+          "scenario": {
+            "start_ref": "current_location_present",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev + useCurrentLocation (expo-location)",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if center derivation is removed so the query goes out with no center",
+                "would fail if useCurrentLocation is stubbed to return null and the hook still hardcodes/omits distanceMi"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "stdout",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "current_location_present",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "stub useCurrentLocation to return a fixed real coordinate via the real hook surface",
+                    "mount useCuratedDiscovery({sort:'nearest', limit:5}) with NO center",
+                    "inspect returned rows"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "routes.length >= 1",
+                    "every returned row has a numeric distanceMi >= 0 (e.g. 12.4)",
+                    "routes.every(r => typeof r.distanceMi === 'number')"
+                  ],
+                  "must_not_observe": [
+                    "routes === undefined after resolve",
+                    "routes === [] (empty array)",
+                    "routes.length === 0",
+                    "distanceMi === undefined on every row"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-4",
+          "name": "Nearest-first when located, best-first fallback",
+          "given": "a located query (sort:'nearest' + center) and an unlocated query (sort:'nearest', no center)",
+          "when": "both resolve against live Convex",
+          "then": "the located result is ascending by distanceMi; the unlocated result degrades to best-first (descending compositeScore)",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)",
+          "tdd_state": "none",
+          "test_file": "hooks/use-curated-discovery.integration.test.ts",
+          "test_function": "ordersNearestThenBestFallback",
+          "scenario": {
+            "start_ref": "live_catalog_near_asheville",
+            "tier": "visible",
+            "negative_control": {
+              "would_fail_if": [
+                "sort arg hardcoded",
+                "nearest order not ascending by distance",
+                "fallback not best-first"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "stdout",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "located: mount with center + sort:'nearest'; read distanceMi sequence",
+                    "unlocated: mount with sort:'nearest' and no center/location; read compositeScore sequence"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "located: distanceMi non-decreasing across rows (e.g. 3.1, 7.8, 12.4)",
+                    "unlocated: compositeScore non-increasing across rows (e.g. 0.91, 0.84, 0.77)"
+                  ],
+                  "must_not_observe": [
+                    "located result ordered by score not distance",
+                    "empty result for either query"
+                  ]
+                }
+              }
+            ],
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)"
+          }
+        },
+        {
+          "id": "AC-5",
+          "name": "compositeScore carried at 0-1, never rescaled",
+          "given": "live curated rows whose compositeScore is a 0-1 float",
+          "when": "useCuratedDiscovery maps them to discovery rows",
+          "then": "each row.score equals the source compositeScore on the 0-1 scale (0 <= score <= 1), never multiplied to 0-100",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)",
+          "tdd_state": "none",
+          "test_file": "hooks/use-curated-discovery.integration.test.ts",
+          "test_function": "carriesScoreOnRawZeroToOneScale",
+          "scenario": {
+            "start_ref": "live_catalog_near_asheville",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if the mapper rescales score by *100 (raw 0.82 becomes a static 82 on the 0-100 scale)",
+                "would fail if the mapper hardcodes score to 0 / returns 0 for a non-zero source compositeScore",
+                "would fail if listCuratedRoutes is stubbed/disconnected so no real 0-1 score flows through"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "stdout",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "live_catalog_near_asheville",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "mount the hook against live Convex",
+                    "assert every row.score is in [0,1] and at least one row.score is a non-zero fraction"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "at least one row.score strictly between 0 and 1 (e.g. 0.82)",
+                    "max(routes.map(r => r.score)) <= 1"
+                  ],
+                  "must_not_observe": [
+                    "any row.score > 1 (e.g. 82)",
+                    "all row.score === 0 (every score degenerate)",
+                    "routes === [] (empty array)"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "maps_to_ac": "AC-1",
+          "description": "Integration test asserts first row exposes id,name,lat,lng,archetype(UI enum),score,distanceMi against live Convex.",
+          "verify": "pnpm test hooks/use-curated-discovery.integration.test.ts -t returnsConsumedRowShapeAgainstLiveConvex"
+        },
+        {
+          "id": "TC-2",
+          "maps_to_ac": "AC-2",
+          "description": "Test asserts isLoading\u2194undefined and isEmpty\u2194[] are never both-true and never conflated.",
+          "verify": "pnpm test hooks/use-curated-discovery.integration.test.ts -t loadingIsDistinctFromEmpty"
+        },
+        {
+          "id": "TC-3",
+          "maps_to_ac": "AC-3",
+          "description": "Test asserts query center derives from useCurrentLocation and distanceMi populates.",
+          "verify": "pnpm test hooks/use-curated-discovery.integration.test.ts -t derivesCenterFromCurrentLocation"
+        },
+        {
+          "id": "TC-4",
+          "maps_to_ac": "AC-4",
+          "description": "Test asserts nearest-ascending order when located and best-descending fallback when not.",
+          "verify": "pnpm test hooks/use-curated-discovery.integration.test.ts -t ordersNearestThenBestFallback"
+        },
+        {
+          "id": "TC-5",
+          "maps_to_ac": "AC-5",
+          "description": "Test asserts every row.score in [0,1] with at least one non-degenerate fraction.",
+          "verify": "pnpm test hooks/use-curated-discovery.integration.test.ts -t carriesScoreOnRawZeroToOneScale"
+        }
+      ],
+      "fixtures": {
+        "live_catalog_near_asheville": {
+          "description": "live Convex dev with the seeded 5,654-route curated catalog; query center at Asheville NC {lat:35.5951,lng:-82.5515}",
+          "seed_method": "migration_fixture",
+          "records": [
+            "5,654 curated_routes rows seeded into geospatial index",
+            "multiple routes within ~50mi of Asheville with 0-1 compositeScore"
+          ]
+        },
+        "live_catalog_empty_bbox": {
+          "description": "live Convex dev queried with a bbox over open ocean that matches zero centroids",
+          "seed_method": "migration_fixture",
+          "records": [
+            "bbox {north:0.1,south:-0.1,east:-30,west:-30.2} \u2192 0 matching centroids"
+          ]
+        },
+        "current_location_present": {
+          "description": "useCurrentLocation resolves to a real fixed coordinate",
+          "seed_method": "public_api",
+          "records": [
+            "{lat:35.5951,lng:-82.5515}"
+          ]
+        }
+      },
+      "scope": {
+        "write_allowed": [
+          "hooks/use-curated-discovery.integration.test.ts (NEW)",
+          "hooks/use-curated-discovery.ts (MODIFY \u2014 only minimal hardening: UI-enum guard, loading/empty correctness; do NOT change public signature)"
+        ],
+        "write_prohibited": [
+          "server/convex/curatedRoutes.ts \u2014 backend query owned by DATA-005",
+          "hooks/use-route-discovery.ts \u2014 deferred local-DB hook, leave untouched",
+          "Any file not listed above"
+        ]
+      },
+      "reading_list": [
+        {
+          "file": "hooks/use-curated-discovery.ts",
+          "lines": "39-81",
+          "focus": "PRIMARY PATTERN \u2014 the hook under verification: derivedCenter (44-45), queryArgs sort logic (47-58), mapper (62-74), loading/empty (76-80)"
+        },
+        {
+          "file": "hooks/__tests__/use-chat-planning.integration.test.ts",
+          "lines": "1-80",
+          "focus": "live-Convex ConvexReactClient provider + renderHook integration pattern to mirror"
+        },
+        {
+          "file": "server/convex/curatedRoutes.ts",
+          "lines": "36-134",
+          "focus": "returnValidator + buildRouteCard \u2014 the flat return shape (compositeScore, primaryArchetype via dbArchetypeToUi, distanceMi) the mapper consumes"
+        },
+        {
+          "file": ".spec/prds/mvp/05-uc-disc.md",
+          "lines": "46-60",
+          "focus": "UC-DISC-04 ACs the five integration ACs map to"
+        },
+        {
+          "file": ".spec/prds/mvp/10-e2e-testing-criteria.md",
+          "lines": "73-77",
+          "focus": "T-DISC-004 pass/fail \u2014 the verification bar (shape, loading/empty, center, nearest/best, 0-1 no rescale)"
+        }
+      ],
+      "guardrails": [
+        "ONE hook, state-driven \u2014 no per-variant hook files.",
+        "All UI colors elsewhere via useSemanticTheme(); this hook holds no styling.",
+        "No new runtime dependency (expo-location + convex/react already present)."
+      ],
+      "design": {
+        "refs": [
+          "07-ui-infrastructure.md \u00a73 (hook architecture \u2014 useCuratedDiscovery contract)",
+          "10-design-system.md \u00a74 (archetype UI\u2194DB enum table \u2014 UI enum the mapper must emit)"
+        ],
+        "tokens": "N/A (data hook; no rendering). Archetype UI enum: twisties|scenic|technical|cruising|sport|adventure."
+      },
+      "verification_gates": {
+        "test": "pnpm test hooks/use-curated-discovery.integration.test.ts",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check hooks/use-curated-discovery.ts hooks/use-curated-discovery.integration.test.ts",
+        "scope": "git diff --name-only \u2286 scope.write_allowed",
+        "scenario": "RED-against-empty: PRIMARY test must fail when listCuratedRoutes is pointed at an empty deployment before passing against the seeded catalog"
+      },
+      "coding_standards": [
+        "Named exports; no unnecessary useMemo/useCallback beyond existing.",
+        "TypeScript strict \u2014 no `any` on the mapped archetype; narrow to DiscoveryArchetype.",
+        "Integration test hits real Convex dev \u2014 no mocked useQuery (project iron rule: no mocks for the verification service)."
+      ],
+      "dependencies": {
+        "depends_on": [
+          "DATA-005 (listCuratedRoutes query)",
+          "DATA-002 (archetype map applied in read path)"
+        ],
+        "blocks": [
+          "DISC-016 (suggestion-card tap)",
+          "DISC-017 (suggestion slot content)"
+        ],
+        "parallel": [
+          "DISC-019",
+          "DISC-021"
+        ]
+      },
+      "out_of_scope": [
+        "Suggestion-card rendering / tap routing (DISC-016, DISC-017)",
+        "Agent curated-discovery tool score mapping (DATA-008b)",
+        "Any change to hooks/use-route-discovery.ts (deferred offline hook)"
+      ],
+      "agent_rationale": "react-native-ui-implementer owns RN hooks consumed by the plan-view UI and the @testing-library/react-native + live-Convex integration harness; this is a client-side data-shape verification task, not a Convex backend change."
+    },
+    {
+      "id": "DISC-016",
+      "title": "FIX: tapping a curated suggestion card plots the already-fetched route on the map directly (no chat round-trip)",
+      "task_type": "FEATURE",
+      "status": "To Do",
+      "priority": "P0",
+      "effort": "M",
+      "agent": "implementer=react-native-ui-implementer | reviewer=react-native-ui-reviewer",
+      "proposed_by": "react-native-ui-planner",
+      "estimate_minutes": 150,
+      "runtime_commands": {
+        "test": "pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check 'app/(app)/(tabs)/index.tsx' 'app/(app)/(tabs)/index.discovery.integration.test.tsx'"
+      },
+      "outcome": "Tapping a curated suggestion card plots that exact curated route (its polyline, or centroid for geometry-less routes) on the map and fits the camera, with NO chat message appended to the transcript.",
+      "critical_constraints": [
+        "NEVER send a chat message on suggestion-card tap. The current handleSelectCuratedRoute \u2192 handleSendMessage('Show me curated route {name}') (index.tsx:386-395) is the core bug and MUST be removed \u2014 a round-trip to the NL agent is forbidden for this affordance.",
+        "Plot DIRECTLY through the EXISTING route machinery (routing_card \u2192 useActiveSessionRoute \u2192 RoutePolyline \u2192 doFit). Do NOT introduce a second map render path or a new polyline component.",
+        "Centroid-only routes (most of the catalog lacks geometry) MUST still plot: drive the existing single-point/centroid fallback in doFit (index.tsx:523-529, decodePolylineGeometry coords.length===1 \u2192 setCameraPosition zoom 12).",
+        "PRESERVE the testID `discovery-suggestion-pill-{routeId}` on the card (chat-input.tsx:105) \u2014 the e2e harness keys off it.",
+        "Do NOT regress the existing chat-driven flow (DISC-020) or the NL send path for typed messages \u2014 only the card-tap path changes."
+      ],
+      "done_when": [
+        "AC-1 GREEN: card tap plots the exact tapped route on the map (polyline or centroid) with no transcript message",
+        "AC-2 GREEN: camera fits to the plotted route via doFit (multi-point bounds or centroid zoom)",
+        "AC-3 GREEN: transcript message count is unchanged by the tap",
+        "pnpm test passes + pnpm type-check clean",
+        "Only SCOPE.writeAllowed files modified"
+      ],
+      "specification": "Today index.tsx wires the suggestion card to handleSelectCuratedRoute (lines 386-395), which calls handleSendMessage('Show me curated route {name}') \u2014 sending a chat message to the NL agent instead of plotting the route the hook already fetched. Per UC-DISC-09 AC3 and T-DISC-009 the tap must plot the curated route DIRECTLY. Rewire so the tapped curated route is rendered through the SAME machinery the chat-driven curated results already ride: a routing_card-backed plan resolved by useActiveSessionRoute, selected via SelectedRouteContext (setSelectedRouteId + setDisplayedRoutePlanId), drawn by buildRoutePolylines \u2192 RoutePolyline, and framed by doFit (decodePolylineGeometry \u2192 fitToCoordinates for multi-point, or setCameraPosition zoom 12 for the single-point/centroid case at index.tsx:523-529). The curated suggestion row from useCuratedDiscovery carries {id,name,lat,lng,score,distanceMi}; geometry comes from the curated detail/plan path. Implementation approach (the implementer chooses the minimal seam consistent with the existing card\u2192map loop): construct a curated route_plan for the tapped routeId via the existing curated-discovery tool/mutation seam (the same DATA-008 path that builds a routing_card with a centroid-or-polyline option), then set displayedRoutePlanId + selectedRouteId so useActiveSessionRoute resolves it and the auto-fit effect (index.tsx:621-629) frames it \u2014 WITHOUT appending a rider/agent text message to session_messages. The acceptance bar is observable: the tapped route's geometry renders on the map (home-route-polyline) and the transcript message count does NOT increase. NL parsing/prose is out of scope; the surfaced route is asserted, not agent text. Maps to T-DISC-009 (card-tap \u2192 plot).",
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "Card tap plots the exact route with no chat message",
+          "primary": true,
+          "given": "the plan view with no route on the map and curated suggestion cards from useCuratedDiscovery (live Convex), and a current transcript message count N",
+          "when": "the rider taps discovery-suggestion-pill-{routeId} for a known curated route",
+          "then": "that route's geometry (polyline or centroid marker) renders on the map AND the transcript message count is still N (no message appended)",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (api.curatedRoutes + route_plans) via @testing-library/react-native",
+          "tdd_state": "none",
+          "test_file": "app/(app)/(tabs)/index.discovery.integration.test.tsx",
+          "test_function": "tapPlotsRouteWithoutChatMessage",
+          "scenario": {
+            "start_ref": "plan_view_no_route_with_cards",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (api.curatedRoutes + route_plans) via @testing-library/react-native",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if the tap still calls handleSendMessage (the stub/old path) \u2014 transcript count goes to N+1",
+                "would fail if the card path is disconnected from the route machinery so no polyline/centroid renders (empty map)",
+                "would fail if a session_messages row is appended on tap"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "screenshot",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "plan_view_no_route_with_cards",
+                "action": {
+                  "actor": "user",
+                  "steps": [
+                    "render the plan view against live Convex with no active route",
+                    "capture transcript message count N",
+                    "fireEvent.press(getByTestId('discovery-suggestion-pill-' + knownRouteId))",
+                    "await the map to resolve the tapped plan"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "home-route-polyline renders the tapped route's coordinates (a coordinate near the known route's centroidLat/Lng, e.g. lat=~35.59)",
+                    "queryByTestId('home-route-polyline') !== null",
+                    "transcript message count === N (unchanged)"
+                  ],
+                  "must_not_observe": [
+                    "a new transcript bubble containing 'Show me curated route'",
+                    "transcript count === N+1",
+                    "queryByTestId('home-route-polyline') === null (empty map / no polyline after tap)",
+                    "0 polyline coordinates rendered"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "Camera fits to the plotted route (polyline or centroid)",
+          "given": "a tapped curated route that either has multi-point geometry or only a centroid",
+          "when": "the route is plotted",
+          "then": "doFit frames it \u2014 fitToCoordinates for a multi-point polyline, or setCameraPosition zoom 12 centered on the centroid for a single-point route",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev + MapboxMapViewHandle via @testing-library/react-native",
+          "tdd_state": "none",
+          "test_file": "app/(app)/(tabs)/index.discovery.integration.test.tsx",
+          "test_function": "cameraFitsTappedRouteIncludingCentroid",
+          "scenario": {
+            "start_ref": "plan_view_no_route_with_cards",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev + MapboxMapViewHandle via @testing-library/react-native",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if doFit is never invoked for the tapped route (no-op fit handler)",
+                "would fail if a centroid-only route leaves the camera static/unmoved or crashes",
+                "would fail if the card path is stubbed/disconnected so the map handle receives no setCameraPosition/fitToCoordinates call"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "stdout",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "plan_view_no_route_with_cards",
+                "action": {
+                  "actor": "user",
+                  "steps": [
+                    "tap a centroid-only curated route (no overview geometry)",
+                    "assert the map handle received setCameraPosition with the centroid coords and zoom 12"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "setCameraPosition called with coordinates matching the route centroid (latitude/longitude) and zoom === 12",
+                    "setCameraPosition.mock.calls.length === 1"
+                  ],
+                  "must_not_observe": [
+                    "setCameraPosition call count === 0 (no camera call after tap)",
+                    "fitToCoordinates called with an empty coords array ([])"
+                  ]
+                }
+              },
+              {
+                "start_ref": "plan_view_no_route_with_cards",
+                "action": {
+                  "actor": "user",
+                  "steps": [
+                    "tap a curated route WITH multi-point geometry",
+                    "assert fitToCoordinates received >1 coordinate"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "fitToCoordinates called with coords.length > 1 (e.g. coords.length === 24)"
+                  ],
+                  "must_not_observe": [
+                    "setCameraPosition zoom 12 used for a multi-point route (wrong branch taken)",
+                    "fitToCoordinates called with coords.length === 0 (empty / no fit)"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-3",
+          "name": "No regression to typed-message chat flow",
+          "given": "the plan view",
+          "when": "the rider types and sends a real NL message via the input (not a card)",
+          "then": "handleSendMessage still fires and a transcript message is appended (card-tap rewire did not break the send path)",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev via @testing-library/react-native",
+          "tdd_state": "none",
+          "test_file": "app/(app)/(tabs)/index.discovery.integration.test.tsx",
+          "test_function": "typedMessageStillSends",
+          "scenario": {
+            "start_ref": "plan_view_no_route_with_cards",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev via @testing-library/react-native",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if removing the card-send path also removed the input send path (handleSendMessage becomes a no-op for typed messages)"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "stdout",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "plan_view_no_route_with_cards",
+                "action": {
+                  "actor": "user",
+                  "steps": [
+                    "capture transcript message count N (== 0 from the empty fixture)",
+                    "type 'twisties near Asheville' into chat-input-text-field",
+                    "press chat-input-send-button",
+                    "await transcript"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "transcript count === N+1 after send",
+                    "a transcript bubble whose text === 'twisties near Asheville'"
+                  ],
+                  "must_not_observe": [
+                    "transcript count === N (unchanged \u2014 send is a no-op)",
+                    "queryByText('twisties near Asheville') === null after send",
+                    "transcript count === 0 after the send (empty \u2014 nothing persisted)"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "maps_to_ac": "AC-1",
+          "description": "Tapping the pill renders home-route-polyline for the tapped route and appends zero session_messages.",
+          "verify": "pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx -t tapPlotsRouteWithoutChatMessage"
+        },
+        {
+          "id": "TC-2",
+          "maps_to_ac": "AC-2",
+          "description": "Centroid-only tap \u2192 setCameraPosition zoom 12; multi-point tap \u2192 fitToCoordinates with >1 coord.",
+          "verify": "pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx -t cameraFitsTappedRouteIncludingCentroid"
+        },
+        {
+          "id": "TC-3",
+          "maps_to_ac": "AC-3",
+          "description": "Typed-and-sent NL message still appends a transcript row (send path intact).",
+          "verify": "pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx -t typedMessageStillSends"
+        }
+      ],
+      "fixtures": {
+        "plan_view_no_route_with_cards": {
+          "description": "plan view rendered against live Convex dev, signed-in, no active route plan, useCuratedDiscovery returning >=1 curated suggestion card with a known routeId (one centroid-only, one with geometry)",
+          "seed_method": "migration_fixture",
+          "records": [
+            "live curated catalog seeded",
+            "a known centroid-only route id",
+            "a known route id with overview geometry",
+            "transcript empty (message count 0)"
+          ]
+        }
+      },
+      "scope": {
+        "write_allowed": [
+          "app/(app)/(tabs)/index.tsx (MODIFY \u2014 rewrite handleSelectCuratedRoute to plot directly; remove the handleSendMessage call from the card path)",
+          "app/(app)/(tabs)/index.discovery.integration.test.tsx (NEW)",
+          "hooks/use-curated-discovery.ts (MODIFY \u2014 only if a geometry/plan accessor must be exposed for direct plotting; minimal)"
+        ],
+        "write_prohibited": [
+          "components/chat/chat-input.tsx \u2014 owned by DISC-017/DISC-018; keep the testID, do not move card logic here",
+          "components/map/route-polyline*.tsx \u2014 reuse, do not modify",
+          "hooks/use-active-session-route.ts \u2014 reuse, do not modify",
+          "Any file not listed above"
+        ]
+      },
+      "reading_list": [
+        {
+          "file": "app/(app)/(tabs)/index.tsx",
+          "lines": "385-395, 503-542, 620-681, 1375-1391",
+          "focus": "PRIMARY \u2014 the buggy handleSelectCuratedRoute, doFit (centroid fallback at 523-529), auto-fit effect, and the ChatInput onSelectRoute wiring to rewire"
+        },
+        {
+          "file": "components/chat/routing-card.tsx",
+          "lines": "229-289",
+          "focus": "CompletedCard onSelect = setSelectedRouteId + setDisplayedRoutePlanId + requestFitToRouteWithReset \u2014 the exact card\u2192map plot seam to reuse"
+        },
+        {
+          "file": "hooks/use-active-session-route.ts",
+          "lines": "28-96",
+          "focus": "how displayedRoutePlanId/selectedRouteId resolve to activeOption that index.tsx plots \u2014 drive this without a chat message"
+        },
+        {
+          "file": "server/convex/actions/agent/tools/discoverCuratedRoutes.ts",
+          "lines": "104-186",
+          "focus": "how a curated route_plan/options (centroid polyline fallback) is constructed \u2014 the plan shape to resolve for a tapped route"
+        },
+        {
+          "file": ".spec/prds/mvp/10-e2e-testing-criteria.md",
+          "lines": "79-83",
+          "focus": "T-DISC-009 pass/fail \u2014 tap plots correct route, NO IDLE prompts, cards hide/return"
+        }
+      ],
+      "guardrails": [
+        "ONE plan-view screen, state-driven \u2014 no new per-variant screen or second map path.",
+        "Reuse buildRoutePolylines + RoutePolyline + doFit; do not reimplement plotting.",
+        "All new colors/spacing via useSemanticTheme(); no hardcoded hex.",
+        "Touch target on the card stays >=44pt (chat-input.tsx already enforces minHeight 44)."
+      ],
+      "design": {
+        "refs": [
+          "DESIGN-S01-001 (suggestion-card visual: copper accent + road icon, hidden when a route is shown)",
+          "07-ui-infrastructure.md \u00a71 (suggestion slot re-keyed to 'no active route on map'; tap \u2192 plot via existing machinery)",
+          "10-design-system.md \u00a71 (surface.glass for overlays)"
+        ],
+        "tokens": "Card: semantic.color.surface.default + semantic.color.border.default; accent road icon via semantic.color.accent/primary (#EE7C2B). Plotting reuses RoutePolyline's existing semantic styling."
+      },
+      "verification_gates": {
+        "test": "pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check 'app/(app)/(tabs)/index.tsx' 'app/(app)/(tabs)/index.discovery.integration.test.tsx'",
+        "scope": "git diff --name-only \u2286 scope.write_allowed",
+        "scenario": "RED-against-bug: the PRIMARY test must FAIL on the current handleSendMessage implementation (transcript count increments / no polyline) before the rewire makes it pass",
+        "human_gate": "On-device confirmation folds into T-DISC-009 / T-DISC-001 (real iOS+Android, live Convex): tap a card \u2192 exact route plots, no chat message"
+      },
+      "coding_standards": [
+        "Remove dead code: the 'Show me curated route {name}' string and its send path.",
+        "No `any` leakage on the plan/option shape passed to setDisplayedRoutePlanId.",
+        "Integration test renders the real screen against live Convex \u2014 Mapbox native handle stubbed only at the native boundary (assert the handle's fitToCoordinates/setCameraPosition calls), Convex data NOT mocked."
+      ],
+      "dependencies": {
+        "depends_on": [
+          "DISC-002 (verified useCuratedDiscovery)",
+          "DATA-008 (curated route_plan/routing_card seam)"
+        ],
+        "blocks": [
+          "DISC-018 (visibility keyed to hasActiveRoute relies on tap\u2192plot working)"
+        ],
+        "parallel": [
+          "DISC-017 (same file \u2014 coordinate edits; sequence DISC-016 then DISC-017 if conflict)"
+        ]
+      },
+      "out_of_scope": [
+        "Replacing IDLE_SUGGESTIONS in the slot (DISC-017)",
+        "Footer full-chat button verification (DISC-018)",
+        "Chat-driven transcript curated cards (DISC-020)",
+        "NL parsing / agent prose assertions"
+      ],
+      "agent_rationale": "Core plan-view UI wiring fix touching index.tsx state, SelectedRouteContext, and the Mapbox fit seam \u2014 squarely react-native-ui-implementer territory; no Convex schema/query change required."
+    },
+    {
+      "id": "DISC-017",
+      "title": "FIX: discovery slot shows curated cards only \u2014 never the generic IDLE_SUGGESTIONS planning prompts",
+      "task_type": "FEATURE",
+      "status": "To Do",
+      "priority": "P0",
+      "effort": "S",
+      "agent": "implementer=react-native-ui-implementer | reviewer=react-native-ui-reviewer",
+      "proposed_by": "react-native-ui-planner",
+      "estimate_minutes": 90,
+      "runtime_commands": {
+        "test": "pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check 'app/(app)/(tabs)/index.tsx' 'app/(app)/(tabs)/index.suggestions.integration.test.tsx'"
+      },
+      "outcome": "With curated routes available the slot shows real road names + mileage; while loading it shows nothing and when empty it shows a legible 'no nearby routes' message \u2014 the generic IDLE_SUGGESTIONS prompts never appear in the discovery path.",
+      "critical_constraints": [
+        "NEVER fall back to IDLE_SUGGESTIONS in the discovery slot. The current ternary `curatedPills.length > 0 ? curatedPills : IDLE_SUGGESTIONS` (index.tsx:1381) is the bug and MUST be removed.",
+        "Remove the IDLE_SUGGESTIONS constant from the discovery render path entirely (index.tsx:69-74) \u2014 'Plan a scenic ride' / 'Ride to the coast' / 'Find coffee nearby' / 'Avoid highways' must not reach the suggestion slot.",
+        "Honor the hook's three states from useCuratedDiscovery: isLoading \u2192 render nothing; isEmpty \u2192 render a legible 'no nearby routes' empty copy; routes present \u2192 render the curated cards.",
+        "Do NOT change the placeholder behavior owned by DISC-018; keep the existing discovery-invite placeholder.",
+        "Empty-state copy must be a real message, not a generic planning prompt and not a card the rider could mistakenly tap."
+      ],
+      "done_when": [
+        "AC-1 GREEN: curated routes present \u2192 slot shows real road names + mileage",
+        "AC-2 GREEN: loading \u2192 slot shows nothing (no prompts, no empty copy)",
+        "AC-3 GREEN: empty \u2192 slot shows legible 'no nearby routes' copy, never generic prompts",
+        "IDLE_SUGGESTIONS removed from the discovery path (grep clean in render)",
+        "pnpm test passes + pnpm type-check clean; only SCOPE.writeAllowed modified"
+      ],
+      "specification": "index.tsx currently passes `suggestions={curatedPills.length > 0 ? curatedPills : IDLE_SUGGESTIONS}` to ChatInput (line 1381), so while curated routes load or come back empty the slot shows the generic IDLE_SUGGESTIONS planning prompts (lines 69-74) \u2014 violating UC-DISC-09 AC2/T-DISC-009 which require real road names + mileage and forbid hardcoded prompts. Change the discovery slot to be curated-only and to honor the hook's state: read {routes, isLoading, isEmpty} from useCuratedDiscovery (the hook already exposes these; line 260 currently destructures only `routes`). Pass curatedPills (built from routes) when present; pass nothing/empty while isLoading; render a legible 'no nearby routes' empty message when isEmpty. Remove the IDLE_SUGGESTIONS fallback and delete the constant from the discovery path. ChatInput's SuggestionChips already renders curated pills (name \u00b7 {distanceMi}mi) distinctly with the copper road-variant icon (chat-input.tsx:95-147) and gates on `isIdle && !hasActiveRoute` (line 268); this task feeds it the right content and a sibling empty-state. The empty copy may be rendered inside the suggestion-chips slot (a small Text row) or via a tiny dedicated empty component \u2014 implementer's choice, but it must be legible and never tappable as a prompt. Maps to T-DISC-009 (content differs from IDLE_SUGGESTIONS; live name+mileage).",
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "Curated routes present \u2192 real road names + mileage",
+          "primary": true,
+          "given": "the plan view with no active route and useCuratedDiscovery returning >=1 curated route from live Convex",
+          "when": "the discovery slot renders",
+          "then": "the slot shows curated cards bearing a real catalog road name and its mileage (e.g. 'Blue Ridge Parkway \u00b7 12mi'), and none of the IDLE_SUGGESTIONS strings appear",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes) via @testing-library/react-native",
+          "tdd_state": "none",
+          "test_file": "app/(app)/(tabs)/index.suggestions.integration.test.tsx",
+          "test_function": "slotShowsCuratedNamesAndMileage",
+          "scenario": {
+            "start_ref": "live_catalog_located",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes) via @testing-library/react-native",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if the slot falls back to the static IDLE_SUGGESTIONS array (generic prompts shown)",
+                "would fail if useCuratedDiscovery is disconnected/stubbed to [] so prompts or nothing shows",
+                "would fail if the cards render hardcoded/generic prompt text instead of live road names"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "screenshot",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "live_catalog_located",
+                "action": {
+                  "actor": "user",
+                  "steps": [
+                    "render the plan view against live Convex with no active route and a real location",
+                    "await curated routes to resolve",
+                    "read the discovery-suggestion-pill rows"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "getAllByTestId(/^discovery-suggestion-pill-/).length >= 1",
+                    "at least one pill label matches the regex /.+ . \\d+mi$/ (a real road name followed by ' . {n}mi', e.g. 'Blue Ridge Parkway . 12mi')",
+                    "the rendered pill label === a real catalog road name + mileage (matches a name from listCuratedRoutes, not a constant)"
+                  ],
+                  "must_not_observe": [
+                    "getAllByTestId(/^discovery-suggestion-pill-/).length === 0 (no curated pills)",
+                    "queryByText('Plan a scenic ride') !== null",
+                    "queryByText('Ride to the coast') !== null",
+                    "queryByText('Find coffee nearby') !== null",
+                    "queryByText('Avoid highways') !== null"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "Loading \u2192 slot shows nothing",
+          "given": "the plan view with useCuratedDiscovery still loading (routes undefined)",
+          "when": "the discovery slot renders before resolve",
+          "then": "the slot shows no suggestion cards and no IDLE_SUGGESTIONS prompts and no empty copy",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev via @testing-library/react-native",
+          "tdd_state": "none",
+          "test_file": "app/(app)/(tabs)/index.suggestions.integration.test.tsx",
+          "test_function": "slotEmptyWhileLoading",
+          "scenario": {
+            "start_ref": "live_catalog_loading",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev via @testing-library/react-native",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if the loading state falls back to the static IDLE_SUGGESTIONS array (prompts shown while loading)",
+                "would fail if loading prematurely renders the empty 'no nearby routes' copy"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "stdout",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "live_catalog_loading",
+                "action": {
+                  "actor": "user",
+                  "steps": [
+                    "render the plan view before the curated query resolves (isLoading true)",
+                    "query the slot for any suggestion pill or prompt text"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "queryAllByTestId(/^discovery-suggestion-pill-/).length === 0 (zero pills while loading)",
+                    "queryByText(/no nearby routes/i) === null (empty copy not shown yet)"
+                  ],
+                  "must_not_observe": [
+                    "queryByText('Plan a scenic ride') !== null (any IDLE_SUGGESTIONS string)",
+                    "queryByText('Avoid highways') !== null",
+                    "any discovery-suggestion-pill row present while loading",
+                    "the empty 'no nearby routes' copy shown while still loading (premature empty state)"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-3",
+          "name": "Empty \u2192 legible 'no nearby routes' copy, never generic prompts",
+          "given": "the plan view with useCuratedDiscovery resolved to [] (isEmpty)",
+          "when": "the discovery slot renders",
+          "then": "the slot shows a legible 'no nearby routes' message and none of the IDLE_SUGGESTIONS prompts",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev via @testing-library/react-native",
+          "tdd_state": "none",
+          "test_file": "app/(app)/(tabs)/index.suggestions.integration.test.tsx",
+          "test_function": "slotShowsLegibleEmptyCopyNotPrompts",
+          "scenario": {
+            "start_ref": "live_catalog_empty",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev via @testing-library/react-native",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if the empty state falls back to the static IDLE_SUGGESTIONS array",
+                "would fail if the empty state renders nothing (slot disconnected \u2014 rider sees no feedback)"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "screenshot",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "live_catalog_empty",
+                "action": {
+                  "actor": "user",
+                  "steps": [
+                    "render the plan view with a bbox/location that yields zero curated matches against live Convex",
+                    "read the slot"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "getByText(/no nearby routes/i) !== null (a legible empty message containing 'no nearby routes', or the ratified DESIGN-S01-003 copy)"
+                  ],
+                  "must_not_observe": [
+                    "any tappable curated pill present (getAllByTestId(/^discovery-suggestion-pill-/).length >= 1)",
+                    "queryByText('Plan a scenic ride') !== null",
+                    "queryByText('Find coffee nearby') !== null",
+                    "queryByText('Ride to the coast') !== null",
+                    "queryByText('Avoid highways') !== null",
+                    "a blank slot with no feedback message (empty \u2014 rider gets nothing)"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "maps_to_ac": "AC-1",
+          "description": "With live curated routes, slot pills carry real road name + 'mi' mileage and no IDLE_SUGGESTIONS strings.",
+          "verify": "pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx -t slotShowsCuratedNamesAndMileage"
+        },
+        {
+          "id": "TC-2",
+          "maps_to_ac": "AC-2",
+          "description": "While loading, slot has zero pills and zero prompts and no empty copy.",
+          "verify": "pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx -t slotEmptyWhileLoading"
+        },
+        {
+          "id": "TC-3",
+          "maps_to_ac": "AC-3",
+          "description": "When empty, slot shows 'no nearby routes' copy and no IDLE_SUGGESTIONS prompts.",
+          "verify": "pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx -t slotShowsLegibleEmptyCopyNotPrompts"
+        }
+      ],
+      "fixtures": {
+        "live_catalog_located": {
+          "description": "plan view against live Convex, signed-in, no active route, useCurrentLocation at Asheville \u2192 useCuratedDiscovery returns >=1 route with name + distanceMi",
+          "seed_method": "migration_fixture",
+          "records": [
+            "seeded catalog",
+            "current location {lat:35.5951,lng:-82.5515}"
+          ]
+        },
+        "live_catalog_loading": {
+          "description": "plan view rendered at the instant the curated query is still pending (routes undefined)",
+          "seed_method": "migration_fixture",
+          "records": [
+            "query in-flight; isLoading true"
+          ]
+        },
+        "live_catalog_empty": {
+          "description": "plan view with a location/bbox yielding zero curated matches",
+          "seed_method": "migration_fixture",
+          "records": [
+            "isEmpty true; routes === []"
+          ]
+        }
+      },
+      "scope": {
+        "write_allowed": [
+          "app/(app)/(tabs)/index.tsx (MODIFY \u2014 destructure {routes,isLoading,isEmpty}; pass curated-only suggestions; render empty copy; remove IDLE_SUGGESTIONS fallback + constant from discovery path)",
+          "app/(app)/(tabs)/index.suggestions.integration.test.tsx (NEW)",
+          "components/chat/chat-input.tsx (MODIFY \u2014 only if a tiny empty-state slot must be added alongside SuggestionChips; minimal, keep send/toggle untouched)"
+        ],
+        "write_prohibited": [
+          "hooks/use-curated-discovery.ts \u2014 owned by DISC-002; consume its existing {routes,isLoading,isEmpty}",
+          "components/layouts/menu-layout.tsx \u2014 DISC-019",
+          "Any file not listed above"
+        ]
+      },
+      "reading_list": [
+        {
+          "file": "app/(app)/(tabs)/index.tsx",
+          "lines": "68-74, 259-264, 1375-1391",
+          "focus": "PRIMARY \u2014 IDLE_SUGGESTIONS constant, curatedPills construction (currently only `routes`), and the buggy `curatedPills.length > 0 ? curatedPills : IDLE_SUGGESTIONS` prop to remove"
+        },
+        {
+          "file": "components/chat/chat-input.tsx",
+          "lines": "75-150, 264-274",
+          "focus": "SuggestionChips rendering of CuratedPill (name \u00b7 mi + road icon) and the isIdle && !hasActiveRoute visibility gate the empty-state must sit beside"
+        },
+        {
+          "file": "hooks/use-curated-discovery.ts",
+          "lines": "33-80",
+          "focus": "the {routes,isLoading,isEmpty} contract to destructure and branch on"
+        },
+        {
+          "file": ".spec/prds/mvp/05-uc-disc.md",
+          "lines": "63-77",
+          "focus": "UC-DISC-09 AC1/AC2 \u2014 cards over input show real road name + mileage, distinct from IDLE_SUGGESTIONS"
+        },
+        {
+          "file": ".spec/prds/mvp/10-e2e-testing-criteria.md",
+          "lines": "79-83",
+          "focus": "T-DISC-009 \u2014 content must differ from IDLE_SUGGESTIONS; live name+mileage"
+        }
+      ],
+      "guardrails": [
+        "ONE slot, state-driven (loading/empty/present) \u2014 no per-state component files; branch in place.",
+        "Empty copy via useSemanticTheme typography/color tokens; no hardcoded hex.",
+        "Do not reintroduce IDLE_SUGGESTIONS anywhere on the discovery path."
+      ],
+      "design": {
+        "refs": [
+          "DESIGN-S01-003 (home-empty-state: discovery-invite + empty-catalog messaging over surface.glass scrim)",
+          "DESIGN-S01-001 (suggestion-card copper accent + road icon)",
+          "10-design-system.md \u00a71 (surface.glass @72% for plan-view overlays)"
+        ],
+        "tokens": "Empty copy: semantic.type.body.md + semantic.color.onSurface.muted. Curated pill styling already token-driven in chat-input.tsx. Overlay scrim: surface.glass (72% alpha) per colors.tokens.json \u2014 not raw hex+inline opacity."
+      },
+      "verification_gates": {
+        "test": "pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check 'app/(app)/(tabs)/index.tsx' 'app/(app)/(tabs)/index.suggestions.integration.test.tsx'",
+        "scope": "git diff --name-only \u2286 scope.write_allowed",
+        "scenario": "RED-against-bug: PRIMARY test must FAIL on the current IDLE_SUGGESTIONS fallback (prompts visible) before the fix",
+        "human_gate": "Folds into T-DISC-009 (real device): slot shows live name+mileage, never IDLE_SUGGESTIONS, legible empty copy when no nearby routes"
+      },
+      "coding_standards": [
+        "Delete dead IDLE_SUGGESTIONS references from the discovery path; if unused elsewhere, remove the constant.",
+        "No `any`; curatedPills typed as CuratedPill[].",
+        "Integration test renders real screen against live Convex; no mocked hook for the verification service."
+      ],
+      "dependencies": {
+        "depends_on": [
+          "DISC-002 (hook {routes,isLoading,isEmpty})"
+        ],
+        "blocks": [
+          "DISC-018 (visibility logic builds on a curated-only slot)"
+        ],
+        "parallel": [
+          "DISC-016 (same file \u2014 sequence to avoid conflict)"
+        ]
+      },
+      "out_of_scope": [
+        "Card-tap plotting (DISC-016)",
+        "Placeholder text / footer button (DISC-018)",
+        "Drawer entry removal (DISC-019)"
+      ],
+      "agent_rationale": "Pure plan-view UI state/branching change in index.tsx + ChatInput slot \u2014 react-native-ui-implementer; consumes the existing hook, no backend work."
+    },
+    {
+      "id": "DISC-018",
+      "title": "Verify/harden the footer open-full-chat button (distinct from send) + suggestion-card visibility keyed to no-active-route",
+      "task_type": "FEATURE",
+      "status": "To Do",
+      "priority": "P1",
+      "effort": "S",
+      "agent": "implementer=react-native-ui-implementer | reviewer=react-native-ui-reviewer",
+      "proposed_by": "react-native-ui-planner",
+      "estimate_minutes": 75,
+      "runtime_commands": {
+        "test": "pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check 'app/(app)/(tabs)/index.tsx' components/chat/chat-input.tsx 'app/(app)/(tabs)/index.footer-visibility.integration.test.tsx'"
+      },
+      "outcome": "The footer chat-view button (chat-input-chat-view-button) is visually distinct from send and opens the full chat via cycleTranscript, and the curated suggestion cards show only when isIdle && !hasActiveRoute \u2014 hiding when a route is on the map and returning when it is cleared.",
+      "critical_constraints": [
+        "The full-chat button MUST be a separate tap target from the send button (chat-input-chat-view-button is outside the glass field; chat-input-send-button is inside it) \u2014 do NOT merge them.",
+        "hasActiveRoute MUST derive from !!agentActiveOption (index.tsx:257) \u2014 i.e. an active route plotted on the map \u2014 NOT from 'session has messages'. Cards hide when a route is shown, return when it is cleared.",
+        "The button opens/cycles the full chat via the existing chatMode toggle / cycleTranscript \u2014 do NOT introduce a new navigation route.",
+        "Touch targets >=44pt (button is currently 48pt) \u2014 do not shrink below 44pt.",
+        "This is verify/harden \u2014 keep the existing onToggleChatMode wiring and testIDs intact."
+      ],
+      "done_when": [
+        "AC-1 GREEN: full-chat button is a distinct target from send and opens the full chat",
+        "AC-2 GREEN: cards hidden while a route is active (hasActiveRoute)",
+        "AC-3 GREEN: cards return after the active route is cleared",
+        "pnpm test passes + pnpm type-check clean; only SCOPE.writeAllowed modified"
+      ],
+      "specification": "Two related plan-view contracts (UC-DISC-11 AC3/AC4 + UC-DISC-09 AC4) need verification and any hardening. (1) Footer full-chat button: ChatInput renders a standalone chat-view toggle (testID chat-input-chat-view-button, chat-input.tsx:372-403) to the RIGHT of the glass field and outside it, distinct from the send button (testID chat-input-send-button, inside the field, lines 340-369). It calls onToggleChatMode \u2192 cycleTranscript (index.tsx:411-420, 1385) to open/cycle the full transcript. Verify the two are separate tap targets, the chat-view button opens the full chat (chatMode true), and it renders as a navigation affordance distinct from send (different icon: chat-outline vs arrow-right; different position). (2) Suggestion-card visibility: the slot gate is `isIdle && !hasActiveRoute && suggestions.length > 0 && !isPlanning && !chatMode` (chat-input.tsx:268), and hasActiveRoute = !!agentActiveOption (index.tsx:257). Verify cards hide when a route is active on the map and return when the active route is cleared (e.g. via clearAll / new session which nulls the selection and resolves agentActiveOption to null). Harden any gap (e.g. ensure clearing actually flips hasActiveRoute back to false so cards reappear). Maps to T-DISC-011 (full-chat button distinct from send; clearing returns cards) and T-DISC-009 (cards hide/return on route show/clear).",
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "Full-chat button is distinct from send and opens full chat",
+          "primary": true,
+          "given": "the plan view in map mode",
+          "when": "the rider presses chat-input-chat-view-button",
+          "then": "the full chat transcript opens (chatMode true) and the button is a separate element from chat-input-send-button with a distinct icon",
+          "test_tier": "integration",
+          "verification_service": "@testing-library/react-native rendering the real screen",
+          "tdd_state": "none",
+          "test_file": "app/(app)/(tabs)/index.footer-visibility.integration.test.tsx",
+          "test_function": "fullChatButtonDistinctFromSendOpensChat",
+          "scenario": {
+            "start_ref": "plan_view_map_mode",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "@testing-library/react-native rendering the real screen",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if chat-input-chat-view-button and chat-input-send-button resolve to the same node (buttons merged)",
+                "would fail if onToggleChatMode is a no-op / disconnected so the press does not open the transcript",
+                "would fail if the chat-view button is a hardcoded send button (no distinct chat-outline affordance)"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "screenshot",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "plan_view_map_mode",
+                "action": {
+                  "actor": "user",
+                  "steps": [
+                    "render plan view in map mode",
+                    "assert getByTestId('chat-input-chat-view-button') !== getByTestId('chat-input-send-button')",
+                    "fireEvent.press(chat-input-chat-view-button)",
+                    "assert the ChatTranscript is now mounted/visible (chatMode true)"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "getByTestId('chat-input-chat-view-button') !== getByTestId('chat-input-send-button') (two distinct node references)",
+                    "both testIDs 'chat-input-chat-view-button' and 'chat-input-send-button' resolve (queryByTestId each !== null)",
+                    "after press: queryByTestId('chat-dismiss-keyboard-pressable') !== null (transcript node mounted, chatMode === true)"
+                  ],
+                  "must_not_observe": [
+                    "getByTestId('chat-input-chat-view-button') === getByTestId('chat-input-send-button') (a single combined button)",
+                    "after press: queryByTestId('chat-dismiss-keyboard-pressable') === null (transcript still hidden)",
+                    "neither footer button rendered (empty footer / 0 buttons)"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "Cards hidden while a route is active",
+          "given": "the plan view with an active route plotted (hasActiveRoute true via agentActiveOption)",
+          "when": "the discovery slot renders",
+          "then": "no curated suggestion cards are shown",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev via @testing-library/react-native",
+          "tdd_state": "none",
+          "test_file": "app/(app)/(tabs)/index.footer-visibility.integration.test.tsx",
+          "test_function": "cardsHiddenWhenRouteActive",
+          "scenario": {
+            "start_ref": "plan_view_route_active",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev via @testing-library/react-native",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if visibility is keyed to 'session has messages' instead of hasActiveRoute (cards persist while a route is shown)",
+                "would fail if the gate is a hardcoded true so cards never hide",
+                "would fail if agentActiveOption is stubbed null so the route never registers as active"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "screenshot",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "plan_view_route_active",
+                "action": {
+                  "actor": "user",
+                  "steps": [
+                    "render plan view with an active route plan resolved (agentActiveOption non-null)",
+                    "query for discovery-suggestion-pill rows"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "queryAllByTestId(/^discovery-suggestion-pill-/).length === 0 (zero curated pills while a route is on the map)",
+                    "queryByTestId('home-route-polyline') !== null (route IS shown)"
+                  ],
+                  "must_not_observe": [
+                    "queryAllByTestId(/^discovery-suggestion-pill-/).length >= 1 (any pill visible while hasActiveRoute)",
+                    "queryByTestId('home-route-polyline') === null (route unexpectedly absent)",
+                    "an empty map with 0 route polylines while a route should be shown"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-3",
+          "name": "Cards return after the active route is cleared",
+          "given": "the plan view with an active route then cleared (clearAll / new session)",
+          "when": "the rider clears the route",
+          "then": "hasActiveRoute flips to false and the curated suggestion cards reappear",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev via @testing-library/react-native",
+          "tdd_state": "none",
+          "test_file": "app/(app)/(tabs)/index.footer-visibility.integration.test.tsx",
+          "test_function": "cardsReturnAfterRouteCleared",
+          "scenario": {
+            "start_ref": "plan_view_route_active",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev via @testing-library/react-native",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if clearing does not null agentActiveOption (hasActiveRoute stuck true, cards stay hidden)",
+                "would fail if the clear handler is a no-op / disconnected from selection state",
+                "would fail if the polyline is hardcoded/static so it persists after clear"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "screenshot",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "plan_view_route_active",
+                "action": {
+                  "actor": "user",
+                  "steps": [
+                    "start with an active route (cards hidden, polyline shown)",
+                    "trigger clear (MapControls onClear / new session)",
+                    "await agentActiveOption to resolve null",
+                    "query the slot"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "queryAllByTestId(/^discovery-suggestion-pill-/).length >= 1 (curated pills returned after clear)",
+                    "queryByTestId('home-route-polyline') === null (route gone after clear)"
+                  ],
+                  "must_not_observe": [
+                    "queryAllByTestId(/^discovery-suggestion-pill-/).length === 0 (zero pills after clearing \u2014 cards stuck hidden)",
+                    "queryByTestId('home-route-polyline') !== null (a stale polyline persisting after clear)"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "maps_to_ac": "AC-1",
+          "description": "chat-input-chat-view-button and chat-input-send-button are distinct nodes; pressing the former opens the transcript.",
+          "verify": "pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx -t fullChatButtonDistinctFromSendOpensChat"
+        },
+        {
+          "id": "TC-2",
+          "maps_to_ac": "AC-2",
+          "description": "With agentActiveOption non-null, zero discovery-suggestion-pill rows render.",
+          "verify": "pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx -t cardsHiddenWhenRouteActive"
+        },
+        {
+          "id": "TC-3",
+          "maps_to_ac": "AC-3",
+          "description": "After clear, hasActiveRoute false and >=1 curated pill returns.",
+          "verify": "pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx -t cardsReturnAfterRouteCleared"
+        }
+      ],
+      "fixtures": {
+        "plan_view_map_mode": {
+          "description": "plan view rendered in map mode (chatMode false), signed-in against live Convex, no active route",
+          "seed_method": "migration_fixture",
+          "records": [
+            "chatMode false",
+            "no active route plan"
+          ]
+        },
+        "plan_view_route_active": {
+          "description": "plan view with a curated/agent route plan resolved so agentActiveOption is non-null (route on the map)",
+          "seed_method": "migration_fixture",
+          "records": [
+            "one resolved route_plan with options",
+            "selectedRouteId resolving to an active option"
+          ]
+        }
+      },
+      "scope": {
+        "write_allowed": [
+          "app/(app)/(tabs)/index.tsx (MODIFY \u2014 only hardening of hasActiveRoute / clear flow if a gap is found)",
+          "components/chat/chat-input.tsx (MODIFY \u2014 only if the chat-view button distinctness/active-state needs hardening; keep both testIDs)",
+          "app/(app)/(tabs)/index.footer-visibility.integration.test.tsx (NEW)"
+        ],
+        "write_prohibited": [
+          "hooks/use-active-session-route.ts \u2014 reuse, do not modify",
+          "components/map/* \u2014 reuse",
+          "Any file not listed above"
+        ]
+      },
+      "reading_list": [
+        {
+          "file": "components/chat/chat-input.tsx",
+          "lines": "264-404",
+          "focus": "PRIMARY \u2014 suggestion-slot visibility gate (268), send button (340-369), standalone chat-view button (372-403) distinct from send"
+        },
+        {
+          "file": "app/(app)/(tabs)/index.tsx",
+          "lines": "255-264, 411-420, 989-999, 1375-1391",
+          "focus": "hasActiveRoute = !!agentActiveOption, cycleTranscript, clearAll, and the ChatInput onToggleChatMode/hasActiveRoute wiring"
+        },
+        {
+          "file": "hooks/use-active-session-route.ts",
+          "lines": "73-95",
+          "focus": "how activeOption resolves null when there is no plan / after clear \u2014 the signal cards key off"
+        },
+        {
+          "file": ".spec/prds/mvp/05-uc-disc.md",
+          "lines": "99-113",
+          "focus": "UC-DISC-11 AC3/AC4 (full-chat button distinct from send) + UC-DISC-09 AC4 (cards hide/return)"
+        },
+        {
+          "file": ".spec/prds/mvp/10-e2e-testing-criteria.md",
+          "lines": "91-95",
+          "focus": "T-DISC-011 \u2014 full-chat button distinct from send; clearing returns cards"
+        }
+      ],
+      "guardrails": [
+        "ONE chat-input component, state-driven \u2014 no per-state button files.",
+        "Buttons >=44pt; preserve chat-input-send-button and chat-input-chat-view-button testIDs.",
+        "Active/selected state via useSemanticTheme tokens (primary vs surface) \u2014 no hardcoded hex."
+      ],
+      "design": {
+        "refs": [
+          "DESIGN-S01-004 (footer full-chat button distinction: icon/shape vs send; >=44pt; active-state)",
+          "DESIGN-S01-001 (cards hidden when a route is shown)",
+          "07-ui-infrastructure.md \u00a71 (full-chat footer button reuses chatMode toggle, distinct from send)"
+        ],
+        "tokens": "Chat-view button: semantic.color.surface.default (inactive) / semantic.color.primary.default (active) + semantic.elevation[2]; icon chat-outline (map mode) vs map-outline (chat mode). Send button: semantic.color.primary.default when text present."
+      },
+      "verification_gates": {
+        "test": "pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check 'app/(app)/(tabs)/index.tsx' components/chat/chat-input.tsx 'app/(app)/(tabs)/index.footer-visibility.integration.test.tsx'",
+        "scope": "git diff --name-only \u2286 scope.write_allowed",
+        "scenario": "RED-against-empty: AC-2/AC-3 must fail if visibility is wrongly keyed to 'has messages' (cards visible during an active route) before hardening",
+        "human_gate": "Folds into T-DISC-011 / T-DISC-009 (real device): tap footer button opens full chat (distinct from send); cards hide on route show and return on clear"
+      },
+      "coding_standards": [
+        "No `any`; hasActiveRoute typed boolean.",
+        "Integration test renders the real screen against live Convex; no mocked active-route hook.",
+        "Keep cycleTranscript as the single chat-open path; no new route."
+      ],
+      "dependencies": {
+        "depends_on": [
+          "DISC-016 (tap\u2192plot)",
+          "DISC-017 (curated-only slot)"
+        ],
+        "blocks": [],
+        "parallel": [
+          "DISC-019",
+          "DISC-020"
+        ]
+      },
+      "out_of_scope": [
+        "Card-tap plotting itself (DISC-016)",
+        "IDLE_SUGGESTIONS removal (DISC-017)",
+        "Transcript curated cards (DISC-020)"
+      ],
+      "agent_rationale": "Plan-view + chat-input visibility/affordance verification \u2014 react-native-ui-implementer; reuses existing hooks, no backend change."
+    },
+    {
+      "id": "DISC-019",
+      "title": "FIX: remove the leftover 'Plan a ride' drawer entry from menu-layout.tsx",
+      "task_type": "FEATURE",
+      "status": "To Do",
+      "priority": "P2",
+      "effort": "XS",
+      "agent": "implementer=react-native-ui-implementer | reviewer=react-native-ui-reviewer",
+      "proposed_by": "react-native-ui-planner",
+      "estimate_minutes": 30,
+      "runtime_commands": {
+        "test": "pnpm test components/layouts/menu-layout.integration.test.tsx",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check components/layouts/menu-layout.tsx components/layouts/menu-layout.integration.test.tsx"
+      },
+      "outcome": "The rendered drawer has no 'Plan a ride' item and no entry resolves to a discover route, while Settings, Saved, and Sessions remain intact.",
+      "critical_constraints": [
+        "Remove the 'Plan a ride' Navigate item (testID drawer-plan-a-ride, menu-layout.tsx:96-102) per the v3.0.0 route delta \u2014 chat is integral to the plan view, reached via the footer button.",
+        "Do NOT remove or break Settings, Saved, or the Sessions section.",
+        "Do NOT add or leave any 'Discover' drawer entry \u2014 no entry may resolve to a dedicated discover route (none exists).",
+        "Do NOT change navigation targets of the remaining items (Settings \u2192 /(app)/(tabs)/settings, Saved \u2192 /(app)/(tabs)/saved-routes)."
+      ],
+      "done_when": [
+        "AC-1 GREEN: rendered drawer contains no 'Plan a ride' item and no drawer-plan-a-ride testID",
+        "AC-2 GREEN: Settings, Saved, and Sessions remain present and navigable",
+        "pnpm test passes + pnpm type-check clean; only SCOPE.writeAllowed modified"
+      ],
+      "specification": "menu-layout.tsx still lists a 'Plan a ride' item in the Navigate section (lines 96-102, testID drawer-plan-a-ride, navigating to /(app)/(tabs)). Per 07-ui-infrastructure.md \u00a74, 09-routing.md v3.0.0 Route Delta, and UC-DISC-11, this entry is removed: the route plan view is already the default landing and the full chat is reached via the footer chat-view button, not a drawer entry. Delete the 'Plan a ride' item object from internalMenuSections' Navigate items, leaving Settings and Saved (and the separate sessionsSection) intact. Verify no remaining drawer item resolves to a discover route. Note: the Navigate item's `active: activeTab === 'index'` was only on the removed item \u2014 ensure removal does not leave a dangling reference. Maps to T-DISC-011 (no 'Plan a ride'/'Discover' drawer entry; only standard nav entries).",
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "Drawer has no 'Plan a ride' item",
+          "primary": true,
+          "given": "the rendered MenuLayout drawer",
+          "when": "the drawer is opened",
+          "then": "there is no item labelled 'Plan a ride' and no node with testID drawer-plan-a-ride, and no item navigates to a discover route",
+          "test_tier": "integration",
+          "verification_service": "@testing-library/react-native rendering the real MenuLayout",
+          "tdd_state": "none",
+          "test_file": "components/layouts/menu-layout.integration.test.tsx",
+          "test_function": "drawerHasNoPlanARideEntry",
+          "scenario": {
+            "start_ref": "drawer_open",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "@testing-library/react-native rendering the real MenuLayout",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if the 'Plan a ride' drawer item is hardcoded back in (still present)",
+                "would fail if a 'Discover' entry exists / resolves to a discover route",
+                "would fail if the drawer items array is stubbed/static so the removed item reappears"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "screenshot",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "drawer_open",
+                "action": {
+                  "actor": "user",
+                  "steps": [
+                    "render MenuLayout with menuOpen true against live Convex",
+                    "queryByTestId('drawer-plan-a-ride')",
+                    "queryByText('Plan a ride')",
+                    "queryByText('Discover')"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "queryByTestId('drawer-plan-a-ride') === null",
+                    "queryByText('Plan a ride') === null",
+                    "queryByText('Discover') === null"
+                  ],
+                  "must_not_observe": [
+                    "queryByText('Plan a ride') !== null (label still rendered)",
+                    "queryByText('Discover') !== null (a 'Discover' label rendered)",
+                    "queryByTestId('drawer-plan-a-ride') !== null (retired testID still present)",
+                    "an empty drawer with 0 navigation items (over-deletion)"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "Settings, Saved, Sessions remain intact",
+          "given": "the rendered MenuLayout drawer",
+          "when": "the drawer is opened",
+          "then": "the Settings and Saved items render and the Sessions section is present",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (planningSessions.listSessions) via @testing-library/react-native",
+          "tdd_state": "none",
+          "test_file": "components/layouts/menu-layout.integration.test.tsx",
+          "test_function": "settingsSavedSessionsRemain",
+          "scenario": {
+            "start_ref": "drawer_open",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (planningSessions.listSessions) via @testing-library/react-native",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if removing 'Plan a ride' also dropped the Settings/Saved items or the Sessions section",
+                "would fail if listSessions is disconnected/stubbed so the Sessions section renders nothing"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "screenshot",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "drawer_open",
+                "action": {
+                  "actor": "user",
+                  "steps": [
+                    "render MenuLayout with menuOpen true",
+                    "query for 'Settings', 'Saved', and the 'Sessions' section title"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "getByText('Settings') !== null ('Settings' item present)",
+                    "getByText('Saved') !== null ('Saved' item present)",
+                    "the 'Sessions' section present (getByText('Sessions') !== null OR a session row OR getByText('No sessions yet'))"
+                  ],
+                  "must_not_observe": [
+                    "queryByText('Settings') === null (missing Settings)",
+                    "queryByText('Saved') === null (missing Saved)",
+                    "queryByText('Sessions') === null with zero session rows (Sessions section entirely missing)",
+                    "an empty drawer / 0 navigation items rendered"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "maps_to_ac": "AC-1",
+          "description": "queryByTestId('drawer-plan-a-ride') and queryByText('Plan a ride') both null; no 'Discover' label.",
+          "verify": "pnpm test components/layouts/menu-layout.integration.test.tsx -t drawerHasNoPlanARideEntry"
+        },
+        {
+          "id": "TC-2",
+          "maps_to_ac": "AC-2",
+          "description": "Settings, Saved items and the Sessions section still render.",
+          "verify": "pnpm test components/layouts/menu-layout.integration.test.tsx -t settingsSavedSessionsRemain"
+        }
+      ],
+      "fixtures": {
+        "drawer_open": {
+          "description": "MenuLayout rendered with menuOpen=true, signed-in, against live Convex (planningSessions.listSessions resolves)",
+          "seed_method": "migration_fixture",
+          "records": [
+            "a signed-in session",
+            "0 or more planning_sessions rows"
+          ]
+        }
+      },
+      "scope": {
+        "write_allowed": [
+          "components/layouts/menu-layout.tsx (MODIFY \u2014 delete the 'Plan a ride' Navigate item)",
+          "components/layouts/menu-layout.integration.test.tsx (NEW)"
+        ],
+        "write_prohibited": [
+          "app/(app)/(tabs)/_layout.tsx \u2014 no route change needed",
+          "components/ui/menus/drawer-menu.tsx \u2014 reuse",
+          "Any file not listed above"
+        ]
+      },
+      "reading_list": [
+        {
+          "file": "components/layouts/menu-layout.tsx",
+          "lines": "60-123",
+          "focus": "PRIMARY \u2014 internalMenuSections Navigate items (the 'Plan a ride' item at 96-102 to delete) + sessionsSection to preserve"
+        },
+        {
+          "file": ".spec/prds/mvp/09-technical-requirements/09-routing.md",
+          "lines": "67-79",
+          "focus": "v3.0.0 Route Delta \u2014 drawer 'Plan a ride' entry DELETED"
+        },
+        {
+          "file": ".spec/prds/mvp/09-technical-requirements/07-ui-infrastructure.md",
+          "lines": "43-45, 59",
+          "focus": "no drawer 'Plan a ride' entry; retired testID drawer-plan-a-ride"
+        },
+        {
+          "file": ".spec/prds/mvp/05-uc-disc.md",
+          "lines": "99-113",
+          "focus": "UC-DISC-11 AC1/AC2 \u2014 no separate discovery surface / drawer-hidden chat"
+        },
+        {
+          "file": ".spec/prds/mvp/10-e2e-testing-criteria.md",
+          "lines": "91-95",
+          "focus": "T-DISC-011 \u2014 drawer has only standard entries, no 'Plan a ride'/'Discover'"
+        }
+      ],
+      "guardrails": [
+        "Drawer entries are data, not per-route files \u2014 edit the items array in place.",
+        "Preserve all remaining testIDs and nav targets.",
+        "No styling changes; tokens unchanged."
+      ],
+      "design": {
+        "refs": [
+          "09-routing.md v3.0.0 Route Delta (drawer 'Plan a ride' DELETED)",
+          "07-ui-infrastructure.md \u00a74 (no drawer 'Plan a ride' entry)"
+        ],
+        "tokens": "N/A \u2014 item removal only; no new visual tokens."
+      },
+      "verification_gates": {
+        "test": "pnpm test components/layouts/menu-layout.integration.test.tsx",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check components/layouts/menu-layout.tsx components/layouts/menu-layout.integration.test.tsx",
+        "scope": "git diff --name-only \u2286 scope.write_allowed",
+        "scenario": "RED-against-bug: AC-1 must FAIL on the current drawer (drawer-plan-a-ride present) before removal",
+        "human_gate": "Folds into T-DISC-011 (real device): open drawer \u2192 only standard entries, no 'Plan a ride'/'Discover'"
+      },
+      "coding_standards": [
+        "No `any`; keep DrawerMenuSection/Item typing.",
+        "Integration test renders the real MenuLayout against live Convex (listSessions); no mocked drawer."
+      ],
+      "dependencies": {
+        "depends_on": [],
+        "blocks": [],
+        "parallel": [
+          "DISC-002",
+          "DISC-016",
+          "DISC-017",
+          "DISC-018",
+          "DISC-020"
+        ]
+      },
+      "out_of_scope": [
+        "Removing/registering any tab route in _layout.tsx",
+        "Sessions section behavior changes",
+        "Quarantining dropped discovery components (DISC-021)"
+      ],
+      "agent_rationale": "Trivial drawer-config edit in an RN layout component \u2014 react-native-ui-implementer; no backend or routing change."
+    },
+    {
+      "id": "DISC-020",
+      "title": "Render chat-driven curated routes as transcript cards (curated variant; score as %/bars) + verify card\u2192map\u2192return-to-map loop with centroid fallback",
+      "task_type": "FEATURE",
+      "status": "To Do",
+      "priority": "P1",
+      "effort": "M",
+      "agent": "implementer=react-native-ui-implementer | reviewer=react-native-ui-reviewer",
+      "proposed_by": "react-native-ui-planner",
+      "estimate_minutes": 120,
+      "runtime_commands": {
+        "test": "pnpm test components/chat/cards/curated-route-card.integration.test.tsx",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check components/chat/cards/curated-route-card.tsx components/chat/routing-card.tsx 'app/(app)/(tabs)/index.tsx' components/chat/cards/curated-route-card.integration.test.tsx"
+      },
+      "outcome": "Chat-driven curated routes render in the transcript as a curated-variant card (name + mileage + composite score as %/bars on the 0\u20131 scale, visually distinct from a planned-trip card), and selecting a card plots it on the map (polyline or centroid) and returns the rider to map view.",
+      "critical_constraints": [
+        "DEPENDS ON DATA-008b: surfaced composite scores must be the route's real 0\u20131 values. The curated card MUST render score as a percentage (Math.round(score*100)) or bars \u2014 NEVER a raw 0\u20131 decimal, NEVER a raw 0\u2013100 number, NEVER 0% for a non-zero route.",
+        "The curated card MUST be visually distinct from a planned-trip RouteAttachmentCard (curated = name + mileage + composite score badge/bars; planned = start\u2192end + duration + weather).",
+        "Selecting a card MUST drive the EXISTING loop: onSelect \u2192 setSelectedRouteId + setDisplayedRoutePlanId + requestFitToRouteWithReset (routing-card.tsx CompletedCard); onViewOnMap \u2192 setChatMode(false) (index.tsx). Do NOT add a parallel selection path.",
+        "Centroid-only curated routes MUST still plot and fit via the single-point/centroid fallback (index.tsx doFit 523-529).",
+        "Do NOT change the NL agent prose path \u2014 assert which curated route surfaces/plots, not agent text."
+      ],
+      "done_when": [
+        "AC-1 GREEN: curated transcript card shows name + mileage + composite score as %/bars (0\u20131), distinct from a planned card",
+        "AC-2 GREEN: selecting an (earlier) card re-renders it on the map and returns to map view",
+        "AC-3 GREEN: a centroid-only curated route plots via the centroid fallback",
+        "pnpm test passes + pnpm type-check clean; only SCOPE.writeAllowed modified"
+      ],
+      "specification": "Chat-driven curated discovery (DATA-008/008b) produces a routing_card whose options carry curated scores; RoutingCard's CompletedCard already branches to CuratedRouteCard when option.scores?.composite != null (routing-card.tsx:247-268). DATA-008b fixes the upstream tool so options.scores.composite (and per-dimension) carry the route's real 0\u20131 values (the tool currently reads route.score/route.scores.* but listCuratedRoutes returns flat compositeScore/*Score \u2192 all-zero). This task ensures the curated transcript card renders correctly and the card\u2192map\u2192return loop works: (1) CuratedRouteCard (components/chat/cards/curated-route-card.tsx) already renders name + composite as `${Math.round(compositeScore*100)}/100` with a road icon \u2014 extend/verify it shows mileage and renders the composite as a percentage or score bars on the 0\u20131 scale (per DESIGN-S01-002), distinct from RouteAttachmentCard. If bars are required, reuse the ScoreDimensionBar primitive pattern (do not re-implement inline). (2) Wire CuratedRouteCard's selection through the same CompletedCard onSelect (setSelectedRouteId + setDisplayedRoutePlanId + requestFitToRouteWithReset) and ensure onViewOnMap \u2192 setChatMode(false) so tapping an earlier card re-renders it on the map and returns to map view (the RouteAttachmentCard branch already passes onViewOnMap; the CuratedRouteCard branch at routing-card.tsx:250-267 currently lacks onViewOnMap \u2014 add it for parity). (3) Verify centroid-only curated options plot via doFit's single-point fallback. Verification asserts engine outcomes (which route plots, the rendered score value) against live Convex with the curated discovery surfaced through the real routing_card path. Maps to T-DISC-010 (cards in chat, latest plots, earlier-card loop, score 0\u20131 as %/bars never 0\u2013100).",
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "Curated transcript card shows name + mileage + composite as %/bars (0\u20131), distinct from planned card",
+          "primary": true,
+          "given": "a routing_card completed with a curated option carrying a real 0\u20131 compositeScore (post-DATA-008b) and a mileage",
+          "when": "CompletedCard renders the curated option",
+          "then": "a CuratedRouteCard shows the road name, its mileage, and the composite as a percentage (Math.round(score*100)) or bars \u2014 never a raw 0\u20131 decimal, never 0\u2013100, never 0% for a non-zero route \u2014 and it is visually distinct from a RouteAttachmentCard",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (curated routing_card via discoverCuratedRoutes/listCuratedRoutes) via @testing-library/react-native",
+          "tdd_state": "none",
+          "test_file": "components/chat/cards/curated-route-card.integration.test.tsx",
+          "test_function": "curatedCardShowsScoreAsPercentOnZeroToOneScale",
+          "scenario": {
+            "start_ref": "curated_routing_card_real_scores",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (curated routing_card via discoverCuratedRoutes/listCuratedRoutes) via @testing-library/react-native",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if DATA-008b is not applied so the tool reads the wrong field and composite renders a static 0 / 0%",
+                "would fail if the score is rendered as the raw 0.82 decimal (no *100 percentage)",
+                "would fail if the card falls back to the planned RouteAttachmentCard layout (curated branch disconnected)"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "screenshot",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "curated_routing_card_real_scores",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "surface a curated routing_card via the real discovery tool against live Convex for a route with compositeScore ~0.82",
+                    "render CompletedCard",
+                    "read the curated card's score text/bars and name/mileage"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "getByText('82%') !== null (composite rendered as Math.round(0.82*100)=82, e.g. '82%' or '82/100'), OR a score bar with fillWidth === '82%'",
+                    "getByText(option.name) !== null where option.name is the real catalog road name literal (e.g. 'Tail of the Dragon'), length > 0",
+                    "a mileage value matching /. \\d+mi/ (e.g. '. 14mi')",
+                    "the curated card uses the road-variant icon / composite badge testID (e.g. getByTestId('curated-route-card-score-badge') !== null), distinct from a start->end planned layout"
+                  ],
+                  "must_not_observe": [
+                    "getByText('0%') !== null for a non-zero route",
+                    "all score bars at fillWidth '0%'",
+                    "queryByText('0.82') !== null (raw decimal shown)",
+                    "a start->end planned-trip card layout for the curated option"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "Selecting an earlier card re-renders on the map and returns to map view",
+          "given": "a transcript containing an earlier curated routing_card in chat mode",
+          "when": "the rider presses that curated card",
+          "then": "setSelectedRouteId + setDisplayedRoutePlanId fire and chatMode flips to false (map view) with that route plotted",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev via @testing-library/react-native",
+          "tdd_state": "none",
+          "test_file": "components/chat/cards/curated-route-card.integration.test.tsx",
+          "test_function": "earlierCuratedCardReRendersAndReturnsToMap",
+          "scenario": {
+            "start_ref": "curated_routing_card_real_scores",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev via @testing-library/react-native",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if onViewOnMap is missing on the curated branch (a no-op) so chatMode stays true after press",
+                "would fail if the selection is not propagated to setDisplayedRoutePlanId (disconnected from the plan store)",
+                "would fail if the curated card press handler is stubbed so neither setter fires"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "stdout",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "curated_routing_card_real_scores",
+                "action": {
+                  "actor": "user",
+                  "steps": [
+                    "render the plan view in chat mode (chatMode === true) with an earlier curated routing_card",
+                    "fireEvent.press the curated card",
+                    "assert setSelectedRouteId + setDisplayedRoutePlanId received the option/plan ids and onViewOnMap fired (chatMode false)"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "setDisplayedRoutePlanId called once with the card's routePlanId (=== the surfaced routing_card.routePlanId, a non-empty id string)",
+                    "setSelectedRouteId called once with the curated option id (=== the curated option.id)",
+                    "chatMode === false after press (returned to map view)"
+                  ],
+                  "must_not_observe": [
+                    "chatMode === true after press (still in chat mode)",
+                    "setDisplayedRoutePlanId call count === 0 (no selection propagated)",
+                    "setSelectedRouteId call count === 0"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-3",
+          "name": "Centroid-only curated route plots via centroid fallback",
+          "given": "a curated option whose geometry is a single centroid point (no overview polyline)",
+          "when": "it is selected and doFit runs",
+          "then": "the map centers on the centroid via setCameraPosition zoom 12 (single-point fallback) \u2014 no crash, route represented on the map",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev + MapboxMapViewHandle via @testing-library/react-native",
+          "tdd_state": "none",
+          "test_file": "components/chat/cards/curated-route-card.integration.test.tsx",
+          "test_function": "centroidOnlyCuratedPlotsViaFallback",
+          "scenario": {
+            "start_ref": "curated_routing_card_centroid_only",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev + MapboxMapViewHandle via @testing-library/react-native",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if a centroid-only option crashes doFit (single-point branch missing)",
+                "would fail if doFit is a no-op so no camera move occurs for a single-point route",
+                "would fail if the geometry decode is stubbed/empty so fitToCoordinates is called with []"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "stdout",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "curated_routing_card_centroid_only",
+                "action": {
+                  "actor": "user",
+                  "steps": [
+                    "select a centroid-only curated option (geometry decodes to 1 coordinate)",
+                    "assert doFit takes the single-point branch"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "setCameraPosition called with the centroid coordinates (latitude/longitude) and zoom === 12",
+                    "setCameraPosition.mock.calls.length === 1"
+                  ],
+                  "must_not_observe": [
+                    "fitToCoordinates called with empty coords ([])",
+                    "setCameraPosition call count === 0 (no camera move)",
+                    "an exception thrown for the single-point geometry"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "maps_to_ac": "AC-1",
+          "description": "Curated card renders composite as Math.round(score*100) %/bars (0\u20131), with name + mileage, distinct from planned card; never 0% for a non-zero route.",
+          "verify": "pnpm test components/chat/cards/curated-route-card.integration.test.tsx -t curatedCardShowsScoreAsPercentOnZeroToOneScale"
+        },
+        {
+          "id": "TC-2",
+          "maps_to_ac": "AC-2",
+          "description": "Pressing an earlier curated card calls setSelectedRouteId + setDisplayedRoutePlanId and flips chatMode false.",
+          "verify": "pnpm test components/chat/cards/curated-route-card.integration.test.tsx -t earlierCuratedCardReRendersAndReturnsToMap"
+        },
+        {
+          "id": "TC-3",
+          "maps_to_ac": "AC-3",
+          "description": "Centroid-only curated option \u2192 doFit single-point branch (setCameraPosition zoom 12), no crash.",
+          "verify": "pnpm test components/chat/cards/curated-route-card.integration.test.tsx -t centroidOnlyCuratedPlotsViaFallback"
+        }
+      ],
+      "fixtures": {
+        "curated_routing_card_real_scores": {
+          "description": "a completed routing_card from the real discovery tool (post-DATA-008b) with curated options carrying real 0\u20131 compositeScore (~0.82) + per-dimension scores + mileage, surfaced against live Convex",
+          "seed_method": "migration_fixture",
+          "records": [
+            "routing_card option with scores.composite ~0.82",
+            "option label = real road name",
+            "distanceMi/mileage populated"
+          ]
+        },
+        "curated_routing_card_centroid_only": {
+          "description": "a curated option whose overviewGeometry encodes a single centroid point (no multi-point polyline)",
+          "seed_method": "migration_fixture",
+          "records": [
+            "geometry decodes to exactly 1 coordinate (centroidLat/Lng)"
+          ]
+        }
+      },
+      "scope": {
+        "write_allowed": [
+          "components/chat/cards/curated-route-card.tsx (MODIFY \u2014 add mileage + render composite as %/bars on 0\u20131; ensure distinct-from-planned styling)",
+          "components/chat/routing-card.tsx (MODIFY \u2014 pass onViewOnMap to the CuratedRouteCard branch for card\u2192map-return parity)",
+          "app/(app)/(tabs)/index.tsx (MODIFY \u2014 only if onViewOnMap plumbing for curated cards needs the existing setChatMode(false) handler threaded through)",
+          "components/chat/cards/curated-route-card.integration.test.tsx (NEW)"
+        ],
+        "write_prohibited": [
+          "server/convex/actions/agent/tools/discoverCuratedRoutes.ts \u2014 DATA-008b owns the score mapping fix",
+          "components/ui/score-dimension-bar.tsx \u2014 reuse the primitive if bars are used; do not re-implement inline",
+          "components/chat/route-attachment-card.tsx \u2014 planned-trip card, leave untouched",
+          "Any file not listed above"
+        ]
+      },
+      "reading_list": [
+        {
+          "file": "components/chat/routing-card.tsx",
+          "lines": "229-289",
+          "focus": "PRIMARY \u2014 CompletedCard curated branch (isCurated \u2192 CuratedRouteCard at 247-268) and the planned branch's onViewOnMap (279-281) to mirror for curated parity"
+        },
+        {
+          "file": "components/chat/cards/curated-route-card.tsx",
+          "lines": "1-110",
+          "focus": "the curated card to extend: composite rendered as `${Math.round(compositeScore*100)}/100` (line 26) + road icon; add mileage + %/bars"
+        },
+        {
+          "file": "app/(app)/(tabs)/index.tsx",
+          "lines": "503-542, 1234-1242",
+          "focus": "doFit centroid fallback (523-529) + ChatTranscript onViewOnMap={() => setChatMode(false)} \u2014 the return-to-map handler"
+        },
+        {
+          "file": "server/convex/actions/agent/tools/discoverCuratedRoutes.ts",
+          "lines": "132-186",
+          "focus": "the option.scores shape the card consumes (DATA-008b fixes route.score\u2192compositeScore etc.); centroid polyline fallback at encodeCentroidToPolyline"
+        },
+        {
+          "file": ".spec/prds/mvp/10-e2e-testing-criteria.md",
+          "lines": "85-89",
+          "focus": "T-DISC-010 pass/fail \u2014 cards in chat, latest plots, earlier-card loop, score 0\u20131 as bars/percent never 0\u2013100"
+        }
+      ],
+      "guardrails": [
+        "ONE curated card variant, props-driven \u2014 no per-score-style files; reuse ScoreDimensionBar for bars.",
+        "All colors/spacing via useSemanticTheme; score fill uses semantic.color.primary.default (copper).",
+        "Card touch target >=44pt (minHeight 60 already)."
+      ],
+      "design": {
+        "refs": [
+          "DESIGN-S01-002 (curated-route chat-card variant: composite score as %/bars on 0\u20131; distinct from a planned-trip routing card)",
+          "10-design-system.md \u00a72 (ScoreDimensionBar primitive \u2014 fill width Math.round(score*100)%, copper fill, 8dp height)",
+          "10-design-system.md \u00a71 (token rules: composite via semantic.type.title.lg / instrument font for numeric)"
+        ],
+        "tokens": "Composite badge/bar: semantic.color.primary.default fill on semantic.color.surface.inset track; numeric readout via semantic.type.instrument.sm (JetBrains Mono); name via semantic.type.body.md 600; mileage via semantic.type.label.sm / onSurface.muted."
+      },
+      "verification_gates": {
+        "test": "pnpm test components/chat/cards/curated-route-card.integration.test.tsx",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check components/chat/cards/curated-route-card.tsx components/chat/routing-card.tsx 'app/(app)/(tabs)/index.tsx' components/chat/cards/curated-route-card.integration.test.tsx",
+        "scope": "git diff --name-only \u2286 scope.write_allowed",
+        "scenario": "RED-against-empty: AC-1 must FAIL before DATA-008b (composite renders 0% / all-zero bars) \u2014 confirms the card surfaces real scores, not a static 0",
+        "human_gate": "Folds into T-DISC-010 (real device): NL request \u2192 curated cards in chat with real non-zero score %/bars, latest plots, earlier-card loop returns to map"
+      },
+      "coding_standards": [
+        "No `any` on the curated option/score shape; type the composite + per-dimension scores as number (0\u20131).",
+        "Reuse the existing selection callbacks; no parallel selection path.",
+        "Integration test surfaces the curated routing_card via the real discovery path against live Convex; Mapbox handle stubbed only at the native boundary, Convex data NOT mocked."
+      ],
+      "dependencies": {
+        "depends_on": [
+          "DATA-008b (real 0\u20131 scores in curated options)",
+          "DATA-008 (curated routing_card seam)"
+        ],
+        "blocks": [],
+        "parallel": [
+          "DISC-018",
+          "DISC-019"
+        ]
+      },
+      "out_of_scope": [
+        "Fixing the agent score mapping (DATA-008b)",
+        "Suggestion-card-over-input tap (DISC-016) \u2014 this is the chat transcript card path",
+        "Re-implementing score bars inline (reuse ScoreDimensionBar)"
+      ],
+      "agent_rationale": "Chat transcript curated-card rendering + reuse of the existing card\u2192map selection loop \u2014 react-native-ui-implementer; the score-data fix is delegated to DATA-008b (convex)."
+    },
+    {
+      "id": "DISC-021",
+      "title": "Quarantine the dropped dedicated-discovery components so none are imported by an active screen/hook (lands LAST)",
+      "task_type": "FEATURE",
+      "status": "To Do",
+      "priority": "P2",
+      "effort": "S",
+      "agent": "implementer=react-native-ui-implementer | reviewer=react-native-ui-reviewer",
+      "proposed_by": "react-native-ui-planner",
+      "estimate_minutes": 60,
+      "runtime_commands": {
+        "test": "pnpm test tests/discovery/quarantine-import-graph.integration.test.ts",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check tests/discovery/quarantine-import-graph.integration.test.ts"
+      },
+      "outcome": "An import-graph check finds zero active references to the dropped dedicated-discovery components, and no dedicated discover route / filter-bar / sort-toggle / state-picker is reachable from any active screen or hook.",
+      "critical_constraints": [
+        "LANDS LAST \u2014 run only after DISC-016/017/018/019/020 are merged, so the quarantine reflects the final wiring (otherwise a transient import could be missed).",
+        "Leave hooks/use-route-discovery.ts UNTOUCHED (deferred local-DB hook for the offline fast-follow).",
+        "Quarantine targets: route-discovery-screen, discovery-filter-bar, discovery-sort-toggle, route-pin, state-filter-sheet, state-list-item, intent-search-sheet, intent-summary-pill (plus the discovery barrel components/discovery/index.ts re-exports: discovery-empty-overlay, discovery-loading-overlay). Delete them or leave them orphaned \u2014 but NONE may be imported by an active screen/hook.",
+        "Do NOT break any active screen \u2014 verify the app still type-checks and the plan view renders after quarantine.",
+        "If any active import is found, it MUST be removed/rewired (the boy-scout fix), not merely documented."
+      ],
+      "done_when": [
+        "AC-1 GREEN: import-graph check finds zero active references to the quarantined components",
+        "AC-2 GREEN: no dedicated discover route/filter/sort/state-picker is reachable from active screens/hooks",
+        "hooks/use-route-discovery.ts unchanged",
+        "pnpm test passes + pnpm type-check clean; only SCOPE.writeAllowed modified"
+      ],
+      "specification": "Per UC-DISC-11 and 07-ui-infrastructure.md \u00a71, the dropped dedicated-discovery UI must be unreachable. Current state (verified): components/discovery/ contains discovery-empty-overlay.tsx, discovery-loading-overlay.tsx, intent-search-sheet.tsx, intent-summary-pill.tsx, route-pin.tsx, state-filter-sheet.tsx, state-list-item.tsx and a barrel index.ts that re-exports several; there is no route-discovery-screen.tsx / discovery-filter-bar.tsx / discovery-sort-toggle.tsx file in the active tree (only a native-rewrite spec doc), and grep shows the barrel and its members are imported only WITHIN components/discovery/ (no active screen/hook imports them today). This task makes that guarantee durable: build an import-graph check (a real test that walks the active source tree \u2014 app/, hooks/, contexts/, components/ excluding components/discovery/, server/ \u2014 and asserts zero import statements resolving to any quarantined module) and run it after all other sprint tasks land. If the check finds an active import (e.g. introduced by another task), remove/rewire it. Then either delete the quarantined components or leave them orphaned (the test must pass either way). Leave hooks/use-route-discovery.ts untouched and excluded from the quarantine list (it is deferred, not dropped). Also assert no dedicated discover tab route exists (app/(app)/(tabs)/discover.tsx absent) and no drawer entry resolves to a discover route (cross-checks DISC-019). Maps to T-DISC-011 (no dedicated discovery surface reachable anywhere).",
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "Zero active references to quarantined components",
+          "primary": true,
+          "given": "the final post-sprint source tree",
+          "when": "an import-graph check walks active sources (app/, hooks/, contexts/, components/ excluding components/discovery/, server/) for imports resolving to the quarantined modules",
+          "then": "it finds zero such imports",
+          "test_tier": "integration",
+          "verification_service": "filesystem import-graph scan (real source tree) via vitest",
+          "tdd_state": "none",
+          "test_file": "tests/discovery/quarantine-import-graph.integration.test.ts",
+          "test_function": "noActiveImportsOfQuarantinedComponents",
+          "scenario": {
+            "start_ref": "final_source_tree",
+            "tier": "visible",
+            "negative_control": {
+              "would_fail_if": [
+                "an active screen imports route-pin/state-filter-sheet/etc.",
+                "the check scans nothing (empty file list \u2192 false pass)"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "stdout",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "action": {
+                  "actor": "cli_user",
+                  "steps": [
+                    "walk all active .ts/.tsx under app/, hooks/, contexts/, server/, and components/ (excluding components/discovery/**)",
+                    "collect import specifiers",
+                    "filter to those resolving to: route-discovery-screen, discovery-filter-bar, discovery-sort-toggle, route-pin, state-filter-sheet, state-list-item, intent-search-sheet, intent-summary-pill, discovery-empty-overlay, discovery-loading-overlay, or the components/discovery barrel"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "scanned file count > 100 (proves the walk ran over the real tree)",
+                    "active import matches === 0"
+                  ],
+                  "must_not_observe": [
+                    "scanned file count === 0 (empty scan)",
+                    "any active import of a quarantined module"
+                  ]
+                }
+              }
+            ],
+            "test_tier": "integration",
+            "verification_service": "filesystem import-graph scan (real source tree) via vitest"
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "No dedicated discover route/filter/sort/state-picker reachable",
+          "given": "the final route tree and drawer config",
+          "when": "the check inspects app/(app)/(tabs)/ for a discover route and the drawer for a discover entry",
+          "then": "no discover.tsx tab route exists and no drawer item resolves to a discover route",
+          "test_tier": "integration",
+          "verification_service": "filesystem route-tree scan + MenuLayout render via @testing-library/react-native",
+          "tdd_state": "none",
+          "test_file": "tests/discovery/quarantine-import-graph.integration.test.ts",
+          "test_function": "noDedicatedDiscoverRouteReachable",
+          "scenario": {
+            "start_ref": "final_source_tree",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "filesystem route-tree scan + MenuLayout render via @testing-library/react-native",
+            "negative_control": {
+              "would_fail_if": [
+                "would fail if a discover.tsx tab route file is hardcoded back into app/(app)/(tabs)/",
+                "would fail if a drawer item is hardcoded to navigate to a discover/route-discovery pathname",
+                "would fail if the route-tree scan reads an empty file list (false pass on a static/empty walk)"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "stdout",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "final_source_tree",
+                "action": {
+                  "actor": "cli_user",
+                  "steps": [
+                    "assert no file app/(app)/(tabs)/discover.tsx",
+                    "enumerate the (tabs) route files actually scanned",
+                    "render MenuLayout and collect every drawer item pathname"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "fs.existsSync('app/(app)/(tabs)/discover.tsx') === false (route file absent)",
+                    "the scanned (tabs) route-file list length >= 1 (the walk ran over real files)",
+                    "MenuLayout exposes exactly 4 navigable surfaces (plan view via launch, Settings, Saved, Sessions) and none has a pathname matching /discover|route-discovery/"
+                  ],
+                  "must_not_observe": [
+                    "fs.existsSync('app/(app)/(tabs)/discover.tsx') === true (a discover tab route present)",
+                    "any drawer item pathname matching /discover|route-discovery/",
+                    "the scanned route-file list length === 0 (empty scan \u2014 false pass)"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "maps_to_ac": "AC-1",
+          "description": "Import-graph scan over the active tree (>100 files) yields zero imports of any quarantined module.",
+          "verify": "pnpm test tests/discovery/quarantine-import-graph.integration.test.ts -t noActiveImportsOfQuarantinedComponents"
+        },
+        {
+          "id": "TC-2",
+          "maps_to_ac": "AC-2",
+          "description": "No discover.tsx tab route file; no drawer item resolves to a discover route.",
+          "verify": "pnpm test tests/discovery/quarantine-import-graph.integration.test.ts -t noDedicatedDiscoverRouteReachable"
+        }
+      ],
+      "fixtures": {
+        "final_source_tree": {
+          "description": "the repo working tree AFTER DISC-016/017/018/019/020 have merged; active sources under app/, hooks/, contexts/, server/, components/ (excluding components/discovery/) plus the route tree and drawer config",
+          "seed_method": "migration_fixture",
+          "records": [
+            "components/discovery/* present but orphaned (or deleted)",
+            "no app/(app)/(tabs)/discover.tsx",
+            "drawer has no 'Plan a ride'/'Discover' (post-DISC-019)",
+            "hooks/use-route-discovery.ts present and untouched"
+          ]
+        }
+      },
+      "scope": {
+        "write_allowed": [
+          "tests/discovery/quarantine-import-graph.integration.test.ts (NEW \u2014 the durable import-graph check)",
+          "components/discovery/** (DELETE or leave orphaned \u2014 only if a deletion is chosen; the barrel index.ts may be removed/trimmed if no active or test consumer needs it)",
+          "Any active file found importing a quarantined module (MODIFY \u2014 remove/rewire the import; boy-scout)"
+        ],
+        "write_prohibited": [
+          "hooks/use-route-discovery.ts \u2014 deferred offline hook, MUST stay untouched",
+          "app/(app)/(tabs)/index.tsx \u2014 should already be clean post-DISC-016/017; do not re-edit beyond removing a stray quarantined import if one exists",
+          "Any file not listed above"
+        ]
+      },
+      "reading_list": [
+        {
+          "file": "components/discovery/index.ts",
+          "lines": "1-14",
+          "focus": "PRIMARY \u2014 the barrel re-exporting the dropped components; the quarantine target list and what may be deleted/trimmed"
+        },
+        {
+          "file": ".spec/prds/mvp/09-technical-requirements/07-ui-infrastructure.md",
+          "lines": "30, 59",
+          "focus": "the exact dropped-component list + retired testIDs that must be unreachable; use-route-discovery.ts left untouched"
+        },
+        {
+          "file": ".spec/prds/mvp/05-uc-disc.md",
+          "lines": "99-113",
+          "focus": "UC-DISC-11 AC2 \u2014 rider cannot reach any dedicated Discovery screen/filter-bar/sort-toggle/state-picker"
+        },
+        {
+          "file": ".spec/prds/mvp/10-e2e-testing-criteria.md",
+          "lines": "91-95",
+          "focus": "T-DISC-011 \u2014 grep the route tree + drawer; no dedicated discovery surface may exist"
+        },
+        {
+          "file": "vitest.config.ts",
+          "lines": "1-40",
+          "focus": "test setup + path resolution so the import-graph walk resolves specifiers consistently with the build"
+        }
+      ],
+      "guardrails": [
+        "The import-graph check is a real filesystem walk over the active tree \u2014 it must scan >0 files (guard against an empty-scan false pass).",
+        "Quarantine is structural, not a per-component file edit; prefer deletion of orphans or a single durable test that enforces non-reachability.",
+        "Do not touch hooks/use-route-discovery.ts."
+      ],
+      "design": {
+        "refs": [
+          "07-ui-infrastructure.md \u00a71 (Dropped from MVP \u2014 components left unmounted/unimported) + \u00a77 (historical dedicated-screen plan retired)",
+          "09-routing.md v3.0.0 Route Delta (discover.tsx DELETED; structured-browse UI DELETED)"
+        ],
+        "tokens": "N/A \u2014 quarantine/structural task; no rendering."
+      },
+      "verification_gates": {
+        "test": "pnpm test tests/discovery/quarantine-import-graph.integration.test.ts",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check tests/discovery/quarantine-import-graph.integration.test.ts",
+        "scope": "git diff --name-only \u2286 scope.write_allowed",
+        "scenario": "RED-against-stub: the check must FAIL if a quarantined import is deliberately added (and must not pass on an empty scan) \u2014 proving the walk bites",
+        "human_gate": "Folds into T-DISC-011 (real device): no discover screen/filter/sort/state-picker reachable; app lands on the plan view"
+      },
+      "coding_standards": [
+        "Import-graph test is deterministic and self-contained (no network); it walks the real source tree.",
+        "If deleting orphans, remove their barrel exports too so type-check stays clean.",
+        "No `any` in the test's import-resolution logic."
+      ],
+      "dependencies": {
+        "depends_on": [
+          "DISC-016",
+          "DISC-017",
+          "DISC-018",
+          "DISC-019",
+          "DISC-020"
+        ],
+        "blocks": [],
+        "parallel": []
+      },
+      "out_of_scope": [
+        "Touching hooks/use-route-discovery.ts (deferred offline hook)",
+        "Re-implementing any discovery feature in the quarantined components",
+        "Removing the 'Plan a ride' drawer entry (DISC-019 owns that; this task only asserts no discover route remains)"
+      ],
+      "agent_rationale": "Structural import-graph quarantine + boy-scout removal of any stray import across the RN client tree \u2014 react-native-ui-implementer; it lands last to reflect the final wiring after all other DISC tasks merge."
+    }
+  ]
+}

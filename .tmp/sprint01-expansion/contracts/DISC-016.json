@@ -1,0 +1,154 @@
+{
+  "fixtures": {
+    "plan_view_no_route_with_cards": {
+      "description": "plan view rendered against live Convex dev, signed-in, no active route plan, useCuratedDiscovery returning >=1 curated suggestion card with a known routeId (one centroid-only, one with geometry)",
+      "seed_method": "migration_fixture",
+      "records": [
+        "live curated catalog seeded",
+        "a known centroid-only route id",
+        "a known route id with overview geometry",
+        "transcript empty (message count 0)"
+      ]
+    }
+  },
+  "requirements": [
+    {
+      "id": "AC-1",
+      "scenario": {
+        "start_ref": "plan_view_no_route_with_cards",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "tap calls handleSendMessage (current bug)",
+            "no polyline/centroid rendered",
+            "a session_messages row is appended on tap"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "screenshot",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "user",
+              "steps": [
+                "render the plan view against live Convex with no active route",
+                "capture transcript message count N",
+                "fireEvent.press(getByTestId('discovery-suggestion-pill-' + knownRouteId))",
+                "await the map to resolve the tapped plan"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "home-route-polyline renders the tapped route's coordinates (a polyline with the route's centroid/geometry, e.g. a coordinate near the known route's centroidLat/Lng)",
+                "transcript message count === N (unchanged)"
+              ],
+              "must_not_observe": [
+                "a new transcript bubble containing 'Show me curated route'",
+                "transcript count === N+1",
+                "empty map / no polyline after tap"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev (api.curatedRoutes + route_plans) via @testing-library/react-native"
+      }
+    },
+    {
+      "id": "AC-2",
+      "scenario": {
+        "start_ref": "plan_view_no_route_with_cards",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "doFit never invoked for the tapped route",
+            "centroid-only route leaves camera unmoved / crashes"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "stdout",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "user",
+              "steps": [
+                "tap a centroid-only curated route (no overview geometry)",
+                "assert the map handle received setCameraPosition with the centroid coords and zoom 12"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "setCameraPosition called with coordinates matching the route centroid (latitude/longitude) and zoom: 12"
+              ],
+              "must_not_observe": [
+                "no camera call after tap",
+                "fitToCoordinates called with an empty coords array"
+              ]
+            }
+          },
+          {
+            "action": {
+              "actor": "user",
+              "steps": [
+                "tap a curated route WITH multi-point geometry",
+                "assert fitToCoordinates received >1 coordinate"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "fitToCoordinates called with coords.length > 1"
+              ],
+              "must_not_observe": [
+                "setCameraPosition zoom 12 used for a multi-point route (wrong branch)"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev + MapboxMapViewHandle via @testing-library/react-native"
+      }
+    },
+    {
+      "id": "AC-3",
+      "scenario": {
+        "start_ref": "plan_view_no_route_with_cards",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "removing the card-send path also removed the input send path"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "stdout",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "user",
+              "steps": [
+                "type 'twisties near Asheville' into chat-input-text-field",
+                "press chat-input-send-button",
+                "await transcript"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "transcript count increases by 1 with the rider's typed text 'twisties near Asheville'"
+              ],
+              "must_not_observe": [
+                "send is a no-op (count unchanged)"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev via @testing-library/react-native"
+      }
+    }
+  ]
+}

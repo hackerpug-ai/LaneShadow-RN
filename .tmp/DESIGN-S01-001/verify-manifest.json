@@ -1,0 +1,11 @@
+{
+  "task_id": "DESIGN-S01-001",
+  "project": {
+    "test_cmd": "pnpm test",
+    "typecheck_cmd": "pnpm type-check",
+    "lint_cmd": "pnpm lint"
+  },
+  "verification_commands": [
+    "test -s .spec/design/sprint-01/suggestion-card-spec.md && echo PASS"
+  ]
+}

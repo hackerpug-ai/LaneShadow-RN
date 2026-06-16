@@ -1,0 +1,98 @@
+{
+  "fixtures": {
+    "drawer_open": {
+      "description": "MenuLayout rendered with menuOpen=true, signed-in, against live Convex (planningSessions.listSessions resolves)",
+      "seed_method": "migration_fixture",
+      "records": [
+        "a signed-in session",
+        "0 or more planning_sessions rows"
+      ]
+    }
+  },
+  "requirements": [
+    {
+      "id": "AC-1",
+      "scenario": {
+        "start_ref": "drawer_open",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "the 'Plan a ride' item is still present",
+            "a 'Discover' entry exists"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "screenshot",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "user",
+              "steps": [
+                "render MenuLayout with menuOpen true against live Convex",
+                "queryByTestId('drawer-plan-a-ride')",
+                "queryByText('Plan a ride')",
+                "queryByText('Discover')"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "queryByTestId('drawer-plan-a-ride') === null",
+                "queryByText('Plan a ride') === null"
+              ],
+              "must_not_observe": [
+                "a 'Plan a ride' label rendered",
+                "a 'Discover' label rendered",
+                "drawer-plan-a-ride testID present"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "@testing-library/react-native rendering the real MenuLayout"
+      }
+    },
+    {
+      "id": "AC-2",
+      "scenario": {
+        "start_ref": "drawer_open",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "removing 'Plan a ride' also dropped Settings/Saved or the Sessions section"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "screenshot",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "user",
+              "steps": [
+                "render MenuLayout with menuOpen true",
+                "query for 'Settings', 'Saved', and the 'Sessions' section title"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "'Settings' item present",
+                "'Saved' item present",
+                "'Sessions' section present (title or a session row / 'No sessions yet')"
+              ],
+              "must_not_observe": [
+                "missing Settings",
+                "missing Saved",
+                "missing Sessions section"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev (planningSessions.listSessions) via @testing-library/react-native"
+      }
+    }
+  ]
+}

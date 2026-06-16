@@ -1,0 +1,1125 @@
+{
+  "design_tasks": [
+    {
+      "id": "DESIGN-S01-001",
+      "title": "Suggestion-card visual spec/audit (chip variant: copper accent, road icon, surface.glass scrim @ 72%, \u226544pt, hidden when route shown)",
+      "task_type": "DESIGN",
+      "status": "Backlog",
+      "priority": "P1",
+      "effort": "S",
+      "agent": "frontend-designer",
+      "proposed_by": "frontend-designer",
+      "sprint": 1,
+      "estimate_minutes": 60,
+      "outcome": "A written spec-diff exists at `.spec/design/sprint-01/suggestion-card-spec.md` naming exact token paths for every gap vs the current `SuggestionChips` implementation in `chat-input.tsx`, verifiable by `pnpm tokens:validate` and on-device inspection at the sprint gate.",
+      "critical_constraints": [
+        "NEVER name a hardcoded hex color in the spec \u2014 every color reference MUST be a token path (e.g. `semantic.color.accent.default`, `semantic.color.surface.glass`). Any gap where the current code uses a raw hex is the gap the spec must name and flag.",
+        "NEVER recommend inline `backgroundColor: 'rgba(..., 0.72)'` for the scrim \u2014 the spec MUST reference `surface.glass` (already defined in `tokens/semantic/colors.tokens.json` as `rgba(253,251,248,0.72)` / `rgba(45,34,24,0.72)`) and note the existing `CC` hex-alpha pattern in `route-attachment-card.tsx` as a known legacy anti-pattern NOT to replicate.",
+        "NEVER specify a touch target below 44pt \u2014 `semantic.control.minTouchTarget` (44) is the floor; the spec must cite this token.",
+        "Spec is a WRITE to `.spec/design/sprint-01/suggestion-card-spec.md` ONLY \u2014 do NOT modify `chat-input.tsx` or any app source file.",
+        "Score rendering is out of scope for this task \u2014 that is DESIGN-S01-002."
+      ],
+      "specification": {
+        "deliverable": "`.spec/design/sprint-01/suggestion-card-spec.md` \u2014 a structured diff document with four sections: (1) Current state audit of `SuggestionChips` in `components/chat/chat-input.tsx`; (2) Token gap table listing every property that currently uses a hardcoded value with its required token replacement; (3) Exact prop/style spec for the curated-pill chip variant; (4) Visibility rule spec (gating condition).",
+        "chip_variant_spec": {
+          "background": "semantic.color.surface.glass (light: rgba(253,251,248,0.72); dark: rgba(45,34,24,0.72)) \u2014 NOT raw hex+opacity",
+          "border": "borderWidth: semantic.borderWidth.thin (1pt); borderColor: semantic.color.border.glass (light: rgba(255,255,255,0.55); dark: rgba(242,238,232,0.22))",
+          "border_radius": "semantic.radius.md (10pt)",
+          "padding_horizontal": "semantic.space.md (12pt)",
+          "padding_vertical": "semantic.space.sm (8pt)",
+          "min_height": "semantic.control.minTouchTarget (44pt) \u2014 current code correctly sets minHeight: 44 but sources it from a magic number; spec requires referencing the token",
+          "icon": "react-native-paper `Icon` source='road-variant' size=16 color=semantic.color.accent.default (#EE7C2B) \u2014 NOT the fallback `?? '#EE7C2B'` pattern; spec must require the token path directly",
+          "label_text": "semantic.type.body.sm (fontSize 11, lineHeight 16, fontWeight 400); color: semantic.color.onSurface.default; fontWeight override to '500' is acceptable for readability",
+          "elevation": "semantic.elevation[2] (shadowOpacity 0.21, shadowRadius 6, elevation 2)"
+        },
+        "current_gaps_to_audit": [
+          "Line 110-116 in chat-input.tsx: `borderColor: semantic.color.border.default` \u2014 should be `semantic.color.border.glass` for a glassmorphic chip on the map overlay",
+          "Line 110-116: `backgroundColor: semantic.color.surface.default` \u2014 should be `semantic.color.surface.glass` (the 72% alpha token, not the opaque surface.default)",
+          "Line 127-130: `semantic.color.accent?.default ?? '#EE7C2B'` \u2014 the `??` fallback is a gap; accent.default is defined in both light and dark in semantic.tokens.json; the spec must note the guard is unnecessary and the token path is stable",
+          "No elevation applied to the curated chip \u2014 should use semantic.elevation[2]",
+          "The `SuggestionChips` scroll container has no `surface.glass` scrim behind it as a group \u2014 spec must note whether a wrapping scrim View is needed or whether individual chip backgrounds suffice"
+        ],
+        "visibility_rule_spec": "Chips render only when: (a) `isIdle === true` (phase === 'IDLE'), AND (b) `hasActiveRoute === false` (no `agentActiveOption`), AND (c) `suggestions.length > 0`, AND (d) `!isPlanning`, AND (e) `!chatMode`. The current conditional at line 268 of chat-input.tsx matches this rule. The spec must confirm the condition is correct and note that `hasActiveRoute` is derived from `!!agentActiveOption` in `index.tsx` (line 257).",
+        "spec_section_for_building_agent": "The spec must include a 'For DISC-016/DISC-017 implementer' callout section listing: (1) exact prop shape `CuratedPill = { label: string; routeId: string }`, (2) required token substitutions as a find/replace table, (3) testID pattern `discovery-suggestion-pill-{routeId}` (already in code at line 105, confirm), (4) `onSelectRoute` prop already wired at line 103."
+      },
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "Spec document exists at canonical path with all four required sections",
+          "primary": true,
+          "given": "The sprint gate reviewer opens `.spec/design/sprint-01/suggestion-card-spec.md`",
+          "when": "They verify the document was produced by this task",
+          "then": "The document contains: (1) current-state audit, (2) token gap table, (3) chip variant prop/style spec, (4) visibility rule spec \u2014 all four sections present and non-empty",
+          "test_tier": "e2e",
+          "verification_service": "human-gate (sprint gate reviewer + file artifact)",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null,
+          "scenario": {
+            "negative_control": "would fail if the spec doc does not exist at the path, or any of the four sections is absent",
+            "evidence": "file_artifact",
+            "cases": [
+              {
+                "start_ref": "spec-doc-absent",
+                "action": "reviewer reads `.spec/design/sprint-01/suggestion-card-spec.md`",
+                "end_state": {
+                  "must_observe": "Four headed sections: 'Current State Audit', 'Token Gap Table', 'Chip Variant Spec', 'Visibility Rule Spec'",
+                  "must_not_observe": "File not found OR any section missing OR any raw hex color not cross-referenced to a token path"
+                }
+              }
+            ],
+            "test_tier": "e2e",
+            "verification_service": "human-gate (sprint gate reviewer + file artifact)"
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "Token gap table names exact token paths \u2014 no hardcoded hex values",
+          "given": "The spec doc token gap table is inspected",
+          "when": "Each gap row is checked for its 'Required token' column",
+          "then": "Every 'Required token' cell references a dot-path to a token defined in `tokens/semantic/colors.tokens.json` or `tokens/semantic/semantic.tokens.json` \u2014 zero raw hex strings appear in the 'Required token' column",
+          "test_tier": "e2e",
+          "verification_service": "human-gate + pnpm tokens:validate",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null
+        },
+        {
+          "id": "AC-3",
+          "name": "surface.glass token is explicitly named for the chip background (not raw rgba)",
+          "given": "The chip variant spec section in the document",
+          "when": "The background property spec is read",
+          "then": "The spec reads `semantic.color.surface.glass` (or `color.surface.glass`) and cross-references `tokens/semantic/colors.tokens.json` \u2014 the spec does NOT say `rgba(253,251,248,0.72)` as a standalone value without the token alias",
+          "test_tier": "e2e",
+          "verification_service": "human-gate",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null
+        },
+        {
+          "id": "AC-4",
+          "name": "Touch target \u226544pt is cited via semantic.control.minTouchTarget token",
+          "given": "The chip variant spec section",
+          "when": "The minHeight / touch target field is read",
+          "then": "The spec references `semantic.control.minTouchTarget` (value 44) \u2014 NOT the magic number `44` alone",
+          "test_tier": "e2e",
+          "verification_service": "human-gate",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null
+        },
+        {
+          "id": "AC-5",
+          "name": "On-device visual passes at sprint human gate",
+          "given": "DISC-016 and DISC-017 are merged and the app runs on a real device",
+          "when": "Sprint gate step 2 is executed (no route on map, curated suggestion cards visible)",
+          "then": "Suggestion cards show copper road-variant icon, glass-scrim background, and distinct visual treatment vs generic planning prompts \u2014 reviewer can confirm spec was implemented correctly",
+          "test_tier": "e2e",
+          "verification_service": "real iOS device against live Convex dev",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "description": "`.spec/design/sprint-01/suggestion-card-spec.md` exists and is non-empty",
+          "verify": "test -s .spec/design/sprint-01/suggestion-card-spec.md && echo PASS",
+          "maps_to_ac": "AC-1"
+        },
+        {
+          "id": "TC-2",
+          "description": "`pnpm tokens:validate` exits 0 (no token schema regressions introduced by spec work)",
+          "verify": "pnpm tokens:validate",
+          "maps_to_ac": "AC-2"
+        },
+        {
+          "id": "TC-3",
+          "description": "Spec file contains the string 'surface.glass' (token alias present)",
+          "verify": "grep -q 'surface.glass' .spec/design/sprint-01/suggestion-card-spec.md && echo PASS",
+          "maps_to_ac": "AC-3"
+        },
+        {
+          "id": "TC-4",
+          "description": "Spec file contains 'minTouchTarget' or 'control.minTouchTarget' (44pt token citation)",
+          "verify": "grep -q 'minTouchTarget' .spec/design/sprint-01/suggestion-card-spec.md && echo PASS",
+          "maps_to_ac": "AC-4"
+        }
+      ],
+      "requirements": [
+        "UC-DISC-09: curated-route suggestion cards over the plan input, visually distinct from generic planning prompts",
+        "10-design-system.md \u00a71: glassmorphic overlays use `surface.glass` (rgba @ 72% alpha per colors.tokens.json) \u2014 not raw hex+inline opacity",
+        "07-ui-infrastructure.md \u00a76: touch targets \u2265 44pt",
+        "07-ui-infrastructure.md \u00a76: all colors via `useSemanticTheme()` \u2014 no hardcoded hex",
+        "07-ui-infrastructure.md \u00a76: testID `discovery-suggestion-pill-{routeId}` on each curated card"
+      ],
+      "guardrails": {
+        "write_allowed": [
+          ".spec/design/sprint-01/suggestion-card-spec.md (NEW) \u2014 the deliverable spec document"
+        ],
+        "write_prohibited": [
+          "components/chat/chat-input.tsx \u2014 implementation is owned by DISC-016/DISC-017",
+          "app/(app)/(tabs)/index.tsx \u2014 out of scope",
+          "tokens/** \u2014 no token modifications; spec only reads and references tokens",
+          "Any file not in write_allowed"
+        ]
+      },
+      "design": {
+        "references": [
+          ".spec/prds/mvp/09-technical-requirements/10-design-system.md \u00a71 (glassmorphic overlay rule)",
+          ".spec/prds/mvp/09-technical-requirements/07-ui-infrastructure.md \u00a76 (mobile patterns: touch targets, theming, testIDs)",
+          "tokens/semantic/colors.tokens.json (color.surface.glass, color.border.glass, color.signal.default)",
+          "tokens/semantic/semantic.tokens.json (semantic.color.accent.default, semantic.color.surface, semantic.control.minTouchTarget, semantic.radius.md, semantic.borderWidth.thin, semantic.elevation)"
+        ],
+        "key_token_paths": {
+          "chip_background": "semantic.color.surface.glass \u2192 color.surface.glass (light: rgba(253,251,248,0.72), dark: rgba(45,34,24,0.72))",
+          "chip_border": "semantic.color.border.glass \u2192 color.border.glass (light: rgba(255,255,255,0.55), dark: rgba(242,238,232,0.22))",
+          "icon_color": "semantic.color.accent.default \u2192 #EE7C2B (copper-500, theme-invariant)",
+          "label_color": "semantic.color.onSurface.default",
+          "touch_target": "semantic.control.minTouchTarget \u2192 44",
+          "border_radius": "semantic.radius.md \u2192 10",
+          "elevation": "semantic.elevation[2]"
+        }
+      },
+      "verification_gates": {
+        "gate_1_spec_exists": "test -s .spec/design/sprint-01/suggestion-card-spec.md && echo PASS",
+        "gate_2_tokens_validate": "pnpm tokens:validate",
+        "gate_3_type_check": "pnpm type-check",
+        "gate_4_lint": "pnpm exec biome check .spec/design/sprint-01/suggestion-card-spec.md",
+        "gate_5_scope_compliance": "git diff --name-only | grep -v '.spec/design/sprint-01/suggestion-card-spec.md' | wc -l | xargs -I{} test {} -eq 0 && echo SCOPE_CLEAN",
+        "gate_6_human": "Sprint gate step 2 on real iOS device \u2014 curated suggestion cards visible with copper accent + road icon when no route on map"
+      },
+      "coding_standards": [
+        "Spec document uses Markdown with explicit section headers matching the four required sections",
+        "All token references use dot-notation path (e.g. `semantic.color.accent.default`) with resolved value in parentheses for clarity",
+        "Gap table has columns: Location (file:line), Current value, Gap type (hardcoded-hex / magic-number / wrong-token), Required token path",
+        "Do not introduce new token files or modify existing token JSON \u2014 the spec is read-only against the token system"
+      ],
+      "dependencies": {
+        "depends_on": [],
+        "blocks": [
+          "DISC-016 (tapping suggestion card plots route) \u2014 implementer reads this spec for exact token props",
+          "DISC-017 (curated vs generic suggestion cards) \u2014 implementer reads this spec for chip variant style"
+        ],
+        "parallel": [
+          "DESIGN-S01-002",
+          "DESIGN-S01-003",
+          "DESIGN-S01-004",
+          "DATA-001",
+          "DATA-002"
+        ]
+      },
+      "agent_rationale": "frontend-designer owns all visual spec and audit work; this task produces no app source \u2014 it produces a spec document that the react-native-ui-implementer (DISC-016/DISC-017) reads as a contract.",
+      "reading_list": [
+        {
+          "file": "components/chat/chat-input.tsx",
+          "lines": "75-150",
+          "focus": "SuggestionChips component \u2014 the primary subject of the audit; lines 95-148 are the per-chip render loop with current style props"
+        },
+        {
+          "file": "tokens/semantic/colors.tokens.json",
+          "lines": "26-35",
+          "focus": "color.surface.glass definition (the 72% alpha token the spec must require)"
+        },
+        {
+          "file": "tokens/semantic/semantic.tokens.json",
+          "lines": "137-150",
+          "focus": "semantic.color.accent.default (copper-500 #EE7C2B) \u2014 the required icon color token"
+        },
+        {
+          "file": ".spec/prds/mvp/09-technical-requirements/10-design-system.md",
+          "lines": "1-35",
+          "focus": "\u00a71 design token rules for MVP screens \u2014 the glassmorphic overlay rule"
+        },
+        {
+          "file": ".spec/prds/mvp/09-technical-requirements/07-ui-infrastructure.md",
+          "lines": "55-60",
+          "focus": "\u00a76 mobile patterns \u2014 touch targets \u226544pt, theming rule, testID registry"
+        }
+      ]
+    },
+    {
+      "id": "DESIGN-S01-002",
+      "title": "Curated-route chat-card variant spec (composite score as %/bars on 0\u20131; distinct from planned-trip routing card)",
+      "task_type": "DESIGN",
+      "status": "Backlog",
+      "priority": "P1",
+      "effort": "S",
+      "agent": "frontend-designer",
+      "proposed_by": "frontend-designer",
+      "sprint": 1,
+      "estimate_minutes": 75,
+      "outcome": "A written layout spec and `variant='curated'` prop plan exists at `.spec/design/sprint-01/curated-route-chat-card-spec.md`, naming exact token paths and the score-rendering formula, verifiable by `pnpm tokens:validate` and on-device inspection at the sprint gate.",
+      "critical_constraints": [
+        "NEVER specify score as a 0\u2013100 integer or a 0\u20131 decimal in display \u2014 the ONLY valid display form is `Math.round(score * 100) + '%'` (e.g. score=0.73 \u2192 '73%'). The spec must name this formula explicitly and flag any display of raw 0\u20131 or 0\u2013100 integers as a bug.",
+        "NEVER show start\u2192end leg labels on the curated card \u2014 the card shows route name, mileage, and archetype badge; the `{startLabel} \u2192 {endLabel}` row from `RouteAttachmentCard` is a planned-trip pattern and must NOT appear on the curated variant.",
+        "NEVER specify a hardcoded hex for any color property \u2014 every color must be a token path from `tokens/semantic/semantic.tokens.json` or `tokens/semantic/colors.tokens.json`.",
+        "Spec is a WRITE to `.spec/design/sprint-01/curated-route-chat-card-spec.md` ONLY \u2014 do NOT modify `route-attachment-card.tsx` or any app source.",
+        "Scores arrive on the 0\u20131 scale from `useCuratedDiscovery` and must be carried through unmodified to the rendering formula \u2014 the spec must note this and prohibit rescaling in the hook or store."
+      ],
+      "specification": {
+        "deliverable": "`.spec/design/sprint-01/curated-route-chat-card-spec.md` \u2014 a structured spec with five sections: (1) Score rendering contract; (2) Layout spec for the `curated` variant; (3) Visual differentiation table vs the existing `full` variant of `RouteAttachmentCard`; (4) `variant='curated'` prop plan (new prop or new component decision); (5) Token path table.",
+        "score_rendering_contract": {
+          "formula": "Math.round(score * 100) + '%' where score is the 0\u20131 float from `useCuratedDiscovery` / the agent curated-discovery tool",
+          "composite_display": "Large percentage badge using `semantic.type.title.lg` (fontSize 17, fontWeight 600) in `semantic.color.primary.default` (#EE7C2B copper)",
+          "bar_rendering": "Each dimension score rendered as a `ScoreDimensionBar` (as specified in 10-design-system.md \u00a72): track `semantic.color.surface.inset`, fill `semantic.color.primary.default`, height `semantic.space.xs \u00d7 2 = 8dp`, value `Math.round(score*100)+'%'` via `semantic.type.label.sm` + JetBrains Mono (instrument font)",
+          "forbidden_displays": [
+            "raw 0\u20131 float (e.g. '0.73')",
+            "raw 0\u2013100 integer (e.g. '73')",
+            "0% when score is non-zero (score-field mapping bug \u2014 see DATA-008b)"
+          ]
+        },
+        "curated_card_layout_spec": {
+          "row_1_route_name": "Route name as `semantic.type.title.lg` (17/600), color `semantic.color.onSurface.default` \u2014 NOT the `{startLabel} \u2192 {endLabel}` format",
+          "row_2_mileage_archetype": "Mileage in miles (`${Math.round(distanceMi)}mi`) + archetype badge (existing `Badge` component, variant='secondary') in a `flexDirection: row, gap: semantic.space.sm` layout",
+          "row_3_composite_score": "Composite score as `Math.round(compositeScore*100)+'%'` displayed prominently; optionally followed by 2\u20133 dimension score bars (curvature, scenic, technical) using `ScoreDimensionBar`",
+          "background": "variant='full'-style card background: `semantic.color.surfaceVariant.default`, borderRadius `semantic.radius.md`, `semantic.elevation[2]`",
+          "padding": "paddingHorizontal: `semantic.space.md` (12pt), paddingVertical: `semantic.space.md` (12pt)",
+          "touch_target": "full card is tappable; height must reach `semantic.control.minTouchTarget` (44pt) minimum via natural content or explicit minHeight",
+          "testID": "testID='route-attachment-card' (reuse existing testID per 07-ui-infrastructure.md \u00a76)"
+        },
+        "visual_differentiation_table": {
+          "description": "The spec must include a side-by-side table: column 1 = 'Planned-trip `full` variant (RouteAttachmentCard)', column 2 = 'Curated `curated` variant'. Key differentiators: start\u2192end labels (present/absent), score bars (absent/present), archetype badge (absent/present), route name prominence (secondary/primary)."
+        },
+        "prop_plan": {
+          "recommendation": "Add `variant='curated'` to `RouteAttachmentCardProps` alongside the existing `'compact' | 'full'`. This avoids a new component file and keeps the tap\u2192map loop machinery intact. Alternatively, a new `CuratedRouteCard` component is acceptable if the implementer (DISC-020) determines the conditional branching inside `RouteAttachmentCard` would become too complex. The spec must document both options and state the preference.",
+          "new_props_if_extending": [
+            "variant: 'compact' | 'full' | 'curated'",
+            "curatedRoute?: { name: string; distanceMi: number; archetype: RouteArchetype; compositeScore: number; curvatureScore?: number; scenicScore?: number; technicalScore?: number }"
+          ]
+        }
+      },
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "Spec document exists with all five required sections",
+          "primary": true,
+          "given": "The sprint gate reviewer opens `.spec/design/sprint-01/curated-route-chat-card-spec.md`",
+          "when": "They inspect the document structure",
+          "then": "Five headed sections present: Score Rendering Contract, Layout Spec, Visual Differentiation Table, Prop Plan, Token Path Table \u2014 all non-empty",
+          "test_tier": "e2e",
+          "verification_service": "human-gate + file artifact",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null,
+          "scenario": {
+            "negative_control": "would fail if spec doc is absent, any section missing, or score formula is stated incorrectly",
+            "evidence": "file_artifact",
+            "cases": [
+              {
+                "start_ref": "spec-doc-absent",
+                "action": "reviewer reads `.spec/design/sprint-01/curated-route-chat-card-spec.md`",
+                "end_state": {
+                  "must_observe": "Formula `Math.round(score * 100) + '%'` in Score Rendering Contract section; five section headers present",
+                  "must_not_observe": "Formula stated as `score * 100` (integer) OR `score.toFixed(2)` (decimal) OR file not found"
+                }
+              }
+            ],
+            "test_tier": "e2e",
+            "verification_service": "human-gate + file artifact"
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "Score rendering formula is `Math.round(score * 100) + '%'` \u2014 explicitly named and the only valid form",
+          "given": "The Score Rendering Contract section of the spec",
+          "when": "The formula is read",
+          "then": "The formula matches `Math.round(score * 100) + '%'` exactly; the spec flags raw decimal and raw integer displays as bugs; the spec notes score must arrive as 0\u20131 float from the hook",
+          "test_tier": "e2e",
+          "verification_service": "human-gate",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null
+        },
+        {
+          "id": "AC-3",
+          "name": "Visual differentiation table explicitly lists start\u2192end labels as ABSENT on curated variant",
+          "given": "The Visual Differentiation Table section",
+          "when": "The 'start\u2192end labels' row is read",
+          "then": "The curated variant column reads 'ABSENT' or equivalent negative; the planned-trip column reads 'PRESENT'",
+          "test_tier": "e2e",
+          "verification_service": "human-gate",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null
+        },
+        {
+          "id": "AC-4",
+          "name": "Token path table covers all color and typography properties \u2014 no hardcoded hex",
+          "given": "The Token Path Table section",
+          "when": "Every color and typography property row is inspected",
+          "then": "Zero raw hex values appear in the 'Token path' column; all paths resolve to tokens defined in `tokens/semantic/`",
+          "test_tier": "e2e",
+          "verification_service": "human-gate + pnpm tokens:validate",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null
+        },
+        {
+          "id": "AC-5",
+          "name": "On-device: curated chat cards show real non-zero composite score as % at sprint gate",
+          "given": "DISC-020 is merged; user types 'twisties near Asheville' on real device",
+          "when": "Chat cards appear in transcript",
+          "then": "Each curated route card shows `Math.round(score*100)+'%'` (e.g. '73%') \u2014 never '0%', never '0.73', never raw integer; score bars visible; no start\u2192end label row",
+          "test_tier": "e2e",
+          "verification_service": "real iOS device against live Convex dev",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "description": "`.spec/design/sprint-01/curated-route-chat-card-spec.md` exists and is non-empty",
+          "verify": "test -s .spec/design/sprint-01/curated-route-chat-card-spec.md && echo PASS",
+          "maps_to_ac": "AC-1"
+        },
+        {
+          "id": "TC-2",
+          "description": "Spec file contains the exact formula string `Math.round(score * 100)`",
+          "verify": "grep -q 'Math.round(score \\* 100)' .spec/design/sprint-01/curated-route-chat-card-spec.md && echo PASS",
+          "maps_to_ac": "AC-2"
+        },
+        {
+          "id": "TC-3",
+          "description": "`pnpm tokens:validate` exits 0",
+          "verify": "pnpm tokens:validate",
+          "maps_to_ac": "AC-4"
+        },
+        {
+          "id": "TC-4",
+          "description": "Spec file contains 'ABSENT' in context of start\u2192end differentiation",
+          "verify": "grep -qi 'absent' .spec/design/sprint-01/curated-route-chat-card-spec.md && echo PASS",
+          "maps_to_ac": "AC-3"
+        }
+      ],
+      "requirements": [
+        "UC-DISC-10: System carries composite scores through chat-driven results on the raw 0-1 scale, rendered as bars or percent and never as a raw 0-100 number",
+        "10-design-system.md \u00a72: ScoreDimensionBar renders score as `Math.round(score * 100)+'%'`; fill `semantic.color.primary.default`; track `semantic.color.surface.inset`",
+        "10-design-system.md \u00a71: Score bar fill `semantic.color.primary.default` (#EE7C2B copper-500)",
+        "07-ui-infrastructure.md \u00a71: RouteAttachmentCard is REUSE \u2014 curated results ride the existing card\u2192map\u2192tap-back loop",
+        "07-ui-infrastructure.md \u00a76: testID `route-attachment-card` on curated variant cards"
+      ],
+      "guardrails": {
+        "write_allowed": [
+          ".spec/design/sprint-01/curated-route-chat-card-spec.md (NEW) \u2014 the deliverable spec document"
+        ],
+        "write_prohibited": [
+          "components/chat/route-attachment-card.tsx \u2014 implementation owned by DISC-020",
+          "tokens/** \u2014 read-only",
+          "Any file not in write_allowed"
+        ]
+      },
+      "design": {
+        "references": [
+          ".spec/prds/mvp/09-technical-requirements/10-design-system.md \u00a71 (score bar fill token), \u00a72 (ScoreDimensionBar spec)",
+          ".spec/prds/mvp/09-technical-requirements/07-ui-infrastructure.md \u00a71 (RouteAttachmentCard reuse, card\u2192map loop)",
+          "tokens/semantic/semantic.tokens.json (semantic.color.primary.default, semantic.color.surface.inset, semantic.type.title.lg, semantic.type.label.sm, semantic.color.surfaceVariant.default, semantic.radius.md, semantic.elevation, semantic.space)",
+          "components/chat/route-attachment-card.tsx (existing full variant \u2014 the baseline for the differentiation table)"
+        ],
+        "key_token_paths": {
+          "composite_score_text": "semantic.type.title.lg (fontSize 17, fontWeight 600) + semantic.color.primary.default (#EE7C2B)",
+          "score_bar_fill": "semantic.color.primary.default (#EE7C2B copper-500)",
+          "score_bar_track": "semantic.color.surface.inset (light: #F2EFED, dark: #362A1F)",
+          "score_bar_height": "semantic.space.xs \u00d7 2 = 8dp",
+          "score_label": "semantic.type.label.sm (fontSize 9, fontWeight 600) + JetBrains Mono via semantic.type.instrument.sm",
+          "card_background": "semantic.color.surfaceVariant.default",
+          "card_border_radius": "semantic.radius.md (10pt)",
+          "card_elevation": "semantic.elevation[2]",
+          "route_name": "semantic.type.title.lg (fontSize 17, fontWeight 600) + semantic.color.onSurface.default",
+          "archetype_badge": "Badge component variant='secondary' (existing components/ui/badge.tsx)"
+        }
+      },
+      "verification_gates": {
+        "gate_1_spec_exists": "test -s .spec/design/sprint-01/curated-route-chat-card-spec.md && echo PASS",
+        "gate_2_formula_present": "grep -q 'Math.round(score' .spec/design/sprint-01/curated-route-chat-card-spec.md && echo PASS",
+        "gate_3_tokens_validate": "pnpm tokens:validate",
+        "gate_4_type_check": "pnpm type-check",
+        "gate_5_scope_compliance": "git diff --name-only | grep -v '.spec/design/sprint-01/curated-route-chat-card-spec.md' | wc -l | xargs -I{} test {} -eq 0 && echo SCOPE_CLEAN",
+        "gate_6_human": "Sprint gate step 5 on real iOS device \u2014 curated chat cards show non-zero % score; no start\u2192end label row visible"
+      },
+      "coding_standards": [
+        "Spec uses Markdown with explicit section headers matching the five required sections",
+        "Score formula must appear verbatim as `Math.round(score * 100) + '%'` in the Score Rendering Contract section",
+        "Visual differentiation table uses | Column | Planned-trip `full` | Curated `curated` | format",
+        "Token path table has columns: Property, Token path, Resolved value (light), Resolved value (dark)"
+      ],
+      "dependencies": {
+        "depends_on": [],
+        "blocks": [
+          "DISC-020 (curated chat-card render + card\u2192map loop) \u2014 implementer reads this spec"
+        ],
+        "parallel": [
+          "DESIGN-S01-001",
+          "DESIGN-S01-003",
+          "DESIGN-S01-004",
+          "DATA-008b"
+        ]
+      },
+      "agent_rationale": "frontend-designer owns visual spec and audit; the score-rendering contract and variant differentiation table are the primary design decisions that prevent the 0% / raw-decimal bug from propagating into the DISC-020 implementation.",
+      "reading_list": [
+        {
+          "file": "components/chat/route-attachment-card.tsx",
+          "lines": "72-165",
+          "focus": "Existing `full` variant layout \u2014 the baseline the curated variant differentiates from; start\u2192end row at lines 189-230 is the pattern that must NOT appear on curated"
+        },
+        {
+          "file": ".spec/prds/mvp/09-technical-requirements/10-design-system.md",
+          "lines": "38-58",
+          "focus": "\u00a72 ScoreDimensionBar spec \u2014 the score bar primitive the curated card uses"
+        },
+        {
+          "file": ".spec/prds/mvp/05-uc-disc.md",
+          "lines": "89-96",
+          "focus": "UC-DISC-10 AC: 'System carries composite scores through chat-driven results on the raw 0-1 scale, rendered as bars or percent and never as a raw 0-100 number'"
+        },
+        {
+          "file": "tokens/semantic/semantic.tokens.json",
+          "lines": "1-50",
+          "focus": "semantic.color.primary.default (copper), semantic.color.surface.inset (score bar track)"
+        },
+        {
+          "file": ".spec/prds/mvp/tasks/sprint-01-discovery-on-the-route-plan-view/SPRINT.md",
+          "lines": "51-58",
+          "focus": "DISC-020 task scope \u2014 what the implementer that reads this spec will build"
+        }
+      ]
+    },
+    {
+      "id": "DESIGN-S01-003",
+      "title": "No-route empty/invite home-state spec (testID home-empty-state): discovery-invite copy + empty-catalog messaging over surface.glass scrim @ 72%",
+      "task_type": "DESIGN",
+      "status": "Backlog",
+      "priority": "P1",
+      "effort": "XS",
+      "agent": "frontend-designer",
+      "proposed_by": "frontend-designer",
+      "sprint": 1,
+      "estimate_minutes": 45,
+      "outcome": "A written spec exists at `.spec/design/sprint-01/home-empty-state-spec.md` defining the no-route empty/invite overlay (testID `home-empty-state`), with exact token paths, copy strings, zIndex rule, and gating condition, verifiable by `pnpm tokens:validate` and on-device inspection at the sprint gate.",
+      "critical_constraints": [
+        "NEVER specify `zIndex` higher than the `ChatInput` component (which uses `zIndex: 20` in StyleSheet) \u2014 the empty-state overlay MUST render below the ChatInput so suggestion pill taps pass through; spec must explicitly state `zIndex: 10` or lower and explain why.",
+        "NEVER use hardcoded hex for any color \u2014 every color must reference a token path; discovery-invite copy color is `semantic.color.onSurface.muted` with italic style.",
+        "NEVER show the empty-state overlay when (a) a route IS on the map or (b) transcript messages exist \u2014 the gating condition must be a two-clause AND: `!hasActiveRoute AND transcriptMessages.length === 0`.",
+        "Spec is a WRITE to `.spec/design/sprint-01/home-empty-state-spec.md` ONLY \u2014 do NOT modify `index.tsx` or any app source.",
+        "The overlay uses `surface.glass` (72% alpha token) as its background \u2014 NOT the `surface.overlay` (92% alpha) token."
+      ],
+      "specification": {
+        "deliverable": "`.spec/design/sprint-01/home-empty-state-spec.md` \u2014 a structured spec with four sections: (1) Gating condition; (2) Copy strings and typography; (3) Layout and visual spec; (4) zIndex and interaction model.",
+        "gating_condition": {
+          "show_when": "hasActiveRoute === false AND transcriptMessages.length === 0",
+          "hasActiveRoute_source": "derived from `!!agentActiveOption` in `index.tsx` line 257 \u2014 already available as a prop to ChatInput",
+          "transcriptMessages_source": "rawTranscriptMessages filtered array from `useQuery(api.db.sessionMessages.list, ...)` in index.tsx",
+          "testID": "home-empty-state (the overlay View or its wrapper)"
+        },
+        "copy_strings": {
+          "discovery_invite_line": "'Discover roads near you'",
+          "discovery_invite_typography": "semantic.type.body.md (fontSize 12, lineHeight 18, fontWeight 400) + fontStyle: 'italic'",
+          "discovery_invite_color": "semantic.color.onSurface.muted",
+          "empty_catalog_line": "'No routes near you yet'",
+          "empty_catalog_condition": "shown only when `useCuratedDiscovery` returns `isEmpty === true` (routes === []); hidden during loading (`isLoading === true`) and hidden when routes exist",
+          "empty_catalog_typography": "semantic.type.body.sm (fontSize 11, lineHeight 16, fontWeight 400)",
+          "empty_catalog_color": "semantic.color.onSurface.muted"
+        },
+        "layout_and_visual": {
+          "container_background": "semantic.color.surface.glass (light: rgba(253,251,248,0.72), dark: rgba(45,34,24,0.72)) \u2014 NOT surface.overlay (92% alpha)",
+          "container_border_radius": "semantic.radius.lg (14pt)",
+          "container_padding": "paddingHorizontal: semantic.space.xl (24pt), paddingVertical: semantic.space.lg (16pt)",
+          "container_elevation": "semantic.elevation[2]",
+          "positioning": "absolute, bottom positioned above ChatInput; `bottom` value = ChatInput height (approximately 90pt including suggestion chips) + semantic.space.md (12pt) margin; OR `marginBottom` from ChatInput using the component's own bottomOffset prop",
+          "alignment": "centered horizontally via `alignSelf: 'center'` or `left: 0, right: 0` with `alignItems: 'center'`",
+          "text_alignment": "center"
+        },
+        "zindex_and_interaction": {
+          "zIndex": 10,
+          "rationale": "ChatInput is at zIndex: 20 in chat-input.tsx StyleSheet line ~418; the empty-state must be below ChatInput so it does not intercept pill tap events; suggestion chips (testID `chat-input-suggestion-chips`) must remain tappable",
+          "pointer_events": "The overlay View should have `pointerEvents='none'` since it is purely informational and must not block taps on the suggestion chips area"
+        }
+      },
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "Spec document exists with all four required sections",
+          "primary": true,
+          "given": "The sprint gate reviewer opens `.spec/design/sprint-01/home-empty-state-spec.md`",
+          "when": "They inspect the document",
+          "then": "Four headed sections present: Gating Condition, Copy Strings and Typography, Layout and Visual Spec, zIndex and Interaction Model \u2014 all non-empty",
+          "test_tier": "e2e",
+          "verification_service": "human-gate + file artifact",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null,
+          "scenario": {
+            "negative_control": "would fail if spec doc is absent or any section is missing",
+            "evidence": "file_artifact",
+            "cases": [
+              {
+                "start_ref": "spec-doc-absent",
+                "action": "reviewer reads `.spec/design/sprint-01/home-empty-state-spec.md`",
+                "end_state": {
+                  "must_observe": "All four section headers and the gating condition `!hasActiveRoute AND transcriptMessages.length === 0`",
+                  "must_not_observe": "File not found OR zIndex \u2265 20 specified for the overlay"
+                }
+              }
+            ],
+            "test_tier": "e2e",
+            "verification_service": "human-gate + file artifact"
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "zIndex < 20 explicitly stated with ChatInput zIndex rationale",
+          "given": "The zIndex and Interaction Model section",
+          "when": "The zIndex value and rationale are read",
+          "then": "Spec specifies zIndex \u2264 10 for the empty-state overlay AND explicitly references ChatInput's zIndex: 20 as the reason",
+          "test_tier": "e2e",
+          "verification_service": "human-gate",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null
+        },
+        {
+          "id": "AC-3",
+          "name": "surface.glass token named for overlay background (not surface.overlay)",
+          "given": "The Layout and Visual Spec section",
+          "when": "The container background property is read",
+          "then": "Spec references `semantic.color.surface.glass` (or `color.surface.glass`) with the note '72% alpha' \u2014 NOT `surface.overlay` (92% alpha)",
+          "test_tier": "e2e",
+          "verification_service": "human-gate",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null
+        },
+        {
+          "id": "AC-4",
+          "name": "Discovery-invite copy is 'Discover roads near you' with italic + muted token",
+          "given": "The Copy Strings and Typography section",
+          "when": "The discovery invite copy is read",
+          "then": "Copy is exactly 'Discover roads near you'; typography is `semantic.type.body.md` + `fontStyle: italic`; color is `semantic.color.onSurface.muted`",
+          "test_tier": "e2e",
+          "verification_service": "human-gate",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null
+        },
+        {
+          "id": "AC-5",
+          "name": "On-device: empty-state visible with no route, hidden when route shown \u2014 sprint gate",
+          "given": "DISC-017 is merged (empty-state rendered per spec); real device, no route on map",
+          "when": "Sprint gate step 2 is executed",
+          "then": "The overlay with testID `home-empty-state` is visible and pill taps still work (overlay does not intercept); tapping a suggestion card hides the overlay as a route appears",
+          "test_tier": "e2e",
+          "verification_service": "real iOS device against live Convex dev",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "description": "`.spec/design/sprint-01/home-empty-state-spec.md` exists and is non-empty",
+          "verify": "test -s .spec/design/sprint-01/home-empty-state-spec.md && echo PASS",
+          "maps_to_ac": "AC-1"
+        },
+        {
+          "id": "TC-2",
+          "description": "Spec file contains 'zIndex' reference with value \u2264 10 context",
+          "verify": "grep -q 'zIndex' .spec/design/sprint-01/home-empty-state-spec.md && echo PASS",
+          "maps_to_ac": "AC-2"
+        },
+        {
+          "id": "TC-3",
+          "description": "Spec file references 'surface.glass' token",
+          "verify": "grep -q 'surface.glass' .spec/design/sprint-01/home-empty-state-spec.md && echo PASS",
+          "maps_to_ac": "AC-3"
+        },
+        {
+          "id": "TC-4",
+          "description": "Spec file contains exact copy string 'Discover roads near you'",
+          "verify": "grep -q 'Discover roads near you' .spec/design/sprint-01/home-empty-state-spec.md && echo PASS",
+          "maps_to_ac": "AC-4"
+        },
+        {
+          "id": "TC-5",
+          "description": "`pnpm tokens:validate` exits 0",
+          "verify": "pnpm tokens:validate",
+          "maps_to_ac": "AC-3"
+        }
+      ],
+      "requirements": [
+        "UC-DISC-09: System hides the suggestion cards whenever a route is displayed on the map and re-shows them when the route is cleared",
+        "UC-DISC-11: Rider can dismiss or clear a displayed route and see the suggestion cards return over the input",
+        "07-ui-infrastructure.md \u00a76: testID `home-empty-state`",
+        "07-ui-infrastructure.md \u00a76: all colors via `useSemanticTheme()` \u2014 no hardcoded hex",
+        "10-design-system.md \u00a71: glassmorphic overlays use `surface.glass` at 72% alpha"
+      ],
+      "guardrails": {
+        "write_allowed": [
+          ".spec/design/sprint-01/home-empty-state-spec.md (NEW) \u2014 the deliverable spec document"
+        ],
+        "write_prohibited": [
+          "app/(app)/(tabs)/index.tsx \u2014 implementation owned by DISC-017",
+          "components/chat/chat-input.tsx \u2014 out of scope",
+          "tokens/** \u2014 read-only",
+          "Any file not in write_allowed"
+        ]
+      },
+      "design": {
+        "references": [
+          ".spec/prds/mvp/09-technical-requirements/07-ui-infrastructure.md \u00a76 (testID `home-empty-state`, touch targets, theming)",
+          ".spec/prds/mvp/09-technical-requirements/10-design-system.md \u00a71 (surface.glass rule)",
+          "tokens/semantic/colors.tokens.json (color.surface.glass at 72% alpha, color.surface.overlay at 92% alpha \u2014 must use glass not overlay)",
+          "tokens/semantic/semantic.tokens.json (semantic.color.onSurface.muted, semantic.type.body.md, semantic.type.body.sm, semantic.radius.lg, semantic.space.xl, semantic.elevation)",
+          "components/chat/chat-input.tsx StyleSheet line ~418 (zIndex: 20 for the ChatInput container)"
+        ],
+        "key_token_paths": {
+          "overlay_background": "semantic.color.surface.glass \u2192 color.surface.glass (light: rgba(253,251,248,0.72), dark: rgba(45,34,24,0.72))",
+          "invite_copy_color": "semantic.color.onSurface.muted",
+          "invite_copy_typography": "semantic.type.body.md (fontSize 12, lineHeight 18, fontWeight 400) + fontStyle italic",
+          "empty_catalog_typography": "semantic.type.body.sm (fontSize 11, lineHeight 16, fontWeight 400)",
+          "border_radius": "semantic.radius.lg (14pt)",
+          "padding_h": "semantic.space.xl (24pt)",
+          "padding_v": "semantic.space.lg (16pt)",
+          "elevation": "semantic.elevation[2]",
+          "zIndex": 10
+        }
+      },
+      "verification_gates": {
+        "gate_1_spec_exists": "test -s .spec/design/sprint-01/home-empty-state-spec.md && echo PASS",
+        "gate_2_tokens_validate": "pnpm tokens:validate",
+        "gate_3_type_check": "pnpm type-check",
+        "gate_4_scope_compliance": "git diff --name-only | grep -v '.spec/design/sprint-01/home-empty-state-spec.md' | wc -l | xargs -I{} test {} -eq 0 && echo SCOPE_CLEAN",
+        "gate_5_human": "Sprint gate step 2 on real iOS device \u2014 `home-empty-state` visible when no route on map; tapping suggestion pill card hides it; overlay does not intercept pill taps"
+      },
+      "coding_standards": [
+        "Spec uses Markdown with four explicit section headers",
+        "Copy strings appear verbatim in quotes so DISC-017 implementer can copy them",
+        "zIndex rationale must cite the specific ChatInput StyleSheet zIndex value (20) from chat-input.tsx",
+        "Two-variant copy (discovery-invite vs empty-catalog) must be clearly separated with the isEmpty gating condition for each"
+      ],
+      "dependencies": {
+        "depends_on": [],
+        "blocks": [
+          "DISC-017 (suggestion slot shows curated cards, not generic IDLE_SUGGESTIONS) \u2014 the empty-state overlay and copy strings are part of this task's scope"
+        ],
+        "parallel": [
+          "DESIGN-S01-001",
+          "DESIGN-S01-002",
+          "DESIGN-S01-004",
+          "DISC-002"
+        ]
+      },
+      "agent_rationale": "frontend-designer owns the copy, zIndex, and token decisions for the empty-state overlay; the zIndex-below-ChatInput rule is a design architecture decision (not just styling) that the implementer must follow.",
+      "reading_list": [
+        {
+          "file": "components/chat/chat-input.tsx",
+          "lines": "410-420",
+          "focus": "StyleSheet.container with `zIndex: 20` \u2014 the value the empty-state must NOT meet or exceed"
+        },
+        {
+          "file": "app/(app)/(tabs)/index.tsx",
+          "lines": "257-264",
+          "focus": "hasActiveRoute derivation (`!!agentActiveOption`) and curatedPills construction \u2014 the gating signals the overlay reads"
+        },
+        {
+          "file": "tokens/semantic/colors.tokens.json",
+          "lines": "26-43",
+          "focus": "color.surface.glass (72% alpha) vs color.surface.overlay (92% alpha) \u2014 the distinction the spec must make explicit"
+        },
+        {
+          "file": ".spec/prds/mvp/09-technical-requirements/07-ui-infrastructure.md",
+          "lines": "55-60",
+          "focus": "\u00a76 testID `home-empty-state` in the testID registry"
+        },
+        {
+          "file": ".spec/prds/mvp/05-uc-disc.md",
+          "lines": "64-76",
+          "focus": "UC-DISC-09 ACs \u2014 the gating rule 'hides whenever a route is displayed, re-shows when cleared'"
+        }
+      ]
+    },
+    {
+      "id": "DESIGN-S01-004",
+      "title": "Footer full-chat button distinction spec: icon/shape vs send, \u226544pt, active-state token, compliance audit of chat-input-chat-view-button",
+      "task_type": "DESIGN",
+      "status": "Backlog",
+      "priority": "P2",
+      "effort": "XS",
+      "agent": "frontend-designer",
+      "proposed_by": "frontend-designer",
+      "sprint": 1,
+      "estimate_minutes": 30,
+      "outcome": "A written compliance audit and spec exists at `.spec/design/sprint-01/footer-chat-button-spec.md` for the `chat-input-chat-view-button`, confirming or correcting its icon shape, size, active-state token, and border/elevation against the spec \u2014 verifiable by `pnpm tokens:validate` and on-device sprint gate.",
+      "critical_constraints": [
+        "NEVER specify that the full-chat button and the send button share the same icon \u2014 they must be visually distinct affordances; the spec must name different icons for each and explain why the distinction matters for one-handed UX.",
+        "NEVER specify a touch target below 44pt \u2014 `semantic.control.minTouchTarget` (44) is the floor; the current `chatViewBtnSize = 48` already passes but must be cited via the token.",
+        "NEVER specify the active-state background as a hardcoded hex \u2014 active state MUST use `semantic.color.primary.default` (#EE7C2B copper); the current code at line 385 uses this token correctly; the spec must confirm it.",
+        "Spec is a WRITE to `.spec/design/sprint-01/footer-chat-button-spec.md` ONLY \u2014 do NOT modify `chat-input.tsx` or any app source.",
+        "The compliance audit must cite specific line numbers from `chat-input.tsx` for each property it evaluates."
+      ],
+      "specification": {
+        "deliverable": "`.spec/design/sprint-01/footer-chat-button-spec.md` \u2014 a structured compliance audit + spec with three sections: (1) Required spec for the full-chat button; (2) Compliance audit of current implementation (chat-input.tsx lines 373-403); (3) Gap summary (PASS/FAIL per property).",
+        "required_spec": {
+          "testID": "chat-input-chat-view-button (already in code at line 392 \u2014 confirm)",
+          "purpose": "Navigation affordance: opens the full chat transcript view; categorically different from the send action",
+          "icon_when_inactive": "'chat-outline' (react-native-paper Material Design icon) \u2014 navigation/mode icon, NOT 'arrow-right' (which is the send icon)",
+          "icon_when_active": "'map-outline' \u2014 signals 'return to map', i.e. closing the chat transcript",
+          "icon_size": 20,
+          "button_size": "48 \u00d7 48pt (chatViewBtnSize = 48 in current code) \u2014 must be cited against semantic.control.minTouchTarget (44); 48 \u2265 44 \u2192 PASS",
+          "border_radius": "chatViewBtnSize / 2 = 24pt \u2192 circular; equivalent to semantic.radius.full (9999) at this size",
+          "background_inactive": "semantic.color.surface.default \u2014 translucent glass surface (the button sits over the map); current code uses `semantic.color.surface.default` at line 384",
+          "background_active": "semantic.color.primary.default (#EE7C2B copper) \u2014 current code line 383 uses this token; PASS",
+          "border_color_inactive": "semantic.color.border.default \u2014 current code line 387 uses this token; PASS",
+          "border_color_active": "semantic.color.primary.default \u2014 current code line 386 uses this token; PASS",
+          "icon_color_inactive": "semantic.color.onSurface.muted \u2014 current code line 401 uses this token; PASS",
+          "icon_color_active": "semantic.color.onPrimary.default \u2014 current code line 400 uses this token; PASS",
+          "elevation": "semantic.elevation[2] \u2014 current code line 388-390 applies `...semantic.elevation[2]`; PASS",
+          "border_width": 1
+        },
+        "compliance_audit_instructions": {
+          "evaluate_each_property": "For each property in the Required Spec, locate the implementing line in `chat-input.tsx` (lines 373-403 for the chat-view button), compare to spec, and emit PASS or FAIL with the line number.",
+          "icon_distinction_audit": "The send button uses `Icon source='arrow-right'` (line 362); the chat-view button uses `Icon source={chatMode ? 'map-outline' : 'chat-outline'}` (line 397-399). These are categorically different \u2014 PASS. Spec must confirm this distinction is sufficient for one-handed UX and document why: arrow-right implies 'submit/forward', map/chat-outline implies 'navigate to mode'.",
+          "size_audit": "chatViewBtnSize = 48 (line 243); `semantic.control.minTouchTarget = 44`; 48 \u2265 44 \u2192 PASS.",
+          "active_state_audit": "Line 383: `chatMode ? semantic.color.primary.default : semantic.color.surface.default` \u2192 active background is copper \u2192 PASS."
+        },
+        "expected_gaps": [
+          "The spec should identify: the `chatViewBtnSize` variable uses a magic number `48` rather than a token; recommend `Math.max(semantic.control.minTouchTarget, 48)` or a dedicated `semantic.size.large` (48pt) token reference for future Copper Navigator alignment",
+          "The icon size uses magic number `iconSize + 2 = 20` (line 243, 398) rather than `semantic.iconSize.medium` (20) \u2014 flag as a gap even though the value is correct, because the token path should be used"
+        ]
+      },
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "Spec document exists with all three required sections",
+          "primary": true,
+          "given": "The sprint gate reviewer opens `.spec/design/sprint-01/footer-chat-button-spec.md`",
+          "when": "They inspect the document",
+          "then": "Three headed sections present: Required Spec, Compliance Audit, Gap Summary \u2014 all non-empty; Gap Summary has a PASS/FAIL row for each audited property",
+          "test_tier": "e2e",
+          "verification_service": "human-gate + file artifact",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null,
+          "scenario": {
+            "negative_control": "would fail if spec doc is absent, gap summary is missing, or icon distinction is not evaluated",
+            "evidence": "file_artifact",
+            "cases": [
+              {
+                "start_ref": "spec-doc-absent",
+                "action": "reviewer reads `.spec/design/sprint-01/footer-chat-button-spec.md`",
+                "end_state": {
+                  "must_observe": "Three section headers; PASS/FAIL table with \u2265 8 property rows; icon distinction row",
+                  "must_not_observe": "File not found OR gap summary absent OR active background specified as a hardcoded hex"
+                }
+              }
+            ],
+            "test_tier": "e2e",
+            "verification_service": "human-gate + file artifact"
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "Icon distinction is explicitly evaluated: send='arrow-right' vs chat-view='chat-outline'/'map-outline'",
+          "given": "The compliance audit section",
+          "when": "The icon distinction row is read",
+          "then": "Spec names 'arrow-right' as the send icon, 'chat-outline' (inactive) and 'map-outline' (active) as the chat-view button icons, and marks the distinction PASS",
+          "test_tier": "e2e",
+          "verification_service": "human-gate",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null
+        },
+        {
+          "id": "AC-3",
+          "name": "Active-state background confirmed as semantic.color.primary.default \u2014 no hardcoded hex",
+          "given": "The compliance audit active-state background row",
+          "when": "The token reference and PASS/FAIL verdict are read",
+          "then": "Spec cites `semantic.color.primary.default` at `chat-input.tsx` line 383 and marks PASS; the raw hex '#EE7C2B' does NOT appear as the specified value in the Gap Summary 'Required token' column",
+          "test_tier": "e2e",
+          "verification_service": "human-gate",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null
+        },
+        {
+          "id": "AC-4",
+          "name": "Touch target \u226544pt confirmed via semantic.control.minTouchTarget comparison",
+          "given": "The compliance audit size/touch target row",
+          "when": "The audit verdict is read",
+          "then": "Spec compares chatViewBtnSize (48) to semantic.control.minTouchTarget (44) and marks PASS; magic-number '48' is flagged as a minor gap",
+          "test_tier": "e2e",
+          "verification_service": "human-gate",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null
+        },
+        {
+          "id": "AC-5",
+          "name": "On-device: full-chat button visually distinct from send at sprint gate",
+          "given": "DISC-018 is merged; real device",
+          "when": "Sprint gate step 8 is executed (tap footer button to right of input)",
+          "then": "The `chat-input-chat-view-button` icon is clearly different from the `chat-input-send-button` icon; tapping it opens the full chat view; active state shows copper background",
+          "test_tier": "e2e",
+          "verification_service": "real iOS device against live Convex dev",
+          "tdd_state": "none",
+          "test_file": null,
+          "test_function": null
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "description": "`.spec/design/sprint-01/footer-chat-button-spec.md` exists and is non-empty",
+          "verify": "test -s .spec/design/sprint-01/footer-chat-button-spec.md && echo PASS",
+          "maps_to_ac": "AC-1"
+        },
+        {
+          "id": "TC-2",
+          "description": "Spec file contains 'chat-outline' icon reference (icon distinction audit)",
+          "verify": "grep -q 'chat-outline' .spec/design/sprint-01/footer-chat-button-spec.md && echo PASS",
+          "maps_to_ac": "AC-2"
+        },
+        {
+          "id": "TC-3",
+          "description": "Spec file contains 'semantic.color.primary.default' in context of active state",
+          "verify": "grep -q 'primary.default' .spec/design/sprint-01/footer-chat-button-spec.md && echo PASS",
+          "maps_to_ac": "AC-3"
+        },
+        {
+          "id": "TC-4",
+          "description": "Spec file contains 'minTouchTarget' reference",
+          "verify": "grep -q 'minTouchTarget' .spec/design/sprint-01/footer-chat-button-spec.md && echo PASS",
+          "maps_to_ac": "AC-4"
+        },
+        {
+          "id": "TC-5",
+          "description": "`pnpm tokens:validate` exits 0",
+          "verify": "pnpm tokens:validate",
+          "maps_to_ac": "AC-3"
+        }
+      ],
+      "requirements": [
+        "UC-DISC-11: System renders the full-chat button as a navigation affordance distinct from the chat send action",
+        "UC-DISC-11: Rider can open the full chat view from a button to the right of the chat input in the bottom footer",
+        "07-ui-infrastructure.md \u00a76: testID `chat-input-chat-view-button`",
+        "07-ui-infrastructure.md \u00a76: touch targets \u2265 44pt",
+        "07-ui-infrastructure.md \u00a76: all colors via `useSemanticTheme()` \u2014 no hardcoded hex"
+      ],
+      "guardrails": {
+        "write_allowed": [
+          ".spec/design/sprint-01/footer-chat-button-spec.md (NEW) \u2014 the deliverable spec/audit document"
+        ],
+        "write_prohibited": [
+          "components/chat/chat-input.tsx \u2014 implementation owned by DISC-018",
+          "tokens/** \u2014 read-only",
+          "Any file not in write_allowed"
+        ]
+      },
+      "design": {
+        "references": [
+          ".spec/prds/mvp/09-technical-requirements/07-ui-infrastructure.md \u00a76 (testID `chat-input-chat-view-button`, touch targets, theming)",
+          "tokens/semantic/semantic.tokens.json (semantic.color.primary.default, semantic.color.surface.default, semantic.color.border.default, semantic.color.onPrimary.default, semantic.color.onSurface.muted, semantic.control.minTouchTarget, semantic.iconSize.medium, semantic.elevation)",
+          "components/chat/chat-input.tsx lines 372-404 (the chat-view toggle button implementation \u2014 primary subject of the audit)"
+        ],
+        "key_token_paths": {
+          "active_background": "semantic.color.primary.default (#EE7C2B copper) \u2014 line 383",
+          "inactive_background": "semantic.color.surface.default \u2014 line 384",
+          "active_border": "semantic.color.primary.default \u2014 line 386",
+          "inactive_border": "semantic.color.border.default \u2014 line 387",
+          "active_icon_color": "semantic.color.onPrimary.default \u2014 line 400",
+          "inactive_icon_color": "semantic.color.onSurface.muted \u2014 line 401",
+          "elevation": "semantic.elevation[2] \u2014 line 388",
+          "min_touch_target": "semantic.control.minTouchTarget (44); current size 48 \u2192 PASS",
+          "icon_size": "semantic.iconSize.medium (20); current magic number iconSize+2=20 \u2192 value correct, path gap"
+        }
+      },
+      "verification_gates": {
+        "gate_1_spec_exists": "test -s .spec/design/sprint-01/footer-chat-button-spec.md && echo PASS",
+        "gate_2_tokens_validate": "pnpm tokens:validate",
+        "gate_3_type_check": "pnpm type-check",
+        "gate_4_scope_compliance": "git diff --name-only | grep -v '.spec/design/sprint-01/footer-chat-button-spec.md' | wc -l | xargs -I{} test {} -eq 0 && echo SCOPE_CLEAN",
+        "gate_5_human": "Sprint gate step 8 on real iOS device \u2014 full-chat button visually distinct from send; copper active state visible when chat mode is on"
+      },
+      "coding_standards": [
+        "Audit document uses a PASS/FAIL table with columns: Property, Required spec, Current code (file:line), Verdict",
+        "Every PASS verdict must cite a specific line number from chat-input.tsx",
+        "Every FAIL or gap verdict must include an actionable 'Fix' column entry",
+        "No raw hex values in the 'Required spec' column \u2014 token paths only"
+      ],
+      "dependencies": {
+        "depends_on": [],
+        "blocks": [
+          "DISC-018 (footer full-chat button + suggestion-card visibility) \u2014 implementer reads this audit for any gaps to fix"
+        ],
+        "parallel": [
+          "DESIGN-S01-001",
+          "DESIGN-S01-002",
+          "DESIGN-S01-003"
+        ]
+      },
+      "agent_rationale": "frontend-designer produces compliance audits against live code; DISC-018's implementer reads this audit and only needs to fix the flagged gaps (expected: minor magic-number issues) rather than design from scratch.",
+      "reading_list": [
+        {
+          "file": "components/chat/chat-input.tsx",
+          "lines": "372-408",
+          "focus": "The chat-view toggle button (lines 373-403) \u2014 the primary subject of the compliance audit; send button for icon comparison at lines 341-369"
+        },
+        {
+          "file": "components/chat/chat-input.tsx",
+          "lines": "240-245",
+          "focus": "chatViewBtnSize (48) and iconSize (18) variable definitions \u2014 the magic numbers to evaluate against tokens"
+        },
+        {
+          "file": "tokens/semantic/semantic.tokens.json",
+          "lines": "529-560",
+          "focus": "semantic.control.minTouchTarget (44) and semantic.iconSize.medium (20) \u2014 the token values for the audit comparison"
+        },
+        {
+          "file": ".spec/prds/mvp/09-technical-requirements/07-ui-infrastructure.md",
+          "lines": "55-60",
+          "focus": "\u00a76 testID `chat-input-chat-view-button` in the registry and the touch-target rule"
+        },
+        {
+          "file": ".spec/prds/mvp/05-uc-disc.md",
+          "lines": "101-113",
+          "focus": "UC-DISC-11 ACs: 'renders the full-chat button as a navigation affordance distinct from the chat send action'"
+        }
+      ]
+    }
+  ],
+  "design_enrichments": [
+    {
+      "attaches_to_task": "DISC-016",
+      "sprint_task_title": "FIX: tapping a suggestion card plots the already-fetched curated route on the map directly",
+      "enrichment_type": "token_visual_notes",
+      "from_design_task": "DESIGN-S01-001",
+      "notes": [
+        "Read `.spec/design/sprint-01/suggestion-card-spec.md` before implementing the tap handler \u2014 the chip variant style props are specified there with exact token paths.",
+        "The `CuratedPill` type (`{ label: string; routeId: string }`) and `onSelectRoute` prop are already defined in `chat-input.tsx` lines 36-39 and 102-103; do not redefine them.",
+        "The existing `TouchableOpacity` at chat-input.tsx line 100 already has `testID={routeId ? \\`discovery-suggestion-pill-${routeId}\\` : undefined}` \u2014 preserve this testID pattern.",
+        "Chip background MUST become `semantic.color.surface.glass` (not `semantic.color.surface.default`) per DESIGN-S01-001; this is the primary token gap the spec identifies.",
+        "Chip border MUST become `semantic.color.border.glass` (not `semantic.color.border.default`) per DESIGN-S01-001.",
+        "The `onSelectRoute` handler at line 103 already invokes the prop \u2014 the fix is in the caller (`index.tsx` `handleSelectCuratedRoute`) to plot directly rather than send a chat message."
+      ]
+    },
+    {
+      "attaches_to_task": "DISC-017",
+      "sprint_task_title": "FIX: suggestion slot shows curated cards (or nothing while loading/empty) \u2014 never the generic IDLE_SUGGESTIONS planning prompts",
+      "enrichment_type": "token_visual_notes",
+      "from_design_task": "DESIGN-S01-001",
+      "notes": [
+        "Read `.spec/design/sprint-01/suggestion-card-spec.md` for the chip variant spec before implementing the curated-vs-generic gate.",
+        "Read `.spec/design/sprint-01/home-empty-state-spec.md` for the empty-state overlay that accompanies this task (copy strings, zIndex, surface.glass token).",
+        "The gating condition in `chat-input.tsx` line 268 already has `!hasActiveRoute` \u2014 extend it to also replace the `IDLE_SUGGESTIONS` fallback with curated pills or nothing (not the generic strings).",
+        "Empty-state overlay (testID `home-empty-state`) must render at `zIndex: 10` \u2014 below `ChatInput`'s `zIndex: 20` \u2014 so it does not intercept pill taps; use `pointerEvents='none'` on the overlay View.",
+        "Discovery-invite copy: 'Discover roads near you' (`semantic.type.body.md`, `fontStyle: italic`, `semantic.color.onSurface.muted`). Empty-catalog copy: 'No routes near you yet' (`semantic.type.body.sm`, `semantic.color.onSurface.muted`) \u2014 shown only when `isEmpty === true` from `useCuratedDiscovery`.",
+        "Surface.glass token for the overlay background: `color.surface.glass` (light: rgba(253,251,248,0.72), dark: rgba(45,34,24,0.72)) \u2014 NOT `color.surface.overlay` (92% alpha)."
+      ]
+    },
+    {
+      "attaches_to_task": "DISC-020",
+      "sprint_task_title": "Render chat-driven curated routes as transcript cards (curated variant; score as %/bars) + verify the card\u2192map\u2192return-to-map loop with centroid fallback",
+      "enrichment_type": "token_visual_notes",
+      "from_design_task": "DESIGN-S01-002",
+      "notes": [
+        "Read `.spec/design/sprint-01/curated-route-chat-card-spec.md` before implementing `variant='curated'` \u2014 it contains the score rendering formula, layout rows, and visual differentiation table.",
+        "Score rendering formula: `Math.round(score * 100) + '%'` where `score` is the 0\u20131 float from the agent curated-discovery tool. NEVER display raw 0\u20131 decimal or raw 0\u2013100 integer.",
+        "The curated card must NOT show a `{startLabel} \u2192 {endLabel}` row \u2014 that is the planned-trip pattern; curated shows route name + mileage + archetype badge.",
+        "Use `ScoreDimensionBar` for score bars (spec in `.spec/prds/mvp/09-technical-requirements/10-design-system.md \u00a72`): track `semantic.color.surface.inset`, fill `semantic.color.primary.default`, height 8dp.",
+        "Composite score display: `semantic.type.title.lg` (fontSize 17, fontWeight 600) + `semantic.color.primary.default` (#EE7C2B copper).",
+        "The spec recommends `variant='curated'` on the existing `RouteAttachmentCard` rather than a new component, to preserve the tap\u2192map loop machinery at `route-attachment-card.tsx` lines 119-126.",
+        "testID remains `route-attachment-card` per `07-ui-infrastructure.md \u00a76`.",
+        "DATA-008b must land before or in parallel: if `compositeScore` is 0 from the flat-field mapping bug, the card will display '0%' \u2014 this is a data bug, not a render bug; the render formula is correct when the data is correct."
+      ]
+    },
+    {
+      "attaches_to_task": "DISC-018",
+      "sprint_task_title": "Verify/harden the footer 'open full chat' button (distinct from send) + suggestion-card visibility keyed to 'no active route on the map'",
+      "enrichment_type": "token_visual_notes",
+      "from_design_task": "DESIGN-S01-004",
+      "notes": [
+        "Read `.spec/design/sprint-01/footer-chat-button-spec.md` \u2014 it is a compliance audit of the current implementation; fix only the FAIL rows.",
+        "Expected FAILs (minor): chatViewBtnSize uses magic number 48 (should reference `semantic.control.minTouchTarget` or `semantic.size.large`); iconSize+2=20 should reference `semantic.iconSize.medium` (20).",
+        "Expected PASSes (do not change): active background `semantic.color.primary.default` (line 383), active border `semantic.color.primary.default` (line 386), inactive border `semantic.color.border.default` (line 387), elevation `semantic.elevation[2]` (line 388), active icon `semantic.color.onPrimary.default` (line 400), inactive icon `semantic.color.onSurface.muted` (line 401).",
+        "Icon distinction: send='arrow-right' vs chat-view='chat-outline'/'map-outline' \u2014 this is already PASS; do NOT change the icons unless the audit finds a regression.",
+        "testID `chat-input-chat-view-button` at line 392 \u2014 do not remove or rename."
+      ]
+    }
+  ],
+  "design_system_status": {
+    "status": "ready_with_gaps",
+    "token_validation_command": "pnpm tokens:validate",
+    "overall_readiness": "The token system is READY for implementation \u2014 `tokens/semantic/colors.tokens.json` and `tokens/semantic/semantic.tokens.json` define all required paths. Two token-usage gaps exist in the current source code; they do not require new token definitions, only correct usage of existing tokens.",
+    "gaps": [
+      {
+        "id": "GAP-001",
+        "severity": "medium",
+        "description": "surface.glass token exists in `colors.tokens.json` (color.surface.glass) but the `SuggestionChips` component in `chat-input.tsx` uses `semantic.color.surface.default` (the opaque surface) for chip background instead of the 72%-alpha glass token. This makes curated chips opaque rather than glassmorphic, violating 10-design-system.md \u00a71.",
+        "token_path": "semantic.color.surface.glass \u2192 color.surface.glass",
+        "current_value_in_code": "semantic.color.surface.default (chat-input.tsx line 114)",
+        "required_value": "semantic.color.surface.glass (light: rgba(253,251,248,0.72), dark: rgba(45,34,24,0.72))",
+        "fix_owned_by": "DISC-016 / DISC-017 (guided by DESIGN-S01-001 spec)",
+        "setup_needed": false
+      },
+      {
+        "id": "GAP-002",
+        "severity": "medium",
+        "description": "border.glass token exists in `colors.tokens.json` but curated chip border uses `semantic.color.border.default` (paper-400 / 12%-white-alpha). On a glass-background chip over the map, the default border is too opaque; the glass border (`rgba(255,255,255,0.55)` / `rgba(242,238,232,0.22)`) is the correct token for a glassmorphic affordance.",
+        "token_path": "semantic.color.border.glass \u2192 color.border.glass",
+        "current_value_in_code": "semantic.color.border.default (chat-input.tsx line 110)",
+        "required_value": "semantic.color.border.glass (light: rgba(255,255,255,0.55), dark: rgba(242,238,232,0.22))",
+        "fix_owned_by": "DISC-016 / DISC-017 (guided by DESIGN-S01-001 spec)",
+        "setup_needed": false
+      },
+      {
+        "id": "GAP-003",
+        "severity": "low",
+        "description": "The `semantic.color.accent` token path is accessed in chat-input.tsx line 129 as `semantic.color.accent?.default ?? '#EE7C2B'` with an optional-chain guard and a hardcoded hex fallback. The token IS defined in `semantic.tokens.json` for both light and dark modes. The optional-chain and hex fallback are unnecessary and should be replaced with a direct `semantic.color.accent.default` access.",
+        "token_path": "semantic.color.accent.default",
+        "current_value_in_code": "semantic.color.accent?.default ?? '#EE7C2B' (chat-input.tsx line 129)",
+        "required_value": "semantic.color.accent.default (token is stable \u2014 defined in semantic.tokens.json lines 137-150 for both themes)",
+        "fix_owned_by": "DISC-016 / DISC-017 (guided by DESIGN-S01-001 spec)",
+        "setup_needed": false
+      },
+      {
+        "id": "GAP-004",
+        "severity": "low",
+        "description": "chatViewBtnSize (48) and iconSize (18) in chat-input.tsx lines 243-244 are magic numbers. semantic.control.minTouchTarget (44) and semantic.iconSize.medium (20) exist as tokens. The values are close but not token-sourced. This is a readability/maintainability gap, not a visual defect; values produce correct behavior.",
+        "token_path": "semantic.control.minTouchTarget (44), semantic.iconSize.medium (20)",
+        "current_value_in_code": "const chatViewBtnSize = 48; const iconSize = 18 (chat-input.tsx lines 243-244)",
+        "required_value": "Derive from tokens or document the intentional deviation (48 > 44 for comfortable one-handed tap; 20 = iconSize.medium which is iconSize+2=20)",
+        "fix_owned_by": "DISC-018 (guided by DESIGN-S01-004 spec/audit)",
+        "setup_needed": false
+      },
+      {
+        "id": "GAP-005",
+        "severity": "high",
+        "description": "No `onSurface.muted` sub-key exists on `semantic.color.onSurface` in `semantic.tokens.json` \u2014 the file only defines `onSurface.default`. The code references `semantic.color.onSurface.muted` in multiple places (e.g. chat-input.tsx line 304, route-attachment-card.tsx line 211). This path resolves at runtime via `useSemanticTheme()` which may map it from a different token source. The design task specs reference this path; implementers must verify via `pnpm type-check` that the path resolves without TypeScript errors before assuming it is safe.",
+        "token_path": "semantic.color.onSurface.muted",
+        "current_value_in_code": "semantic.color.onSurface.muted (chat-input.tsx line 304, multiple files)",
+        "required_value": "Either: confirm `useSemanticTheme()` maps `onSurface.muted` from `color.content.tertiary` or similar; OR add `onSurface.muted` to `semantic.tokens.json` explicitly. The spec tasks reference this path as an existing working token \u2014 verify at the sprint gate.",
+        "fix_owned_by": "Verify only \u2014 if type-check fails, `convex-implementer` or `react-native-ui-implementer` must add the token; if it passes, no action needed.",
+        "setup_needed": true
+      }
+    ],
+    "ready_tokens": [
+      "semantic.color.accent.default (#EE7C2B copper-500) \u2014 defined in both light/dark in semantic.tokens.json",
+      "semantic.color.surface.glass \u2014 defined in colors.tokens.json (light: rgba(253,251,248,0.72), dark: rgba(45,34,24,0.72))",
+      "semantic.color.border.glass \u2014 defined in colors.tokens.json",
+      "semantic.color.primary.default (#EE7C2B) \u2014 active state, score bars, composite score text",
+      "semantic.color.surface.inset \u2014 score bar track",
+      "semantic.type.body.md, semantic.type.body.sm, semantic.type.title.lg, semantic.type.label.sm \u2014 all defined",
+      "semantic.control.minTouchTarget (44) \u2014 defined",
+      "semantic.radius.md (10), semantic.radius.lg (14), semantic.radius.full (9999) \u2014 defined",
+      "semantic.space.xs (4), semantic.space.sm (8), semantic.space.md (12), semantic.space.lg (16), semantic.space.xl (24) \u2014 defined",
+      "semantic.elevation[1] through semantic.elevation[5], semantic.elevation[8] \u2014 defined for both themes",
+      "semantic.borderWidth.thin (1) \u2014 defined"
+    ],
+    "setup_needed_actions": [
+      "Verify `useSemanticTheme()` maps `semantic.color.onSurface.muted` at runtime \u2014 run `pnpm type-check` after DISC-016 implementation to confirm no TypeScript errors on this path before marking DESIGN-S01-001 complete"
+    ]
+  }
+}

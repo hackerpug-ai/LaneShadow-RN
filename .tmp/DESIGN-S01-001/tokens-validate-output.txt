@@ -1,0 +1,17 @@
+
+> laneshadow@1.0.0 tokens:validate /Users/justinrich/Projects/LaneShadow-RN
+> node tokens/scripts/validate-contract.js && pnpm tsx tokens/scripts/validate-typography.ts && pnpm tsx tokens/scripts/validate-dimensions.ts && node tokens/scripts/validate-colors.js
+
+Validated 1 token JSON file(s).
+Deliberate mutation check: ok (failed as expected).
+Validated: tokens/semantic/typography.tokens.json
+Role coverage: ok (all required roles present)
+Validating dimensions.tokens.json against UC-TOK-03 acceptance criteria...
+
+AC-1 PASS: all six categories present
+AC-2 PASS: spacing scale 0..12 complete
+AC-3 PASS: icon sizing xs..xl present
+AC-4 PASS: negative elevation detected (should fail schema validation)
+
+✓ All UC-TOK-03 acceptance criteria passed.
+✓ colors.tokens.json is valid

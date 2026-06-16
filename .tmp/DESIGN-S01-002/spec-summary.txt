@@ -1,0 +1,1 @@
+curated-route-chat-card-spec.md: Score rendering contract, layout spec, visual differentiation table, prop plan

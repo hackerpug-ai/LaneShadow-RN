@@ -1,0 +1,213 @@
+{
+  "DATA-002": {
+    "AC-2": {
+      "start_ref": "seeded_geospatial_index",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)",
+      "negative_control": {
+        "would_fail_if": [
+          "the archetype map is a no-op returning raw DB values (mountain/coastal/scenic_byway/desert) so primaryArchetype is not a UI enum",
+          "dbArchetypeToUi is hardcoded/stubbed to a single spelling so some DB values map to undefined and routes are dropped",
+          "listCuratedRoutes is disconnected/empty and returns [] so no mapped result is observable"
+        ]
+      },
+      "evidence": { "artifact_type": "api_response", "required_capture": true },
+      "cases": [
+        {
+          "start_ref": "seeded_geospatial_index",
+          "action": { "actor": "api_client", "steps": [
+            "call listCuratedRoutes with {archetypes:['technical'], limit:20} (authed) against live Convex dev",
+            "assert every returned card's primaryArchetype is a UI enum mapped from the DB enum (mountain DB value surfaces as 'technical', never raw)"
+          ] },
+          "end_state": {
+            "must_observe": [ ">=1 route returned", "every returned primaryArchetype === 'technical'" ],
+            "must_not_observe": [ "primaryArchetype === 'mountain'", "primaryArchetype === undefined", "0 routes", "[] (empty result)" ]
+          }
+        },
+        {
+          "start_ref": "seeded_geospatial_index",
+          "action": { "actor": "api_client", "steps": [
+            "call listCuratedRoutes with {archetypes:['adventure'], limit:20} (authed) against live Convex dev",
+            "assert routes sourced from DB archetypes adventure and desert both surface under one UI enum (no DB-only value escapes, no route dropped)"
+          ] },
+          "end_state": {
+            "must_observe": [ ">=1 route returned", "every returned primaryArchetype === 'adventure'" ],
+            "must_not_observe": [ "primaryArchetype === 'desert'", "primaryArchetype === undefined", "0 routes", "[] (empty result)" ]
+          }
+        }
+      ]
+    },
+    "AC-3": {
+      "start_ref": "seeded_geospatial_index",
+      "tier": "holdout",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev (curated_routes sample read before/after)",
+      "negative_control": {
+        "would_fail_if": [
+          "the mapping gate writes back to curated_routes (mutates primaryArchetype) instead of being read-path only",
+          "a migration is hardcoded to normalize the stored DB enum so the sampled rows differ pre/post",
+          "the sample read is stubbed/static so a real pre-vs-post difference is masked"
+        ]
+      },
+      "evidence": { "artifact_type": "db_query", "required_capture": true },
+      "cases": [
+        {
+          "start_ref": "seeded_geospatial_index",
+          "action": { "actor": "api_client", "steps": [
+            "sample N=20 curated_routes primaryArchetype values on live dev and record them",
+            "exercise listCuratedRoutes with {archetypes:['scenic'], limit:20}",
+            "re-sample the same N=20 rows by _id"
+          ] },
+          "end_state": {
+            "must_observe": [ "pre-sample === post-sample (all 20 primaryArchetype values byte-identical)", "0 sampled primaryArchetype values changed" ],
+            "must_not_observe": [ "any sampled primaryArchetype changed", "0 rows sampled (empty sample)", "[] (empty pre- or post-sample)" ]
+          }
+        }
+      ]
+    }
+  },
+  "DATA-004": {
+    "AC-2": {
+      "start_ref": "seeded_geospatial_index",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)",
+      "negative_control": {
+        "would_fail_if": [
+          "clampLength is a no-op so the 710430mi outlier and 0mi lengths escape to cards unchanged",
+          "clamp is hardcoded/stubbed to always return undefined so a valid 137mi length is dropped",
+          "listCuratedRoutes is disconnected/empty and returns [] so no clamped lengthMiles is observable"
+        ]
+      },
+      "evidence": { "artifact_type": "api_response", "required_capture": true },
+      "cases": [
+        {
+          "start_ref": "seeded_geospatial_index",
+          "action": { "actor": "api_client", "steps": [
+            "call listCuratedRoutes with {state:'North Carolina', limit:200} (authed) against live Convex dev",
+            "inspect lengthMiles on every returned card"
+          ] },
+          "end_state": {
+            "must_observe": [
+              ">=1 route returned",
+              "every returned lengthMiles satisfies lengthMiles === undefined || (lengthMiles > 0 && lengthMiles <= 1000)",
+              ">=1 card carries a real lengthMiles in (0, 1000] (a non-degenerate sanitized length, e.g. ~137)"
+            ],
+            "must_not_observe": [ "lengthMiles === 0", "lengthMiles === 710430", "lengthMiles > 1000", "0 routes", "[] (empty result)" ]
+          }
+        },
+        {
+          "start_ref": "seeded_geospatial_index",
+          "action": { "actor": "api_client", "steps": [
+            "call listCuratedRoutes with {state:'North Carolina', limit:200} (authed) and isolate cards whose source row had a junk lengthMiles (0, negative, NaN, or >1000)",
+            "assert each such card returns lengthMiles === undefined (junk hidden, never rendered)"
+          ] },
+          "end_state": {
+            "must_observe": [ ">=1 route returned", "every card sourced from a junk length returns lengthMiles === undefined (no absurd or 0 length surfaced)" ],
+            "must_not_observe": [ "lengthMiles === 0", "lengthMiles === 710430", "lengthMiles === -5", "0 routes", "[] (empty result)" ]
+          }
+        }
+      ]
+    },
+    "AC-3": {
+      "start_ref": "seeded_geospatial_index",
+      "tier": "holdout",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev (curated_routes sample read before/after) + pure normalizeState",
+      "negative_control": {
+        "would_fail_if": [
+          "normalizeState is a no-op/identity so 'North-Carolina' and 'North Carolina' stay distinct",
+          "the gate writes back to curated_routes (mutates state) instead of being read-path only",
+          "state normalization is hardcoded to one spelling so the dashed variant is dropped, or the sample read is stubbed/static so a real pre-vs-post difference is masked"
+        ]
+      },
+      "evidence": { "artifact_type": "db_query", "required_capture": true },
+      "cases": [
+        {
+          "start_ref": "seeded_geospatial_index",
+          "action": { "actor": "api_client", "steps": [
+            "normalizeState('North-Carolina')",
+            "normalizeState('North Carolina')",
+            "sample N=20 curated_routes state values on live dev and record them",
+            "exercise listCuratedRoutes with {state:'North Carolina', limit:200}",
+            "re-sample the same N=20 rows by _id"
+          ] },
+          "end_state": {
+            "must_observe": [
+              "normalizeState('North-Carolina') === 'North Carolina'",
+              "normalizeState('North Carolina') === 'North Carolina'",
+              "pre-sample === post-sample (all 20 state values byte-identical)",
+              "0 sampled state values changed"
+            ],
+            "must_not_observe": [ "'North-Carolina' in normalized output", "any sampled state changed", "0 rows sampled (empty sample)", "[] (empty pre- or post-sample)" ]
+          }
+        }
+      ]
+    }
+  },
+  "DATA-008": {
+    "AC-2": {
+      "start_ref": "seeded_geospatial_index",
+      "tier": "holdout",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev (orchestrator dispatch + sendMessage mapping)",
+      "negative_control": {
+        "would_fail_if": [
+          "the discovery_agent dispatch case is absent so the tool is never invoked and the orchestrator returns 'Unknown orchestrator tool'",
+          "TOOL_TO_CARD_KIND lacks discoverCuratedRoutes (undefined) so no routing_card row is emitted",
+          "executeDiscoverCuratedRoutes is stubbed to a no-op returning type:'chat' so no route_plans row is created"
+        ]
+      },
+      "evidence": { "artifact_type": "event_log", "required_capture": true },
+      "cases": [
+        {
+          "start_ref": "seeded_geospatial_index",
+          "action": { "actor": "api_client", "steps": [
+            "dispatch the orchestrator discovery_agent case with a discovery query that maps to a fixtured intent against live dev",
+            "capture executeDiscoverCuratedRoutes return value",
+            "read TOOL_TO_CARD_KIND['discoverCuratedRoutes']"
+          ] },
+          "end_state": {
+            "must_observe": [
+              "executeDiscoverCuratedRoutes return.type === 'routes'",
+              "executeDiscoverCuratedRoutes return.routePlanId is a defined route_plans id (not undefined)",
+              "TOOL_TO_CARD_KIND['discoverCuratedRoutes'] === 'routing_card'"
+            ],
+            "must_not_observe": [ "'Unknown orchestrator tool'", "return.type === 'chat'", "TOOL_TO_CARD_KIND['discoverCuratedRoutes'] === undefined", "0 route_plans rows created (no dispatch)" ]
+          }
+        }
+      ]
+    }
+  },
+  "DATA-008b": {
+    "AC-2": {
+      "start_ref": "seeded_geospatial_index",
+      "tier": "holdout",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev (discoverCuratedRoutes options for best vs nearest)",
+      "negative_control": {
+        "would_fail_if": [
+          "the option builder is hardcoded to coerce an absent distanceMi into a real 0 (stats.distanceMeters = (route.distanceMi||0)*1609.344) so best-sort fabricates a 0 distance",
+          "the nearest-sort branch is a no-op/stubbed so the real distanceMi is dropped to undefined",
+          "listCuratedRoutes is mocked so neither the best-absent nor the nearest-present distance reflects the real query"
+        ]
+      },
+      "evidence": { "artifact_type": "db_query", "required_capture": true },
+      "cases": [
+        {
+          "start_ref": "seeded_geospatial_index",
+          "action": { "actor": "api_client", "steps": [
+            "run runDiscoverCuratedRoutes with {archetypes:['scenic'], sort:'best', limit:3} against live dev and load the first option's distance field",
+            "run runDiscoverCuratedRoutes with {center:{lat,lng}, sort:'nearest', limit:3} against live dev and load the first option's distance field",
+            "compare the two options' distance fields"
+          ] },
+          "end_state": {
+            "must_observe": [ "best-sort option distance === undefined (no fabricated 0)", "nearest-sort option distance derived from a real distanceMi > 0" ],
+            "must_not_observe": [ "best-sort option distanceMeters === 0 (fabricated real 0)", "nearest-sort option distance === 0", "nearest-sort option distance === undefined", "0 options returned (empty result)" ]
+          }
+        }
+      ]
+    }
+  }
+}

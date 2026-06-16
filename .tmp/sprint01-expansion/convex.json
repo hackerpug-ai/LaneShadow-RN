@@ -1,0 +1,2268 @@
+{
+  "expanded_tasks": [
+    {
+      "task_id": "DATA-001",
+      "title": "Geospatial points seeded from curated_routes centroids (carried \u2014 verify idempotent + non-empty)",
+      "task_type": "INFRA",
+      "status": "To Do",
+      "priority": "P0",
+      "effort": "S",
+      "estimate_minutes": 30,
+      "agent": "convex-implementer",
+      "agent_rationale": "Verification of a seeded @convex-dev/geospatial component against the live Convex dev deployment \u2014 Convex backend domain, integration-tier evidence, no UI. The convex-implementer owns the seed action (geospatialSeed.ts) and the validation query (geospatialValidation.ts) and can drive npx convex run against live dev.",
+      "proposed_by": "convex-planner",
+      "reviewer": "convex-reviewer",
+      "runtime_commands": {
+        "test": "pnpm test",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check server/convex/geospatialSeed.ts server/convex/geospatialValidation.ts"
+      },
+      "outcome": "Running seedGeospatialAll against live Convex populates ~5,654 geospatial points (one per curated_route), a re-run adds zero, and nearest/bbox return real routes.",
+      "touches_capabilities": [
+        "SPATIAL-RESOLVE"
+      ],
+      "provides": [
+        "geospatial-points-seeded"
+      ],
+      "consumes": [
+        "curated_routes-centroids"
+      ],
+      "boundary_contracts": [
+        "geospatial index point count tracks curated_routes count (idempotent re-run is a no-op)",
+        "nearest/rectangle queries return real routes with state+primaryArchetype filterKeys and compositeScore sortKey"
+      ],
+      "critical_constraints": [
+        "VERIFY ONLY \u2014 this is a carried/built task. Do NOT re-implement seedGeospatialAll or geospatialIndex.ts; if a defect is found, the fix is a minimal correction bonded to the failing AC, not a rewrite.",
+        "NEVER seed against prod or any deployment other than the live Convex DEV deployment that holds the 5,654-row curated_routes catalog.",
+        "NEVER mutate curated_routes \u2014 seeding writes only to the geospatial component points table (enabling-only).",
+        "The idempotence AC MUST observe a real second-run delta of 0 against the live index \u2014 a unit/mock that asserts 0 is a fakeable pass and is rejected."
+      ],
+      "specification": "geospatialSeed.ts already defines seedGeospatialBatchInternal (paginated internalMutation over curated_routes, skipping junk centroids) and seedGeospatialAll (action that loops batches). geospatialIndex.ts wires the GeospatialIndex (key=route doc _id, filterKeys={state, primaryArchetype}, sortKey=compositeScore). geospatialValidation.ts exposes debugGeospatialData (total_in_index via a full-world rectangle), validateNearestNeighbor (Nashville), and validateRectangularRange (Southeast box). This task re-verifies the SPATIAL-RESOLVE gate against live Convex dev per T-DATA-001 and T-DATA-002: (1) run seedGeospatialAll once, capture debugGeospatialData total_in_index \u2248 curated_routes count (~5,654, tolerant of skipped junk centroids); (2) run it a second time and confirm no net-new points (idempotent \u2014 geospatial.insert keyed on route _id does not duplicate); (3) confirm validateNearestNeighbor + validateRectangularRange each return \u22651 real route under the 500ms budget with filterKeys/sortKey present. Note debugGeospatialData currently caps the rectangle at limit:1000 \u2014 if total_in_index reads ~1000 due to that cap rather than the true count, harden the count probe (paginate via nextCursor) so the AC asserts the true ~5,654, not a truncated 1000. Use npx convex run against live dev for the seed action and the debug/validation queries.",
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "Seeding populates ~5,654 idempotent geospatial points",
+          "primary": true,
+          "given": "the live Convex dev deployment holding the 5,654-row curated_routes catalog with the geospatial index empty or partially seeded",
+          "when": "the founder runs seedGeospatialAll then runs it a second time, reading debugGeospatialData before/after each run",
+          "then": "post-first-run total_in_index is within tolerance of the curated_routes count and the second run yields zero net-new points",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev deployment (geospatialSeed.seedGeospatialAll + geospatialValidation.debugGeospatialData)",
+          "tdd_state": "none",
+          "test_file": "server/convex/__tests__/geospatialSeed.integration.test.ts",
+          "test_function": "seedsApproxRouteCountAndReRunIsIdempotent",
+          "scenario": {
+            "start_ref": "live_curated_catalog",
+            "tier": "visible",
+            "negative_control": {
+              "would_fail_if": [
+                "seed action is a no-op (empty index)",
+                "insert is not keyed on route _id so re-run duplicates points",
+                "debugGeospatialData is mocked/static",
+                "count probe truncates at the limit:1000 cap and reports 1000 not ~5,654"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "stdout",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "live_curated_catalog",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "npx convex run geospatialSeed:seedGeospatialAll '{}'",
+                    "npx convex run geospatialValidation:debugGeospatialData '{}'",
+                    "npx convex run geospatialSeed:seedGeospatialAll '{}'",
+                    "npx convex run geospatialValidation:debugGeospatialData '{}'"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "total_in_index \u2248 5654 (within skipped-junk tolerance, > 5000)",
+                    "second-run net-new points = 0"
+                  ],
+                  "must_not_observe": [
+                    "total_in_index = 0",
+                    "total_in_index = 1000 (truncated cap)",
+                    "second-run net-new > 0 (duplication)"
+                  ]
+                }
+              }
+            ],
+            "test_tier": "integration",
+            "verification_service": "live Convex dev deployment (geospatialSeed.seedGeospatialAll + geospatialValidation.debugGeospatialData)"
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "nearest + rectangle return real routes with filterKeys/sortKey under 500ms",
+          "primary": false,
+          "given": "the seeded geospatial index on live Convex dev",
+          "when": "validateNearestNeighbor (Nashville point) and validateRectangularRange (Southeast bbox) run",
+          "then": "each returns \u22651 real route within 500ms with state+primaryArchetype filterKeys and compositeScore sortKey available",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev deployment (geospatialValidation.validateNearestNeighbor + validateRectangularRange)",
+          "tdd_state": "none",
+          "test_file": "server/convex/__tests__/geospatialSeed.integration.test.ts",
+          "test_function": "nearestAndRectangleReturnRealRoutesUnderBudget",
+          "scenario": {
+            "start_ref": "seeded_geospatial_index",
+            "tier": "visible",
+            "negative_control": {
+              "would_fail_if": [
+                "index empty so queries return []",
+                "filterKeys/sortKey not stored on points",
+                "latency over 500ms budget"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "npx convex run geospatialValidation:validateNearestNeighbor '{}'",
+                    "npx convex run geospatialValidation:validateRectangularRange '{}'"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "status = 'PASS'",
+                    "count \u2265 1 for both queries",
+                    "latency_ms < 500"
+                  ]
+                },
+                "must_not_observe": [
+                  "count = 0",
+                  "status = 'FAIL'",
+                  "latency_ms \u2265 500"
+                ]
+              }
+            ],
+            "test_tier": "integration",
+            "verification_service": "live Convex dev deployment (geospatialValidation.validateNearestNeighbor + validateRectangularRange)"
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "description": "Integration test asserts post-seed total_in_index > 5000 and a second seedGeospatialAll run produces 0 net-new points (T-DATA-001).",
+          "maps_to_ac": "AC-1",
+          "verify": "pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts"
+        },
+        {
+          "id": "TC-2",
+          "description": "Integration test asserts nearest + rectangle each return \u22651 real route under 500ms with filterKeys/sortKey (T-DATA-002).",
+          "maps_to_ac": "AC-2",
+          "verify": "pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts"
+        }
+      ],
+      "fixtures": {
+        "live_curated_catalog": {
+          "description": "the live Convex dev deployment's 5,654-row curated_routes table (centroid 100% present)",
+          "seed_method": "migration_fixture",
+          "records": [
+            "~5,654 curated_routes rows each with centroidLat/centroidLng, state, primaryArchetype, compositeScore"
+          ]
+        },
+        "seeded_geospatial_index": {
+          "description": "geospatial component points table after a successful seedGeospatialAll run",
+          "seed_method": "public_api",
+          "records": [
+            "~5,654 points keyed by curated_route _id with {state, primaryArchetype} filterKeys and compositeScore sortKey"
+          ]
+        }
+      },
+      "requirements": [
+        {
+          "id": "AC-1",
+          "type": "acceptance_criterion",
+          "primary": true,
+          "description": "GIVEN live Convex dev with the 5,654-row catalog WHEN seedGeospatialAll runs twice with debugGeospatialData read between THEN post-first-run total_in_index \u2248 route count and second run yields 0 net-new points",
+          "verify": "pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts",
+          "maps_to_ac": null
+        },
+        {
+          "id": "AC-2",
+          "type": "acceptance_criterion",
+          "primary": false,
+          "description": "GIVEN the seeded index WHEN nearest + rectangle validation queries run THEN each returns \u22651 real route under 500ms with filterKeys/sortKey",
+          "verify": "pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts",
+          "maps_to_ac": null
+        },
+        {
+          "id": "TC-1",
+          "type": "test_criterion",
+          "description": "Idempotent non-empty seed verified against live dev (T-DATA-001)",
+          "verify": "pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts",
+          "maps_to_ac": "AC-1"
+        },
+        {
+          "id": "TC-2",
+          "type": "test_criterion",
+          "description": "nearest+rectangle real-route latency budget verified (T-DATA-002)",
+          "verify": "pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts",
+          "maps_to_ac": "AC-2"
+        }
+      ],
+      "reading_list": [
+        {
+          "path": "server/convex/geospatialSeed.ts",
+          "lines": "24-131",
+          "focus": "PRIMARY PATTERN \u2014 paginated batch insert + seedGeospatialAll loop; the function under verification"
+        },
+        {
+          "path": "server/convex/geospatialValidation.ts",
+          "lines": "12-90",
+          "focus": "debugGeospatialData count probe (note the limit:1000 cap to harden) + nearest/rectangle validators"
+        },
+        {
+          "path": "server/convex/geospatialIndex.ts",
+          "lines": "21-27",
+          "focus": "GeospatialIndex wiring: key/filterKeys/sortKey contract"
+        },
+        {
+          "path": "server/convex/__tests__/seedGeospatialTest.test.ts",
+          "lines": "1-86",
+          "focus": "existing seed test shape and conventions"
+        },
+        {
+          "path": ".spec/prds/mvp/10-e2e-testing-criteria.md",
+          "lines": "29-30",
+          "focus": "T-DATA-001 / T-DATA-002 pass/fail criteria"
+        }
+      ],
+      "guardrails": {
+        "write_allowed": [
+          "server/convex/__tests__/geospatialSeed.integration.test.ts (NEW)",
+          "server/convex/geospatialValidation.ts (MODIFY \u2014 only if the count probe needs the cap-truncation fix)",
+          "server/convex/geospatialSeed.ts (MODIFY \u2014 only a minimal correction if idempotence/skip logic is found broken)"
+        ],
+        "write_prohibited": [
+          "server/convex/schema.ts \u2014 no schema change in this gate",
+          "server/convex/curated*.ts \u2014 curated_routes is read-only here",
+          "Any file not listed above"
+        ]
+      },
+      "design": {
+        "refs": [
+          ".spec/prds/mvp/04-uc-data.md#uc-data-01",
+          ".spec/prds/mvp/09-technical-requirements/04-api-design.md"
+        ],
+        "pattern": "Idempotent component-index seed verified against live Convex dev via npx convex run; debugGeospatialData as the count oracle (paginated to defeat the rectangle cap)."
+      },
+      "verification_gates": [
+        "pnpm type-check",
+        "pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts",
+        "pnpm exec biome check server/convex/geospatialSeed.ts server/convex/geospatialValidation.ts",
+        "pnpm --dir server run convex:dev -- --once",
+        "npx convex run geospatialValidation:debugGeospatialData '{}' (manual evidence capture against live dev \u2014 total_in_index > 5000)"
+      ],
+      "coding_standards": [
+        "Validator-first: no schema/validator change in this gate (enabling-only).",
+        "No .filter() for geography \u2014 geospatial component handles spatial resolution.",
+        "Integration evidence over unit assertions: the idempotence/non-empty claims must be observed against live Convex, never mocked."
+      ],
+      "dependencies": {
+        "depends_on": [],
+        "blocks": [
+          "DATA-005 (listCuratedRoutes bbox/nearest modes rely on seeded points)"
+        ],
+        "parallel": [
+          "DATA-002",
+          "DATA-004"
+        ]
+      },
+      "out_of_scope": [
+        "Re-implementing the seed action or geospatial wiring",
+        "Any write-back/normalization to curated_routes",
+        "getCuratedRouteDetail (UC-DATA-06, separate sprint)"
+      ]
+    },
+    {
+      "task_id": "DATA-002",
+      "title": "Archetype UI\u2194DB mapping in the read path (carried \u2014 verify pure + applied)",
+      "task_type": "FEATURE",
+      "status": "To Do",
+      "priority": "P0",
+      "effort": "S",
+      "estimate_minutes": 30,
+      "agent": "convex-implementer",
+      "agent_rationale": "Pure transform (util/archetypeMap.ts) plus its application inside listCuratedRoutes \u2014 Convex query-layer behavior. convex-implementer owns both the transform and the query and can run the unit suite plus a live listCuratedRoutes assertion.",
+      "proposed_by": "convex-planner",
+      "reviewer": "convex-reviewer",
+      "runtime_commands": {
+        "test": "pnpm test",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check server/convex/util/archetypeMap.ts server/convex/curatedRoutes.ts"
+      },
+      "outcome": "listCuratedRoutes filters scenic\u2192{scenic_byway,coastal}, technical\u2192{mountain}, cruising\u2192{scenic_byway}, sport\u2192{twisties}, adventure\u2192{adventure,desert} and always returns a UI-enum primaryArchetype (never a raw DB value).",
+      "touches_capabilities": [
+        "ARCHETYPE-ALIGN"
+      ],
+      "provides": [
+        "archetype-ui-db-map",
+        "ui-enum-primaryArchetype-on-cards"
+      ],
+      "consumes": [
+        "curated_routes-primaryArchetype"
+      ],
+      "boundary_contracts": [
+        "UI archetype filter expands to the correct DB-archetype set (pure, deterministic)",
+        "every returned card's primaryArchetype is a UI enum mapped from the DB enum; no raw DB value escapes; no route dropped for lacking an exact UI equivalent"
+      ],
+      "critical_constraints": [
+        "VERIFY ONLY \u2014 archetypeMap.ts and its use in curatedRoutes.ts are built. Do NOT rewrite; correct only a proven mapping defect bonded to a failing AC.",
+        "NEVER mutate any curated_routes document's primaryArchetype \u2014 mapping is read-path only (verify a DB sample is byte-identical pre/post).",
+        "A raw DB-only value (mountain/coastal/scenic_byway/desert) returned to the client is a hard failure \u2014 every card's primaryArchetype MUST be a UI enum.",
+        "UNIT_TEST_JUSTIFIED: uiArchetypeToDbSet / dbArchetypeToUi are pure, zero-I/O transforms \u2014 unit tests are justified for the transform; the APPLIED behavior still requires an integration assertion via listCuratedRoutes."
+      ],
+      "specification": "util/archetypeMap.ts defines UI_TO_DB (scenic\u2192[scenic_byway,coastal], technical\u2192[mountain], cruising\u2192[scenic_byway], sport\u2192[twisties], adventure\u2192[adventure,desert], twisties\u2192[twisties]) and DB_TO_UI (scenic_byway\u2192scenic, coastal\u2192scenic, mountain\u2192technical, desert\u2192adventure, twisties\u2192twisties, adventure\u2192adventure), matching the locked archetype table in 04-api-design.md. listCuratedRoutes (curatedRoutes.ts) expands args.archetypes via uiArchetypeToDbSet into dbArchetypeSet for geo filterKeys / post-load matchesArchetype, and buildRouteCard maps DB\u2192UI via dbArchetypeToUi for the returned primaryArchetype. This task re-verifies the ARCHETYPE-ALIGN gate per T-DATA-003 (filter correctness + UI-enum return + no-drop) and T-DATA-004 (purity + no DB mutation): (1) the existing pure unit suite stays green; (2) listCuratedRoutes against live dev with archetypes=['scenic'] returns only routes whose DB primaryArchetype is scenic_byway/coastal, every returned primaryArchetype is a valid UI enum; (3) a sample of curated_routes primaryArchetype values is byte-identical before and after (no write-back). The exact mapping table is the implementer's to ratify against 04-api-design; the stance (map in read path, never mutate DB) is locked.",
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "scenic filter returns only scenic-mapped routes with UI-enum archetypes",
+          "primary": true,
+          "given": "the seeded live Convex dev catalog",
+          "when": "listCuratedRoutes is called with archetypes=['scenic']",
+          "then": "every returned route's source DB primaryArchetype \u2208 {scenic_byway,coastal} and every returned primaryArchetype === 'scenic' (a UI enum, never a raw DB value)",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)",
+          "tdd_state": "none",
+          "test_file": "server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts",
+          "test_function": "scenicFilterReturnsOnlyScenicMappedUiEnumRoutes",
+          "scenario": {
+            "start_ref": "seeded_geospatial_index",
+            "tier": "visible",
+            "negative_control": {
+              "would_fail_if": [
+                "mapping is a no-op returning raw DB values",
+                "filter not applied so non-scenic routes leak",
+                "query disconnected/empty returns []"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "call listCuratedRoutes with {archetypes:['scenic'], limit:20} (authed)"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "\u22651 route returned",
+                    "every returned primaryArchetype === 'scenic'"
+                  ],
+                  "must_not_observe": [
+                    "primaryArchetype === 'scenic_byway'",
+                    "primaryArchetype === 'coastal'",
+                    "primaryArchetype === 'mountain'",
+                    "primaryArchetype === 'desert'",
+                    "0 routes"
+                  ]
+                }
+              }
+            ],
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)"
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "DB-only archetypes deterministically bucket to a UI enum (no route dropped)",
+          "primary": false,
+          "given": "DB archetypes with no exact UI equivalent (mountain, coastal, scenic_byway, desert)",
+          "when": "dbArchetypeToUi maps each",
+          "then": "mountain\u2192technical, coastal\u2192scenic, scenic_byway\u2192scenic, desert\u2192adventure deterministically \u2014 every DB value resolves to a UI enum",
+          "test_tier": "unit",
+          "unit_test_justified": "uiArchetypeToDbSet/dbArchetypeToUi are pure, deterministic, zero-I/O lookups \u2014 unit-tested per T-DATA-004; AC-1 supplies the applied integration evidence.",
+          "verification_service": null,
+          "tdd_state": "none",
+          "test_file": "server/convex/__tests__/archetypeMap.test.ts",
+          "test_function": "dbArchetypeToUi",
+          "scenario": {
+            "start_ref": "seeded_geospatial_index",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)",
+            "negative_control": {
+              "would_fail_if": [
+                "the archetype map is a no-op returning raw DB values (mountain/coastal/scenic_byway/desert) so primaryArchetype is not a UI enum",
+                "dbArchetypeToUi is hardcoded/stubbed to a single spelling so some DB values map to undefined and routes are dropped",
+                "listCuratedRoutes is disconnected/empty and returns [] so no mapped result is observable"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "call listCuratedRoutes with {archetypes:['technical'], limit:20} (authed) against live Convex dev",
+                    "assert every returned card's primaryArchetype is a UI enum mapped from the DB enum (mountain DB value surfaces as 'technical', never raw)"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    ">=1 route returned",
+                    "every returned primaryArchetype === 'technical'"
+                  ],
+                  "must_not_observe": [
+                    "primaryArchetype === 'mountain'",
+                    "primaryArchetype === undefined",
+                    "0 routes",
+                    "[] (empty result)"
+                  ]
+                }
+              },
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "call listCuratedRoutes with {archetypes:['adventure'], limit:20} (authed) against live Convex dev",
+                    "assert routes sourced from DB archetypes adventure and desert both surface under one UI enum (no DB-only value escapes, no route dropped)"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    ">=1 route returned",
+                    "every returned primaryArchetype === 'adventure'"
+                  ],
+                  "must_not_observe": [
+                    "primaryArchetype === 'desert'",
+                    "primaryArchetype === undefined",
+                    "0 routes",
+                    "[] (empty result)"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-3",
+          "name": "no curated_routes primaryArchetype mutated by the gate",
+          "primary": false,
+          "given": "a sample of curated_routes rows on live dev",
+          "when": "the mapping gate is exercised via listCuratedRoutes",
+          "then": "the sampled DB primaryArchetype values are byte-identical before and after (read-path only, no write-back)",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (curated_routes sample read before/after)",
+          "tdd_state": "none",
+          "test_file": "server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts",
+          "test_function": "gatePerformsNoDbWriteBack",
+          "scenario": {
+            "start_ref": "seeded_geospatial_index",
+            "tier": "holdout",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (curated_routes sample read before/after)",
+            "negative_control": {
+              "would_fail_if": [
+                "the mapping gate writes back to curated_routes (mutates primaryArchetype) instead of being read-path only",
+                "a migration is hardcoded to normalize the stored DB enum so the sampled rows differ pre/post",
+                "the sample read is stubbed/static so a real pre-vs-post difference is masked"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "db_query",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "sample N=20 curated_routes primaryArchetype values on live dev and record them",
+                    "exercise listCuratedRoutes with {archetypes:['scenic'], limit:20}",
+                    "re-sample the same N=20 rows by _id"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "pre-sample === post-sample (all 20 primaryArchetype values byte-identical)",
+                    "0 sampled primaryArchetype values changed"
+                  ],
+                  "must_not_observe": [
+                    "any sampled primaryArchetype changed",
+                    "0 rows sampled (empty sample)",
+                    "[] (empty pre- or post-sample)"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "description": "Integration: listCuratedRoutes archetypes=['scenic'] returns only scenic-mapped routes, all primaryArchetype UI enums, no route dropped (T-DATA-003).",
+          "maps_to_ac": "AC-1",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts"
+        },
+        {
+          "id": "TC-2",
+          "description": "Unit: archetype map is a pure deterministic transform, all DB values bucket to a UI enum (T-DATA-004).",
+          "maps_to_ac": "AC-2",
+          "verify": "pnpm test server/convex/__tests__/archetypeMap.test.ts"
+        },
+        {
+          "id": "TC-3",
+          "description": "Integration: sampled curated_routes primaryArchetype byte-identical pre/post \u2014 no write-back (T-DATA-004).",
+          "maps_to_ac": "AC-3",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts"
+        }
+      ],
+      "fixtures": {
+        "seeded_geospatial_index": {
+          "description": "live Convex dev with the 5,654-row catalog + seeded geospatial points",
+          "seed_method": "migration_fixture",
+          "records": [
+            "curated_routes spanning DB archetypes scenic_byway/coastal/mountain/desert/twisties/adventure"
+          ]
+        },
+        "archetype_inputs": {
+          "description": "representative UI and DB archetype literals for the pure transform",
+          "seed_method": "cli",
+          "records": [
+            "UI: scenic, technical, cruising, sport, adventure, twisties",
+            "DB: scenic_byway, coastal, mountain, desert, twisties, adventure"
+          ]
+        }
+      },
+      "requirements": [
+        {
+          "id": "AC-1",
+          "type": "acceptance_criterion",
+          "primary": true,
+          "description": "GIVEN live dev catalog WHEN listCuratedRoutes archetypes=['scenic'] THEN only scenic_byway/coastal-sourced routes return, every primaryArchetype === 'scenic'",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts",
+          "maps_to_ac": null
+        },
+        {
+          "id": "AC-2",
+          "type": "acceptance_criterion",
+          "primary": false,
+          "description": "GIVEN DB-only archetypes WHEN dbArchetypeToUi maps THEN each deterministically resolves to a UI enum (mountain\u2192technical etc.)",
+          "verify": "pnpm test server/convex/__tests__/archetypeMap.test.ts",
+          "maps_to_ac": null
+        },
+        {
+          "id": "AC-3",
+          "type": "acceptance_criterion",
+          "primary": false,
+          "description": "GIVEN curated_routes sample WHEN gate exercised THEN DB primaryArchetype values byte-identical pre/post",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts",
+          "maps_to_ac": null
+        },
+        {
+          "id": "TC-1",
+          "type": "test_criterion",
+          "description": "scenic filter correctness + UI-enum return + no-drop (T-DATA-003)",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts",
+          "maps_to_ac": "AC-1"
+        },
+        {
+          "id": "TC-2",
+          "type": "test_criterion",
+          "description": "pure deterministic archetype map (T-DATA-004)",
+          "verify": "pnpm test server/convex/__tests__/archetypeMap.test.ts",
+          "maps_to_ac": "AC-2"
+        },
+        {
+          "id": "TC-3",
+          "type": "test_criterion",
+          "description": "no DB write-back (T-DATA-004)",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts",
+          "maps_to_ac": "AC-3"
+        }
+      ],
+      "reading_list": [
+        {
+          "path": "server/convex/util/archetypeMap.ts",
+          "lines": "1-35",
+          "focus": "PRIMARY PATTERN \u2014 UI_TO_DB / DB_TO_UI tables and the two pure functions under verification"
+        },
+        {
+          "path": "server/convex/curatedRoutes.ts",
+          "lines": "119-282",
+          "focus": "buildRouteCard DB\u2192UI mapping (line 124) + dbArchetypeSet expansion/matchesArchetype application"
+        },
+        {
+          "path": "server/convex/__tests__/archetypeMap.test.ts",
+          "lines": "1-96",
+          "focus": "existing pure unit suite \u2014 extend, do not rewrite"
+        },
+        {
+          "path": ".spec/prds/mvp/09-technical-requirements/04-api-design.md",
+          "lines": "101-111",
+          "focus": "locked archetype map table (authoritative)"
+        },
+        {
+          "path": ".spec/prds/mvp/10-e2e-testing-criteria.md",
+          "lines": "36-37",
+          "focus": "T-DATA-003 / T-DATA-004 pass/fail"
+        }
+      ],
+      "guardrails": {
+        "write_allowed": [
+          "server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts (NEW)",
+          "server/convex/__tests__/archetypeMap.test.ts (MODIFY \u2014 extend)",
+          "server/convex/util/archetypeMap.ts (MODIFY \u2014 only a proven mapping correction)",
+          "server/convex/curatedRoutes.ts (MODIFY \u2014 only if application logic is found broken)"
+        ],
+        "write_prohibited": [
+          "server/convex/schema.ts \u2014 DB enum is untouched",
+          "Any migration that mutates curated_routes.primaryArchetype",
+          "Any file not listed above"
+        ]
+      },
+      "design": {
+        "refs": [
+          ".spec/prds/mvp/04-uc-data.md#uc-data-02",
+          ".spec/prds/mvp/09-technical-requirements/04-api-design.md"
+        ],
+        "pattern": "Pure read-path archetype translation: UI\u2192DB set for filtering, DB\u2192UI for the returned card; DB enum immutable."
+      },
+      "verification_gates": [
+        "pnpm type-check",
+        "pnpm test server/convex/__tests__/archetypeMap.test.ts",
+        "pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts",
+        "pnpm exec biome check server/convex/util/archetypeMap.ts server/convex/curatedRoutes.ts",
+        "pnpm --dir server run convex:dev -- --once"
+      ],
+      "coding_standards": [
+        "Validator-first: returnValidator already specifies primaryArchetype: v.string() (UI enum) \u2014 keep the contract.",
+        "Composition: keep the mapping a pure function, applied once at the query boundary.",
+        "No DB mutation in a read-path gate."
+      ],
+      "dependencies": {
+        "depends_on": [
+          "DATA-001 (seeded points for the bbox/archetype path)"
+        ],
+        "blocks": [
+          "DATA-005",
+          "DATA-008b (the tool maps the same UI archetypes)"
+        ],
+        "parallel": [
+          "DATA-004"
+        ]
+      },
+      "out_of_scope": [
+        "Adding new archetype enums beyond the locked table",
+        "Mutating the DB primaryArchetype union",
+        "Score normalization (DATA-008b territory)"
+      ]
+    },
+    {
+      "task_id": "DATA-004",
+      "title": "State-normalize + length-clamp transforms in the read path (carried \u2014 verify)",
+      "task_type": "FEATURE",
+      "status": "To Do",
+      "priority": "P0",
+      "effort": "S",
+      "estimate_minutes": 30,
+      "agent": "convex-implementer",
+      "agent_rationale": "Pure transforms (util/dataNormalization.ts) plus their application in listCuratedRoutes. convex-implementer owns the query read path and can run both the unit suite and a live state-filter assertion against the known North-Carolina spelling split.",
+      "proposed_by": "convex-planner",
+      "reviewer": "convex-reviewer",
+      "runtime_commands": {
+        "test": "pnpm test",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check server/convex/util/dataNormalization.ts server/convex/curatedRoutes.ts"
+      },
+      "outcome": "A 'North Carolina' filter returns rows stored under both 'North-Carolina' and 'North Carolina' under one canonical spelling, and junk lengthMiles (0, >1000) is clamped/hidden \u2014 never rendered.",
+      "touches_capabilities": [
+        "DATA-NORM"
+      ],
+      "provides": [
+        "state-normalize-transform",
+        "length-clamp-transform",
+        "canonical-state-on-cards"
+      ],
+      "consumes": [
+        "curated_routes-state",
+        "curated_routes-lengthMiles"
+      ],
+      "boundary_contracts": [
+        "a state filter matches both dirty spelling variants and returns one canonical spelling",
+        "lengthMiles \u22640 or above the sane ceiling is returned as undefined (never an absurd or zero length)"
+      ],
+      "critical_constraints": [
+        "VERIFY ONLY \u2014 dataNormalization.ts and its use in listCuratedRoutes are built. Correct only a proven defect bonded to a failing AC.",
+        "NEVER write back to curated_routes \u2014 both transforms are read-path only (verify a DB sample is byte-identical pre/post).",
+        "An absurd length (the 710,430mi outlier) or a 0mi length escaping to a card is a hard failure.",
+        "UNIT_TEST_JUSTIFIED: normalizeState/clampLength/stateVariants are pure, zero-I/O \u2014 unit-tested; the APPLIED both-spelling-variant behavior requires a live listCuratedRoutes integration assertion."
+      ],
+      "specification": "util/dataNormalization.ts defines normalizeState (trim, dash/underscore\u2192space, collapse whitespace, title-case), clampLength (returns mi only when 0 < mi \u2264 ceiling=1000, else undefined), and stateVariants (returns canonical + dashed spelling variants for index probing). listCuratedRoutes uses stateVariants to probe by_state under both spellings (Mode 3), normalizeState in buildRouteCard for canonical return + matchesState comparison, and clampLength on lengthMiles in buildRouteCard. This task re-verifies the DATA-NORM gate per T-DATA-006 (both-spelling resolution, single canonical return, no junk length) and T-DATA-007 (purity + no write-back): (1) the pure unit suites stay green for both dirty spellings ('North-Carolina'/'North Carolina'\u2192'North Carolina') and junk lengths (0, 710430, >1000\u2192undefined; valid mid-range preserved); (2) listCuratedRoutes against live dev with state='North Carolina' returns routes from both variants (known split ~202 'North-Carolina' + ~43 'North Carolina') under one canonical spelling with all lengths sanitized; (3) a curated_routes sample is byte-identical pre/post.",
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "state filter resolves both dirty spellings under one canonical spelling",
+          "primary": true,
+          "given": "live Convex dev where North Carolina rows are split across 'North-Carolina' and 'North Carolina'",
+          "when": "listCuratedRoutes is called with state='North Carolina'",
+          "then": "routes from BOTH spelling variants are returned and every returned card's state === 'North Carolina' (single canonical spelling)",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)",
+          "tdd_state": "none",
+          "test_file": "server/convex/__tests__/listCuratedRoutes.state.integration.test.ts",
+          "test_function": "stateFilterResolvesBothSpellingsCanonical",
+          "scenario": {
+            "start_ref": "seeded_geospatial_index",
+            "tier": "visible",
+            "negative_control": {
+              "would_fail_if": [
+                "query probes only one spelling so the 'North-Carolina' variant is dropped",
+                "raw mixed spellings escape to cards",
+                "query disconnected returns []"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "call listCuratedRoutes with {state:'North Carolina', limit:200} (authed)"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "result count > 43 (proves the 202-row 'North-Carolina' variant is included, not just the 43-row 'North Carolina' variant)",
+                    "every returned state === 'North Carolina'"
+                  ],
+                  "must_not_observe": [
+                    "0 routes",
+                    "any state === 'North-Carolina'",
+                    "result count \u2264 43 (one variant dropped)"
+                  ]
+                }
+              }
+            ],
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)"
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "junk lengthMiles is clamped/hidden, valid lengths preserved",
+          "primary": false,
+          "given": "junk and valid length inputs",
+          "when": "clampLength runs",
+          "then": "0, negative, NaN, and >1000 return undefined; a valid mid-range length (e.g. 137) is preserved",
+          "test_tier": "unit",
+          "unit_test_justified": "clampLength is a pure, zero-I/O numeric transform \u2014 unit-tested per T-DATA-007; AC-1 supplies live applied evidence that no junk length escapes.",
+          "verification_service": null,
+          "tdd_state": "none",
+          "test_file": "server/convex/__tests__/dataNormalization.test.ts",
+          "test_function": "clampLengthHidesJunkPreservesValid",
+          "scenario": {
+            "start_ref": "seeded_geospatial_index",
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)",
+            "negative_control": {
+              "would_fail_if": [
+                "clampLength is a no-op so the 710430mi outlier and 0mi lengths escape to cards unchanged",
+                "clamp is hardcoded/stubbed to always return undefined so a valid 137mi length is dropped",
+                "listCuratedRoutes is disconnected/empty and returns [] so no clamped lengthMiles is observable"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "call listCuratedRoutes with {state:'North Carolina', limit:200} (authed) against live Convex dev",
+                    "inspect lengthMiles on every returned card"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    ">=1 route returned",
+                    "every returned lengthMiles satisfies lengthMiles === undefined || (lengthMiles > 0 && lengthMiles <= 1000)",
+                    ">=1 card carries a real lengthMiles in (0, 1000] (a non-degenerate sanitized length, e.g. ~137)"
+                  ],
+                  "must_not_observe": [
+                    "lengthMiles === 0",
+                    "lengthMiles === 710430",
+                    "lengthMiles > 1000",
+                    "0 routes",
+                    "[] (empty result)"
+                  ]
+                }
+              },
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "call listCuratedRoutes with {state:'North Carolina', limit:200} (authed) and isolate cards whose source row had a junk lengthMiles (0, negative, NaN, or >1000)",
+                    "assert each such card returns lengthMiles === undefined (junk hidden, never rendered)"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    ">=1 route returned",
+                    "every card sourced from a junk length returns lengthMiles === undefined (no absurd or 0 length surfaced)"
+                  ],
+                  "must_not_observe": [
+                    "lengthMiles === 0",
+                    "lengthMiles === 710430",
+                    "lengthMiles === -5",
+                    "0 routes",
+                    "[] (empty result)"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-3",
+          "name": "normalizeState canonicalizes both dirty spellings; no DB write-back",
+          "primary": false,
+          "given": "the dirty spelling pair and a curated_routes sample on live dev",
+          "when": "normalizeState runs and the gate is exercised",
+          "then": "'North-Carolina' and 'North Carolina' both normalize to 'North Carolina', and the sampled DB state values are byte-identical pre/post",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (curated_routes sample read before/after) + pure normalizeState",
+          "tdd_state": "none",
+          "test_file": "server/convex/__tests__/listCuratedRoutes.state.integration.test.ts",
+          "test_function": "normalizeCanonicalAndNoWriteBack",
+          "scenario": {
+            "start_ref": "seeded_geospatial_index",
+            "tier": "holdout",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (curated_routes sample read before/after) + pure normalizeState",
+            "negative_control": {
+              "would_fail_if": [
+                "normalizeState is a no-op/identity so 'North-Carolina' and 'North Carolina' stay distinct",
+                "the gate writes back to curated_routes (mutates state) instead of being read-path only",
+                "state normalization is hardcoded to one spelling so the dashed variant is dropped, or the sample read is stubbed/static so a real pre-vs-post difference is masked"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "db_query",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "normalizeState('North-Carolina')",
+                    "normalizeState('North Carolina')",
+                    "sample N=20 curated_routes state values on live dev and record them",
+                    "exercise listCuratedRoutes with {state:'North Carolina', limit:200}",
+                    "re-sample the same N=20 rows by _id"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "normalizeState('North-Carolina') === 'North Carolina'",
+                    "normalizeState('North Carolina') === 'North Carolina'",
+                    "pre-sample === post-sample (all 20 state values byte-identical)",
+                    "0 sampled state values changed"
+                  ],
+                  "must_not_observe": [
+                    "'North-Carolina' in normalized output",
+                    "any sampled state changed",
+                    "0 rows sampled (empty sample)",
+                    "[] (empty pre- or post-sample)"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "description": "Integration: state='North Carolina' returns >43 rows under one canonical spelling \u2014 both dirty variants included (T-DATA-006).",
+          "maps_to_ac": "AC-1",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts"
+        },
+        {
+          "id": "TC-2",
+          "description": "Unit: clampLength hides 0/negative/NaN/>1000 and preserves a valid mid-range length (T-DATA-007).",
+          "maps_to_ac": "AC-2",
+          "verify": "pnpm test server/convex/__tests__/dataNormalization.test.ts"
+        },
+        {
+          "id": "TC-3",
+          "description": "Integration + unit: normalizeState canonicalizes both spellings and the gate performs no curated_routes write-back (T-DATA-007).",
+          "maps_to_ac": "AC-3",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts"
+        }
+      ],
+      "fixtures": {
+        "seeded_geospatial_index": {
+          "description": "live Convex dev with the 5,654-row catalog including the North Carolina spelling split (~202 'North-Carolina' + ~43 'North Carolina')",
+          "seed_method": "migration_fixture",
+          "records": [
+            "curated_routes with both NC spellings; rows with lengthMiles 0, >1000, and valid values"
+          ]
+        },
+        "length_inputs": {
+          "description": "representative junk and valid length values",
+          "seed_method": "cli",
+          "records": [
+            "137 (valid)",
+            "0 (junk)",
+            "710430 (outlier)",
+            "-5 (negative)"
+          ]
+        }
+      },
+      "requirements": [
+        {
+          "id": "AC-1",
+          "type": "acceptance_criterion",
+          "primary": true,
+          "description": "GIVEN the NC spelling split WHEN listCuratedRoutes state='North Carolina' THEN both variants returned under one canonical spelling (count > 43)",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts",
+          "maps_to_ac": null
+        },
+        {
+          "id": "AC-2",
+          "type": "acceptance_criterion",
+          "primary": false,
+          "description": "GIVEN junk+valid lengths WHEN clampLength runs THEN 0/neg/NaN/>1000\u2192undefined, valid preserved",
+          "verify": "pnpm test server/convex/__tests__/dataNormalization.test.ts",
+          "maps_to_ac": null
+        },
+        {
+          "id": "AC-3",
+          "type": "acceptance_criterion",
+          "primary": false,
+          "description": "GIVEN dirty spellings + DB sample WHEN normalize/exercise THEN both\u2192canonical, no write-back",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts",
+          "maps_to_ac": null
+        },
+        {
+          "id": "TC-1",
+          "type": "test_criterion",
+          "description": "both-spelling resolution + canonical return (T-DATA-006)",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts",
+          "maps_to_ac": "AC-1"
+        },
+        {
+          "id": "TC-2",
+          "type": "test_criterion",
+          "description": "length-clamp pure transform (T-DATA-007)",
+          "verify": "pnpm test server/convex/__tests__/dataNormalization.test.ts",
+          "maps_to_ac": "AC-2"
+        },
+        {
+          "id": "TC-3",
+          "type": "test_criterion",
+          "description": "state-normalize pure + no write-back (T-DATA-007)",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts",
+          "maps_to_ac": "AC-3"
+        }
+      ],
+      "reading_list": [
+        {
+          "path": "server/convex/util/dataNormalization.ts",
+          "lines": "1-42",
+          "focus": "PRIMARY PATTERN \u2014 normalizeState / clampLength / stateVariants under verification"
+        },
+        {
+          "path": "server/convex/curatedRoutes.ts",
+          "lines": "119-269",
+          "focus": "buildRouteCard (normalizeState+clampLength) + Mode 3 by_state both-variant probe (248-269)"
+        },
+        {
+          "path": "server/convex/__tests__/dataNormalization.test.ts",
+          "lines": "1-200",
+          "focus": "existing pure unit suite \u2014 extend, do not rewrite"
+        },
+        {
+          "path": ".spec/prds/mvp/04-uc-data.md",
+          "lines": "71-83",
+          "focus": "UC-DATA-04 the NC split (202 vs 43) and length outliers (710430, 64 at 0)"
+        },
+        {
+          "path": ".spec/prds/mvp/10-e2e-testing-criteria.md",
+          "lines": "49-50",
+          "focus": "T-DATA-006 / T-DATA-007 pass/fail"
+        }
+      ],
+      "guardrails": {
+        "write_allowed": [
+          "server/convex/__tests__/listCuratedRoutes.state.integration.test.ts (NEW)",
+          "server/convex/__tests__/dataNormalization.test.ts (MODIFY \u2014 extend)",
+          "server/convex/util/dataNormalization.ts (MODIFY \u2014 only a proven transform correction)",
+          "server/convex/curatedRoutes.ts (MODIFY \u2014 only if application is found broken)"
+        ],
+        "write_prohibited": [
+          "server/convex/schema.ts",
+          "Any migration that mutates curated_routes.state or lengthMiles (write-back deferred)",
+          "Any file not listed above"
+        ]
+      },
+      "design": {
+        "refs": [
+          ".spec/prds/mvp/04-uc-data.md#uc-data-04",
+          ".spec/prds/mvp/09-technical-requirements/04-api-design.md"
+        ],
+        "pattern": "Read-path data sanitization: stateVariants probes both spellings via the by_state index (never .filter() for state); normalizeState canonicalizes the return; clampLength hides junk lengths."
+      },
+      "verification_gates": [
+        "pnpm type-check",
+        "pnpm test server/convex/__tests__/dataNormalization.test.ts",
+        "pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts",
+        "pnpm exec biome check server/convex/util/dataNormalization.ts server/convex/curatedRoutes.ts",
+        "pnpm --dir server run convex:dev -- --once"
+      ],
+      "coding_standards": [
+        "No .filter() for state \u2014 probe the by_state index over both spelling variants.",
+        "Pure transforms stay zero-I/O; application happens once at the query boundary.",
+        "Read-path only \u2014 no write-back to curated_routes."
+      ],
+      "dependencies": {
+        "depends_on": [
+          "DATA-001"
+        ],
+        "blocks": [
+          "DATA-005",
+          "DATA-008 (chat-driven state intent relies on both-spelling resolution)"
+        ],
+        "parallel": [
+          "DATA-002"
+        ]
+      },
+      "out_of_scope": [
+        "Write-back normalization of curated_routes (deferred fast-follow)",
+        "Length unit conversion",
+        "New state-spelling pairs beyond the known dirty set"
+      ]
+    },
+    {
+      "task_id": "DATA-005",
+      "title": "listCuratedRoutes public query \u2014 all 4 browse modes, Clerk-gated, 0\u20131 scores, limit cap (carried \u2014 verify)",
+      "task_type": "INFRA",
+      "status": "To Do",
+      "priority": "P0",
+      "effort": "S",
+      "estimate_minutes": 45,
+      "agent": "convex-implementer",
+      "agent_rationale": "Verification of the central net-new public query across all four arg modes, the Clerk gate, score scale, and limit cap against live Convex. convex-implementer owns curatedRoutes.ts and the requireIdentity guard and can exercise all modes via the Convex client / npx convex run.",
+      "proposed_by": "convex-planner",
+      "reviewer": "convex-reviewer",
+      "runtime_commands": {
+        "test": "pnpm test",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check server/convex/curatedRoutes.ts"
+      },
+      "outcome": "listCuratedRoutes returns correct ranked results for bbox, center+nearest (distanceMi populated), state (both variants), and archetype modes, Clerk-gated, with 0\u20131 scores and a server-capped limit.",
+      "touches_capabilities": [
+        "FEATURE(D2) listCuratedRoutes"
+      ],
+      "provides": [
+        "listCuratedRoutes-public-query"
+      ],
+      "consumes": [
+        "geospatial-points-seeded",
+        "archetype-ui-db-map",
+        "state-normalize-transform",
+        "length-clamp-transform"
+      ],
+      "boundary_contracts": [
+        "bbox returns only in-box centroids ranked by compositeScore; nearest returns ascending-distance with distanceMi; archetypes return only mapped UI-enum routes; state returns both dirty variants",
+        "every card carries 0\u20131 scores and clamped lengthMiles; result is capped to the limit without a full-table scan; the query is Clerk-gated via requireIdentity"
+      ],
+      "critical_constraints": [
+        "VERIFY ONLY \u2014 listCuratedRoutes is built (curatedRoutes.ts). Correct only a proven mode/gate defect bonded to a failing AC.",
+        "NEVER weaken the Clerk gate \u2014 listCuratedRoutes MUST call requireIdentity; an unauthenticated call MUST be rejected server-side.",
+        "A 0\u2013100 score escaping (raw 0\u2013100 number), a 710,430mi length, or a dropped state variant is a hard failure.",
+        "NEVER use .filter() for geography or state \u2014 bbox/nearest go through the geospatial index, state through by_state; the query must not full-table scan the 5,654 rows."
+      ],
+      "specification": "curatedRoutes.ts.listCuratedRoutes is the Clerk-gated public query powering discovery. Args: bbox | center | state | archetypes[] (UI enums) | sort('best'|'nearest') | limit (Math.min(limit??50,200)). It has four modes: Mode 1 bbox via geospatial.query(rectangle) ranked by compositeScore; Mode 2 sort='nearest' via geospatial.nearest with distanceMi = geo.distance*0.000621371 ascending; Mode 3 state-only via by_state probing both stateVariants; Mode 4 best via by_composite_score index. buildRouteCard returns the locked lean shape (returnValidator: routeId,name,state(canonical),primaryArchetype(UI),centroidLat/Lng,compositeScore,5 optional dimension scores,lengthMiles?,distanceMi?,summary?). This task re-verifies the FEATURE(D2) query per T-DATA-008 (all AC1\u20136) against live dev: each mode returns correct ranked/capped results; Clerk gate enforced; scores 0\u20131; lengthMiles clamped; distanceMi present only on nearest; limit honored within interactive latency. NOTE: a known divide-by-100 `norm` helper (line 117) exists for defensive 0\u2013100\u21920\u20131 coercion; D0 says scores are already 0\u20131 \u2014 confirm it does not corrupt genuine 0\u20131 scores (it only divides when v>1, which never fires for 0\u20131 data); flag if it does, but do not expand its scope here.",
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "all four browse modes return correct ranked/capped results with 0\u20131 scores",
+          "primary": true,
+          "given": "the seeded live Convex dev catalog (geospatial + by_state + by_composite_score)",
+          "when": "listCuratedRoutes is called with (a) a bbox, (b) sort='nearest'+center, (c) archetypes=['scenic','twisties'], (d) state='North Carolina'",
+          "then": "bbox returns only in-box centroids ranked by compositeScore; nearest returns ascending-distance rows with distanceMi populated; archetypes return only mapped UI-enum routes; state returns both dirty variants; every card has compositeScore in [0,1] and clamped lengthMiles, capped to the limit",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)",
+          "tdd_state": "none",
+          "test_file": "server/convex/__tests__/listCuratedRoutes.integration.test.ts",
+          "test_function": "allFourModesReturnCorrectRankedCappedResults",
+          "scenario": {
+            "start_ref": "seeded_geospatial_index",
+            "tier": "visible",
+            "negative_control": {
+              "would_fail_if": [
+                "query disconnected/empty returns []",
+                "nearest omits distanceMi",
+                "a 0\u2013100 score escapes",
+                "a state variant is dropped",
+                "limit not capped (full-table scan)"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "call listCuratedRoutes {bbox:{north,south,east,west} founder region, limit:25}"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "\u22651 route",
+                    "results sorted by compositeScore desc",
+                    "every compositeScore \u2264 1 (0\u20131 scale)",
+                    "result length \u2264 25"
+                  ],
+                  "must_not_observe": [
+                    "0 routes",
+                    "any compositeScore > 1",
+                    "result length > 25"
+                  ]
+                }
+              },
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "call listCuratedRoutes {sort:'nearest', center:{lat,lng}, limit:10}"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "distanceMi populated and ascending",
+                    "\u22651 route"
+                  ],
+                  "must_not_observe": [
+                    "distanceMi undefined on every row",
+                    "descending distance"
+                  ]
+                }
+              },
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "call listCuratedRoutes {archetypes:['scenic','twisties'], limit:20}"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "every primaryArchetype \u2208 {'scenic','twisties'}"
+                  ],
+                  "must_not_observe": [
+                    "primaryArchetype 'mountain'/'coastal'/'scenic_byway'/'desert'",
+                    "0 routes"
+                  ]
+                }
+              },
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "call listCuratedRoutes {state:'North Carolina', limit:200}"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "count > 43 (both NC variants)",
+                    "every state === 'North Carolina'"
+                  ],
+                  "must_not_observe": [
+                    "count \u2264 43",
+                    "state === 'North-Carolina'"
+                  ]
+                }
+              }
+            ],
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)"
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "query is Clerk-gated (unauthenticated call rejected)",
+          "primary": false,
+          "given": "an unauthenticated Convex client",
+          "when": "listCuratedRoutes is called with no identity",
+          "then": "the call is rejected server-side by requireIdentity (does not return data)",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (requireIdentity guard)",
+          "tdd_state": "none",
+          "test_file": "server/convex/__tests__/listCuratedRoutes.integration.test.ts",
+          "test_function": "unauthenticatedCallIsRejected",
+          "scenario": {
+            "start_ref": "seeded_geospatial_index",
+            "tier": "holdout",
+            "negative_control": {
+              "would_fail_if": [
+                "requireIdentity is bypassed so unauthenticated calls return data",
+                "auth check is mocked"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "call listCuratedRoutes {limit:5} with NO Clerk identity"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "an identity/auth error is thrown"
+                  ],
+                  "must_not_observe": [
+                    "a populated route array",
+                    "\u22651 route returned to an unauthenticated caller"
+                  ]
+                }
+              }
+            ],
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (requireIdentity guard)"
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "description": "Integration: all four modes correct, ranked, capped; 0\u20131 scores; distanceMi on nearest; both NC variants; within interactive latency (T-DATA-008 AC1\u20136).",
+          "maps_to_ac": "AC-1",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.integration.test.ts"
+        },
+        {
+          "id": "TC-2",
+          "description": "Integration: an unauthenticated listCuratedRoutes call is rejected by requireIdentity.",
+          "maps_to_ac": "AC-2",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.integration.test.ts"
+        }
+      ],
+      "fixtures": {
+        "seeded_geospatial_index": {
+          "description": "live Convex dev with the 5,654-row catalog, seeded geospatial points, by_state + by_composite_score indexes",
+          "seed_method": "migration_fixture",
+          "records": [
+            "curated_routes spanning founder regions, the NC spelling split, mixed archetypes, 0\u20131 scores, junk + valid lengths"
+          ]
+        }
+      },
+      "requirements": [
+        {
+          "id": "AC-1",
+          "type": "acceptance_criterion",
+          "primary": true,
+          "description": "GIVEN seeded live dev WHEN listCuratedRoutes called in bbox/nearest/archetype/state modes THEN each returns correct ranked, capped, 0\u20131-scored, length-clamped results (distanceMi on nearest, both NC variants)",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.integration.test.ts",
+          "maps_to_ac": null
+        },
+        {
+          "id": "AC-2",
+          "type": "acceptance_criterion",
+          "primary": false,
+          "description": "GIVEN no identity WHEN listCuratedRoutes called THEN requireIdentity rejects the call",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.integration.test.ts",
+          "maps_to_ac": null
+        },
+        {
+          "id": "TC-1",
+          "type": "test_criterion",
+          "description": "four-mode correctness + score scale + cap (T-DATA-008)",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.integration.test.ts",
+          "maps_to_ac": "AC-1"
+        },
+        {
+          "id": "TC-2",
+          "type": "test_criterion",
+          "description": "Clerk gate enforced",
+          "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.integration.test.ts",
+          "maps_to_ac": "AC-2"
+        }
+      ],
+      "reading_list": [
+        {
+          "path": "server/convex/curatedRoutes.ts",
+          "lines": "20-283",
+          "focus": "PRIMARY PATTERN \u2014 argsValidator/returnValidator + the four resolution modes + requireIdentity + buildRouteCard"
+        },
+        {
+          "path": ".spec/prds/mvp/09-technical-requirements/04-api-design.md",
+          "lines": "19-58",
+          "focus": "locked args/returns contract + resolution rules + auth-gate precondition"
+        },
+        {
+          "path": "server/convex/geospatialIndex.ts",
+          "lines": "1-27",
+          "focus": "the geospatial index used by Modes 1 and 2"
+        },
+        {
+          "path": "server/convex/__tests__/dataNormalization.test.ts",
+          "lines": "1-40",
+          "focus": "test conventions for the transforms this query composes"
+        },
+        {
+          "path": ".spec/prds/mvp/10-e2e-testing-criteria.md",
+          "lines": "56",
+          "focus": "T-DATA-008 pass/fail"
+        }
+      ],
+      "guardrails": {
+        "write_allowed": [
+          "server/convex/__tests__/listCuratedRoutes.integration.test.ts (NEW)",
+          "server/convex/curatedRoutes.ts (MODIFY \u2014 only a proven mode/gate/score correction)"
+        ],
+        "write_prohibited": [
+          "server/convex/schema.ts",
+          "server/convex/guards.ts \u2014 do not weaken requireIdentity",
+          "Any file not listed above"
+        ]
+      },
+      "design": {
+        "refs": [
+          ".spec/prds/mvp/09-technical-requirements/04-api-design.md",
+          ".spec/prds/mvp/04-uc-data.md#uc-data-05"
+        ],
+        "pattern": "Single Clerk-gated public browse query with index-backed resolution per mode (geospatial for bbox/nearest, by_state for state, by_composite_score for best), fully-specified returns validator, server-capped limit."
+      },
+      "verification_gates": [
+        "pnpm type-check",
+        "pnpm test server/convex/__tests__/listCuratedRoutes.integration.test.ts",
+        "pnpm exec biome check server/convex/curatedRoutes.ts",
+        "pnpm --dir server run convex:dev -- --once",
+        "npx convex run curatedRoutes:listCuratedRoutes '{\"state\":\"North Carolina\",\"limit\":200}' (manual evidence against live dev \u2014 count > 43, all canonical)"
+      ],
+      "coding_standards": [
+        "Validator-first: returns validator fully specifies every card field (already present) \u2014 keep it exhaustive.",
+        "No .filter() for geography/state \u2014 index-backed resolution only.",
+        "Server-cap the limit to protect the 5,654-row scale.",
+        "requireIdentity on every public read."
+      ],
+      "dependencies": {
+        "depends_on": [
+          "DATA-001",
+          "DATA-002",
+          "DATA-004"
+        ],
+        "blocks": [
+          "DATA-008",
+          "DATA-008b",
+          "DISC-002 (useCuratedDiscovery wraps this query)",
+          "OPS-001 (canary)"
+        ],
+        "parallel": []
+      },
+      "out_of_scope": [
+        "getCuratedRouteDetail (UC-DATA-06, separate sprint)",
+        "Adding new args/modes beyond the locked contract",
+        "Reworking the norm 0\u2013100 coercion helper"
+      ]
+    },
+    {
+      "task_id": "DATA-008",
+      "title": "Verify discoverCuratedRoutes maps NL intent \u2192 listCuratedRoutes \u2192 routing_card and is invoked by the ReAct loop",
+      "task_type": "FEATURE",
+      "status": "To Do",
+      "priority": "P0",
+      "effort": "M",
+      "estimate_minutes": 90,
+      "agent": "convex-implementer",
+      "agent_rationale": "The discovery tool is a Convex action (tools/discoverCuratedRoutes.ts) wired into the orchestrator ReAct dispatch (orchestrator.ts) and surfaced via TOOL_TO_CARD_KIND in sendMessage.ts \u2014 all backend. convex-implementer owns the action, the orchestrator wiring, and the route_plans/session_messages mutations and can drive the determinism seam against live dev.",
+      "proposed_by": "convex-planner",
+      "reviewer": "convex-reviewer",
+      "runtime_commands": {
+        "test": "pnpm test",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check server/convex/actions/agent/tools/discoverCuratedRoutes.ts server/convex/actions/agent/agents/orchestrator.ts server/convex/actions/agent/sendMessage.ts"
+      },
+      "outcome": "A fixtured discovery intent drives discoverCuratedRoutes \u2192 listCuratedRoutes \u2192 a created route_plans row whose options reflect the queried routes, the tool is dispatched by the orchestrator ReAct loop, and TOOL_TO_CARD_KIND surfaces it as a routing_card.",
+      "touches_capabilities": [
+        "plan-view-discovery"
+      ],
+      "provides": [
+        "nl-discovery-tool-invocation",
+        "discovery-routing-card"
+      ],
+      "consumes": [
+        "listCuratedRoutes-public-query"
+      ],
+      "boundary_contracts": [
+        "a fixtured intent {archetypes,state,center,sort,limit} deterministically calls listCuratedRoutes and persists a route_plans row with options for the queried routes",
+        "the tool is registered/invoked by the orchestrator ReAct loop and emits a routing_card (TOOL_TO_CARD_KIND['discoverCuratedRoutes']==='routing_card')"
+      ],
+      "critical_constraints": [
+        "Assert WHICH routes are plotted (route_plans row created + options for the queried routes + routing_card surfaced) \u2014 NEVER assert the agent's prose. Fixture the intent at the determinism seam (runDiscoverCuratedRoutes(ctx,{intent})), bypassing NL parsing.",
+        "Use the REAL listCuratedRoutes against live Convex dev \u2014 no mocked ctx.runQuery. A test that stubs the query is a fakeable pass and is rejected.",
+        "This task verifies INVOCATION + WIRING + CARD-EMISSION; the zero-score field-mapping bug is owned by DATA-008b \u2014 do NOT fix scores here (and do NOT assert non-zero scores here; that is DATA-008b's PRIMARY).",
+        "Do NOT couple the determinism-seam test to the orchestrator's brittle regex intent parser (orchestrator.ts lines 283-296) \u2014 inject the intent object directly."
+      ],
+      "specification": "tools/discoverCuratedRoutes.ts.runDiscoverCuratedRoutes(ctx,{intent}) maps intent.archetypes (UI) \u2192 DB set, builds queryArgs {limit,sort,state?,center?,archetypes?}, calls api.curatedRoutes.listCuratedRoutes, and on non-empty results persists a route_plans row (createForAgentInternal) then updates it (updatePlanStatus) with options[] built from the routes, returning {type:'routes', routePlanId}. The orchestrator (orchestrator.ts, discovery_agent case ~line 276) parses NL into an intent and calls executeDiscoverCuratedRoutes(ctx, toolCall) \u2014 this is the ReAct dispatch site that proves the tool is invoked. sendMessage.ts.TOOL_TO_CARD_KIND maps discoverCuratedRoutes\u2192'routing_card', and onToolFinish creates a routing_card session_message with the route_plans attachment. This task verifies the engine outcome of UC-DISC-10 / DATA-008 at the determinism seam: a fixtured intent yields a real route_plans row whose options correspond to the listCuratedRoutes result (assert routeOptionId set / count / label set against the query result), the orchestrator dispatch path reaches executeDiscoverCuratedRoutes, and the card-kind mapping is present. Score CORRECTNESS (composite>0, real dimensions) is explicitly deferred to DATA-008b.",
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "fixtured intent drives a route_plans row whose options match the queried routes",
+          "primary": true,
+          "given": "the seeded live Convex dev catalog and a fixtured intent {archetypes:['scenic'], state:'North Carolina', sort:'best', limit:5}",
+          "when": "runDiscoverCuratedRoutes(ctx,{intent}) executes against live dev (NL parsing bypassed)",
+          "then": "it returns {type:'routes', routePlanId}, a route_plans row is created, and its options[] routeOptionId/label set corresponds to the listCuratedRoutes result for that intent (same route ids, same count \u22645)",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (discoverCuratedRoutes \u2192 api.curatedRoutes.listCuratedRoutes \u2192 route_plans)",
+          "tdd_state": "none",
+          "test_file": "server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts",
+          "test_function": "fixturedIntentPlotsQueriedRoutes",
+          "scenario": {
+            "start_ref": "seeded_geospatial_index",
+            "tier": "visible",
+            "negative_control": {
+              "would_fail_if": [
+                "listCuratedRoutes is mocked",
+                "tool is a no-op returning type:'chat'",
+                "no route_plans row created",
+                "options[] empty or unrelated to the query result"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "db_query",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "call listCuratedRoutes {archetypes:['scenic'], state:'North Carolina', sort:'best', limit:5} and record the route ids",
+                    "run runDiscoverCuratedRoutes with the SAME fixtured intent",
+                    "load the created route_plans row + its result.options"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "result.type === 'routes'",
+                    "a route_plans row exists with status 'completed'",
+                    "options.length === the listCuratedRoutes result length (1..5)",
+                    "options[].routeOptionId set === 'curated-'+queried route ids"
+                  ],
+                  "must_not_observe": [
+                    "result.type === 'chat'",
+                    "0 options",
+                    "no route_plans row created"
+                  ]
+                }
+              }
+            ],
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (discoverCuratedRoutes \u2192 api.curatedRoutes.listCuratedRoutes \u2192 route_plans)"
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "the tool is dispatched by the orchestrator ReAct loop and mapped to a routing_card",
+          "primary": false,
+          "given": "the orchestrator discovery_agent dispatch case and the sendMessage card-kind map",
+          "when": "the orchestrator routes a discovery request",
+          "then": "executeDiscoverCuratedRoutes is reached via the discovery_agent case and TOOL_TO_CARD_KIND['discoverCuratedRoutes'] === 'routing_card'",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (orchestrator dispatch + sendMessage mapping)",
+          "tdd_state": "none",
+          "test_file": "server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts",
+          "test_function": "toolIsInvokedByReactLoopAndMappedToCard",
+          "scenario": {
+            "start_ref": "seeded_geospatial_index",
+            "tier": "holdout",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (orchestrator dispatch + sendMessage mapping)",
+            "negative_control": {
+              "would_fail_if": [
+                "the discovery_agent dispatch case is absent so the tool is never invoked and the orchestrator returns 'Unknown orchestrator tool'",
+                "TOOL_TO_CARD_KIND lacks discoverCuratedRoutes (undefined) so no routing_card row is emitted",
+                "executeDiscoverCuratedRoutes is stubbed to a no-op returning type:'chat' so no route_plans row is created"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "event_log",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "dispatch the orchestrator discovery_agent case with a discovery query that maps to a fixtured intent against live dev",
+                    "capture executeDiscoverCuratedRoutes return value",
+                    "read TOOL_TO_CARD_KIND['discoverCuratedRoutes']"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "executeDiscoverCuratedRoutes return.type === 'routes'",
+                    "typeof executeDiscoverCuratedRoutes return.routePlanId === 'string' && return.routePlanId.length > 0 (a real route_plans id)",
+                    "TOOL_TO_CARD_KIND['discoverCuratedRoutes'] === 'routing_card'"
+                  ],
+                  "must_not_observe": [
+                    "'Unknown orchestrator tool'",
+                    "return.type === 'chat'",
+                    "TOOL_TO_CARD_KIND['discoverCuratedRoutes'] === undefined",
+                    "0 route_plans rows created (no dispatch)"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "description": "Integration: a fixtured intent creates a route_plans row whose options match the real listCuratedRoutes result (engine outcome, not prose) \u2014 T-DISC-010 determinism seam.",
+          "maps_to_ac": "AC-1",
+          "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts"
+        },
+        {
+          "id": "TC-2",
+          "description": "Integration: orchestrator discovery_agent case invokes executeDiscoverCuratedRoutes and the tool is mapped to routing_card.",
+          "maps_to_ac": "AC-2",
+          "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts"
+        }
+      ],
+      "fixtures": {
+        "seeded_geospatial_index": {
+          "description": "live Convex dev with the 5,654-row catalog, seeded geospatial points, NC spelling split",
+          "seed_method": "migration_fixture",
+          "records": [
+            "curated_routes returnable by listCuratedRoutes for {archetypes:['scenic'], state:'North Carolina'}"
+          ]
+        }
+      },
+      "requirements": [
+        {
+          "id": "AC-1",
+          "type": "acceptance_criterion",
+          "primary": true,
+          "description": "GIVEN a fixtured intent WHEN runDiscoverCuratedRoutes runs against live dev THEN a route_plans row is created whose options match the real listCuratedRoutes result (same ids, count)",
+          "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts",
+          "maps_to_ac": null
+        },
+        {
+          "id": "AC-2",
+          "type": "acceptance_criterion",
+          "primary": false,
+          "description": "GIVEN the orchestrator dispatch WHEN a discovery request routes THEN executeDiscoverCuratedRoutes is invoked and the tool maps to routing_card",
+          "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts",
+          "maps_to_ac": null
+        },
+        {
+          "id": "TC-1",
+          "type": "test_criterion",
+          "description": "determinism-seam engine outcome (route_plans + options) verified vs the real query (T-DISC-010)",
+          "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts",
+          "maps_to_ac": "AC-1"
+        },
+        {
+          "id": "TC-2",
+          "type": "test_criterion",
+          "description": "ReAct invocation + routing_card mapping",
+          "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts",
+          "maps_to_ac": "AC-2"
+        }
+      ],
+      "reading_list": [
+        {
+          "path": "server/convex/actions/agent/tools/discoverCuratedRoutes.ts",
+          "lines": "44-200",
+          "focus": "PRIMARY PATTERN \u2014 runDiscoverCuratedRoutes intent\u2192listCuratedRoutes\u2192route_plans\u2192options; the determinism seam"
+        },
+        {
+          "path": "server/convex/actions/agent/agents/orchestrator.ts",
+          "lines": "276-311",
+          "focus": "the discovery_agent dispatch case that invokes executeDiscoverCuratedRoutes (proves ReAct invocation)"
+        },
+        {
+          "path": "server/convex/actions/agent/sendMessage.ts",
+          "lines": "25-29",
+          "focus": "TOOL_TO_CARD_KIND['discoverCuratedRoutes']==='routing_card' + onToolFinish card emission (227-276)"
+        },
+        {
+          "path": "server/convex/actions/agent/agents/orchestrator.test.ts",
+          "lines": "1-80",
+          "focus": "orchestrator test conventions for asserting dispatch outcomes"
+        },
+        {
+          "path": ".spec/prds/mvp/10-e2e-testing-criteria.md",
+          "lines": "89",
+          "focus": "T-DISC-010 determinism-seam contract (assert routes/plot, not prose)"
+        }
+      ],
+      "guardrails": {
+        "write_allowed": [
+          "server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts (NEW)",
+          "server/convex/actions/agent/agents/orchestrator.ts (MODIFY \u2014 only if the dispatch case is found broken/unreachable)",
+          "server/convex/actions/agent/sendMessage.ts (MODIFY \u2014 only if TOOL_TO_CARD_KIND is found missing the entry)"
+        ],
+        "write_prohibited": [
+          "server/convex/actions/agent/tools/discoverCuratedRoutes.ts \u2014 the score-field fix is DATA-008b's scope, not this task",
+          "server/convex/curatedRoutes.ts",
+          "Any file not listed above"
+        ]
+      },
+      "design": {
+        "refs": [
+          ".spec/prds/mvp/05-uc-disc.md#uc-disc-10",
+          ".spec/prds/mvp/10-e2e-testing-criteria.md"
+        ],
+        "pattern": "Determinism seam: inject the intent object directly into the tool, assert the engine outcome (route_plans row + options matching the real query result + routing_card kind), never the LLM prose."
+      },
+      "verification_gates": [
+        "pnpm type-check",
+        "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts",
+        "pnpm exec biome check server/convex/actions/agent/tools/discoverCuratedRoutes.ts server/convex/actions/agent/agents/orchestrator.ts server/convex/actions/agent/sendMessage.ts",
+        "pnpm --dir server run convex:dev -- --once"
+      ],
+      "coding_standards": [
+        "Deterministic vs probabilistic: route_plans persistence + card emission are deterministic; only NL\u2192intent is probabilistic \u2014 fixture the seam.",
+        "Assert engine outcomes (rows/ids/counts), never agent prose.",
+        "Use real ctx.runQuery against live dev \u2014 no mocked Convex."
+      ],
+      "dependencies": {
+        "depends_on": [
+          "DATA-005"
+        ],
+        "blocks": [
+          "DATA-008b",
+          "DISC-020 (renders the routing_card transcript cards)"
+        ],
+        "parallel": []
+      },
+      "out_of_scope": [
+        "Fixing the flat-vs-nested score field bug (DATA-008b)",
+        "The orchestrator NL regex intent parser quality",
+        "Client rendering of the routing_card (DISC-020)"
+      ]
+    },
+    {
+      "task_id": "DATA-008b",
+      "title": "FIX: discoverCuratedRoutes reads nested route.scores/route.score but listCuratedRoutes returns flat *Score fields \u2192 chat cards show composite 0 / zero bars",
+      "task_type": "FEATURE",
+      "status": "To Do",
+      "priority": "P0",
+      "effort": "M",
+      "estimate_minutes": 90,
+      "agent": "convex-implementer",
+      "agent_rationale": "Confirmed backend bug in the Convex discovery action's option builder: it reads fields that listCuratedRoutes does not return. convex-implementer owns both contracts (the query's flat returnValidator and the tool's option mapping) and can prove the fix against live dev.",
+      "proposed_by": "convex-planner",
+      "reviewer": "convex-reviewer",
+      "runtime_commands": {
+        "test": "pnpm test",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check server/convex/actions/agent/tools/discoverCuratedRoutes.ts"
+      },
+      "outcome": "A fixtured discovery intent yields a route_plans option whose scores.composite > 0 and whose dimension scores equal the route's real listCuratedRoutes values, and distanceMi=0 is guarded to the nearest-sort case.",
+      "touches_capabilities": [
+        "plan-view-discovery"
+      ],
+      "provides": [
+        "discovery-card-real-scores"
+      ],
+      "consumes": [
+        "listCuratedRoutes-public-query",
+        "nl-discovery-tool-invocation"
+      ],
+      "boundary_contracts": [
+        "the option's scores.composite and dimension scores carry the route's real 0\u20131 values from the flat listCuratedRoutes fields (compositeScore, curvatureScore, scenicScore, technicalScore, trafficScore, remotenessScore)",
+        "distanceMeters/distance fallback only applies when sort='nearest' populated distanceMi; absent-distance routes do not fabricate a 0 distance as a real value"
+      ],
+      "critical_constraints": [
+        "THE BUG (confirmed, discoverCuratedRoutes.ts lines 144-153): the option builder reads route.score and route.scores?.scenery|curvature|elevation|traffic|pavement, but listCuratedRoutes returns FLAT fields \u2014 compositeScore, curvatureScore, scenicScore, technicalScore, trafficScore, remotenessScore. Map the flat fields so the option carries the route's REAL 0\u20131 scores.",
+        "PRIMARY AC MUST observe scores.composite > 0 (a non-degenerate value) for a route whose real compositeScore > 0 \u2014 a fixed value of 0 is the start signature and a fakeable pass; the test must exclude it.",
+        "Verify against REAL listCuratedRoutes on live Convex dev \u2014 no mocked query. The bug only manifests against the real flat-field contract.",
+        "Guard the distanceMi=0 fallback: distanceMi is populated only on sort='nearest'; do not coerce an undefined distance into a real 0 (use undefined/null, not a misleading 0 distance)."
+      ],
+      "specification": "In tools/discoverCuratedRoutes.ts the options.map (lines 133-172) builds each option.scores as {composite: route.score||0, dimensions:{scenery: route.scores?.scenery||0, curvature: route.scores?.curvature||0, elevation: route.scores?.elevation||0, traffic: route.scores?.traffic||0, pavement: route.scores?.pavement||0}}. None of route.score or route.scores.* exist on the listCuratedRoutes return (returnValidator: compositeScore, curvatureScore, scenicScore, technicalScore, trafficScore, remotenessScore \u2014 all flat 0\u20131, optional dimensions). So every chat-discovered option surfaces composite:0 and all-zero dimension bars. FIX: map composite \u2190 route.compositeScore, and the dimension set \u2190 the flat fields, choosing a stable dimension naming that the routing_card / RouteAttachmentCard consumes (align to the card's expected dimension keys; map scenery\u2190scenicScore, curvature\u2190curvatureScore, traffic\u2190trafficScore, and carry technicalScore/remotenessScore per the card contract \u2014 confirm the consumer's expected keys before finalizing). ALSO at line 139 the stats.distanceMeters = (route.distanceMi||0)*1609.344 fabricates 0 meters when distanceMi is undefined (best sort) \u2014 guard so distance is only set when distanceMi is present (sort='nearest'). Do NOT touch listCuratedRoutes or its norm helper; the query already returns correct 0\u20131 flat scores.",
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "discovery option carries the route's real non-zero composite + dimension scores",
+          "primary": true,
+          "given": "the seeded live Convex dev catalog and a fixtured intent that returns a route whose real compositeScore > 0",
+          "when": "runDiscoverCuratedRoutes executes and the created route_plans option is loaded",
+          "then": "option.scores.composite equals the route's real compositeScore (> 0) and each dimension score equals the route's real corresponding flat *Score value (not 0)",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (discoverCuratedRoutes \u2192 listCuratedRoutes \u2192 route_plans options)",
+          "tdd_state": "none",
+          "test_file": "server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts",
+          "test_function": "optionCarriesRealNonZeroScores",
+          "scenario": {
+            "start_ref": "seeded_geospatial_index",
+            "tier": "visible",
+            "negative_control": {
+              "would_fail_if": [
+                "option reads route.score (undefined\u21920) so composite is 0",
+                "dimensions read route.scores.* (undefined\u21920) so all bars are 0",
+                "listCuratedRoutes mocked"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "db_query",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "call listCuratedRoutes {archetypes:['scenic'], state:'North Carolina', sort:'best', limit:5} and record the top route's compositeScore + dimension *Score values",
+                    "run runDiscoverCuratedRoutes with the SAME fixtured intent",
+                    "load the created route_plans row's first option.scores"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "option.scores.composite > 0",
+                    "option.scores.composite === the queried route's real compositeScore",
+                    "\u22651 dimension score > 0 matching the queried route's real *Score"
+                  ],
+                  "must_not_observe": [
+                    "option.scores.composite === 0",
+                    "all dimension scores === 0 (the start/zero signature)"
+                  ]
+                }
+              }
+            ],
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (discoverCuratedRoutes \u2192 listCuratedRoutes \u2192 route_plans options)"
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "distanceMi=0 fallback is guarded to the nearest-sort case",
+          "primary": false,
+          "given": "a fixtured intent with sort='best' (distanceMi unpopulated)",
+          "when": "runDiscoverCuratedRoutes builds the option stats",
+          "then": "the option does not present a misleading real 0-distance \u2014 distance is undefined/null when distanceMi is absent, and populated only when sort='nearest' returned a distanceMi",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev (discoverCuratedRoutes options for best vs nearest)",
+          "tdd_state": "none",
+          "test_file": "server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts",
+          "test_function": "distanceGuardedToNearestSort",
+          "scenario": {
+            "start_ref": "seeded_geospatial_index",
+            "tier": "holdout",
+            "test_tier": "integration",
+            "verification_service": "live Convex dev (discoverCuratedRoutes options for best vs nearest)",
+            "negative_control": {
+              "would_fail_if": [
+                "the option builder is hardcoded to coerce an absent distanceMi into a real 0 (stats.distanceMeters = (route.distanceMi||0)*1609.344) so best-sort fabricates a 0 distance",
+                "the nearest-sort branch is a no-op/stubbed so the real distanceMi is dropped to undefined",
+                "listCuratedRoutes is mocked so neither the best-absent nor the nearest-present distance reflects the real query"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "db_query",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "seeded_geospatial_index",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "run runDiscoverCuratedRoutes with {archetypes:['scenic'], sort:'best', limit:3} against live dev and load the first option's distance field",
+                    "run runDiscoverCuratedRoutes with {center:{lat,lng}, sort:'nearest', limit:3} against live dev and load the first option's distance field",
+                    "compare the two options' distance fields"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "best-sort option distance === undefined (no fabricated 0)",
+                    "nearest-sort option distance derived from a real distanceMi > 0"
+                  ],
+                  "must_not_observe": [
+                    "best-sort option distanceMeters === 0 (fabricated real 0)",
+                    "nearest-sort option distance === 0",
+                    "nearest-sort option distance === undefined",
+                    "0 options returned (empty result)"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "description": "Integration: a fixtured intent's route_plans option has scores.composite > 0 equal to the route's real compositeScore and \u22651 real non-zero dimension score (the DATA-008b PRIMARY fix).",
+          "maps_to_ac": "AC-1",
+          "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts"
+        },
+        {
+          "id": "TC-2",
+          "description": "Integration: best-sort options do not fabricate a real 0 distance; nearest-sort options carry the real distance.",
+          "maps_to_ac": "AC-2",
+          "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts"
+        }
+      ],
+      "fixtures": {
+        "seeded_geospatial_index": {
+          "description": "live Convex dev with the 5,654-row catalog where the top scenic North Carolina route has compositeScore > 0 and non-zero dimension scores",
+          "seed_method": "migration_fixture",
+          "records": [
+            "curated_routes with real 0\u20131 compositeScore/curvatureScore/scenicScore/technicalScore/trafficScore/remotenessScore"
+          ]
+        }
+      },
+      "requirements": [
+        {
+          "id": "AC-1",
+          "type": "acceptance_criterion",
+          "primary": true,
+          "description": "GIVEN a fixtured intent returning a route with real compositeScore>0 WHEN runDiscoverCuratedRoutes runs THEN the route_plans option's scores.composite equals that real value (>0) and dimensions equal the real flat *Score values",
+          "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts",
+          "maps_to_ac": null
+        },
+        {
+          "id": "AC-2",
+          "type": "acceptance_criterion",
+          "primary": false,
+          "description": "GIVEN best vs nearest sort WHEN options are built THEN distance is undefined for best and a real value for nearest (no fabricated 0)",
+          "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts",
+          "maps_to_ac": null
+        },
+        {
+          "id": "TC-1",
+          "type": "test_criterion",
+          "description": "real non-zero composite + dimension scores on the option (PRIMARY fix)",
+          "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts",
+          "maps_to_ac": "AC-1"
+        },
+        {
+          "id": "TC-2",
+          "type": "test_criterion",
+          "description": "distanceMi=0 fallback guarded to nearest sort",
+          "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts",
+          "maps_to_ac": "AC-2"
+        }
+      ],
+      "reading_list": [
+        {
+          "path": "server/convex/actions/agent/tools/discoverCuratedRoutes.ts",
+          "lines": "133-172",
+          "focus": "PRIMARY PATTERN (the bug) \u2014 options.map reading route.score/route.scores.* + distanceMi fallback to fix"
+        },
+        {
+          "path": "server/convex/curatedRoutes.ts",
+          "lines": "36-54",
+          "focus": "the authoritative FLAT returnValidator: compositeScore + 5 flat *Score fields (the contract the tool must read)"
+        },
+        {
+          "path": "server/convex/curatedRoutes.ts",
+          "lines": "119-137",
+          "focus": "buildRouteCard \u2014 confirms which flat fields the card actually carries"
+        },
+        {
+          "path": "server/convex/actions/agent/sendMessage.ts",
+          "lines": "247-276",
+          "focus": "how the routing_card consumes the route_plans option (attachment) \u2014 confirm expected dimension keys"
+        },
+        {
+          "path": ".spec/prds/mvp/05-uc-disc.md",
+          "lines": "91-96",
+          "focus": "UC-DISC-10 AC5: composite carries through 0\u20131 as bars/percent, never 0-100, never 0"
+        }
+      ],
+      "guardrails": {
+        "write_allowed": [
+          "server/convex/actions/agent/tools/discoverCuratedRoutes.ts (MODIFY \u2014 fix the option score mapping + distance guard)",
+          "server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts (NEW)"
+        ],
+        "write_prohibited": [
+          "server/convex/curatedRoutes.ts \u2014 the query already returns correct flat 0\u20131 scores; do not change it",
+          "server/convex/util/archetypeMap.ts",
+          "Any file not listed above"
+        ]
+      },
+      "design": {
+        "refs": [
+          ".spec/prds/mvp/09-technical-requirements/04-api-design.md",
+          ".spec/prds/mvp/05-uc-disc.md#uc-disc-10"
+        ],
+        "pattern": "Align the consumer (option builder) to the producer's flat returnValidator: composite \u2190 compositeScore, dimensions \u2190 the flat *Score fields; guard derived-distance to the sort='nearest' branch."
+      },
+      "verification_gates": [
+        "pnpm type-check",
+        "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts",
+        "pnpm exec biome check server/convex/actions/agent/tools/discoverCuratedRoutes.ts",
+        "pnpm --dir server run convex:dev -- --once"
+      ],
+      "coding_standards": [
+        "Read the producer's actual returnValidator field names \u2014 never guess nested shapes.",
+        "Non-degenerate assertion: the fix is proven only by observing a real >0 score, never a passing 0.",
+        "Do not fabricate 0 as a real value (distance) \u2014 use undefined/null for absent data."
+      ],
+      "dependencies": {
+        "depends_on": [
+          "DATA-005",
+          "DATA-008"
+        ],
+        "blocks": [
+          "DISC-020 (renders chat cards with score %/bars)"
+        ],
+        "parallel": []
+      },
+      "out_of_scope": [
+        "Changing listCuratedRoutes or its norm 0\u2013100 helper",
+        "Client-side score formatting (%/bars) \u2014 DISC-020/DESIGN-S01-002",
+        "The NL intent parser"
+      ]
+    },
+    {
+      "task_id": "OPS-001",
+      "title": "Guard against empty-Convex-deployment drift (combined dev script + loud health check; canary = listCuratedRoutes)",
+      "task_type": "INFRA",
+      "status": "To Do",
+      "priority": "P1",
+      "effort": "S",
+      "estimate_minutes": 60,
+      "agent": "convex-implementer",
+      "agent_rationale": "The health check probes the Convex function-spec and the listCuratedRoutes canary, and the combined dev script runs convex dev from server/ alongside Metro \u2014 both backend/devops concerns owned by the convex-implementer who knows the deployment surface and the canary contract.",
+      "proposed_by": "convex-planner",
+      "reviewer": "convex-reviewer",
+      "runtime_commands": {
+        "test": "pnpm test",
+        "typecheck": "pnpm type-check",
+        "lint": "pnpm exec biome check scripts/check-convex-health.mjs"
+      },
+      "outcome": "The combined dev script runs convex dev from server/ alongside Metro, and the health check exits non-zero with a loud message when the deployment reports 0 functions or is missing the listCuratedRoutes canary, and passes against the seeded deployment.",
+      "touches_capabilities": [
+        "dev-workflow-integrity"
+      ],
+      "provides": [
+        "convex-empty-deployment-guard"
+      ],
+      "consumes": [
+        "listCuratedRoutes-public-query"
+      ],
+      "boundary_contracts": [
+        "health check fails loudly (non-zero exit + clear stderr) when the deployment has 0 functions OR lacks curatedRoutes.js:listCuratedRoutes",
+        "health check passes (exit 0) against the seeded deployment that exports listCuratedRoutes"
+      ],
+      "critical_constraints": [
+        "VERIFY/HARDEN \u2014 scripts/check-convex-health.mjs and the convex:health npm script exist. Harden, do not rewrite from scratch.",
+        "The failure path MUST exit non-zero AND emit a loud, actionable message (e.g. 'Convex deployment is empty - is convex dev running from server/?') \u2014 a silent or exit-0 failure defeats the guard's purpose.",
+        "The canary MUST be the real listCuratedRoutes function identifier (curatedRoutes.js:listCuratedRoutes) \u2014 not a generic 'any function' check.",
+        "The combined dev script MUST launch convex dev from server/ AND Metro; do not start Metro alone (the empty-deployment incident class this guards)."
+      ],
+      "specification": "scripts/check-convex-health.mjs runs `npx convex function-spec` from server/, parses spec.functions, exits 1 with a loud message if the list is empty or lacks curatedRoutes.js:listCuratedRoutes, and prints a success line with the function count otherwise. package.json exposes `convex:health` (node scripts/check-convex-health.mjs) and `dev`/`dev:all` (pnpm server:dev & pnpm client:dev where server:dev \u2192 cd server && pnpm dev \u2192 convex dev, client:dev \u2192 expo). This task re-verifies/hardens the dev-workflow-integrity guard (Sprint 01 app-live prerequisite + R-DATA-6): (1) against an empty/missing deployment the health check exits non-zero with a loud message naming the missing canary; (2) against the seeded deployment it exits 0 reporting the function count including listCuratedRoutes; (3) the combined dev script demonstrably starts convex dev from server/ alongside Metro (verify the script composition; ensure server:dev resolves to convex dev, not a stub). Hardening to consider: clean up the function-spec-temp.json temp file on both success and failure; make the empty-vs-missing-canary messages distinct; ensure a non-zero exit propagates if convex dev is not running (function-spec connection failure path).",
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "name": "health check fails loudly on empty/canary-missing deployment, passes on seeded",
+          "primary": true,
+          "given": "the convex:health script and a Convex deployment in two states (no listCuratedRoutes vs seeded with listCuratedRoutes)",
+          "when": "node scripts/check-convex-health.mjs runs against each",
+          "then": "it exits non-zero with a loud message naming the missing canary when listCuratedRoutes is absent/empty, and exits 0 with a function-count success line when listCuratedRoutes is present",
+          "test_tier": "integration",
+          "verification_service": "live Convex dev deployment (npx convex function-spec) via scripts/check-convex-health.mjs",
+          "tdd_state": "none",
+          "test_file": "scripts/__tests__/check-convex-health.integration.test.ts",
+          "test_function": "healthCheckFailsLoudOnEmptyPassesOnSeeded",
+          "scenario": {
+            "start_ref": "live_dev_deployment",
+            "tier": "visible",
+            "negative_control": {
+              "would_fail_if": [
+                "health check exits 0 on an empty/canary-missing deployment",
+                "failure is silent (no stderr)",
+                "canary is a generic 'any function exists' check rather than listCuratedRoutes"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "stdout",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "live_dev_deployment",
+                "action": {
+                  "actor": "cli_user",
+                  "steps": [
+                    "run check-convex-health.mjs against a function-spec whose functions list LACKS curatedRoutes.js:listCuratedRoutes",
+                    "capture exit code + stderr"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "exit code !== 0",
+                    "stderr contains 'curatedRoutes.js:listCuratedRoutes' (the named missing canary)"
+                  ],
+                  "must_not_observe": [
+                    "exit code 0",
+                    "empty stderr on failure"
+                  ]
+                }
+              },
+              {
+                "start_ref": "live_dev_deployment",
+                "action": {
+                  "actor": "cli_user",
+                  "steps": [
+                    "run check-convex-health.mjs against the seeded live dev deployment that exports listCuratedRoutes",
+                    "capture exit code + stdout"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "exit code 0",
+                    "stdout reports a function count > 0 including curatedRoutes.js:listCuratedRoutes"
+                  ],
+                  "must_not_observe": [
+                    "exit code !== 0",
+                    "function count 0"
+                  ]
+                }
+              }
+            ],
+            "test_tier": "integration",
+            "verification_service": "live Convex dev deployment (npx convex function-spec) via scripts/check-convex-health.mjs"
+          }
+        },
+        {
+          "id": "AC-2",
+          "name": "combined dev script starts convex dev from server/ alongside Metro",
+          "primary": false,
+          "given": "the package.json dev/dev:all + server:dev + client:dev script chain",
+          "when": "the script composition is inspected/exercised",
+          "then": "server:dev resolves to convex dev launched from server/ (not a stub) and runs alongside client:dev (Metro/expo)",
+          "test_tier": "integration",
+          "verification_service": "package.json script chain + server/package.json convex:dev",
+          "tdd_state": "none",
+          "test_file": "scripts/__tests__/check-convex-health.integration.test.ts",
+          "test_function": "combinedDevScriptLaunchesConvexFromServerAndMetro",
+          "scenario": {
+            "start_ref": "live_dev_deployment",
+            "tier": "holdout",
+            "negative_control": {
+              "would_fail_if": [
+                "server:dev does not invoke convex dev from server/",
+                "dev launches only Metro (the empty-deployment incident)"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "file_artifact",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "live_dev_deployment",
+                "action": {
+                  "actor": "cli_user",
+                  "steps": [
+                    "resolve dev \u2192 'pnpm server:dev & pnpm client:dev'",
+                    "resolve server:dev \u2192 'cd server && pnpm dev' \u2192 convex:dev \u2192 npx convex dev",
+                    "resolve client:dev \u2192 expo start"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "server:dev chain ends at 'npx convex dev' run from server/",
+                    "dev runs server:dev AND client:dev concurrently"
+                  ],
+                  "must_not_observe": [
+                    "server:dev resolving to a no-op/stub",
+                    "dev launching client:dev alone"
+                  ]
+                }
+              }
+            ],
+            "test_tier": "integration",
+            "verification_service": "package.json script chain + server/package.json convex:dev"
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "description": "Integration: health check exits non-zero with a loud listCuratedRoutes-named message on empty/canary-missing, exits 0 with a count on seeded (R-DATA-6 drift guard).",
+          "maps_to_ac": "AC-1",
+          "verify": "pnpm test scripts/__tests__/check-convex-health.integration.test.ts"
+        },
+        {
+          "id": "TC-2",
+          "description": "Integration: the combined dev script chain launches convex dev from server/ alongside Metro (no Metro-alone path).",
+          "maps_to_ac": "AC-2",
+          "verify": "pnpm test scripts/__tests__/check-convex-health.integration.test.ts"
+        }
+      ],
+      "fixtures": {
+        "live_dev_deployment": {
+          "description": "the live Convex dev deployment, exercised in seeded (listCuratedRoutes present) and a simulated empty/canary-missing function-spec",
+          "seed_method": "cli",
+          "records": [
+            "function-spec WITH curatedRoutes.js:listCuratedRoutes (seeded)",
+            "function-spec WITHOUT curatedRoutes.js:listCuratedRoutes (drift)"
+          ]
+        }
+      },
+      "requirements": [
+        {
+          "id": "AC-1",
+          "type": "acceptance_criterion",
+          "primary": true,
+          "description": "GIVEN the health check WHEN run against empty/canary-missing vs seeded THEN non-zero + loud named-canary message on drift, exit 0 + count on seeded",
+          "verify": "pnpm test scripts/__tests__/check-convex-health.integration.test.ts",
+          "maps_to_ac": null
+        },
+        {
+          "id": "AC-2",
+          "type": "acceptance_criterion",
+          "primary": false,
+          "description": "GIVEN the dev script chain WHEN inspected THEN server:dev launches convex dev from server/ alongside client:dev (Metro)",
+          "verify": "pnpm test scripts/__tests__/check-convex-health.integration.test.ts",
+          "maps_to_ac": null
+        },
+        {
+          "id": "TC-1",
+          "type": "test_criterion",
+          "description": "loud-fail / pass health check with listCuratedRoutes canary (R-DATA-6)",
+          "verify": "pnpm test scripts/__tests__/check-convex-health.integration.test.ts",
+          "maps_to_ac": "AC-1"
+        },
+        {
+          "id": "TC-2",
+          "type": "test_criterion",
+          "description": "combined dev script composition (convex dev + Metro)",
+          "verify": "pnpm test scripts/__tests__/check-convex-health.integration.test.ts",
+          "maps_to_ac": "AC-2"
+        }
+      ],
+      "reading_list": [
+        {
+          "path": "scripts/check-convex-health.mjs",
+          "lines": "1-66",
+          "focus": "PRIMARY PATTERN \u2014 function-spec parse, empty/canary checks, loud exit; the guard under verification"
+        },
+        {
+          "path": "package.json",
+          "lines": "5-21",
+          "focus": "dev/dev:all/server:dev/client:dev/convex:health script chain"
+        },
+        {
+          "path": "server/package.json",
+          "lines": "6-15",
+          "focus": "convex:dev resolution (the guarded sh wrapper that errors if convex/ is missing)"
+        },
+        {
+          "path": "server/convex/curatedRoutes.ts",
+          "lines": "156-283",
+          "focus": "the listCuratedRoutes canary export the health check probes"
+        },
+        {
+          "path": ".spec/prds/mvp/tasks/sprint-01-discovery-on-the-route-plan-view/SPRINT.md",
+          "lines": "80-90",
+          "focus": "OPS-001 source coverage + dev-workflow-integrity capability"
+        }
+      ],
+      "guardrails": {
+        "write_allowed": [
+          "scripts/check-convex-health.mjs (MODIFY \u2014 harden: temp-file cleanup, distinct empty-vs-missing messages, connection-failure exit)",
+          "scripts/__tests__/check-convex-health.integration.test.ts (NEW)",
+          "package.json (MODIFY \u2014 only if the dev/server:dev chain is found to not launch convex dev)"
+        ],
+        "write_prohibited": [
+          "server/convex/** \u2014 no backend code change in this ops task",
+          "server/package.json \u2014 do not weaken the convex/ existence guard",
+          "Any file not listed above"
+        ]
+      },
+      "design": {
+        "refs": [
+          ".spec/prds/mvp/tasks/sprint-01-discovery-on-the-route-plan-view/SPRINT.md",
+          ".spec/prds/mvp/09-technical-requirements/04-api-design.md"
+        ],
+        "pattern": "Loud fail-closed dev health check: probe function-spec, assert the real listCuratedRoutes canary, exit non-zero with an actionable message on drift; combined dev script keeps convex dev co-running with Metro."
+      },
+      "verification_gates": [
+        "pnpm type-check",
+        "pnpm test scripts/__tests__/check-convex-health.integration.test.ts",
+        "pnpm exec biome check scripts/check-convex-health.mjs",
+        "pnpm convex:health (manual evidence against live dev \u2014 exit 0 + count including listCuratedRoutes)",
+        "pnpm --dir server run convex:dev -- --once"
+      ],
+      "coding_standards": [
+        "Fail closed and loud \u2014 never exit 0 on a degraded deployment.",
+        "Name the real canary (curatedRoutes.js:listCuratedRoutes), not a generic check.",
+        "Clean up temp artifacts on all exit paths.",
+        "Deterministic guard: the health check is regular code, not an agent decision."
+      ],
+      "dependencies": {
+        "depends_on": [
+          "DATA-005 (the listCuratedRoutes canary must exist)"
+        ],
+        "blocks": [
+          "the Sprint 01 human testing gate (every subscription depends on a non-empty deployment)"
+        ],
+        "parallel": [
+          "DATA-001",
+          "DATA-002",
+          "DATA-004"
+        ]
+      },
+      "out_of_scope": [
+        "Production/CI deployment health gates beyond local dev",
+        "Seeding logic (DATA-001)",
+        "Backend function changes"
+      ]
+    }
+  ]
+}

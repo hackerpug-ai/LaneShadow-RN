@@ -1,0 +1,11 @@
+{
+  "task_id": "DATA-008",
+  "project": {
+    "test_cmd": "pnpm test",
+    "typecheck_cmd": "pnpm type-check",
+    "lint_cmd": "pnpm lint"
+  },
+  "verification_commands": [
+    "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts"
+  ]
+}

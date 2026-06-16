@@ -1,0 +1,11 @@
+{
+  "task_id": "DESIGN-S01-003",
+  "project": {
+    "test_cmd": "pnpm test",
+    "typecheck_cmd": "pnpm type-check",
+    "lint_cmd": "pnpm lint"
+  },
+  "verification_commands": [
+    "test -s .spec/design/sprint-01/home-empty-state-spec.md && grep -q 'Discover roads near you' .spec/design/sprint-01/home-empty-state-spec.md && echo PASS"
+  ]
+}

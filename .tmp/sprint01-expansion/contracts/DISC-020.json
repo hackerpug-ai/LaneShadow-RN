@@ -1,0 +1,149 @@
+{
+  "fixtures": {
+    "curated_routing_card_real_scores": {
+      "description": "a completed routing_card from the real discovery tool (post-DATA-008b) with curated options carrying real 0\u20131 compositeScore (~0.82) + per-dimension scores + mileage, surfaced against live Convex",
+      "seed_method": "migration_fixture",
+      "records": [
+        "routing_card option with scores.composite ~0.82",
+        "option label = real road name",
+        "distanceMi/mileage populated"
+      ]
+    },
+    "curated_routing_card_centroid_only": {
+      "description": "a curated option whose overviewGeometry encodes a single centroid point (no multi-point polyline)",
+      "seed_method": "migration_fixture",
+      "records": [
+        "geometry decodes to exactly 1 coordinate (centroidLat/Lng)"
+      ]
+    }
+  },
+  "requirements": [
+    {
+      "id": "AC-1",
+      "scenario": {
+        "start_ref": "curated_routing_card_real_scores",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "DATA-008b not applied \u2192 composite 0 / 0%",
+            "score rendered as raw 0.82 decimal",
+            "score rendered as raw 82 with no % and not on 0\u20131 scale",
+            "curated card identical to planned card"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "screenshot",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "surface a curated routing_card via the real discovery tool against live Convex for a route with compositeScore ~0.82",
+                "render CompletedCard",
+                "read the curated card's score text/bars and name/mileage"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "composite rendered as '82%' or '82/100' or a bar filled ~82% (Math.round(score*100))",
+                "the real road name string and a mileage value (e.g. '\u00b7 14mi')",
+                "curated card uses the road-variant icon / composite badge (distinct from start\u2192end planned layout)"
+              ],
+              "must_not_observe": [
+                "'0%' for a non-zero route",
+                "raw '0.82' decimal",
+                "a raw '82' with no scale context",
+                "a start\u2192end planned-trip card layout for the curated option"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev (curated routing_card via discoverCuratedRoutes/listCuratedRoutes) via @testing-library/react-native"
+      }
+    },
+    {
+      "id": "AC-2",
+      "scenario": {
+        "start_ref": "curated_routing_card_real_scores",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "onViewOnMap missing on the curated branch \u2192 stays in chat mode",
+            "selection not propagated to displayedRoutePlanId"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "stdout",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "user",
+              "steps": [
+                "render the plan view in chat mode with an earlier curated routing_card",
+                "fireEvent.press the curated card",
+                "assert setSelectedRouteId + setDisplayedRoutePlanId received the option/plan ids and onViewOnMap fired (chatMode false)"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "setDisplayedRoutePlanId called with the card's routePlanId",
+                "setSelectedRouteId called with the curated option id",
+                "chatMode === false after press (returned to map)"
+              ],
+              "must_not_observe": [
+                "still in chat mode after press",
+                "no selection propagated"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev via @testing-library/react-native"
+      }
+    },
+    {
+      "id": "AC-3",
+      "scenario": {
+        "start_ref": "curated_routing_card_centroid_only",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "centroid-only option crashes doFit",
+            "no camera move for a single-point route"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "stdout",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "user",
+              "steps": [
+                "select a centroid-only curated option (geometry decodes to 1 coordinate)",
+                "assert doFit takes the single-point branch"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "setCameraPosition called with the centroid coordinates and zoom: 12"
+              ],
+              "must_not_observe": [
+                "fitToCoordinates called with empty coords",
+                "an exception thrown for a single-point geometry"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev + MapboxMapViewHandle via @testing-library/react-native"
+      }
+    }
+  ]
+}

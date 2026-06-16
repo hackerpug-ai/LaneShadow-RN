@@ -1,0 +1,102 @@
+{
+  "fixtures": {
+    "seeded_geospatial_index": {
+      "description": "live Convex dev with the 5,654-row catalog, seeded geospatial points, NC spelling split",
+      "seed_method": "migration_fixture",
+      "records": [
+        "curated_routes returnable by listCuratedRoutes for {archetypes:['scenic'], state:'North Carolina'}"
+      ]
+    }
+  },
+  "requirements": [
+    {
+      "id": "AC-1",
+      "scenario": {
+        "start_ref": "seeded_geospatial_index",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "listCuratedRoutes is mocked",
+            "tool is a no-op returning type:'chat'",
+            "no route_plans row created",
+            "options[] empty or unrelated to the query result"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "seeded_geospatial_index",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "call listCuratedRoutes {archetypes:['scenic'], state:'North Carolina', sort:'best', limit:5} and record the route ids",
+                "run runDiscoverCuratedRoutes with the SAME fixtured intent",
+                "load the created route_plans row + its result.options"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "result.type === 'routes'",
+                "a route_plans row exists with status 'completed'",
+                "options.length === the listCuratedRoutes result length (1..5)",
+                "options[].routeOptionId set === 'curated-'+queried route ids"
+              ],
+              "must_not_observe": [
+                "result.type === 'chat'",
+                "0 options",
+                "no route_plans row created"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev (discoverCuratedRoutes \u2192 api.curatedRoutes.listCuratedRoutes \u2192 route_plans)"
+      }
+    },
+    {
+      "id": "AC-2",
+      "scenario": {
+        "start_ref": "seeded_geospatial_index",
+        "tier": "holdout",
+        "negative_control": {
+          "would_fail_if": [
+            "discovery_agent case absent so the tool is never invoked",
+            "TOOL_TO_CARD_KIND lacks discoverCuratedRoutes so no card row is emitted"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "event_log",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "seeded_geospatial_index",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "dispatch the orchestrator discovery_agent case with a discovery query that maps to a fixtured intent",
+                "assert executeDiscoverCuratedRoutes returned {type:'routes'}",
+                "assert TOOL_TO_CARD_KIND['discoverCuratedRoutes']"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "dispatch reaches executeDiscoverCuratedRoutes",
+                "TOOL_TO_CARD_KIND['discoverCuratedRoutes'] === 'routing_card'"
+              ],
+              "must_not_observe": [
+                "'Unknown orchestrator tool'",
+                "TOOL_TO_CARD_KIND['discoverCuratedRoutes'] === undefined"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev (orchestrator dispatch + sendMessage mapping)"
+      }
+    }
+  ]
+}

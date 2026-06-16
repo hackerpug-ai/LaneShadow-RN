@@ -1,0 +1,360 @@
+{
+  "artifact_kind": "roadmap",
+  "plan_id": "mvp",
+  "cycle": 3,
+  "block_threshold": "MEDIUM",
+  "writers": [
+    "convex-planner",
+    "react-native-ui-planner",
+    "frontend-designer"
+  ],
+  "reviewers_this_cycle": [
+    "code-reviewer#rev-c3"
+  ],
+  "findings": [
+    {
+      "id": "RF-001",
+      "severity": "CRITICAL",
+      "confidence": "MEDIUM",
+      "dimension": "prd-coverage",
+      "target": "sprint-01 PRD Coverage section",
+      "summary": "UC-DISC-03 (browse-by-state) is neither covered nor superseded; it is silently dropped from the Sprint 01 PRD Coverage section.",
+      "evidence": "DELTA-001 §5 'Superseded at implementation' lists UC-DISC-02/05/06/07/08/01 but NOT UC-DISC-03. UC-DISC-03 remains a valid PRD UC with 4 ACs. The MVP job explicitly includes 'or in a state I'm curious about.' UC-DISC-01 AC2 requires pins 'for a chosen state' — unverified. State-based discovery is achievable via NL chat (DATA-008 → listCuratedRoutes), but no task or gate step traces this.",
+      "proposed_fix": "Either (a) trace UC-DISC-03 to DATA-008 + DISC-012 (state-based NL discovery via chat, backed by DATA-004 normalization) and add a gate test step that types a state query and verifies curated routes for that state return with consistent spelling; or (b) explicitly supersede UC-DISC-03 in the PRD Coverage section, noting its intent is absorbed into UC-DISC-10.",
+      "raised_by": [
+        "convex-planner#rev-c1",
+        "react-native-ui-planner#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-002",
+      "severity": "CRITICAL",
+      "confidence": "LOW",
+      "dimension": "missed-task",
+      "target": "sprint-02 DESIGN-001 task brief",
+      "summary": "UC-DTL-02 AC6 composite-score headline placement ('positioned above the score bars') is NOT in DESIGN-001 task brief — the brief mentions only 'composite /100 headline' without specifying placement.",
+      "evidence": "PRD §UC-DTL-02 AC6: 'System renders the composite score as a single headline number (Math.round(compositeScore × 100) + \"/100\") in semantic.type.title.lg above the five dimension bars.' DESIGN-001 task brief: 'ScoreDimensionBar primitive (labeled % bar, copper fill on inset track, composite /100 headline)' — placement above score bars is missing.",
+      "proposed_fix": "Add explicit placement to DESIGN-001 task brief: 'composite /100 headline positioned above the five dimension bars' (or clarify the headline is a separate sibling component).",
+      "raised_by": [
+        "frontend-designer#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-003",
+      "severity": "MEDIUM",
+      "confidence": "LOW",
+      "dimension": "missed-task",
+      "target": "sprint-01 Tasks table vs task-file list",
+      "summary": "OPS-001 (guard-empty-convex-deployment-drift) appears in the Sprint 01 expanded task-file list but is absent from the Tasks table, the PRD Coverage section, the Capability Coverage section, and the 'Total Tasks: 23' count.",
+      "evidence": "ROADMAP Sprint 01 'Next Sprint Tasks' lists '- OPS-001-guard-empty-convex-deployment-drift.md'. But the Tasks table has 13 rows (DATA-007 through DISC-015) with no OPS-001 entry. 'Total Tasks: 23 (Sprint 01: 13)' excludes it.",
+      "proposed_fix": "Either add OPS-001 to the Tasks table (Sprint 01 = 14 tasks, total = 24) with PRD traceability to R-DATA-6 / UC-DATA-01 AC2 (idempotent re-run), or remove it from the task-file list if erroneous.",
+      "raised_by": [
+        "convex-planner#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-004",
+      "severity": "MEDIUM",
+      "confidence": "LOW",
+      "dimension": "gate-validity",
+      "target": "sprint-01 gate step 4",
+      "summary": "UC-DISC-10 AC4 requires composite scores in chat-driven curated-route results rendered as bars/%, never 0–100 — but no Sprint 01 gate step verifies score format on curated route cards rendered in the chat transcript.",
+      "evidence": "DELTA-001 §5 UC-DISC-10 AC4: 'System carries composite scores through chat-driven results on the raw 0–1 scale (rendered as bars/%, never 0–100).' Sprint 01 gate step 4 says 'observe the agent return curated route card(s)' but does not assert the score format. This is the exact bug PRD flags in 08-team-contributions.md as a high-severity risk.",
+      "proposed_fix": "Add a clause to Sprint 01 gate step 4: 'observe the curated route card displays the composite score as a percentage (e.g. 74/100 or 74%), not a raw decimal or a 0–100 integer.'",
+      "raised_by": [
+        "react-native-ui-planner#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-005",
+      "severity": "MEDIUM",
+      "confidence": "LOW",
+      "dimension": "dependency",
+      "target": "sprint-02 intra-sprint ordering",
+      "summary": "Sprint 02 intra-sprint ordering specifies DESIGN-001 → DESIGN-002 and DTL-001 → DESIGN-002 but omits DESIGN-003 (geometry graceful degradation) relative to DESIGN-002, even though DESIGN-002's map section requires the polyline-vs-centroid branch DESIGN-003 implements.",
+      "evidence": "ROADMAP Sprint 02 Dependencies: 'DTL-001 precedes DESIGN-002; DESIGN-001 precedes DESIGN-002; DESIGN-004 consumes SAVE-001 and SAVE-002.' DESIGN-003 is not ordered relative to DESIGN-002, but DESIGN-002's map section cannot be complete without DESIGN-003's polyline-vs-centroid branch.",
+      "proposed_fix": "Add 'DESIGN-003 precedes or is co-developed with DESIGN-002' to Sprint 02 intra-sprint ordering.",
+      "raised_by": [
+        "react-native-ui-planner#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-006",
+      "severity": "MEDIUM",
+      "confidence": "LOW",
+      "dimension": "missed-task",
+      "target": "sprint-02 DTL-001 / home pin-tap navigation",
+      "summary": "No task explicitly owns wiring the home screen's pin/marker tap handler to navigate to the new curated-route/[id] detail route, but Sprint 02 gate step 1 assumes it works.",
+      "evidence": "Sprint 02 gate step 1: 'From the home map, tap a route that has geometry and observe the detail open.' DTL-001 creates the destination route but its description does not mention wiring the home screen's pin-tap handler to router.push('/curated-route/[id]'). Under DELTA-001, the existing pin-tap behavior is card→map re-render, not pin→detail navigation. UC-DTL-01 says 'A rider taps a discovery pin or list row and sees a fully populated detail screen,' but the original UC-DISC-06 (which owned the pin→detail tap handler) is superseded and its pin-tap wiring was never re-homed.",
+      "proposed_fix": "Extend DTL-001's scope to include 'wire the home map pin/marker tap handler to router.push the curated route ID to /curated-route/[id],' or create a small wiring task that depends on DTL-001.",
+      "raised_by": [
+        "react-native-ui-planner#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-007",
+      "severity": "MEDIUM",
+      "confidence": "LOW",
+      "dimension": "capability",
+      "target": "sprint-01 Notes (UC-DISC-07/08 surviving intent claim)",
+      "summary": "ROADMAP Notes claim UC-DISC-07/08's 'surviving ≥44pt/no-route-state intent lives in DISC-010/012/014,' but none of those task descriptions reference 44dp touch targets, safe-area insets, or the specific empty/loading state messaging UC-DISC-07/08 ACs asserted.",
+      "evidence": "ROADMAP Notes: 'the former legibility sprint (DISC-005/006 polish of that screen) is absorbed (its surviving ≥44pt/no-route-state intent lives in DISC-010/012/014).' DELTA-001 §5 says UC-DISC-07/08 are 're-scoped to the pills + chat affordances on the home.' But DISC-010/012/014 task briefs contain no mention of ≥44dp, safe-area insets, or distinguish-no-routes-in-area-vs-no-routes-match-filter messaging. 07-ui-infrastructure.md §6 constitution says 'All chips/toggles ≥ 44pt' but no task explicitly owns it for the new pill affordances.",
+      "proposed_fix": "Either (a) add an explicit AC to DISC-014 that suggestion pills meet ≥44dp touch targets and that the no-curated-routes-available pill state shows legible messaging; or (b) retract the ROADMAP's claim and note it as an accepted gap for MVP.",
+      "raised_by": [
+        "react-native-ui-planner#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-008",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "dimension": "missed-task",
+      "target": "sprint-01 DISC-014",
+      "summary": "DISC-014 'No-route empty home state: pills present + discovery-invite placeholder copy' has no specification of the actual placeholder copy text, placement, or token spec, and no gate verification.",
+      "evidence": "DISC-014 task brief mentions 'discovery-invite placeholder copy' but provides no actual copy text, no placement, no token spec. Sprint 01 gate step 2 verifies pills but not the discovery-invite placeholder text.",
+      "proposed_fix": "Specify the discovery-invite placeholder copy, its placement in the UI, and add a gate step to observe this copy rendering when no route is on the map.",
+      "raised_by": [
+        "react-native-ui-planner#rev-c1",
+        "frontend-designer#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-009",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "dimension": "gate-validity",
+      "target": "sprint-02 gate (UC-DTL-01 AC5 summary-absent case)",
+      "summary": "Sprint 02 gate tests polyline-present and polyline-absent routes but does not test a summary-absent route to verify the 'No description yet' italic + muted color styling per UC-DTL-01 AC5.",
+      "evidence": "UC-DTL-01 AC5: 'Rider can see \"No description yet\" in italic semantic.type.body.md with semantic.color.onSurface.muted color when the summary field is absent (~32% of routes).' Sprint 02 gate steps 1-2 test geometry variants but not the summary-absent variant. T-DTL-001 covers this at task level but the human gate omits it.",
+      "proposed_fix": "Add a clause to Sprint 02 gate step 1 or 2: 'also tap a route with no description and observe the \"No description yet\" italic placeholder rendered in muted color.'",
+      "raised_by": [
+        "react-native-ui-planner#rev-c1",
+        "frontend-designer#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-010",
+      "severity": "MEDIUM",
+      "confidence": "LOW",
+      "dimension": "gate-validity",
+      "target": "sprint-02 DESIGN-003 gate",
+      "summary": "No gate step verifies 'Approximate location' badge placement per design system spec ('Badge variant=\"outline\", semantic.color.border.default border').",
+      "evidence": "UC-DTL-03 AC2: 'Rider can see an \"Approximate location\" Badge (variant=\"outline\") rendered below the map section when routePolyline is absent, using semantic.color.border.default border and semantic.color.onSurface.default text.' Sprint 02 gate step 2 observes badge presence but does NOT verify badge variant (outline) or border color token.",
+      "proposed_fix": "Add gate step: 'Observe the \"Approximate location\" badge uses the outline variant with border-default color token and onSurface-default text color token per design system spec.'",
+      "raised_by": [
+        "frontend-designer#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-011",
+      "severity": "LOW",
+      "confidence": "LOW",
+      "dimension": "gate-validity",
+      "target": "sprint-01/02 gate — DATA-004 state-normalize observability",
+      "summary": "DATA-004 state-normalize transform is folded into Sprint 01, but no sprint gate exercises state filtering or verifies canonical state spelling.",
+      "evidence": "DATA-004 is in Sprint 01. Sprint 01 gate does not display state labels. Sprint 02 gate steps 1–8 do not include a step verifying canonical state spelling on the detail header. Length-clamp IS partially observable (pills show mileage), but state-normalize is not.",
+      "proposed_fix": "Add a Sprint 02 gate step that opens a detail for a known double-spelled-state route and verifies the state label renders as the canonical spelling.",
+      "raised_by": [
+        "convex-planner#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-012",
+      "severity": "LOW",
+      "confidence": "LOW",
+      "dimension": "contract",
+      "target": "sprint-01 DATA-008 task brief — auth propagation",
+      "summary": "DATA-008 (agent curated-discovery tool) calls listCuratedRoutes which is Clerk-gated via requireIdentity, but the task brief does not note that the agent tool must propagate the authenticated session's identity through the action→query call chain.",
+      "evidence": "04-api-design.md Auth-gate precondition locks both queries to requireIdentity. DATA-005 brief says 'Clerk-gated'. DATA-008 brief says 'translate an NL request into listCuratedRoutes params and surface curated routes as a routing_card' with no auth note. R-DATA-9 discusses auth posture for the queries but not for the agent tool intermediate.",
+      "proposed_fix": "Add a note to DATA-008's task brief that the agent tool must execute within the authenticated Convex context so listCuratedRoutes's requireIdentity check passes.",
+      "raised_by": [
+        "convex-planner#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-013",
+      "severity": "LOW",
+      "confidence": "LOW",
+      "dimension": "prd-coverage",
+      "target": "sprint-01 DATA-007 task-file list mismatch",
+      "summary": "DATA-007 (remove stale react-native/ shadow dir) is in the Tasks table but is absent from the expanded task-file list.",
+      "evidence": "ROADMAP Sprint 01 Tasks table row 1: 'DATA-007'. The 'Next Sprint Tasks' file list includes DATA-008, DISC-010..015, OPS-001, and 'built: DATA-001/002/004/005, DISC-002' — DATA-007 appears in neither the new files nor the built list.",
+      "proposed_fix": "Either add DATA-007 to the 'built' list if completed, or add its task file to the list if pending.",
+      "raised_by": [
+        "convex-planner#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-014",
+      "severity": "LOW",
+      "confidence": "LOW",
+      "dimension": "gate-validity",
+      "target": "sprint-01 DISC-011 gate",
+      "summary": "No gate step verifies curated-route suggestion pills are visually distinct from generic chat-input affordances.",
+      "evidence": "Sprint 01 gate step 2 observes 'suggestion pills offering whole curated routes' but does NOT verify that these pills are visually distinct from other chat affordances.",
+      "proposed_fix": "Add gate step: 'Observe curated-route suggestion pills use visual styling distinct from generic chat prompts.'",
+      "raised_by": [
+        "frontend-designer#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-015",
+      "severity": "LOW",
+      "confidence": "LOW",
+      "dimension": "gate-validity",
+      "target": "sprint-01 DISC-013 gate",
+      "summary": "No gate step verifies footer 'open full chat' button is visually distinct from send affordance per DELTA-001.",
+      "evidence": "DELTA-001 §7 says 'Footer \"open full chat\" button to the right of the chat input (reuse `chatMode`), visually distinct from send'. Sprint 01 gate step 7 observes button opens full chat view but does NOT verify visual distinction from send button.",
+      "proposed_fix": "Add gate step: 'Observe the \"open full chat\" button is visually distinct from the chat send button.'",
+      "raised_by": [
+        "frontend-designer#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-016",
+      "severity": "LOW",
+      "confidence": "LOW",
+      "dimension": "gate-validity",
+      "target": "sprint-02 DESIGN-004 gate",
+      "summary": "Gate step 4 verifies both Save and Ride It buttons visible without scrolling but does NOT verify button placement (action row at bottom of scrollable content per design system spec §6).",
+      "evidence": "10-design-system.md §6: 'Action row (Save + Ride It) pins to the bottom of the ScrollView content on short routes, but scrolls with content on long detail pages.' Sprint 02 gate step 4 observes visibility without scrolling but does NOT verify this scroll behavior.",
+      "proposed_fix": "Add gate step: 'On a long detail page, scroll and observe the Save + Ride It buttons scroll with the content (not fixed to screen bottom).'",
+      "raised_by": [
+        "frontend-designer#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-017",
+      "severity": "LOW",
+      "confidence": "LOW",
+      "dimension": "gate-validity",
+      "target": "sprint-01 DISC-012 gate",
+      "summary": "No gate step verifies curated route card variant visually conveys 'curated route' vs planned trip card.",
+      "evidence": "DISC-012 task brief mentions 'curated card variant' but no visual distinction requirement from existing planned trip routing_card. Sprint 01 gate steps observe cards rendering but do NOT verify visual distinction.",
+      "proposed_fix": "Add gate step: 'Observe curated-route cards use a visual variant distinct from planned trip cards.'",
+      "raised_by": [
+        "frontend-designer#rev-c1"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 1,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-018",
+      "severity": "MEDIUM",
+      "confidence": "LOW",
+      "dimension": "consistency",
+      "target": "09-routing.md line 18 (Route Map table, curated route detail row) — LOCKED SOURCE",
+      "summary": "Locked source 09-routing.md entry condition for curated route detail references the deleted Discover screen ('Tap a pin or list row on Discover'), inconsistent with DELTA-001 which re-homed discovery to the map/chat home.",
+      "evidence": "09-routing.md line 18 entry condition predates DELTA-001. The v2.0.0 Route Delta correctly deletes discover.tsx, but the v1.0.0 Route Map table retains the stale entry condition.",
+      "proposed_fix": "Update 09-routing.md entry condition to 'Tap a pin on the home map or a curated route card in the chat history' to reflect DELTA-001 reality. (Requires PRD edit — outside ROADMAP scope.)",
+      "raised_by": [
+        "code-reviewer#rev-c2"
+      ],
+      "status": "upstream-escalated",
+      "is_upstream": true,
+      "first_cycle": 2,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-019",
+      "severity": "CRITICAL",
+      "confidence": "LOW",
+      "dimension": "missed-task",
+      "target": "sprint-01 DISC-012 + sprint-03 capstone gate step 3",
+      "summary": "Sprint 03 capstone gate step 3 says 'tap a curated route card/pin to open its detail', but DISC-012 only wires card→map re-render and DTL-001 only wires pin→detail. The 'card' path to detail is ambiguous — either card taps must open detail directly, or the capstone gate must clarify the card→map→pin flow.",
+      "evidence": "Sprint 01 gate step 5: 'tap an earlier curated-route card, and observe it re-render on the map and return you to map view' (card → map). Sprint 03 gate step 3: 'tap a curated route card/pin to open its detail' (card/pin → detail). DISC-012 task brief: 'wire the existing card→map→pin-back loop' (no detail wiring). DTL-001: 'wire the home map pin/marker tap handler to router.push' (pin → detail only). The 'card' path to detail is unassigned.",
+      "proposed_fix": "Either (a) extend DISC-012 to wire curated-route card taps to router.push('/curated-route/[id]') distinct from planned routes' card→map loop; OR (b) clarify Sprint 03 capstone gate step 3 to 'tap a curated route card to re-render it on the map, then tap the pin to open its detail' matching the DELTA-001 designed flow.",
+      "raised_by": [
+        "code-reviewer#rev-c2"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 2,
+      "reopened_count": 0
+    },
+    {
+      "id": "RF-020",
+      "severity": "MEDIUM",
+      "confidence": "LOW",
+      "dimension": "gate-validity",
+      "target": "sprint-02 gate sentence (narrative framing)",
+      "summary": "Sprint 02 gate sentence ('Tapping a route opens...') frames detail as the entry point without acknowledging discovery (Sprint 01) as the upstream hero. Test steps correctly contextualize ('From the home map, tap...'), but the gate sentence itself doesn't.",
+      "evidence": "Sprint 01 Overview: 'Re-anchor LaneShadow on its strategic hero — Discovery'. Sprint 02 gate sentence: 'Tapping a route opens an honest, complete route detail...' — starts from the tap, not from discovery.",
+      "proposed_fix": "Rewrite Sprint 02 gate sentence to acknowledge the discovered-route upstream: 'From a curated route discovered on the map/chat home (Sprint 01), tapping it opens honest, complete detail — summary/name headline, score bars with composite headline, polyline-or-centroid map, basic conditions — and from there the rider can save, find again in Saved, reopen without error, and hand off to Apple/Google Maps to ride it.'",
+      "raised_by": [
+        "code-reviewer#rev-c2"
+      ],
+      "status": "addressed",
+      "is_upstream": false,
+      "first_cycle": 2,
+      "reopened_count": 0
+    }
+  ],
+  "converged": true
+}

@@ -1,0 +1,6 @@
+
+> laneshadow@1.0.0 type-check /Users/justinrich/Projects/LaneShadow-RN
+> tsc --noEmit -p server/tsconfig.json && tsc --noEmit -p tsconfig.json
+
+server/convex/__tests__/geospatialSeed.integration.test.ts(108,1): error TS1128: Declaration or statement expected.
+ ELIFECYCLE  Command failed with exit code 2.

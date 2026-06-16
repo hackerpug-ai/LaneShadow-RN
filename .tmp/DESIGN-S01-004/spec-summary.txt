@@ -1,0 +1,1 @@
+footer-chat-button-spec.md: Required spec, compliance audit (13/16 PASS), icon distinction verified

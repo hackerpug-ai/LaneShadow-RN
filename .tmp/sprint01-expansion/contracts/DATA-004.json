@@ -1,0 +1,170 @@
+{
+  "fixtures": {
+    "seeded_geospatial_index": {
+      "description": "live Convex dev with the 5,654-row catalog including the North Carolina spelling split (~202 'North-Carolina' + ~43 'North Carolina')",
+      "seed_method": "migration_fixture",
+      "records": [
+        "curated_routes with both NC spellings; rows with lengthMiles 0, >1000, and valid values"
+      ]
+    },
+    "length_inputs": {
+      "description": "representative junk and valid length values",
+      "seed_method": "cli",
+      "records": [
+        "137 (valid)",
+        "0 (junk)",
+        "710430 (outlier)",
+        "-5 (negative)"
+      ]
+    }
+  },
+  "requirements": [
+    {
+      "id": "AC-1",
+      "scenario": {
+        "start_ref": "seeded_geospatial_index",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "query probes only one spelling so the 'North-Carolina' variant is dropped",
+            "raw mixed spellings escape to cards",
+            "query disconnected returns []"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "api_response",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "seeded_geospatial_index",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "call listCuratedRoutes with {state:'North Carolina', limit:200} (authed)"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "result count > 43 (proves the 202-row 'North-Carolina' variant is included, not just the 43-row 'North Carolina' variant)",
+                "every returned state === 'North Carolina'"
+              ],
+              "must_not_observe": [
+                "0 routes",
+                "any state === 'North-Carolina'",
+                "result count \u2264 43 (one variant dropped)"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)"
+      }
+    },
+    {
+      "id": "AC-2",
+      "scenario": {
+        "start_ref": "length_inputs",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "clamp passes 0 through",
+            "clamp passes the 710430 outlier through",
+            "clamp drops a valid 137mi length"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "stdout",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "length_inputs",
+            "action": {
+              "actor": "cli_user",
+              "steps": [
+                "clampLength(137)"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "137"
+              ],
+              "must_not_observe": [
+                "undefined",
+                "0"
+              ]
+            }
+          },
+          {
+            "start_ref": "length_inputs",
+            "action": {
+              "actor": "cli_user",
+              "steps": [
+                "clampLength(0)",
+                "clampLength(710430)",
+                "clampLength(-5)"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "undefined for each"
+              ],
+              "must_not_observe": [
+                "0",
+                "710430",
+                "-5"
+              ]
+            }
+          }
+        ],
+        "test_tier": "unit"
+      }
+    },
+    {
+      "id": "AC-3",
+      "scenario": {
+        "start_ref": "seeded_geospatial_index",
+        "tier": "holdout",
+        "negative_control": {
+          "would_fail_if": [
+            "normalize is identity so both spellings stay distinct",
+            "gate writes back to curated_routes",
+            "sample differs pre/post"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "seeded_geospatial_index",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "normalizeState('North-Carolina')",
+                "normalizeState('North Carolina')",
+                "sample N curated_routes state values",
+                "exercise listCuratedRoutes state filter",
+                "re-sample the same N rows"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "both normalize to 'North Carolina'",
+                "pre-sample === post-sample"
+              ],
+              "must_not_observe": [
+                "'North-Carolina' in normalized output",
+                "any sampled state changed"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev (curated_routes sample read before/after) + pure normalizeState"
+      }
+    }
+  ]
+}

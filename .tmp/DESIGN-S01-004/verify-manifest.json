@@ -1,0 +1,11 @@
+{
+  "task_id": "DESIGN-S01-004",
+  "project": {
+    "test_cmd": "pnpm test",
+    "typecheck_cmd": "pnpm type-check",
+    "lint_cmd": "pnpm lint"
+  },
+  "verification_commands": [
+    "test -s .spec/design/sprint-01/footer-chat-button-spec.md && grep -q 'chat-outline' .spec/design/sprint-01/footer-chat-button-spec.md && echo PASS"
+  ]
+}

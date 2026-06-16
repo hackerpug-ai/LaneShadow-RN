@@ -257,7 +257,7 @@ const HomeMapScreen = () => {
   const hasActiveRoute = !!agentActiveOption
 
   // Curated route discovery pills (DISC-011)
-  const { routes: curatedDiscoveryRoutes } = useCuratedDiscovery({ sort: 'nearest', limit: 5 })
+  const { isLoading, isEmpty, routes: curatedDiscoveryRoutes } = useCuratedDiscovery({ sort: 'nearest', limit: 5 })
   const curatedPills = (curatedDiscoveryRoutes ?? []).map((r) => ({
     label: `${r.name} · ${Math.round(r.distanceMi ?? 0)}mi`,
     routeId: r.id,
@@ -1378,7 +1378,14 @@ const HomeMapScreen = () => {
           onCancel={handleCancel}
           state={flowState}
           isPlanning={isPlanning || isManualPlanning}
-          suggestions={curatedPills.length > 0 ? curatedPills : IDLE_SUGGESTIONS}
+          suggestions={
+            // DISC-017: Fix discovery slot to show curated cards only — never generic IDLE_SUGGESTIONS
+            isLoading 
+              ? [] // Loading: show nothing 
+              : isEmpty 
+                ? ['No nearby routes'] // Empty: show "no nearby routes" message
+                : curatedPills // Has routes: show curated pills only
+          }
           testID="chat-input"
           placeholder={!hasActiveRoute ? "Find a route — try 'twisties near Asheville'" : undefined}
           chatMode={chatMode}

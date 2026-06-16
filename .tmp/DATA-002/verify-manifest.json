@@ -1,0 +1,12 @@
+{
+  "task_id": "DATA-002",
+  "project": {
+    "test_cmd": "pnpm test",
+    "typecheck_cmd": "pnpm type-check",
+    "lint_cmd": "pnpm lint"
+  },
+  "verification_commands": [
+    "pnpm test server/convex/__tests__/archetypeMap.test.ts",
+    "pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts"
+  ]
+}

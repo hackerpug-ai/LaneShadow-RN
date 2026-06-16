@@ -1,0 +1,97 @@
+{
+  "fixtures": {
+    "final_source_tree": {
+      "description": "the repo working tree AFTER DISC-016/017/018/019/020 have merged; active sources under app/, hooks/, contexts/, server/, components/ (excluding components/discovery/) plus the route tree and drawer config",
+      "seed_method": "migration_fixture",
+      "records": [
+        "components/discovery/* present but orphaned (or deleted)",
+        "no app/(app)/(tabs)/discover.tsx",
+        "drawer has no 'Plan a ride'/'Discover' (post-DISC-019)",
+        "hooks/use-route-discovery.ts present and untouched"
+      ]
+    }
+  },
+  "requirements": [
+    {
+      "id": "AC-1",
+      "scenario": {
+        "start_ref": "final_source_tree",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "an active screen imports route-pin/state-filter-sheet/etc.",
+            "the check scans nothing (empty file list \u2192 false pass)"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "stdout",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "cli_user",
+              "steps": [
+                "walk all active .ts/.tsx under app/, hooks/, contexts/, server/, and components/ (excluding components/discovery/**)",
+                "collect import specifiers",
+                "filter to those resolving to: route-discovery-screen, discovery-filter-bar, discovery-sort-toggle, route-pin, state-filter-sheet, state-list-item, intent-search-sheet, intent-summary-pill, discovery-empty-overlay, discovery-loading-overlay, or the components/discovery barrel"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "scanned file count > 100 (proves the walk ran over the real tree)",
+                "active import matches === 0"
+              ],
+              "must_not_observe": [
+                "scanned file count === 0 (empty scan)",
+                "any active import of a quarantined module"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "filesystem import-graph scan (real source tree) via vitest"
+      }
+    },
+    {
+      "id": "AC-2",
+      "scenario": {
+        "start_ref": "final_source_tree",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "a discover.tsx tab route exists",
+            "a drawer item navigates to a discover route"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "stdout",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "cli_user",
+              "steps": [
+                "assert no file app/(app)/(tabs)/discover.tsx",
+                "render MenuLayout and assert no item navigates to a discover path"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "app/(app)/(tabs)/discover.tsx absent",
+                "drawer has 4 navigable surfaces (plan view via launch, Settings, Saved, Sessions) and none is a discover route"
+              ],
+              "must_not_observe": [
+                "a discover tab route file present",
+                "a drawer item with a discover/route-discovery pathname"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "filesystem route-tree scan + MenuLayout render via @testing-library/react-native"
+      }
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "fixtures": {
+    "seeded_geospatial_index": {
+      "description": "live Convex dev with the 5,654-row catalog + seeded geospatial points",
+      "seed_method": "migration_fixture",
+      "records": [
+        "curated_routes spanning DB archetypes scenic_byway/coastal/mountain/desert/twisties/adventure"
+      ]
+    },
+    "archetype_inputs": {
+      "description": "representative UI and DB archetype literals for the pure transform",
+      "seed_method": "cli",
+      "records": [
+        "UI: scenic, technical, cruising, sport, adventure, twisties",
+        "DB: scenic_byway, coastal, mountain, desert, twisties, adventure"
+      ]
+    }
+  },
+  "requirements": [
+    {
+      "id": "AC-1",
+      "scenario": {
+        "start_ref": "seeded_geospatial_index",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "mapping is a no-op returning raw DB values",
+            "filter not applied so non-scenic routes leak",
+            "query disconnected/empty returns []"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "api_response",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "seeded_geospatial_index",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "call listCuratedRoutes with {archetypes:['scenic'], limit:20} (authed)"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "\u22651 route returned",
+                "every returned primaryArchetype === 'scenic'"
+              ],
+              "must_not_observe": [
+                "primaryArchetype === 'scenic_byway'",
+                "primaryArchetype === 'coastal'",
+                "primaryArchetype === 'mountain'",
+                "primaryArchetype === 'desert'",
+                "0 routes"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)"
+      }
+    },
+    {
+      "id": "AC-2",
+      "scenario": {
+        "start_ref": "archetype_inputs",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "mapping returns the input unchanged (identity)",
+            "a DB value maps to undefined (route dropped)"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "stdout",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "archetype_inputs",
+            "action": {
+              "actor": "cli_user",
+              "steps": [
+                "dbArchetypeToUi('mountain')",
+                "dbArchetypeToUi('desert')",
+                "dbArchetypeToUi('coastal')"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "'technical'",
+                "'adventure'",
+                "'scenic'"
+              ],
+              "must_not_observe": [
+                "'mountain'",
+                "'desert'",
+                "'coastal'",
+                "undefined"
+              ]
+            }
+          },
+          {
+            "start_ref": "archetype_inputs",
+            "action": {
+              "actor": "cli_user",
+              "steps": [
+                "uiArchetypeToDbSet('scenic')",
+                "uiArchetypeToDbSet('adventure')"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "['scenic_byway','coastal']",
+                "['adventure','desert']"
+              ],
+              "must_not_observe": [
+                "[]",
+                "['scenic']"
+              ]
+            }
+          }
+        ],
+        "test_tier": "unit"
+      }
+    },
+    {
+      "id": "AC-3",
+      "scenario": {
+        "start_ref": "seeded_geospatial_index",
+        "tier": "holdout",
+        "negative_control": {
+          "would_fail_if": [
+            "mapping writes back to curated_routes",
+            "sample differs pre/post"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "seeded_geospatial_index",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "sample N curated_routes primaryArchetype values",
+                "exercise listCuratedRoutes with archetypes filter",
+                "re-sample the same N rows"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "pre-sample === post-sample (byte-identical)"
+              ],
+              "must_not_observe": [
+                "any sampled primaryArchetype changed"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev (curated_routes sample read before/after)"
+      }
+    }
+  ]
+}

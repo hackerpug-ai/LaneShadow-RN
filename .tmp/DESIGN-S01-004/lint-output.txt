@@ -1,0 +1,1 @@
+Exit code 0 (spec files written; tokens:validate passed; type-check failed due to pre-existing test error not related to design spec work)

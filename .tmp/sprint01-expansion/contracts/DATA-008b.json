@@ -1,0 +1,98 @@
+{
+  "fixtures": {
+    "seeded_geospatial_index": {
+      "description": "live Convex dev with the 5,654-row catalog where the top scenic North Carolina route has compositeScore > 0 and non-zero dimension scores",
+      "seed_method": "migration_fixture",
+      "records": [
+        "curated_routes with real 0\u20131 compositeScore/curvatureScore/scenicScore/technicalScore/trafficScore/remotenessScore"
+      ]
+    }
+  },
+  "requirements": [
+    {
+      "id": "AC-1",
+      "scenario": {
+        "start_ref": "seeded_geospatial_index",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "option reads route.score (undefined\u21920) so composite is 0",
+            "dimensions read route.scores.* (undefined\u21920) so all bars are 0",
+            "listCuratedRoutes mocked"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "seeded_geospatial_index",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "call listCuratedRoutes {archetypes:['scenic'], state:'North Carolina', sort:'best', limit:5} and record the top route's compositeScore + dimension *Score values",
+                "run runDiscoverCuratedRoutes with the SAME fixtured intent",
+                "load the created route_plans row's first option.scores"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "option.scores.composite > 0",
+                "option.scores.composite === the queried route's real compositeScore",
+                "\u22651 dimension score > 0 matching the queried route's real *Score"
+              ],
+              "must_not_observe": [
+                "option.scores.composite === 0",
+                "all dimension scores === 0 (the start/zero signature)"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev (discoverCuratedRoutes \u2192 listCuratedRoutes \u2192 route_plans options)"
+      }
+    },
+    {
+      "id": "AC-2",
+      "scenario": {
+        "start_ref": "seeded_geospatial_index",
+        "tier": "holdout",
+        "negative_control": {
+          "would_fail_if": [
+            "best-sort option fabricates distanceMeters=0 as a real value",
+            "nearest-sort option drops the real distance"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "seeded_geospatial_index",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "run runDiscoverCuratedRoutes with {archetypes:['scenic'], sort:'best', limit:3}",
+                "run runDiscoverCuratedRoutes with {center:{lat,lng}, sort:'nearest', limit:3}",
+                "compare the two options' distance fields"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "nearest option carries a distance derived from a real distanceMi > 0"
+              ],
+              "must_not_observe": [
+                "best option presents distanceMeters as a real 0",
+                "nearest option distance === 0/undefined"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev (discoverCuratedRoutes options for best vs nearest)"
+      }
+    }
+  ]
+}

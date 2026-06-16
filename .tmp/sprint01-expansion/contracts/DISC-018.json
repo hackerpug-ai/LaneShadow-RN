@@ -1,0 +1,145 @@
+{
+  "fixtures": {
+    "plan_view_map_mode": {
+      "description": "plan view rendered in map mode (chatMode false), signed-in against live Convex, no active route",
+      "seed_method": "migration_fixture",
+      "records": [
+        "chatMode false",
+        "no active route plan"
+      ]
+    },
+    "plan_view_route_active": {
+      "description": "plan view with a curated/agent route plan resolved so agentActiveOption is non-null (route on the map)",
+      "seed_method": "migration_fixture",
+      "records": [
+        "one resolved route_plan with options",
+        "selectedRouteId resolving to an active option"
+      ]
+    }
+  },
+  "requirements": [
+    {
+      "id": "AC-1",
+      "scenario": {
+        "start_ref": "plan_view_map_mode",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "chat-view button and send button are the same node",
+            "pressing it does not open the transcript"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "screenshot",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "user",
+              "steps": [
+                "render plan view in map mode",
+                "assert getByTestId('chat-input-chat-view-button') !== getByTestId('chat-input-send-button')",
+                "fireEvent.press(chat-input-chat-view-button)",
+                "assert the ChatTranscript is now mounted/visible (chatMode true)"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "two distinct testIDs present (chat-input-chat-view-button and chat-input-send-button)",
+                "chat transcript visible after press (e.g. chat-dismiss-keyboard-pressable / transcript node present)"
+              ],
+              "must_not_observe": [
+                "a single combined send/chat button",
+                "transcript still hidden after press"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "@testing-library/react-native rendering the real screen"
+      }
+    },
+    {
+      "id": "AC-2",
+      "scenario": {
+        "start_ref": "plan_view_route_active",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "visibility keyed to 'has messages' not 'has active route'",
+            "cards persist while a route is displayed"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "screenshot",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "user",
+              "steps": [
+                "render plan view with an active route plan resolved (agentActiveOption non-null)",
+                "query for discovery-suggestion-pill rows"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "zero discovery-suggestion-pill rows visible while a route is on the map",
+                "home-route-polyline present (route IS shown)"
+              ],
+              "must_not_observe": [
+                "any discovery-suggestion-pill-{routeId} visible while hasActiveRoute"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev via @testing-library/react-native"
+      }
+    },
+    {
+      "id": "AC-3",
+      "scenario": {
+        "start_ref": "plan_view_route_active",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "clearing does not null agentActiveOption",
+            "cards stay hidden after clear"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "screenshot",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "user",
+              "steps": [
+                "start with an active route (cards hidden)",
+                "trigger clear (MapControls onClear / new session)",
+                "await agentActiveOption to resolve null",
+                "query the slot"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                ">=1 discovery-suggestion-pill row visible again after clear",
+                "no home-route-polyline (route gone)"
+              ],
+              "must_not_observe": [
+                "zero curated pills after clearing",
+                "a stale route polyline persisting"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev via @testing-library/react-native"
+      }
+    }
+  ]
+}

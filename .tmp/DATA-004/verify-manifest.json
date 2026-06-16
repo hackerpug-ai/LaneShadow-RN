@@ -1,0 +1,12 @@
+{
+  "task_id": "DATA-004",
+  "project": {
+    "test_cmd": "pnpm test",
+    "typecheck_cmd": "pnpm type-check",
+    "lint_cmd": "pnpm lint"
+  },
+  "verification_commands": [
+    "pnpm test server/convex/__tests__/dataNormalization.test.ts",
+    "pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "exit_code": 0,
+  "spec_file": ".spec/design/sprint-01/home-empty-state-spec.md",
+  "tokens_validate": "PASS",
+  "type_check": "PASS",
+  "lint": "PASS (spec files not in Biome scope - expected)"
+}

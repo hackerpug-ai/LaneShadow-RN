@@ -1,0 +1,518 @@
+{
+  "DISC-002": {
+    "AC-1": {
+      "start_ref": "live_catalog_near_asheville",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)",
+      "negative_control": { "would_fail_if": [
+        "would fail if listCuratedRoutes is disconnected (query never resolves)",
+        "would fail if useCuratedDiscovery is mocked/stubbed to return [] (empty)",
+        "would fail if the mapper drops fields so first row keys are undefined"
+      ] },
+      "evidence": { "artifact_type": "stdout", "required_capture": true },
+      "cases": [ {
+        "start_ref": "live_catalog_near_asheville",
+        "action": { "actor": "api_client", "steps": [
+          "mount useCuratedDiscovery({center:{lat:35.5951,lng:-82.5515}, sort:'nearest', limit:5}) against live Convex",
+          "await routes !== undefined"
+        ] },
+        "end_state": {
+          "must_observe": [
+            "routes.length >= 1",
+            "a real road name string (non-empty, e.g. a catalog name like 'Blue Ridge Parkway')",
+            "typeof routes[0].id === 'string' && routes[0].id.length > 0",
+            "typeof routes[0].name === 'string' && routes[0].name.length > 0",
+            "typeof routes[0].lat === 'number' && typeof routes[0].lng === 'number'",
+            "typeof routes[0].score === 'number'",
+            "Object.keys(routes[0]) includes all of id,name,lat,lng,archetype,score,distanceMi (7 keys present)"
+          ],
+          "must_not_observe": [
+            "routes === undefined after resolve",
+            "routes === [] (empty array)",
+            "routes.length === 0",
+            "routes[0].id === undefined (any of the 7 keys missing/undefined)",
+            "archetype value 'mountain' | 'desert' | 'scenic_byway' | 'coastal' (raw DB enum)"
+          ]
+        }
+      } ]
+    },
+    "AC-3": {
+      "start_ref": "current_location_present",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev + useCurrentLocation (expo-location)",
+      "negative_control": { "would_fail_if": [
+        "would fail if center derivation is removed so the query goes out with no center",
+        "would fail if useCurrentLocation is stubbed to return null and the hook still hardcodes/omits distanceMi"
+      ] },
+      "evidence": { "artifact_type": "stdout", "required_capture": true },
+      "cases": [ {
+        "start_ref": "current_location_present",
+        "action": { "actor": "api_client", "steps": [
+          "stub useCurrentLocation to return a fixed real coordinate via the real hook surface",
+          "mount useCuratedDiscovery({sort:'nearest', limit:5}) with NO center",
+          "inspect returned rows"
+        ] },
+        "end_state": {
+          "must_observe": [ "routes.length >= 1", "every returned row has a numeric distanceMi >= 0 (e.g. 12.4)", "routes.every(r => typeof r.distanceMi === 'number')" ],
+          "must_not_observe": [ "routes === undefined after resolve", "routes === [] (empty array)", "routes.length === 0", "distanceMi === undefined on every row" ]
+        }
+      } ]
+    },
+    "AC-5": {
+      "start_ref": "live_catalog_near_asheville",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)",
+      "negative_control": { "would_fail_if": [
+        "would fail if the mapper rescales score by *100 (raw 0.82 becomes a static 82 on the 0-100 scale)",
+        "would fail if the mapper hardcodes score to 0 / returns 0 for a non-zero source compositeScore",
+        "would fail if listCuratedRoutes is stubbed/disconnected so no real 0-1 score flows through"
+      ] },
+      "evidence": { "artifact_type": "stdout", "required_capture": true },
+      "cases": [ {
+        "start_ref": "live_catalog_near_asheville",
+        "action": { "actor": "api_client", "steps": [
+          "mount the hook against live Convex",
+          "assert every row.score is in [0,1] and at least one row.score is a non-zero fraction"
+        ] },
+        "end_state": {
+          "must_observe": [ "at least one row.score strictly between 0 and 1 (e.g. 0.82)", "max(routes.map(r => r.score)) <= 1" ],
+          "must_not_observe": [ "any row.score > 1 (e.g. 82)", "all row.score === 0 (every score degenerate)", "routes === [] (empty array)" ]
+        }
+      } ]
+    }
+  },
+  "DISC-016": {
+    "AC-1": {
+      "start_ref": "plan_view_no_route_with_cards",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev (api.curatedRoutes + route_plans) via @testing-library/react-native",
+      "negative_control": { "would_fail_if": [
+        "would fail if the tap still calls handleSendMessage (the stub/old path) — transcript count goes to N+1",
+        "would fail if the card path is disconnected from the route machinery so no polyline/centroid renders (empty map)",
+        "would fail if a session_messages row is appended on tap"
+      ] },
+      "evidence": { "artifact_type": "screenshot", "required_capture": true },
+      "cases": [ {
+        "start_ref": "plan_view_no_route_with_cards",
+        "action": { "actor": "user", "steps": [
+          "render the plan view against live Convex with no active route",
+          "capture transcript message count N",
+          "fireEvent.press(getByTestId('discovery-suggestion-pill-' + knownRouteId))",
+          "await the map to resolve the tapped plan"
+        ] },
+        "end_state": {
+          "must_observe": [
+            "home-route-polyline renders the tapped route's coordinates (a coordinate near the known route's centroidLat/Lng, e.g. lat=~35.59)",
+            "queryByTestId('home-route-polyline') !== null",
+            "transcript message count === N (unchanged)"
+          ],
+          "must_not_observe": [
+            "a new transcript bubble containing 'Show me curated route'",
+            "transcript count === N+1",
+            "queryByTestId('home-route-polyline') === null (empty map / no polyline after tap)",
+            "0 polyline coordinates rendered"
+          ]
+        }
+      } ]
+    },
+    "AC-2": {
+      "start_ref": "plan_view_no_route_with_cards",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev + MapboxMapViewHandle via @testing-library/react-native",
+      "negative_control": { "would_fail_if": [
+        "would fail if doFit is never invoked for the tapped route (no-op fit handler)",
+        "would fail if a centroid-only route leaves the camera static/unmoved or crashes",
+        "would fail if the card path is stubbed/disconnected so the map handle receives no setCameraPosition/fitToCoordinates call"
+      ] },
+      "evidence": { "artifact_type": "stdout", "required_capture": true },
+      "cases": [
+        {
+          "start_ref": "plan_view_no_route_with_cards",
+          "action": { "actor": "user", "steps": [
+            "tap a centroid-only curated route (no overview geometry)",
+            "assert the map handle received setCameraPosition with the centroid coords and zoom 12"
+          ] },
+          "end_state": {
+            "must_observe": [ "setCameraPosition called with coordinates matching the route centroid (latitude/longitude) and zoom === 12", "setCameraPosition.mock.calls.length === 1" ],
+            "must_not_observe": [ "setCameraPosition call count === 0 (no camera call after tap)", "fitToCoordinates called with an empty coords array ([])" ]
+          }
+        },
+        {
+          "start_ref": "plan_view_no_route_with_cards",
+          "action": { "actor": "user", "steps": [
+            "tap a curated route WITH multi-point geometry",
+            "assert fitToCoordinates received >1 coordinate"
+          ] },
+          "end_state": {
+            "must_observe": [ "fitToCoordinates called with coords.length > 1 (e.g. coords.length === 24)" ],
+            "must_not_observe": [ "setCameraPosition zoom 12 used for a multi-point route (wrong branch taken)", "fitToCoordinates called with coords.length === 0 (empty / no fit)" ]
+          }
+        }
+      ]
+    },
+    "AC-3": {
+      "start_ref": "plan_view_no_route_with_cards",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev via @testing-library/react-native",
+      "negative_control": { "would_fail_if": [ "would fail if removing the card-send path also removed the input send path (handleSendMessage becomes a no-op for typed messages)" ] },
+      "evidence": { "artifact_type": "stdout", "required_capture": true },
+      "cases": [ {
+        "start_ref": "plan_view_no_route_with_cards",
+        "action": { "actor": "user", "steps": [
+          "capture transcript message count N (== 0 from the empty fixture)",
+          "type 'twisties near Asheville' into chat-input-text-field",
+          "press chat-input-send-button",
+          "await transcript"
+        ] },
+        "end_state": {
+          "must_observe": [ "transcript count === N+1 after send", "a transcript bubble whose text === 'twisties near Asheville'" ],
+          "must_not_observe": [ "transcript count === N (unchanged — send is a no-op)", "queryByText('twisties near Asheville') === null after send" ]
+        }
+      } ]
+    }
+  },
+  "DISC-017": {
+    "AC-1": {
+      "start_ref": "live_catalog_located",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes) via @testing-library/react-native",
+      "negative_control": { "would_fail_if": [
+        "would fail if the slot falls back to the static IDLE_SUGGESTIONS array (generic prompts shown)",
+        "would fail if useCuratedDiscovery is disconnected/stubbed to [] so prompts or nothing shows",
+        "would fail if the cards render hardcoded/generic prompt text instead of live road names"
+      ] },
+      "evidence": { "artifact_type": "screenshot", "required_capture": true },
+      "cases": [ {
+        "start_ref": "live_catalog_located",
+        "action": { "actor": "user", "steps": [
+          "render the plan view against live Convex with no active route and a real location",
+          "await curated routes to resolve",
+          "read the discovery-suggestion-pill rows"
+        ] },
+        "end_state": {
+          "must_observe": [
+            "getAllByTestId(/^discovery-suggestion-pill-/).length >= 1",
+            "at least one pill label matches the regex /.+ . \\d+mi$/ (a real road name followed by ' . {n}mi', e.g. 'Blue Ridge Parkway . 12mi')",
+            "the rendered pill label === a real catalog road name + mileage (matches a name from listCuratedRoutes, not a constant)"
+          ],
+          "must_not_observe": [
+            "getAllByTestId(/^discovery-suggestion-pill-/).length === 0 (no curated pills)",
+            "queryByText('Plan a scenic ride') !== null",
+            "queryByText('Ride to the coast') !== null",
+            "queryByText('Find coffee nearby') !== null",
+            "queryByText('Avoid highways') !== null"
+          ]
+        }
+      } ]
+    },
+    "AC-2": {
+      "start_ref": "live_catalog_loading",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev via @testing-library/react-native",
+      "negative_control": { "would_fail_if": [
+        "would fail if the loading state falls back to the static IDLE_SUGGESTIONS array (prompts shown while loading)",
+        "would fail if loading prematurely renders the empty 'no nearby routes' copy"
+      ] },
+      "evidence": { "artifact_type": "stdout", "required_capture": true },
+      "cases": [ {
+        "start_ref": "live_catalog_loading",
+        "action": { "actor": "user", "steps": [
+          "render the plan view before the curated query resolves (isLoading true)",
+          "query the slot for any suggestion pill or prompt text"
+        ] },
+        "end_state": {
+          "must_observe": [ "queryAllByTestId(/^discovery-suggestion-pill-/).length === 0 (zero pills while loading)", "queryByText(/no nearby routes/i) === null (empty copy not shown yet)" ],
+          "must_not_observe": [ "queryByText('Plan a scenic ride') !== null (any IDLE_SUGGESTIONS string)", "queryByText('Avoid highways') !== null", "any discovery-suggestion-pill row present while loading" ]
+        }
+      } ]
+    },
+    "AC-3": {
+      "start_ref": "live_catalog_empty",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev via @testing-library/react-native",
+      "negative_control": { "would_fail_if": [
+        "would fail if the empty state falls back to the static IDLE_SUGGESTIONS array",
+        "would fail if the empty state renders nothing (slot disconnected — rider sees no feedback)"
+      ] },
+      "evidence": { "artifact_type": "screenshot", "required_capture": true },
+      "cases": [ {
+        "start_ref": "live_catalog_empty",
+        "action": { "actor": "user", "steps": [
+          "render the plan view with a bbox/location that yields zero curated matches against live Convex",
+          "read the slot"
+        ] },
+        "end_state": {
+          "must_observe": [ "getByText(/no nearby routes/i) !== null (a legible empty message containing 'no nearby routes', or the ratified DESIGN-S01-003 copy)" ],
+          "must_not_observe": [
+            "any tappable curated pill present (getAllByTestId(/^discovery-suggestion-pill-/).length >= 1)",
+            "queryByText('Plan a scenic ride') !== null",
+            "queryByText('Find coffee nearby') !== null",
+            "queryByText('Ride to the coast') !== null",
+            "queryByText('Avoid highways') !== null"
+          ]
+        }
+      } ]
+    }
+  },
+  "DISC-018": {
+    "AC-1": {
+      "start_ref": "plan_view_map_mode",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "@testing-library/react-native rendering the real screen",
+      "negative_control": { "would_fail_if": [
+        "would fail if chat-input-chat-view-button and chat-input-send-button resolve to the same node (buttons merged)",
+        "would fail if onToggleChatMode is a no-op / disconnected so the press does not open the transcript",
+        "would fail if the chat-view button is a hardcoded send button (no distinct chat-outline affordance)"
+      ] },
+      "evidence": { "artifact_type": "screenshot", "required_capture": true },
+      "cases": [ {
+        "start_ref": "plan_view_map_mode",
+        "action": { "actor": "user", "steps": [
+          "render plan view in map mode",
+          "assert getByTestId('chat-input-chat-view-button') !== getByTestId('chat-input-send-button')",
+          "fireEvent.press(chat-input-chat-view-button)",
+          "assert the ChatTranscript is now mounted/visible (chatMode true)"
+        ] },
+        "end_state": {
+          "must_observe": [
+            "getByTestId('chat-input-chat-view-button') !== getByTestId('chat-input-send-button') (two distinct node references)",
+            "both testIDs 'chat-input-chat-view-button' and 'chat-input-send-button' resolve (queryByTestId each !== null)",
+            "after press: queryByTestId('chat-dismiss-keyboard-pressable') !== null (transcript node mounted, chatMode === true)"
+          ],
+          "must_not_observe": [
+            "getByTestId('chat-input-chat-view-button') === getByTestId('chat-input-send-button') (a single combined button)",
+            "after press: queryByTestId('chat-dismiss-keyboard-pressable') === null (transcript still hidden)"
+          ]
+        }
+      } ]
+    },
+    "AC-2": {
+      "start_ref": "plan_view_route_active",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev via @testing-library/react-native",
+      "negative_control": { "would_fail_if": [
+        "would fail if visibility is keyed to 'session has messages' instead of hasActiveRoute (cards persist while a route is shown)",
+        "would fail if the gate is a hardcoded true so cards never hide",
+        "would fail if agentActiveOption is stubbed null so the route never registers as active"
+      ] },
+      "evidence": { "artifact_type": "screenshot", "required_capture": true },
+      "cases": [ {
+        "start_ref": "plan_view_route_active",
+        "action": { "actor": "user", "steps": [
+          "render plan view with an active route plan resolved (agentActiveOption non-null)",
+          "query for discovery-suggestion-pill rows"
+        ] },
+        "end_state": {
+          "must_observe": [ "queryAllByTestId(/^discovery-suggestion-pill-/).length === 0 (zero curated pills while a route is on the map)", "queryByTestId('home-route-polyline') !== null (route IS shown)" ],
+          "must_not_observe": [ "queryAllByTestId(/^discovery-suggestion-pill-/).length >= 1 (any pill visible while hasActiveRoute)", "queryByTestId('home-route-polyline') === null (route unexpectedly absent)" ]
+        }
+      } ]
+    },
+    "AC-3": {
+      "start_ref": "plan_view_route_active",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev via @testing-library/react-native",
+      "negative_control": { "would_fail_if": [
+        "would fail if clearing does not null agentActiveOption (hasActiveRoute stuck true, cards stay hidden)",
+        "would fail if the clear handler is a no-op / disconnected from selection state",
+        "would fail if the polyline is hardcoded/static so it persists after clear"
+      ] },
+      "evidence": { "artifact_type": "screenshot", "required_capture": true },
+      "cases": [ {
+        "start_ref": "plan_view_route_active",
+        "action": { "actor": "user", "steps": [
+          "start with an active route (cards hidden, polyline shown)",
+          "trigger clear (MapControls onClear / new session)",
+          "await agentActiveOption to resolve null",
+          "query the slot"
+        ] },
+        "end_state": {
+          "must_observe": [ "queryAllByTestId(/^discovery-suggestion-pill-/).length >= 1 (curated pills returned after clear)", "queryByTestId('home-route-polyline') === null (route gone after clear)" ],
+          "must_not_observe": [ "queryAllByTestId(/^discovery-suggestion-pill-/).length === 0 (zero pills after clearing — cards stuck hidden)", "queryByTestId('home-route-polyline') !== null (a stale polyline persisting after clear)" ]
+        }
+      } ]
+    }
+  },
+  "DISC-019": {
+    "AC-1": {
+      "start_ref": "drawer_open",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "@testing-library/react-native rendering the real MenuLayout",
+      "negative_control": { "would_fail_if": [
+        "would fail if the 'Plan a ride' drawer item is hardcoded back in (still present)",
+        "would fail if a 'Discover' entry exists / resolves to a discover route",
+        "would fail if the drawer items array is stubbed/static so the removed item reappears"
+      ] },
+      "evidence": { "artifact_type": "screenshot", "required_capture": true },
+      "cases": [ {
+        "start_ref": "drawer_open",
+        "action": { "actor": "user", "steps": [
+          "render MenuLayout with menuOpen true against live Convex",
+          "queryByTestId('drawer-plan-a-ride')",
+          "queryByText('Plan a ride')",
+          "queryByText('Discover')"
+        ] },
+        "end_state": {
+          "must_observe": [ "queryByTestId('drawer-plan-a-ride') === null", "queryByText('Plan a ride') === null", "queryByText('Discover') === null" ],
+          "must_not_observe": [ "queryByText('Plan a ride') !== null (label still rendered)", "queryByText('Discover') !== null (a 'Discover' label rendered)", "queryByTestId('drawer-plan-a-ride') !== null (retired testID still present)" ]
+        }
+      } ]
+    },
+    "AC-2": {
+      "start_ref": "drawer_open",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev (planningSessions.listSessions) via @testing-library/react-native",
+      "negative_control": { "would_fail_if": [
+        "would fail if removing 'Plan a ride' also dropped the Settings/Saved items or the Sessions section",
+        "would fail if listSessions is disconnected/stubbed so the Sessions section renders nothing"
+      ] },
+      "evidence": { "artifact_type": "screenshot", "required_capture": true },
+      "cases": [ {
+        "start_ref": "drawer_open",
+        "action": { "actor": "user", "steps": [
+          "render MenuLayout with menuOpen true",
+          "query for 'Settings', 'Saved', and the 'Sessions' section title"
+        ] },
+        "end_state": {
+          "must_observe": [ "getByText('Settings') !== null ('Settings' item present)", "getByText('Saved') !== null ('Saved' item present)", "the 'Sessions' section present (getByText('Sessions') !== null OR a session row OR getByText('No sessions yet'))" ],
+          "must_not_observe": [ "queryByText('Settings') === null (missing Settings)", "queryByText('Saved') === null (missing Saved)", "queryByText('Sessions') === null with zero session rows (Sessions section entirely missing)" ]
+        }
+      } ]
+    }
+  },
+  "DISC-020": {
+    "AC-1": {
+      "start_ref": "curated_routing_card_real_scores",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev (curated routing_card via discoverCuratedRoutes/listCuratedRoutes) via @testing-library/react-native",
+      "negative_control": { "would_fail_if": [
+        "would fail if DATA-008b is not applied so the tool reads the wrong field and composite renders a static 0 / 0%",
+        "would fail if the score is rendered as the raw 0.82 decimal (no *100 percentage)",
+        "would fail if the card falls back to the planned RouteAttachmentCard layout (curated branch disconnected)"
+      ] },
+      "evidence": { "artifact_type": "screenshot", "required_capture": true },
+      "cases": [ {
+        "start_ref": "curated_routing_card_real_scores",
+        "action": { "actor": "api_client", "steps": [
+          "surface a curated routing_card via the real discovery tool against live Convex for a route with compositeScore ~0.82",
+          "render CompletedCard",
+          "read the curated card's score text/bars and name/mileage"
+        ] },
+        "end_state": {
+          "must_observe": [
+            "getByText('82%') !== null (composite rendered as Math.round(0.82*100)=82, e.g. '82%' or '82/100'), OR a score bar with fillWidth === '82%'",
+            "the real road name string rendered (non-empty, matches the option label from the catalog)",
+            "a mileage value matching /. \\d+mi/ (e.g. '. 14mi')",
+            "the curated card uses the road-variant icon / composite badge testID (e.g. getByTestId('curated-route-card-score-badge') !== null), distinct from a start->end planned layout"
+          ],
+          "must_not_observe": [
+            "getByText('0%') !== null for a non-zero route",
+            "all score bars at fillWidth '0%'",
+            "queryByText('0.82') !== null (raw decimal shown)",
+            "a start->end planned-trip card layout for the curated option"
+          ]
+        }
+      } ]
+    },
+    "AC-2": {
+      "start_ref": "curated_routing_card_real_scores",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev via @testing-library/react-native",
+      "negative_control": { "would_fail_if": [
+        "would fail if onViewOnMap is missing on the curated branch (a no-op) so chatMode stays true after press",
+        "would fail if the selection is not propagated to setDisplayedRoutePlanId (disconnected from the plan store)",
+        "would fail if the curated card press handler is stubbed so neither setter fires"
+      ] },
+      "evidence": { "artifact_type": "stdout", "required_capture": true },
+      "cases": [ {
+        "start_ref": "curated_routing_card_real_scores",
+        "action": { "actor": "user", "steps": [
+          "render the plan view in chat mode (chatMode === true) with an earlier curated routing_card",
+          "fireEvent.press the curated card",
+          "assert setSelectedRouteId + setDisplayedRoutePlanId received the option/plan ids and onViewOnMap fired (chatMode false)"
+        ] },
+        "end_state": {
+          "must_observe": [
+            "setDisplayedRoutePlanId called once with the card's routePlanId (=== the surfaced routing_card.routePlanId, a non-empty id string)",
+            "setSelectedRouteId called once with the curated option id (=== the curated option.id)",
+            "chatMode === false after press (returned to map view)"
+          ],
+          "must_not_observe": [ "chatMode === true after press (still in chat mode)", "setDisplayedRoutePlanId call count === 0 (no selection propagated)", "setSelectedRouteId call count === 0" ]
+        }
+      } ]
+    },
+    "AC-3": {
+      "start_ref": "curated_routing_card_centroid_only",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "live Convex dev + MapboxMapViewHandle via @testing-library/react-native",
+      "negative_control": { "would_fail_if": [
+        "would fail if a centroid-only option crashes doFit (single-point branch missing)",
+        "would fail if doFit is a no-op so no camera move occurs for a single-point route",
+        "would fail if the geometry decode is stubbed/empty so fitToCoordinates is called with []"
+      ] },
+      "evidence": { "artifact_type": "stdout", "required_capture": true },
+      "cases": [ {
+        "start_ref": "curated_routing_card_centroid_only",
+        "action": { "actor": "user", "steps": [
+          "select a centroid-only curated option (geometry decodes to 1 coordinate)",
+          "assert doFit takes the single-point branch"
+        ] },
+        "end_state": {
+          "must_observe": [ "setCameraPosition called with the centroid coordinates (latitude/longitude) and zoom === 12", "setCameraPosition.mock.calls.length === 1" ],
+          "must_not_observe": [ "fitToCoordinates called with empty coords ([])", "setCameraPosition call count === 0 (no camera move)", "an exception thrown for the single-point geometry" ]
+        }
+      } ]
+    }
+  },
+  "DISC-021": {
+    "AC-2": {
+      "start_ref": "final_source_tree",
+      "tier": "visible",
+      "test_tier": "integration",
+      "verification_service": "filesystem route-tree scan + MenuLayout render via @testing-library/react-native",
+      "negative_control": { "would_fail_if": [
+        "would fail if a discover.tsx tab route file is hardcoded back into app/(app)/(tabs)/",
+        "would fail if a drawer item is hardcoded to navigate to a discover/route-discovery pathname",
+        "would fail if the route-tree scan reads an empty file list (false pass on a static/empty walk)"
+      ] },
+      "evidence": { "artifact_type": "stdout", "required_capture": true },
+      "cases": [ {
+        "start_ref": "final_source_tree",
+        "action": { "actor": "cli_user", "steps": [
+          "assert no file app/(app)/(tabs)/discover.tsx",
+          "enumerate the (tabs) route files actually scanned",
+          "render MenuLayout and collect every drawer item pathname"
+        ] },
+        "end_state": {
+          "must_observe": [
+            "fs.existsSync('app/(app)/(tabs)/discover.tsx') === false (route file absent)",
+            "the scanned (tabs) route-file list length >= 1 (the walk ran over real files)",
+            "MenuLayout exposes exactly 4 navigable surfaces (plan view via launch, Settings, Saved, Sessions) and none has a pathname matching /discover|route-discovery/"
+          ],
+          "must_not_observe": [
+            "fs.existsSync('app/(app)/(tabs)/discover.tsx') === true (a discover tab route present)",
+            "any drawer item pathname matching /discover|route-discovery/",
+            "the scanned route-file list length === 0 (empty scan — false pass)"
+          ]
+        }
+      } ]
+    }
+  }
+}

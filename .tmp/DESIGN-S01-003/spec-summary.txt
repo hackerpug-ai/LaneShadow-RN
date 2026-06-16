@@ -1,0 +1,1 @@
+home-empty-state-spec.md: Gating condition, copy strings, layout spec, zIndex 10 below ChatInput 20

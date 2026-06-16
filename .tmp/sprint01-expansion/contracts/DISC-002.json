@@ -1,0 +1,233 @@
+{
+  "fixtures": {
+    "live_catalog_near_asheville": {
+      "description": "live Convex dev with the seeded 5,654-route curated catalog; query center at Asheville NC {lat:35.5951,lng:-82.5515}",
+      "seed_method": "migration_fixture",
+      "records": [
+        "5,654 curated_routes rows seeded into geospatial index",
+        "multiple routes within ~50mi of Asheville with 0-1 compositeScore"
+      ]
+    },
+    "live_catalog_empty_bbox": {
+      "description": "live Convex dev queried with a bbox over open ocean that matches zero centroids",
+      "seed_method": "migration_fixture",
+      "records": [
+        "bbox {north:0.1,south:-0.1,east:-30,west:-30.2} \u2192 0 matching centroids"
+      ]
+    },
+    "current_location_present": {
+      "description": "useCurrentLocation resolves to a real fixed coordinate",
+      "seed_method": "public_api",
+      "records": [
+        "{lat:35.5951,lng:-82.5515}"
+      ]
+    }
+  },
+  "requirements": [
+    {
+      "id": "AC-1",
+      "scenario": {
+        "start_ref": "live_catalog_near_asheville",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "listCuratedRoutes disconnected",
+            "hook returns mock/empty []",
+            "mapper drops fields"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "stdout",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "mount useCuratedDiscovery({center:{lat:35.5951,lng:-82.5515}, sort:'nearest', limit:5}) against live Convex",
+                "await routes !== undefined"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "routes.length >= 1",
+                "a real road name string (non-empty, e.g. a catalog name like 'Blue Ridge Parkway')",
+                "first row keys: id,name,lat,lng,archetype,score,distanceMi present"
+              ],
+              "must_not_observe": [
+                "routes === undefined after resolve",
+                "routes === []",
+                "archetype value 'mountain' | 'desert' | 'scenic_byway' | 'coastal' (raw DB enum)"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)"
+      }
+    },
+    {
+      "id": "AC-2",
+      "scenario": {
+        "start_ref": "live_catalog_empty_bbox",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "isEmpty true while still loading (undefined treated as empty)",
+            "isLoading never flips false"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "stdout",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "mount the hook with a bbox over open ocean (zero matches)",
+                "sample {isLoading,isEmpty,routes} before and after resolve"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "before resolve: isLoading===true AND isEmpty===false",
+                "after resolve: isLoading===false AND isEmpty===true AND routes.length===0"
+              ],
+              "must_not_observe": [
+                "isEmpty===true while routes===undefined",
+                "isLoading stuck true after resolve"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)"
+      }
+    },
+    {
+      "id": "AC-3",
+      "scenario": {
+        "start_ref": "current_location_present",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "center derivation removed (lines 44-45)",
+            "distanceMi undefined on all rows"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "stdout",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "stub useCurrentLocation to return a fixed real coordinate via the real hook surface",
+                "mount useCuratedDiscovery({sort:'nearest', limit:5}) with NO center",
+                "inspect returned rows"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "every returned row has a numeric distanceMi (e.g. 12.4)",
+                "routes.length >= 1"
+              ],
+              "must_not_observe": [
+                "distanceMi undefined on every row",
+                "routes === []"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev + useCurrentLocation (expo-location)"
+      }
+    },
+    {
+      "id": "AC-4",
+      "scenario": {
+        "start_ref": "live_catalog_near_asheville",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "sort arg hardcoded",
+            "nearest order not ascending by distance",
+            "fallback not best-first"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "stdout",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "located: mount with center + sort:'nearest'; read distanceMi sequence",
+                "unlocated: mount with sort:'nearest' and no center/location; read compositeScore sequence"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "located: distanceMi non-decreasing across rows (e.g. 3.1, 7.8, 12.4)",
+                "unlocated: compositeScore non-increasing across rows (e.g. 0.91, 0.84, 0.77)"
+              ],
+              "must_not_observe": [
+                "located result ordered by score not distance",
+                "empty result for either query"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)"
+      }
+    },
+    {
+      "id": "AC-5",
+      "scenario": {
+        "start_ref": "live_catalog_near_asheville",
+        "tier": "visible",
+        "negative_control": {
+          "would_fail_if": [
+            "mapper multiplies score by 100",
+            "score returned as 0 for non-zero source"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "stdout",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "mount the hook against live Convex",
+                "assert every row.score is in [0,1] and at least one row.score is a non-zero fraction"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "at least one row.score strictly between 0 and 1 (e.g. 0.82)",
+                "max(row.score) <= 1"
+              ],
+              "must_not_observe": [
+                "any row.score > 1 (e.g. 82)",
+                "all row.score === 0"
+              ]
+            }
+          }
+        ],
+        "test_tier": "integration",
+        "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes)"
+      }
+    }
+  ]
+}

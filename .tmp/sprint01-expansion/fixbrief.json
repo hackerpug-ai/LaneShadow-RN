@@ -1,0 +1,418 @@
+{
+  "DATA-002": {
+    "AC-2": {
+      "is_primary": false,
+      "test_tier": "unit",
+      "violations": [
+        {
+          "code": "PRIMARY_UNIT",
+          "sev": "CRITICAL",
+          "msg": "PRIMARY scenario cannot be test_tier:unit without unit_test_justified"
+        },
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[0]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        },
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[1]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    },
+    "AC-3": {
+      "is_primary": false,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_CONTROL_WEAK",
+          "sev": "HIGH",
+          "msg": "would_fail_if should name a disconnect/stub/empty/mock/static condition"
+        },
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[0]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    }
+  },
+  "DATA-004": {
+    "AC-2": {
+      "is_primary": false,
+      "test_tier": "unit",
+      "violations": [
+        {
+          "code": "PRIMARY_UNIT",
+          "sev": "CRITICAL",
+          "msg": "PRIMARY scenario cannot be test_tier:unit without unit_test_justified"
+        },
+        {
+          "code": "NEG_CONTROL_WEAK",
+          "sev": "HIGH",
+          "msg": "would_fail_if should name a disconnect/stub/empty/mock/static condition"
+        },
+        {
+          "code": "WEAK_ORACLE",
+          "sev": "CRITICAL",
+          "msg": "case[1]: must_observe 'undefined for each' has no concrete anchor (count/literal/value); a static shell satisfies it"
+        }
+      ]
+    },
+    "AC-3": {
+      "is_primary": false,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_CONTROL_WEAK",
+          "sev": "HIGH",
+          "msg": "would_fail_if should name a disconnect/stub/empty/mock/static condition"
+        },
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[0]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    }
+  },
+  "DATA-008": {
+    "AC-2": {
+      "is_primary": false,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "WEAK_ORACLE",
+          "sev": "CRITICAL",
+          "msg": "case[0]: must_observe 'dispatch reaches executeDiscoverCuratedRoutes' has no concrete anchor (count/literal/value); a static shell satisfies it"
+        },
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[0]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    }
+  },
+  "DATA-008b": {
+    "AC-2": {
+      "is_primary": false,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_CONTROL_WEAK",
+          "sev": "HIGH",
+          "msg": "would_fail_if should name a disconnect/stub/empty/mock/static condition"
+        }
+      ]
+    }
+  },
+  "DISC-002": {
+    "AC-1": {
+      "is_primary": true,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "WEAK_ORACLE",
+          "sev": "HIGH",
+          "msg": "case[0]: must_observe 'first row keys: id,name,lat,lng,archetype,score,distanceMi present' uses a weak verb with no concrete value"
+        },
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[0]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    },
+    "AC-3": {
+      "is_primary": false,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[0]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    },
+    "AC-5": {
+      "is_primary": false,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_CONTROL_WEAK",
+          "sev": "HIGH",
+          "msg": "would_fail_if should name a disconnect/stub/empty/mock/static condition"
+        }
+      ]
+    }
+  },
+  "DISC-016": {
+    "AC-1": {
+      "is_primary": true,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_CONTROL_WEAK",
+          "sev": "HIGH",
+          "msg": "would_fail_if should name a disconnect/stub/empty/mock/static condition"
+        }
+      ]
+    },
+    "AC-2": {
+      "is_primary": false,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_CONTROL_WEAK",
+          "sev": "HIGH",
+          "msg": "would_fail_if should name a disconnect/stub/empty/mock/static condition"
+        },
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[1]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    },
+    "AC-3": {
+      "is_primary": false,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[0]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    }
+  },
+  "DISC-017": {
+    "AC-1": {
+      "is_primary": true,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "WEAK_ORACLE",
+          "sev": "CRITICAL",
+          "msg": "case[0]: must_observe 'each curated pill has testID discovery-suggestion-pill-{routeId}' has no concrete anchor (count/literal/value); a static shell satisfies it"
+        },
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[0]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    },
+    "AC-2": {
+      "is_primary": false,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "WEAK_ORACLE",
+          "sev": "CRITICAL",
+          "msg": "case[0]: must_observe 'zero discovery-suggestion-pill rows present' has no concrete anchor (count/literal/value); a static shell satisfies it"
+        },
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[0]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    },
+    "AC-3": {
+      "is_primary": false,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[0]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    }
+  },
+  "DISC-018": {
+    "AC-1": {
+      "is_primary": true,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_CONTROL_WEAK",
+          "sev": "HIGH",
+          "msg": "would_fail_if should name a disconnect/stub/empty/mock/static condition"
+        },
+        {
+          "code": "WEAK_ORACLE",
+          "sev": "CRITICAL",
+          "msg": "case[0]: must_observe 'two distinct testIDs present (chat-input-chat-view-button and chat-input-send-button)' has no concrete anchor (count/literal/value); a static shell satisfies it"
+        },
+        {
+          "code": "WEAK_ORACLE",
+          "sev": "CRITICAL",
+          "msg": "case[0]: must_observe 'chat transcript visible after press (e.g. chat-dismiss-keyboard-pressable / transcript node present)' has no concrete anchor (count/literal/value); a static shell satisfies it"
+        },
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[0]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    },
+    "AC-2": {
+      "is_primary": false,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_CONTROL_WEAK",
+          "sev": "HIGH",
+          "msg": "would_fail_if should name a disconnect/stub/empty/mock/static condition"
+        },
+        {
+          "code": "WEAK_ORACLE",
+          "sev": "CRITICAL",
+          "msg": "case[0]: must_observe 'zero discovery-suggestion-pill rows visible while a route is on the map' has no concrete anchor (count/literal/value); a static shell satisfies it"
+        },
+        {
+          "code": "WEAK_ORACLE",
+          "sev": "CRITICAL",
+          "msg": "case[0]: must_observe 'home-route-polyline present (route IS shown)' has no concrete anchor (count/literal/value); a static shell satisfies it"
+        },
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[0]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    },
+    "AC-3": {
+      "is_primary": false,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_CONTROL_WEAK",
+          "sev": "HIGH",
+          "msg": "would_fail_if should name a disconnect/stub/empty/mock/static condition"
+        },
+        {
+          "code": "WEAK_ORACLE",
+          "sev": "CRITICAL",
+          "msg": "case[0]: must_observe 'no home-route-polyline (route gone)' has no concrete anchor (count/literal/value); a static shell satisfies it"
+        },
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[0]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    }
+  },
+  "DISC-019": {
+    "AC-1": {
+      "is_primary": true,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_CONTROL_WEAK",
+          "sev": "HIGH",
+          "msg": "would_fail_if should name a disconnect/stub/empty/mock/static condition"
+        },
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[0]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    },
+    "AC-2": {
+      "is_primary": false,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_CONTROL_WEAK",
+          "sev": "HIGH",
+          "msg": "would_fail_if should name a disconnect/stub/empty/mock/static condition"
+        },
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[0]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    }
+  },
+  "DISC-020": {
+    "AC-1": {
+      "is_primary": true,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_CONTROL_WEAK",
+          "sev": "HIGH",
+          "msg": "would_fail_if should name a disconnect/stub/empty/mock/static condition"
+        },
+        {
+          "code": "WEAK_ORACLE",
+          "sev": "CRITICAL",
+          "msg": "case[0]: must_observe 'curated card uses the road-variant icon / composite badge (distinct from start\u2192end planned layout)' has no concrete anchor (count/literal/value); a static shell satisfies it"
+        }
+      ]
+    },
+    "AC-2": {
+      "is_primary": false,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_CONTROL_WEAK",
+          "sev": "HIGH",
+          "msg": "would_fail_if should name a disconnect/stub/empty/mock/static condition"
+        },
+        {
+          "code": "WEAK_ORACLE",
+          "sev": "CRITICAL",
+          "msg": "case[0]: must_observe \"setDisplayedRoutePlanId called with the card's routePlanId\" has no concrete anchor (count/literal/value); a static shell satisfies it"
+        },
+        {
+          "code": "WEAK_ORACLE",
+          "sev": "CRITICAL",
+          "msg": "case[0]: must_observe 'setSelectedRouteId called with the curated option id' has no concrete anchor (count/literal/value); a static shell satisfies it"
+        }
+      ]
+    },
+    "AC-3": {
+      "is_primary": false,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_CONTROL_WEAK",
+          "sev": "HIGH",
+          "msg": "would_fail_if should name a disconnect/stub/empty/mock/static condition"
+        }
+      ]
+    }
+  },
+  "DISC-021": {
+    "AC-2": {
+      "is_primary": false,
+      "test_tier": "integration",
+      "violations": [
+        {
+          "code": "NEG_CONTROL_WEAK",
+          "sev": "HIGH",
+          "msg": "would_fail_if should name a disconnect/stub/empty/mock/static condition"
+        },
+        {
+          "code": "WEAK_ORACLE",
+          "sev": "CRITICAL",
+          "msg": "case[0]: must_observe 'app/(app)/(tabs)/discover.tsx absent' has no concrete anchor (count/literal/value); a static shell satisfies it"
+        },
+        {
+          "code": "NEG_OBSERVE_WEAK",
+          "sev": "HIGH",
+          "msg": "case[0]: must_not_observe should include the empty/start signature (e.g. '(0)', 'empty')"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,1 @@
+suggestion-card-spec.md: Token gap table, chip variant spec, visibility rule spec, for DISC-016/017
