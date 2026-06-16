@@ -2,10 +2,7 @@
   "mcpServers": {
     "expo": {
       "type": "http",
-      "url": "https://mcp.expo.dev/mcp",
-      "headers": {
-        "Authorization": "Bearer ${EXPO_TOKEN}"
-      }
+      "url": "https://mcp.expo.dev/mcp"
     }
   }
 }
