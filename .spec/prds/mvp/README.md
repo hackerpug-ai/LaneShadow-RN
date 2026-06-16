@@ -1,6 +1,6 @@
 ---
 title: LaneShadow Discovery-MVP
-version: 3.0.0
+version: 3.0.1
 scope_posture: full
 pr_sequencing: false
 ---
@@ -17,7 +17,7 @@ Re-anchor LaneShadow on its strategic hero — **Discovery** — by surfacing th
 
 | Field | Value |
 |---|---|
-| Version | 3.0.0 |
+| Version | 3.0.1 |
 | Scope Posture | Full feature (default) |
 | PR Sequencing | Disabled |
 | Created | 2026-06-13 |
@@ -40,6 +40,7 @@ Re-anchor LaneShadow on its strategic hero — **Discovery** — by surfacing th
 | [09-technical-requirements/](./09-technical-requirements/README.md) | Technical constitution — folder (architecture, schema, API, deps, risks, UI infra, **routing + Route Delta**, design system) | CONSTITUTION |
 | [10-e2e-testing-criteria.md](./10-e2e-testing-criteria.md) | Per-UC test criteria (type, AC ref, setup, pass/fail) | TEST_SPEC |
 | [DELTA-001-unified-map-chat-discovery.md](./DELTA-001-unified-map-chat-discovery.md) | **Historical delta (folded into the canonical PRD body at v3.0.0):** remove the dedicated Discover screen; discovery on the route plan view (suggestion cards + chat NL discovery). | FEATURE_SPEC |
+| [11-post-mvp-opportunities.md](./11-post-mvp-opportunities.md) | Rider-voice-validated post-MVP AI opportunities (enrichment, weather-window, composition, personalization) — forward-looking, **non-binding, no scope change** | PRODUCT_CONTEXT |
 
 ## Quick Stats
 
@@ -79,6 +80,7 @@ Re-anchor LaneShadow on its strategic hero — **Discovery** — by surfacing th
 | 1.1.0 | 2026-06-13 | Resolved auth posture (gap #1 / R-DATA-9 / open item #74): both Discovery queries locked to Clerk `requireIdentity` (gated); added auth-gate-enforcement precondition note reflecting verified codebase state | Completeness-review gap #1 |
 | 2.0.0 | 2026-06-14 | **DELTA-001 (post-start):** remove the dedicated Discover screen — all discovery via one fully-interactive map + chat home; natural-language/chat-driven discovery moved INTO scope; full chat view opens from a footer button right of the chat input. First approved deferred, then **folded into Sprint 01** via `kb-sprint-plan --delta-replan` (ROADMAP: 5→3 sprints). See [DELTA-001](./DELTA-001-unified-map-chat-discovery.md). | Product-owner scope change |
 | 3.0.0 | 2026-06-15 | **Separate discovery view removed.** Discovery collapsed to the route plan view: curated-route suggestion cards over the chat input (tap → plot) + chat-driven NL curated discovery via the existing route-card→map loop. Dedicated Discover screen, archetype filter-bar, best/nearest sort-toggle, and by-state browse picker all dropped. DELTA-001 folded into the canonical PRD body; DISC UCs 02/03/05/06/07/08 retired and 09/10/11 authored in full; routing reduced to 4 routes; corrected the pre-existing SAVE count (4→2) so the total is now 17. | Product-owner scope change |
+| 3.0.1 | 2026-06-15 | **Documentation-only — NO scope change.** Added [11-post-mvp-opportunities.md](./11-post-mvp-opportunities.md) and enriched the Out-of-Scope rationale in [01-scope.md](./01-scope.md) from rider-voice deep research (holocron `js77v8w2833z10g8xbg6nh9gah88rr10`). Also added top-level [WHY.md](../../WHY.md). MVP scope, UCs, ACs, gates, and routing are unchanged. | Research capture |
 
 ## ⚠️ Downstream actions (v3.0.0 is a FEATURE_SPEC change)
 
