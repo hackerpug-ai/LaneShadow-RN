@@ -278,20 +278,30 @@ async function executeOrchestratorTool(
         onAgentTurn: executeCtx?.onAgentTurn,
         onToolResultPiMessage: executeCtx?.onToolResultPiMessage,
       })
-      // Call the discovery agent - it will interpret the query and decide whether to use discoverCuratedRoutes tool
-      // Import executeDiscoveryAgent when it exists
-      // const result = await executeDiscoveryAgent({
-      //   ctx,
-      //   executeCtx: executeCtx ? subCtx : undefined,
-      //   budgetTracker: subBudget,
-      //   userMessage: query,
-      // })
-      // For now, return a conversational response indicating this is not implemented yet
-      const result = {
-        status: 'error' as const,
-        message:
-          'Route discovery is currently unavailable. Please try a direct route request like "plan a route from SF to Santa Cruz".',
+
+      // Extract intent from the natural language query
+      const q = query.toLowerCase()
+      const archetypes: string[] = []
+      if (q.includes('twisties') || q.includes('twisty')) archetypes.push('twisties')
+      if (q.includes('scenic')) archetypes.push('scenic')
+      if (q.includes('technical')) archetypes.push('technical')
+      if (q.includes('cruising')) archetypes.push('cruising')
+      if (q.includes('adventure')) archetypes.push('adventure')
+
+      // Extract state if mentioned (basic matching)
+      const stateMatch = q.match(/\b(near|in)\s+([a-z\s]+?)(?:\b|$)/)
+      const intent: Record<string, unknown> = { archetypes: archetypes.length > 0 ? archetypes : undefined }
+      if (stateMatch) {
+        intent.state = stateMatch[2].trim().charAt(0).toUpperCase() + stateMatch[2].trim().slice(1)
       }
+
+      const result = await executeDiscoverCuratedRoutes(ctx, {
+        type: 'toolCall',
+        id: 'discovery-' + Date.now(),
+        name: 'discoverCuratedRoutes',
+        arguments: { intent },
+      } as any)
+
       const summary = summarizeToolResult('discovery_agent', result)
       await executeCtx?.onSubAgentComplete?.('discovery', summary, Date.now() - agentStart)
       return result
