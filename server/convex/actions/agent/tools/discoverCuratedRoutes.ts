@@ -136,19 +136,19 @@ async function runDiscoverCuratedRoutes(
       label: route.name,
       rationale: route.summary || `Curated ${route.primaryArchetype} route in ${route.state}`,
       stats: {
-        distanceMeters: (route.distanceMi || 0) * 1609.344, // Convert miles to meters
+        distanceMeters: args.intent.sort === 'nearest' ? (route.distanceMi ?? 0) * 1609.344 : undefined, // Only include distance for nearest sort
         durationSeconds: 0, // Not available for curated routes
         legsCount: 0, // Not available for curated routes
       },
       // Preserve composite + per-dimension scores on 0-1 scale (already normalized)
       scores: {
-        composite: route.score || 0, // already 0-1
+        composite: route.compositeScore ?? 0, // already 0-1 - use flat field
         dimensions: {
-          scenery: route.scores?.scenery || 0, // already 0-1
-          curvature: route.scores?.curvature || 0, // already 0-1
-          elevation: route.scores?.elevation || 0, // already 0-1
-          traffic: route.scores?.traffic || 0, // already 0-1
-          pavement: route.scores?.pavement || 0, // already 0-1
+          scenery: route.scenicScore ?? 0, // already 0-1 - use flat field
+          curvature: route.curvatureScore ?? 0, // already 0-1 - use flat field
+          elevation: (route.elevationScore ?? route.technicalScore) ?? 0, // already 0-1 - fallback for elevation
+          traffic: route.trafficScore ?? 0, // already 0-1 - use flat field
+          pavement: route.pavementScore ?? route.remotenessScore ?? 0, // already 0-1 - fallback for pavement
         },
       },
       map: {
