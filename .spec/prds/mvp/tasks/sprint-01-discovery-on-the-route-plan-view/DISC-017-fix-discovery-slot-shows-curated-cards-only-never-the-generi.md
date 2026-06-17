@@ -1,7 +1,7 @@
 # DISC-017: FIX: discovery slot shows curated cards only — never the generic IDLE_SUGGESTIONS planning prompts
 
 **Sprint:** [SPRINT.md](./SPRINT.md)  
-**Type:** FEATURE · **Status:** To Do · **Priority:** P0 · **Effort:** S · **Estimate:** 90 min  
+**Type:** FEATURE · **Status:** ✅ Completed · **Priority:** P0 · **Effort:** S · **Estimate:** 90 min  
 **Agent:** react-native-ui-implementer · **Reviewer:** react-native-ui-reviewer  
 **Proposed By:** react-native-ui-planner  
 **Agent rationale:** Pure plan-view UI state/branching change in index.tsx + ChatInput slot — react-native-ui-implementer; consumes the existing hook, no backend work.  
