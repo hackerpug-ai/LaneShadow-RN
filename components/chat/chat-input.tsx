@@ -96,6 +96,36 @@ const SuggestionChips = ({
         const isCurated = typeof suggestion !== 'string'
         const label = isCurated ? suggestion.label : suggestion
         const routeId = isCurated ? suggestion.routeId : undefined
+        // DISC-017: a non-curated string is the empty-state message ("No nearby
+        // routes"), NOT a tappable prompt. Render it as a display-only, muted
+        // Text so the rider can't accidentally send it as a chat message.
+        if (!isCurated) {
+          return (
+            <View
+              key={`empty-${index}`}
+              style={[
+                styles.chip,
+                {
+                  backgroundColor: 'transparent',
+                  borderRadius: semantic.radius.md,
+                  paddingHorizontal: semantic.space.sm,
+                  paddingVertical: semantic.space.sm,
+                },
+              ]}
+              accessibilityLabel={label}
+              accessibilityRole="text"
+            >
+              <Text
+                style={[
+                  semantic.type.body.sm,
+                  { color: semantic.color.onSurface.muted, fontStyle: 'italic' },
+                ]}
+              >
+                {label}
+              </Text>
+            </View>
+          )
+        }
         return (
           <TouchableOpacity
             key={routeId || index}
