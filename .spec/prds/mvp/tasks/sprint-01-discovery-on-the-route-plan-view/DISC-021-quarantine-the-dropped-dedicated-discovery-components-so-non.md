@@ -1,7 +1,7 @@
 # DISC-021: Quarantine the dropped dedicated-discovery components so none are imported by an active screen/hook (lands LAST)
 
 **Sprint:** [SPRINT.md](./SPRINT.md)  
-**Type:** FEATURE · **Status:** To Do · **Priority:** P2 · **Effort:** S · **Estimate:** 60 min  
+**Type:** FEATURE · **Status:** ✅ Completed · **Priority:** P2 · **Effort:** S · **Estimate:** 60 min  
 **Agent:** react-native-ui-implementer · **Reviewer:** react-native-ui-reviewer  
 **Proposed By:** react-native-ui-planner  
 **Agent rationale:** Structural import-graph quarantine + boy-scout removal of any stray import across the RN client tree — react-native-ui-implementer; it lands last to reflect the final wiring after all other DISC tasks merge.  

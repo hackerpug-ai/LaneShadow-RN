@@ -1,7 +1,7 @@
 # DESIGN-S01-002: Curated-route chat-card variant spec (composite score as %/bars on 0–1; distinct from planned-trip routing card)
 
 **Sprint:** [SPRINT.md](./SPRINT.md)  
-**Type:** DESIGN · **Status:** Backlog · **Priority:** P1 · **Effort:** S · **Estimate:** 75 min  
+**Type:** DESIGN · **Status:** ✅ Completed · **Priority:** P1 · **Effort:** S · **Estimate:** 75 min  
 **Agent:** frontend-designer  
 **Proposed By:** frontend-designer  
 **Agent rationale:** frontend-designer owns visual spec and audit; the score-rendering contract and variant differentiation table are the primary design decisions that prevent the 0% / raw-decimal bug from propagating into the DISC-020 implementation.  

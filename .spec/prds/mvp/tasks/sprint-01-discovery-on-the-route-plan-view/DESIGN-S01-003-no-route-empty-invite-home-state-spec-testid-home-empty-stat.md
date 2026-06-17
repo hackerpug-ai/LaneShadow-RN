@@ -1,7 +1,7 @@
 # DESIGN-S01-003: No-route empty/invite home-state spec (testID home-empty-state): discovery-invite copy + empty-catalog messaging over surface.glass scrim @ 72%
 
 **Sprint:** [SPRINT.md](./SPRINT.md)  
-**Type:** DESIGN · **Status:** Backlog · **Priority:** P1 · **Effort:** XS · **Estimate:** 45 min  
+**Type:** DESIGN · **Status:** ✅ Completed · **Priority:** P1 · **Effort:** XS · **Estimate:** 45 min  
 **Agent:** frontend-designer  
 **Proposed By:** frontend-designer  
 **Agent rationale:** frontend-designer owns the copy, zIndex, and token decisions for the empty-state overlay; the zIndex-below-ChatInput rule is a design architecture decision (not just styling) that the implementer must follow.  

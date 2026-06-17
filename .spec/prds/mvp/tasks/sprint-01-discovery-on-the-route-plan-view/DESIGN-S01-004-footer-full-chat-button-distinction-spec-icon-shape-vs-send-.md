@@ -1,7 +1,7 @@
 # DESIGN-S01-004: Footer full-chat button distinction spec: icon/shape vs send, ≥44pt, active-state token, compliance audit of chat-input-chat-view-button
 
 **Sprint:** [SPRINT.md](./SPRINT.md)  
-**Type:** DESIGN · **Status:** Backlog · **Priority:** P2 · **Effort:** XS · **Estimate:** 30 min  
+**Type:** DESIGN · **Status:** ✅ Completed · **Priority:** P2 · **Effort:** XS · **Estimate:** 30 min  
 **Agent:** frontend-designer  
 **Proposed By:** frontend-designer  
 **Agent rationale:** frontend-designer produces compliance audits against live code; DISC-018's implementer reads this audit and only needs to fix the flagged gaps (expected: minor magic-number issues) rather than design from scratch.  

@@ -1,7 +1,7 @@
 # DISC-019: FIX: remove the leftover 'Plan a ride' drawer entry from menu-layout.tsx
 
 **Sprint:** [SPRINT.md](./SPRINT.md)  
-**Type:** FEATURE · **Status:** To Do · **Priority:** P2 · **Effort:** XS · **Estimate:** 30 min  
+**Type:** FEATURE · **Status:** ✅ Completed · **Priority:** P2 · **Effort:** XS · **Estimate:** 30 min  
 **Agent:** react-native-ui-implementer · **Reviewer:** react-native-ui-reviewer  
 **Proposed By:** react-native-ui-planner  
 **Agent rationale:** Trivial drawer-config edit in an RN layout component — react-native-ui-implementer; no backend or routing change.  

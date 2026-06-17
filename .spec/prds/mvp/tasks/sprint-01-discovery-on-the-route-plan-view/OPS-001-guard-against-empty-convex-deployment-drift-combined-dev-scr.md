@@ -1,7 +1,7 @@
 # OPS-001: Guard against empty-Convex-deployment drift (combined dev script + loud health check; canary = listCuratedRoutes)
 
 **Sprint:** [SPRINT.md](./SPRINT.md)  
-**Type:** INFRA · **Status:** To Do · **Priority:** P1 · **Effort:** S · **Estimate:** 60 min  
+**Type:** INFRA · **Status:** ✅ Completed · **Priority:** P1 · **Effort:** S · **Estimate:** 60 min  
 **Agent:** convex-implementer  
 **Proposed By:** convex-planner  
 **Agent rationale:** The health check probes the Convex function-spec and the listCuratedRoutes canary, and the combined dev script runs convex dev from server/ alongside Metro — both backend/devops concerns owned by the convex-implementer who knows the deployment surface and the canary contract.  

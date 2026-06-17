@@ -1,9 +1,14 @@
 # DESIGN-S01-001: Suggestion-card visual spec/audit (chip variant: copper accent, road icon, surface.glass scrim @ 72%, ≥44pt, hidden when route shown)
 
 **Sprint:** [SPRINT.md](./SPRINT.md)  
-**Type:** DESIGN · **Status:** Backlog · **Priority:** P1 · **Effort:** S · **Estimate:** 60 min  
+**Type:** DESIGN · **Status:** ✅ Completed · **Priority:** P1 · **Effort:** S · **Estimate:** 60 min  
 **Agent:** frontend-designer  
 **Proposed By:** frontend-designer  
+> Status: ✅ Completed
+> Commit: 775ef27b
+> Reviewer: orchestrator-I3 (deterministic AC re-execution)
+> Updated: 2026-06-17
+
 **Agent rationale:** frontend-designer owns all visual spec and audit work; this task produces no app source — it produces a spec document that the react-native-ui-implementer (DISC-016/DISC-017) reads as a contract.  
 
 ## Outcome
