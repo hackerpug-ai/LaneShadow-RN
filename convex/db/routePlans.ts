@@ -1,3 +1,4 @@
+import polyline from '@mapbox/polyline'
 import { ConvexError, v } from 'convex/values'
 
 import {
@@ -347,6 +348,112 @@ export const createPlan = mutation({
   handler: async (ctx, args): Promise<{ routePlanId: Id<'route_plans'> }> => {
     const { clerkUserId } = await requireIdentity(ctx)
     return createPlanHandler(ctx as any, args as any, clerkUserId)
+  },
+})
+
+/**
+ * DISC-016: Create a COMPLETED route_plans row for a single curated route so the
+ * plan-view suggestion-card tap plots directly through the standard route
+ * machinery (displayedRoutePlanId → useActiveSessionRoute → RoutePolyline → doFit)
+ * WITHOUT a chat round-trip to the NL agent.
+ *
+ * Mirrors the option shape built by the agent's `discoverCuratedRoutes` tool
+ * (centroid-encoded overviewGeometry so doFit's single-point fallback centers
+ * the camera at zoom 12). No planning session, no scheduled action, no usage
+ * metering — this is a discovery affordance over existing curated data, not a
+ * planning action.
+ */
+export const createCuratedRoutePlan = mutation({
+  args: {
+    routeId: v.string(),
+    name: v.string(),
+    centroidLat: v.number(),
+    centroidLng: v.number(),
+    archetype: v.string(),
+    compositeScore: v.number(),
+    distanceMi: v.number(),
+    scores: v.optional(
+      v.object({
+        scenery: v.optional(v.number()),
+        curvature: v.optional(v.number()),
+        elevation: v.optional(v.number()),
+        traffic: v.optional(v.number()),
+        pavement: v.optional(v.number()),
+      }),
+    ),
+  },
+  returns: v.object({ routePlanId: v.id('route_plans') }),
+  handler: async (ctx, args): Promise<{ routePlanId: Id<'route_plans'> }> => {
+    const { clerkUserId } = await requireIdentity(ctx)
+    const now = Date.now()
+
+    const overviewGeometry = polyline.encode([[args.centroidLat, args.centroidLng]])
+
+    const routeOptionId = `curated-${args.routeId}`
+    const option = {
+      routeOptionId,
+      label: args.name,
+      rationale: `Curated ${args.archetype} route`,
+      stats: {
+        distanceMeters: args.distanceMi * 1609.344,
+        durationSeconds: 0,
+        legsCount: 0,
+      },
+      scores: {
+        composite: args.compositeScore,
+        dimensions: {
+          scenery: args.scores?.scenery ?? 0,
+          curvature: args.scores?.curvature ?? 0,
+          elevation: args.scores?.elevation ?? 0,
+          traffic: args.scores?.traffic ?? 0,
+          pavement: args.scores?.pavement ?? 0,
+        },
+      },
+      map: {
+        bounds: {
+          north: args.centroidLat + 0.5,
+          south: args.centroidLat - 0.5,
+          east: args.centroidLng + 0.5,
+          west: args.centroidLng - 0.5,
+        },
+        overviewGeometry,
+        legs: [],
+        overlays: {},
+      },
+      overlaysPreview: {
+        windSummary: 'unavailable',
+        rainSummary: 'unavailable',
+        temperatureSummary: 'unavailable',
+        conditionsStatus: 'unavailable',
+      },
+    }
+
+    const routePlanId = await ctx.db.insert('route_plans', {
+      clerkUserId,
+      planInput: {
+        start: {
+          lat: args.centroidLat,
+          lng: args.centroidLng,
+          label: 'Curated discovery',
+        },
+        end: {
+          lat: args.centroidLat,
+          lng: args.centroidLng,
+          label: args.name,
+        },
+        departureTime: now,
+        preferences: { scenicBias: 'default', avoidHighways: false, avoidTolls: false },
+      },
+      startLabel: 'Curated discovery',
+      endLabel: args.name,
+      status: ROUTE_PLAN_STATUS.COMPLETED,
+      result: { planId: null, options: [option] },
+      createdAt: now,
+      updatedAt: now,
+      completedAt: now,
+    })
+
+    return { routePlanId }
   },
 })
 

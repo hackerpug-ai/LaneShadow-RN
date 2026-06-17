@@ -1,5 +1,5 @@
 import { useAuth } from '@clerk/clerk-expo'
-import { useQuery } from 'convex/react'
+import { useMutation, useQuery } from 'convex/react'
 import { useLocalSearchParams, useRouter, useSegments } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Keyboard, Pressable, ScrollView, StyleSheet, View } from 'react-native'
@@ -381,19 +381,50 @@ const HomeMapScreen = () => {
     [chatMode, sendPlanningMessage, currentLocation],
   )
 
+  const {
+    setSelectedRouteId,
+    setDisplayedRoutePlanId,
+    registerFitHandler,
+    requestFitToRouteWithReset,
+  } = useSelectedRoute()
+
+  // DISC-016: create a completed curated route_plan on tap so the standard
+  // machinery (displayedRoutePlanId → useActiveSessionRoute → RoutePolyline →
+  // doFit) plots the route directly, with NO chat round-trip.
+  const createCuratedPlan = useMutation(api.db.routePlans.createCuratedRoutePlan)
+
   const handleSelectCuratedRoute = useCallback(
-    (routeId: string) => {
+    async (routeId: string) => {
       const route = curatedDiscoveryRoutes?.find((r: any) => r.id === routeId)
-      if (!route || !mapRef.current) return
-      // Focus camera on the route's centroid (single-point fallback for geometry-less routes)
-      mapRef.current.setCameraPosition({
-        coordinates: { latitude: route.lat, longitude: route.lng },
-        zoom: 12,
+      if (!route) return
+      // DISC-016: plot DIRECTLY through the standard route machinery — NO chat
+      // message is appended to the transcript. The mutation creates a COMPLETED
+      // route_plan whose option carries the centroid-encoded overviewGeometry;
+      // setting displayedRoutePlanId + selectedRouteId makes useActiveSessionRoute
+      // resolve it, RoutePolyline renders home-route-polyline, and the auto-fit
+      // effect (doFit) frames the centroid at zoom 12.
+      const { routePlanId } = await createCuratedPlan({
+        routeId: route.id,
+        name: route.name,
+        centroidLat: route.lat,
+        centroidLng: route.lng,
+        archetype: route.archetype,
+        compositeScore: route.score,
+        distanceMi: route.distanceMi ?? 0,
       })
       setSelectedCuratedRouteId(routeId)
-      // DISCONNECTED — no chat message sent
+      setSelectedRouteId(`curated-${route.id}`)
+      setDisplayedRoutePlanId(routePlanId)
+      requestFitToRouteWithReset()
     },
-    [curatedDiscoveryRoutes, mapRef],
+    [
+      curatedDiscoveryRoutes,
+      createCuratedPlan,
+      setSelectedCuratedRouteId,
+      setSelectedRouteId,
+      setDisplayedRoutePlanId,
+      requestFitToRouteWithReset,
+    ],
   )
 
   // Cancel handler that routes to the appropriate cancel function
@@ -480,7 +511,6 @@ const HomeMapScreen = () => {
   }, [flowState.phase, agentRoutePlan?.status, flowDispatch])
 
   // Fit camera to agent-produced route.
-  const { setSelectedRouteId, setDisplayedRoutePlanId, registerFitHandler } = useSelectedRoute()
   const pendingFitRef = useRef(false)
 
   const handleNewSession = () => {
