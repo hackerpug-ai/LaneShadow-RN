@@ -1,7 +1,7 @@
 # DATA-004: State-normalize + length-clamp transforms in the read path (carried — verify)
 
 **Sprint:** [SPRINT.md](./SPRINT.md)  
-**Type:** FEATURE · **Status:** To Do · **Priority:** P0 · **Effort:** S · **Estimate:** 30 min  
+**Type:** FEATURE · **Status:** ✅ Completed · **Priority:** P0 · **Effort:** S · **Estimate:** 30 min  
 **Agent:** convex-implementer  
 **Proposed By:** convex-planner  
 **Agent rationale:** Pure transforms (util/dataNormalization.ts) plus their application in listCuratedRoutes. convex-implementer owns the query read path and can run both the unit suite and a live state-filter assertion against the known North-Carolina spelling split.  

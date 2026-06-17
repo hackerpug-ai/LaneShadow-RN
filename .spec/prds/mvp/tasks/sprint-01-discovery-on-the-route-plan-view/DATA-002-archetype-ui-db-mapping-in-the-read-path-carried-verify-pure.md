@@ -1,7 +1,7 @@
 # DATA-002: Archetype UI↔DB mapping in the read path (carried — verify pure + applied)
 
 **Sprint:** [SPRINT.md](./SPRINT.md)  
-**Type:** FEATURE · **Status:** To Do · **Priority:** P0 · **Effort:** S · **Estimate:** 30 min  
+**Type:** FEATURE · **Status:** ✅ Completed · **Priority:** P0 · **Effort:** S · **Estimate:** 30 min  
 **Agent:** convex-implementer  
 **Proposed By:** convex-planner  
 **Agent rationale:** Pure transform (util/archetypeMap.ts) plus its application inside listCuratedRoutes — Convex query-layer behavior. convex-implementer owns both the transform and the query and can run the unit suite plus a live listCuratedRoutes assertion.  
