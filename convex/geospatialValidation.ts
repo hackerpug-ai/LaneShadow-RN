@@ -3,6 +3,23 @@ import { query } from './_generated/server'
 import { geospatial } from './geospatialIndex'
 
 /**
+ * Regional slices for non-degenerate geospatial counting
+ * Each slice is 45 degrees wide to avoid S2 cell-covering degenerate cases
+ */
+function countSlices() {
+  return [
+    { west: -180, east: -135, name: 'Western Pacific/Asia' },
+    { west: -135, east: -90, name: 'Eastern Asia/Russia' },
+    { west: -90, east: -45, name: 'Russia/Western Europe' },
+    { west: -45, east: 0, name: 'Western Europe' },
+    { west: 0, east: 45, name: 'Europe/Africa' },
+    { west: 45, east: 90, name: 'Africa/Asia' },
+    { west: 90, east: 135, name: 'Asia/Australia' },
+    { west: 135, east: 180, name: 'Australia/Pacific' },
+  ]
+}
+
+/**
  * Validation queries for geospatial index performance
  *
  * These queries validate that nearest-neighbor and rectangular range queries
@@ -68,38 +85,53 @@ export const validateRectangularRange = query({
 export const debugGeospatialData = query({
   args: {},
   handler: async (ctx) => {
-    // Count how many routes are in the geospatial index with pagination
+    // Count how many routes are in the geospatial index using multiple regional slices
+    const slices = countSlices()
+    const sliceResults = []
     let total = 0
-    let cursor: string | undefined
 
-    do {
-      const allRoutes: {
-        results: { key: string; coordinates: { latitude: number; longitude: number } }[]
-        nextCursor?: string
-      } = await (geospatial as any).query(
-        ctx,
-        {
-          shape: {
-            type: 'rectangle',
-            rectangle: {
-              west: -180,
-              south: -90,
-              east: 180,
-              north: 90,
+    for (const slice of slices) {
+      let sliceTotal = 0
+      let cursor: string | undefined
+
+      // Query each slice with pagination to avoid S2 degenerate cases
+      do {
+        const sliceResults: {
+          results: { key: string; coordinates: { latitude: number; longitude: number } }[]
+          nextCursor?: string
+        } = await (geospatial as any).query(
+          ctx,
+          {
+            shape: {
+              type: 'rectangle',
+              rectangle: {
+                west: slice.west,
+                south: -90,
+                east: slice.east,
+                north: 90,
+              },
             },
+            limit: 1000,
           },
-          limit: 1000,
-        },
-        cursor,
-      )
+          cursor,
+        )
 
-      total += allRoutes.results.length
-      cursor = allRoutes.nextCursor
-    } while (cursor !== undefined)
+        sliceTotal += sliceResults.results.length
+        cursor = sliceResults.nextCursor
+      } while (cursor !== undefined)
+
+      sliceResults.push({
+        box: `${slice.west}° to ${slice.east}°`,
+        count: sliceTotal,
+        name: slice.name,
+      })
+      total += sliceTotal
+    }
 
     return {
       total_in_index: total,
-      has_more: false, // We've paginated through everything
+      has_more: false, // We've paginated through all slices
+      slices: sliceResults,
     }
   },
 })
