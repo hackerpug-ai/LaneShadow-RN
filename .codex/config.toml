@@ -1,6 +1,0 @@
-[mcp_servers.expo]
-type = "remote"
-url = "https://mcp.expo.dev/mcp"
-startup_timeout_sec = 30
-tool_timeout_sec = 120
-enabled = true

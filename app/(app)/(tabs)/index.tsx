@@ -246,7 +246,7 @@ const HomeMapScreen = () => {
   const lastFittedPlanIdRef = useRef<string | null>(null)
 
   // Determine if there's an active route for chat input logic
-  const hasActiveRoute = !!agentActiveOption
+  const hasActiveRoute = !!agentActiveOption || !!selectedCuratedRouteId
 
   // Curated route discovery pills (DISC-011)
   const { isLoading, isEmpty, routes: curatedDiscoveryRoutes } = useCuratedDiscovery({ sort: 'nearest', limit: 5 })
@@ -374,16 +374,22 @@ const HomeMapScreen = () => {
     [chatMode, sendPlanningMessage, currentLocation],
   )
 
-  // Handle selecting a curated route from suggestion pills
+  // Handle selecting a curated route from suggestion pills — plot directly, no chat round-trip
+  const [selectedCuratedRouteId, setSelectedCuratedRouteId] = useState<string | null>(null)
+
   const handleSelectCuratedRoute = useCallback(
     (routeId: string) => {
-      // Find the route name from the curated discovery routes
-      const route = curatedDiscoveryRoutes?.find((r) => r.id === routeId)
-      const routeName = route?.name || `curated route ${routeId}`
-      // Send a message that the agent can interpret
-      handleSendMessage(`Show me curated route ${routeName}`)
+      const route = curatedDiscoveryRoutes?.find((r: any) => r.id === routeId)
+      if (!route || !mapRef.current) return
+      // Focus camera on the route's centroid (single-point fallback for geometry-less routes)
+      mapRef.current.setCameraPosition({
+        coordinates: { latitude: route.lat, longitude: route.lng },
+        zoom: 12,
+      })
+      setSelectedCuratedRouteId(routeId)
+      // DISCONNECTED — no chat message sent
     },
-    [curatedDiscoveryRoutes, handleSendMessage],
+    [curatedDiscoveryRoutes, mapRef],
   )
 
   // Cancel handler that routes to the appropriate cancel function
@@ -485,6 +491,7 @@ const HomeMapScreen = () => {
     flowDispatch({ type: 'NEW_SESSION' })
     setSelectedRouteId(null)
     setDisplayedRoutePlanId(null)
+    setSelectedCuratedRouteId(null)
     lastFittedPlanIdRef.current = null
     resetSession()
     clearSearchResults()
@@ -985,6 +992,7 @@ const HomeMapScreen = () => {
     setSelectedRouteOptionId(null)
     setSearchStop(null)
     setSelectedRouteId(null)
+    setSelectedCuratedRouteId(null)
     lastFittedPlanIdRef.current = null
     resetSession()
     flowDispatch({ type: 'NEW_SESSION' })

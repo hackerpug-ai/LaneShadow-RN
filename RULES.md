@@ -80,6 +80,44 @@ Via lefthook:
 
 ---
 
+## Metro MCP — Runtime Debugging
+
+See [metro-mcp docs](https://metromcp.dev) for full reference.
+
+### When to use
+
+- **Inspect React Native components** — ask the agent to find misaligned elements, check styles, trace the tree
+- **Track network requests** — debug API calls, inspect request/response bodies, spot failures
+- **Capture console logs** — stream Hermes logs directly into agent context
+- **Take screenshots** — verify visual output in simulator/emulator without manual capture
+- **CPU profiling** — find render bottlenecks via Hermes CDP or React Profiler
+- **Test recording** — record user flows and generate Appium/Maestro/Detox tests
+
+### When NOT to use
+
+- Convex backend logic — use `convex` MCP tools instead
+- Static analysis (lint, typecheck) — use `pnpm lint` / `pnpm type-check`
+- Build/CI failures — check logs; metro-mcp only knows the running app
+
+### How to trigger in agent sessions
+
+Ask the agent directly with natural language. Examples:
+
+- "Inspect the component tree on the current screen"
+- "What network requests fired when the app loaded?"
+- "Take a screenshot of the home screen"
+- "Profile the Settings tab — is anything slow?"
+- "Record my interaction on the checkout flow and generate a Detox test"
+
+### Prerequisites
+
+1. Metro dev server must be running (`pnpm dev` or `pnpm start`)
+2. App must be built and running in iOS Simulator, Android Emulator, or USB device with Hermes enabled
+3. Metro-mcp auto-discovers the Metro port (8081, 8082, or 19000–19002) — no extra config needed unless using a custom port
+4. If using Chrome DevTools alongside the MCP, use the `open_devtools` tool instead of pressing "j" in Metro (avoids CDP connection conflict)
+
+---
+
 ## .spec Directory
 
 All plans stored in `.spec/prd/`. See `.spec/PRD.md` for overview.
