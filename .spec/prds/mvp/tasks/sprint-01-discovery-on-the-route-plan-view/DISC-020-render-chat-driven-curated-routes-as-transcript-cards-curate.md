@@ -1,7 +1,7 @@
 # DISC-020: Render chat-driven curated routes as transcript cards (curated variant; score as %/bars) + verify card→map→return-to-map loop with centroid fallback
 
 **Sprint:** [SPRINT.md](./SPRINT.md)  
-**Type:** FEATURE · **Status:** To Do · **Priority:** P1 · **Effort:** M · **Estimate:** 120 min  
+**Type:** FEATURE · **Status:** ✅ Completed · **Priority:** P1 · **Effort:** M · **Estimate:** 120 min  
 **Agent:** react-native-ui-implementer · **Reviewer:** react-native-ui-reviewer  
 **Proposed By:** react-native-ui-planner  
 **Agent rationale:** Chat transcript curated-card rendering + reuse of the existing card→map selection loop — react-native-ui-implementer; the score-data fix is delegated to DATA-008b (convex).  
