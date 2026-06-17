@@ -1,7 +1,7 @@
 # DATA-001: Geospatial points seeded from curated_routes centroids (carried — verify idempotent + non-empty)
 
 **Sprint:** [SPRINT.md](./SPRINT.md)  
-**Type:** INFRA · **Status:** To Do · **Priority:** P0 · **Effort:** S · **Estimate:** 30 min  
+**Type:** INFRA · **Status:** ✅ Completed · **Priority:** P0 · **Effort:** S · **Estimate:** 30 min  
 **Agent:** convex-implementer  
 **Proposed By:** convex-planner  
 **Agent rationale:** Verification of a seeded @convex-dev/geospatial component against the live Convex dev deployment — Convex backend domain, integration-tier evidence, no UI. The convex-implementer owns the seed action (geospatialSeed.ts) and the validation query (geospatialValidation.ts) and can drive npx convex run against live dev.  
