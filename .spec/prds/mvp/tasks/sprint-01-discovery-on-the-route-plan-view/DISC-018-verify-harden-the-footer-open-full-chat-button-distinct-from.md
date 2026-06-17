@@ -1,7 +1,7 @@
 # DISC-018: Verify/harden the footer open-full-chat button (distinct from send) + suggestion-card visibility keyed to no-active-route
 
 **Sprint:** [SPRINT.md](./SPRINT.md)  
-**Type:** FEATURE · **Status:** To Do · **Priority:** P1 · **Effort:** S · **Estimate:** 75 min  
+**Type:** FEATURE · **Status:** ✅ Completed · **Priority:** P1 · **Effort:** S · **Estimate:** 75 min  
 **Agent:** react-native-ui-implementer · **Reviewer:** react-native-ui-reviewer  
 **Proposed By:** react-native-ui-planner  
 **Agent rationale:** Plan-view + chat-input visibility/affordance verification — react-native-ui-implementer; reuses existing hooks, no backend change.  
