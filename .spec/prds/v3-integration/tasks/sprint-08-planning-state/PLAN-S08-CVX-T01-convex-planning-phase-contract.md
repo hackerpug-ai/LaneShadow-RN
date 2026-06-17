@@ -24,17 +24,17 @@
 
 Sprint 08 ships the planning state of the canonical map view, where the `LSPhaseIndicator` (5-step pipeline: parsing → searching → drafting → enriching → finalizing) and the `LSContextCapsule(--planning)` italic phase line both bind to live Convex `sessionMessages` updates. iOS (`PlanningViewModel.phaseIndex(from:)`) and the Android twin currently derive the active phase by string-matching the latest planning-kind message's `content`/`statusMessage` against keyword lists (`"search"`, `"draft"`, `"enrich"`, etc.) — a brittle contract that breaks the moment the agent rephrases its own status copy. This task replaces that ad-hoc derivation with a deterministic surface so both clients can read the phase off `sessionMessages` without string heuristics.
 
-The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprint 04) cleanly transitions any in-flight planning-kind `sessionMessages` rows to a terminal state so the iOS + Android planning view-models can return the map view to its `--idle` state without races. Net-new backend is small: either (a) add an optional `phase` field on `sessionMessages` rows where `kind === 'planning'`, populated by the agent at write-time, OR (b) document a deterministic derivation rule from `thinkingSteps[].toolName` + `status` that both clients implement identically. Either way, the chosen contract MUST be encoded in `server/models/session-messages.ts` and exercised by tests in `server/convex/db/__tests__/`.
+The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprint 04) cleanly transitions any in-flight planning-kind `sessionMessages` rows to a terminal state so the iOS + Android planning view-models can return the map view to its `--idle` state without races. Net-new backend is small: either (a) add an optional `phase` field on `sessionMessages` rows where `kind === 'planning'`, populated by the agent at write-time, OR (b) document a deterministic derivation rule from `thinkingSteps[].toolName` + `status` that both clients implement identically. Either way, the chosen contract MUST be encoded in `server/models/session-messages.ts` and exercised by tests in `convex/db/__tests__/`.
 
 ## Critical Constraints
 
 **MUST:**
 - Choose ONE phase-derivation contract in `server/models/session-messages.ts` and document it in a JSDoc block on `sessionMessageValidator`: either (a) add an optional `phase` field with `v.union(v.literal('parsing'), v.literal('searching'), v.literal('drafting'), v.literal('enriching'), v.literal('finalizing'))` or (b) export a pure helper `derivePlanningPhase(message: SessionMessage): PlanningPhase | null` that maps `thinkingSteps[].toolName` + `status` deterministically
 - Update `sessionMessages.ts` create/finalize handlers (`createPendingAssistantMessageHandler`, `finalizeAssistantMessageHandler`, `recordReasoningHandler` if applicable) to set the `phase` field at write-time when `kind === 'planning'` (option a) OR ensure the helper handles every reachable `thinkingSteps`/status combination (option b)
-- Verify `cancelPlanHandler` in `server/convex/db/routePlans.ts` transitions associated planning `sessionMessages` rows to `status === 'failed'` OR documents the existing terminal behavior (e.g., the route plan moves to `cancelled` and the planning message is left as-is; clients use route-plan terminal status as the cancel signal). If clients require the message status to flip, extend `cancelPlanHandler` to patch any `kind === 'planning'` `streaming|running` message rows for that session to `status === 'failed'`
-- Add or extend tests in `server/convex/db/__tests__/sessionMessages.test.ts` for phase derivation (5 happy-path cases — one per phase — plus edge cases: empty `thinkingSteps`, unknown `toolName`, terminal `status === 'complete'`)
-- Add or extend tests in `server/convex/db/__tests__/routePlans.test.ts` covering cancel-from-planning: given an active `route_plan` + an associated `streaming` planning `sessionMessage`, calling `cancelPlanHandler` transitions the plan to `cancelled` and (per chosen contract) either flips the message to `failed` OR leaves it alone with the test asserting that explicitly
-- Run `pnpm type-check:native` clean; run `cd server && pnpm test` and have the new tests pass; run `pnpm biome check server/convex/db/sessionMessages.ts server/convex/db/routePlans.ts server/models/session-messages.ts` clean
+- Verify `cancelPlanHandler` in `convex/db/routePlans.ts` transitions associated planning `sessionMessages` rows to `status === 'failed'` OR documents the existing terminal behavior (e.g., the route plan moves to `cancelled` and the planning message is left as-is; clients use route-plan terminal status as the cancel signal). If clients require the message status to flip, extend `cancelPlanHandler` to patch any `kind === 'planning'` `streaming|running` message rows for that session to `status === 'failed'`
+- Add or extend tests in `convex/db/__tests__/sessionMessages.test.ts` for phase derivation (5 happy-path cases — one per phase — plus edge cases: empty `thinkingSteps`, unknown `toolName`, terminal `status === 'complete'`)
+- Add or extend tests in `convex/db/__tests__/routePlans.test.ts` covering cancel-from-planning: given an active `route_plan` + an associated `streaming` planning `sessionMessage`, calling `cancelPlanHandler` transitions the plan to `cancelled` and (per chosen contract) either flips the message to `failed` OR leaves it alone with the test asserting that explicitly
+- Run `pnpm type-check:native` clean; run `cd server && pnpm test` and have the new tests pass; run `pnpm biome check convex/db/sessionMessages.ts convex/db/routePlans.ts server/models/session-messages.ts` clean
 
 **NEVER:**
 - NEVER change the existing `kind` enum values (`'planning'`, `'thinking_card'`, etc.) — schema-breaking change blocks every existing client; if a new kind is needed it MUST be additive
@@ -116,35 +116,35 @@ The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprin
 | TC-5 | Ownership guard — non-owning rider invoking `cancelPlanHandler` raises `ConvexError(PLAN_NOT_FOUND)` | AC-5 | `cd server && pnpm test -- routePlans.test --testNamePattern="cancel.*ownership\|cancel.*unauthorized"` | error |
 | TC-6 | Pre-migration rows without `phase` / `thinkingSteps` still validate and yield `null`/default through the contract — no exception | AC-6 | `cd server && pnpm test -- sessionMessages.validation.test --testNamePattern="pre-migration\|backward"` | edge |
 | TC-7 | Phase enum strings emitted by backend are lowercase literals matching the iOS/Android `PlanningPhase` model strings exactly | AC-7 | `cd server && pnpm test -- sessionMessages.test --testNamePattern="phase.*enum.*literal"` | happy_path |
-| TC-8 | Type check + lint pass cleanly across modified files | AC-1, AC-7 | `pnpm type-check:native && pnpm biome check server/convex/db/sessionMessages.ts server/convex/db/routePlans.ts server/models/session-messages.ts` | edge |
+| TC-8 | Type check + lint pass cleanly across modified files | AC-1, AC-7 | `pnpm type-check:native && pnpm biome check convex/db/sessionMessages.ts convex/db/routePlans.ts server/models/session-messages.ts` | edge |
 
 ## Reading List
 
 | Path | Lines | Focus |
 |---|---|---|
-| `server/convex/db/sessionMessages.ts` | 1-250 | Existing handlers — `createPendingAssistantMessageHandler` sets `status: 'streaming'\|'running'` for planning kind; `finalizeAssistantMessageHandler` sets `status: 'complete'\|'failed'`; pattern source for contract additions |
-| `server/convex/db/routePlans.ts` | 220-339 | `cancelPlanHandler` already shipped — transitions plan to `cancelled` + cancels scheduled action; verify if it touches `session_messages` rows for the session |
+| `convex/db/sessionMessages.ts` | 1-250 | Existing handlers — `createPendingAssistantMessageHandler` sets `status: 'streaming'\|'running'` for planning kind; `finalizeAssistantMessageHandler` sets `status: 'complete'\|'failed'`; pattern source for contract additions |
+| `convex/db/routePlans.ts` | 220-339 | `cancelPlanHandler` already shipped — transitions plan to `cancelled` + cancels scheduled action; verify if it touches `session_messages` rows for the session |
 | `server/models/session-messages.ts` | 1-98 | `sessionMessageValidator` — extension point for optional `phase` field; `thinkingStepValidator` defines `tool_start`/`tool_finish`/`thinking` step types with `toolName`/`summary`/`detail` |
-| `server/convex/db/__tests__/sessionMessages.validation.test.ts` | 1-100 | Pattern source for validator tests — pre-migration row coverage |
-| `server/convex/db/__tests__/routePlans.test.ts` | 1-100 | Pattern source for handler-context tests — `requireIdentity` mocking, `db.get/patch` shape |
+| `convex/db/__tests__/sessionMessages.validation.test.ts` | 1-100 | Pattern source for validator tests — pre-migration row coverage |
+| `convex/db/__tests__/routePlans.test.ts` | 1-100 | Pattern source for handler-context tests — `requireIdentity` mocking, `db.get/patch` shape |
 | `ios/LaneShadow/Features/Planning/PlanningViewModel.swift` | 345-415 | Current iOS string-heuristic derivation in `phaseIndex(from:)` — what this task replaces; `phaseLabels` array shows the 5 phase strings the contract MUST match |
 | `.spec/design/system/molecules/phase-indicator/README.md` | all | 5-step pipeline contract — confirms the parsing→searching→drafting→enriching→finalizing order |
 
 ## Guardrails
 
 **Write-Allowed:**
-- `server/convex/db/sessionMessages.ts` (MODIFY — add `phase` field set at write-time OR import + export derivation helper)
-- `server/convex/db/routePlans.ts` (MODIFY — only if extending `cancelPlanHandler` to patch associated planning messages per chosen contract)
+- `convex/db/sessionMessages.ts` (MODIFY — add `phase` field set at write-time OR import + export derivation helper)
+- `convex/db/routePlans.ts` (MODIFY — only if extending `cancelPlanHandler` to patch associated planning messages per chosen contract)
 - `server/models/session-messages.ts` (MODIFY — add `planningPhaseValidator` + optional `phase` field OR add `derivePlanningPhase` helper with JSDoc)
-- `server/convex/db/__tests__/sessionMessages.test.ts` (NEW or MODIFY — phase derivation cases)
-- `server/convex/db/__tests__/sessionMessages.validation.test.ts` (MODIFY — backward-compat case for `phase` field)
-- `server/convex/db/__tests__/routePlans.test.ts` (MODIFY — cancel-from-planning case + ownership case)
-- `server/convex/_generated/**` ONLY if codegen is required after schema additions; run `pnpm server:codegen`
+- `convex/db/__tests__/sessionMessages.test.ts` (NEW or MODIFY — phase derivation cases)
+- `convex/db/__tests__/sessionMessages.validation.test.ts` (MODIFY — backward-compat case for `phase` field)
+- `convex/db/__tests__/routePlans.test.ts` (MODIFY — cancel-from-planning case + ownership case)
+- `convex/_generated/**` ONLY if codegen is required after schema additions; run `pnpm server:codegen`
 
 **Write-Prohibited:**
-- `server/convex/schema.ts` (do NOT add a new index or table; field additions only via models layer + validator extension)
+- `convex/schema.ts` (do NOT add a new index or table; field additions only via models layer + validator extension)
 - `ios/**`, `android/**`, `react-native/**` — out of scope; clients adopt the contract in PLAN-S08-IOS-T01 / PLAN-S08-AND-T01
-- `server/convex/agent/**`, `server/convex/actions/**` — agent + action layers consume but do not own this contract; if agent emits the new `phase` field, that lives in a follow-up task once the contract is locked
+- `convex/agent/**`, `convex/actions/**` — agent + action layers consume but do not own this contract; if agent emits the new `phase` field, that lives in a follow-up task once the contract is locked
 - `tokens/**`, `.spec/design/**` — out of scope
 
 ## Design
@@ -155,7 +155,7 @@ The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprin
 
 **Interaction Notes:** Backend-only task — no UI surface. Contract is consumed by `PlanningViewModel.phases` on iOS + Android in subsequent tasks. The chosen contract (option a vs option b) MUST be recorded in a JSDoc block on the exported symbol so PLAN-S08-IOS-T01 implementers know unambiguously which surface to read.
 
-**Pattern:** `server/convex/db/sessionMessages.ts` `createPendingAssistantMessageHandler` (line 192-220) — pattern for additive optional field write at message creation; `finalizeAssistantMessageHandler` (line 222-246) — pattern for status transitions on terminal events.
+**Pattern:** `convex/db/sessionMessages.ts` `createPendingAssistantMessageHandler` (line 192-220) — pattern for additive optional field write at message creation; `finalizeAssistantMessageHandler` (line 222-246) — pattern for status transitions on terminal events.
 
 **Pattern Source:** Sprint 04 ReAct loop — `recordToolResultHandler` / `recordReasoningHandler` already extend session messages with `piMessage` + `thinkingSteps` additively; this task uses the same additive-field pattern.
 
@@ -173,19 +173,19 @@ The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprin
 | AC-6 | `cd server && pnpm test -- sessionMessages.validation.test --testNamePattern="pre-migration\|backward"` |
 | AC-7 | `cd server && pnpm test -- sessionMessages.test --testNamePattern="phase.*enum.*literal"` |
 | build | `pnpm type-check:native` |
-| lint | `pnpm biome check server/convex/db/sessionMessages.ts server/convex/db/routePlans.ts server/models/session-messages.ts` |
+| lint | `pnpm biome check convex/db/sessionMessages.ts convex/db/routePlans.ts server/models/session-messages.ts` |
 
 ## Agent Assignment
 
 **Agent:** convex-implementer
-**Rationale:** Pure backend contract task — modify validators in `server/models/`, extend handlers in `server/convex/db/`, write Vitest handler-context tests in `server/convex/db/__tests__/`. Matches convex-implementer's mandate (Convex schema + handler patterns, models layer, ownership guards, scheduler interactions). No UI, no platform code.
+**Rationale:** Pure backend contract task — modify validators in `server/models/`, extend handlers in `convex/db/`, write Vitest handler-context tests in `convex/db/__tests__/`. Matches convex-implementer's mandate (Convex schema + handler patterns, models layer, ownership guards, scheduler interactions). No UI, no platform code.
 
 ## Coding Standards
 
 - `RULES.md` §"Convex Backend Guidelines" — handler purity, models-layer validators, ownership guards via `requireIdentity`
 - `RULES.md` §".spec directory structure" — task spec lives under sprint folder
 - `brain/docs/mobile-architecture/testing-strategy.md` — TDD for backend contracts; tests target handlers, not wrappers
-- `server/convex/db/__tests__/sessionMessages.validation.test.ts` — established testable handler-context pattern
+- `convex/db/__tests__/sessionMessages.validation.test.ts` — established testable handler-context pattern
 
 ## Dependencies
 
@@ -218,7 +218,7 @@ The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprin
       "description": "All 5 phases (parsing/searching/drafting/enriching/finalizing) derive deterministically from thinkingSteps + status without content substring heuristics",
       "verify": "cd server && pnpm test -- sessionMessages.test --testNamePattern=\"derivePlanningPhase|phase field\"",
       "satisfied": true,
-      "evidence": "server/models/session-messages.ts:164-209 now prioritizes structured thinking/content over persisted phase; server/convex/db/sessionMessages.ts:398-407 and 667-675 recalculate phase with phase cache cleared before derivation; server/convex/db/__tests__/sessionMessages.test.ts:91-101 stale-phase regression passes via direct run `pnpm test -- server/convex/db/__tests__/sessionMessages.test.ts --testNamePattern='stale persisted phase'`.",
+      "evidence": "server/models/session-messages.ts:164-209 now prioritizes structured thinking/content over persisted phase; convex/db/sessionMessages.ts:398-407 and 667-675 recalculate phase with phase cache cleared before derivation; convex/db/__tests__/sessionMessages.test.ts:91-101 stale-phase regression passes via direct run `pnpm test -- convex/db/__tests__/sessionMessages.test.ts --testNamePattern='stale persisted phase'`.",
       "remediation": null,
       "last_evaluated_cycle": 2,
       "last_evaluated_commit": "64d272ab0dda9c6adfbf37d8aba861bbdce8c86f",
@@ -230,7 +230,7 @@ The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprin
       "description": "Edge cases — terminal complete, empty thinkingSteps, non-planning kind, unknown toolName — return documented defaults without throwing",
       "verify": "cd server && pnpm test -- sessionMessages.test --testNamePattern=\"phase.*edge\"",
       "satisfied": true,
-      "evidence": "server/models/session-messages.ts:178-209 handles non-planning/null, complete/finalizing, empty active/parsing, and unknown-tool fallbacks; server/convex/db/__tests__/sessionMessages.test.ts:104-163 passed with `--testNamePattern='phase.*edge'`.",
+      "evidence": "server/models/session-messages.ts:178-209 handles non-planning/null, complete/finalizing, empty active/parsing, and unknown-tool fallbacks; convex/db/__tests__/sessionMessages.test.ts:104-163 passed with `--testNamePattern='phase.*edge'`.",
       "remediation": null,
       "last_evaluated_cycle": 2,
       "last_evaluated_commit": "64d272ab0dda9c6adfbf37d8aba861bbdce8c86f",
@@ -242,7 +242,7 @@ The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprin
       "description": "cancelPlanHandler transitions active route_plan to cancelled AND associated planning sessionMessages reach documented terminal state",
       "verify": "cd server && pnpm test -- routePlans.test --testNamePattern=\"cancel.*planning\"",
       "satisfied": true,
-      "evidence": "server/convex/db/routePlans.ts:249-266 marks in-flight planning messages failed before cancelling the route plan; server/convex/db/__tests__/routePlans.test.ts:443-500 passed with `--testNamePattern='cancel.*planning'`.",
+      "evidence": "convex/db/routePlans.ts:249-266 marks in-flight planning messages failed before cancelling the route plan; convex/db/__tests__/routePlans.test.ts:443-500 passed with `--testNamePattern='cancel.*planning'`.",
       "remediation": null,
       "last_evaluated_cycle": 2,
       "last_evaluated_commit": "64d272ab0dda9c6adfbf37d8aba861bbdce8c86f",
@@ -254,7 +254,7 @@ The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprin
       "description": "cancelPlanHandler ownership guard — non-owning rider raises ConvexError(PLAN_NOT_FOUND) and leaves state untouched",
       "verify": "cd server && pnpm test -- routePlans.test --testNamePattern=\"cancel.*ownership|cancel.*unauthorized\"",
       "satisfied": true,
-      "evidence": "server/convex/db/routePlans.ts:237-240 rejects non-owned plans with ConvexError(PLAN_NOT_FOUND) and server/convex/db/__tests__/routePlans.test.ts:567-601 passed with `--testNamePattern='cancel.*ownership|cancel.*unauthorized'`.",
+      "evidence": "convex/db/routePlans.ts:237-240 rejects non-owned plans with ConvexError(PLAN_NOT_FOUND) and convex/db/__tests__/routePlans.test.ts:567-601 passed with `--testNamePattern='cancel.*ownership|cancel.*unauthorized'`.",
       "remediation": null,
       "last_evaluated_cycle": 2,
       "last_evaluated_commit": "64d272ab0dda9c6adfbf37d8aba861bbdce8c86f",
@@ -266,7 +266,7 @@ The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprin
       "description": "Pre-migration sessionMessages rows without phase/thinkingSteps still validate and contract returns null/default without throwing",
       "verify": "cd server && pnpm test -- sessionMessages.validation.test --testNamePattern=\"pre-migration|backward\"",
       "satisfied": true,
-      "evidence": "server/models/session-messages.ts:197-206 and 212-235 preserve backward-compatible defaults with optional phase/thinkingSteps; server/convex/db/__tests__/sessionMessages.validation.test.ts:109-133 passed with `--testNamePattern='pre-migration|backward'`.",
+      "evidence": "server/models/session-messages.ts:197-206 and 212-235 preserve backward-compatible defaults with optional phase/thinkingSteps; convex/db/__tests__/sessionMessages.validation.test.ts:109-133 passed with `--testNamePattern='pre-migration|backward'`.",
       "remediation": null,
       "last_evaluated_cycle": 2,
       "last_evaluated_commit": "64d272ab0dda9c6adfbf37d8aba861bbdce8c86f",
@@ -278,7 +278,7 @@ The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprin
       "description": "Backend phase enum strings match iOS/Android PlanningPhase model literals exactly (lowercase parsing/searching/drafting/enriching/finalizing)",
       "verify": "cd server && pnpm test -- sessionMessages.test --testNamePattern=\"phase.*enum.*literal\"",
       "satisfied": true,
-      "evidence": "server/models/session-messages.ts:52-67 defines exact lowercase literals and server/convex/db/__tests__/sessionMessages.test.ts:166-173 passed with `--testNamePattern='phase.*enum.*literal'`.",
+      "evidence": "server/models/session-messages.ts:52-67 defines exact lowercase literals and convex/db/__tests__/sessionMessages.test.ts:166-173 passed with `--testNamePattern='phase.*enum.*literal'`.",
       "remediation": null,
       "last_evaluated_cycle": 2,
       "last_evaluated_commit": "64d272ab0dda9c6adfbf37d8aba861bbdce8c86f",
@@ -302,7 +302,7 @@ The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprin
       "description": "5 happy-path phase derivations return correct lowercase literals",
       "verify": "cd server && pnpm test -- sessionMessages.test --testNamePattern=\"derivePlanningPhase|phase field\"",
       "satisfied": true,
-      "evidence": "`pnpm test -- server/convex/db/__tests__/sessionMessages.test.ts --testNamePattern='derivePlanningPhase|phase field'` passed (11 tests).",
+      "evidence": "`pnpm test -- convex/db/__tests__/sessionMessages.test.ts --testNamePattern='derivePlanningPhase|phase field'` passed (11 tests).",
       "remediation": null,
       "last_evaluated_cycle": 2,
       "last_evaluated_commit": "64d272ab0dda9c6adfbf37d8aba861bbdce8c86f",
@@ -314,7 +314,7 @@ The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprin
       "description": "Edge cases return documented defaults without exception",
       "verify": "cd server && pnpm test -- sessionMessages.test --testNamePattern=\"phase.*edge\"",
       "satisfied": true,
-      "evidence": "`pnpm test -- server/convex/db/__tests__/sessionMessages.test.ts --testNamePattern='phase.*edge'` passed (2 tests, 9 skipped).",
+      "evidence": "`pnpm test -- convex/db/__tests__/sessionMessages.test.ts --testNamePattern='phase.*edge'` passed (2 tests, 9 skipped).",
       "remediation": null,
       "last_evaluated_cycle": 2,
       "last_evaluated_commit": "64d272ab0dda9c6adfbf37d8aba861bbdce8c86f",
@@ -326,7 +326,7 @@ The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprin
       "description": "cancelPlan + planning message terminal contract holds end-to-end",
       "verify": "cd server && pnpm test -- routePlans.test --testNamePattern=\"cancel.*planning\"",
       "satisfied": true,
-      "evidence": "`pnpm test -- server/convex/db/__tests__/routePlans.test.ts --testNamePattern='cancel.*planning'` passed (1 test, 30 skipped).",
+      "evidence": "`pnpm test -- convex/db/__tests__/routePlans.test.ts --testNamePattern='cancel.*planning'` passed (1 test, 30 skipped).",
       "remediation": null,
       "last_evaluated_cycle": 2,
       "last_evaluated_commit": "64d272ab0dda9c6adfbf37d8aba861bbdce8c86f",
@@ -338,7 +338,7 @@ The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprin
       "description": "Ownership guard prevents non-owners from cancelling",
       "verify": "cd server && pnpm test -- routePlans.test --testNamePattern=\"cancel.*ownership|cancel.*unauthorized\"",
       "satisfied": true,
-      "evidence": "`pnpm test -- server/convex/db/__tests__/routePlans.test.ts --testNamePattern='cancel.*ownership|cancel.*unauthorized'` passed (1 test, 30 skipped).",
+      "evidence": "`pnpm test -- convex/db/__tests__/routePlans.test.ts --testNamePattern='cancel.*ownership|cancel.*unauthorized'` passed (1 test, 30 skipped).",
       "remediation": null,
       "last_evaluated_cycle": 2,
       "last_evaluated_commit": "64d272ab0dda9c6adfbf37d8aba861bbdce8c86f",
@@ -350,7 +350,7 @@ The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprin
       "description": "Backward-compat pre-migration rows still validate",
       "verify": "cd server && pnpm test -- sessionMessages.validation.test --testNamePattern=\"pre-migration|backward\"",
       "satisfied": true,
-      "evidence": "`pnpm test -- server/convex/db/__tests__/sessionMessages.validation.test.ts --testNamePattern='pre-migration|backward'` passed (2 tests, 6 skipped).",
+      "evidence": "`pnpm test -- convex/db/__tests__/sessionMessages.validation.test.ts --testNamePattern='pre-migration|backward'` passed (2 tests, 6 skipped).",
       "remediation": null,
       "last_evaluated_cycle": 2,
       "last_evaluated_commit": "64d272ab0dda9c6adfbf37d8aba861bbdce8c86f",
@@ -362,7 +362,7 @@ The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprin
       "description": "Phase enum strings are lowercase literals matching the iOS/Android model",
       "verify": "cd server && pnpm test -- sessionMessages.test --testNamePattern=\"phase.*enum.*literal\"",
       "satisfied": true,
-      "evidence": "`pnpm test -- server/convex/db/__tests__/sessionMessages.test.ts --testNamePattern='phase.*enum.*literal'` passed (1 test, 10 skipped).",
+      "evidence": "`pnpm test -- convex/db/__tests__/sessionMessages.test.ts --testNamePattern='phase.*enum.*literal'` passed (1 test, 10 skipped).",
       "remediation": null,
       "last_evaluated_cycle": 2,
       "last_evaluated_commit": "64d272ab0dda9c6adfbf37d8aba861bbdce8c86f",
@@ -372,9 +372,9 @@ The task ALSO verifies that `db.routePlans.cancelPlan` (already shipped in Sprin
       "id": "TC-8",
       "type": "test_criterion",
       "description": "Type check + biome lint clean across modified files",
-      "verify": "pnpm type-check:native && pnpm biome check server/convex/db/sessionMessages.ts server/convex/db/routePlans.ts server/models/session-messages.ts",
+      "verify": "pnpm type-check:native && pnpm biome check convex/db/sessionMessages.ts convex/db/routePlans.ts server/models/session-messages.ts",
       "satisfied": true,
-      "evidence": "`pnpm type-check:native && pnpm exec biome check server/convex/db/sessionMessages.ts server/convex/db/routePlans.ts server/models/session-messages.ts` passed.",
+      "evidence": "`pnpm type-check:native && pnpm exec biome check convex/db/sessionMessages.ts convex/db/routePlans.ts server/models/session-messages.ts` passed.",
       "remediation": null,
       "last_evaluated_cycle": 2,
       "last_evaluated_commit": "64d272ab0dda9c6adfbf37d8aba861bbdce8c86f",

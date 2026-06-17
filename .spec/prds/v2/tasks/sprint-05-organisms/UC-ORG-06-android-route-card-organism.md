@@ -24,7 +24,7 @@ PROGRESS: 0/6 ACs complete
 OUTCOME
 --------------------------------------------------------------------------------
 
-LSRouteCard renders LSCard wrapper containing LSMap(MapMode.Preview) auto-framed via CameraFit.Polyline(padding=spacing.3) with start/end annotations and polyline tinted by route.variant (best/alt1/alt2 → colors.route.*), title row typography.ui.title.md, subtitle row typography.instrument.sm with distance + estimated time, difficulty LSChip/LSTagPill row, optional saved-state LSIcon(HeartFill) accent; data is prop-only with type aligned to server/convex/schema.ts routes table; 6 sandbox stories registered.
+LSRouteCard renders LSCard wrapper containing LSMap(MapMode.Preview) auto-framed via CameraFit.Polyline(padding=spacing.3) with start/end annotations and polyline tinted by route.variant (best/alt1/alt2 → colors.route.*), title row typography.ui.title.md, subtitle row typography.instrument.sm with distance + estimated time, difficulty LSChip/LSTagPill row, optional saved-state LSIcon(HeartFill) accent; data is prop-only with type aligned to convex/schema.ts routes table; 6 sandbox stories registered.
 
 --------------------------------------------------------------------------------
 🚫 CRITICAL CONSTRAINTS
@@ -38,7 +38,7 @@ LSRouteCard renders LSCard wrapper containing LSMap(MapMode.Preview) auto-framed
 - NEVER inline Color(0x...), TextStyle(, FontFamily(.
 - NEVER reach to Convex/networking/disk — organism is data-agnostic and prop-only.
 - NEVER reuse LSRouteAttachmentCard (compact molecule) — LSRouteCard is the full card.
-- STRICTLY detekt 0; compileDebugKotlin BUILD SUCCESSFUL; grep gate 0; type-level test asserts Route prop shape mirrors server/convex/schema.ts routes table fields.
+- STRICTLY detekt 0; compileDebugKotlin BUILD SUCCESSFUL; grep gate 0; type-level test asserts Route prop shape mirrors convex/schema.ts routes table fields.
 
 --------------------------------------------------------------------------------
 DONE WHEN
@@ -85,7 +85,7 @@ AC-3: 6 sandbox stories registered
 AC-4: Route prop type mirrors convex schema
   GIVEN: RouteCardRoute data class used as prop
   WHEN:  Type-level test compiles
-  THEN:  RouteCardRoute fields { id, title, distance, estimatedTime, polyline, variant, difficulty, isSaved? } align with server/convex/schema.ts routes table fields; mismatch fails compile
+  THEN:  RouteCardRoute fields { id, title, distance, estimatedTime, polyline, variant, difficulty, isSaved? } align with convex/schema.ts routes table fields; mismatch fails compile
   VERIFY: cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSRouteCardTest.route_prop_type_mirrors_convex_schema' 2>&1 | grep 'BUILD SUCCESSFUL'
   TDD_STATE: none
   TEST_FILE: android/app/src/test/java/com/laneshadow/ui/organisms/LSRouteCardTest.kt
@@ -148,7 +148,7 @@ READING LIST
 
 1. .spec/prds/v2/concepts/uc-org-06-route-card.html [REQUIRED READING]
 2. .spec/prds/v2/07-uc-org.md (UC-ORG-06, lines 227-243)
-3. server/convex/schema.ts (routes table)
+3. convex/schema.ts (routes table)
 4. android/app/src/main/java/com/laneshadow/ui/atoms/LSMap.kt (UC-ATM-12 multi-polyline contract)
 5. android/app/src/main/java/com/laneshadow/ui/atoms/LSCard.kt
 6. android/app/src/main/java/com/laneshadow/ui/atoms/LSChip.kt

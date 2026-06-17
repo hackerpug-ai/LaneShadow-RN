@@ -28,7 +28,7 @@ Android `LaneShadowErrorMapper` consumes the `auth-error-taxonomy.json` fixture 
 - MUST add `Forbidden` case to `LaneShadowError` sealed class if not present
 - MUST add `UNAUTHENTICATED` and `FORBIDDEN` to `KnownErrorCodes` set in `LaneShadowErrorMapper.kt`
 - MUST drop the prefix-token rationalization for `'Authentication'` (no longer needed since server emits structured code)
-- MUST add a fixture-driven test that round-trips every entry in `server/convex/__fixtures__/auth-error-taxonomy.json` through `toLaneShadowError(throwable)` and asserts the `mobile_mapping_target` matches the resulting sealed-class case
+- MUST add a fixture-driven test that round-trips every entry in `convex/__fixtures__/auth-error-taxonomy.json` through `toLaneShadowError(throwable)` and asserts the `mobile_mapping_target` matches the resulting sealed-class case
 - NEVER hand-code mapping that diverges from the server fixture
 - STRICTLY mapping is sourced from the canonical fixture, not duplicated freeform
 
@@ -66,7 +66,7 @@ AC-2: KnownErrorCodes includes UNAUTHENTICATED + FORBIDDEN
   TEST_FUNCTION: knownErrorCodes_includesUnauthenticatedAndForbidden
 
 AC-3: Fixture round-trip test passes for every entry
-  GIVEN: `server/convex/__fixtures__/auth-error-taxonomy.json` is loaded as an Android test resource (via `androidTest/resources/` or a Kotlin classpath resource)
+  GIVEN: `convex/__fixtures__/auth-error-taxonomy.json` is loaded as an Android test resource (via `androidTest/resources/` or a Kotlin classpath resource)
   WHEN:  Each fixture entry's `code` is wrapped in a `ConvexException` (or equivalent) and passed through `toLaneShadowError(throwable)`
   THEN:  The resulting `LaneShadowError` case class name matches the fixture's `mobile_mapping_target` for every entry; zero mismatches
 
@@ -99,7 +99,7 @@ writeAllowed:
 writeProhibited:
 - android/build/** — generated
 - android/app/build/** — generated
-- server/convex/** — fixture is consumed read-only
+- convex/** — fixture is consumed read-only
 - ios/** — iOS handled by R13
 
 --------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ READING LIST
    - Lines: all
    - Focus: sealed-class cases + messageResId pattern; add Forbidden following existing pattern
 
-3. server/convex/__fixtures__/auth-error-taxonomy.json (after R03)
+3. convex/__fixtures__/auth-error-taxonomy.json (after R03)
    - Lines: all
    - Focus: source of truth for test fixtures
 

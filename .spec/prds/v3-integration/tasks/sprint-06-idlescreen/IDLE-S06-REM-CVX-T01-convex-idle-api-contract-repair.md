@@ -15,9 +15,9 @@ SPRINT:     sprint-06-idlescreen -> ./SPRINT.md
 PRD_REFS:   UC-MAP-01, UC-CHAT-01
 
 RUNTIME_COMMANDS:
-  test:      pnpm test -- server/convex/__tests__/places.test.ts server/convex/__tests__/favorites.test.ts server/convex/__tests__/weather.test.ts
+  test:      pnpm test -- convex/__tests__/places.test.ts convex/__tests__/favorites.test.ts convex/__tests__/weather.test.ts
   typecheck: pnpm type-check:native
-  lint:      pnpm exec biome check --no-errors-on-unmatched server/convex/actions/places.ts server/convex/actions/weather.ts server/convex/db/favorites.ts server/convex/__tests__/places.test.ts server/convex/__tests__/favorites.test.ts server/convex/__tests__/weather.test.ts
+  lint:      pnpm exec biome check --no-errors-on-unmatched convex/actions/places.ts convex/actions/weather.ts convex/db/favorites.ts convex/__tests__/places.test.ts convex/__tests__/favorites.test.ts convex/__tests__/weather.test.ts
 ```
 
 ---
@@ -55,25 +55,25 @@ iOS and Android can call the Sprint 06 Convex idle endpoints by their documented
 - **GIVEN** the generated Convex function tree and mobile clients
 - **WHEN** `actions/places:reverseGeocode` is invoked with valid `lat/lng`
 - **THEN** it returns `city`, `state`, and `label` without requiring callers to know `getReverseGeocode`
-- **VERIFY:** `pnpm test -- server/convex/__tests__/places.test.ts`
+- **VERIFY:** `pnpm test -- convex/__tests__/places.test.ts`
 
 ### AC-2: Weather DTO matches idle consumers
 - **GIVEN** Open-Meteo returns current weather for a coordinate
 - **WHEN** `actions/weather:getCurrentWeather` resolves
 - **THEN** the validated return object contains `tempF`, `condition`, `severity`, and uppercase `dayOfWeek`
-- **VERIFY:** `pnpm test -- server/convex/__tests__/weather.test.ts`
+- **VERIFY:** `pnpm test -- convex/__tests__/weather.test.ts`
 
 ### AC-3: Favorites return direct pin coordinates
 - **GIVEN** two authenticated riders with favorite roads
 - **WHEN** `db/favorites:listFavoriteLocations` runs for one rider
 - **THEN** only that rider's favorites return as `id`, `lat`, `lng`, `label`, and optional `bounds`
-- **VERIFY:** `pnpm test -- server/convex/__tests__/favorites.test.ts`
+- **VERIFY:** `pnpm test -- convex/__tests__/favorites.test.ts`
 
 ### AC-4: Retry policy is transient-only
 - **GIVEN** Mapbox/Open-Meteo returns `503` then `200`
 - **WHEN** the action runs
 - **THEN** it retries once and succeeds; a `400` response fails without retry
-- **VERIFY:** `pnpm test -- server/convex/__tests__/places.test.ts server/convex/__tests__/weather.test.ts`
+- **VERIFY:** `pnpm test -- convex/__tests__/places.test.ts convex/__tests__/weather.test.ts`
 
 ### AC-5: Mobile contract guard
 - **GIVEN** the Swift and Kotlin clients call `actions/places:reverseGeocode`, `actions/weather:getCurrentWeather`, and `db/favorites:listFavoriteLocations`
@@ -107,13 +107,13 @@ iOS and Android can call the Sprint 06 Convex idle endpoints by their documented
 ## SCOPE
 
 **writeAllowed:**
-- `server/convex/actions/places.ts` (MODIFY)
-- `server/convex/actions/weather.ts` (MODIFY)
-- `server/convex/db/favorites.ts` (MODIFY)
-- `server/convex/errors.ts` (MODIFY if a typed geocode error is required)
-- `server/convex/__tests__/places.test.ts` (MODIFY)
-- `server/convex/__tests__/weather.test.ts` (MODIFY)
-- `server/convex/__tests__/favorites.test.ts` (MODIFY)
+- `convex/actions/places.ts` (MODIFY)
+- `convex/actions/weather.ts` (MODIFY)
+- `convex/db/favorites.ts` (MODIFY)
+- `convex/errors.ts` (MODIFY if a typed geocode error is required)
+- `convex/__tests__/places.test.ts` (MODIFY)
+- `convex/__tests__/weather.test.ts` (MODIFY)
+- `convex/__tests__/favorites.test.ts` (MODIFY)
 - `ios/LaneShadow/Services/ConvexClient+LaneShadow.swift` (READ-ONLY contract reference)
 - `android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt` (READ-ONLY contract reference)
 
@@ -132,9 +132,9 @@ For each AC, write or adjust the failing contract test first, prove it fails aga
 
 ## READING LIST
 
-1. `server/convex/actions/places.ts` - current reverse-geocode implementation and export name
-2. `server/convex/actions/weather.ts` - current weather return validator and retry policy
-3. `server/convex/db/favorites.ts` - favorite query scope and return validator
+1. `convex/actions/places.ts` - current reverse-geocode implementation and export name
+2. `convex/actions/weather.ts` - current weather return validator and retry policy
+3. `convex/db/favorites.ts` - favorite query scope and return validator
 4. `ios/LaneShadow/Services/ConvexClient+LaneShadow.swift` - Swift endpoint strings and DTO expectations
 5. `android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt` - Kotlin endpoint strings and DTO expectations
 
@@ -144,9 +144,9 @@ For each AC, write or adjust the failing contract test first, prove it fails aga
 
 | Gate | Command | Expected |
 |------|---------|----------|
-| Contract tests | `pnpm test -- server/convex/__tests__/places.test.ts server/convex/__tests__/favorites.test.ts server/convex/__tests__/weather.test.ts` | Exit 0 |
+| Contract tests | `pnpm test -- convex/__tests__/places.test.ts convex/__tests__/favorites.test.ts convex/__tests__/weather.test.ts` | Exit 0 |
 | Typecheck | `pnpm type-check:native` | Exit 0 |
-| Biome | `pnpm exec biome check --no-errors-on-unmatched server/convex/actions/places.ts server/convex/actions/weather.ts server/convex/db/favorites.ts server/convex/__tests__/places.test.ts server/convex/__tests__/favorites.test.ts server/convex/__tests__/weather.test.ts` | Exit 0 |
+| Biome | `pnpm exec biome check --no-errors-on-unmatched convex/actions/places.ts convex/actions/weather.ts convex/db/favorites.ts convex/__tests__/places.test.ts convex/__tests__/favorites.test.ts convex/__tests__/weather.test.ts` | Exit 0 |
 | Convex build | `pnpm --dir server run convex:dev -- --once` | Exit 0 |
 
 ---
@@ -196,10 +196,10 @@ Reviewer must verify the public endpoint names, return validators, and mobile DT
       "id": "AC-1",
       "type": "acceptance_criterion",
       "description": "GIVEN generated Convex functions and mobile clients WHEN actions/places:reverseGeocode is invoked THEN city/state/label return under the documented public name",
-      "verify": "pnpm test -- server/convex/__tests__/places.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places.test.ts",
       "maps_to_ac": null,
       "satisfied": true,
-      "evidence": "pnpm test -- server/convex/__tests__/places.test.ts EXIT_CODE:0; server/convex/__tests__/places.test.ts:89-104 verifies native endpoint alignment, and android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:334-342 still calls \"actions/places:reverseGeocode\".",
+      "evidence": "pnpm test -- convex/__tests__/places.test.ts EXIT_CODE:0; convex/__tests__/places.test.ts:89-104 verifies native endpoint alignment, and android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:334-342 still calls \"actions/places:reverseGeocode\".",
       "remediation": null,
       "last_evaluated_cycle": 4,
       "last_evaluated_commit": "1e9daf41a5375d047cd346868bb41375ad0c23c6"
@@ -208,10 +208,10 @@ Reviewer must verify the public endpoint names, return validators, and mobile DT
       "id": "AC-2",
       "type": "acceptance_criterion",
       "description": "GIVEN Open-Meteo current data WHEN actions/weather:getCurrentWeather resolves THEN tempF/condition/severity/dayOfWeek return with validators",
-      "verify": "pnpm test -- server/convex/__tests__/weather.test.ts",
+      "verify": "pnpm test -- convex/__tests__/weather.test.ts",
       "maps_to_ac": null,
       "satisfied": true,
-      "evidence": "pnpm test -- server/convex/__tests__/weather.test.ts EXIT_CODE:0; android/app/src/main/java/com/laneshadow/data/dto/WeatherDto.kt:14-31 now requires dayOfWeek and maps it into WeatherSummary, and android/app/src/test/java/com/laneshadow/data/dto/ConvexDtoContractTest.kt:42-60 verifies the repaired weather payload shape.",
+      "evidence": "pnpm test -- convex/__tests__/weather.test.ts EXIT_CODE:0; android/app/src/main/java/com/laneshadow/data/dto/WeatherDto.kt:14-31 now requires dayOfWeek and maps it into WeatherSummary, and android/app/src/test/java/com/laneshadow/data/dto/ConvexDtoContractTest.kt:42-60 verifies the repaired weather payload shape.",
       "remediation": null,
       "last_evaluated_cycle": 4,
       "last_evaluated_commit": "1e9daf41a5375d047cd346868bb41375ad0c23c6"
@@ -220,10 +220,10 @@ Reviewer must verify the public endpoint names, return validators, and mobile DT
       "id": "AC-3",
       "type": "acceptance_criterion",
       "description": "GIVEN authenticated riders WHEN db/favorites:listFavoriteLocations runs THEN only caller favorites return as id/lat/lng/label DTOs",
-      "verify": "pnpm test -- server/convex/__tests__/favorites.test.ts",
+      "verify": "pnpm test -- convex/__tests__/favorites.test.ts",
       "maps_to_ac": null,
       "satisfied": true,
-      "evidence": "pnpm test -- server/convex/__tests__/favorites.test.ts EXIT_CODE:0; android/app/src/main/java/com/laneshadow/data/dto/FavoriteLocationDto.kt:11-25 now matches id/lat/lng/label, and android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:278-283 maps db/favorites:listFavoriteLocations directly through that DTO.",
+      "evidence": "pnpm test -- convex/__tests__/favorites.test.ts EXIT_CODE:0; android/app/src/main/java/com/laneshadow/data/dto/FavoriteLocationDto.kt:11-25 now matches id/lat/lng/label, and android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:278-283 maps db/favorites:listFavoriteLocations directly through that DTO.",
       "remediation": null,
       "last_evaluated_cycle": 4,
       "last_evaluated_commit": "1e9daf41a5375d047cd346868bb41375ad0c23c6"
@@ -232,10 +232,10 @@ Reviewer must verify the public endpoint names, return validators, and mobile DT
       "id": "AC-4",
       "type": "acceptance_criterion",
       "description": "GIVEN transient provider failures WHEN idle actions run THEN 5xx retries once and 4xx does not retry",
-      "verify": "pnpm test -- server/convex/__tests__/places.test.ts server/convex/__tests__/weather.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places.test.ts convex/__tests__/weather.test.ts",
       "maps_to_ac": null,
       "satisfied": true,
-      "evidence": "pnpm test -- server/convex/__tests__/places.test.ts server/convex/__tests__/weather.test.ts EXIT_CODE:0; server/convex/__tests__/places.test.ts:33-87 and server/convex/__tests__/weather.test.ts:57-127 still prove one retry on 503 and no retry on 400/429.",
+      "evidence": "pnpm test -- convex/__tests__/places.test.ts convex/__tests__/weather.test.ts EXIT_CODE:0; convex/__tests__/places.test.ts:33-87 and convex/__tests__/weather.test.ts:57-127 still prove one retry on 503 and no retry on 400/429.",
       "remediation": null,
       "last_evaluated_cycle": 4,
       "last_evaluated_commit": "1e9daf41a5375d047cd346868bb41375ad0c23c6"
@@ -247,7 +247,7 @@ Reviewer must verify the public endpoint names, return validators, and mobile DT
       "verify": "pnpm type-check:native",
       "maps_to_ac": null,
       "satisfied": true,
-      "evidence": "server/convex/__tests__/places.test.ts:89-104, server/convex/__tests__/weather.test.ts:148-163, and server/convex/__tests__/favorites.test.ts:113-132 assert the public endpoint names against Android source; android/app/src/test/java/com/laneshadow/data/dto/ConvexDtoContractTest.kt:16-74 asserts Android DTO-key compatibility and rejects the legacy favorites shape; .tmp/IDLE-S06-REM-CVX-T01/android-test-output.txt:336-338,507-509,582-584 show successful reruns of :app:compileDebugKotlin and :app:testDebugUnitTest for the Android contract checks.",
+      "evidence": "convex/__tests__/places.test.ts:89-104, convex/__tests__/weather.test.ts:148-163, and convex/__tests__/favorites.test.ts:113-132 assert the public endpoint names against Android source; android/app/src/test/java/com/laneshadow/data/dto/ConvexDtoContractTest.kt:16-74 asserts Android DTO-key compatibility and rejects the legacy favorites shape; .tmp/IDLE-S06-REM-CVX-T01/android-test-output.txt:336-338,507-509,582-584 show successful reruns of :app:compileDebugKotlin and :app:testDebugUnitTest for the Android contract checks.",
       "remediation": null,
       "last_evaluated_cycle": 4,
       "last_evaluated_commit": "1e9daf41a5375d047cd346868bb41375ad0c23c6"
@@ -257,9 +257,9 @@ Reviewer must verify the public endpoint names, return validators, and mobile DT
       "type": "test_criterion",
       "description": "actions/places:reverseGeocode is exported when valid coordinates are supplied",
       "maps_to_ac": "AC-1",
-      "verify": "pnpm test -- server/convex/__tests__/places.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places.test.ts",
       "satisfied": true,
-      "evidence": "pnpm test -- server/convex/__tests__/places.test.ts EXIT_CODE:0.",
+      "evidence": "pnpm test -- convex/__tests__/places.test.ts EXIT_CODE:0.",
       "remediation": null,
       "last_evaluated_cycle": 4,
       "last_evaluated_commit": "1e9daf41a5375d047cd346868bb41375ad0c23c6"
@@ -269,9 +269,9 @@ Reviewer must verify the public endpoint names, return validators, and mobile DT
       "type": "test_criterion",
       "description": "Weather response contains dayOfWeek when provider data is valid",
       "maps_to_ac": "AC-2",
-      "verify": "pnpm test -- server/convex/__tests__/weather.test.ts",
+      "verify": "pnpm test -- convex/__tests__/weather.test.ts",
       "satisfied": true,
-      "evidence": "pnpm test -- server/convex/__tests__/weather.test.ts EXIT_CODE:0.",
+      "evidence": "pnpm test -- convex/__tests__/weather.test.ts EXIT_CODE:0.",
       "remediation": null,
       "last_evaluated_cycle": 4,
       "last_evaluated_commit": "1e9daf41a5375d047cd346868bb41375ad0c23c6"
@@ -281,9 +281,9 @@ Reviewer must verify the public endpoint names, return validators, and mobile DT
       "type": "test_criterion",
       "description": "Favorite results exclude rows for other clerkUserId values",
       "maps_to_ac": "AC-3",
-      "verify": "pnpm test -- server/convex/__tests__/favorites.test.ts",
+      "verify": "pnpm test -- convex/__tests__/favorites.test.ts",
       "satisfied": true,
-      "evidence": "pnpm test -- server/convex/__tests__/favorites.test.ts EXIT_CODE:0.",
+      "evidence": "pnpm test -- convex/__tests__/favorites.test.ts EXIT_CODE:0.",
       "remediation": null,
       "last_evaluated_cycle": 4,
       "last_evaluated_commit": "1e9daf41a5375d047cd346868bb41375ad0c23c6"
@@ -293,9 +293,9 @@ Reviewer must verify the public endpoint names, return validators, and mobile DT
       "type": "test_criterion",
       "description": "HTTP 503 then 200 results in one retry and success",
       "maps_to_ac": "AC-4",
-      "verify": "pnpm test -- server/convex/__tests__/places.test.ts server/convex/__tests__/weather.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places.test.ts convex/__tests__/weather.test.ts",
       "satisfied": true,
-      "evidence": "pnpm test -- server/convex/__tests__/places.test.ts server/convex/__tests__/weather.test.ts EXIT_CODE:0.",
+      "evidence": "pnpm test -- convex/__tests__/places.test.ts convex/__tests__/weather.test.ts EXIT_CODE:0.",
       "remediation": null,
       "last_evaluated_cycle": 4,
       "last_evaluated_commit": "1e9daf41a5375d047cd346868bb41375ad0c23c6"
@@ -305,9 +305,9 @@ Reviewer must verify the public endpoint names, return validators, and mobile DT
       "type": "test_criterion",
       "description": "HTTP 400 results in no retry",
       "maps_to_ac": "AC-4",
-      "verify": "pnpm test -- server/convex/__tests__/places.test.ts server/convex/__tests__/weather.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places.test.ts convex/__tests__/weather.test.ts",
       "satisfied": true,
-      "evidence": "pnpm test -- server/convex/__tests__/places.test.ts server/convex/__tests__/weather.test.ts EXIT_CODE:0.",
+      "evidence": "pnpm test -- convex/__tests__/places.test.ts convex/__tests__/weather.test.ts EXIT_CODE:0.",
       "remediation": null,
       "last_evaluated_cycle": 4,
       "last_evaluated_commit": "1e9daf41a5375d047cd346868bb41375ad0c23c6"

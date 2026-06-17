@@ -62,17 +62,17 @@ App scripts delegate to the `react-native/` workspace.
 Hooks are managed with `lefthook`:
 
 - `pre-commit`: `tsgo` typecheck + `biome` checks
-- `pre-push`: Convex verification through `server/` (`pnpm --dir server run convex:dev -- --once`)
+- `pre-push`: Convex verification from root (`pnpm convex:dev -- --once`)
 
 ## Environment
 
-Create `.env.local` at `react-native/` and set:
+Create `.env.local` at the repository root and set:
 
 - `EXPO_PUBLIC_CONVEX_URL`
 
-For backend-only work, run commands from `server/` or via root `server:*` scripts.
+For backend-only work, run commands via root `convex:*` scripts.
 
 ## Notes
 
 - Do not reintroduce legacy hook or lint/format assumptions.
-- Convex backend ownership is `server/convex/`; root `convex` paths should be treated as compatibility artifacts during migration.
+- Convex backend ownership is `convex/` at repository root; it is the single source of truth for backend code.

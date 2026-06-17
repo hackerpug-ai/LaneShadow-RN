@@ -12,7 +12,7 @@ PRD_REFS:   UC-MAP-01, UC-CHAT-01, UC-FID-01
 RUNTIME_COMMANDS:
   test:      pnpm --dir server test -- weather
   typecheck: pnpm type-check:native
-  lint:      pnpm exec biome check server/convex/actions/weather.ts
+  lint:      pnpm exec biome check convex/actions/weather.ts
   deploy:    pnpm --dir server run convex:dev -- --once
 ```
 
@@ -87,7 +87,7 @@ Convex exposes `actions/weather.getCurrentWeather({ lat, lng })` returning a str
 - **GIVEN** `actions/weather.ts` source
 - **WHEN** `args` and `returns` validators are inspected
 - **THEN** args declares `{ lat: v.number(), lng: v.number() }`; returns declares `{ temperatureFahrenheit, condition, dayOfWeek, severity }`
-- **VERIFY:** `grep -E "args:|returns:" server/convex/actions/weather.ts`
+- **VERIFY:** `grep -E "args:|returns:" convex/actions/weather.ts`
 
 ---
 
@@ -107,14 +107,14 @@ Convex exposes `actions/weather.getCurrentWeather({ lat, lng })` returning a str
 ## SCOPE
 
 **writeAllowed:**
-- `server/convex/actions/weather.ts` (NEW)
-- `server/convex/__tests__/weather.test.ts` (NEW)
-- `server/convex/errors.ts` (MODIFY — add `WEATHER_PROVIDER_DOWN` if not present)
+- `convex/actions/weather.ts` (NEW)
+- `convex/__tests__/weather.test.ts` (NEW)
+- `convex/errors.ts` (MODIFY — add `WEATHER_PROVIDER_DOWN` if not present)
 
 **writeProhibited:**
 - `ios/**`, `android/**`, `react-native/**`, `tokens/**`
-- `server/convex/schema.ts`
-- `server/convex/auth.config.ts`
+- `convex/schema.ts`
+- `convex/auth.config.ts`
 
 ---
 
@@ -146,9 +146,9 @@ For each AC: RED → GREEN → REFACTOR. Use the Convex test harness; for HTTP-d
 
 ## READING LIST
 
-1. `server/convex/actions/weather.ts:1-160` **[PRIMARY PATTERN]** — final implementation; helpers + main action
-2. `server/convex/actions/agent/lib/reliability.ts:1-80` — `retryOnce`, `withTimeout`, `markRetryable` recipe
-3. `server/convex/actions/places.ts:1-200` — sibling action; same retry/validator pattern
+1. `convex/actions/weather.ts:1-160` **[PRIMARY PATTERN]** — final implementation; helpers + main action
+2. `convex/actions/agent/lib/reliability.ts:1-80` — `retryOnce`, `withTimeout`, `markRetryable` recipe
+3. `convex/actions/places.ts:1-200` — sibling action; same retry/validator pattern
 4. `.spec/design/system/views/mapapp/idle/idle-screen.html` — meta row "FRIDAY · 68°F · CLEAR"; advisory card behaviour
 5. `.spec/design/system/views/mapapp/idle/README.md` — `wx-rain-tint`, `wx-rain`, advisory pill recipe
 
@@ -160,7 +160,7 @@ For each AC: RED → GREEN → REFACTOR. Use the Convex test harness; for HTTP-d
 |------|---------|----------|
 | Convex tests | `pnpm --dir server test -- weather` | Exit 0; weather suite passes |
 | Typecheck | `pnpm type-check:native` | Exit 0 |
-| Biome lint | `pnpm exec biome check server/convex/actions/weather.ts` | Exit 0 |
+| Biome lint | `pnpm exec biome check convex/actions/weather.ts` | Exit 0 |
 | Deploy dry-run | `pnpm --dir server run convex:dev -- --once` | `weather:getCurrentWeather` present in `_generated/api.d.ts` |
 
 ---
@@ -206,7 +206,7 @@ For each AC: RED → GREEN → REFACTOR. Use the Convex test harness; for HTTP-d
 
 **Pattern:** Validator-first proxy action with HTTP reliability wrapper (`retryOnce(withTimeout(...))`) and pure helper functions for mapping/normalisation that are independently unit-testable.
 
-**Pattern source:** `server/convex/actions/places.ts` (sibling)
+**Pattern source:** `convex/actions/places.ts` (sibling)
 
 **Anti-pattern:** Threading raw Open-Meteo response shape into clients — leaks provider details and breaks portability.
 
@@ -236,13 +236,13 @@ For each AC: RED → GREEN → REFACTOR. Use the Convex test harness; for HTTP-d
     {"id":"AC-3","type":"acceptance_criterion","description":"GIVEN windSpeed=45,precip=10 WHEN classified THEN condition=WIND","verify":"pnpm --dir server test -- -t 'high wind low precip overrides to WIND'"},
     {"id":"AC-4","type":"acceptance_criterion","description":"GIVEN precip=75/40/10 WHEN classified THEN severity=warning/advisory/normal","verify":"pnpm --dir server test -- -t 'getSeverity classifies precipitation and wind tiers'"},
     {"id":"AC-5","type":"acceptance_criterion","description":"GIVEN Open-Meteo 503 then 200 WHEN getCurrentWeather invoked THEN exactly 2 attempts","verify":"pnpm --dir server test -- -t 'getCurrentWeather retries once on transient'"},
-    {"id":"AC-6","type":"acceptance_criterion","description":"args validator declares {lat,lng}; returns validator declares full WeatherSummary","verify":"grep -E 'args:|returns:' server/convex/actions/weather.ts"},
+    {"id":"AC-6","type":"acceptance_criterion","description":"args validator declares {lat,lng}; returns validator declares full WeatherSummary","verify":"grep -E 'args:|returns:' convex/actions/weather.ts"},
     {"id":"TC-1","type":"test_criterion","description":"Returns rounded Fahrenheit 68 from Celsius 20.2","maps_to_ac":"AC-1","verify":"pnpm --dir server test -- -t 'getCurrentWeather returns WeatherSummary'"},
     {"id":"TC-2","type":"test_criterion","description":"All five sample WMO codes map to expected conditions","maps_to_ac":"AC-2","verify":"pnpm --dir server test -- -t 'wmoCodeToCondition maps WMO codes'"},
     {"id":"TC-3","type":"test_criterion","description":"windSpeed=45,precip=10 overrides to WIND","maps_to_ac":"AC-3","verify":"pnpm --dir server test -- -t 'high wind low precip overrides to WIND'"},
     {"id":"TC-4","type":"test_criterion","description":"precip=75/40/10 → warning/advisory/normal","maps_to_ac":"AC-4","verify":"pnpm --dir server test -- -t 'getSeverity classifies precipitation and wind tiers'"},
     {"id":"TC-5","type":"test_criterion","description":"Open-Meteo 503 then 200 produces exactly 2 attempts","maps_to_ac":"AC-5","verify":"pnpm --dir server test -- -t 'getCurrentWeather retries once on transient'"},
-    {"id":"TC-6","type":"test_criterion","description":"args + returns validators declared","maps_to_ac":"AC-6","verify":"grep -E 'args:|returns:' server/convex/actions/weather.ts"}
+    {"id":"TC-6","type":"test_criterion","description":"args + returns validators declared","maps_to_ac":"AC-6","verify":"grep -E 'args:|returns:' convex/actions/weather.ts"}
   ]
 }
 -->

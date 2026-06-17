@@ -11,7 +11,7 @@
 import { fireEvent, render } from '@testing-library/react-native'
 import { MD3DarkTheme, PaperProvider } from 'react-native-paper'
 import { describe, expect, it, vi } from 'vitest'
-import type { RouteOverlays } from '../../server/models/saved-routes'
+import type { RouteOverlays } from '../../shared/models/saved-routes'
 import type { ExtendedTheme } from '../../styles/types'
 import { WeatherStrip } from './weather-strip'
 

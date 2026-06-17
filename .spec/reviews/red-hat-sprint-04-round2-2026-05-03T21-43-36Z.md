@@ -185,7 +185,7 @@
 1. **Merge R02** — worktree code is correct, blocks iOS "already-saved" badge
 2. **Fix R05 test crash** — investigate xcodebuild test crash, get runtime verification passing
 3. **Rewrite R09 tests** — reject test theatre, require Compose semantics assertions against real ViewModel behavior, not stateOverride doubles
-4. **Emit R03 AC-7 fixture** — create `server/convex/__fixtures__/auth-error-taxonomy.json`
+4. **Emit R03 AC-7 fixture** — create `convex/__fixtures__/auth-error-taxonomy.json`
 5. **Implement R06** — iOS phase-name canonical enum (blocking gate step 2)
 6. **Implement R11** — Android phase-name canonical enum (blocking gate step 2)
 7. **Implement R10** — Android AppStories registration (blocking parity gate)

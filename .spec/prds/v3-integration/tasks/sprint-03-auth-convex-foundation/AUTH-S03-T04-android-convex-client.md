@@ -150,7 +150,7 @@ READING LIST
    - Sections: § 3.3 (ConvexModule), § 4 (Convex Client Wrapper)
    - Focus: ConvexClientProvider design, Hilt registration, Flow patterns
 
-2. server/convex/schema.ts
+2. convex/schema.ts
    - Focus: Session type definition for Flow typing
 
 --------------------------------------------------------------------------------

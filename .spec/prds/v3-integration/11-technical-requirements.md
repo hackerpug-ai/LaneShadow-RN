@@ -21,11 +21,11 @@ This section codifies the cross-platform technical contracts. Per-platform detai
 | **RideFlow Reducer (iOS)** (`ios/LaneShadow/Services/RideFlow.swift`) | `@Observable` state machine: IDLE → PLANNING → ROUTE_RESULTS → ROUTE_DETAILS → SESSION_HISTORY → ERROR → NAVIGATION_EXPORT |
 | **RideFlow Reducer (Android)** (`android/app/src/main/.../services/RideFlowViewModel.kt`) | Sealed `RideFlowState` + `RideFlowAction` with pure `reduce()` function; ports RN `use-ride-flow.ts` 1:1 |
 | **Camera Store** (per platform) | Per-session camera position cache; UserDefaults (iOS) / DataStore (Android) keyed by `sessionId`; `cameraMoveSource: .user | .programmatic` flag mirrors RN `isProgrammaticMoveRef` |
-| **Type Generation Pipeline** (`server/scripts/generate-mobile-types.ts`) | Reads `_generated/api.d.ts` and emits Swift Codable + Kotlin @Serializable types into platform-specific Generated/ directories |
+| **Type Generation Pipeline** (`scripts/generate-mobile-types.ts`) | Reads `_generated/api.d.ts` and emits Swift Codable + Kotlin @Serializable types into platform-specific Generated/ directories |
 | **Mapbox Offline Manager (iOS)** (uses Mapbox iOS SDK 11.x `OfflineManager` + `TileStoreManager`) | Region descriptor + URLSession background config + checksum validation |
 | **Mapbox Offline Manager (Android)** (`android/app/src/main/.../services/MapboxOfflineRepository.kt` wrapping Mapbox Android SDK 11.22.0) | WorkManager + ForegroundService (`dataSync` type) for downloads |
 | **LaneShadowError** (per platform) | Typed error mapping from `ConvexClientError.errorData["code"]` (iOS) / `ConvexException.errorCode` (Android) to user-facing copy; mirrors RN `lib/convex-error.ts` |
-| **Convex Backend** (`server/convex/`) | Production-ready 22-table schema; 2 minor V3 additions (see Schema Additions) |
+| **Convex Backend** (`convex/`) | Production-ready 22-table schema; 2 minor V3 additions (see Schema Additions) |
 
 ## Architecture Diagram
 
@@ -160,7 +160,7 @@ export const list = query({
 
 ### NO OTHER SCHEMA CHANGES
 
-The 22-table schema covers every native UI need. Validators in `server/convex/types.ts`, `models/route-plans.ts`, `models/saved-routes.ts` are authoritative for native type generation.
+The 22-table schema covers every native UI need. Validators in `convex/types.ts`, `models/route-plans.ts`, `models/saved-routes.ts` are authoritative for native type generation.
 
 ## API Design (Endpoints to Wire)
 
@@ -237,13 +237,13 @@ If any of these are needed from native, add a public `query`/`mutation` wrapper.
 
 ### Backend (Convex)
 
-No new dependencies. Convex Clerk JWT integration already configured in `server/convex/auth.config.ts`.
+No new dependencies. Convex Clerk JWT integration already configured in `convex/auth.config.ts`.
 
 ### Type Generation Tooling
 
 | Dependency | Purpose |
 |------------|---------|
-| `tsx` (Node) | Running `server/scripts/generate-mobile-types.ts` |
+| `tsx` (Node) | Running `scripts/generate-mobile-types.ts` |
 | Convex `_generated/api.d.ts` | Source of truth for type generation |
 
 ## UI Infrastructure
@@ -372,7 +372,7 @@ The `RideFlow` reducer (Swift `@Observable` + Kotlin `StateFlow`) is **client-on
 
 ### Server Error Taxonomy
 
-11 typed error codes from `server/convex/errors.ts`:
+11 typed error codes from `convex/errors.ts`:
 - `SESSION_NOT_FOUND`, `INVALID_CONTENT`, `RATE_LIMIT_EXCEEDED`, `PLAN_LIMIT_EXCEEDED`, `PLAN_ALREADY_ACTIVE`, `PLAN_NOT_FOUND`, `AGENTIC_PARSE_FAILED`, `LOW_CONFIDENCE_PARSE`, `GENERATION_FAILED`, `NO_ROUTES_GENERATED`, `AGENT_TIMEOUT`, `NETWORK_TIMEOUT`, `UNAUTHENTICATED`
 
 Action `sendMessage` already maps these to user-friendly strings server-side via `getConversationalErrorMessage` (`sendMessage.ts:545-587`). For other queries/mutations, the client maps via `LaneShadowError`.

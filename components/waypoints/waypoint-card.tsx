@@ -7,7 +7,7 @@
 
 import { StyleSheet, View } from 'react-native'
 import { Text, useTheme } from 'react-native-paper'
-import type { Doc, Id } from '../../server/convex/_generated/dataModel'
+import type { Doc, Id } from '../../convex/_generated/dataModel'
 import type { ExtendedTheme, SemanticTheme } from '../../styles/types'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'

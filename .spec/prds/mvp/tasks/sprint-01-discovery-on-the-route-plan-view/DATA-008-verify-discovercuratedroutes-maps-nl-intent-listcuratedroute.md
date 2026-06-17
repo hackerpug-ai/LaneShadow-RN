@@ -29,7 +29,7 @@ tools/discoverCuratedRoutes.ts.runDiscoverCuratedRoutes(ctx,{intent}) maps inten
 - **WHEN** runDiscoverCuratedRoutes(ctx,{intent}) executes against live dev (NL parsing bypassed)
 - **THEN** it returns {type:'routes', routePlanId}, a route_plans row is created, and its options[] routeOptionId/label set corresponds to the listCuratedRoutes result for that intent (same route ids, same count ≤5)
 - **Test tier:** `integration` · **Service:** live Convex dev (discoverCuratedRoutes → api.curatedRoutes.listCuratedRoutes → route_plans)
-- **Verify:** `pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts` → `fixturedIntentPlotsQueriedRoutes`
+- **Verify:** `pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts` → `fixturedIntentPlotsQueriedRoutes`
 - **Scenario** (start `seeded_geospatial_index`):
   - must observe: result.type === 'routes'; a route_plans row exists with status 'completed'; options.length === the listCuratedRoutes result length (1..5); options[].routeOptionId set === 'curated-'+queried route ids
   - must NOT observe: result.type === 'chat'; 0 options; no route_plans row created
@@ -40,7 +40,7 @@ tools/discoverCuratedRoutes.ts.runDiscoverCuratedRoutes(ctx,{intent}) maps inten
 - **WHEN** the orchestrator routes a discovery request
 - **THEN** executeDiscoverCuratedRoutes is reached via the discovery_agent case and TOOL_TO_CARD_KIND['discoverCuratedRoutes'] === 'routing_card'
 - **Test tier:** `integration` · **Service:** live Convex dev (orchestrator dispatch + sendMessage mapping)
-- **Verify:** `pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts` → `toolIsInvokedByReactLoopAndMappedToCard`
+- **Verify:** `pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts` → `toolIsInvokedByReactLoopAndMappedToCard`
 - **Scenario** (start `seeded_geospatial_index`):
   - must observe: executeDiscoverCuratedRoutes return.type === 'routes'; typeof executeDiscoverCuratedRoutes return.routePlanId === 'string' && return.routePlanId.length > 0 (a real route_plans id); TOOL_TO_CARD_KIND['discoverCuratedRoutes'] === 'routing_card'
   - must NOT observe: 'Unknown orchestrator tool'; return.type === 'chat'; TOOL_TO_CARD_KIND['discoverCuratedRoutes'] === undefined; 0 route_plans rows created (no dispatch)
@@ -50,24 +50,24 @@ tools/discoverCuratedRoutes.ts.runDiscoverCuratedRoutes(ctx,{intent}) maps inten
 
 | ID | Statement | Maps to | Verify |
 |----|-----------|---------|--------|
-| TC-1 | Integration: a fixtured intent creates a route_plans row whose options match the real listCuratedRoutes result (engine outcome, not prose) — T-DISC-010 determinism seam. | AC-1 | `pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts` |
-| TC-2 | Integration: orchestrator discovery_agent case invokes executeDiscoverCuratedRoutes and the tool is mapped to routing_card. | AC-2 | `pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts` |
+| TC-1 | Integration: a fixtured intent creates a route_plans row whose options match the real listCuratedRoutes result (engine outcome, not prose) — T-DISC-010 determinism seam. | AC-1 | `pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts` |
+| TC-2 | Integration: orchestrator discovery_agent case invokes executeDiscoverCuratedRoutes and the tool is mapped to routing_card. | AC-2 | `pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts` |
 
 ## Reading List
 
-- `server/convex/actions/agent/tools/discoverCuratedRoutes.ts` (44-200) — PRIMARY PATTERN — runDiscoverCuratedRoutes intent→listCuratedRoutes→route_plans→options; the determinism seam
-- `server/convex/actions/agent/agents/orchestrator.ts` (276-311) — the discovery_agent dispatch case that invokes executeDiscoverCuratedRoutes (proves ReAct invocation)
-- `server/convex/actions/agent/sendMessage.ts` (25-29) — TOOL_TO_CARD_KIND['discoverCuratedRoutes']==='routing_card' + onToolFinish card emission (227-276)
-- `server/convex/actions/agent/agents/orchestrator.test.ts` (1-80) — orchestrator test conventions for asserting dispatch outcomes
+- `convex/actions/agent/tools/discoverCuratedRoutes.ts` (44-200) — PRIMARY PATTERN — runDiscoverCuratedRoutes intent→listCuratedRoutes→route_plans→options; the determinism seam
+- `convex/actions/agent/agents/orchestrator.ts` (276-311) — the discovery_agent dispatch case that invokes executeDiscoverCuratedRoutes (proves ReAct invocation)
+- `convex/actions/agent/sendMessage.ts` (25-29) — TOOL_TO_CARD_KIND['discoverCuratedRoutes']==='routing_card' + onToolFinish card emission (227-276)
+- `convex/actions/agent/agents/orchestrator.test.ts` (1-80) — orchestrator test conventions for asserting dispatch outcomes
 - `.spec/prds/mvp/10-e2e-testing-criteria.md` (89) — T-DISC-010 determinism-seam contract (assert routes/plot, not prose)
 
 ## Guardrails
 
-- WRITE-ALLOWED: `server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts (NEW)`
-- WRITE-ALLOWED: `server/convex/actions/agent/agents/orchestrator.ts (MODIFY — only if the dispatch case is found broken/unreachable)`
-- WRITE-ALLOWED: `server/convex/actions/agent/sendMessage.ts (MODIFY — only if TOOL_TO_CARD_KIND is found missing the entry)`
-- WRITE-PROHIBITED: server/convex/actions/agent/tools/discoverCuratedRoutes.ts — the score-field fix is DATA-008b's scope, not this task
-- WRITE-PROHIBITED: server/convex/curatedRoutes.ts
+- WRITE-ALLOWED: `convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts (NEW)`
+- WRITE-ALLOWED: `convex/actions/agent/agents/orchestrator.ts (MODIFY — only if the dispatch case is found broken/unreachable)`
+- WRITE-ALLOWED: `convex/actions/agent/sendMessage.ts (MODIFY — only if TOOL_TO_CARD_KIND is found missing the entry)`
+- WRITE-PROHIBITED: convex/actions/agent/tools/discoverCuratedRoutes.ts — the score-field fix is DATA-008b's scope, not this task
+- WRITE-PROHIBITED: convex/curatedRoutes.ts
 - WRITE-PROHIBITED: Any file not listed above
 
 ## Design
@@ -81,8 +81,8 @@ tools/discoverCuratedRoutes.ts.runDiscoverCuratedRoutes(ctx,{intent}) maps inten
 | Gate | Command |
 |------|---------|
 | gate | `pnpm type-check` |
-| gate | `pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts` |
-| gate | `pnpm exec biome check server/convex/actions/agent/tools/discoverCuratedRoutes.ts server/convex/actions/agent/agents/orchestrator.ts server/convex/actions/agent/sendMessage.ts` |
+| gate | `pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts` |
+| gate | `pnpm exec biome check convex/actions/agent/tools/discoverCuratedRoutes.ts convex/actions/agent/agents/orchestrator.ts convex/actions/agent/sendMessage.ts` |
 | gate | `pnpm --dir server run convex:dev -- --once` |
 
 ## Coding Standards
@@ -114,7 +114,7 @@ tools/discoverCuratedRoutes.ts.runDiscoverCuratedRoutes(ctx,{intent}) maps inten
       "type": "acceptance_criterion",
       "primary": true,
       "description": "GIVEN a fixtured intent WHEN runDiscoverCuratedRoutes runs against live dev THEN a route_plans row is created whose options match the real listCuratedRoutes result (same ids, count)",
-      "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts",
+      "verify": "pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts",
       "maps_to_ac": null
     },
     {
@@ -122,21 +122,21 @@ tools/discoverCuratedRoutes.ts.runDiscoverCuratedRoutes(ctx,{intent}) maps inten
       "type": "acceptance_criterion",
       "primary": false,
       "description": "GIVEN the orchestrator dispatch WHEN a discovery request routes THEN executeDiscoverCuratedRoutes is invoked and the tool maps to routing_card",
-      "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts",
+      "verify": "pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts",
       "maps_to_ac": null
     },
     {
       "id": "TC-1",
       "type": "test_criterion",
       "description": "determinism-seam engine outcome (route_plans + options) verified vs the real query (T-DISC-010)",
-      "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts",
+      "verify": "pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts",
       "maps_to_ac": "AC-1"
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "ReAct invocation + routing_card mapping",
-      "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts",
+      "verify": "pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts",
       "maps_to_ac": "AC-2"
     }
   ]

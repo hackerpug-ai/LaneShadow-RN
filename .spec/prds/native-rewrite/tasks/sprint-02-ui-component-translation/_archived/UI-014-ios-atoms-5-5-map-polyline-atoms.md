@@ -130,7 +130,7 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 | Component | RN wrapper source | Framework primitives + `node_modules` paths | Native target file | Variants × sizes × states |
 |---|---|---|---|---|
-| RoutePolyline (utility) | `react-native/components/map/route-polyline.tsx` | `server/lib/polyline` (decodePolylineGeometry, slicePolylineByMeters, computeCumulativeDistances); `react-native/components/lib/map/overlay-colors.ts` (getWindColor, getRainColor, getTemperatureColor) | `ios/LaneShadow/Views/Atoms/RoutePolylineBuilder.swift` | Pure utility — no UI; builds `BuiltPolyline[]` arrays with coordinates, strokeColor, strokeWidth |
+| RoutePolyline (utility) | `react-native/components/map/route-polyline.tsx` | `shared/lib/polyline` (decodePolylineGeometry, slicePolylineByMeters, computeCumulativeDistances); `react-native/components/lib/map/overlay-colors.ts` (getWindColor, getRainColor, getTemperatureColor) | `ios/LaneShadow/Views/Atoms/RoutePolylineBuilder.swift` | Pure utility — no UI; builds `BuiltPolyline[]` arrays with coordinates, strokeColor, strokeWidth |
 | RoutePolylineComponent | `react-native/components/map/route-polyline-component.tsx` | `@rnmapbox/maps` — ShapeSource, LineLayer; `@mapbox/polyline` — PolylineEncoder.encode; `expo-haptics` — Haptics.impactAsync; `react-native-paper` — useTheme | `ios/LaneShadow/Views/Atoms/RoutePolylineView.swift` | Mapbox rendering: ShapeSource + LineLayer per segment; tap-to-select with haptic feedback; highlighted state (selectedSegmentId or activeSegment) |
 | DeviationPolyline | `react-native/components/map/deviation-polyline.tsx` | `@rnmapbox/maps` — ShapeSource, LineLayer; `react-native/components/lib/mapbox/coordinate-converter.ts` (convertCoordinateArray) | `ios/LaneShadow/Views/Atoms/DeviationPolylineView.swift` | 3 segment types (original/detour/reconnect) × isActive state × strokeWidth prop |
 
@@ -146,7 +146,7 @@ Sprint 2 translates the React Native baseline into native platform components an
 
 **Source files read:**
 - LaneShadow: `react-native/components/map/route-polyline.tsx`
-- Framework: `server/lib/polyline.ts` (geometry utilities), `react-native/components/lib/map/overlay-colors.ts` (semantic color lookups)
+- Framework: `shared/lib/polyline.ts` (geometry utilities), `react-native/components/lib/map/overlay-colors.ts` (semantic color lookups)
 
 | Category | Property | Source | Value in source | iOS equivalent | Token mapping |
 |---|---|---|---|---|---|

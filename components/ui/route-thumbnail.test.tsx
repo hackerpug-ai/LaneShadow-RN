@@ -12,7 +12,7 @@
 import { render } from '@testing-library/react-native'
 import { MD3DarkTheme, PaperProvider } from 'react-native-paper'
 import { describe, expect, it, vi } from 'vitest'
-import type { Bounds } from '../../server/types/routes'
+import type { Bounds } from '../../shared/types/routes'
 import type { ExtendedTheme } from '../../styles/types'
 import { RouteThumbnail } from './route-thumbnail'
 

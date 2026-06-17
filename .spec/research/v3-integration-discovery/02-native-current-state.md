@@ -140,7 +140,7 @@ Compose BOM 2024.06.00, Material3, Mapbox 11.22.0, kotlinx.serialization 1.6.3, 
 
 ---
 
-## 3. Convex Backend (`/server/convex/`)
+## 3. Convex Backend (`/convex/`)
 
 ### Schema (22 tables)
 - `users`, `orgs`, `org_memberships` — identity + multi-tenancy

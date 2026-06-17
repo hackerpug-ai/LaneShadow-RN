@@ -38,7 +38,7 @@
 
 ## Dependencies Required for Full Implementation
 To complete the batch builders, you'll need:
-- Polyline decoder (decodePolylineGeometry from `server/lib/polyline`)
+- Polyline decoder (decodePolylineGeometry from `shared/lib/polyline`)
 - Distance calculator (computeCumulativeDistances)
 - Polyline slicer (slicePolylineByMeters)
 - Coordinate converter (convertCoordinateArray for Google → Mapbox)

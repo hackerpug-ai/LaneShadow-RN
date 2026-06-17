@@ -7,8 +7,8 @@
 
 import { useQuery } from 'convex/react'
 import { useSelectedRoute } from '../contexts/selected-route'
-import { api } from '../server/convex/_generated/api'
-import type { Id } from '../server/convex/_generated/dataModel'
+import { api } from '../convex/_generated/api'
+import type { Id } from '../convex/_generated/dataModel'
 
 type RoutePlanResult = {
   routePlanId: Id<'route_plans'> | null

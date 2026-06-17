@@ -31,7 +31,7 @@ LaneShadow serves recreational cruiser and touring riders who ride for enjoyment
 
 ## Convex Backend
 
-Read `server/convex/_generated/ai/guidelines.md` before working on Convex code.
+Read `convex/_generated/ai/guidelines.md` before working on Convex code.
 
 ---
 
@@ -39,9 +39,10 @@ Read `server/convex/_generated/ai/guidelines.md` before working on Convex code.
 
 ```
 react-native/    # Expo/RN app
-server/          # Convex backend workspace
-convex/          # Symlink → server/convex/
-tokens/          # Design tokens
+server/          # Legacy subdirectory (being emptied; do not add backend code here)
+convex/          # Convex backend source (root-level, committed)
+shared/          # Client/server shared code
+.tokens/         # Design tokens
 .spec/           # Plans, PRDs, research
 ```
 
@@ -76,7 +77,7 @@ Via lefthook:
 | TypeCheck | `pnpm type-check` |
 | Lint | `pnpm lint` |
 | Test | `pnpm test` |
-| Convex build | `pnpm --dir server run convex:dev -- --once` |
+| Convex build | `pnpm convex:dev -- --once` |
 
 ---
 

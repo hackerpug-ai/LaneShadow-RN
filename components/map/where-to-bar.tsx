@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { usePlaceAutocomplete } from '../../hooks/use-place-autocomplete'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { RouteStop } from '../../server/types/routes'
+import type { RouteStop } from '../../shared/types/routes'
 import { FloatingSearchInput } from '../ui/floating-search-input'
 
 export type WhereToBarProps = {

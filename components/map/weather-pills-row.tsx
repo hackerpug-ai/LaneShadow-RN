@@ -22,7 +22,7 @@ import {
   getWorstWindLevel,
   type RainSummary,
   type RouteOverlays,
-} from '../../server/models/saved-routes'
+} from '../../shared/models/saved-routes'
 import type { IconName } from '../ui/icon-symbol'
 import { IconSymbol } from '../ui/icon-symbol'
 

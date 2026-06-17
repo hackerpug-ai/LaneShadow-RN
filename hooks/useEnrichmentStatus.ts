@@ -12,8 +12,8 @@ import {
   type EnrichmentStatus,
   useEnrichmentProgress,
 } from '../components/enrichment/enrichment-progress-provider'
-import { calculateProgress, estimateTimeRemaining } from '../server/lib/enrichment/status-tracker'
-import { shouldShowToast } from '../server/lib/enrichment/toast-notifications'
+import { calculateProgress, estimateTimeRemaining } from '../shared/lib/enrichment/status-tracker'
+import { shouldShowToast } from '../shared/lib/enrichment/toast-notifications'
 
 export type { EnrichmentStatus }
 

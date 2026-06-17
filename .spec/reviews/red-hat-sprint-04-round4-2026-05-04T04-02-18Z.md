@@ -58,7 +58,7 @@
 
   Both are active-plan queries consumed by PlanningScreen on both platforms. A backend shape change on active plan documents would silently break mobile consumers.
   | Severity: **HIGH**
-  Evidence: `server/convex/db/routePlans.ts:277,396`
+  Evidence: `convex/db/routePlans.ts:277,396`
 
 ---
 

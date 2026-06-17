@@ -29,7 +29,7 @@ util/archetypeMap.ts defines UI_TO_DB (scenic→[scenic_byway,coastal], technica
 - **WHEN** listCuratedRoutes is called with archetypes=['scenic']
 - **THEN** every returned route's source DB primaryArchetype ∈ {scenic_byway,coastal} and every returned primaryArchetype === 'scenic' (a UI enum, never a raw DB value)
 - **Test tier:** `integration` · **Service:** live Convex dev (api.curatedRoutes.listCuratedRoutes)
-- **Verify:** `pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts` → `scenicFilterReturnsOnlyScenicMappedUiEnumRoutes`
+- **Verify:** `pnpm test convex/__tests__/listCuratedRoutes.archetype.integration.test.ts` → `scenicFilterReturnsOnlyScenicMappedUiEnumRoutes`
 - **Scenario** (start `seeded_geospatial_index`):
   - must observe: ≥1 route returned; every returned primaryArchetype === 'scenic'
   - must NOT observe: primaryArchetype === 'scenic_byway'; primaryArchetype === 'coastal'; primaryArchetype === 'mountain'; primaryArchetype === 'desert'; 0 routes
@@ -40,7 +40,7 @@ util/archetypeMap.ts defines UI_TO_DB (scenic→[scenic_byway,coastal], technica
 - **WHEN** dbArchetypeToUi maps each
 - **THEN** mountain→technical, coastal→scenic, scenic_byway→scenic, desert→adventure deterministically — every DB value resolves to a UI enum
 - **Test tier:** `unit`
-- **Verify:** `pnpm test server/convex/__tests__/archetypeMap.test.ts` → `dbArchetypeToUi`
+- **Verify:** `pnpm test convex/__tests__/archetypeMap.test.ts` → `dbArchetypeToUi`
 - **Scenario** (start `seeded_geospatial_index`):
   - must observe: >=1 route returned; every returned primaryArchetype === 'technical'
   - must NOT observe: primaryArchetype === 'mountain'; primaryArchetype === undefined; 0 routes; [] (empty result)
@@ -51,7 +51,7 @@ util/archetypeMap.ts defines UI_TO_DB (scenic→[scenic_byway,coastal], technica
 - **WHEN** the mapping gate is exercised via listCuratedRoutes
 - **THEN** the sampled DB primaryArchetype values are byte-identical before and after (read-path only, no write-back)
 - **Test tier:** `integration` · **Service:** live Convex dev (curated_routes sample read before/after)
-- **Verify:** `pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts` → `gatePerformsNoDbWriteBack`
+- **Verify:** `pnpm test convex/__tests__/listCuratedRoutes.archetype.integration.test.ts` → `gatePerformsNoDbWriteBack`
 - **Scenario** (start `seeded_geospatial_index`):
   - must observe: pre-sample === post-sample (all 20 primaryArchetype values byte-identical); 0 sampled primaryArchetype values changed
   - must NOT observe: any sampled primaryArchetype changed; 0 rows sampled (empty sample); [] (empty pre- or post-sample)
@@ -61,25 +61,25 @@ util/archetypeMap.ts defines UI_TO_DB (scenic→[scenic_byway,coastal], technica
 
 | ID | Statement | Maps to | Verify |
 |----|-----------|---------|--------|
-| TC-1 | Integration: listCuratedRoutes archetypes=['scenic'] returns only scenic-mapped routes, all primaryArchetype UI enums, no route dropped (T-DATA-003). | AC-1 | `pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts` |
-| TC-2 | Unit: archetype map is a pure deterministic transform, all DB values bucket to a UI enum (T-DATA-004). | AC-2 | `pnpm test server/convex/__tests__/archetypeMap.test.ts` |
-| TC-3 | Integration: sampled curated_routes primaryArchetype byte-identical pre/post — no write-back (T-DATA-004). | AC-3 | `pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts` |
+| TC-1 | Integration: listCuratedRoutes archetypes=['scenic'] returns only scenic-mapped routes, all primaryArchetype UI enums, no route dropped (T-DATA-003). | AC-1 | `pnpm test convex/__tests__/listCuratedRoutes.archetype.integration.test.ts` |
+| TC-2 | Unit: archetype map is a pure deterministic transform, all DB values bucket to a UI enum (T-DATA-004). | AC-2 | `pnpm test convex/__tests__/archetypeMap.test.ts` |
+| TC-3 | Integration: sampled curated_routes primaryArchetype byte-identical pre/post — no write-back (T-DATA-004). | AC-3 | `pnpm test convex/__tests__/listCuratedRoutes.archetype.integration.test.ts` |
 
 ## Reading List
 
-- `server/convex/util/archetypeMap.ts` (1-35) — PRIMARY PATTERN — UI_TO_DB / DB_TO_UI tables and the two pure functions under verification
-- `server/convex/curatedRoutes.ts` (119-282) — buildRouteCard DB→UI mapping (line 124) + dbArchetypeSet expansion/matchesArchetype application
-- `server/convex/__tests__/archetypeMap.test.ts` (1-96) — existing pure unit suite — extend, do not rewrite
+- `convex/util/archetypeMap.ts` (1-35) — PRIMARY PATTERN — UI_TO_DB / DB_TO_UI tables and the two pure functions under verification
+- `convex/curatedRoutes.ts` (119-282) — buildRouteCard DB→UI mapping (line 124) + dbArchetypeSet expansion/matchesArchetype application
+- `convex/__tests__/archetypeMap.test.ts` (1-96) — existing pure unit suite — extend, do not rewrite
 - `.spec/prds/mvp/09-technical-requirements/04-api-design.md` (101-111) — locked archetype map table (authoritative)
 - `.spec/prds/mvp/10-e2e-testing-criteria.md` (36-37) — T-DATA-003 / T-DATA-004 pass/fail
 
 ## Guardrails
 
-- WRITE-ALLOWED: `server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts (NEW)`
-- WRITE-ALLOWED: `server/convex/__tests__/archetypeMap.test.ts (MODIFY — extend)`
-- WRITE-ALLOWED: `server/convex/util/archetypeMap.ts (MODIFY — only a proven mapping correction)`
-- WRITE-ALLOWED: `server/convex/curatedRoutes.ts (MODIFY — only if application logic is found broken)`
-- WRITE-PROHIBITED: server/convex/schema.ts — DB enum is untouched
+- WRITE-ALLOWED: `convex/__tests__/listCuratedRoutes.archetype.integration.test.ts (NEW)`
+- WRITE-ALLOWED: `convex/__tests__/archetypeMap.test.ts (MODIFY — extend)`
+- WRITE-ALLOWED: `convex/util/archetypeMap.ts (MODIFY — only a proven mapping correction)`
+- WRITE-ALLOWED: `convex/curatedRoutes.ts (MODIFY — only if application logic is found broken)`
+- WRITE-PROHIBITED: convex/schema.ts — DB enum is untouched
 - WRITE-PROHIBITED: Any migration that mutates curated_routes.primaryArchetype
 - WRITE-PROHIBITED: Any file not listed above
 
@@ -94,9 +94,9 @@ util/archetypeMap.ts defines UI_TO_DB (scenic→[scenic_byway,coastal], technica
 | Gate | Command |
 |------|---------|
 | gate | `pnpm type-check` |
-| gate | `pnpm test server/convex/__tests__/archetypeMap.test.ts` |
-| gate | `pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts` |
-| gate | `pnpm exec biome check server/convex/util/archetypeMap.ts server/convex/curatedRoutes.ts` |
+| gate | `pnpm test convex/__tests__/archetypeMap.test.ts` |
+| gate | `pnpm test convex/__tests__/listCuratedRoutes.archetype.integration.test.ts` |
+| gate | `pnpm exec biome check convex/util/archetypeMap.ts convex/curatedRoutes.ts` |
 | gate | `pnpm --dir server run convex:dev -- --once` |
 
 ## Coding Standards
@@ -137,7 +137,7 @@ util/archetypeMap.ts defines UI_TO_DB (scenic→[scenic_byway,coastal], technica
       "type": "acceptance_criterion",
       "primary": true,
       "description": "GIVEN live dev catalog WHEN listCuratedRoutes archetypes=['scenic'] THEN only scenic_byway/coastal-sourced routes return, every primaryArchetype === 'scenic'",
-      "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts",
+      "verify": "pnpm test convex/__tests__/listCuratedRoutes.archetype.integration.test.ts",
       "maps_to_ac": null
     },
     {
@@ -145,7 +145,7 @@ util/archetypeMap.ts defines UI_TO_DB (scenic→[scenic_byway,coastal], technica
       "type": "acceptance_criterion",
       "primary": false,
       "description": "GIVEN DB-only archetypes WHEN dbArchetypeToUi maps THEN each deterministically resolves to a UI enum (mountain\u2192technical etc.)",
-      "verify": "pnpm test server/convex/__tests__/archetypeMap.test.ts",
+      "verify": "pnpm test convex/__tests__/archetypeMap.test.ts",
       "maps_to_ac": null
     },
     {
@@ -153,28 +153,28 @@ util/archetypeMap.ts defines UI_TO_DB (scenic→[scenic_byway,coastal], technica
       "type": "acceptance_criterion",
       "primary": false,
       "description": "GIVEN curated_routes sample WHEN gate exercised THEN DB primaryArchetype values byte-identical pre/post",
-      "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts",
+      "verify": "pnpm test convex/__tests__/listCuratedRoutes.archetype.integration.test.ts",
       "maps_to_ac": null
     },
     {
       "id": "TC-1",
       "type": "test_criterion",
       "description": "scenic filter correctness + UI-enum return + no-drop (T-DATA-003)",
-      "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts",
+      "verify": "pnpm test convex/__tests__/listCuratedRoutes.archetype.integration.test.ts",
       "maps_to_ac": "AC-1"
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "pure deterministic archetype map (T-DATA-004)",
-      "verify": "pnpm test server/convex/__tests__/archetypeMap.test.ts",
+      "verify": "pnpm test convex/__tests__/archetypeMap.test.ts",
       "maps_to_ac": "AC-2"
     },
     {
       "id": "TC-3",
       "type": "test_criterion",
       "description": "no DB write-back (T-DATA-004)",
-      "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.archetype.integration.test.ts",
+      "verify": "pnpm test convex/__tests__/listCuratedRoutes.archetype.integration.test.ts",
       "maps_to_ac": "AC-3"
     }
   ]

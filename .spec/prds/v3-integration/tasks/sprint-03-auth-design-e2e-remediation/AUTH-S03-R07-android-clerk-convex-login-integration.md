@@ -74,7 +74,7 @@ VERIFY: `rg "UNAUTHENTICATED|LaneShadowError|auth.signIn.root|AuthScreen" androi
 - `android/app/src/main/java/com/laneshadow/data/repository/ClerkAuthRepository.kt`
 - `android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt`
 - `android/app/src/main/java/com/laneshadow/navigation/AuthNavGraph.kt`
-- `server/convex/db/users.ts`
+- `convex/db/users.ts`
 - `.spec/prds/v3-integration/04-uc-auth.md`
 
 ## Guardrails
@@ -88,7 +88,7 @@ write_allowed:
 
 write_prohibited:
 - `ios/**` - R06 owns iOS integration.
-- `server/convex/**` - only read unless a contract bug is proven and split to Convex owner.
+- `convex/**` - only read unless a contract bug is proven and split to Convex owner.
 - `android/app/src/debug/**` - R05 owns view fidelity stories.
 
 ## Design

@@ -2,7 +2,7 @@
  * Type definitions for SavedRouteCard
  */
 
-import type { Bounds } from '../../server/models/saved-routes'
+import type { Bounds } from '../../shared/models/saved-routes'
 
 export type SavedRouteCardProps = {
   /** Route name */

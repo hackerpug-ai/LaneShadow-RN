@@ -10,14 +10,14 @@
 ## Layer 1 — Convex (`STUB-FIX-CVX`)
 
 ### Files modified (staged)
-- `server/convex/db/routePlans.ts` (cancelPlanHandler: added Option B dual-path lookup + JSDoc)
-- `server/convex/db/__tests__/routePlans.test.ts` (added AC-5 test for rider-initiated path)
+- `convex/db/routePlans.ts` (cancelPlanHandler: added Option B dual-path lookup + JSDoc)
+- `convex/db/__tests__/routePlans.test.ts` (added AC-5 test for rider-initiated path)
 
 ### Verification
 
 ```bash
-pnpm test -- server/convex/db/__tests__/routePlans.test.ts
-pnpm exec biome check server/convex/db/routePlans.ts server/convex/db/__tests__/routePlans.test.ts
+pnpm test -- convex/db/__tests__/routePlans.test.ts
+pnpm exec biome check convex/db/routePlans.ts convex/db/__tests__/routePlans.test.ts
 pnpm type-check:native
 ```
 
@@ -26,7 +26,7 @@ All three must exit 0.
 ### Commit (after green)
 
 ```bash
-git add server/convex/db/routePlans.ts server/convex/db/__tests__/routePlans.test.ts
+git add convex/db/routePlans.ts convex/db/__tests__/routePlans.test.ts
 
 git commit -m "$(cat <<'EOF'
 STUB-FIX-CVX cancelPlanHandler handles missing planningSessionId for rider-initiated plans

@@ -93,7 +93,7 @@ hooks/use-curated-discovery.ts already wraps useQuery(api.curatedRoutes.listCura
 
 - `hooks/use-curated-discovery.ts` (39-81) — PRIMARY PATTERN — the hook under verification: derivedCenter (44-45), queryArgs sort logic (47-58), mapper (62-74), loading/empty (76-80)
 - `hooks/__tests__/use-chat-planning.integration.test.ts` (1-80) — live-Convex ConvexReactClient provider + renderHook integration pattern to mirror
-- `server/convex/curatedRoutes.ts` (36-134) — returnValidator + buildRouteCard — the flat return shape (compositeScore, primaryArchetype via dbArchetypeToUi, distanceMi) the mapper consumes
+- `convex/curatedRoutes.ts` (36-134) — returnValidator + buildRouteCard — the flat return shape (compositeScore, primaryArchetype via dbArchetypeToUi, distanceMi) the mapper consumes
 - `.spec/prds/mvp/05-uc-disc.md` (46-60) — UC-DISC-04 ACs the five integration ACs map to
 - `.spec/prds/mvp/10-e2e-testing-criteria.md` (73-77) — T-DISC-004 pass/fail — the verification bar (shape, loading/empty, center, nearest/best, 0-1 no rescale)
 

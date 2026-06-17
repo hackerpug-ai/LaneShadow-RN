@@ -1,16 +1,16 @@
 import NetInfo from '@react-native-community/netinfo'
 import { useCallback, useState } from 'react'
-import { openDiscoveryDB } from '../server/lib/discovery/db'
+import { openDiscoveryDB } from '../shared/lib/discovery/db'
 import {
   bumpHitCount,
   lookupIntentCache,
   topHitIntents,
   writeIntentCache,
-} from '../server/lib/discovery/intent/cache'
-import { CURRENT_SCHEMA_VERSION, normalizeIntent } from '../server/lib/discovery/intent/normalize'
-import { runParamsQuery } from '../server/lib/discovery/intent/params-to-sql'
-import type { IntentParams, IntentSearchState } from '../server/lib/discovery/intent/types'
-import { validateEnums } from '../server/lib/discovery/intent/validate'
+} from '../shared/lib/discovery/intent/cache'
+import { CURRENT_SCHEMA_VERSION, normalizeIntent } from '../shared/lib/discovery/intent/normalize'
+import { runParamsQuery } from '../shared/lib/discovery/intent/params-to-sql'
+import type { IntentParams, IntentSearchState } from '../shared/lib/discovery/intent/types'
+import { validateEnums } from '../shared/lib/discovery/intent/validate'
 
 export interface IntentSearchParams {
   center: { lat: number; lng: number }

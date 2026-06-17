@@ -88,7 +88,7 @@ write_allowed:
 write_prohibited:
 - `ios/LaneShadow/Features/Auth/**` - R04/R06 own app implementation except accessibility identifiers required by WDA.
 - `android/app/src/main/**` - R05/R07 own app implementation except test-only identifiers required by evidence.
-- `server/convex/**` - evidence only; backend changes require a separate Convex task.
+- `convex/**` - evidence only; backend changes require a separate Convex task.
 
 ## Design
 

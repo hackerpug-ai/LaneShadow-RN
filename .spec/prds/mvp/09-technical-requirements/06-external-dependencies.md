@@ -15,7 +15,7 @@ prd_version: 2.0.0
 
 ## Weather provider — Open-Meteo (via existing Convex action)
 - **Endpoint:** `https://api.open-meteo.com/v1/forecast` (no API key; free tier).
-- **Function:** `api.weather.getCurrentWeather({lat, lng})` action (`server/convex/actions/weather.ts`), `'use node'`, Clerk-gated. Returns `{tempF, condition (CLEAR|CLOUDY|RAIN|SNOW|FOG|WIND|STORM), severity (normal|advisory|warning), dayOfWeek}`. Has 8s timeout + single retry; throws `WEATHER_UNAVAILABLE` ConvexError on failure.
+- **Function:** `api.weather.getCurrentWeather({lat, lng})` action (`convex/actions/weather.ts`), `'use node'`, Clerk-gated. Returns `{tempF, condition (CLEAR|CLOUDY|RAIN|SNOW|FOG|WIND|STORM), severity (normal|advisory|warning), dayOfWeek}`. Has 8s timeout + single retry; throws `WEATHER_UNAVAILABLE` ConvexError on failure.
 - **MVP use:** 'basic conditions' on the detail screen, called with the route centroid. This is **not** the deferred weather-intelligence (best-day-to-ride) feature.
 - **Risk:** third-party availability/rate limits. Detail MUST degrade gracefully to 'conditions unavailable' (the action already surfaces a typed error).
 

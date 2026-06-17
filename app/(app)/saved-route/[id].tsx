@@ -24,7 +24,7 @@ import { StatRow } from '../../../components/ui/stat-row'
 import { useThemePreference } from '../../../contexts/theme-preference'
 import { useSavedRouteDetail } from '../../../hooks/use-saved-routes'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
-import type { RouteOverlays } from '../../../server/models/saved-routes'
+import type { RouteOverlays } from '../../../shared/models/saved-routes'
 import { formatDistance, formatDuration, formatSavedDate } from '../saved-route.utils/utils'
 import { useRouteActions } from './use-route-actions'
 

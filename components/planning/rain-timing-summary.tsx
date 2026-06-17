@@ -14,8 +14,8 @@
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { getRainTimingDisplay } from '../../server/lib/weather/timing-calculator'
-import type { RainOverlay, RouteLeg } from '../../server/models/saved-routes'
+import { getRainTimingDisplay } from '../../shared/lib/weather/timing-calculator'
+import type { RainOverlay, RouteLeg } from '../../shared/models/saved-routes'
 import { IconSymbol } from '../ui/icon-symbol'
 
 export type RainTimingSummaryProps = {

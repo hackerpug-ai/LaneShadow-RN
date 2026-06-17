@@ -21,7 +21,7 @@ functional_group: ROUTE
 SaveFavoriteSheet (NEW UI; bottom sheet using V2 LSBottomSheet organism) captures a route name and creates an immutable `saved_routes` row. The snapshot freezes geometry, bounds, and overlay metadata at save time — overlays drift in subsequent enrichments do NOT mutate the saved snapshot. Mirrors RN `components/ui/save-favorite-sheet.tsx`.
 
 - **Maps to**: NEW UI — SaveFavoriteSheet
-- **Backend**: mutation `db.savedRoutes.saveRoute({planInput, routeSnapshot, routeIndex, snapshotMeta})` — input validators in `server/convex/models/saved-routes.ts`
+- **Backend**: mutation `db.savedRoutes.saveRoute({planInput, routeSnapshot, routeIndex, snapshotMeta})` — input validators in `convex/models/saved-routes.ts`
 - **Composition**: V2 LSBottomSheet (organism) + LSText + LSTextField + LSInstrumentReadout (metadata display) + LSButton (Cancel + Save row)
 
 ### Acceptance Criteria

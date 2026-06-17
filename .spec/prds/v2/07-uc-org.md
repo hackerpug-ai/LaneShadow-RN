@@ -239,7 +239,7 @@ Deliver a full route-card organism used in catalog views and as a referenceable 
 - ☐ Developer can render `LSRouteCard(route: mockRoute1)` on both platforms and see a composition: `LSCard` wrapper + `LSMap(mode: .preview)` with the route polyline rendered (Copper Studio style, auto-framed with `.polyline(padding: .spacing3)`) + title/subtitle + difficulty tag + optional saved-state icon.
 - ☐ Developer can render the card with `route.variant = .alt1` and see the polyline stroke resolve to `color.route.alt1`.
 - ☐ Developer can open "Organisms / RouteCard" and find stories `Default`, `Saved`, `Alt Variant`, `Long Title (overflow)`, `Missing Optional Data`, `Dark Mode`.
-- ☐ Developer can verify the organism renders from a typed prop data model that mirrors the `routes` read type in `server/convex/schema.ts` (checked by a type-level test per platform).
+- ☐ Developer can verify the organism renders from a typed prop data model that mirrors the `routes` read type in `convex/schema.ts` (checked by a type-level test per platform).
 - ☐ Developer can confirm no organism reaches out to Convex / networking / disk I/O.
 
 ---

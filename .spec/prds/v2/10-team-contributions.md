@@ -49,7 +49,7 @@ The LaneShadow rider (recreational cruiser / touring) never sees V2 as a system 
 | `tokens/sandbox/stories.parity.json` | Shared | Cross-platform parity manifest. |
 
 ### Data entities (mocked)
-Navigator-domain: `User`, `Route` (shapes align with `server/convex/schema.ts` read types with Navigator extensions — `climb`, `scenicScore`, `via`, `variant`), `Session`, `NavigatorMessage`, `RouteAttachment`, `WeatherSummary`, `WeatherTimelineEntry`, `PlanningPhase`, `SuggestionChip`, `LocationContext`, `Greeting`, `FilterChip`, `NavigatorError`.
+Navigator-domain: `User`, `Route` (shapes align with `convex/schema.ts` read types with Navigator extensions — `climb`, `scenicScore`, `via`, `variant`), `Session`, `NavigatorMessage`, `RouteAttachment`, `WeatherSummary`, `WeatherTimelineEntry`, `PlanningPhase`, `SuggestionChip`, `LocationContext`, `Greeting`, `FilterChip`, `NavigatorError`.
 
 v1.x entities retired: `Ride`, `FeedItem`, `DiscoverSection`, `SettingsEntry`, `ProfileData`, `MenuEntry`, `Message`, `ActiveMessage`.
 
@@ -64,7 +64,7 @@ v1.x entities retired: `Ride`, `FeedItem`, `DiscoverSection`, `SettingsEntry`, `
 - `~/Projects/native-sandbox/` — path-referenced SPM + Gradle composite. Provides `Story`, `SandboxRoot`, `ThemeController`, `ArgValues`.
 - Mapbox Maps SDK for iOS + Android.
 - Newsreader + Geist + JetBrains Mono fonts (bundled).
-- `/Users/justinrich/Projects/LaneShadow/server/convex/` — **read-only reference** for data shapes. No runtime dependency in V2.
+- `/Users/justinrich/Projects/LaneShadow/convex/` — **read-only reference** for data shapes. No runtime dependency in V2.
 
 ## Phase 3 — UI Infrastructure (swift-planner + kotlin-planner + frontend-designer)
 

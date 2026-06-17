@@ -16,14 +16,14 @@ import {
   decodePolylineGeometry,
   type MapLatLng,
   slicePolylineByMeters,
-} from '../../server/lib/polyline'
+} from '../../shared/lib/polyline'
 import type {
   RainOverlayByLeg,
   RouteLeg,
   RouteOverlays,
   TemperatureOverlayByLeg,
   WindOverlayByLeg,
-} from '../../server/models/saved-routes'
+} from '../../shared/models/saved-routes'
 import type { ExtendedTheme } from '../../styles/types'
 import { getRainColor, getTemperatureColor, getWindColor } from '../map/overlay-colors'
 import { convertCoordinateArray } from '../mapbox/coordinate-converter'

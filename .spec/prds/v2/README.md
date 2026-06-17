@@ -66,7 +66,7 @@ Full replacement of LaneShadow's UI layer with a semantic, token-driven, atomic 
 - **Token primitives**: `~/Projects/native-theme/` — cross-platform `ColorSet`, `TypographyStyle`, `parseColorString` primitives.
 - **Sandbox harness**: `~/Projects/native-sandbox/` — Story/SandboxRoot/ThemeController runtime for iOS + Android.
 - **Sandbox organization reference**: `~/Projects/storywright/ios/Storywright/Sandbox/` — canonical tier-aggregation pattern (Atoms → Molecules → Organisms → Templates → Modifiers → Infrastructure).
-- **Data shape reference**: `/Users/justinrich/Projects/LaneShadow/server/convex/` — used only as a source of truth for mock data shapes (Route, User); Navigator entities declared inline in `11-technical-requirements.md`.
+- **Data shape reference**: `/Users/justinrich/Projects/LaneShadow/convex/` — used only as a source of truth for mock data shapes (Route, User); Navigator entities declared inline in `11-technical-requirements.md`.
 
 ## Hard Replacement Policy
 

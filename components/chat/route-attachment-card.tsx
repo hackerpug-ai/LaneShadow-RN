@@ -16,7 +16,7 @@
 import { useState } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { PlannedRouteOptionsView } from '../../server/types/routes'
+import type { PlannedRouteOptionsView } from '../../shared/types/routes'
 import { RouteDirectionsSheet } from '../sheets/route-directions-sheet'
 import { Badge } from '../ui/badge'
 import { IconSymbol } from '../ui/icon-symbol'

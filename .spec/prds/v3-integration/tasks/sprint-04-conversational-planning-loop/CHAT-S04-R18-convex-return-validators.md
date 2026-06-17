@@ -11,7 +11,7 @@ AGENT:      implementer=convex-implementer | reviewer=convex-reviewer
 RUNTIME_COMMANDS:
   test:      cd server && pnpm test -- routePlans && pnpm test -- sessionMessages
   typecheck: pnpm type-check:native
-  lint:      pnpm exec biome check --no-errors-on-unmatched server/convex/
+  lint:      pnpm exec biome check --no-errors-on-unmatched convex/
   build:     pnpm --dir server run convex:dev -- --once
 
 PROGRESS: 0/2 AC · pending
@@ -46,21 +46,21 @@ ACCEPTANCE CRITERIA (TDD Beads)
 --------------------------------------------------------------------------------
 
 AC-1: routePlans.getPlanById returns validator is explicit [PRIMARY]
-  GIVEN: `server/convex/db/routePlans.ts` is loaded
+  GIVEN: `convex/db/routePlans.ts` is loaded
   WHEN:  The `getPlanById` query's `returns` field is inspected
   THEN:  It is `v.object({...})` with explicit field validators (no `v.any()`) matching the routePlans document shape
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/db/routePlans.test.ts
+  TEST_FILE:     convex/db/routePlans.test.ts
   TEST_FUNCTION: getPlanById_returns_validator_is_explicit
 
 AC-2: sessionMessages.list returns validator is explicit
-  GIVEN: `server/convex/db/sessionMessages.ts` is loaded
+  GIVEN: `convex/db/sessionMessages.ts` is loaded
   WHEN:  The `list` query's `returns` field is inspected
   THEN:  It is `v.array(v.object({...}))` with explicit field validators (no `v.any()`) matching the sessionMessages document shape
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/db/sessionMessages.test.ts
+  TEST_FILE:     convex/db/sessionMessages.test.ts
   TEST_FUNCTION: list_returns_validator_is_explicit
 
 --------------------------------------------------------------------------------
@@ -77,13 +77,13 @@ SCOPE
 --------------------------------------------------------------------------------
 
 writeAllowed:
-- server/convex/db/routePlans.ts (MODIFY — replace v.any() returns)
-- server/convex/db/sessionMessages.ts (MODIFY — replace v.any() returns)
-- server/convex/db/routePlans.test.ts (MODIFY — add validator assertion)
-- server/convex/db/sessionMessages.test.ts (MODIFY — add validator assertion)
+- convex/db/routePlans.ts (MODIFY — replace v.any() returns)
+- convex/db/sessionMessages.ts (MODIFY — replace v.any() returns)
+- convex/db/routePlans.test.ts (MODIFY — add validator assertion)
+- convex/db/sessionMessages.test.ts (MODIFY — add validator assertion)
 
 writeProhibited:
-- server/convex/_generated/** — auto-generated
+- convex/_generated/** — auto-generated
 - ios/** + android/** — mobile consumers out of scope
 
 --------------------------------------------------------------------------------
@@ -102,10 +102,10 @@ BOUNDARIES
 DELIVERABLE
 --------------------------------------------------------------------------------
 
-- server/convex/db/routePlans.ts (MODIFY): explicit returns validator on getPlanById
-- server/convex/db/sessionMessages.ts (MODIFY): explicit returns validator on list
-- server/convex/db/routePlans.test.ts (MODIFY): validator assertion test
-- server/convex/db/sessionMessages.test.ts (MODIFY): validator assertion test
+- convex/db/routePlans.ts (MODIFY): explicit returns validator on getPlanById
+- convex/db/sessionMessages.ts (MODIFY): explicit returns validator on list
+- convex/db/routePlans.test.ts (MODIFY): validator assertion test
+- convex/db/sessionMessages.test.ts (MODIFY): validator assertion test
 
 --------------------------------------------------------------------------------
 AGENT INSTRUCTIONS (TDD Flow)
@@ -130,15 +130,15 @@ AGENT INSTRUCTIONS (TDD Flow)
 READING LIST
 --------------------------------------------------------------------------------
 
-1. server/convex/db/routePlans.ts [PRIMARY]
+1. convex/db/routePlans.ts [PRIMARY]
    - Lines: ~285 (getPlanById)
    - Focus: current returns: v.any() and the document shape it actually returns
 
-2. server/convex/db/sessionMessages.ts
+2. convex/db/sessionMessages.ts
    - Lines: ~412 (list)
    - Focus: current returns: v.any() and the document shape it actually returns
 
-3. server/convex/schema.ts
+3. convex/schema.ts
    - Lines: routePlans and sessionMessages table definitions
    - Focus: Document shape source of truth
 
@@ -154,7 +154,7 @@ Gate 1: RED phase evidence
   Required: TDD_STATE values show each test went red before green.
 
 Gate 2: No v.any() remains on either query
-  Command: grep -n "v.any()" server/convex/db/routePlans.ts server/convex/db/sessionMessages.ts
+  Command: grep -n "v.any()" convex/db/routePlans.ts convex/db/sessionMessages.ts
   Expected: Empty output.
 
 Gate 3: All Vitest tests pass

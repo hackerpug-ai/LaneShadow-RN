@@ -40,7 +40,7 @@ UC-FID-01 acceptance criteria are split internally between HIGH-severity (must c
 - **Clerk OAuth on both platforms**:
   - iOS: `clerk-ios` SDK for email/password + social (Apple Sign-In native sheet, Google OAuth)
   - Android: `clerk-android` alpha SDK; `Custom Tabs + ASWebAuthenticationSession`-equivalent fallback ready if SDK proves immature
-- **Type generation pipeline**: `server/scripts/generate-mobile-types.ts` emits `ios/LaneShadow/Generated/ConvexTypes.generated.swift` (Codable structs) and `android/app/src/main/.../generated/ConvexTypes.kt` (`@Serializable` data classes) from `_generated/api.d.ts`. Wired into `pnpm server:codegen`.
+- **Type generation pipeline**: `scripts/generate-mobile-types.ts` emits `ios/LaneShadow/Generated/ConvexTypes.generated.swift` (Codable structs) and `android/app/src/main/.../generated/ConvexTypes.kt` (`@Serializable` data classes) from `_generated/api.d.ts`. Wired into `pnpm server:codegen`.
 - **Top-level app shell**:
   - iOS: `App.swift` + `RootView.swift` with `NavigationStack`, auth-gate, environment injection of `ConvexClient` + `Clerk` + V3 stores
   - Android: `MainActivity` + `LaneShadowApp` Compose shell, `androidx.navigation:navigation-compose` typed routes (sealed `Route` interface), Hilt + KSP DI graph

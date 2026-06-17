@@ -22,7 +22,7 @@ functional_group: QUAL
 
 **Acceptance Criteria:**
 - ☐ Administrator can run dedup via `python -m scripts.curation.pipeline.dedup.semantic_deduplicator` (new module)
-- ☐ System queries `findCandidateRoutesByEmbedding` (`server/convex/semanticSearch.ts` after native-rewrite restructure, Epic 3 INF-006) for each candidate route's top-10 nearest neighbors by cosine similarity, optionally filtered by state
+- ☐ System queries `findCandidateRoutesByEmbedding` (`convex/semanticSearch.ts` after native-rewrite restructure, Epic 3 INF-006) for each candidate route's top-10 nearest neighbors by cosine similarity, optionally filtered by state
 - ☐ System auto-merges pairs with cosine similarity > 0.92
 - ☐ System queues pairs with cosine similarity 0.75-0.92 for LLM arbitration (Claude Haiku 4.5 judges 'same road?' based on name, state, highway, description, and candidate_identifiers)
 - ☐ System creates separate routes for pairs with cosine similarity < 0.75

@@ -258,9 +258,6 @@ importers:
       '@vitest/ui':
         specifier: ^3.0.9
         version: 3.2.4(vitest@3.2.4)
-      ajv:
-        specifier: ^8.17.1
-        version: 8.18.0
       dotenv:
         specifier: ^16.6.0
         version: 16.6.1

@@ -20,4 +20,4 @@ pre-commit:
 pre-push:
   jobs:
     - name: convex build
-      run: pnpm --dir server run convex:dev -- --once
+      run: pnpm convex:dev --once

@@ -72,7 +72,7 @@ But the code **leads with the demoted feature** (the conversational planning age
 | Deferred | Why / when |
 |---|---|
 | Chat planning agent as **hero** | Kept as secondary path. Strategy: "not core value… may complete in Phase 4." |
-| On-device LLM + offline-first (local SQLite discovery DB, `server/lib/discovery/`, on-device intent) | User decision: defer well past MVP. Highest technical risk (2s ceiling, device tiers). Discovery/planning happens at home on wifi. The already-built local-DB discovery hook becomes the offline fast-follow. |
+| On-device LLM + offline-first (local SQLite discovery DB, `shared/lib/discovery/`, on-device intent) | User decision: defer well past MVP. Highest technical risk (2s ceiling, device tiers). Discovery/planning happens at home on wifi. The already-built local-DB discovery hook becomes the offline fast-follow. |
 | NL search inside Discovery | Structured filters + proximity + score ranking satisfy the job with zero LLM. NL is the first enhancement (cloud-first, then on-device). |
 | Waypoints / "Moments Near Me" | Strategy Phase 0.5. Routes alone satisfy the core job. |
 | Voice Ride Companion | Strategy Phase 3. The differentiator, but far out. |
@@ -110,8 +110,8 @@ Route detail  (getCuratedRouteDetail(routeId))  ← NEW public query (route + en
 ### 4.2 Key architectural facts (verified in code)
 
 - The Discovery UI is **substantially built**: `components/discovery/route-discovery-screen.tsx`, `discovery-filter-bar.tsx` (archetype enum: `twisties | scenic | technical | cruising | sport | adventure`), `discovery-sort-toggle.tsx` (`best | nearest`), `discovery-empty-overlay.tsx`, `discovery-loading-overlay.tsx`. The screen currently renders `MOCK_ROUTES`.
-- The **existing `hooks/use-route-discovery.ts` is wired to the local on-device discovery DB** (`server/lib/discovery/db` + `queryByBoundingBox`) — the **offline-first** path we are **deferring**. MVP introduces a **Convex-backed hook** instead; the local-DB hook is preserved for the offline fast-follow.
-- The schema (`server/convex/schema.ts`) already indexes `curated_routes` by `by_centroid`, `by_archetype` (`primaryArchetype`), and `by_composite_score` (`compositeScore`).
+- The **existing `hooks/use-route-discovery.ts` is wired to the local on-device discovery DB** (`shared/lib/discovery/db` + `queryByBoundingBox`) — the **offline-first** path we are **deferring**. MVP introduces a **Convex-backed hook** instead; the local-DB hook is preserved for the offline fast-follow.
+- The schema (`convex/schema.ts`) already indexes `curated_routes` by `by_centroid`, `by_archetype` (`primaryArchetype`), and `by_composite_score` (`compositeScore`).
 - **No public browse query exists yet** — `leanSync`/`fetchEnrichments` are `internalQuery`. MVP adds public `listCuratedRoutes` + `getCuratedRouteDetail`.
 - Tab mounting is trivial: `app/(app)/(tabs)/_layout.tsx` uses expo-router `Tabs` (tab bar hidden; nav via `MenuLayout` drawer + `router.push()`). Add a `discover` screen + a drawer entry.
 - **No export/GPX/open-in-maps exists** anywhere — item 5 is net-new (small).
@@ -131,10 +131,10 @@ Ordered; dependencies noted. Recommended agents per `brain/agents` (RN frontend 
 
 | # | Task | Scope / files | Acceptance criteria (integration/E2E unless noted) | Depends on | Agent |
 |---|---|---|---|---|---|
-| **D0** | **Verify live curated data** | `pnpm server:dev`; inspect `curated_routes` | Confirm row count, score distribution, `primaryArchetype`, `centroid`, geometry, and enrichment present in ≥1 founder region. If empty → run/locate artifact-publish path (`server/convex/curationArtifacts.ts`, `scripts/curation/publish_*`). **GATE: do not proceed on empty data.** | — | convex-implementer |
+| **D0** | **Verify live curated data** | `pnpm server:dev`; inspect `curated_routes` | Confirm row count, score distribution, `primaryArchetype`, `centroid`, geometry, and enrichment present in ≥1 founder region. If empty → run/locate artifact-publish path (`convex/curationArtifacts.ts`, `scripts/curation/publish_*`). **GATE: do not proceed on empty data.** | — | convex-implementer |
 | **D1** | **Repo cleanup** | delete `react-native/`; fix `pnpm-workspace.yaml`; confirm `pnpm type-check` + build green | Stale shadow dir gone; build still green on both platforms | — | (direct) |
-| **D2** | **`listCuratedRoutes` public query** | `server/convex/curatedRoutes.ts` (new) using `by_centroid`/`by_archetype`/`by_composite_score` | Given bbox/state + archetypes[] + sort, returns ranked curated routes (real data) with id/name/centroid/archetype/compositeScore; verified against live Convex | D0 | convex-implementer |
-| **D3** | **`getCuratedRouteDetail` public query** | `server/convex/curatedRoutes.ts` | Given routeId, returns geometry + enrichment (one-liner, summary, badges, dimension scores); verified against live Convex | D0 | convex-implementer |
+| **D2** | **`listCuratedRoutes` public query** | `convex/curatedRoutes.ts` (new) using `by_centroid`/`by_archetype`/`by_composite_score` | Given bbox/state + archetypes[] + sort, returns ranked curated routes (real data) with id/name/centroid/archetype/compositeScore; verified against live Convex | D0 | convex-implementer |
+| **D3** | **`getCuratedRouteDetail` public query** | `convex/curatedRoutes.ts` | Given routeId, returns geometry + enrichment (one-liner, summary, badges, dimension scores); verified against live Convex | D0 | convex-implementer |
 | **D4** | **`useCuratedDiscovery` Convex hook** | `hooks/use-curated-discovery.ts` (new) | Reactive `useQuery` returns discovery rows in the shape `RouteDiscoveryScreen` consumes; loading/empty states honored | D2 | react-native-ui-implementer |
 | **D5** | **Wire + mount Discovery screen** | `route-discovery-screen.tsx` (mock→hook), `app/(app)/(tabs)/discover.tsx` (new), `(tabs)/_layout.tsx`, `MenuLayout` drawer entry | On device, Discover tab shows real pins; archetype filter + best/nearest sort work against live data; empty/loading overlays correct | D4 | react-native-ui-implementer |
 | **D6** | **Route detail surface** | new detail route/screen + map geometry + enrichment render + basic weather | Tapping a pin/row opens detail with real geometry, description, scores, and basic conditions; verified on device | D3, D5 | react-native-ui-implementer |

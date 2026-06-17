@@ -5,7 +5,7 @@ Date: 2026-05-07
 Command:
 
 ```sh
-pnpm exec vitest run server/convex/__tests__/places-autocomplete.test.ts --exclude '.kb-run-sprint/**'
+pnpm exec vitest run convex/__tests__/places-autocomplete.test.ts --exclude '.kb-run-sprint/**'
 ```
 
 Result: PASS / Exit 0
@@ -19,7 +19,7 @@ Summary:
 Output summary:
 
 ```text
-server/convex/__tests__/places-autocomplete.test.ts (6 tests) 40ms
+convex/__tests__/places-autocomplete.test.ts (6 tests) 40ms
 Test Files  1 passed (1)
 Tests       6 passed (6)
 ```

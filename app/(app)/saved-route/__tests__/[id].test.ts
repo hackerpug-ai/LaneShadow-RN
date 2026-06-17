@@ -32,9 +32,9 @@ import type {
   RouteOverlays,
   TemperatureOverlay,
   WindOverlay,
-} from '../../../../server/models/saved-routes'
-import { getWorstRainLevel, getWorstTemperatureLevel } from '../../../../server/models/saved-routes'
-import type { SavedRouteDetailView } from '../../../../server/types/routes'
+} from '../../../../shared/models/saved-routes'
+import { getWorstRainLevel, getWorstTemperatureLevel } from '../../../../shared/models/saved-routes'
+import type { SavedRouteDetailView } from '../../../../shared/types/routes'
 import {
   deriveWindSummary,
   formatDistance,
@@ -47,7 +47,7 @@ const mockBack = vi.fn()
 const mockSaveRouteMutation = vi.fn()
 
 const mockHookReturn: {
-  data: import('../../../../server/types/routes').SavedRouteDetailView | null | undefined
+  data: import('../../../../shared/types/routes').SavedRouteDetailView | null | undefined
   isLoading: boolean
 } = {
   data: undefined,

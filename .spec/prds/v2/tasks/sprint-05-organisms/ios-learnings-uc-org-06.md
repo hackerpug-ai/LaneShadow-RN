@@ -15,7 +15,7 @@
 
 ## API Contract Notes
 
-The `LSRouteCard.Route` data model mirrors the Convex `routes` read type from `server/convex/schema.ts`:
+The `LSRouteCard.Route` data model mirrors the Convex `routes` read type from `convex/schema.ts`:
 
 - `id: String` — route identifier
 - `title: String` — route name (e.g., "The Skyline Spine")

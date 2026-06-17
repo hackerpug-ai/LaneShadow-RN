@@ -20,7 +20,7 @@
 import React from 'react'
 import renderer, { act } from 'react-test-renderer'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { SavedRouteListItemView } from '../../../server/types/routes'
+import type { SavedRouteListItemView } from '../../../shared/types/routes'
 import SavedRoutesScreen, {
   formatDistance,
   formatDuration,

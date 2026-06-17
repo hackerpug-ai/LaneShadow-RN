@@ -58,8 +58,8 @@ The Discovery UI filter chips use UI archetypes {twisties|scenic|technical|cruis
 - PRD `.spec/prds/mvp/04-uc-data.md` UC-DATA-02; `09-technical-requirements/04-api-design.md` §Archetype map
 
 ## Guardrails
-**Write Allowed:** `server/convex/util/archetypeMap.ts (NEW)` + unit test; import into `server/convex/curatedRoutes.ts` (DATA-005).
-**Write Prohibited:** `server/models/curated-routes.ts` (DB enum read-only), `server/convex/schema.ts`.
+**Write Allowed:** `convex/util/archetypeMap.ts (NEW)` + unit test; import into `convex/curatedRoutes.ts` (DATA-005).
+**Write Prohibited:** `server/models/curated-routes.ts` (DB enum read-only), `convex/schema.ts`.
 
 ## Code Pattern / Design
 - Pattern: two exported pure fns — `uiArchetypeToDbSet(ui: UiArchetype): DbArchetype[]` and `dbArchetypeToUi(db: DbArchetype): UiArchetype`. O(1) lookup tables.

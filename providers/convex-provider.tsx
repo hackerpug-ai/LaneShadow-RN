@@ -7,7 +7,7 @@
 
 import { ConvexProvider as BaseConvexProvider, ConvexReactClient } from 'convex/react'
 import type { ReactNode } from 'react'
-import { env } from '../server/lib/env'
+import { env } from '../shared/env'
 
 // Create Convex client instance (shared across the app)
 export const convexClient = new ConvexReactClient(env.CONVEX_URL, {

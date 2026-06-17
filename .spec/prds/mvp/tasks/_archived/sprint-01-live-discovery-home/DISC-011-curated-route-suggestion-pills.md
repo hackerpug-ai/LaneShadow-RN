@@ -55,14 +55,14 @@ With the pill slot re-keyed by DISC-010, this task swaps the pill CONTENT from t
 - `components/chat/chat-input.tsx:64-112, 191-228` — SuggestionChips render + handleSelectSuggestion — where pill content and onSelect live.
 - `components/chat/routing-card.tsx:228-265` — CompletedCard onSelect path (setSelectedRouteId + setDisplayedRoutePlanId + requestFitToRouteWithReset) — the existing plot-on-map machinery a pill tap should reuse.
 - `app/(app)/(tabs)/index.tsx:1346-1358` — Current `suggestions={IDLE_SUGGESTIONS}` ChatInput call site to replace.
-- `server/convex/curatedRoutes.ts:119-134` — buildRouteCard — confirms name, lengthMiles, distanceMi, compositeScore(0-1) available from the live query (read-only).
+- `convex/curatedRoutes.ts:119-134` — buildRouteCard — confirms name, lengthMiles, distanceMi, compositeScore(0-1) available from the live query (read-only).
 - `tokens/semantic/semantic.tokens.json` — [VISUAL DESIGN SOURCE] `semantic.color.{light,dark}.accent.default` = #EE7C2B (the copper accent, applied to the route icon only); `semantic.color.border.default`; `semantic.radius.md` = 10; `semantic.space.md`/`sm`; `semantic.control.minTouchTarget` = 44 (pill minHeight).
 
 ## Guardrails
 
 **Write-allowed:** `app/(app)/(tabs)/index.tsx` (MODIFY: Call useCuratedDiscovery (best/nearest, limit ~5); map results to pill data {label: name + mileage, routeId}; pass curated pills + an onSelectCuratedRoute handler that routes the tap through the curated routing_card path (the DATA-008 surface) so useActiveSessionRoute plots it. Replace `suggestions={IDLE_SUGGESTIONS}` with the curated pill data.) · `components/chat/chat-input.tsx` (MODIFY: Extend the pill model to accept structured curated pills (id + label string with mileage) and an onSelect that emits the routeId, while keeping back-compat with string suggestions; render name + mileage label only (no score badge); **STYLE the pills as a chip variant with copper accent on the route icon (`theme.colors.accent.default` = #EE7C2B) + a MaterialCommunityIcons `road-variant` glyph — visually distinct from the generic IDLE_SUGGESTIONS planning prompts they replaced; keep minHeight ≥44pt per §6 constitution; testID `discovery-suggestion-pill-{routeId}`.**) · `e2e/disc-011-curated-pills.e2e.ts` (NEW: e2e covering AC-1..AC-4 against seeded live Convex catalog.)
 
-**Write-prohibited:** hooks/use-curated-discovery.ts — reuse as-is; if mileage (lengthMiles) is not surfaced in its mapped shape, ASK FIRST before extending it (see Boundaries). · server/convex/curatedRoutes.ts — backend is locked (DATA-005 carried forward); no query changes. · Any file not explicitly listed above
+**Write-prohibited:** hooks/use-curated-discovery.ts — reuse as-is; if mileage (lengthMiles) is not surfaced in its mapped shape, ASK FIRST before extending it (see Boundaries). · convex/curatedRoutes.ts — backend is locked (DATA-005 carried forward); no query changes. · Any file not explicitly listed above
 
 ## Verification gates
 

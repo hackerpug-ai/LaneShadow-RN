@@ -90,7 +90,7 @@ AC-3: Saved shows heartFill accent
 
 AC-4: Route prop mirrors Convex routes schema
   GIVEN: LSRouteCard.Route prop model
-  WHEN:  compared against server/convex/schema.ts routes read type (mirrored Swift fixture)
+  WHEN:  compared against convex/schema.ts routes read type (mirrored Swift fixture)
   THEN:  field-by-field type test confirms id, title, distance, duration, polyline, variant, difficulty, isSaved match the shape; missing-optional-data story passes without crash
   VERIFY: xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSRouteCardTests/test_route_prop_mirrors_convex_routes_schema 2>&1 | grep 'TEST SUCCEEDED'
   TDD_STATE: none
@@ -157,7 +157,7 @@ writeProhibited:
 - ios/LaneShadow/Views/Atoms/** — prior sprints
 - ios/LaneShadow/Views/Molecules/** — Sprint 4
 - tokens/** — Sprint 01/03
-- server/convex/** — backend owned
+- convex/** — backend owned
 - android/** — wrong platform
 
 --------------------------------------------------------------------------------
@@ -166,7 +166,7 @@ READING LIST
 
 1. .spec/prds/v2/concepts/uc-org-06-route-card.html [REQUIRED READING — visual design source]
 2. .spec/prds/v2/07-uc-org.md (lines 227-243) — UC-ORG-06 full spec
-3. server/convex/schema.ts — routes read type mirror target
+3. convex/schema.ts — routes read type mirror target
 4. .spec/prds/v2/11-technical-requirements.md — RouteDetails + PolylineData schema
 5. ios/LaneShadow/Views/Atoms/LSMap.swift [PRIMARY PATTERN] — multi-polyline preview mode
 6. ios/LaneShadow/Views/Atoms/LSCard.swift — card wrapper
@@ -177,12 +177,12 @@ READING LIST
 DESIGN
 --------------------------------------------------------------------------------
 
-References: .spec/prds/v2/concepts/uc-org-06-route-card.html, .spec/prds/v2/07-uc-org.md, server/convex/schema.ts
+References: .spec/prds/v2/concepts/uc-org-06-route-card.html, .spec/prds/v2/07-uc-org.md, convex/schema.ts
 
 Interaction notes:
 - REQUIRED READING: .spec/prds/v2/concepts/uc-org-06-route-card.html before implementing
 - LSMap preview is fixed-aspect (e.g. 16:9) embedded inside LSCard top slot; cameraFit handles framing without manual math
-- LSRouteCard.Route struct mirrors routes table read shape from server/convex/schema.ts — duplicated as a Swift value type; any schema drift is caught by AC-4 type test
+- LSRouteCard.Route struct mirrors routes table read shape from convex/schema.ts — duplicated as a Swift value type; any schema drift is caught by AC-4 type test
 - Saved accent (LSIcon(.heartFill)) positioned in top-trailing corner of the card with a subtle glass chip behind; use spacing.2 inset
 - Difficulty LSPill row stacks horizontally below subtitle with spacing.1 between chips; overflow truncates rather than wraps
 

@@ -130,7 +130,7 @@ The red-hat review (2026-04-20) found that QUAL-001's runtime budget warning (`i
 ### WRITE-PROHIBITED
 - scripts/curation/tests/test_qual_001.py — must still pass without modification
 - scripts/curation/pipeline/dedup/llm_arbitrator.py — different module
-- server/convex/** — backend schema is frozen
+- convex/** — backend schema is frozen
 
 ## DESIGN
 

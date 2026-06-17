@@ -148,7 +148,7 @@ The view-model is the **single bridge** between Convex subscription data and the
 | `ios/LaneShadow/Sandbox/MockProviders/RouteResultsMockProvider.swift` | all | Mock fixture shape — `routeOptions`, polyline format, card model; the new view-model must produce data of the same shape so sandbox stories can re-use it via `MapAppState` injection |
 | `ios/LaneShadow/Convex/Polyline.swift` (or equivalent decoder) | all | Polyline string → `[CLLocationCoordinate2D]` decoder; reuse, do NOT re-implement |
 | `ios/LaneShadow/Convex/ConvexClient.swift` (or wrapper) | all | `subscribe(query:args:)` API surface |
-| `server/convex/db/routePlans.ts` | 191-253 (getPlanByIdHandler) | Return shape — what fields the subscription delivers (note: RR-S09-CVX-T01 documents the `{best, alt1, alt2}` ordering invariant) |
+| `convex/db/routePlans.ts` | 191-253 (getPlanByIdHandler) | Return shape — what fields the subscription delivers (note: RR-S09-CVX-T01 documents the `{best, alt1, alt2}` ordering invariant) |
 | `.spec/prds/v3-integration/architecture/ios-architecture.md` | §5.3 RouteResultsScreen | Historical iOS architecture spec — read for state.routes / polyline mapping; the canonical home for that logic is now `MapAppViewModel` per the doctrine |
 | `.spec/prds/v3-integration/05-uc-chat.md` | UC-CHAT-03 + UC-CHAT-04 | AC list — refine reuses sessionId, weather badge from enrichments |
 | `RULES.md` | "Design Rules › One View, Many States", "Convex Backend", "Cross-Platform Component Parity", "Verification Standards by Platform" | Project-wide rules INCLUDING the doctrine this task implements |

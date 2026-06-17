@@ -129,7 +129,7 @@ The threshold-derived labels ARE useful for bootstrapping, but the spec's intent
 ### WRITE-PROHIBITED
 - scripts/curation/tests/test_qual_001.py — must still pass, do not modify
 - scripts/curation/data/calibration/dedup_calibration_set.json — output file, not source
-- server/convex/** — backend schema is frozen
+- convex/** — backend schema is frozen
 
 ## DESIGN
 

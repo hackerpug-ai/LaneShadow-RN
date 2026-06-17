@@ -65,7 +65,7 @@ Minimal Settings screen (theme picker, sign-out, account info — matches RN sco
 
 - **ConvexMobile Swift + Kotlin SDKs** (`https://github.com/get-convex/convex-mobile`) — official, reactive, JWT-aware. Pinned to specific tagged releases.
 - **Clerk SDKs** (`clerk-ios` for iOS, `clerk-android` alpha for Android) — with Custom Tabs OAuth fallback on Android if the SDK proves immature in week 1.
-- **Type generation script** at `server/scripts/generate-mobile-types.ts` emits Swift `Codable` and Kotlin `@Serializable` types from `_generated/api.d.ts`, eliminating drift.
+- **Type generation script** at `scripts/generate-mobile-types.ts` emits Swift `Codable` and Kotlin `@Serializable` types from `_generated/api.d.ts`, eliminating drift.
 - **Two backend additions only**: a thin `db.users.getCurrentUser` public query (verifies the Clerk webhook has provisioned the user row), and an optional `limit` arg on `db.sessionMessages.list` (avoid loading thousands of messages on long sessions). No schema changes.
 - **Drawer-based information architecture** — no new tab bar organism. The hamburger menu on `LSTopBar` opens a side drawer (extending V2's `LSSessionsDrawer` pattern) with Home / Saved Routes / Sessions / Offline Regions / Settings entries. The map stays primary.
 - **Two new molecules only**: `LSDownloadProgressBar` (offline region download UI) and `LSAuthProviderButton` (Apple/Google OAuth row with provider logo). No new atoms, no new tokens.

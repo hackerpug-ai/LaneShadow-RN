@@ -26,7 +26,7 @@
   - `LaneShadowErrorMappingTests.swift` - focused unit tests for specific mappings
   - `LaneShadowErrorMappingFixtureTests.swift` - round-trip test consuming the fixture file
 - **Fixture Loading**: Used `Bundle.module.path(forResource:ofType:)` to load test fixtures from Resources directory
-- **Test Resource Management**: Created `ios/LaneShadowTests/Resources/` directory and copied fixture from `server/convex/__fixtures__/auth-error-taxonomy.json`
+- **Test Resource Management**: Created `ios/LaneShadowTests/Resources/` directory and copied fixture from `convex/__fixtures__/auth-error-taxonomy.json`
 
 ## Files Created/Modified
 - **ios/LaneShadow/Services/LaneShadowError.swift**
@@ -52,7 +52,7 @@
   - Uses `Bundle.module` for resource loading
 
 - **ios/LaneShadowTests/Resources/auth-error-taxonomy.json** (NEW)
-  - Copied from `server/convex/__fixtures__/auth-error-taxonomy.json`
+  - Copied from `convex/__fixtures__/auth-error-taxonomy.json`
   - Used as source of truth for fixture-driven testing
 
 ## TDD Workflow Summary

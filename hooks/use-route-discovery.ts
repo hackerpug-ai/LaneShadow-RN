@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { openDiscoveryDB } from '../server/lib/discovery/db'
-import type { Spot } from '../server/lib/discovery/intent/types'
-import { queryByBoundingBox } from '../server/lib/discovery/query'
+import { openDiscoveryDB } from '../shared/lib/discovery/db'
+import type { Spot } from '../shared/lib/discovery/intent/types'
+import { queryByBoundingBox } from '../shared/lib/discovery/query'
 
 export interface RouteDiscoveryParams {
   lat: number

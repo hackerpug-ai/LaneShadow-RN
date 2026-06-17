@@ -10,7 +10,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import type { PlannedRouteOptionsView } from '../server/types/routes'
+import type { PlannedRouteOptionsView } from '../shared/types/routes'
 import { initialState, rideFlowReducer } from './use-ride-flow'
 
 /**

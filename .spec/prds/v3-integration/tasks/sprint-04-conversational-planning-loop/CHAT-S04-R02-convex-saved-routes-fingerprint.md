@@ -11,7 +11,7 @@ AGENT:      implementer=convex-implementer | reviewer=convex-reviewer
 RUNTIME_COMMANDS:
   test:      cd server && pnpm test -- savedRoutes
   typecheck: pnpm type-check:native
-  lint:      pnpm exec biome check --no-errors-on-unmatched server/convex/db/savedRoutes.ts
+  lint:      pnpm exec biome check --no-errors-on-unmatched convex/db/savedRoutes.ts
   build:     pnpm --dir server run convex:dev -- --once
 
 PROGRESS: 4/6 AC · RF-22: composite index architecturally broken — routeIndex is nested object, query uses old 2-field index + in-memory .find()
@@ -26,9 +26,9 @@ iOS subscription `db/savedRoutes:getRouteIndexFingerprint` returns `{ isSaved, s
 🚫 CRITICAL CONSTRAINTS
 --------------------------------------------------------------------------------
 
-- MUST define a public `query` named `getRouteIndexFingerprint` in `server/convex/db/savedRoutes.ts` accepting `{ routeIndex: v.string() }`
+- MUST define a public `query` named `getRouteIndexFingerprint` in `convex/db/savedRoutes.ts` accepting `{ routeIndex: v.string() }`
 - MUST call `requireIdentity(ctx)` and use the returned `clerkUserId` to scope the lookup
-- MUST add a composite index `by_ownerType_ownerId_routeIndex` on `saved_routes` in `server/convex/schema.ts` (fields: `['ownerType', 'ownerId', 'routeIndex']`)
+- MUST add a composite index `by_ownerType_ownerId_routeIndex` on `saved_routes` in `convex/schema.ts` (fields: `['ownerType', 'ownerId', 'routeIndex']`)
 - MUST return `v.object({ isSaved: v.boolean(), savedRouteId: v.optional(v.id('saved_routes')) })`
 - MUST treat soft-deleted rows (`deletedAt` set) as NOT saved
 - NEVER use `.filter()` to scan all saved_routes
@@ -59,7 +59,7 @@ AC-1: Returns false for unknown fingerprint [PRIMARY]
   THEN:  Return value is `{ isSaved: false }` with `savedRouteId` absent
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/db/savedRoutes.test.ts
+  TEST_FILE:     convex/db/savedRoutes.test.ts
   TEST_FUNCTION: getRouteIndexFingerprint returns isSaved:false for unknown fingerprint
 
 AC-2: Returns true with savedRouteId for owner's saved fingerprint
@@ -68,7 +68,7 @@ AC-2: Returns true with savedRouteId for owner's saved fingerprint
   THEN:  Return value is `{ isSaved: true, savedRouteId: <Id<'saved_routes'>> }`
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/db/savedRoutes.test.ts
+  TEST_FILE:     convex/db/savedRoutes.test.ts
   TEST_FUNCTION: getRouteIndexFingerprint returns isSaved:true with id for owned saved route
 
 AC-3: Cross-user isolation
@@ -77,7 +77,7 @@ AC-3: Cross-user isolation
   THEN:  Return value is `{ isSaved: false }` — user B never sees user A's id
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/db/savedRoutes.test.ts
+  TEST_FILE:     convex/db/savedRoutes.test.ts
   TEST_FUNCTION: getRouteIndexFingerprint isolates by clerkUserId
 
 AC-4: Soft-deleted routes treated as not saved
@@ -86,7 +86,7 @@ AC-4: Soft-deleted routes treated as not saved
   THEN:  Return value is `{ isSaved: false }`
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/db/savedRoutes.test.ts
+  TEST_FILE:     convex/db/savedRoutes.test.ts
   TEST_FUNCTION: getRouteIndexFingerprint excludes soft-deleted rows
 
 AC-5: Index-backed lookup via new composite index
@@ -95,7 +95,7 @@ AC-5: Index-backed lookup via new composite index
   THEN:  It uses `.withIndex('by_ownerType_ownerId_routeIndex', q => q.eq('ownerType', OWNER_TYPE.USER).eq('ownerId', clerkUserId).eq('routeIndex', args.routeIndex))` and never `.filter()` on routeIndex
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/db/savedRoutes.ts
+  TEST_FILE:     convex/db/savedRoutes.ts
   TEST_FUNCTION: code review — convex build registers index
 
 AC-6: Explicit returns validator
@@ -104,7 +104,7 @@ AC-6: Explicit returns validator
   THEN:  The returns validator is `v.object({ isSaved: v.boolean(), savedRouteId: v.optional(v.id('saved_routes')) })` — no `v.any()`
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/db/savedRoutes.ts
+  TEST_FILE:     convex/db/savedRoutes.ts
   TEST_FUNCTION: code review — biome confirms shape
 
 --------------------------------------------------------------------------------
@@ -125,14 +125,14 @@ SCOPE
 --------------------------------------------------------------------------------
 
 writeAllowed:
-- server/convex/db/savedRoutes.ts (MODIFY — add `getRouteIndexFingerprint` public query)
-- server/convex/schema.ts (MODIFY — add composite index `by_ownerType_ownerId_routeIndex`)
-- server/convex/db/savedRoutes.test.ts (CREATE OR MODIFY — add tests for AC-1..AC-6)
+- convex/db/savedRoutes.ts (MODIFY — add `getRouteIndexFingerprint` public query)
+- convex/schema.ts (MODIFY — add composite index `by_ownerType_ownerId_routeIndex`)
+- convex/db/savedRoutes.test.ts (CREATE OR MODIFY — add tests for AC-1..AC-6)
 
 writeProhibited:
-- server/convex/_generated/** — auto-generated
+- convex/_generated/** — auto-generated
 - server/models/saved-routes.ts — validator changes out of scope (no new fields)
-- server/convex/guards.ts — reserved for CHAT-S04-R03
+- convex/guards.ts — reserved for CHAT-S04-R03
 - ios/** + android/** — mobile callers out of scope
 
 --------------------------------------------------------------------------------
@@ -153,9 +153,9 @@ BOUNDARIES
 DELIVERABLE
 --------------------------------------------------------------------------------
 
-- server/convex/db/savedRoutes.ts (MODIFY): public `getRouteIndexFingerprint` query
-- server/convex/schema.ts (MODIFY): composite index `by_ownerType_ownerId_routeIndex`
-- server/convex/db/savedRoutes.test.ts (CREATE OR MODIFY): convex-test coverage AC-1..AC-6
+- convex/db/savedRoutes.ts (MODIFY): public `getRouteIndexFingerprint` query
+- convex/schema.ts (MODIFY): composite index `by_ownerType_ownerId_routeIndex`
+- convex/db/savedRoutes.test.ts (CREATE OR MODIFY): convex-test coverage AC-1..AC-6
 
 --------------------------------------------------------------------------------
 AGENT INSTRUCTIONS (TDD Flow)
@@ -183,11 +183,11 @@ AGENT INSTRUCTIONS (TDD Flow)
 READING LIST
 --------------------------------------------------------------------------------
 
-1. server/convex/db/savedRoutes.ts [PRIMARY PATTERN]
+1. convex/db/savedRoutes.ts [PRIMARY PATTERN]
    - Lines: 230-269 (listByOwner)
    - Focus: Existing patterns: `isOwnedByViewer`, `OWNER_TYPE.USER`, `requireIdentity`, `shouldExcludeFromList` for soft-delete handling
 
-2. server/convex/schema.ts
+2. convex/schema.ts
    - Lines: 52-55
    - Focus: Existing `saved_routes` index `by_ownerType_and_ownerId` — extend with new composite for routeIndex
 
@@ -226,7 +226,7 @@ Gate 5: Typecheck clean
   Expected: Exit 0.
 
 Gate 6: Biome lint clean
-  Command: pnpm exec biome check --no-errors-on-unmatched server/convex/db/savedRoutes.ts server/convex/db/savedRoutes.test.ts server/convex/schema.ts
+  Command: pnpm exec biome check --no-errors-on-unmatched convex/db/savedRoutes.ts convex/db/savedRoutes.test.ts convex/schema.ts
   Expected: Exit 0.
 
 Gate 7: Scope compliance
@@ -250,13 +250,13 @@ Blocks:     CHAT-S04-R08 (iOS XCUITest E2E), CHAT-S04-R12 (Android instrumented 
     {"id": "AC-3", "type": "acceptance_criterion", "description": "GIVEN user A owns route with routeIndex='shared123' WHEN user B calls getRouteIndexFingerprint THEN result is { isSaved: false }", "verify": "cd server && pnpm test -- savedRoutes", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-4", "type": "acceptance_criterion", "description": "GIVEN owner has soft-deleted saved_route WHEN they call getRouteIndexFingerprint THEN result is { isSaved: false }", "verify": "cd server && pnpm test -- savedRoutes", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-5", "type": "acceptance_criterion", "description": "GIVEN composite index by_ownerType_ownerId_routeIndex WHEN handler runs THEN it uses withIndex (not filter)", "verify": "pnpm --dir server run convex:dev -- --once", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-6", "type": "acceptance_criterion", "description": "GIVEN query exported WHEN codegen runs THEN returns validator is explicit v.object (no v.any())", "verify": "pnpm exec biome check --no-errors-on-unmatched server/convex/db/savedRoutes.ts", "satisfied": false, "evidence": null, "remediation": null},
+    {"id": "AC-6", "type": "acceptance_criterion", "description": "GIVEN query exported WHEN codegen runs THEN returns validator is explicit v.object (no v.any())", "verify": "pnpm exec biome check --no-errors-on-unmatched convex/db/savedRoutes.ts", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "TC-1", "type": "test_criterion", "description": "Auth user A with empty table; call → expect { isSaved: false }", "maps_to_ac": "AC-1", "verify": "cd server && pnpm test -- savedRoutes", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "TC-2", "type": "test_criterion", "description": "Insert owned non-deleted row; call → expect { isSaved: true, savedRouteId }", "maps_to_ac": "AC-2", "verify": "cd server && pnpm test -- savedRoutes", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "TC-3", "type": "test_criterion", "description": "Insert user A's row; call as user B → expect { isSaved: false }", "maps_to_ac": "AC-3", "verify": "cd server && pnpm test -- savedRoutes", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "TC-4", "type": "test_criterion", "description": "Insert owned soft-deleted row; call → expect { isSaved: false }", "maps_to_ac": "AC-4", "verify": "cd server && pnpm test -- savedRoutes", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "TC-5", "type": "test_criterion", "description": "Convex build registers new index + query; handler uses withIndex", "maps_to_ac": "AC-5", "verify": "pnpm --dir server run convex:dev -- --once", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-6", "type": "test_criterion", "description": "Returns validator is explicit v.object", "maps_to_ac": "AC-6", "verify": "pnpm exec biome check --no-errors-on-unmatched server/convex/db/savedRoutes.ts", "satisfied": false, "evidence": null, "remediation": null}
+    {"id": "TC-6", "type": "test_criterion", "description": "Returns validator is explicit v.object", "maps_to_ac": "AC-6", "verify": "pnpm exec biome check --no-errors-on-unmatched convex/db/savedRoutes.ts", "satisfied": false, "evidence": null, "remediation": null}
   ]
 }
 -->

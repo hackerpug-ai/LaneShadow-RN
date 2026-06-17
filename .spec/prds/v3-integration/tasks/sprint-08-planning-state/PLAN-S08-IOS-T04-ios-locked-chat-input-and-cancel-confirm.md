@@ -135,7 +135,7 @@ The existing `LSChatInput.swift` already supports `isThinking: Bool` + `isEnable
 | `ios/LaneShadow/Features/Planning/PlanningScreenContainer.swift` | 1-46 | Container — extension point for sheet conditional rendering above the screen |
 | `.spec/design/system/views/mapapp/planning/planning-screen.html` | V02 cancel-confirm variant | Design contract for sheet layout, copy, token recipe |
 | `.spec/design/system/molecules/chat-input/` | all | LSChatInput design — confirms `is-thinking` modifier visual contract |
-| `server/convex/db/routePlans.ts` | 220-339 | `cancelPlan` API — confirms the mutation signature (`routePlanId`); ownership guard; no parameters beyond plan id |
+| `convex/db/routePlans.ts` | 220-339 | `cancelPlan` API — confirms the mutation signature (`routePlanId`); ownership guard; no parameters beyond plan id |
 
 ## Guardrails
 

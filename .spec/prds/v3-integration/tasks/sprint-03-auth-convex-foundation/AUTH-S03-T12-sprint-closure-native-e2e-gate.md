@@ -147,7 +147,7 @@ writeProhibited:
 - `ios/**/*.xcodeproj/**` - generated output only.
 - `ios/project.yml` unless synced folders do not pick up a new artifact test.
 - `android/app/src/main/**` unless a kotlin reviewer approves an E2E-blocking startup or testability defect.
-- `server/convex/**` - backend implementation tasks own query behavior.
+- `convex/**` - backend implementation tasks own query behavior.
 
 --------------------------------------------------------------------------------
 EVIDENCE GATES

@@ -124,8 +124,8 @@ This task is the Android twin of PLAN-S08-IOS-T01. The contract MUST match the i
 | `android/app/src/main/java/com/laneshadow/ui/molecules/LSPhaseIndicator.kt` | 1-110 | Consumer contract — `PlanningPhase` data shape (id, label, PhaseDotState); ensure the new `phaseSteps` field aligns to the same molecule input type |
 | `.spec/design/system/molecules/phase-indicator/README.md` | all | 5-step pipeline contract (parsing/searching/drafting/enriching/finalizing), Active/Done/Pending state semantics |
 | `.spec/design/system/molecules/context-capsule/README.md` | 1-80 | --planning state contract: single italic line + copper pulse spinner; lookup table for headline copy per phase |
-| `server/convex/db/sessionMessages.ts` | 1-120 | API contract: `status: 'streaming'|'running'|'complete'|'failed'` + `thinkingSteps[]` shape used for phase derivation |
-| `server/convex/db/routePlans.ts` | 1-60 + 231-340 | `cancelPlan` mutation signature consumed by `routeRepository.cancelPlan(planId)` |
+| `convex/db/sessionMessages.ts` | 1-120 | API contract: `status: 'streaming'|'running'|'complete'|'failed'` + `thinkingSteps[]` shape used for phase derivation |
+| `convex/db/routePlans.ts` | 1-60 + 231-340 | `cancelPlan` mutation signature consumed by `routeRepository.cancelPlan(planId)` |
 
 ## Guardrails
 

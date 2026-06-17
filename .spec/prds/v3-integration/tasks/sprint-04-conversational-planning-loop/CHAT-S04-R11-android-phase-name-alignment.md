@@ -125,7 +125,7 @@ writeAllowed:
 writeProhibited:
 - android/build/** — generated
 - android/app/build/** — generated
-- server/convex/** — server source of truth out of scope
+- convex/** — server source of truth out of scope
 - ios/** — iOS handled by R06
 
 --------------------------------------------------------------------------------
@@ -196,7 +196,7 @@ READING LIST
    - Lines: all
    - Focus: iOS canonical phase taxonomy mirror
 
-6. server/convex/schema.ts
+6. convex/schema.ts
    - Lines: all
    - Focus: sessionMessages.status field values
 

@@ -17,11 +17,11 @@
 
 ## Background
 
-`server/convex/db/routePlans.ts` already exports `getPlanByIdHandler`, `getPlanById` (subscription-capable query), `cancelPlan` (mutation), and `getPlanByIdInternal` (internalQuery for agent flows). Sprint 04 shipped these surfaces; Sprint 09 verifies they are stable, complete, and correctly shaped for the iOS + Android `RouteResultsViewModel` consumers landing in this sprint.
+`convex/db/routePlans.ts` already exports `getPlanByIdHandler`, `getPlanById` (subscription-capable query), `cancelPlan` (mutation), and `getPlanByIdInternal` (internalQuery for agent flows). Sprint 04 shipped these surfaces; Sprint 09 verifies they are stable, complete, and correctly shaped for the iOS + Android `RouteResultsViewModel` consumers landing in this sprint.
 
 The contract additions Sprint 09 may need are minimal: (a) a stable, deterministic `{best, alt1, alt2}` triple derived from `plan.options[]` (the agent ranking should already produce a deterministic order, but the contract MUST be explicit so iOS + Android map the same option to the same variant slot every time); (b) confirmation that calling `agent.sendMessage` from results-state to refine the plan **reuses** the active `sessionId` and does NOT mint a fresh `planningSessions` row; (c) a clear policy on `selectedRouteId` — per the design intent, it is a client-side view-model property, NOT a server-persisted commitment.
 
-This task is mostly **verification + documentation + minimal contract codification**, not net-new backend. It produces (1) a contract test in `server/convex/db/__tests__/routePlans.test.ts` confirming the `{best, alt1, alt2}` triple is derivable and stable; (2) a contract test confirming refine via `agent.sendMessage` reuses `sessionId`; (3) an explicit `getPlanByIdResult` type (or doc comment on the existing return shape) that downstream view-models can consume; (4) a `selectedRouteId` policy note in `server/convex/db/routePlans.ts` documenting that selection is client-side.
+This task is mostly **verification + documentation + minimal contract codification**, not net-new backend. It produces (1) a contract test in `convex/db/__tests__/routePlans.test.ts` confirming the `{best, alt1, alt2}` triple is derivable and stable; (2) a contract test confirming refine via `agent.sendMessage` reuses `sessionId`; (3) an explicit `getPlanByIdResult` type (or doc comment on the existing return shape) that downstream view-models can consume; (4) a `selectedRouteId` policy note in `convex/db/routePlans.ts` documenting that selection is client-side.
 
 If the agent ranking is NOT deterministic — i.e., `plan.options[]` arrives unsorted — this task adds the sort/triage helper (`triageOptionsToTriple` or similar) and exposes it from the handler so view-models receive `{best, alt1, alt2}` directly. If the ranking IS deterministic, this task documents the invariant and writes a test that asserts it.
 
@@ -29,17 +29,17 @@ If the agent ranking is NOT deterministic — i.e., `plan.options[]` arrives uns
 
 **MUST:**
 - MUST verify `db.routePlans.getPlanById({routePlanId})` returns `plan.options[]` in a deterministic order that maps to `{best, alt1, alt2}` consistently across iOS and Android; if not deterministic, add the deterministic ordering inside the handler (NOT in the view-model)
-- MUST add a contract test in `server/convex/db/__tests__/routePlans.test.ts` that calls `getPlanByIdHandler` with a stub plan containing 3 options and asserts the returned `options` array maps to `{best, alt1, alt2}` in the documented order (e.g., by `option.kind` enum or `option.rank`)
+- MUST add a contract test in `convex/db/__tests__/routePlans.test.ts` that calls `getPlanByIdHandler` with a stub plan containing 3 options and asserts the returned `options` array maps to `{best, alt1, alt2}` in the documented order (e.g., by `option.kind` enum or `option.rank`)
 - MUST add a contract test that calls `agent.sendMessage` with an existing `sessionId` from the results-state (i.e., after a successful plan completion) and asserts (a) no new `planningSessions` row is created, (b) the `sessionMessages` row is appended to the existing session, (c) the resulting plan completion returns to the same `sessionId`
-- MUST document `selectedRouteId` policy in `server/convex/db/routePlans.ts` (jsdoc / TSDoc comment block) explicitly stating that selected-route is a client-side view-model property and that NO `selectOption` mutation exists by design — the user's selection becomes a server commitment only at `SaveFavoriteSheet` (UC-ROUTE-01) or "Ride this" (post-V3)
-- MUST keep all changes inside `server/convex/db/routePlans.ts` and `server/convex/db/__tests__/routePlans.test.ts`; if a shared type is needed, place it in `server/convex/db/routePlans.types.ts` (new file) and re-export from `routePlans.ts`
+- MUST document `selectedRouteId` policy in `convex/db/routePlans.ts` (jsdoc / TSDoc comment block) explicitly stating that selected-route is a client-side view-model property and that NO `selectOption` mutation exists by design — the user's selection becomes a server commitment only at `SaveFavoriteSheet` (UC-ROUTE-01) or "Ride this" (post-V3)
+- MUST keep all changes inside `convex/db/routePlans.ts` and `convex/db/__tests__/routePlans.test.ts`; if a shared type is needed, place it in `convex/db/routePlans.types.ts` (new file) and re-export from `routePlans.ts`
 
 **NEVER:**
 - NEVER add a `selectOption` mutation that persists `selectedRouteId` on the server; per design, selection is client-side
 - NEVER alter the existing `getPlanByIdHandler` return shape in a way that breaks the iOS / Android Convex client codegen contracts; if the handler must change, update via a new field or a documented additive change, NOT a rename or removal
 - NEVER add a parallel `getResultsTriple` query that duplicates `getPlanById` logic; if a deterministic triple is needed, derive it inside `getPlanByIdHandler` and return it inline
-- NEVER mock the Convex test environment with shims that hide validator failures; use the existing `convexTest` harness in `server/convex/db/__tests__/routePlans.test.ts`
-- NEVER add cross-cutting changes to `server/convex/agent/` or `server/convex/sessions/` from this task — if the refine flow has a `sessionId` bug, file a follow-up task; this task confirms behavior, doesn't refactor agent code
+- NEVER mock the Convex test environment with shims that hide validator failures; use the existing `convexTest` harness in `convex/db/__tests__/routePlans.test.ts`
+- NEVER add cross-cutting changes to `convex/agent/` or `convex/sessions/` from this task — if the refine flow has a `sessionId` bug, file a follow-up task; this task confirms behavior, doesn't refactor agent code
 
 **STRICTLY:**
 - STRICTLY follow `convex/_generated/ai/guidelines.md` for query/mutation patterns — read the file before writing code
@@ -51,7 +51,7 @@ If the agent ranking is NOT deterministic — i.e., `plan.options[]` arrives uns
 
 **Objective:** Verify and codify the route-results read contract: `getPlanByIdHandler` returns a deterministic `{best, alt1, alt2}` triple consumable by iOS + Android view-models; chat-refine via `agent.sendMessage` reuses the active `sessionId` without minting fresh planning sessions; `selectedRouteId` is documented as client-side-only state. Add contract tests for both invariants; add the deterministic-order helper only if the agent ranking does not already produce one.
 
-**Success State:** `server/convex/db/__tests__/routePlans.test.ts` contains the two new contract tests and they pass via `pnpm test --filter routePlans` (or the project's Convex test command). `server/convex/db/routePlans.ts` contains the `selectedRouteId` policy doc comment block. `pnpm --dir server run convex:dev -- --once` exits 0 (validator + codegen clean). `pnpm type-check:native` exits 0. `pnpm lint` exits 0.
+**Success State:** `convex/db/__tests__/routePlans.test.ts` contains the two new contract tests and they pass via `pnpm test --filter routePlans` (or the project's Convex test command). `convex/db/routePlans.ts` contains the `selectedRouteId` policy doc comment block. `pnpm --dir server run convex:dev -- --once` exits 0 (validator + codegen clean). `pnpm type-check:native` exits 0. `pnpm lint` exits 0.
 
 ## Acceptance Criteria
 
@@ -72,9 +72,9 @@ If the agent ranking is NOT deterministic — i.e., `plan.options[]` arrives uns
 ### AC-3 — `selectedRouteId` policy documented in `routePlans.ts`
 
 **GIVEN** the Sprint 09 design intent that selection is a client-side property
-**WHEN** `server/convex/db/routePlans.ts` is read
+**WHEN** `convex/db/routePlans.ts` is read
 **THEN** the file contains a top-of-file (or per-function) jsdoc/TSDoc block explicitly stating: "selectedRouteId is a client-side view-model property; there is no selectOption mutation by design; selection becomes a server commitment only via SaveFavoriteSheet (UC-ROUTE-01) or Ride this (post-V3)"
-**Verify:** `grep -c 'selectedRouteId is a client-side view-model property' server/convex/db/routePlans.ts` ≥ 1
+**Verify:** `grep -c 'selectedRouteId is a client-side view-model property' convex/db/routePlans.ts` ≥ 1
 
 ### AC-4 — Convex validator + codegen clean
 
@@ -85,7 +85,7 @@ If the agent ranking is NOT deterministic — i.e., `plan.options[]` arrives uns
 
 ### AC-5 — TypeScript + lint clean across modified files
 
-**GIVEN** the modified `server/convex/db/routePlans.ts` and `server/convex/db/__tests__/routePlans.test.ts`
+**GIVEN** the modified `convex/db/routePlans.ts` and `convex/db/__tests__/routePlans.test.ts`
 **WHEN** `pnpm type-check:native` and `pnpm lint` run
 **THEN** both exit 0 with no errors in either file
 **Verify:** `pnpm type-check:native && pnpm lint` (exit 0)
@@ -103,7 +103,7 @@ If the agent ranking is NOT deterministic — i.e., `plan.options[]` arrives uns
 |---|---|---|---|---|
 | TC-1 | getPlanByIdHandler returns options in deterministic best/alt1/alt2 order across repeated calls | AC-1 | `pnpm test --filter routePlans -- --grep 'returns deterministic best/alt1/alt2 ordering'` | happy_path |
 | TC-2 | sendMessage with existing sessionId appends to same session, no fresh planningSessions row | AC-2 | `pnpm test --filter routePlans -- --grep 'chat-refine reuses sessionId'` | happy_path |
-| TC-3 | routePlans.ts contains the selectedRouteId policy doc block | AC-3 | `grep -c 'selectedRouteId is a client-side view-model property' server/convex/db/routePlans.ts` ≥ 1 | edge |
+| TC-3 | routePlans.ts contains the selectedRouteId policy doc block | AC-3 | `grep -c 'selectedRouteId is a client-side view-model property' convex/db/routePlans.ts` ≥ 1 | edge |
 | TC-4 | Convex validator + codegen single-run exits 0 | AC-4 | `pnpm --dir server run convex:dev -- --once` | edge |
 | TC-5 | Type check + lint clean across modified files | AC-5 | `pnpm type-check:native && pnpm lint` | edge |
 | TC-6 | triageOptionsToTriple is null-safe for 0/1/2/3 option inputs (if helper exists) | AC-6 | `pnpm test --filter routePlans -- --grep 'triageOptionsToTriple null-safe'` OR explicit "not needed" evidence | edge |
@@ -112,10 +112,10 @@ If the agent ranking is NOT deterministic — i.e., `plan.options[]` arrives uns
 
 | Path | Lines | Focus |
 |---|---|---|
-| `server/convex/db/routePlans.ts` | all (especially getPlanByIdHandler, cancelPlanHandler) | Existing public surface; understand what the handler returns and how options are ordered |
-| `server/convex/db/__tests__/routePlans.test.ts` | all | Existing test harness — extend with two new test blocks |
-| `server/convex/agent/sendMessage.ts` (or equivalent) | all | Sprint 04 chat path — verify `sessionId` reuse path |
-| `server/convex/sessions/` | all | `planningSessions` table shape; verify no new row on refine |
+| `convex/db/routePlans.ts` | all (especially getPlanByIdHandler, cancelPlanHandler) | Existing public surface; understand what the handler returns and how options are ordered |
+| `convex/db/__tests__/routePlans.test.ts` | all | Existing test harness — extend with two new test blocks |
+| `convex/agent/sendMessage.ts` (or equivalent) | all | Sprint 04 chat path — verify `sessionId` reuse path |
+| `convex/sessions/` | all | `planningSessions` table shape; verify no new row on refine |
 | `convex/_generated/ai/guidelines.md` | all | REQUIRED READING — Convex API patterns + validator rules |
 | `.spec/prds/v3-integration/05-uc-chat.md` | UC-CHAT-03 + UC-CHAT-04 | AC list — multi-polyline map, refine reuses sessionId |
 | `.spec/prds/v3-integration/architecture/ios-architecture.md` | §5.3 RouteResultsScreen | iOS view-model contract — what the screen expects from the subscription |
@@ -124,17 +124,17 @@ If the agent ranking is NOT deterministic — i.e., `plan.options[]` arrives uns
 ## Guardrails
 
 **Write-Allowed:**
-- `server/convex/db/routePlans.ts` (MODIFY — add deterministic-order helper if needed; add `selectedRouteId` policy doc block; do NOT change handler signatures in a breaking way)
-- `server/convex/db/__tests__/routePlans.test.ts` (MODIFY — add two new contract tests)
-- `server/convex/db/routePlans.types.ts` (NEW — optional, only if a shared `RouteResultsTriple` type is needed for re-export)
+- `convex/db/routePlans.ts` (MODIFY — add deterministic-order helper if needed; add `selectedRouteId` policy doc block; do NOT change handler signatures in a breaking way)
+- `convex/db/__tests__/routePlans.test.ts` (MODIFY — add two new contract tests)
+- `convex/db/routePlans.types.ts` (NEW — optional, only if a shared `RouteResultsTriple` type is needed for re-export)
 
 **Write-Prohibited:**
-- `server/convex/agent/**` — Sprint 04 ownership; if a `sessionId` reuse bug exists, file a follow-up task, do NOT patch here
-- `server/convex/sessions/**` — `planningSessions` table ownership; do NOT modify the schema or insertion logic
-- `server/convex/schema.ts` — schema changes require their own task and migration plan
-- `server/convex/_generated/**` — generated code, do NOT hand-edit
+- `convex/agent/**` — Sprint 04 ownership; if a `sessionId` reuse bug exists, file a follow-up task, do NOT patch here
+- `convex/sessions/**` — `planningSessions` table ownership; do NOT modify the schema or insertion logic
+- `convex/schema.ts` — schema changes require their own task and migration plan
+- `convex/_generated/**` — generated code, do NOT hand-edit
 - `ios/**`, `android/**`, `react-native/**`, `tokens/**`, `.spec/**` — out of scope
-- `convex/**` (project root) — Convex code lives in `server/convex/`; project-root `convex/` is the legacy path per RULES.md
+- `convex/**` (project root) — Convex code lives in `convex/`; project-root `convex/` is the legacy path per RULES.md
 
 ## Design
 
@@ -142,15 +142,15 @@ If the agent ranking is NOT deterministic — i.e., `plan.options[]` arrives uns
 - `.spec/prds/v3-integration/05-uc-chat.md` (UC-CHAT-03 + UC-CHAT-04 AC list)
 - `.spec/prds/v3-integration/architecture/ios-architecture.md` §5.3 RouteResultsScreen
 - `.spec/prds/v3-integration/architecture/android-architecture.md` §6.3 RouteResultsRoute
-- `server/convex/db/routePlans.ts` (existing handler surface — read before extending)
+- `convex/db/routePlans.ts` (existing handler surface — read before extending)
 
 **Interaction Notes:** No user-facing interactions added by this task. The contract this task codifies is consumed by RR-S09-IOS-T01 (iOS ViewModel) and RR-S09-AND-T01 (Android ViewModel). Document the `{best, alt1, alt2}` ordering rule in code comments so view-models do not need to triage options themselves.
 
-**Pattern:** Existing `getPlanByIdHandler` (lines ~191-253 in `server/convex/db/routePlans.ts`) — the read-model layer wraps the raw `route_plans` row and adds derived fields. Extend that pattern; do not introduce a parallel query.
+**Pattern:** Existing `getPlanByIdHandler` (lines ~191-253 in `convex/db/routePlans.ts`) — the read-model layer wraps the raw `route_plans` row and adds derived fields. Extend that pattern; do not introduce a parallel query.
 
-**Pattern Source:** `server/convex/db/routePlans.ts:191-253` (getPlanByIdHandler)
+**Pattern Source:** `convex/db/routePlans.ts:191-253` (getPlanByIdHandler)
 
-**Anti-Pattern:** Adding a `selectOption` mutation that persists user selection (selection is client-side); adding a parallel `getRouteResultsTriple` query that duplicates `getPlanById`; mocking the Convex test harness with shims that hide validator failures; cross-cutting refactors of `server/convex/agent/` from this task.
+**Anti-Pattern:** Adding a `selectOption` mutation that persists user selection (selection is client-side); adding a parallel `getRouteResultsTriple` query that duplicates `getPlanById`; mocking the Convex test harness with shims that hide validator failures; cross-cutting refactors of `convex/agent/` from this task.
 
 ## Verification Gates
 
@@ -158,7 +158,7 @@ If the agent ranking is NOT deterministic — i.e., `plan.options[]` arrives uns
 |---|---|
 | AC-1 | `pnpm test --filter routePlans -- --grep 'returns deterministic best/alt1/alt2 ordering'` (exit 0) |
 | AC-2 | `pnpm test --filter routePlans -- --grep 'chat-refine reuses sessionId'` (exit 0) |
-| AC-3 | `grep -c 'selectedRouteId is a client-side view-model property' server/convex/db/routePlans.ts` ≥ 1 |
+| AC-3 | `grep -c 'selectedRouteId is a client-side view-model property' convex/db/routePlans.ts` ≥ 1 |
 | AC-4 | `pnpm --dir server run convex:dev -- --once` (exit 0) |
 | AC-5 | `pnpm type-check:native && pnpm lint` (exit 0) |
 | AC-6 | `pnpm test --filter routePlans -- --grep 'triageOptionsToTriple null-safe'` (exit 0) OR explicit "agent ranking is deterministic; no helper needed" evidence in PR |
@@ -166,7 +166,7 @@ If the agent ranking is NOT deterministic — i.e., `plan.options[]` arrives uns
 ## Agent Assignment
 
 **Agent:** convex-implementer
-**Rationale:** Convex backend verification task — extending `server/convex/db/routePlans.ts` with deterministic-order documentation, adding contract tests in `server/convex/db/__tests__/routePlans.test.ts`. Matches `convex-implementer`'s mandate (Convex schemas, queries, mutations, migrations using TDD). No native code, no UI work. The reviewer is `convex-reviewer` per RULES.md.
+**Rationale:** Convex backend verification task — extending `convex/db/routePlans.ts` with deterministic-order documentation, adding contract tests in `convex/db/__tests__/routePlans.test.ts`. Matches `convex-implementer`'s mandate (Convex schemas, queries, mutations, migrations using TDD). No native code, no UI work. The reviewer is `convex-reviewer` per RULES.md.
 
 ## Coding Standards
 
@@ -191,13 +191,13 @@ If the agent ranking is NOT deterministic — i.e., `plan.options[]` arrives uns
   "requirements": [
     {"id":"AC-1","type":"acceptance_criterion","description":"getPlanByIdHandler returns options[] in deterministic best/alt1/alt2 order; verified by contract test","verify":"pnpm test --filter routePlans -- --grep 'returns deterministic best/alt1/alt2 ordering' exits 0","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
     {"id":"AC-2","type":"acceptance_criterion","description":"agent.sendMessage with existing sessionId appends to same session, does NOT create new planningSessions row","verify":"pnpm test --filter routePlans -- --grep 'chat-refine reuses sessionId' exits 0","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-3","type":"acceptance_criterion","description":"server/convex/db/routePlans.ts contains explicit doc block stating selectedRouteId is client-side; no selectOption mutation","verify":"grep -c 'selectedRouteId is a client-side view-model property' server/convex/db/routePlans.ts >= 1","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
+    {"id":"AC-3","type":"acceptance_criterion","description":"convex/db/routePlans.ts contains explicit doc block stating selectedRouteId is client-side; no selectOption mutation","verify":"grep -c 'selectedRouteId is a client-side view-model property' convex/db/routePlans.ts >= 1","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
     {"id":"AC-4","type":"acceptance_criterion","description":"Convex codegen + validator single-run is clean","verify":"pnpm --dir server run convex:dev -- --once exits 0","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
     {"id":"AC-5","type":"acceptance_criterion","description":"TypeScript + lint clean across modified files","verify":"pnpm type-check:native && pnpm lint exits 0","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
     {"id":"AC-6","type":"acceptance_criterion","description":"triageOptionsToTriple helper is pure + null-safe across 0/1/2/3 option inputs (only if added; mark satisfied with evidence if not needed)","verify":"pnpm test --filter routePlans -- --grep 'triageOptionsToTriple null-safe' exits 0 OR explicit not-needed evidence","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
     {"id":"TC-1","type":"test_criterion","description":"Contract test asserts deterministic option ordering across repeated handler invocations","verify":"pnpm test --filter routePlans -- --grep 'returns deterministic best/alt1/alt2 ordering'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-1"},
     {"id":"TC-2","type":"test_criterion","description":"Contract test asserts sendMessage with existing sessionId appends and no fresh session","verify":"pnpm test --filter routePlans -- --grep 'chat-refine reuses sessionId'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-2"},
-    {"id":"TC-3","type":"test_criterion","description":"selectedRouteId policy doc block grep returns >= 1 match","verify":"grep -c 'selectedRouteId is a client-side view-model property' server/convex/db/routePlans.ts","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-3"},
+    {"id":"TC-3","type":"test_criterion","description":"selectedRouteId policy doc block grep returns >= 1 match","verify":"grep -c 'selectedRouteId is a client-side view-model property' convex/db/routePlans.ts","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-3"},
     {"id":"TC-4","type":"test_criterion","description":"convex:dev --once exits 0","verify":"pnpm --dir server run convex:dev -- --once","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-4"},
     {"id":"TC-5","type":"test_criterion","description":"pnpm type-check:native and pnpm lint exit 0","verify":"pnpm type-check:native && pnpm lint","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-5"},
     {"id":"TC-6","type":"test_criterion","description":"triageOptionsToTriple null-safe across 0/1/2/3 inputs","verify":"pnpm test --filter routePlans -- --grep 'triageOptionsToTriple null-safe'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-6"}

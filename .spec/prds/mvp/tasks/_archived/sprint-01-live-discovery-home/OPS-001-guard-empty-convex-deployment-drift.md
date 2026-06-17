@@ -52,7 +52,7 @@ The app went **dead** on 2026-06-14 with a `FunctionPathNotFound` reconnect loop
 ## Reading list
 
 - `package.json:5-25` — **PRIMARY PATTERN** existing scripts (`dev`, `server:dev` = `cd server && pnpm dev`, type-check/lint/test). Extend this pattern; do not invent a new tool.
-- `server/convex/curatedRoutes.ts:156-159` — `api.curatedRoutes.listCuratedRoutes` is the canary the health check asserts is present.
+- `convex/curatedRoutes.ts:156-159` — `api.curatedRoutes.listCuratedRoutes` is the canary the health check asserts is present.
 - `server/package.json` — the server-side dev/convex scripts + convex CLI invocation (reuse for introspection + the cwd=server/ requirement).
 - `~/Projects/brain/docs/HUMAN-TESTING-GATE-VERIFICATION.md` — fail-loud-on-missing-wiring philosophy; this check is the durable version.
 
@@ -60,7 +60,7 @@ The app went **dead** on 2026-06-14 with a `FunctionPathNotFound` reconnect loop
 
 **Write-allowed:** `package.json` (MODIFY: add combined dev + `convex:health` script entries only) · `scripts/check-convex-health.mjs` (NEW: node, no new deps) · `server/package.json` (MODIFY: only if a server-side passthrough is cleaner; scripts only)
 
-**Write-prohibited:** `server/convex/**` function source (no contract change) · any `app/**`/`hooks/**`/`components/**` · `package.json` `dependencies`/`devDependencies` (no new dependency) · any file not listed.
+**Write-prohibited:** `convex/**` function source (no contract change) · any `app/**`/`hooks/**`/`components/**` · `package.json` `dependencies`/`devDependencies` (no new dependency) · any file not listed.
 
 ## Verification gates
 

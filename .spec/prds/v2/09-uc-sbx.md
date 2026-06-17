@@ -13,7 +13,7 @@ The SBX group delivers the story registry, tier aggregation, theme toggling, and
 |------------|--------------------------------------------------------------|-------------|
 | UC-SBX-01  | Story registry + tier aggregation                            | Tier-organized story registration pattern on both platforms with a cross-platform parity manifest. |
 | UC-SBX-02  | Theme controller + light/dark toggle + args control system   | Shared sandbox theming bridge and argument-control UI for story variants. |
-| UC-SBX-03  | Mock data providers + fixtures                               | Hard-coded fixture JSON + typed provider layer whose shapes mirror `server/convex/` read types. |
+| UC-SBX-03  | Mock data providers + fixtures                               | Hard-coded fixture JSON + typed provider layer whose shapes mirror `convex/` read types. |
 | UC-SBX-04  | React Native shell retirement                                | Terminal cleanup pass that deletes the `react-native/` app shell and strips RN-related build config after all V2 screens ship. |
 | UC-SBX-05  | Pre-V2 failed-port cleanup (iOS + Android)                   | Early audit-and-delete pass that removes the failed 1:1 RN-to-native port artifacts from `ios/LaneShadow/Views/` and `android/app/src/main/.../ui/` **before** Sprint 2 (ATM) so new V2 atoms have clean ground to land on. |
 | UC-SBX-06  | Snapshot testing for design parity                            | Visual regression snapshot suite (`swift-snapshot-testing` iOS + `dropshots` Android) capturing every story in light/dark, with a CI-level cross-platform parity diff report. |
@@ -52,12 +52,12 @@ Deliver a shared theme-controller bridge that maps `native-sandbox`'s generic `T
 
 ## UC-SBX-03 — Mock data providers + fixtures
 
-Deliver a typed mock data layer. Fixture JSON files live at `tokens/sandbox/fixtures/` and are generated into platform-specific typed data (Swift structs + Kotlin data classes) at build time via a small codegen step. Each organism/screen gets a dedicated provider (e.g., `RideDetailMockProvider`, `FeedMockProvider`, `DiscoverMockProvider`, `ProfileMockProvider`). Provider data shapes mirror the read types in `server/convex/schema.ts`, so future integration is a 1:1 provider swap. No provider performs I/O, network, or disk access.
+Deliver a typed mock data layer. Fixture JSON files live at `tokens/sandbox/fixtures/` and are generated into platform-specific typed data (Swift structs + Kotlin data classes) at build time via a small codegen step. Each organism/screen gets a dedicated provider (e.g., `RideDetailMockProvider`, `FeedMockProvider`, `DiscoverMockProvider`, `ProfileMockProvider`). Provider data shapes mirror the read types in `convex/schema.ts`, so future integration is a 1:1 provider swap. No provider performs I/O, network, or disk access.
 
 ### Acceptance Criteria
 - ☐ Developer can open `tokens/sandbox/fixtures/` and find a set of JSON files — at minimum `routes.fixtures.json`, `users.fixtures.json`, `sessions.fixtures.json`, `navigator-messages.fixtures.json`, `weather-timelines.fixtures.json`, `planning-phases.fixtures.json`, `suggestion-chips.fixtures.json` — each containing 6–12 representative records.
 - ☐ Developer can run `pnpm fixtures:generate` and the script produces `tokens/platforms/swift/Sources/LaneShadowMocks/Generated/Fixtures.swift` and `tokens/platforms/kotlin/.../generated/Fixtures.kt` containing typed Swift structs and Kotlin data classes matching the JSON shape.
-- ☐ Developer can import `LaneShadowMocks` in Swift and read `Mocks.routes[0]` to get a fully-typed `Route` struct whose fields match the `routes` table read type in `server/convex/schema.ts` (with Navigator-domain extensions per `11-technical-requirements.md`).
+- ☐ Developer can import `LaneShadowMocks` in Swift and read `Mocks.routes[0]` to get a fully-typed `Route` struct whose fields match the `routes` table read type in `convex/schema.ts` (with Navigator-domain extensions per `11-technical-requirements.md`).
 - ☐ Developer can import `LaneShadowMocks` in Kotlin and read the analogous typed value.
 - ☐ Developer can open any Navigator screen story (`Screens / Idle`, `Screens / Planning`, `Screens / RouteResults`, `Screens / RouteDetails`, `Screens / Sessions`, `Screens / Error`) on either platform and see it populated from a named `*MockProvider` (`IdleMockProvider`, `PlanningMockProvider`, `RouteResultsMockProvider`, `RouteDetailsMockProvider`, `SessionsMockProvider`, `ErrorMockProvider`) that wraps the generated fixture constants — never inline literals inside the story.
 - ☐ Developer can declare a story with `argTypes: [.init("provider", control: .select(options: ["default","empty","overflow","long-copy"]))]` and see the story swap between provider variants live in the sandbox.
@@ -67,7 +67,7 @@ Deliver a typed mock data layer. Fixture JSON files live at `tokens/sandbox/fixt
 
 ## UC-SBX-04 — React Native shell retirement
 
-Terminal cleanup pass that runs only after all screens in SCR have passed their human testing gate. Deletes the `react-native/` app shell in its entirety and strips every RN-related reference from shared build config. (Failed-port native-side UI is already gone at this point — UC-SBX-05 ran before Sprint 2.) Leaves `server/convex/`, `tokens/`, and non-UI native code untouched.
+Terminal cleanup pass that runs only after all screens in SCR have passed their human testing gate. Deletes the `react-native/` app shell in its entirety and strips every RN-related reference from shared build config. (Failed-port native-side UI is already gone at this point — UC-SBX-05 ran before Sprint 2.) Leaves `convex/`, `tokens/`, and non-UI native code untouched.
 
 ### Acceptance Criteria
 - ☐ Developer can run `ls /Users/justinrich/Projects/LaneShadow/react-native` and see "No such file or directory" — the entire RN subtree is deleted.
@@ -100,10 +100,10 @@ Additionally, this UC sweeps any surviving references to the **retired v1.x soci
 - ☐ Developer can run `ls android/app/src/debug/java/com/laneshadow/sandbox/` after cleanup and see tier aggregator files reset to empty story lists (`val all: List<Story> = emptyList()`).
 - ☐ Developer can run `xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow build` post-cleanup and see the iOS project build green with zero errors and zero warnings introduced by the deletion.
 - ☐ Developer can run `cd android && ./gradlew :app:compileDebugKotlin` post-cleanup and see the Android module compile green.
-- ☐ Developer can run `pnpm type-check:native` post-cleanup and see zero type errors anywhere in the repo (the failed-port code held no cross-references that V2 work or `server/convex/` code depends on).
+- ☐ Developer can run `pnpm type-check:native` post-cleanup and see zero type errors anywhere in the repo (the failed-port code held no cross-references that V2 work or `convex/` code depends on).
 - ☐ Developer can launch `/native-sandbox --platform ios` and `/native-sandbox --platform android` post-cleanup and see the sandbox UI itself boot cleanly with zero stories listed — no crash, no missing-file errors.
 - ☐ Developer can read the "V2 reset" commit in `git log` and see it is a single commit whose diff is overwhelmingly `D` (deletion) lines, with only the minimal edits required to reset sandbox entry/aggregator files to empty-story shells.
-- ☐ Developer can confirm that `server/convex/`, `tokens/` (excluding UI-tier outputs), domain model files, service layer wrappers, DI modules, bundled fonts, and launch/icon asset catalogs are **still present** post-cleanup — each explicitly listed as `keep` in the manifest.
+- ☐ Developer can confirm that `convex/`, `tokens/` (excluding UI-tier outputs), domain model files, service layer wrappers, DI modules, bundled fonts, and launch/icon asset catalogs are **still present** post-cleanup — each explicitly listed as `keep` in the manifest.
 - ☐ Product manager can verify that open task tracker entries UI-001 through UI-004 and their FIX-* follow-ups are closed or archived with a reference to this "V2 reset" commit — preventing accidental re-work on deleted code.
 - ☐ Developer can `grep -r "LSRideCard\|LSProfileHeader\|LSMenuPanel\|LSMapChatOverlay\|LSEphemeralMessage\|FeedScreen\|DiscoverScreen\|ProfileScreen\|SettingsScreen\|WelcomeScreen\|SignInScreen\|SignUpScreen\|ChatScreen" ios/ android/` post-cleanup and see zero matches — the v1.x social-app surface is fully purged from both native trees.
 

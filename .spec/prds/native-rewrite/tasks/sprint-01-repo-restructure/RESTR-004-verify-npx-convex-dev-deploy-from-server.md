@@ -31,7 +31,7 @@
 
 - `server/README.md`: operational verification notes for backend commands
 - `server/package.json`: verification-ready scripts for backend dev/deploy/test flows
-- `server/convex/`: any fixes required after operational verification
+- `convex/`: any fixes required after operational verification
 
 ---
 
@@ -71,7 +71,7 @@
 
 - `.spec/prds/native-rewrite/04-uc-restructure.md` — UC-RESTR-06 verification requirements
 - `server/README.md` — server-root command workflow after relocation
-- `.spec/prds/curation-hardening/tasks/INDEX.md` — parallel-execution rationale for `server/convex/` paths
+- `.spec/prds/curation-hardening/tasks/INDEX.md` — parallel-execution rationale for `convex/` paths
 
 ---
 
@@ -80,7 +80,7 @@
 **WRITE-ALLOWED FILES:**
 - `server/README.md`
 - `server/package.json`
-- `server/convex/`
+- `convex/`
 
 **NEVER MODIFY:**
 - `RULES.md` — project rules remain authoritative

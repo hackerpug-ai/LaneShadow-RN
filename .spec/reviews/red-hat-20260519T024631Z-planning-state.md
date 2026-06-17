@@ -24,13 +24,13 @@ Compounding the stuck-state bug, four of the seven spec variants have **no live 
 
 ## HIGH Confidence Findings (Both Agents Agree)
 
-- [ ] **F1: `thinkingSteps` derivation path is permanently dead.** Backend writes `thinkingSteps` exclusively to `thinking_card` rows (`server/convex/actions/agent/sendMessage.ts:210-215`, `server/convex/db/sessionMessages.ts:617-625`). iOS reads them only from `planning` rows after `guard message.kind == "planning"` (`PlanningPhase.swift:70, 78`). The two never intersect. | **Severity: Critical** | Agents: frontend-designer, convex-reviewer
+- [ ] **F1: `thinkingSteps` derivation path is permanently dead.** Backend writes `thinkingSteps` exclusively to `thinking_card` rows (`convex/actions/agent/sendMessage.ts:210-215`, `convex/db/sessionMessages.ts:617-625`). iOS reads them only from `planning` rows after `guard message.kind == "planning"` (`PlanningPhase.swift:70, 78`). The two never intersect. | **Severity: Critical** | Agents: frontend-designer, convex-reviewer
 
-- [ ] **F2: `message.phase` only ever holds `PARSING` or `FINALIZING`.** The intermediate values `SEARCHING`, `DRAFTING`, `ENRICHING` are never written directly to the field. Only `createPendingAssistantMessage` (PARSING) and `finalizeAssistantMessage` (FINALIZING) write `phase`. The `derivePlanningPhase()` recomputation inside `updatePlanningContent` happens only when content events fire. (`server/convex/db/sessionMessages.ts:217, 246, 401-407`) | **Severity: Critical** | Agents: frontend-designer, convex-reviewer
+- [ ] **F2: `message.phase` only ever holds `PARSING` or `FINALIZING`.** The intermediate values `SEARCHING`, `DRAFTING`, `ENRICHING` are never written directly to the field. Only `createPendingAssistantMessage` (PARSING) and `finalizeAssistantMessage` (FINALIZING) write `phase`. The `derivePlanningPhase()` recomputation inside `updatePlanningContent` happens only when content events fire. (`convex/db/sessionMessages.ts:217, 246, 401-407`) | **Severity: Critical** | Agents: frontend-designer, convex-reviewer
 
 - [ ] **F3: Phase is stuck at `.parsing` until a sub-agent tool fires; otherwise jumps directly to `.finalizing`.** If the LLM takes 10–15 seconds to call `routing_agent`, or replies conversationally with no tools, the indicator shows `.parsing` for the entire duration, then snaps to `.finalizing`. **This matches the user's reported bug exactly.** (`PlanningPhase.swift:60-67, 86-95`; `sendMessage.ts:455-456, 609`) | **Severity: Critical** | Agents: frontend-designer, convex-reviewer
 
-- [ ] **F4: Tool name `"fetchWeather"` is in iOS's enriching set but no backend tool emits it.** Weather is internal (`getRouteWeather`, `weatherProvider`) and never surfaces a `fetchWeather` name to the planning event system. The enrichment agent's tool events are absorbed by sub-agent delegation, not by leaf-tool emission. (`PlanningPhase.swift:168`; `server/convex/actions/agent/tools/*`) | **Severity: High** | Agents: frontend-designer, convex-reviewer
+- [ ] **F4: Tool name `"fetchWeather"` is in iOS's enriching set but no backend tool emits it.** Weather is internal (`getRouteWeather`, `weatherProvider`) and never surfaces a `fetchWeather` name to the planning event system. The enrichment agent's tool events are absorbed by sub-agent delegation, not by leaf-tool emission. (`PlanningPhase.swift:168`; `convex/actions/agent/tools/*`) | **Severity: High** | Agents: frontend-designer, convex-reviewer
 
 - [ ] **F5: Spec variants S03 Weather, S04 Scoring, V01 Slow Planning, V03 Single Candidate have no live implementation.** Live `PlanningScreenLiveState` is missing `weatherConditions`, `polylines`, `isSlowPlanning`, `isSingleCandidate`, and `advisoryText`. `livePhaseIndicatorView` has no rendering branches for any of them. (`PlanningScreenLiveState.swift:1-11`; `PlanningScreen+LiveContent.swift:9-52`; `PlanningScreen.swift:139`) | **Severity: High** | Agents: frontend-designer, convex-reviewer
 
@@ -52,7 +52,7 @@ Compounding the stuck-state bug, four of the seven spec variants have **no live 
 
 - [ ] **F12: `V03 Single Candidate` semantically collides with error state.** `showWarningChrome: liveState.errorMessage != nil` (`PlanningScreen+LiveContent.swift:89`) fires on errors, not on `routeOptions.options.count == 1`. The spec's "over-constraint advisory block" copy has no field in `PlanningScreenLiveState` and no rendering branch. | **Severity: High** | Agent: frontend-designer
 
-- [ ] **F13: Empty failed-variant loop swallows routing failures silently.** `server/convex/actions/agent/lib/planRideOrchestrator.ts:78-80` — `for (const _f of failed) { }` with empty body. Debugging `NO_ROUTES_GENERATED` in production is blind. | **Severity: Medium** | Agent: convex-reviewer
+- [ ] **F13: Empty failed-variant loop swallows routing failures silently.** `convex/actions/agent/lib/planRideOrchestrator.ts:78-80` — `for (const _f of failed) { }` with empty body. Debugging `NO_ROUTES_GENERATED` in production is blind. | **Severity: Medium** | Agent: convex-reviewer
 
 ---
 

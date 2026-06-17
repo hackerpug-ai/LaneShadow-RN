@@ -13,12 +13,12 @@ appetite_weeks: 1
 
 ## In Scope
 
-- Move `convex/` directory into `server/convex/`
+- Move `convex/` directory into `convex/`
 - Move all React Native/Expo app code into `react-native/`
 - Create `android/` placeholder directory with README
 - Create `ios/` placeholder directory with README
 - Update all import paths and configuration to work from new locations
-- Update Convex deployment config (`convex.json` or equivalent) to find schema in `server/convex/`
+- Update Convex deployment config (`convex.json` or equivalent) to find schema in `convex/`
 - Update `package.json` scripts to work from `react-native/`
 - Update root `CLAUDE.md` to point to new directory structure
 - Create root `Makefile` with `make react-native:dev`, `make server:dev`

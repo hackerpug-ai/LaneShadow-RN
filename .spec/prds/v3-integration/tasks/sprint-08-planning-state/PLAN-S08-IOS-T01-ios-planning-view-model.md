@@ -135,7 +135,7 @@ This task evolves `PlanningViewModel` to expose the data the new overlay layout 
 | `ios/LaneShadow/Features/Idle/IdleViewModel.swift` | 1-200 | Pattern reference — `@Observable` macro usage, `@ObservationIgnored` for stores/clients, `Task` cancellation, `appState` flow transitions |
 | `.spec/design/system/molecules/phase-indicator/README.md` | all | 5-step pipeline contract — confirms parsing→searching→drafting→enriching→finalizing order + step state semantics (`pending`/`active`/`done`) |
 | `.spec/design/system/molecules/context-capsule/README.md` | all | `--planning` state contract — single italic Newsreader t-opinion-md headline + copper pulse-dot, no meta row |
-| `server/convex/db/sessionMessages.ts` | 1-250 | Backend contract source — `LaneShadowSessionMessage` shape consumed via `convexClient.subscribeToSessionMessages` |
+| `convex/db/sessionMessages.ts` | 1-250 | Backend contract source — `LaneShadowSessionMessage` shape consumed via `convexClient.subscribeToSessionMessages` |
 | `server/models/session-messages.ts` | 1-98 | Phase contract source — confirm chosen option (a or b) from PLAN-S08-CVX-T01 before implementing client side |
 | `ios/LaneShadow/Views/Molecules/LSPhaseIndicator.swift` | 1-110 | `LSPhaseIndicator.Phase` struct shape — read-only reference; do not modify |
 

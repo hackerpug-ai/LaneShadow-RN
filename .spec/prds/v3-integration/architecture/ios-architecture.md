@@ -11,7 +11,7 @@ This document is the iOS architecture spec for that integration. It assumes:
 - **Min iOS deploy target: 17.0** (`project.yml` line: `IPHONEOS_DEPLOYMENT_TARGET: "17.0"`, Swift 6.0). The discovery doc claimed 16.0 — that is **stale**. Plans should treat iOS 17 as the floor and use `@Observable`, `Observation`, and the iOS 17 `NavigationStack` features freely.
 - **All deps via SPM**, no CocoaPods (Mapbox is SPM `mapbox-maps-ios` 11.6.0+; Convex is SPM `convex-swift` 0.7.0+; the discovery doc claim of "CocoaPods/SPM hybrid" is stale).
 - **Project generation via XcodeGen** (`ios/project.yml`). Anything that touches the Xcode project must update `project.yml` and regenerate (lefthook enforces this — `scripts/ios/check-project-generated.sh`).
-- **Backend is production-ready**: Convex schema, Clerk JWT issuer wiring (`server/convex/auth.config.ts`), and all 8 query/6 mutation/2 action endpoints exist.
+- **Backend is production-ready**: Convex schema, Clerk JWT issuer wiring (`convex/auth.config.ts`), and all 8 query/6 mutation/2 action endpoints exist.
 - **Appetite: 6 weeks** with one iOS implementer agent. Cut sequence (Section 12) bakes in slack.
 
 ---
@@ -790,7 +790,7 @@ This mirrors `useActiveSessionRoute` in RN.
 | Aspect | Mock | Live |
 |---|---|---|
 | 3 polylines | `state.routes` from `RouteResultsMockProvider` | `chatStore.flowState.routeOptions.options` mapped to `[PolylineData]` |
-| Polyline decoding | Hardcoded triangle in `decodePolyline(_:)` | Use existing polyline-decode helper. **Note**: `ios/LaneShadow/Views/Templates/RouteResultsScreen.swift` line 131 has a placeholder decoder — must be replaced. **Action**: port `react-native/server/lib/polyline.ts` decoder logic to Swift in `Convex/Polyline.swift` (or use an existing Swift lib like `Polyline` from cocoapods/SPM if approved). |
+| Polyline decoding | Hardcoded triangle in `decodePolyline(_:)` | Use existing polyline-decode helper. **Note**: `ios/LaneShadow/Views/Templates/RouteResultsScreen.swift` line 131 has a placeholder decoder — must be replaced. **Action**: port `react-native/shared/lib/polyline.ts` decoder logic to Swift in `Convex/Polyline.swift` (or use an existing Swift lib like `Polyline` from cocoapods/SPM if approved). |
 | Navigator message body | static prose | The most recent assistant message body from `.listMessages` — first non-thinking-only `agent` message |
 | Tap card → details | Stub `onSelect` | `chatStore.dispatch(.selectRoute(routeId))` → flowState transitions to `.routeDetails`, parent re-renders to `RouteDetailsScreen` |
 | Refine chat input | Stub `onSend` | `await chatStore.sendPlanningMessage(text, currentLocation:)` — reuses session, transitions back to `.planning` |
@@ -1331,7 +1331,7 @@ Without these, v3 is a sandbox with auth bolted on — not feature parity.
 | 3 | **Mapbox offline UX** (downloading regions has many failure modes: no network mid-download, disk full, tile-pack quota) | Medium | Medium | Cut to v4 if needed (item 5 in cut sequence). MVP shows error toast + "retry" button without sophisticated recovery. |
 | 4 | **Background download lifecycle** (BGTaskScheduler is unreliable on iOS — tasks may never fire) | High | Low | Treat as nice-to-have; don't depend on it for correctness. Foreground download path must always work. |
 | 5 | **iOS 17 minimum** alienates older devices | Low | Low | Already established by current `IPHONEOS_DEPLOYMENT_TARGET: "17.0"` in `project.yml`. Confirm with PM; iOS 17+ covers ~95% of active iPhones in 2026. |
-| 6 | **Polyline decoder fidelity** — RN uses `decodePolylineGeometry` from `server/lib/polyline.ts`; iOS port may have rounding drift | Medium | Medium | Port the decoder verbatim; add round-trip unit tests with fixtures shared between iOS and the server (encode in TS, decode in Swift, assert equality within epsilon). |
+| 6 | **Polyline decoder fidelity** — RN uses `decodePolylineGeometry` from `shared/lib/polyline.ts`; iOS port may have rounding drift | Medium | Medium | Port the decoder verbatim; add round-trip unit tests with fixtures shared between iOS and the server (encode in TS, decode in Swift, assert equality within epsilon). |
 | 7 | **Camera-move callback gap** in `LSMap` (Section 8.2.1) | Low | Medium — required for camera persistence | Schedule the API addition in week 1 before any screen wiring depends on it. |
 | 8 | **Real Convex test deployment cost** for integration tests | Low | Low | Use the existing dev deployment; tests delete after themselves. |
 | 9 | **Sandbox parity drift** — adding live wiring may tempt the implementer to skip sandbox stories for new screens | Medium | Medium — RULES.md mandates parity for sandbox-listed components; new screens should still ship sandbox stories | Bake into per-task acceptance criteria: "MockProvider variants exist; sandbox snapshot tests pass" alongside live integration. |
@@ -1361,7 +1361,7 @@ ios/LaneShadow/
 ├── Convex/
 │   ├── ConvexClient.swift                  # NEW — replaces ConvexStore.swift
 │   ├── Endpoints.swift                     # NEW — ConvexQuery/Mutation/Action enums
-│   ├── Polyline.swift                      # NEW — decoder port from server/lib/polyline.ts
+│   ├── Polyline.swift                      # NEW — decoder port from shared/lib/polyline.ts
 │   └── Models/
 │       ├── PlanningSession.swift           # NEW
 │       ├── SessionMessage.swift            # NEW
@@ -1549,9 +1549,9 @@ Key files referenced in this plan:
 - `/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Molecules/LSChatInput.swift`
 - `/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Sandbox/MockProviders/NavigatorDomain.swift`
 - `/Users/justinrich/Projects/LaneShadow/ios/project.yml`
-- `/Users/justinrich/Projects/LaneShadow/server/convex/auth.config.ts`
-- `/Users/justinrich/Projects/LaneShadow/server/convex/db/planningSessions.ts`
-- `/Users/justinrich/Projects/LaneShadow/server/convex/db/savedRoutes.ts`
+- `/Users/justinrich/Projects/LaneShadow/convex/auth.config.ts`
+- `/Users/justinrich/Projects/LaneShadow/convex/db/planningSessions.ts`
+- `/Users/justinrich/Projects/LaneShadow/convex/db/savedRoutes.ts`
 - `/Users/justinrich/Projects/LaneShadow/react-native/app/_layout.tsx`
 - `/Users/justinrich/Projects/LaneShadow/react-native/app/(app)/_layout.tsx`
 - `/Users/justinrich/Projects/LaneShadow/react-native/app/(auth)/sign-in.tsx`

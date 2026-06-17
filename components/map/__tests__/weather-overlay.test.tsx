@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react-native'
 import { describe, expect, it } from 'vitest'
-import type { PolylineGeometry, RouteLeg, RouteStop } from '../../../server/models/saved-routes'
+import type { PolylineGeometry, RouteLeg, RouteStop } from '../../../shared/models/saved-routes'
 import type { ExtendedTheme } from '../../../styles/types'
 import {
   createRainOverlay,

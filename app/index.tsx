@@ -2,7 +2,7 @@ import { useAuth } from '@clerk/clerk-expo'
 import { useQuery } from 'convex/react'
 import { Redirect } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { api } from '../server/convex/_generated/api'
+import { api } from '../convex/_generated/api'
 
 const Index = () => {
   const { isLoaded: clerkLoaded, isSignedIn } = useAuth()

@@ -97,7 +97,7 @@ Finalize the Android mock provider layer for all six Navigator screens — typed
 - `tokens/sandbox/fixtures/` lines `all JSON files` — Fixture record shapes
 - `tokens/platforms/kotlin/src/main/java/com/laneshadow/theme/generated/` lines `all` — Generated Fixtures.kt typed structs (READ ONLY)
 - `android/app/src/debug/java/com/laneshadow/sandbox/mockproviders/` lines `all` — Existing partial providers to finalize
-- `server/convex/schema.ts` lines `1-end` — Read-type reference for Route + User shape parity
+- `convex/schema.ts` lines `1-end` — Read-type reference for Route + User shape parity
 
 ## Guardrails
 
@@ -116,7 +116,7 @@ Finalize the Android mock provider layer for all six Navigator screens — typed
 - `tokens/platforms/kotlin/src/main/java/com/laneshadow/theme/generated/**` — read only
 - `tokens/sandbox/fixtures/**` — codegen-managed in this task scope
 - native-sandbox library — external dep
-- `server/convex/**` — read-only reference
+- `convex/**` — read-only reference
 
 ## Code Pattern
 

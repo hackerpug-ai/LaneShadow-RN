@@ -166,7 +166,7 @@ Boolean statements that map 1:1 to acceptance criteria. No conditional language.
 - scripts/curation/data/reports/quality_floor_report.json
 
 ### WRITE-PROHIBITED
-- server/convex/** — schema contract frozen, handled by INF-003; QUAL-003 is a consumer only
+- convex/** — schema contract frozen, handled by INF-003; QUAL-003 is a consumer only
 - scripts/curation/pipeline/dedup/** — owned by QUAL-001 and QUAL-002; do not modify
 - scripts/curation/pipeline/embed/** — embedding generation owned by INF-004
 - scripts/curation/pipeline/models.py — shared dataclass; changes require cross-task review

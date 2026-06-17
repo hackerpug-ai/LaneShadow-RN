@@ -25,7 +25,7 @@ V3 PRD authored by a five-specialist team in parallel collaboration. Each specia
 - **SDK choice**: Official `convex-mobile` Swift + Kotlin from `https://github.com/get-convex/convex-mobile`; pin to specific tagged release (pre-1.0; semver-minor changes can break)
 - **Auth**: Clerk SDKs (`clerk-ios`, `clerk-android`) preferred over rolling custom OAuth; Custom Tabs fallback documented for Android if SDK proves immature
 - **Backend additions**: 2 minor — `db.users.getCurrentUser` public query (~30 LoC), optional `limit` arg on `db.sessionMessages.list` (+5 LoC); zero schema changes
-- **Type generation**: `server/scripts/generate-mobile-types.ts` emits Swift Codable + Kotlin @Serializable from `_generated/api.d.ts`; non-optional even if Android is cut
+- **Type generation**: `scripts/generate-mobile-types.ts` emits Swift Codable + Kotlin @Serializable from `_generated/api.d.ts`; non-optional even if Android is cut
 - **API surface inventory**: 11 critical-path endpoints (sessions, messages, route plans, send-message action, current user) + 10 important (saved routes CRUD, plan init, enrichments, cancel) + nice-to-have (curated discovery, deferred)
 - **Reactivity patterns**: 3 subscription tiers (long-lived screen, lazy per-row for attachments, one-shot imperative); cap simultaneous per-row subscriptions at 5
 - **Error taxonomy**: 11 typed error codes from server, mapped to user-facing copy; `LaneShadowError` Swift enum + Kotlin sealed class mirror RN `lib/convex-error.ts` 1:1

@@ -25,7 +25,7 @@ Server error codes (SESSION_NOT_FOUND, RATE_LIMIT_EXCEEDED, PLAN_LIMIT_EXCEEDED,
 🚫 CRITICAL CONSTRAINTS
 --------------------------------------------------------------------------------
 
-- MUST define a Kotlin sealed class LaneShadowError mirroring the RN getUserFacingError() taxonomy from react-native/lib/convex-error.ts and the codes in server/lib/errors.ts
+- MUST define a Kotlin sealed class LaneShadowError mirroring the RN getUserFacingError() taxonomy from react-native/lib/convex-error.ts and the codes in convex/errors.ts
 - MUST provide a top-level pure fun toLaneShadowError(throwable: Throwable): LaneShadowError that inspects message, then ConvexException subclasses (when SDK exposes them), then IOException for NETWORK_TIMEOUT, falling back to LaneShadowError.Unknown
 - MUST emit user-facing copy via @StringRes resource ids (no hardcoded English strings in the error class) — values added to res/values/strings.xml
 - MUST trigger AuthRepository.signOut() + clear EncryptedSharedPreferences + navigate to Route.SignIn when LaneShadowError.Unauthenticated is surfaced (matches UC-CHAT-06 AC#5)
@@ -34,15 +34,15 @@ Server error codes (SESSION_NOT_FOUND, RATE_LIMIT_EXCEEDED, PLAN_LIMIT_EXCEEDED,
 - NEVER show raw server error codes to users (e.g., never display "AGENT_TIMEOUT" — always the mapped string)
 - NEVER hold a hard reference to NavController inside SignOutFlow — accept a navigation callback or use a SharedFlow<NavEvent>
 - NEVER swallow UNAUTHENTICATED — always sign out + navigate (no silent retry)
-- NEVER add new server error codes that don't exist in server/lib/errors.ts — request a backend addition first
+- NEVER add new server error codes that don't exist in convex/errors.ts — request a backend addition first
 - NEVER perform sign-out work on Dispatchers.Main; use Dispatchers.IO
-- STRICTLY mirror the RN error code taxonomy in react-native/lib/convex-error.ts and server/lib/errors.ts (1:1 case match)
+- STRICTLY mirror the RN error code taxonomy in react-native/lib/convex-error.ts and convex/errors.ts (1:1 case match)
 
 --------------------------------------------------------------------------------
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [x] toLaneShadowError maps known server codes (AC-1 PRIMARY) ← reviewer-round-2 PASS: all codes from server/lib/errors.ts and server/convex/errors.ts are mapped (LaneShadowErrorMapper.kt:27-59, KnownErrorCodes:92-125); test renamed to `toLaneShadowError_currentServerAndPlanningCodes_mapToTypedVariants` covering all 26 codes
+- [x] toLaneShadowError maps known server codes (AC-1 PRIMARY) ← reviewer-round-2 PASS: all codes from convex/errors.ts and convex/errors.ts are mapped (LaneShadowErrorMapper.kt:27-59, KnownErrorCodes:92-125); test renamed to `toLaneShadowError_currentServerAndPlanningCodes_mapToTypedVariants` covering all 26 codes
 - [x] IOException maps to NetworkTimeout (AC-2)
 - [x] Unknown error maps to LaneShadowError.Unknown (AC-3)
 - [x] UNAUTHENTICATED triggers SignOutFlow + nav to SignIn (AC-4)
@@ -129,7 +129,7 @@ writeAllowed:
 writeProhibited:
 - android/app/src/main/java/com/laneshadow/ui/templates/ErrorScreen.kt — v2 template untouched
 - android/app/src/main/java/com/laneshadow/data/repository/ClerkAuthRepository.kt — Sprint 03 surface; only call existing signOut
-- server/lib/errors.ts — backend changes are out of scope
+- convex/errors.ts — backend changes are out of scope
 - Any iOS file under ios/**
 
 --------------------------------------------------------------------------------
@@ -143,7 +143,7 @@ BOUNDARIES
 - Use stringResource(error.messageResId) inside the Composable — not directly in the ViewModel
 
 ⚠️ Ask First:
-- If a server error code surfaces in production that isn't in server/lib/errors.ts — surface a needs-backend ticket before adding a Kotlin variant
+- If a server error code surfaces in production that isn't in convex/errors.ts — surface a needs-backend ticket before adding a Kotlin variant
 - If ConvexException subclasses are not exposed by the SDK version pinned in build.gradle.kts — fall back to message-string matching only
 
 --------------------------------------------------------------------------------
@@ -171,7 +171,7 @@ READING LIST
    - Lines: 1-50
    - Focus: getServerErrorCode + getUserFacingError to mirror 1:1
 
-2. server/lib/errors.ts
+2. convex/errors.ts
    - Lines: 1-26
    - Focus: Source of truth for server error code taxonomy
 

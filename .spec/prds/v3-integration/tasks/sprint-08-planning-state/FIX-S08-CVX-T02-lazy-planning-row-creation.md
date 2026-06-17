@@ -5,7 +5,7 @@
 
 ## Background
 
-Red-hat review found that `server/convex/actions/agent/sendMessage.ts:451-455` creates a `kind='planning'` row UNCONDITIONALLY for every agent invocation via `planningEmitter.init()` at line 455. When the orchestrator replies conversationally (greeting, clarification, off-topic) without calling any tools, the row is still created at `status='streaming', phase='parsing'` and then `planningEmitter.done()` (line 609) finalizes it. The iOS client sees `.parsing → .finalizing` flicker on greetings.
+Red-hat review found that `convex/actions/agent/sendMessage.ts:451-455` creates a `kind='planning'` row UNCONDITIONALLY for every agent invocation via `planningEmitter.init()` at line 455. When the orchestrator replies conversationally (greeting, clarification, off-topic) without calling any tools, the row is still created at `status='streaming', phase='parsing'` and then `planningEmitter.done()` (line 609) finalizes it. The iOS client sees `.parsing → .finalizing` flicker on greetings.
 
 Fix: convert `planningEmitter` to lazy initialization — defer `createPendingAssistantMessage` until the FIRST tool event fires (`toolPending` / `toolComplete` / `agentComplete`). If `done()` is reached without any events, do nothing. This preserves the planning row as a signal of *actual* planning activity.
 
@@ -33,10 +33,10 @@ Fix: convert `planningEmitter` to lazy initialization — defer `createPendingAs
 ## Acceptance Criteria
 
 ### AC-1 — Eager `init()` call removed from sendMessage.ts
-**GIVEN** `server/convex/actions/agent/sendMessage.ts`
+**GIVEN** `convex/actions/agent/sendMessage.ts`
 **WHEN** the file is grep'd for `planningEmitter.init()`
 **THEN** zero direct call sites exist; the only references are within `planningEvents.ts` `ensureInit()` private helper
-**Verify:** `grep -n "planningEmitter.init()" server/convex/actions/agent/sendMessage.ts` returns nothing
+**Verify:** `grep -n "planningEmitter.init()" convex/actions/agent/sendMessage.ts` returns nothing
 
 ### AC-2 — Conversational invocation creates no planning row
 **GIVEN** a test invocation of `sendMessage` with a prompt that the agent answers directly (mocked to return text without tool calls)
@@ -69,20 +69,20 @@ Fix: convert `planningEmitter` to lazy initialization — defer `createPendingAs
 
 | Path | Lines | Focus |
 |---|---|---|
-| `server/convex/actions/agent/sendMessage.ts` | 450-475, 605-615 | Eager init call + done() call sites |
-| `server/convex/actions/agent/lib/planningEvents.ts` | 70-90, 218-240 | `ensureInit` + `done` |
-| `server/convex/actions/agent/__tests__/planningIntegration.test.ts` | all | Existing tests to preserve + new tests to add |
+| `convex/actions/agent/sendMessage.ts` | 450-475, 605-615 | Eager init call + done() call sites |
+| `convex/actions/agent/lib/planningEvents.ts` | 70-90, 218-240 | `ensureInit` + `done` |
+| `convex/actions/agent/__tests__/planningIntegration.test.ts` | all | Existing tests to preserve + new tests to add |
 
 ## Guardrails
 
 **Write-Allowed:**
-- `server/convex/actions/agent/sendMessage.ts` (MODIFY — remove eager init call)
-- `server/convex/actions/agent/lib/planningEvents.ts` (MODIFY only if `ensureInit` needs an order tweak)
-- `server/convex/actions/agent/__tests__/planningIntegration.test.ts` (MODIFY — add new tests)
+- `convex/actions/agent/sendMessage.ts` (MODIFY — remove eager init call)
+- `convex/actions/agent/lib/planningEvents.ts` (MODIFY only if `ensureInit` needs an order tweak)
+- `convex/actions/agent/__tests__/planningIntegration.test.ts` (MODIFY — add new tests)
 
 **Write-Prohibited:**
 - `ios/**`, `android/**`, `react-native/**`
-- Convex schema (`server/convex/schema.ts`)
+- Convex schema (`convex/schema.ts`)
 
 ## Design
 
@@ -96,7 +96,7 @@ Fix: convert `planningEmitter` to lazy initialization — defer `createPendingAs
 
 | AC | Command |
 |---|---|
-| AC-1 | `grep -n "planningEmitter.init()" server/convex/actions/agent/sendMessage.ts` |
+| AC-1 | `grep -n "planningEmitter.init()" convex/actions/agent/sendMessage.ts` |
 | AC-2 | `pnpm --filter @laneshadow/server test -- planningIntegration.test.ts -t "no planning row for conversational reply"` |
 | AC-3 | `pnpm --filter @laneshadow/server test -- planningIntegration.test.ts -t "planning row created on tool call"` |
 | AC-4 | `pnpm --filter @laneshadow/server test -- planningIntegration.test.ts -t "lazy init handles error before first tool"` |
@@ -110,7 +110,7 @@ Fix: convert `planningEmitter` to lazy initialization — defer `createPendingAs
 ## Coding Standards
 
 - `brain/docs/coding-standards/typescript.md`
-- `server/convex/CLAUDE.md`
+- `convex/CLAUDE.md`
 
 ## Dependencies
 
@@ -121,11 +121,11 @@ Fix: convert `planningEmitter` to lazy initialization — defer `createPendingAs
 <!--
 {
   "requirements": [
-    { "id": "AC-1", "type": "acceptance_criterion", "description": "Eager planningEmitter.init() removed from sendMessage.ts", "verify": "grep -n 'planningEmitter.init()' server/convex/actions/agent/sendMessage.ts returns empty", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": null },
+    { "id": "AC-1", "type": "acceptance_criterion", "description": "Eager planningEmitter.init() removed from sendMessage.ts", "verify": "grep -n 'planningEmitter.init()' convex/actions/agent/sendMessage.ts returns empty", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": null },
     { "id": "AC-2", "type": "acceptance_criterion", "description": "Conversational reply produces zero planning rows", "verify": "pnpm --filter @laneshadow/server test -- planningIntegration.test.ts -t 'no planning row for conversational reply'", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": null },
     { "id": "AC-3", "type": "acceptance_criterion", "description": "Tool-invoking reply produces exactly one planning row", "verify": "pnpm --filter @laneshadow/server test -- planningIntegration.test.ts -t 'planning row created on tool call'", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": null },
     { "id": "AC-4", "type": "acceptance_criterion", "description": "Error before first tool event does not create orphan row", "verify": "pnpm --filter @laneshadow/server test -- planningIntegration.test.ts -t 'lazy init handles error before first tool'", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": null },
-    { "id": "TC-1", "type": "test_criterion", "description": "planningEmitter.init() not called directly from sendMessage.ts", "verify": "grep -n 'planningEmitter.init()' server/convex/actions/agent/sendMessage.ts", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": "AC-1" },
+    { "id": "TC-1", "type": "test_criterion", "description": "planningEmitter.init() not called directly from sendMessage.ts", "verify": "grep -n 'planningEmitter.init()' convex/actions/agent/sendMessage.ts", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": "AC-1" },
     { "id": "TC-2", "type": "test_criterion", "description": "Zero planning rows for conversational reply", "verify": "pnpm --filter @laneshadow/server test -- planningIntegration.test.ts -t 'no planning row for conversational reply'", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": "AC-2" },
     { "id": "TC-3", "type": "test_criterion", "description": "One planning row for tool-invoking reply", "verify": "pnpm --filter @laneshadow/server test -- planningIntegration.test.ts -t 'planning row created on tool call'", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": "AC-3" },
     { "id": "TC-4", "type": "test_criterion", "description": "Error before first tool does not orphan row", "verify": "pnpm --filter @laneshadow/server test -- planningIntegration.test.ts -t 'lazy init handles error before first tool'", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": "AC-4" }

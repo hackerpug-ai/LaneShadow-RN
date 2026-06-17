@@ -11,7 +11,7 @@
 
 ## CRITICAL CONSTRAINTS
 
-1. Do this before any downstream backend task assumes `server/convex/` exists.
+1. Do this before any downstream backend task assumes `convex/` exists.
 2. Treat `server/` as the new operational root for backend commands, not just a placeholder folder.
 3. Do not move feature code yet; this task establishes the boundary only.
 
@@ -63,7 +63,7 @@
 
 - `.spec/prds/native-rewrite/04-uc-restructure.md` — restructure acceptance criteria and server-root expectations
 - `.spec/prds/native-rewrite/06-technical-requirements.md` — end-state repo layout and working-directory rules
-- `.spec/prds/curation-hardening/tasks/INDEX.md` — parallel execution note already expecting `server/convex/` paths
+- `.spec/prds/curation-hardening/tasks/INDEX.md` — parallel execution note already expecting `convex/` paths
 
 ---
 
@@ -103,8 +103,8 @@
 ### Acceptance Criteria Checklist
 
 - [x] AC-001: Server workspace exists with backend command scaffolding (server workspace files created in commit `ff9981f017b07d6e6b9b4359e7a6e1aff0552ca8`)
-- [x] AC-002: Backend entry point is documented (`server/README.md` documents purpose + entry point commands; `server/package.json` provides scripts that fail fast when `server/convex/` is missing)
-- [x] AC-003: Downstream tasks can target `server/` (downstream `.spec/prds/native-rewrite/*` docs and `.spec/prds/curation-hardening/tasks/INDEX.md` already reference `server/` / `server/convex/`)
+- [x] AC-002: Backend entry point is documented (`server/README.md` documents purpose + entry point commands; `server/package.json` provides scripts that fail fast when `convex/` is missing)
+- [x] AC-003: Downstream tasks can target `server/` (downstream `.spec/prds/native-rewrite/*` docs and `.spec/prds/curation-hardening/tasks/INDEX.md` already reference `server/` / `convex/`)
 
 ### Task-Local Verification
 

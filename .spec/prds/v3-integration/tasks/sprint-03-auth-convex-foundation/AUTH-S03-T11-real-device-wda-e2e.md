@@ -147,7 +147,7 @@ writeProhibited:
 - `ios/project.yml` - only modify if synced folders do not pick up the new artifact test
 - `ios/LaneShadow/Services/**` - implementation tasks own auth and Convex behavior
 - `android/**` - Android implementation tasks own Android app behavior; this task may document manual Android evidence only
-- `server/convex/**` - backend implementation tasks own query behavior
+- `convex/**` - backend implementation tasks own query behavior
 - Any production auth screen file unless adding stable accessibility identifiers is explicitly required and reviewer-approved
 
 --------------------------------------------------------------------------------

@@ -24,8 +24,8 @@ import type {
   RouteOverlays,
   WindOverlay,
   WindSummary,
-} from '../../server/models/saved-routes'
-import { getWorstRainLevel, RAIN_SUMMARY, WIND_SUMMARY } from '../../server/models/saved-routes'
+} from '../../shared/models/saved-routes'
+import { getWorstRainLevel, RAIN_SUMMARY, WIND_SUMMARY } from '../../shared/models/saved-routes'
 import { WindBadge } from '../planning/wind-badge'
 import { RainBadge } from './rain-badge'
 

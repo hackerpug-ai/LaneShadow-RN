@@ -100,7 +100,7 @@ The integration sprint that takes V2's static native UI (six Navigator screens r
 - **V2 PRD (predecessor)**: `.spec/prds/v2/` — defines the design system; this PRD is what V2 explicitly deferred as `[DEFERRED: integration-initiative]`.
 - **Discovery reports**: `.spec/research/v3-integration-discovery/01-react-native-business-logic.md` and `02-native-current-state.md`.
 - **RN reference**: `/Users/justinrich/Projects/LaneShadow/react-native/` — read-only parity target. The RN app is preserved for reference; sprint 7 RN retirement is deferred to a follow-on.
-- **Convex backend**: `/Users/justinrich/Projects/LaneShadow/server/convex/` — production-ready; only 2 minor additions needed.
+- **Convex backend**: `/Users/justinrich/Projects/LaneShadow/convex/` — production-ready; only 2 minor additions needed.
 - **Architecture refs (this PRD)**: `architecture/ios-architecture.md`, `architecture/android-architecture.md`, `architecture/ui-design.md`.
 
 ## Hard Replacement Policy

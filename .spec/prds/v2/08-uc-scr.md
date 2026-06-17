@@ -7,7 +7,7 @@ functional_group: SCR
 
 # Use Cases: Screens / Templates (SCR)
 
-Screens assemble organisms (and, where appropriate, molecules and atoms) into full user-facing Navigator templates. Every screen renders from a named mock data provider in the sandbox — there is no live Convex or Navigator-runtime wiring in V2. Fixture shapes either mirror `server/convex/` read types (Route, User) or are declared in `11-technical-requirements.md` for Navigator-specific entities.
+Screens assemble organisms (and, where appropriate, molecules and atoms) into full user-facing Navigator templates. Every screen renders from a named mock data provider in the sandbox — there is no live Convex or Navigator-runtime wiring in V2. Fixture shapes either mirror `convex/` read types (Route, User) or are declared in `11-technical-requirements.md` for Navigator-specific entities.
 
 All six screens share the `LSMapLayer` organism (UC-ORG-02) as their canvas — positioning / z-index / safe-area / overlay slot stacking is solved once there. Screens pass pre-assembled overlays and chrome into the map layer's slots.
 

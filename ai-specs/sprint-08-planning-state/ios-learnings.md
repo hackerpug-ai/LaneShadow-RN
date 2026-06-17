@@ -69,7 +69,7 @@
 2. Convex Swift nested objects must be encoded as `[String: ConvexEncodable?]` so the SDK can serialize the object shape accepted by `sendMessage`.
 
 ## API Contract Notes
-- `server/convex/actions/agent/sendMessage.ts` accepts `currentLocation: { lat: number, lng: number }`.
+- `convex/actions/agent/sendMessage.ts` accepts `currentLocation: { lat: number, lng: number }`.
 - Android already sends `currentLocation` only when present, using the same `lat`/`lng` shape; iOS now matches that behavior.
 
 ## UI Decisions

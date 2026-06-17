@@ -29,8 +29,8 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated'
+import type { Id } from '../../../convex/_generated/dataModel'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
-import type { Id } from '../../../server/convex/_generated/dataModel'
 import { IconSymbol } from '../../ui/icon-symbol'
 import type { CardAttachment } from '../card-registry'
 

@@ -10,8 +10,8 @@ import { Provider as PaperProvider } from 'react-native-paper'
 import Toast from 'react-native-toast-message'
 import { DevMenu } from '../components/dev'
 import { ErrorBoundary } from '../components/logging/error-boundary'
-import { env } from '../server/lib/env'
-import { initLogger, logger } from '../server/lib/logger/frontend-logger'
+import { env } from '../shared/env'
+import { initLogger, logger } from '../shared/lib/logger/frontend-logger'
 
 const Gatekeeper: React.ComponentType<{ children: React.ReactNode; testID?: string }> = ({
   children,

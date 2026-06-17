@@ -1,6 +1,6 @@
 import { useQuery } from 'convex/react'
 import { useMemo } from 'react'
-import { api } from '../server/convex/_generated/api'
+import { api } from '../convex/_generated/api'
 import { useCurrentLocation } from './use-current-location'
 
 export type DiscoveryArchetype =

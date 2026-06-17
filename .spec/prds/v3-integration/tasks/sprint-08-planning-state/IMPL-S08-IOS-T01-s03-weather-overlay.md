@@ -72,7 +72,7 @@ Weather data already exists in the agent flow — the `getRouteWeather` tool ret
 **GIVEN** an inspection of `LaneShadowRoutePlanSnapshot` and the Convex schema for `routePlans` table
 **WHEN** the inspector confirms whether weather conditions are exposed
 **THEN** EITHER the field is present and AC-2 passes — OR a follow-up Convex task is filed and this iOS task is blocked
-**Verify:** `grep -n "weather" server/convex/schema.ts` AND `grep -n "weather" ios/LaneShadow/Models/`; document outcome in `.tmp/IMPL-S08-IOS-T01/ac-6-data-exposure.md`
+**Verify:** `grep -n "weather" convex/schema.ts` AND `grep -n "weather" ios/LaneShadow/Models/`; document outcome in `.tmp/IMPL-S08-IOS-T01/ac-6-data-exposure.md`
 
 ## Test Criteria
 
@@ -95,7 +95,7 @@ Weather data already exists in the agent flow — the `getRouteWeather` tool ret
 | `ios/LaneShadow/Features/Planning/PlanningViewModel.swift` | 220-250 | `handleRoutePlanSnapshot` |
 | `ios/LaneShadow/Views/Templates/PlanningScreen+LiveContent.swift` | all | Live composition |
 | `ios/LaneShadow/Views/Templates/PlanningScreen+SketchingPolyline.swift` | all | Sketch dim parameter |
-| `server/convex/actions/agent/tools/getRouteWeather.ts` | all | Real weather data shape |
+| `convex/actions/agent/tools/getRouteWeather.ts` | all | Real weather data shape |
 | `ios/LaneShadow/Models/` | discover route plan snapshot type | Confirm weather field |
 
 ## Guardrails

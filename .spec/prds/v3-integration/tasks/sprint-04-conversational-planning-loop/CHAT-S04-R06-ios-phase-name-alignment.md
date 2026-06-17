@@ -128,7 +128,7 @@ writeAllowed:
 writeProhibited:
 - ios/LaneShadow.xcodeproj/** — generated
 - ios/LaneShadow/Generated/** — generated
-- server/convex/** — coordinate with convex-planner; do not unilaterally change backend
+- convex/** — coordinate with convex-planner; do not unilaterally change backend
 - ios/LaneShadow/Sandbox/Stories/** — story IDs reserved for R07
 
 --------------------------------------------------------------------------------

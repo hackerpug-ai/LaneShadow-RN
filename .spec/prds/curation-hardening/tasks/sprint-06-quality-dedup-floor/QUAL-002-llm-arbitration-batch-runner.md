@@ -154,7 +154,7 @@ Boolean statements that map 1:1 to acceptance criteria. No conditional language.
 - scripts/curation/data/arbitration/arbitration_error_queue.jsonl
 
 ### WRITE-PROHIBITED
-- server/convex/** — schema contract frozen, handled by INF-003
+- convex/** — schema contract frozen, handled by INF-003
 - scripts/curation/pipeline/embed/** — embedding generation owned by INF-004
 - scripts/curation/pipeline/dedup/semantic_deduplicator.py — owned by QUAL-001; do not modify
 - scripts/curation/data/arbitration/arbitration_queue.json — input artifact from QUAL-001; read-only

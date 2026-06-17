@@ -29,7 +29,7 @@ curatedRoutes.ts.listCuratedRoutes is the Clerk-gated public query powering disc
 - **WHEN** listCuratedRoutes is called with (a) a bbox, (b) sort='nearest'+center, (c) archetypes=['scenic','twisties'], (d) state='North Carolina'
 - **THEN** bbox returns only in-box centroids ranked by compositeScore; nearest returns ascending-distance rows with distanceMi populated; archetypes return only mapped UI-enum routes; state returns both dirty variants; every card has compositeScore in [0,1] and clamped lengthMiles, capped to the limit
 - **Test tier:** `integration` · **Service:** live Convex dev (api.curatedRoutes.listCuratedRoutes)
-- **Verify:** `pnpm test server/convex/__tests__/listCuratedRoutes.integration.test.ts` → `allFourModesReturnCorrectRankedCappedResults`
+- **Verify:** `pnpm test convex/__tests__/listCuratedRoutes.integration.test.ts` → `allFourModesReturnCorrectRankedCappedResults`
 - **Scenario** (start `seeded_geospatial_index`):
   - must observe: ≥1 route; results sorted by compositeScore desc; every compositeScore ≤ 1 (0–1 scale); result length ≤ 25
   - must NOT observe: 0 routes; any compositeScore > 1; result length > 25
@@ -40,7 +40,7 @@ curatedRoutes.ts.listCuratedRoutes is the Clerk-gated public query powering disc
 - **WHEN** listCuratedRoutes is called with no identity
 - **THEN** the call is rejected server-side by requireIdentity (does not return data)
 - **Test tier:** `integration` · **Service:** live Convex dev (requireIdentity guard)
-- **Verify:** `pnpm test server/convex/__tests__/listCuratedRoutes.integration.test.ts` → `unauthenticatedCallIsRejected`
+- **Verify:** `pnpm test convex/__tests__/listCuratedRoutes.integration.test.ts` → `unauthenticatedCallIsRejected`
 - **Scenario** (start `seeded_geospatial_index`):
   - must observe: an identity/auth error is thrown
   - must NOT observe: a populated route array; ≥1 route returned to an unauthenticated caller
@@ -50,23 +50,23 @@ curatedRoutes.ts.listCuratedRoutes is the Clerk-gated public query powering disc
 
 | ID | Statement | Maps to | Verify |
 |----|-----------|---------|--------|
-| TC-1 | Integration: all four modes correct, ranked, capped; 0–1 scores; distanceMi on nearest; both NC variants; within interactive latency (T-DATA-008 AC1–6). | AC-1 | `pnpm test server/convex/__tests__/listCuratedRoutes.integration.test.ts` |
-| TC-2 | Integration: an unauthenticated listCuratedRoutes call is rejected by requireIdentity. | AC-2 | `pnpm test server/convex/__tests__/listCuratedRoutes.integration.test.ts` |
+| TC-1 | Integration: all four modes correct, ranked, capped; 0–1 scores; distanceMi on nearest; both NC variants; within interactive latency (T-DATA-008 AC1–6). | AC-1 | `pnpm test convex/__tests__/listCuratedRoutes.integration.test.ts` |
+| TC-2 | Integration: an unauthenticated listCuratedRoutes call is rejected by requireIdentity. | AC-2 | `pnpm test convex/__tests__/listCuratedRoutes.integration.test.ts` |
 
 ## Reading List
 
-- `server/convex/curatedRoutes.ts` (20-283) — PRIMARY PATTERN — argsValidator/returnValidator + the four resolution modes + requireIdentity + buildRouteCard
+- `convex/curatedRoutes.ts` (20-283) — PRIMARY PATTERN — argsValidator/returnValidator + the four resolution modes + requireIdentity + buildRouteCard
 - `.spec/prds/mvp/09-technical-requirements/04-api-design.md` (19-58) — locked args/returns contract + resolution rules + auth-gate precondition
-- `server/convex/geospatialIndex.ts` (1-27) — the geospatial index used by Modes 1 and 2
-- `server/convex/__tests__/dataNormalization.test.ts` (1-40) — test conventions for the transforms this query composes
+- `convex/geospatialIndex.ts` (1-27) — the geospatial index used by Modes 1 and 2
+- `convex/__tests__/dataNormalization.test.ts` (1-40) — test conventions for the transforms this query composes
 - `.spec/prds/mvp/10-e2e-testing-criteria.md` (56) — T-DATA-008 pass/fail
 
 ## Guardrails
 
-- WRITE-ALLOWED: `server/convex/__tests__/listCuratedRoutes.integration.test.ts (NEW)`
-- WRITE-ALLOWED: `server/convex/curatedRoutes.ts (MODIFY — only a proven mode/gate/score correction)`
-- WRITE-PROHIBITED: server/convex/schema.ts
-- WRITE-PROHIBITED: server/convex/guards.ts — do not weaken requireIdentity
+- WRITE-ALLOWED: `convex/__tests__/listCuratedRoutes.integration.test.ts (NEW)`
+- WRITE-ALLOWED: `convex/curatedRoutes.ts (MODIFY — only a proven mode/gate/score correction)`
+- WRITE-PROHIBITED: convex/schema.ts
+- WRITE-PROHIBITED: convex/guards.ts — do not weaken requireIdentity
 - WRITE-PROHIBITED: Any file not listed above
 
 ## Design
@@ -80,8 +80,8 @@ curatedRoutes.ts.listCuratedRoutes is the Clerk-gated public query powering disc
 | Gate | Command |
 |------|---------|
 | gate | `pnpm type-check` |
-| gate | `pnpm test server/convex/__tests__/listCuratedRoutes.integration.test.ts` |
-| gate | `pnpm exec biome check server/convex/curatedRoutes.ts` |
+| gate | `pnpm test convex/__tests__/listCuratedRoutes.integration.test.ts` |
+| gate | `pnpm exec biome check convex/curatedRoutes.ts` |
 | gate | `pnpm --dir server run convex:dev -- --once` |
 | gate | `npx convex run curatedRoutes:listCuratedRoutes '{"state":"North Carolina","limit":200}' (manual evidence against live dev — count > 43, all canonical)` |
 
@@ -115,7 +115,7 @@ curatedRoutes.ts.listCuratedRoutes is the Clerk-gated public query powering disc
       "type": "acceptance_criterion",
       "primary": true,
       "description": "GIVEN seeded live dev WHEN listCuratedRoutes called in bbox/nearest/archetype/state modes THEN each returns correct ranked, capped, 0\u20131-scored, length-clamped results (distanceMi on nearest, both NC variants)",
-      "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.integration.test.ts",
+      "verify": "pnpm test convex/__tests__/listCuratedRoutes.integration.test.ts",
       "maps_to_ac": null
     },
     {
@@ -123,21 +123,21 @@ curatedRoutes.ts.listCuratedRoutes is the Clerk-gated public query powering disc
       "type": "acceptance_criterion",
       "primary": false,
       "description": "GIVEN no identity WHEN listCuratedRoutes called THEN requireIdentity rejects the call",
-      "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.integration.test.ts",
+      "verify": "pnpm test convex/__tests__/listCuratedRoutes.integration.test.ts",
       "maps_to_ac": null
     },
     {
       "id": "TC-1",
       "type": "test_criterion",
       "description": "four-mode correctness + score scale + cap (T-DATA-008)",
-      "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.integration.test.ts",
+      "verify": "pnpm test convex/__tests__/listCuratedRoutes.integration.test.ts",
       "maps_to_ac": "AC-1"
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "Clerk gate enforced",
-      "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.integration.test.ts",
+      "verify": "pnpm test convex/__tests__/listCuratedRoutes.integration.test.ts",
       "maps_to_ac": "AC-2"
     }
   ]

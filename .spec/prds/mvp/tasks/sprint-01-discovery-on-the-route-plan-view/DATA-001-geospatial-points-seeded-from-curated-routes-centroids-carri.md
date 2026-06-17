@@ -29,7 +29,7 @@ geospatialSeed.ts already defines seedGeospatialBatchInternal (paginated interna
 - **WHEN** the founder runs seedGeospatialAll then runs it a second time, reading debugGeospatialData before/after each run
 - **THEN** post-first-run total_in_index is within tolerance of the curated_routes count and the second run yields zero net-new points
 - **Test tier:** `integration` · **Service:** live Convex dev deployment (geospatialSeed.seedGeospatialAll + geospatialValidation.debugGeospatialData)
-- **Verify:** `pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts` → `seedsApproxRouteCountAndReRunIsIdempotent`
+- **Verify:** `pnpm test convex/__tests__/geospatialSeed.integration.test.ts` → `seedsApproxRouteCountAndReRunIsIdempotent`
 - **Scenario** (start `live_curated_catalog`):
   - must observe: total_in_index ≈ 5654 (within skipped-junk tolerance, > 5000); second-run net-new points = 0
   - must NOT observe: total_in_index = 0; total_in_index = 1000 (truncated cap); second-run net-new > 0 (duplication)
@@ -40,7 +40,7 @@ geospatialSeed.ts already defines seedGeospatialBatchInternal (paginated interna
 - **WHEN** validateNearestNeighbor (Nashville point) and validateRectangularRange (Southeast bbox) run
 - **THEN** each returns ≥1 real route within 500ms with state+primaryArchetype filterKeys and compositeScore sortKey available
 - **Test tier:** `integration` · **Service:** live Convex dev deployment (geospatialValidation.validateNearestNeighbor + validateRectangularRange)
-- **Verify:** `pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts` → `nearestAndRectangleReturnRealRoutesUnderBudget`
+- **Verify:** `pnpm test convex/__tests__/geospatialSeed.integration.test.ts` → `nearestAndRectangleReturnRealRoutesUnderBudget`
 - **Scenario** (start `seeded_geospatial_index`):
   - must observe: status = 'PASS'; count ≥ 1 for both queries; latency_ms < 500
   - negative control (would fail if): index empty so queries return []; filterKeys/sortKey not stored on points; latency over 500ms budget
@@ -49,24 +49,24 @@ geospatialSeed.ts already defines seedGeospatialBatchInternal (paginated interna
 
 | ID | Statement | Maps to | Verify |
 |----|-----------|---------|--------|
-| TC-1 | Integration test asserts post-seed total_in_index > 5000 and a second seedGeospatialAll run produces 0 net-new points (T-DATA-001). | AC-1 | `pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts` |
-| TC-2 | Integration test asserts nearest + rectangle each return ≥1 real route under 500ms with filterKeys/sortKey (T-DATA-002). | AC-2 | `pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts` |
+| TC-1 | Integration test asserts post-seed total_in_index > 5000 and a second seedGeospatialAll run produces 0 net-new points (T-DATA-001). | AC-1 | `pnpm test convex/__tests__/geospatialSeed.integration.test.ts` |
+| TC-2 | Integration test asserts nearest + rectangle each return ≥1 real route under 500ms with filterKeys/sortKey (T-DATA-002). | AC-2 | `pnpm test convex/__tests__/geospatialSeed.integration.test.ts` |
 
 ## Reading List
 
-- `server/convex/geospatialSeed.ts` (24-131) — PRIMARY PATTERN — paginated batch insert + seedGeospatialAll loop; the function under verification
-- `server/convex/geospatialValidation.ts` (12-90) — debugGeospatialData count probe (note the limit:1000 cap to harden) + nearest/rectangle validators
-- `server/convex/geospatialIndex.ts` (21-27) — GeospatialIndex wiring: key/filterKeys/sortKey contract
-- `server/convex/__tests__/seedGeospatialTest.test.ts` (1-86) — existing seed test shape and conventions
+- `convex/geospatialSeed.ts` (24-131) — PRIMARY PATTERN — paginated batch insert + seedGeospatialAll loop; the function under verification
+- `convex/geospatialValidation.ts` (12-90) — debugGeospatialData count probe (note the limit:1000 cap to harden) + nearest/rectangle validators
+- `convex/geospatialIndex.ts` (21-27) — GeospatialIndex wiring: key/filterKeys/sortKey contract
+- `convex/__tests__/seedGeospatialTest.test.ts` (1-86) — existing seed test shape and conventions
 - `.spec/prds/mvp/10-e2e-testing-criteria.md` (29-30) — T-DATA-001 / T-DATA-002 pass/fail criteria
 
 ## Guardrails
 
-- WRITE-ALLOWED: `server/convex/__tests__/geospatialSeed.integration.test.ts (NEW)`
-- WRITE-ALLOWED: `server/convex/geospatialValidation.ts (MODIFY — only if the count probe needs the cap-truncation fix)`
-- WRITE-ALLOWED: `server/convex/geospatialSeed.ts (MODIFY — only a minimal correction if idempotence/skip logic is found broken)`
-- WRITE-PROHIBITED: server/convex/schema.ts — no schema change in this gate
-- WRITE-PROHIBITED: server/convex/curated*.ts — curated_routes is read-only here
+- WRITE-ALLOWED: `convex/__tests__/geospatialSeed.integration.test.ts (NEW)`
+- WRITE-ALLOWED: `convex/geospatialValidation.ts (MODIFY — only if the count probe needs the cap-truncation fix)`
+- WRITE-ALLOWED: `convex/geospatialSeed.ts (MODIFY — only a minimal correction if idempotence/skip logic is found broken)`
+- WRITE-PROHIBITED: convex/schema.ts — no schema change in this gate
+- WRITE-PROHIBITED: convex/curated*.ts — curated_routes is read-only here
 - WRITE-PROHIBITED: Any file not listed above
 
 ## Design
@@ -80,8 +80,8 @@ geospatialSeed.ts already defines seedGeospatialBatchInternal (paginated interna
 | Gate | Command |
 |------|---------|
 | gate | `pnpm type-check` |
-| gate | `pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts` |
-| gate | `pnpm exec biome check server/convex/geospatialSeed.ts server/convex/geospatialValidation.ts` |
+| gate | `pnpm test convex/__tests__/geospatialSeed.integration.test.ts` |
+| gate | `pnpm exec biome check convex/geospatialSeed.ts convex/geospatialValidation.ts` |
 | gate | `pnpm --dir server run convex:dev -- --once` |
 | gate | `npx convex run geospatialValidation:debugGeospatialData '{}' (manual evidence capture against live dev — total_in_index > 5000)` |
 
@@ -122,7 +122,7 @@ geospatialSeed.ts already defines seedGeospatialBatchInternal (paginated interna
       "type": "acceptance_criterion",
       "primary": true,
       "description": "GIVEN live Convex dev with the 5,654-row catalog WHEN seedGeospatialAll runs twice with debugGeospatialData read between THEN post-first-run total_in_index \u2248 route count and second run yields 0 net-new points",
-      "verify": "pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts",
+      "verify": "pnpm test convex/__tests__/geospatialSeed.integration.test.ts",
       "maps_to_ac": null
     },
     {
@@ -130,21 +130,21 @@ geospatialSeed.ts already defines seedGeospatialBatchInternal (paginated interna
       "type": "acceptance_criterion",
       "primary": false,
       "description": "GIVEN the seeded index WHEN nearest + rectangle validation queries run THEN each returns \u22651 real route under 500ms with filterKeys/sortKey",
-      "verify": "pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts",
+      "verify": "pnpm test convex/__tests__/geospatialSeed.integration.test.ts",
       "maps_to_ac": null
     },
     {
       "id": "TC-1",
       "type": "test_criterion",
       "description": "Idempotent non-empty seed verified against live dev (T-DATA-001)",
-      "verify": "pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts",
+      "verify": "pnpm test convex/__tests__/geospatialSeed.integration.test.ts",
       "maps_to_ac": "AC-1"
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "nearest+rectangle real-route latency budget verified (T-DATA-002)",
-      "verify": "pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts",
+      "verify": "pnpm test convex/__tests__/geospatialSeed.integration.test.ts",
       "maps_to_ac": "AC-2"
     }
   ]

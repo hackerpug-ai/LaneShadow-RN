@@ -75,7 +75,7 @@ Template-level compositions, one per Navigator screen in `concepts/designs.html`
 - **`SessionsScreen`** — scrimmed map + sessions drawer.
 - **`ErrorScreen`** — map + inline error callout + recovery chat input.
 
-Every screen is rendered from a mock data provider in the sandbox — there is no live Convex wiring in V2 scope. Fixture shapes mirror `server/convex/` read types where they align; Navigator-specific entities (`Session`, `NavigatorMessage`, `RouteAttachment`, `WeatherSummary`, `WeatherTimelineEntry`, `PlanningPhase`, `SuggestionChip`, `LocationContext`) live in the PRD's Technical Requirements.
+Every screen is rendered from a mock data provider in the sandbox — there is no live Convex wiring in V2 scope. Fixture shapes mirror `convex/` read types where they align; Navigator-specific entities (`Session`, `NavigatorMessage`, `RouteAttachment`, `WeatherSummary`, `WeatherTimelineEntry`, `PlanningPhase`, `SuggestionChip`, `LocationContext`) live in the PRD's Technical Requirements.
 
 ### 6. Sandbox Infrastructure (SBX)
 
@@ -98,6 +98,6 @@ Every UC in V2 runs off **hard-coded fixture providers**, not live Convex or a l
 
 - **Decouples design iteration from backend + AI-agent work.** A screen can be reviewed for visual/structural correctness before any Convex query or Navigator-runtime endpoint exists.
 - **Makes sandbox previews deterministic.** Stories render the same every time; visual-regression checks are stable.
-- **Preserves integration-readiness.** Fixture shapes mirror `server/convex/` read types where they overlap (Route, User); swapping a fixture provider for a real subscription — or a mocked Navigator response for a real one — is a single point-of-substitution per screen.
+- **Preserves integration-readiness.** Fixture shapes mirror `convex/` read types where they overlap (Route, User); swapping a fixture provider for a real subscription — or a mocked Navigator response for a real one — is a single point-of-substitution per screen.
 
 Real data wiring (Convex queries/mutations, live subscriptions, offline sync) and the real Navigator runtime (LLM orchestration, weather APIs, Mapbox Directions, geocoding) are **out of scope** for V2 and will be scheduled as separate integration initiatives once the design system ships.

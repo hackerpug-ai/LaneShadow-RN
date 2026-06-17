@@ -9,7 +9,7 @@ functional_group: RESTR
 
 | ID | Title | Description |
 |----|-------|-------------|
-| UC-RESTR-01 | Convex to Server | Move convex/ into server/convex/ with all tooling intact |
+| UC-RESTR-01 | Convex to Server | Move convex/ into convex/ with all tooling intact |
 | UC-RESTR-02 | RN App to react-native/ | Move entire React Native/Expo app into react-native/ folder |
 | UC-RESTR-03 | Placeholder Directories | Create android/ and ios/ placeholder directories |
 | UC-RESTR-04 | Root Makefile | Create Makefile with cross-platform dev commands |
@@ -20,12 +20,12 @@ functional_group: RESTR
 
 ## UC-RESTR-01: Convex to Server
 
-Move the `convex/` directory into `server/convex/` with all backend tooling intact.
+Move the `convex/` directory into `convex/` with all backend tooling intact.
 
 ### Acceptance Criteria
 - ☐ Developer can run `npx convex dev` from `server/` and it connects to the deployment
 - ☐ Developer can run `npx convex deploy` from `server/` and it pushes all functions
-- ☐ All Convex functions, schema, and generated files are in `server/convex/`
+- ☐ All Convex functions, schema, and generated files are in `convex/`
 - ☐ `convex/_generated/` auto-regenerates correctly from `server/` working directory
 - ☐ Any Convex-related scripts (seed, migration, etc.) work from `server/`
 

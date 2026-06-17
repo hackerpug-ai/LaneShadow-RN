@@ -9,7 +9,7 @@ import {
   decodePolylineGeometry,
   type MapLatLng,
   slicePolylineByMeters,
-} from '../../server/lib/polyline'
+} from '../../shared/lib/polyline'
 import type {
   RainOverlayByLeg,
   RainOverlaySegment,
@@ -19,7 +19,7 @@ import type {
   TemperatureOverlaySegment,
   WindOverlayByLeg,
   WindOverlaySegment,
-} from '../../server/models/saved-routes'
+} from '../../shared/models/saved-routes'
 import type { ExtendedTheme } from '../../styles/types'
 
 // ---------------------------------------------------------------------------

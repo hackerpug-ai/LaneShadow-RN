@@ -9,6 +9,7 @@ import { DeleteRouteDialog } from '../../../components/ui/delete-route-dialog'
 import { EmptyState } from '../../../components/ui/empty-state'
 import { SavedRouteCard } from '../../../components/ui/saved-route-card'
 import { formatDate } from '../../../components/ui/saved-route-card.utils'
+import type { Id } from '../../../convex/_generated/dataModel'
 import {
   useSavedRoutesList,
   useSoftDeleteRoute,
@@ -16,8 +17,7 @@ import {
 } from '../../../hooks/use-saved-routes'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { showSuccessNotification } from '../../../lib/notifier-helpers'
-import type { Id } from '../../../server/convex/_generated/dataModel'
-import type { SavedRouteListItemView } from '../../../server/types/routes'
+import type { SavedRouteListItemView } from '../../../shared/types/routes'
 import {
   FilteredEmptyState,
   FilterHeader,

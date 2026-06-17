@@ -28,14 +28,14 @@ Deploy db.users.getCurrentUser query and optional limit arg on db.sessionMessage
 - MUST use ctx.auth.getUserIdentity() to retrieve Clerk user ID
 - MUST return null when user is not authenticated (not throw)
 - MUST NOT expose sensitive fields (password reset tokens, etc.)
-- STRICTLY follow existing query patterns in server/convex/users/ and server/convex/sessionMessages/
+- STRICTLY follow existing query patterns in convex/users/ and convex/sessionMessages/
 - NEVER commit generated files to git without running typecheck first
 
 --------------------------------------------------------------------------------
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [x] getCurrentUser query exists in server/convex/db/users.ts and returns user document or null
+- [x] getCurrentUser query exists in convex/db/users.ts and returns user document or null
 - [x] sessionMessages.list accepts optional limit arg with default 50
 - [x] Deployed to Convex dev: pnpm --dir server run convex:dev -- --once succeeds
 - [x] pnpm --dir server exec tsc --noEmit passes
@@ -51,7 +51,7 @@ AC-1: getCurrentUser query returns authenticated user [PRIMARY]
   THEN:  Query returns the user's document from the users table
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/users.test.ts
+  TEST_FILE:     convex/users.test.ts
   TEST_FUNCTION: test_getCurrentUser_returnsUserWhenAuthenticated
 
 AC-2: getCurrentUser returns null when unauthenticated
@@ -60,7 +60,7 @@ AC-2: getCurrentUser returns null when unauthenticated
   THEN:  Query returns null without throwing
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/users.test.ts
+  TEST_FILE:     convex/users.test.ts
   TEST_FUNCTION: test_getCurrentUser_returnsNullWhenUnauthenticated
 
 AC-3: sessionMessages.list accepts optional limit arg
@@ -69,7 +69,7 @@ AC-3: sessionMessages.list accepts optional limit arg
   THEN:  Query respects limit if provided, otherwise uses default of 50
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/sessionMessages.test.ts
+  TEST_FILE:     convex/sessionMessages.test.ts
   TEST_FUNCTION: test_listSessionMessages_respectsOptionalLimitArg
 
 AC-4: Deployed to Convex dev environment
@@ -86,34 +86,34 @@ SCOPE
 --------------------------------------------------------------------------------
 
 writeAllowed:
-- server/convex/db/users.ts (MODIFY)
-- server/convex/db/users.test.ts (MODIFY)
-- server/convex/db/sessionMessages.ts (MODIFY)
-- server/convex/db/__tests__/session/session.messages.test.ts (MODIFY)
+- convex/db/users.ts (MODIFY)
+- convex/db/users.test.ts (MODIFY)
+- convex/db/sessionMessages.ts (MODIFY)
+- convex/db/__tests__/session/session.messages.test.ts (MODIFY)
 
 writeProhibited:
-- server/convex/auth.config.ts — Clerk JWT issuer already configured
-- server/convex/_generated/ — generated files, run codegen instead
+- convex/auth.config.ts — Clerk JWT issuer already configured
+- convex/_generated/ — generated files, run codegen instead
 
 --------------------------------------------------------------------------------
 BOUNDARIES
 --------------------------------------------------------------------------------
 
 ✅ Always:
-- Read existing query patterns in server/convex/users/ before implementing
+- Read existing query patterns in convex/users/ before implementing
 - Use Convex's ctx.auth.getUserIdentity() for auth token extraction
 - Run typecheck before committing changes
 
 ⚠️ Ask First:
-- If Clerk JWT issuer is not already configured in server/convex/auth.config.ts
+- If Clerk JWT issuer is not already configured in convex/auth.config.ts
 - If existing user table schema lacks expected fields
 
 --------------------------------------------------------------------------------
 DELIVERABLE
 --------------------------------------------------------------------------------
 
-- server/convex/db/users.ts (MODIFY): Public query returning authenticated user or null
-- server/convex/db/sessionMessages.ts (MODIFY): Add optional limit arg with default 50
+- convex/db/users.ts (MODIFY): Public query returning authenticated user or null
+- convex/db/sessionMessages.ts (MODIFY): Add optional limit arg with default 50
 
 --------------------------------------------------------------------------------
 AGENT INSTRUCTIONS (TDD Flow)
@@ -146,14 +146,14 @@ AGENT INSTRUCTIONS (TDD Flow)
 READING LIST
 --------------------------------------------------------------------------------
 
-1. server/convex/auth.config.ts [PRIMARY PATTERN]
+1. convex/auth.config.ts [PRIMARY PATTERN]
    - Lines: 1-50
    - Focus: Clerk JWT issuer configuration
 
-2. server/convex/users/
+2. convex/users/
    - Focus: Existing query patterns for user table
 
-3. server/convex/sessionMessages/
+3. convex/sessionMessages/
    - Focus: Existing list query to add limit arg
 
 --------------------------------------------------------------------------------

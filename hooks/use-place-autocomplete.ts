@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getUserFacingError } from '../lib/convex-error'
 import { showErrorNotification } from '../lib/notifier-helpers'
-import { env } from '../server/lib/env'
+import { env } from '../shared/env'
 import {
   type PlaceDetails,
   type PlacePrediction,

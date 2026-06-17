@@ -11,7 +11,7 @@ AGENT:      implementer=convex-implementer | reviewer=convex-reviewer
 RUNTIME_COMMANDS:
   test:      cd server && pnpm test -- routeEnrichments
   typecheck: pnpm type-check:native
-  lint:      pnpm exec biome check --no-errors-on-unmatched server/convex/db/routeEnrichments.ts
+  lint:      pnpm exec biome check --no-errors-on-unmatched convex/db/routeEnrichments.ts
   build:     pnpm --dir server run convex:dev -- --once
 
 PROGRESS: 0/3 AC · pending
@@ -74,11 +74,11 @@ SCOPE
 --------------------------------------------------------------------------------
 
 writeAllowed:
-- server/convex/db/routeEnrichments.ts (MODIFY — fix no-op branch)
-- server/convex/db/routeEnrichments.test.ts (MODIFY — add test for absent enrichments)
+- convex/db/routeEnrichments.ts (MODIFY — fix no-op branch)
+- convex/db/routeEnrichments.test.ts (MODIFY — add test for absent enrichments)
 
 writeProhibited:
-- server/convex/_generated/**
+- convex/_generated/**
 - ios/** + android/**
 
 --------------------------------------------------------------------------------

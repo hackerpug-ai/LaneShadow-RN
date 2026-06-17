@@ -18,8 +18,8 @@ import {
   calculateTempRange,
   formatTempRange,
   hasExtremeTemp,
-} from '../../server/lib/weather/temp-calculator'
-import type { TemperatureOverlay } from '../../server/models/saved-routes'
+} from '../../shared/lib/weather/temp-calculator'
+import type { TemperatureOverlay } from '../../shared/models/saved-routes'
 import { IconSymbol } from '../ui/icon-symbol'
 
 export type TempRangeSummaryProps = {

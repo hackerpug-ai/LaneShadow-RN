@@ -36,6 +36,8 @@ import { SaveRouteSheet } from '../../../components/ui/save-favorite-sheet'
 import { useSearchResults } from '../../../contexts/search-results'
 import { useSelectedRoute } from '../../../contexts/selected-route'
 import { useThemePreference } from '../../../contexts/theme-preference'
+import { api } from '../../../convex/_generated/api'
+import type { Doc, Id } from '../../../convex/_generated/dataModel'
 import { useActiveSessionRoute } from '../../../hooks/use-active-session-route'
 import { useChatPlanning } from '../../../hooks/use-chat-planning'
 import { useCuratedDiscovery } from '../../../hooks/use-curated-discovery'
@@ -46,11 +48,9 @@ import { type RideFlowAction, useRideFlow } from '../../../hooks/use-ride-flow'
 import { useRouteComparison } from '../../../hooks/use-route-comparison'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useToastMessages } from '../../../hooks/use-toast-messages'
-import { api } from '../../../server/convex/_generated/api'
-import type { Doc, Id } from '../../../server/convex/_generated/dataModel'
-import { decodePolylineGeometry } from '../../../server/lib/polyline'
-import type { RouteProvenance } from '../../../server/models/saved-routes'
-import type { PlanInput, RouteStop } from '../../../server/types/routes'
+import { decodePolylineGeometry } from '../../../shared/lib/polyline'
+import type { RouteProvenance } from '../../../shared/models/saved-routes'
+import type { PlanInput, RouteStop } from '../../../shared/types/routes'
 import { useChatSessionStore } from '../../../stores/chat-session-store'
 
 type CameraState = {
@@ -245,11 +245,18 @@ const HomeMapScreen = () => {
   // per newly resolved plan (not on every re-render).
   const lastFittedPlanIdRef = useRef<string | null>(null)
 
+  // Handle selecting a curated route from suggestion pills — plot directly, no chat round-trip
+  const [selectedCuratedRouteId, setSelectedCuratedRouteId] = useState<string | null>(null)
+
   // Determine if there's an active route for chat input logic
   const hasActiveRoute = !!agentActiveOption || !!selectedCuratedRouteId
 
   // Curated route discovery pills (DISC-011)
-  const { isLoading, isEmpty, routes: curatedDiscoveryRoutes } = useCuratedDiscovery({ sort: 'nearest', limit: 5 })
+  const {
+    isLoading,
+    isEmpty,
+    routes: curatedDiscoveryRoutes,
+  } = useCuratedDiscovery({ sort: 'nearest', limit: 5 })
   const curatedPills = (curatedDiscoveryRoutes ?? []).map((r) => ({
     label: `${r.name} · ${Math.round(r.distanceMi ?? 0)}mi`,
     routeId: r.id,
@@ -374,9 +381,6 @@ const HomeMapScreen = () => {
     [chatMode, sendPlanningMessage, currentLocation],
   )
 
-  // Handle selecting a curated route from suggestion pills — plot directly, no chat round-trip
-  const [selectedCuratedRouteId, setSelectedCuratedRouteId] = useState<string | null>(null)
-
   const handleSelectCuratedRoute = useCallback(
     (routeId: string) => {
       const route = curatedDiscoveryRoutes?.find((r: any) => r.id === routeId)
@@ -476,12 +480,7 @@ const HomeMapScreen = () => {
   }, [flowState.phase, agentRoutePlan?.status, flowDispatch])
 
   // Fit camera to agent-produced route.
-  const {
-    setSelectedRouteId,
-    setDisplayedRoutePlanId,
-    registerFitHandler,
-    requestFitToRouteWithReset,
-  } = useSelectedRoute()
+  const { setSelectedRouteId, setDisplayedRoutePlanId, registerFitHandler } = useSelectedRoute()
   const pendingFitRef = useRef(false)
 
   const handleNewSession = () => {
@@ -1380,9 +1379,9 @@ const HomeMapScreen = () => {
           isPlanning={isPlanning || isManualPlanning}
           suggestions={
             // DISC-017: Fix discovery slot to show curated cards only — never generic IDLE_SUGGESTIONS
-            isLoading 
-              ? [] // Loading: show nothing 
-              : isEmpty 
+            isLoading
+              ? [] // Loading: show nothing
+              : isEmpty
                 ? ['No nearby routes'] // Empty: show "no nearby routes" message
                 : curatedPills // Has routes: show curated pills only
           }

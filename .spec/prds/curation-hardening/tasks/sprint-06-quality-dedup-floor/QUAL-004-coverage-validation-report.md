@@ -57,7 +57,7 @@ Produce a dated markdown coverage report and JSON sidecar that surfaces per-stat
 - All tests must use in-memory Route fixture lists; zero real Convex HTTP calls
 
 **NEVER:**
-- Never write to server/convex/** or any Convex schema file
+- Never write to convex/** or any Convex schema file
 - Never modify scripts/curation/pipeline/dedup/** or floor_filter.py
 - Never embed external images or base64 blobs in the markdown output
 - Never hardcode today's date — derive it from datetime.date.today() at runtime
@@ -171,7 +171,7 @@ Boolean statements that map 1:1 to acceptance criteria. No conditional language.
 - baseline/coverage-report.json
 
 ### WRITE-PROHIBITED
-- server/convex/**
+- convex/**
 - scripts/curation/pipeline/dedup/**
 - scripts/curation/pipeline/quality/floor_filter.py
 - scripts/curation/pipeline/quality/data_quality_report.py

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { RouteComparisonView } from '../../components/screens/route-comparison-view'
-import type { PlannedRouteOptionView } from '../../server/types/routes'
+import type { PlannedRouteOptionView } from '../../shared/types/routes'
 
 // Mock route data
 const mockRoutes: PlannedRouteOptionView[] = [

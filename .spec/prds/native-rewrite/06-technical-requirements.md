@@ -11,7 +11,7 @@ prd_version: 2.0.0
 | Component | Location | Role |
 |-----------|----------|------|
 | React Native App | `react-native/` | Existing Expo app — moved from root |
-| Convex Backend | `server/convex/` | Backend functions and schema — moved from root |
+| Convex Backend | `convex/` | Backend functions and schema — moved from root |
 | Android App | `android/` | Native Kotlin/Compose app (new) |
 | iOS App | `ios/` | Native Swift/SwiftUI app (new) |
 | Root Config | `./` | Makefile, .gitignore, CLAUDE.md, .husky |
@@ -73,7 +73,7 @@ LaneShadow/
 │   ├── app/
 │   ├── components/
 │   ├── constants/
-│   ├── convex/                 # (symlink or config pointing to server/convex/)
+│   ├── convex/                 # (symlink or config pointing to convex/)
 │   ├── hooks/
 │   ├── providers/
 │   ├── styles/

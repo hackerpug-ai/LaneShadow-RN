@@ -36,7 +36,7 @@ The appetite covers the full vertical: ship a usable V2 Navigator system — tok
 - Story registry on both platforms, organized by tier (AtomStories / MoleculeStories / OrganismStories / TemplateStories) following the Storywright pattern.
 - Light/dark/auto theme toggle inside the sandbox, wired to the native-theme bridge.
 - `argTypes` controls for story variants (text, select, toggle, number, color-token).
-- Mock data providers: hard-coded fixture JSON + typed provider structs/classes. Fixture shapes either mirror `server/convex/` read types (Route, User) or are declared in `11-technical-requirements.md` for Navigator-specific entities (Session, NavigatorMessage, RouteAttachment, WeatherSummary, WeatherTimelineEntry, PlanningPhase, SuggestionChip, LocationContext).
+- Mock data providers: hard-coded fixture JSON + typed provider structs/classes. Fixture shapes either mirror `convex/` read types (Route, User) or are declared in `11-technical-requirements.md` for Navigator-specific entities (Session, NavigatorMessage, RouteAttachment, WeatherSummary, WeatherTimelineEntry, PlanningPhase, SuggestionChip, LocationContext).
 - Cross-platform parity manifest — a shared machine-readable list of story IDs that MUST exist on both iOS and Android, checked in CI.
 - Launch via `/native-sandbox` on both platforms.
 
@@ -48,7 +48,7 @@ Cleanup runs in two distinct passes — early (before atoms) and late (after scr
 - Audit and delete failed 1:1 RN-to-native port artifacts (Avatar, Badge, BottomSheetInput, Button + FIX-* iterations from the retired `sprint-02-ui-component-translation` effort) under `ios/LaneShadow/Views/`, `ios/LaneShadowTests/Components/UI/`, and Kotlin analogs under `android/app/src/main/java/com/laneshadow/ui/`.
 - Reset sandbox entry + tier aggregator files on both platforms to empty-story shells.
 - Emit a machine-readable `cleanup-manifest.md` distinguishing `delete` entries from `keep: non-UI` entries.
-- Preserve all non-UI code: `server/convex/`, `tokens/platforms/*`, service/data layers, DI modules, domain models, bundled fonts, launch/icon asset catalogs, build scaffolding.
+- Preserve all non-UI code: `convex/`, `tokens/platforms/*`, service/data layers, DI modules, domain models, bundled fonts, launch/icon asset catalogs, build scaffolding.
 - Runs in **parallel with Sprint 1 (TOK)**.
 
 **Late — Terminal React Native shell retirement (UC-SBX-04)**:
@@ -91,7 +91,7 @@ Cleanup runs in two distinct passes — early (before atoms) and late (after scr
 
 ### Not Part of This Initiative
 - Visual design exploration beyond `concepts/designs.html`. The concepts file is authoritative — if something isn't there, we extend the Copper palette via product-manager + frontend-designer collaboration, not via individual agent judgment.
-- Backend / Convex schema changes. Mock fixtures mirror existing `server/convex/` read types where they align; any gap is shaped in the fixture, not the backend.
+- Backend / Convex schema changes. Mock fixtures mirror existing `convex/` read types where they align; any gap is shaped in the fixture, not the backend.
 - New animations or motion primitives beyond the declared motion recipes. Complex gesture-driven transitions are deferred.
 - Platform version uplifts. V2 targets current minimum-OS versions set by `ios/LaneShadow.xcodeproj` and `android/app/build.gradle.kts`.
 - Internationalization / localization string externalization. Copy in sandbox stories may be hard-coded English.

@@ -5,7 +5,8 @@ This project is the **React Native + Convex** fork of LaneShadow.
 ## Stack
 
 - **Frontend**: React Native / Expo (in `react-native/`)
-- **Backend**: Convex (in `server/convex/`, deployed from `server/`)
+- **Backend**: Convex (in `convex/` at repository root)
+- **Shared**: Client/server shared utilities and types (in `shared/`)
 - **Tokens**: Design tokens in `tokens/`
 - **Testing**: Vitest
 
@@ -24,15 +25,15 @@ This project is the **React Native + Convex** fork of LaneShadow.
 
 ```
 react-native/    # Expo/RN app (screens, components, hooks, stores)
-server/          # Convex backend (convex functions, schema, models)
-convex/          # Symlink → server/convex/ (legacy path)
+convex/          # Convex backend (convex functions, schema, models)
+shared/          # Shared client/server utilities and types
 tokens/          # Design tokens (shared)
 .spec/           # Plans, PRDs, research
 ```
 
 ## Convex Backend
 
-When working on Convex code, read `server/convex/_generated/ai/guidelines.md` first.
+When working on Convex code, read `convex/_generated/ai/guidelines.md` first.
 
 ## Pre-Commit Checks
 

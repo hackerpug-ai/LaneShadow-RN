@@ -11,7 +11,7 @@ Red-hat review found that `ios/LaneShadow/Services/ConvexClient+LaneShadow.swift
 
 **MUST:**
 - Add `currentLocation` to the `args` dictionary before invoking `action(.sendMessage, args:)` when it is non-nil
-- Encode as `["lat": loc.lat, "lng": loc.lng]` (Double values) — verify against the Convex action's accepted shape in `server/convex/actions/agent/sendMessage.ts` validator
+- Encode as `["lat": loc.lat, "lng": loc.lng]` (Double values) — verify against the Convex action's accepted shape in `convex/actions/agent/sendMessage.ts` validator
 - Remove the `_ = currentLocation` swallow
 
 **NEVER:**
@@ -70,7 +70,7 @@ Red-hat review found that `ios/LaneShadow/Services/ConvexClient+LaneShadow.swift
 |---|---|---|
 | `ios/LaneShadow/Services/ConvexClient+LaneShadow.swift` | 880-910 | `sendPlanningMessage` implementation |
 | `ios/LaneShadow/Generated/ConvexTypes.generated.swift` | search `sendMessage` | Generated arg shape for Convex action |
-| `server/convex/actions/agent/sendMessage.ts` | search `args.*validator` | Validator shape for `currentLocation` |
+| `convex/actions/agent/sendMessage.ts` | search `args.*validator` | Validator shape for `currentLocation` |
 | `ios/LaneShadowTests/Services/` | discover | Existing convex-client tests to extend |
 
 ## Guardrails
@@ -85,7 +85,7 @@ Red-hat review found that `ios/LaneShadow/Services/ConvexClient+LaneShadow.swift
 
 ## Design
 
-**References:** red-hat review 2026-05-19 finding F7; `server/convex/actions/agent/sendMessage.ts` arg validator
+**References:** red-hat review 2026-05-19 finding F7; `convex/actions/agent/sendMessage.ts` arg validator
 
 **Pattern:** Other `args["..."] = ...` patterns in the same file (e.g., `ConvexClient+LaneShadow.swift` action invocations)
 

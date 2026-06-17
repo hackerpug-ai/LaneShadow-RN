@@ -74,7 +74,7 @@
   | Severity: **MEDIUM**
   Agents: kotlin-reviewer, swift-reviewer (parity contract enforcement)
 
-- [ ] **RF-27: Auth taxonomy fixture path may not be resolvable from mobile build systems.** convex-reviewer flagged the fixture lives at `server/convex/__fixtures__/auth-error-taxonomy.json`, outside the iOS and Android module trees. swift-reviewer confirmed the iOS test loads it via `Bundle.module` and the test PASSES, so iOS works. kotlin-reviewer confirmed Android has a copy at `android/app/src/test/resources/auth-error-taxonomy.json` and the per-entry test PASSES. The fixture is fine — but the round-trip check FAILS due to `NETWORK_TIMEOUT` (RF-23). The cross-platform fixture mechanism is correct; the entry list is wrong.
+- [ ] **RF-27: Auth taxonomy fixture path may not be resolvable from mobile build systems.** convex-reviewer flagged the fixture lives at `convex/__fixtures__/auth-error-taxonomy.json`, outside the iOS and Android module trees. swift-reviewer confirmed the iOS test loads it via `Bundle.module` and the test PASSES, so iOS works. kotlin-reviewer confirmed Android has a copy at `android/app/src/test/resources/auth-error-taxonomy.json` and the per-entry test PASSES. The fixture is fine — but the round-trip check FAILS due to `NETWORK_TIMEOUT` (RF-23). The cross-platform fixture mechanism is correct; the entry list is wrong.
   | Severity: **LOW**
   Agents: convex-reviewer, swift-reviewer, kotlin-reviewer (informational)
 

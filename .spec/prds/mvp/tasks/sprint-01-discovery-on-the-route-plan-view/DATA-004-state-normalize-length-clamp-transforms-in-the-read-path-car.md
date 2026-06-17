@@ -29,7 +29,7 @@ util/dataNormalization.ts defines normalizeState (trim, dash/underscore→space,
 - **WHEN** listCuratedRoutes is called with state='North Carolina'
 - **THEN** routes from BOTH spelling variants are returned and every returned card's state === 'North Carolina' (single canonical spelling)
 - **Test tier:** `integration` · **Service:** live Convex dev (api.curatedRoutes.listCuratedRoutes)
-- **Verify:** `pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts` → `stateFilterResolvesBothSpellingsCanonical`
+- **Verify:** `pnpm test convex/__tests__/listCuratedRoutes.state.integration.test.ts` → `stateFilterResolvesBothSpellingsCanonical`
 - **Scenario** (start `seeded_geospatial_index`):
   - must observe: result count > 43 (proves the 202-row 'North-Carolina' variant is included, not just the 43-row 'North Carolina' variant); every returned state === 'North Carolina'
   - must NOT observe: 0 routes; any state === 'North-Carolina'; result count ≤ 43 (one variant dropped)
@@ -40,7 +40,7 @@ util/dataNormalization.ts defines normalizeState (trim, dash/underscore→space,
 - **WHEN** clampLength runs
 - **THEN** 0, negative, NaN, and >1000 return undefined; a valid mid-range length (e.g. 137) is preserved
 - **Test tier:** `unit`
-- **Verify:** `pnpm test server/convex/__tests__/dataNormalization.test.ts` → `clampLengthHidesJunkPreservesValid`
+- **Verify:** `pnpm test convex/__tests__/dataNormalization.test.ts` → `clampLengthHidesJunkPreservesValid`
 - **Scenario** (start `seeded_geospatial_index`):
   - must observe: >=1 route returned; every returned lengthMiles satisfies lengthMiles === undefined || (lengthMiles > 0 && lengthMiles <= 1000); >=1 card carries a real lengthMiles in (0, 1000] (a non-degenerate sanitized length, e.g. ~137)
   - must NOT observe: lengthMiles === 0; lengthMiles === 710430; lengthMiles > 1000; 0 routes; [] (empty result)
@@ -51,7 +51,7 @@ util/dataNormalization.ts defines normalizeState (trim, dash/underscore→space,
 - **WHEN** normalizeState runs and the gate is exercised
 - **THEN** 'North-Carolina' and 'North Carolina' both normalize to 'North Carolina', and the sampled DB state values are byte-identical pre/post
 - **Test tier:** `integration` · **Service:** live Convex dev (curated_routes sample read before/after) + pure normalizeState
-- **Verify:** `pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts` → `normalizeCanonicalAndNoWriteBack`
+- **Verify:** `pnpm test convex/__tests__/listCuratedRoutes.state.integration.test.ts` → `normalizeCanonicalAndNoWriteBack`
 - **Scenario** (start `seeded_geospatial_index`):
   - must observe: normalizeState('North-Carolina') === 'North Carolina'; normalizeState('North Carolina') === 'North Carolina'; pre-sample === post-sample (all 20 state values byte-identical); 0 sampled state values changed
   - must NOT observe: 'North-Carolina' in normalized output; any sampled state changed; 0 rows sampled (empty sample); [] (empty pre- or post-sample)
@@ -61,25 +61,25 @@ util/dataNormalization.ts defines normalizeState (trim, dash/underscore→space,
 
 | ID | Statement | Maps to | Verify |
 |----|-----------|---------|--------|
-| TC-1 | Integration: state='North Carolina' returns >43 rows under one canonical spelling — both dirty variants included (T-DATA-006). | AC-1 | `pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts` |
-| TC-2 | Unit: clampLength hides 0/negative/NaN/>1000 and preserves a valid mid-range length (T-DATA-007). | AC-2 | `pnpm test server/convex/__tests__/dataNormalization.test.ts` |
-| TC-3 | Integration + unit: normalizeState canonicalizes both spellings and the gate performs no curated_routes write-back (T-DATA-007). | AC-3 | `pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts` |
+| TC-1 | Integration: state='North Carolina' returns >43 rows under one canonical spelling — both dirty variants included (T-DATA-006). | AC-1 | `pnpm test convex/__tests__/listCuratedRoutes.state.integration.test.ts` |
+| TC-2 | Unit: clampLength hides 0/negative/NaN/>1000 and preserves a valid mid-range length (T-DATA-007). | AC-2 | `pnpm test convex/__tests__/dataNormalization.test.ts` |
+| TC-3 | Integration + unit: normalizeState canonicalizes both spellings and the gate performs no curated_routes write-back (T-DATA-007). | AC-3 | `pnpm test convex/__tests__/listCuratedRoutes.state.integration.test.ts` |
 
 ## Reading List
 
-- `server/convex/util/dataNormalization.ts` (1-42) — PRIMARY PATTERN — normalizeState / clampLength / stateVariants under verification
-- `server/convex/curatedRoutes.ts` (119-269) — buildRouteCard (normalizeState+clampLength) + Mode 3 by_state both-variant probe (248-269)
-- `server/convex/__tests__/dataNormalization.test.ts` (1-200) — existing pure unit suite — extend, do not rewrite
+- `convex/util/dataNormalization.ts` (1-42) — PRIMARY PATTERN — normalizeState / clampLength / stateVariants under verification
+- `convex/curatedRoutes.ts` (119-269) — buildRouteCard (normalizeState+clampLength) + Mode 3 by_state both-variant probe (248-269)
+- `convex/__tests__/dataNormalization.test.ts` (1-200) — existing pure unit suite — extend, do not rewrite
 - `.spec/prds/mvp/04-uc-data.md` (71-83) — UC-DATA-04 the NC split (202 vs 43) and length outliers (710430, 64 at 0)
 - `.spec/prds/mvp/10-e2e-testing-criteria.md` (49-50) — T-DATA-006 / T-DATA-007 pass/fail
 
 ## Guardrails
 
-- WRITE-ALLOWED: `server/convex/__tests__/listCuratedRoutes.state.integration.test.ts (NEW)`
-- WRITE-ALLOWED: `server/convex/__tests__/dataNormalization.test.ts (MODIFY — extend)`
-- WRITE-ALLOWED: `server/convex/util/dataNormalization.ts (MODIFY — only a proven transform correction)`
-- WRITE-ALLOWED: `server/convex/curatedRoutes.ts (MODIFY — only if application is found broken)`
-- WRITE-PROHIBITED: server/convex/schema.ts
+- WRITE-ALLOWED: `convex/__tests__/listCuratedRoutes.state.integration.test.ts (NEW)`
+- WRITE-ALLOWED: `convex/__tests__/dataNormalization.test.ts (MODIFY — extend)`
+- WRITE-ALLOWED: `convex/util/dataNormalization.ts (MODIFY — only a proven transform correction)`
+- WRITE-ALLOWED: `convex/curatedRoutes.ts (MODIFY — only if application is found broken)`
+- WRITE-PROHIBITED: convex/schema.ts
 - WRITE-PROHIBITED: Any migration that mutates curated_routes.state or lengthMiles (write-back deferred)
 - WRITE-PROHIBITED: Any file not listed above
 
@@ -94,9 +94,9 @@ util/dataNormalization.ts defines normalizeState (trim, dash/underscore→space,
 | Gate | Command |
 |------|---------|
 | gate | `pnpm type-check` |
-| gate | `pnpm test server/convex/__tests__/dataNormalization.test.ts` |
-| gate | `pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts` |
-| gate | `pnpm exec biome check server/convex/util/dataNormalization.ts server/convex/curatedRoutes.ts` |
+| gate | `pnpm test convex/__tests__/dataNormalization.test.ts` |
+| gate | `pnpm test convex/__tests__/listCuratedRoutes.state.integration.test.ts` |
+| gate | `pnpm exec biome check convex/util/dataNormalization.ts convex/curatedRoutes.ts` |
 | gate | `pnpm --dir server run convex:dev -- --once` |
 
 ## Coding Standards
@@ -139,7 +139,7 @@ util/dataNormalization.ts defines normalizeState (trim, dash/underscore→space,
       "type": "acceptance_criterion",
       "primary": true,
       "description": "GIVEN the NC spelling split WHEN listCuratedRoutes state='North Carolina' THEN both variants returned under one canonical spelling (count > 43)",
-      "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts",
+      "verify": "pnpm test convex/__tests__/listCuratedRoutes.state.integration.test.ts",
       "maps_to_ac": null
     },
     {
@@ -147,7 +147,7 @@ util/dataNormalization.ts defines normalizeState (trim, dash/underscore→space,
       "type": "acceptance_criterion",
       "primary": false,
       "description": "GIVEN junk+valid lengths WHEN clampLength runs THEN 0/neg/NaN/>1000\u2192undefined, valid preserved",
-      "verify": "pnpm test server/convex/__tests__/dataNormalization.test.ts",
+      "verify": "pnpm test convex/__tests__/dataNormalization.test.ts",
       "maps_to_ac": null
     },
     {
@@ -155,28 +155,28 @@ util/dataNormalization.ts defines normalizeState (trim, dash/underscore→space,
       "type": "acceptance_criterion",
       "primary": false,
       "description": "GIVEN dirty spellings + DB sample WHEN normalize/exercise THEN both\u2192canonical, no write-back",
-      "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts",
+      "verify": "pnpm test convex/__tests__/listCuratedRoutes.state.integration.test.ts",
       "maps_to_ac": null
     },
     {
       "id": "TC-1",
       "type": "test_criterion",
       "description": "both-spelling resolution + canonical return (T-DATA-006)",
-      "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts",
+      "verify": "pnpm test convex/__tests__/listCuratedRoutes.state.integration.test.ts",
       "maps_to_ac": "AC-1"
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "length-clamp pure transform (T-DATA-007)",
-      "verify": "pnpm test server/convex/__tests__/dataNormalization.test.ts",
+      "verify": "pnpm test convex/__tests__/dataNormalization.test.ts",
       "maps_to_ac": "AC-2"
     },
     {
       "id": "TC-3",
       "type": "test_criterion",
       "description": "state-normalize pure + no write-back (T-DATA-007)",
-      "verify": "pnpm test server/convex/__tests__/listCuratedRoutes.state.integration.test.ts",
+      "verify": "pnpm test convex/__tests__/listCuratedRoutes.state.integration.test.ts",
       "maps_to_ac": "AC-3"
     }
   ]

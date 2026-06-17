@@ -114,7 +114,7 @@ This task wires three things together: (1) bind `LSChatInput.isThinking` modifie
 | `.spec/design/system/views/mapapp/planning/planning-screen.html` | V02 cancel-confirm variant | Visual contract — scrim rises, planning composition dims to 38%, sheet presents with copper Cancel CTA + ghost Keep CTA |
 | `.spec/design/system/molecules/chat-input/README.md` | is-thinking section | Locked-state contract: `has-value` filled prompt, dimmed leading icon, copper spinner replacing send |
 | `.spec/design/system/molecules/chat-input/chat-input.html` | is-thinking class | Visual contract for the locked state |
-| `server/convex/db/routePlans.ts` | 231-340 | `cancelPlan` mutation handler signature consumed via `routeRepository.cancelPlan(planId)` |
+| `convex/db/routePlans.ts` | 231-340 | `cancelPlan` mutation handler signature consumed via `routeRepository.cancelPlan(planId)` |
 | `android/app/src/main/java/com/laneshadow/ui/planning/PlanningViewModel.kt` | all | `cancel()` intent + `state.transition: PlanningTransition?` contract from PLAN-S08-AND-T01 |
 
 ## Guardrails

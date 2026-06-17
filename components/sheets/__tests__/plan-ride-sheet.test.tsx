@@ -15,7 +15,7 @@ import type { ExtendedTheme } from '../../../styles/types'
 // Import after mocks
 // ---------------------------------------------------------------------------
 
-import type { RouteStop } from '../../../server/models/saved-routes'
+import type { RouteStop } from '../../../shared/models/saved-routes'
 import { PlanRideSheet } from '../plan-ride-sheet'
 
 // ---------------------------------------------------------------------------

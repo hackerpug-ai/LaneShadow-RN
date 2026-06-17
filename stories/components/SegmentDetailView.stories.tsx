@@ -6,7 +6,7 @@ import type { Meta, StoryObj } from '@storybook/react-native'
 import React from 'react'
 import { View } from 'react-native'
 import { SegmentDetailView, SegmentDetailViewProps } from '../../components/planning/segment-detail-view'
-import type { RouteLeg, RouteOverlays } from '../../server/models/saved-routes'
+import type { RouteLeg, RouteOverlays } from '../../shared/models/saved-routes'
 
 const meta: Meta<typeof SegmentDetailView> = {
   title: 'Components/SegmentDetailView',

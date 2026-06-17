@@ -71,14 +71,14 @@ No public browse query exists today (the curation `leanSync`/`fetchEnrichments` 
 - **TC-7** (maps_to_ac AC-7): Unauthenticated call rejected — verify: `--unauthenticated` returns auth error
 
 ## Reading List
-- `server/convex/geospatialIndex.ts` — geospatial query/nearest API
-- `server/convex/schema.ts` — `by_state`, `by_composite_score` indexes
+- `convex/geospatialIndex.ts` — geospatial query/nearest API
+- `convex/schema.ts` — `by_state`, `by_composite_score` indexes
 - PRD `.spec/prds/mvp/04-uc-data.md` UC-DATA-05; `09-technical-requirements/04-api-design.md` (full args + returns validator); `02-system-components.md` (data flow)
 - Existing auth pattern: any client-callable read using `requireIdentity`
 
 ## Guardrails
-**Write Allowed:** `server/convex/curatedRoutes.ts (NEW)` query module; `server/convex/_generated/api.ts` (auto).
-**Write Prohibited:** `server/models/curated-routes.ts` (read-only), `server/convex/schema.ts`, `server/convex/geospatialIndex.ts`.
+**Write Allowed:** `convex/curatedRoutes.ts (NEW)` query module; `convex/_generated/api.ts` (auto).
+**Write Prohibited:** `server/models/curated-routes.ts` (read-only), `convex/schema.ts`, `convex/geospatialIndex.ts`.
 
 ## Code Pattern / Design
 - Pattern: single exported `listCuratedRoutes` `query` with a fully-specified `v.object` args + `returns` validator (see 04-api-design). Branch on input: bbox/center → geospatial; state-only → by_state both spellings; archetype filter as geospatial filterKeys or post-load filter; best-sort via geospatial sortKey/by_composite_score; nearest via geospatial.nearest + computed distanceMi. Hard `limit` cap.

@@ -6,7 +6,7 @@
 
 ### Findings
 - Target structure matches Storywright: 4 application folders at root level
-- Convex backend moves to `server/convex/` — requires updating working directory for all `npx convex` commands
+- Convex backend moves to `convex/` — requires updating working directory for all `npx convex` commands
 - React Native app moves to `react-native/` — requires updating all npm scripts, Expo config, and import paths
 - `android/` and `ios/` are empty placeholders with README files only
 

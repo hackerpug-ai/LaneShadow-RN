@@ -24,7 +24,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Import after mocks
 // ---------------------------------------------------------------------------
 
-import type { PlannedRouteOptionsView } from '../../server/types/routes'
+import type { PlannedRouteOptionsView } from '../../shared/types/routes'
 import { RouteAttachmentCard } from './route-attachment-card'
 
 // ---------------------------------------------------------------------------

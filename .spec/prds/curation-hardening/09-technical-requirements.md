@@ -6,7 +6,7 @@ prd_version: 1.0.1
 
 # Technical Requirements
 
-> **Path Convention (2026-04-16):** This initiative runs in parallel with the native-rewrite restructure PRD, which moves `convex/` → `server/convex/`. All `convex/` paths in this document resolve to `server/convex/` after that restructure merges. Pipeline Python code (`scripts/curation/pipeline/`) is unaffected — it stays at its current location.
+> **Path Convention (2026-04-16):** This initiative runs in parallel with the native-rewrite restructure PRD, which moves `convex/` → `convex/`. All `convex/` paths in this document resolve to `convex/` after that restructure merges. Pipeline Python code (`scripts/curation/pipeline/`) is unaffected — it stays at its current location.
 
 ## Mobile UI Scope Note (2026-04-16)
 
@@ -24,7 +24,7 @@ Sprint 11 (Mobile UI — New Field Display) has been deferred to the [native-rew
 | RedditSource | `pipeline/sources/reddit.py` | Fetch motorcycle route mentions from Reddit via public API |
 | ADVRiderSource | `pipeline/sources/advrider.py` | Fetch ADVRider regional forum posts via RSS feeds |
 | Deduplicator | `pipeline/dedup/deduplicator.py` | Semantic dedup: post embedding → Convex vectorSearch → LLM rerank → auto-merge / arbitration / new route |
-| GeospatialIndex | `server/convex/geospatialIndex.ts` | `@convex-dev/geospatial` handles mobile map viewport queries (nearest-neighbor, rectangular range); `server/convex/semanticSearch.ts` (NEW file, Epic 3 INF-006) handles vector search via `ctx.vectorSearch()` on the `by_embedding` index |
+| GeospatialIndex | `convex/geospatialIndex.ts` | `@convex-dev/geospatial` handles mobile map viewport queries (nearest-neighbor, rectangular range); `convex/semanticSearch.ts` (NEW file, Epic 3 INF-006) handles vector search via `ctx.vectorSearch()` on the `by_embedding` index |
 | PostExtractionClient | `pipeline/nlp/extraction_client.py` | Single LLM call per post (Claude Haiku 4.5) returning a structured `PostExtraction` (mentions, sentiment, aspects, attributes, warnings) — replaces the prior GLM two-stage pipeline |
 | MentionAggregator | `pipeline/nlp/aggregator.py` | Aggregate mentions per route with authority-weighted sentiment (reads from `route_posts_raw` via `route_matches`) |
 | ExtractionCache | `pipeline/nlp/cache.py` | Cache PostExtraction artifacts by `(post_id, extraction_schema_version)` to avoid redundant LLM calls |
@@ -51,8 +51,8 @@ Sprint 11 (Mobile UI — New Field Display) has been deferred to the [native-rew
 | Calibration gate | `pipeline/extraction/calibration.py` | Integrate GroundTruthBuilder; add per-archetype calibration; output to DataQualityReport |
 | OSM client | `pipeline/enrichment/osm_client.py` | Add name-based OSM way lookup; integrate curvature algorithm; extract surface/smoothness tags for surface_type field |
 | Convex push | `pipeline/sync/convex_push.py` | Add new score fields, source_refs, quality_tier, location (GeoJSON), searchEmbedding, candidateIdentifiers, searchText, matchConfidence, llmReconciliationLog to serialization; reduce batch size to 10 due to embedding payload size |
-| GeospatialIndex | `server/convex/geospatialIndex.ts` | `@convex-dev/geospatial` handles mobile map viewport queries; `server/convex/semanticSearch.ts` (NEW file, Epic 3 INF-006) handles vector search via `ctx.vectorSearch()` on the `by_embedding` index |
-| Convex schema | `server/convex/schema.ts` | Add new optional fields (searchEmbedding, candidateIdentifiers, searchText, matchConfidence, llmReconciliationLog + enrichment outputs + scoring outputs); register `vectorIndex('by_embedding', { dimensions: 1536, filterFields: ['state'] })`; add `route_posts_raw` and `route_matches` tables (replaces the previously-planned `route_mentions` table) |
+| GeospatialIndex | `convex/geospatialIndex.ts` | `@convex-dev/geospatial` handles mobile map viewport queries; `convex/semanticSearch.ts` (NEW file, Epic 3 INF-006) handles vector search via `ctx.vectorSearch()` on the `by_embedding` index |
+| Convex schema | `convex/schema.ts` | Add new optional fields (searchEmbedding, candidateIdentifiers, searchText, matchConfidence, llmReconciliationLog + enrichment outputs + scoring outputs); register `vectorIndex('by_embedding', { dimensions: 1536, filterFields: ['state'] })`; add `route_posts_raw` and `route_matches` tables (replaces the previously-planned `route_mentions` table) |
 | Base scraper | `pipeline/sources/base_scraper.py` | No structural changes — new sources extend BaseScraper as-is |
 
 ## Data Entities
@@ -278,7 +278,7 @@ curated_routes: defineTable(curatedRouteValidator)
   })
 ```
 
-Queried via `ctx.vectorSearch("curated_routes", "by_embedding", { vector, limit, filter })` from a Convex action. Wrapper queries live in `server/convex/semanticSearch.ts` (Epic 3 INF-006).
+Queried via `ctx.vectorSearch("curated_routes", "by_embedding", { vector, limit, filter })` from a Convex action. Wrapper queries live in `convex/semanticSearch.ts` (Epic 3 INF-006).
 
 ### route_posts_raw Table (NEW — Epic 3 INF-003)
 
@@ -341,10 +341,10 @@ The previously-planned `route_mentions` table is replaced by `route_posts_raw` (
 
 ### GeospatialIndex (mobile viewport queries only)
 
-Note: After the Epic 3 semantic matching pivot, `@convex-dev/geospatial` is no longer the dedup primitive. It remains as the mobile map viewport primitive — "what routes are near me / inside this map rectangle" — and is distinct from `server/convex/semanticSearch.ts` (Epic 3 INF-006), which handles vector search on the `by_embedding` index.
+Note: After the Epic 3 semantic matching pivot, `@convex-dev/geospatial` is no longer the dedup primitive. It remains as the mobile map viewport primitive — "what routes are near me / inside this map rectangle" — and is distinct from `convex/semanticSearch.ts` (Epic 3 INF-006), which handles vector search on the `by_embedding` index.
 
 ```typescript
-// server/convex/geospatialIndex.ts
+// convex/geospatialIndex.ts
 import { GeospatialIndex } from "@convex-dev/geospatial";
 import { components } from "./_generated/api";
 
@@ -377,10 +377,10 @@ const inBounds = await geospatial.query({
 
 ### semanticSearch wrapper (NEW — Epic 3 INF-006)
 
-The canonical vector-search access point. Lives in `server/convex/semanticSearch.ts` and exposes typed query/action wrappers around `ctx.vectorSearch('curated_routes', 'by_embedding', ...)`.
+The canonical vector-search access point. Lives in `convex/semanticSearch.ts` and exposes typed query/action wrappers around `ctx.vectorSearch('curated_routes', 'by_embedding', ...)`.
 
 ```typescript
-// server/convex/semanticSearch.ts (Epic 3 INF-006)
+// convex/semanticSearch.ts (Epic 3 INF-006)
 import { action } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -520,7 +520,7 @@ export const getRoute = query({
 | AD-007 | Incremental source addition: Scenic Byways → Reddit → ADVRider | Lowest-risk first. Each validated with quality floor + dedup before adding next. |
 | AD-008 | Consume adamfranco/curvature as pre-computed data | Multi-hour batch on 11GB PBF. Run once, cache output. Pipeline consumes lookup table from the canonical artifact path `data/curvature/adamfranco-us-curvature.jsonl`, with `--artifact` / `CURVATURE_ARTIFACT_PATH` as explicit overrides. If no artifact exists at any of those locations, the consumer must fail loudly instead of guessing. |
 | AD-009 | Convex nullable columns with client compatibility handling | New fields added as v.optional() to existing curated_routes table. New `route_posts_raw` table for raw LLM extraction artifacts and `route_matches` audit table for match decisions (replaces the previously-planned `route_mentions` table). Requires deployment coordination with mobile app to handle undefined values safely. |
-| AD-010 | Convex Native Geospatial adoption | Use @convex-dev/geospatial (Beta) for mobile map viewport queries: nearest-neighbor with maxDistance (5km), rectangular range queries, point-in-polygon. Replaces PostGIS external service. Single-DB architecture simplifies deployment and reduces cost. Note: The primary matching primitive is now `server/convex/semanticSearch.ts` (Epic 3 INF-006) using the native `ctx.vectorSearch()` API on the `by_embedding` vectorIndex. `@convex-dev/geospatial` handles viewport-style queries (nearestRoutes for "what's near me", bounding box for map panning) — not semantic matching. |
+| AD-010 | Convex Native Geospatial adoption | Use @convex-dev/geospatial (Beta) for mobile map viewport queries: nearest-neighbor with maxDistance (5km), rectangular range queries, point-in-polygon. Replaces PostGIS external service. Single-DB architecture simplifies deployment and reduces cost. Note: The primary matching primitive is now `convex/semanticSearch.ts` (Epic 3 INF-006) using the native `ctx.vectorSearch()` API on the `by_embedding` vectorIndex. `@convex-dev/geospatial` handles viewport-style queries (nearestRoutes for "what's near me", bounding box for map panning) — not semantic matching. |
 | AD-011 | Measured data integration (HPMS + NWS Climate) | Replace placeholder scoring with objective telemetry: HPMS AADT → trafficScore, HPMS IRI → roadQualityScore, NWS Climate Normals → weatherSuitability + bestMonths. Single national download, spatial join to route centroids. ~3.5 days extra effort. |
 | AD-012 | Tiered archetype thresholds for coverage gaps | Common archetypes (twisties, mountain, coastal, scenic_byway): 50 routes. Niche archetypes (adventure, desert): 20 routes. Reflects realistic availability by category. |
 
@@ -628,7 +628,7 @@ export const getRoute = query({
 | Library | Purpose | Docs |
 |---------|---------|------|
 | @convex-dev/geospatial | Convex Native Geospatial component for mobile map viewport queries (nearest-neighbor, range) — no longer used as a dedup primitive | https://www.convex.dev/components/geospatial |
-| Convex native vectorIndex | Built into Convex core — no extra package. Used via `ctx.vectorSearch('curated_routes', 'by_embedding', {...})` in `server/convex/semanticSearch.ts` (Epic 3 INF-006). Primary dedup and match primitive. | https://docs.convex.dev/search/vector-search |
+| Convex native vectorIndex | Built into Convex core — no extra package. Used via `ctx.vectorSearch('curated_routes', 'by_embedding', {...})` in `convex/semanticSearch.ts` (Epic 3 INF-006). Primary dedup and match primitive. | https://docs.convex.dev/search/vector-search |
 | openai | OpenAI SDK for `text-embedding-3-small` (1536-dim embeddings); used by Epic 3 INF-004 batch embedding pipeline. OpenAI is used **for embeddings only**; all reasoning (extraction, rerank, enrichment, reconciliation) goes through Anthropic/Claude. | https://github.com/openai/openai-python |
 | shapely | Geometry operations for GIS centroid/bounds computation | https://shapely.readthedocs.io/ |
 | fiona | Read Shapefiles/GeoJSON for Scenic Byways GIS | https://fiona.readthedocs.io/ |

@@ -12,7 +12,7 @@ PRD_REFS:   UC-MAP-01, UC-CHAT-01
 RUNTIME_COMMANDS:
   test:      pnpm --dir server test -- places favorites
   typecheck: pnpm type-check:native
-  lint:      pnpm exec biome check server/convex/actions/places.ts server/convex/db/favorites.ts
+  lint:      pnpm exec biome check convex/actions/places.ts convex/db/favorites.ts
   deploy:    pnpm --dir server run convex:dev -- --once
 ```
 
@@ -87,7 +87,7 @@ Convex exposes two authenticated, validator-rich endpoints used by the idle stat
 - **GIVEN** `actions/places.ts` and `db/favorites.ts` source
 - **WHEN** static inspection runs
 - **THEN** both functions declare `args` and `returns` validators (no untyped surfaces)
-- **VERIFY:** `grep -E '^(export const|args:|returns:)' server/convex/actions/places.ts server/convex/db/favorites.ts | wc -l` ≥ 6
+- **VERIFY:** `grep -E '^(export const|args:|returns:)' convex/actions/places.ts convex/db/favorites.ts | wc -l` ≥ 6
 
 ---
 
@@ -107,17 +107,17 @@ Convex exposes two authenticated, validator-rich endpoints used by the idle stat
 ## SCOPE
 
 **writeAllowed:**
-- `server/convex/actions/places.ts` (NEW)
-- `server/convex/db/favorites.ts` (NEW — re-export of existing favorites query)
-- `server/convex/__tests__/places.test.ts` (NEW)
-- `server/convex/__tests__/favorites.test.ts` (NEW)
-- `server/convex/errors.ts` (MODIFY — add `GEOCODE_INVALID_COORDS`, `GEOCODE_NOT_FOUND` codes)
-- `server/convex/lib/env.ts` (MODIFY — declare `MAPBOX_ACCESS_TOKEN`)
+- `convex/actions/places.ts` (NEW)
+- `convex/db/favorites.ts` (NEW — re-export of existing favorites query)
+- `convex/__tests__/places.test.ts` (NEW)
+- `convex/__tests__/favorites.test.ts` (NEW)
+- `convex/errors.ts` (MODIFY — add `GEOCODE_INVALID_COORDS`, `GEOCODE_NOT_FOUND` codes)
+- `convex/lib/env.ts` (MODIFY — declare `MAPBOX_ACCESS_TOKEN`)
 
 **writeProhibited:**
 - `ios/**`, `android/**`, `react-native/**`, `tokens/**`
-- `server/convex/schema.ts` — `favorite_roads` table already exists; do not redefine
-- `server/convex/auth.config.ts` — auth config is sprint-03 ownership
+- `convex/schema.ts` — `favorite_roads` table already exists; do not redefine
+- `convex/auth.config.ts` — auth config is sprint-03 ownership
 
 ---
 
@@ -155,10 +155,10 @@ For each AC: RED → GREEN → REFACTOR. Use the Convex test harness (`convex-te
 
 ## READING LIST
 
-1. `server/convex/actions/places.ts:1-200` **[PRIMARY PATTERN]** — final implementation; references for validator + retry + error classification shape
-2. `server/convex/actions/agent/lib/reliability.ts:1-80` — `retryOnce`, `withTimeout`, `markRetryable` pattern
-3. `server/convex/guards.ts` — `requireIdentity()` shape; throws `UNAUTHENTICATED` when no identity
-4. `server/convex/db/favorites.ts:1-60` — `listFavoriteLocationsHandler` extracted for testing without Convex runtime
+1. `convex/actions/places.ts:1-200` **[PRIMARY PATTERN]** — final implementation; references for validator + retry + error classification shape
+2. `convex/actions/agent/lib/reliability.ts:1-80` — `retryOnce`, `withTimeout`, `markRetryable` pattern
+3. `convex/guards.ts` — `requireIdentity()` shape; throws `UNAUTHENTICATED` when no identity
+4. `convex/db/favorites.ts:1-60` — `listFavoriteLocationsHandler` extracted for testing without Convex runtime
 5. `.spec/design/system/views/mapapp/idle/idle-screen.html` — visual ground truth for "Near {city}, {state}" pill copy
 
 ---
@@ -169,7 +169,7 @@ For each AC: RED → GREEN → REFACTOR. Use the Convex test harness (`convex-te
 |------|---------|----------|
 | Convex tests | `pnpm --dir server test -- places favorites` | Exit 0; ≥10 assertions pass |
 | Typecheck | `pnpm type-check:native` | Exit 0 |
-| Biome lint | `pnpm exec biome check server/convex/actions/places.ts server/convex/db/favorites.ts` | Exit 0 |
+| Biome lint | `pnpm exec biome check convex/actions/places.ts convex/db/favorites.ts` | Exit 0 |
 | Convex deploy dry-run | `pnpm --dir server run convex:dev -- --once` | Exit 0; new functions visible in `_generated/api.d.ts` |
 
 ---
@@ -216,7 +216,7 @@ For each AC: RED → GREEN → REFACTOR. Use the Convex test harness (`convex-te
 
 **Pattern:** Validator-first Convex actions wrapping external HTTP with `retryOnce(withTimeout(...))`; per-function `args`/`returns` validators; `requireIdentity` gate at function head.
 
-**Pattern source:** `server/convex/actions/agent/lib/reliability.ts:1-80` and `server/convex/guards.ts`
+**Pattern source:** `convex/actions/agent/lib/reliability.ts:1-80` and `convex/guards.ts`
 
 **Anti-pattern:** Calling `globalThis.fetch` directly without `withTimeout`; using `.filter()` on indexed queries; throwing raw `Error` instead of typed `ConvexError`.
 
@@ -246,13 +246,13 @@ For each AC: RED → GREEN → REFACTOR. Use the Convex test harness (`convex-te
     {"id":"AC-3","type":"acceptance_criterion","description":"GIVEN Mapbox 503 then 200 WHEN reverseGeocode invoked THEN exactly 2 attempts, returns second","verify":"pnpm --dir server test -- -t 'reverseGeocode retries once on transient'"},
     {"id":"AC-4","type":"acceptance_criterion","description":"GIVEN authenticated identity with 3 favorite_roads rows WHEN listFavoriteLocations invoked THEN returns 3 entries via withIndex(by_clerkUserId)","verify":"pnpm --dir server test -- -t 'listFavoriteLocations scopes by clerkUserId via withIndex'"},
     {"id":"AC-5","type":"acceptance_criterion","description":"GIVEN no identity WHEN listFavoriteLocations invoked THEN throws UNAUTHENTICATED","verify":"pnpm --dir server test -- -t 'listFavoriteLocations throws UNAUTHENTICATED'"},
-    {"id":"AC-6","type":"acceptance_criterion","description":"Both functions declare args and returns validators","verify":"grep -cE 'args:|returns:' server/convex/actions/places.ts server/convex/db/favorites.ts"},
+    {"id":"AC-6","type":"acceptance_criterion","description":"Both functions declare args and returns validators","verify":"grep -cE 'args:|returns:' convex/actions/places.ts convex/db/favorites.ts"},
     {"id":"TC-1","type":"test_criterion","description":"reverseGeocode returns {city,state,label} for (36.97,-122.03)","maps_to_ac":"AC-1","verify":"pnpm --dir server test -- -t 'reverseGeocode returns city/state/label'"},
     {"id":"TC-2","type":"test_criterion","description":"reverseGeocode throws GEOCODE_INVALID_COORDS for (999,0)","maps_to_ac":"AC-2","verify":"pnpm --dir server test -- -t 'reverseGeocode throws GEOCODE_INVALID_COORDS'"},
     {"id":"TC-3","type":"test_criterion","description":"reverseGeocode performs exactly 2 HTTP attempts when first returns 503","maps_to_ac":"AC-3","verify":"pnpm --dir server test -- -t 'reverseGeocode retries once'"},
     {"id":"TC-4","type":"test_criterion","description":"listFavoriteLocations executes withIndex(by_clerkUserId), not filter","maps_to_ac":"AC-4","verify":"pnpm --dir server test -- -t 'listFavoriteLocations scopes by clerkUserId via withIndex'"},
     {"id":"TC-5","type":"test_criterion","description":"listFavoriteLocations throws UNAUTHENTICATED with no identity","maps_to_ac":"AC-5","verify":"pnpm --dir server test -- -t 'listFavoriteLocations throws UNAUTHENTICATED'"},
-    {"id":"TC-6","type":"test_criterion","description":"Both functions declare args and returns validators","maps_to_ac":"AC-6","verify":"grep -cE 'args:|returns:' server/convex/actions/places.ts server/convex/db/favorites.ts"}
+    {"id":"TC-6","type":"test_criterion","description":"Both functions declare args and returns validators","maps_to_ac":"AC-6","verify":"grep -cE 'args:|returns:' convex/actions/places.ts convex/db/favorites.ts"}
   ]
 }
 -->

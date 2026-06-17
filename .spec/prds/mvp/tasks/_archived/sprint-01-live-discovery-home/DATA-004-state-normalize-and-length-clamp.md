@@ -54,12 +54,12 @@ Live data is dirty in two verified ways: (1) 9 states appear under two spellings
 
 ## Reading List
 - `server/models/curated-routes.ts` — state, lengthMiles fields
-- `server/convex/schema.ts` — `by_state` index
+- `convex/schema.ts` — `by_state` index
 - PRD `.spec/prds/mvp/04-uc-data.md` UC-DATA-04; `09-technical-requirements/03-data-schema.md`
 
 ## Guardrails
-**Write Allowed:** `server/convex/util/dataNormalization.ts (NEW)` + unit test; import into `server/convex/curatedRoutes.ts` (DATA-005).
-**Write Prohibited:** `server/models/curated-routes.ts`, `server/convex/schema.ts` (no write-back, no index change).
+**Write Allowed:** `convex/util/dataNormalization.ts (NEW)` + unit test; import into `convex/curatedRoutes.ts` (DATA-005).
+**Write Prohibited:** `server/models/curated-routes.ts`, `convex/schema.ts` (no write-back, no index change).
 
 ## Code Pattern / Design
 - Pattern: `normalizeState(s: string): string` = trim + replace(/-/g,' ') + title-case; `clampLength(mi: number | undefined, ceiling=1000): number | undefined` = undefined if mi==null || mi<=0 || mi>ceiling else mi. For state filtering, probe `by_state` for BOTH the raw input and the dash-variant(s).

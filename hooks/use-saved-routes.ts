@@ -1,10 +1,10 @@
 import { useMutation, useQuery } from 'convex/react'
 import type { FunctionReturnType } from 'convex/server'
 import { useCallback, useMemo, useState } from 'react'
+import { api } from '../convex/_generated/api'
+import type { Id } from '../convex/_generated/dataModel'
 import { getUserFacingError } from '../lib/convex-error'
 import { showErrorNotification, showSuccessNotification } from '../lib/notifier-helpers'
-import { api } from '../server/convex/_generated/api'
-import type { Id } from '../server/convex/_generated/dataModel'
 import type {
   PlanInput,
   RouteIndex,
@@ -13,7 +13,7 @@ import type {
   SavedRouteDetailView,
   SavedRoutesListView,
   SnapshotMeta,
-} from '../server/types/routes'
+} from '../shared/types/routes'
 
 type SavedRoutesListResult = FunctionReturnType<typeof api.db.savedRoutes.getSavedRoutesList>
 type SavedRouteDetailResult = FunctionReturnType<typeof api.db.savedRoutes.getSavedRouteDetail>

@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react'
 import { useEnrichmentProgress } from '../components/enrichment/enrichment-progress-provider'
-import { calculateProgress, estimateTimeRemaining } from '../server/lib/enrichment/status-tracker'
+import { calculateProgress, estimateTimeRemaining } from '../shared/lib/enrichment/status-tracker'
 
 export interface UseEnrichmentProgressCalculationResult {
   progress: number

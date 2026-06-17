@@ -137,7 +137,7 @@ Replace the explicit stub `fetch_all_routes()` in `semantic_deduplicator.py` wit
 - scripts/curation/pipeline/sync/convex_fetch.py — stable module, do not modify
 - scripts/curation/pipeline/models.py — Route dataclass is frozen
 - scripts/curation/tests/test_qual_001.py — existing tests must still pass after changes
-- server/convex/** — backend schema is frozen
+- convex/** — backend schema is frozen
 
 ## DESIGN
 

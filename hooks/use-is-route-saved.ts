@@ -8,7 +8,7 @@
 
 import { useQuery } from 'convex/react'
 import { useMemo } from 'react'
-import { api } from '../server/convex/_generated/api'
+import { api } from '../convex/_generated/api'
 
 /**
  * Check if a route with the given fingerprint exists in the user's saved routes.

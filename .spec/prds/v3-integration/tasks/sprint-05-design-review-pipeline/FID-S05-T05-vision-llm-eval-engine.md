@@ -141,7 +141,7 @@ BOUNDARIES
 --------------------------------------------------------------------------------
 
 ✅ Always:
-- Reuse existing Anthropic SDK import pattern from server/convex/agent/
+- Reuse existing Anthropic SDK import pattern from convex/agent/
 - Read API key from `ANTHROPIC_API_KEY` env var (never commit keys)
 - Honor concurrency cap via `p-limit` or equivalent semaphore
 - Send `reference` image first in the multimodal payload, `captured` second
@@ -173,7 +173,7 @@ For AC-3 retry test: stub the Anthropic client to return an invalid payload firs
 READING LIST
 --------------------------------------------------------------------------------
 
-1. /Users/justinrich/Projects/LaneShadow/server/convex/agent/ [PRIMARY PATTERN]
+1. /Users/justinrich/Projects/LaneShadow/convex/agent/ [PRIMARY PATTERN]
    - Lines: Anthropic SDK import + call pattern
    - Focus: Reuse SDK init + error handling pattern
 
@@ -222,7 +222,7 @@ OUT OF SCOPE
 CONTEXT
 --------------------------------------------------------------------------------
 
-**Current state:** Manifest from T04 lists capture+reference+annotations triples; nothing evaluates them. Anthropic SDK is already in use under `server/convex/agent/` with claude-* models.
+**Current state:** Manifest from T04 lists capture+reference+annotations triples; nothing evaluates them. Anthropic SDK is already in use under `convex/agent/` with claude-* models.
 
 **Gap:** Need a multimodal evaluator that emits a structured, token-aware issue list per (screen,state,theme) which downstream merge/report (T07) and re-eval loops (T09) can consume.
 
@@ -238,7 +238,7 @@ Must pass:
 - One-shot retry on schema failure; second failure recorded as error entry (does not abort run)
 
 Should verify:
-- Anthropic SDK reuse mirrors `server/convex/agent/` init pattern
+- Anthropic SDK reuse mirrors `convex/agent/` init pattern
 - Per-entry output filenames match manifest ids exactly
 - API key read from env, never logged
 

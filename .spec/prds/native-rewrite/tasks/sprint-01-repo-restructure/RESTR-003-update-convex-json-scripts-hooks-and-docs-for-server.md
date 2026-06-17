@@ -13,7 +13,7 @@
 
 1. Update both human-facing documentation and machine-facing scripts/hooks in the same pass.
 2. Align with the current toolchain baseline: `tsgo` for native typecheck, `biome` for lint/format, `lefthook` instead of Husky.
-3. Eliminate root-path assumptions for Convex commands once `server/convex/` is authoritative.
+3. Eliminate root-path assumptions for Convex commands once `convex/` is authoritative.
 4. Keep curation-hardening and native-rewrite task docs aligned with the new backend root.
 
 ---

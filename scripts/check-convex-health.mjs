@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-import { execSync, spawnSync } from 'child_process'
-import { readFileSync, writeFileSync, existsSync, rmSync } from 'fs'
-import { join } from 'path'
+import { execSync, spawnSync } from 'node:child_process'
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 
-const SERVER_DIR = 'server'
-const TEMP_OUTPUT_FILE = join(SERVER_DIR, 'function-spec-temp.json')
+const SERVER_DIR = '.'
+const TEMP_OUTPUT_FILE = join('.convex', 'function-spec-temp.json')
 
 function cleanupTempFile() {
   if (existsSync(TEMP_OUTPUT_FILE)) {
@@ -39,7 +39,7 @@ function checkConvexHealth() {
     if (!spec.functions || !Array.isArray(spec.functions)) {
       console.error('❌ Invalid function-spec output: expected functions array')
       console.error('   This indicates a malformed response from Convex')
-      console.error('   Is `convex dev` running from server/?')
+      console.error('   Is `convex dev` running from the project root?')
       process.exit(1)
     }
 
@@ -48,7 +48,7 @@ function checkConvexHealth() {
     if (functions.length === 0) {
       console.error('❌ Empty Convex deployment detected')
       console.error('   No functions found in deployment')
-      console.error('   Please start `convex dev` from server/ directory')
+      console.error('   Please start `pnpm convex:dev` from the project root')
       console.error('   Expected functions but got empty list')
       process.exit(1)
     }
@@ -58,7 +58,9 @@ function checkConvexHealth() {
     )
 
     if (!hasListCuratedRoutes) {
-      console.error('❌ Convex deployment missing required function: curatedRoutes.js:listCuratedRoutes')
+      console.error(
+        '❌ Convex deployment missing required function: curatedRoutes.js:listCuratedRoutes',
+      )
       console.error('   Available functions:')
       functions.slice(0, 5).forEach((fn) => {
         console.error(`   - ${fn.identifier}`)
@@ -67,7 +69,7 @@ function checkConvexHealth() {
         console.error(`   ... and ${functions.length - 5} more`)
       }
       console.error('')
-      console.error('   Is `convex dev` running from server/?')
+      console.error('   Is `convex dev` running from the project root?')
       console.error('   If running, check that curatedRoutes.ts exports listCuratedRoutes')
       process.exit(1)
     }
@@ -83,22 +85,22 @@ function checkConvexHealth() {
     // Handle different error types with specific messages
     if (error.message.includes('No CONVEX_DEPLOYMENT set')) {
       console.error('❌ Convex deployment not configured')
-      console.error('   Please run `npx convex dev` from server/ directory to start deployment')
+      console.error('   Please run `pnpm convex:dev` from the project root to start deployment')
       console.error('   This script requires a running Convex dev deployment')
       process.exit(1)
     } else if (error.message.includes('command failed')) {
       console.error('❌ Convex command failed')
-      console.error('   Please ensure convex dev is running from server/')
+      console.error('   Please ensure `pnpm convex:dev` is running from the project root')
       console.error('   Error details:', error.message)
       process.exit(1)
     } else if (error.message.includes('timed out')) {
       console.error('❌ Convex command timed out after 30 seconds')
       console.error('   Please ensure convex dev is running and responsive')
-      console.error('   Check server/convex dev logs for issues')
+      console.error('   Check the convex dev logs for issues')
       process.exit(1)
     } else {
       console.error('❌ Health check failed:', error.message)
-      console.error('   Please ensure convex dev is running from server/')
+      console.error('   Please ensure `pnpm convex:dev` is running from the project root')
       process.exit(1)
     }
   }

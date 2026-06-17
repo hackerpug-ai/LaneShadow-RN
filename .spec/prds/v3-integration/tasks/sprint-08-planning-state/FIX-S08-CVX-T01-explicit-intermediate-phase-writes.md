@@ -5,7 +5,7 @@
 
 ## Background
 
-Red-hat review 2026-05-19 (`.spec/reviews/red-hat-20260519T024631Z-planning-state.md`) identified the root cause of the user-reported bug ("I see the card, but the state doesn't change"): the `planning` row's `phase` field is only ever written to `PARSING` (at creation, `server/convex/db/sessionMessages.ts:217`) and `FINALIZING` (at completion, `sessionMessages.ts:246`). The intermediate values `SEARCHING`, `DRAFTING`, `ENRICHING` come only via `derivePlanningPhase` recomputation inside `updatePlanningContent`. That derive reads `message.thinkingSteps` first — but `thinkingSteps` is only written to `thinking_card` rows, never to the `planning` row. The fallback to content-event derivation works only when the LLM calls a sub-agent. For conversational responses or fast tool sequences, the phase observably stays at `parsing` then snaps to `finalizing`.
+Red-hat review 2026-05-19 (`.spec/reviews/red-hat-20260519T024631Z-planning-state.md`) identified the root cause of the user-reported bug ("I see the card, but the state doesn't change"): the `planning` row's `phase` field is only ever written to `PARSING` (at creation, `convex/db/sessionMessages.ts:217`) and `FINALIZING` (at completion, `sessionMessages.ts:246`). The intermediate values `SEARCHING`, `DRAFTING`, `ENRICHING` come only via `derivePlanningPhase` recomputation inside `updatePlanningContent`. That derive reads `message.thinkingSteps` first — but `thinkingSteps` is only written to `thinking_card` rows, never to the `planning` row. The fallback to content-event derivation works only when the LLM calls a sub-agent. For conversational responses or fast tool sequences, the phase observably stays at `parsing` then snaps to `finalizing`.
 
 Additionally, `ENRICHING_TOOL_NAMES` at `server/models/session-messages.ts:107` contains `'fetchWeather'` — no backend tool emits that name. The real weather tool is `getRouteWeather`. Same in `iOS` (handled by FIX-S08-IOS-T01).
 
@@ -14,8 +14,8 @@ The chosen fix path (red-hat report Option C) is to write intermediate phase val
 ## Critical Constraints
 
 **MUST:**
-- Patch `server/models/session-messages.ts` `ENRICHING_TOOL_NAMES` to replace `'fetchWeather'` with `'getRouteWeather'` (the real tool name registered in `server/convex/actions/agent/tools/getRouteWeather.ts`)
-- In `server/convex/actions/agent/lib/planningEvents.ts`, after each `toolPending` and `toolComplete` event, compute the corresponding `PlanningPhase` using `derivePlanningPhaseFromToolName` and pass it to `updatePlanningContent` so the patch sets `phase` explicitly per-event (do not rely solely on `derivePlanningPhase` reading the content blob)
+- Patch `server/models/session-messages.ts` `ENRICHING_TOOL_NAMES` to replace `'fetchWeather'` with `'getRouteWeather'` (the real tool name registered in `convex/actions/agent/tools/getRouteWeather.ts`)
+- In `convex/actions/agent/lib/planningEvents.ts`, after each `toolPending` and `toolComplete` event, compute the corresponding `PlanningPhase` using `derivePlanningPhaseFromToolName` and pass it to `updatePlanningContent` so the patch sets `phase` explicitly per-event (do not rely solely on `derivePlanningPhase` reading the content blob)
 - After `agentComplete` for the routing/orchestrator sub-agent, ensure the phase is `FINALIZING`
 - Preserve the existing content-event JSON shape; this task adds phase writes, it does NOT change the event payload contract
 
@@ -80,31 +80,31 @@ The chosen fix path (red-hat report Option C) is to write intermediate phase val
 
 | Path | Lines | Focus |
 |---|---|---|
-| `server/convex/actions/agent/lib/planningEvents.ts` | all | Emitter to patch — add phase writes in `toolPending`, `toolComplete`, `agentComplete` |
-| `server/convex/db/sessionMessages.ts` | 217, 246, 401-470, 660-680 | `updatePlanningContent` patch site; existing PARSING/FINALIZING writes |
+| `convex/actions/agent/lib/planningEvents.ts` | all | Emitter to patch — add phase writes in `toolPending`, `toolComplete`, `agentComplete` |
+| `convex/db/sessionMessages.ts` | 217, 246, 401-470, 660-680 | `updatePlanningContent` patch site; existing PARSING/FINALIZING writes |
 | `server/models/session-messages.ts` | 90-180 | `derivePlanningPhase*`, `*_TOOL_NAMES` sets, phase derivation contract |
-| `server/convex/actions/agent/sendMessage.ts` | 450-475 | Where emitter is wired into `onSubToolPending/Complete/AgentComplete` |
-| `server/convex/actions/agent/tools/getRouteWeather.ts` | 1-40 | Real tool name registration — confirm `getRouteWeather` is the correct ID |
+| `convex/actions/agent/sendMessage.ts` | 450-475 | Where emitter is wired into `onSubToolPending/Complete/AgentComplete` |
+| `convex/actions/agent/tools/getRouteWeather.ts` | 1-40 | Real tool name registration — confirm `getRouteWeather` is the correct ID |
 
 ## Guardrails
 
 **Write-Allowed:**
-- `server/convex/actions/agent/lib/planningEvents.ts` (MODIFY — add phase patch arg)
-- `server/convex/db/sessionMessages.ts` (MODIFY — extend `updatePlanningContent` to accept optional `phase` arg with monotone-merge logic)
+- `convex/actions/agent/lib/planningEvents.ts` (MODIFY — add phase patch arg)
+- `convex/db/sessionMessages.ts` (MODIFY — extend `updatePlanningContent` to accept optional `phase` arg with monotone-merge logic)
 - `server/models/session-messages.ts` (MODIFY — fix `ENRICHING_TOOL_NAMES`)
-- `server/convex/actions/agent/__tests__/planningIntegration.test.ts` (MODIFY — add explicit-phase-writes test)
+- `convex/actions/agent/__tests__/planningIntegration.test.ts` (MODIFY — add explicit-phase-writes test)
 - `server/models/__tests__/session-messages-planning-phase.test.ts` (MODIFY — add monotone-phase test)
 
 **Write-Prohibited:**
 - `ios/**`, `android/**`, `react-native/**`
-- Any tool handler under `server/convex/actions/agent/tools/` (this task is signal-only, no tool changes)
-- `server/convex/schema.ts` — phase field already exists on `session_messages`
+- Any tool handler under `convex/actions/agent/tools/` (this task is signal-only, no tool changes)
+- `convex/schema.ts` — phase field already exists on `session_messages`
 
 ## Design
 
 **References:** `.spec/reviews/red-hat-20260519T024631Z-planning-state.md` Option C; UC-CHAT-02 phase-progression contract
 
-**Pattern:** `server/convex/db/sessionMessages.ts:660-680` — existing `updatePlanningContent` patch site that derives phase from content; extend with an explicit-phase merge step
+**Pattern:** `convex/db/sessionMessages.ts:660-680` — existing `updatePlanningContent` patch site that derives phase from content; extend with an explicit-phase merge step
 
 **Anti-Pattern:** Writing phase from human-readable strings (status lines) or from message content text; bypassing `updatePlanningContent` with a separate phase-only mutation
 
@@ -126,8 +126,8 @@ The chosen fix path (red-hat report Option C) is to write intermediate phase val
 ## Coding Standards
 
 - `brain/docs/coding-standards/typescript.md`
-- `server/convex/CLAUDE.md`
-- `server/convex/actions/agent/CLAUDE.md` (one agent, one task)
+- `convex/CLAUDE.md`
+- `convex/actions/agent/CLAUDE.md` (one agent, one task)
 
 ## Dependencies
 

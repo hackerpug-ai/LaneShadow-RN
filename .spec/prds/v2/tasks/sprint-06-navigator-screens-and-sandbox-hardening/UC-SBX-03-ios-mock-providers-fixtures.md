@@ -21,15 +21,15 @@ Finalize the iOS mock data layer: ensure `tokens/sandbox/fixtures/*.json` is com
 - All six Navigator screen providers (`IdleMockProvider`, `PlanningMockProvider`, `RouteResultsMockProvider`, `RouteDetailsMockProvider`, `SessionsMockProvider`, `ErrorMockProvider`) MUST be pure synchronous functions/types returning typed fixture records — zero I/O.
 - Each provider MUST source data from generated `LaneShadowMocks.Generated.Fixtures` (consumed via SPM) — never inline literals inside the story.
 - Each provider MUST expose at least four named variants: `default`, `empty`, `overflow`, `long-copy` — selectable via a `.select` argType.
-- Provider data shapes MUST mirror the read types in `server/convex/schema.ts` (with Navigator-domain extensions per `11-technical-requirements.md`) so future integration is a 1:1 swap.
+- Provider data shapes MUST mirror the read types in `convex/schema.ts` (with Navigator-domain extensions per `11-technical-requirements.md`) so future integration is a 1:1 swap.
 - If `tokens/platforms/swift/Sources/LaneShadowMocks/Generated/Fixtures.swift` does not yet exist, run `pnpm fixtures:generate` and commit the regenerated output as part of this task.
 
 **NEVER:**
 - Perform any network, disk, Convex, or filesystem I/O inside a provider — providers are pure functions.
 - Inline mock data literals inside Navigator screen stories — stories MUST consume providers.
 - Modify generated `Fixtures.swift` by hand — regenerate via `pnpm fixtures:generate`.
-- Touch any path under `android/**`, `react-native/**`, `server/convex/**`, or `~/Projects/native-sandbox/**`.
-- Add new fixture JSON files without first verifying the field shapes against `server/convex/schema.ts`.
+- Touch any path under `android/**`, `react-native/**`, `convex/**`, or `~/Projects/native-sandbox/**`.
+- Add new fixture JSON files without first verifying the field shapes against `convex/schema.ts`.
 
 **STRICTLY:**
 - A platform test (`MockProviderPurityTests`) asserts every provider is annotated `@MockProvider` (or equivalent marker) and surfaces zero I/O symbols (no `URLSession`, no `FileManager`, no `Convex*`).
@@ -54,7 +54,7 @@ Finalize the iOS mock data layer: ensure `tokens/sandbox/fixtures/*.json` is com
 ### AC-2 — Generated Swift fixtures importable
 - **GIVEN** The developer runs `pnpm fixtures:generate`
 - **WHEN** The script completes
-- **THEN** `tokens/platforms/swift/Sources/LaneShadowMocks/Generated/Fixtures.swift` exists and exports typed structs (e.g., `Route`, `User`, `Session`, `NavigatorMessage`) whose fields mirror `server/convex/schema.ts` read types; importing `LaneShadowMocks` and reading `Mocks.routes[0]` returns a fully-typed value
+- **THEN** `tokens/platforms/swift/Sources/LaneShadowMocks/Generated/Fixtures.swift` exists and exports typed structs (e.g., `Route`, `User`, `Session`, `NavigatorMessage`) whose fields mirror `convex/schema.ts` read types; importing `LaneShadowMocks` and reading `Mocks.routes[0]` returns a fully-typed value
 - **Verify:** Run `pnpm fixtures:generate`; build iOS; unit test in `LaneShadowMocksTests` reads `Mocks.routes[0].id` and asserts non-empty
 - **TDD State:** RED
 
@@ -102,7 +102,7 @@ Finalize the iOS mock data layer: ensure `tokens/sandbox/fixtures/*.json` is com
 - `.spec/prds/v2/11-technical-requirements.md` lines `all` — Navigator-domain field extensions on top of Convex read types
 - `concepts/designs.html` lines `all` — REQUIRED READING — visual design source for this task
 - `tokens/sandbox/fixtures/` lines `all` — Existing fixture corpus (routes already present); identify gaps
-- `server/convex/schema.ts` lines `all` — READ-ONLY — read-type shapes that fixture/provider types must mirror
+- `convex/schema.ts` lines `all` — READ-ONLY — read-type shapes that fixture/provider types must mirror
 - `ios/LaneShadow/Sandbox/MockProviders/` lines `all` — Existing partial providers if any
 - `tokens/platforms/swift/Sources/` lines `all` — Generated mocks SPM package — confirm `LaneShadowMocks` target exists
 - `scripts/fixtures/` lines `all` — Codegen script invoked by `pnpm fixtures:generate`
@@ -126,7 +126,7 @@ Finalize the iOS mock data layer: ensure `tokens/sandbox/fixtures/*.json` is com
 **WRITE-PROHIBITED:**
 - `android/**`
 - `react-native/**`
-- `server/convex/**` — read only (schema reference)
+- `convex/**` — read only (schema reference)
 - `tokens/platforms/swift/Sources/LaneShadowTheme/**` — read only
 - `~/Projects/native-sandbox/**` — external dep
 

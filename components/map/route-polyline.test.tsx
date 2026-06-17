@@ -26,7 +26,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { getRainColor, getTemperatureColor, getWindColor } from '../../lib/map/overlay-colors'
-import type { PolylineGeometry, RouteLeg, RouteOverlays } from '../../server/models/saved-routes'
+import type { PolylineGeometry, RouteLeg, RouteOverlays } from '../../shared/models/saved-routes'
 import type { ExtendedTheme } from '../../styles/types'
 import { buildRoutePolylines } from './route-polyline'
 

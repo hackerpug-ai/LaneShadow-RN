@@ -5,7 +5,7 @@
 
 ## Background
 
-Red-hat review found `server/convex/actions/agent/lib/planRideOrchestrator.ts:78-80` contains `for (const _f of failed) { }` — an empty loop body. When all route variants fail, the thrown `NO_ROUTES_GENERATED` is the only visible signal; the individual variant failures are silently dropped. Production debugging is blind.
+Red-hat review found `convex/actions/agent/lib/planRideOrchestrator.ts:78-80` contains `for (const _f of failed) { }` — an empty loop body. When all route variants fail, the thrown `NO_ROUTES_GENERATED` is the only visible signal; the individual variant failures are silently dropped. Production debugging is blind.
 
 Add a `console.warn` (or the project's structured backend logger if present) inside the loop body to record each failed variant's reason. This is a one-line debug improvement.
 
@@ -32,10 +32,10 @@ Add a `console.warn` (or the project's structured backend logger if present) ins
 ## Acceptance Criteria
 
 ### AC-1 — Loop body contains a warn-log
-**GIVEN** `server/convex/actions/agent/lib/planRideOrchestrator.ts`
+**GIVEN** `convex/actions/agent/lib/planRideOrchestrator.ts`
 **WHEN** the file is read
 **THEN** the previously empty `for (const _f of failed)` body contains a `console.warn(...)` (or structured logger) call including variant identifier and error reason; `_f` is renamed to `failedVariant`
-**Verify:** `grep -A 3 "for (const failedVariant of failed)" server/convex/actions/agent/lib/planRideOrchestrator.ts | grep -E "console\.warn|backend\.warn"`
+**Verify:** `grep -A 3 "for (const failedVariant of failed)" convex/actions/agent/lib/planRideOrchestrator.ts | grep -E "console\.warn|backend\.warn"`
 
 ### AC-2 — Existing failure-path test still passes
 **GIVEN** existing `planRideOrchestrator` failure tests
@@ -61,14 +61,14 @@ Add a `console.warn` (or the project's structured backend logger if present) ins
 
 | Path | Lines | Focus |
 |---|---|---|
-| `server/convex/actions/agent/lib/planRideOrchestrator.ts` | 70-95 | Empty loop body site |
+| `convex/actions/agent/lib/planRideOrchestrator.ts` | 70-95 | Empty loop body site |
 | Existing tests for `planRideOrchestrator` | discover via `find server -name '*planRide*test*'` | Preserve regression |
 
 ## Guardrails
 
 **Write-Allowed:**
-- `server/convex/actions/agent/lib/planRideOrchestrator.ts` (MODIFY — add warn log)
-- A relevant test file under `server/convex/actions/agent/__tests__/` (MODIFY/ADD — unit test for warn invocation)
+- `convex/actions/agent/lib/planRideOrchestrator.ts` (MODIFY — add warn log)
+- A relevant test file under `convex/actions/agent/__tests__/` (MODIFY/ADD — unit test for warn invocation)
 
 **Write-Prohibited:**
 - Any other file
@@ -85,7 +85,7 @@ Add a `console.warn` (or the project's structured backend logger if present) ins
 
 | AC | Command |
 |---|---|
-| AC-1 | `grep -A 3 "for (const failedVariant of failed)" server/convex/actions/agent/lib/planRideOrchestrator.ts` |
+| AC-1 | `grep -A 3 "for (const failedVariant of failed)" convex/actions/agent/lib/planRideOrchestrator.ts` |
 | AC-2 | `pnpm --filter @laneshadow/server test -- planRideOrchestrator` |
 | AC-3 | unit test (see test file under `__tests__/`) |
 
@@ -107,10 +107,10 @@ Add a `console.warn` (or the project's structured backend logger if present) ins
 <!--
 {
   "requirements": [
-    { "id": "AC-1", "type": "acceptance_criterion", "description": "Loop body contains warn log", "verify": "grep -A 3 'for (const failedVariant of failed)' server/convex/actions/agent/lib/planRideOrchestrator.ts", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": null },
+    { "id": "AC-1", "type": "acceptance_criterion", "description": "Loop body contains warn log", "verify": "grep -A 3 'for (const failedVariant of failed)' convex/actions/agent/lib/planRideOrchestrator.ts", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": null },
     { "id": "AC-2", "type": "acceptance_criterion", "description": "Existing failure tests pass", "verify": "pnpm --filter @laneshadow/server test -- planRideOrchestrator", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": null },
     { "id": "AC-3", "type": "acceptance_criterion", "description": "Forced N-variant failure invokes warn N times", "verify": "unit test asserts warn invocation count", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": null },
-    { "id": "TC-1", "type": "test_criterion", "description": "Loop body contains warn call", "verify": "grep -A 3 'for (const failedVariant of failed)' server/convex/actions/agent/lib/planRideOrchestrator.ts", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": "AC-1" },
+    { "id": "TC-1", "type": "test_criterion", "description": "Loop body contains warn call", "verify": "grep -A 3 'for (const failedVariant of failed)' convex/actions/agent/lib/planRideOrchestrator.ts", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": "AC-1" },
     { "id": "TC-2", "type": "test_criterion", "description": "Existing failure-path tests pass", "verify": "pnpm --filter @laneshadow/server test -- planRideOrchestrator", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": "AC-2" },
     { "id": "TC-3", "type": "test_criterion", "description": "Warn invoked N times for N failed variants", "verify": "unit test", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": "AC-3" }
   ]

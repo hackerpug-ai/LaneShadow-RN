@@ -20,7 +20,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // ---------------------------------------------------------------------------
 
 import { useQuery } from 'convex/react'
-import type { Id } from '../../../server/convex/_generated/dataModel'
+import type { Id } from '../../../convex/_generated/dataModel'
 import { WaypointList } from '../waypoint-list'
 
 // ---------------------------------------------------------------------------

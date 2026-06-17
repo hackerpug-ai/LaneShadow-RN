@@ -11,7 +11,7 @@
  */
 
 import type { ComponentType } from 'react'
-import type { Id } from '../../server/convex/_generated/dataModel'
+import type { Id } from '../../convex/_generated/dataModel'
 import { LocationSearchCard } from './cards/location-search-card'
 import { PlanningCard } from './cards/planning-card'
 import { ReasoningCard } from './cards/reasoning-card'

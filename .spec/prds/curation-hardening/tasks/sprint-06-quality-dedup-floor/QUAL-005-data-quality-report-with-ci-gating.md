@@ -57,7 +57,7 @@ Produce a post-pipeline markdown report and machine-parseable JSON sidecar that 
 
 **NEVER:**
 - Never swallow the exit code — always call sys.exit(report.exit_code) as the final statement of the CLI entry point
-- Never write to server/convex/** or any Convex schema file
+- Never write to convex/** or any Convex schema file
 - Never modify scripts/curation/pipeline/dedup/** or floor_filter.py
 - Never issue real HTTP requests in tests — mock all Convex reads via unittest.mock or responses library
 - Never bury the Verdict in narrative prose — it must be a standalone grep-able bold line
@@ -170,7 +170,7 @@ Boolean statements that map 1:1 to acceptance criteria. No conditional language.
 - baseline/data-quality-report.json
 
 ### WRITE-PROHIBITED
-- server/convex/**
+- convex/**
 - scripts/curation/pipeline/dedup/**
 - scripts/curation/pipeline/quality/floor_filter.py
 - scripts/curation/pipeline/quality/coverage_report.py

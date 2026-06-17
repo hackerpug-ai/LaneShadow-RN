@@ -11,7 +11,7 @@ AGENT:      implementer=convex-implementer | reviewer=convex-reviewer
 RUNTIME_COMMANDS:
   test:      cd server && pnpm test
   typecheck: pnpm type-check:native
-  lint:      pnpm exec biome check --no-errors-on-unmatched server/convex/errors.ts server/convex/guards.ts server/convex/db/routePlans.ts
+  lint:      pnpm exec biome check --no-errors-on-unmatched convex/errors.ts convex/guards.ts convex/db/routePlans.ts
   build:     pnpm --dir server run convex:dev -- --once
 
 PROGRESS: 0/7 AC · pending
@@ -26,10 +26,10 @@ OUTCOME
 🚫 CRITICAL CONSTRAINTS
 --------------------------------------------------------------------------------
 
-- MUST add `UNAUTHENTICATED: 'UNAUTHENTICATED'` and `FORBIDDEN: 'FORBIDDEN'` to `ERROR_CODES` in `server/convex/errors.ts`
-- MUST update `requireIdentity()` in `server/convex/guards.ts` to throw `new ConvexError({ code: ERROR_CODES.UNAUTHENTICATED, message: 'Authentication required' })` — structured object, not freeform string
-- MUST add `await requireIdentity(ctx)` to `getActiveRoutePlansForSession` in `server/convex/db/routePlans.ts:586` and verify the session's `clerkUserId` matches the caller — throw structured ConvexError with code `FORBIDDEN` otherwise
-- MUST produce a JSON fixture file `server/convex/__fixtures__/auth-error-taxonomy.json` enumerating each error code + the expected `data.code` shape mobile mappers should match
+- MUST add `UNAUTHENTICATED: 'UNAUTHENTICATED'` and `FORBIDDEN: 'FORBIDDEN'` to `ERROR_CODES` in `convex/errors.ts`
+- MUST update `requireIdentity()` in `convex/guards.ts` to throw `new ConvexError({ code: ERROR_CODES.UNAUTHENTICATED, message: 'Authentication required' })` — structured object, not freeform string
+- MUST add `await requireIdentity(ctx)` to `getActiveRoutePlansForSession` in `convex/db/routePlans.ts:586` and verify the session's `clerkUserId` matches the caller — throw structured ConvexError with code `FORBIDDEN` otherwise
+- MUST produce a JSON fixture file `convex/__fixtures__/auth-error-taxonomy.json` enumerating each error code + the expected `data.code` shape mobile mappers should match
 - MUST keep all existing `requireIdentity` callers compiling and passing
 - NEVER throw plain `new Error(...)` for auth failures (must be ConvexError with structured data)
 - NEVER skip the IDOR fix on `getActiveRoutePlansForSession`
@@ -60,7 +60,7 @@ AC-1: ERROR_CODES extended with UNAUTHENTICATED and FORBIDDEN [PRIMARY]
   THEN:  It contains entries `UNAUTHENTICATED: 'UNAUTHENTICATED'` and `FORBIDDEN: 'FORBIDDEN'`; ErrorCode union type includes both
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/errors.test.ts
+  TEST_FILE:     convex/errors.test.ts
   TEST_FUNCTION: ERROR_CODES exposes UNAUTHENTICATED and FORBIDDEN
 
 AC-2: requireIdentity throws structured UNAUTHENTICATED
@@ -69,7 +69,7 @@ AC-2: requireIdentity throws structured UNAUTHENTICATED
   THEN:  It throws `ConvexError` whose `error.data.code === 'UNAUTHENTICATED'` and `error.data.message` is human-readable
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/guards.test.ts
+  TEST_FILE:     convex/guards.test.ts
   TEST_FUNCTION: requireIdentity throws ConvexError with structured code UNAUTHENTICATED
 
 AC-3: getActiveRoutePlansForSession requires authentication
@@ -78,7 +78,7 @@ AC-3: getActiveRoutePlansForSession requires authentication
   THEN:  It throws ConvexError with `data.code === 'UNAUTHENTICATED'` (no rows returned)
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/db/routePlans.test.ts
+  TEST_FILE:     convex/db/routePlans.test.ts
   TEST_FUNCTION: getActiveRoutePlansForSession rejects unauthenticated callers
 
 AC-4: getActiveRoutePlansForSession rejects cross-user sessionId (IDOR closed)
@@ -87,7 +87,7 @@ AC-4: getActiveRoutePlansForSession rejects cross-user sessionId (IDOR closed)
   THEN:  It throws ConvexError with `data.code === 'FORBIDDEN'` — no rows leak to user B
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/db/routePlans.test.ts
+  TEST_FILE:     convex/db/routePlans.test.ts
   TEST_FUNCTION: getActiveRoutePlansForSession rejects cross-user sessionId with FORBIDDEN
 
 AC-5: Owner happy path still works
@@ -96,7 +96,7 @@ AC-5: Owner happy path still works
   THEN:  It returns `[{ _id, status: 'pending' }, { _id, status: 'running' }]`
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/db/routePlans.test.ts
+  TEST_FILE:     convex/db/routePlans.test.ts
   TEST_FUNCTION: getActiveRoutePlansForSession returns owner's active plans
 
 AC-6: No regression in existing requireIdentity callers
@@ -111,10 +111,10 @@ AC-6: No regression in existing requireIdentity callers
 AC-7: Auth error taxonomy fixture emitted
   GIVEN: Mobile teams need to align their mapper tables
   WHEN:  The repo is built
-  THEN:  `server/convex/__fixtures__/auth-error-taxonomy.json` exists and lists every ERROR_CODES value with: `{ code, description, mobile_mapping_target }`; UNAUTHENTICATED entry maps to `Unauthenticated`, FORBIDDEN to `Forbidden`
+  THEN:  `convex/__fixtures__/auth-error-taxonomy.json` exists and lists every ERROR_CODES value with: `{ code, description, mobile_mapping_target }`; UNAUTHENTICATED entry maps to `Unauthenticated`, FORBIDDEN to `Forbidden`
 
   TDD_STATE:     none
-  TEST_FILE:     server/convex/__fixtures__/auth-error-taxonomy.test.ts
+  TEST_FILE:     convex/__fixtures__/auth-error-taxonomy.test.ts
   TEST_FUNCTION: fixture JSON is valid and covers every ERROR_CODES entry
 
 --------------------------------------------------------------------------------
@@ -136,24 +136,24 @@ SCOPE
 --------------------------------------------------------------------------------
 
 writeAllowed:
-- server/convex/errors.ts (MODIFY — add UNAUTHENTICATED + FORBIDDEN)
-- server/convex/guards.ts (MODIFY — refactor requireIdentity + ensureSession + requireSession to structured ConvexError)
-- server/convex/db/routePlans.ts (MODIFY — add requireIdentity + session ownership to getActiveRoutePlansForSession)
-- server/convex/guards.test.ts (CREATE OR MODIFY — assert structured error shape)
-- server/convex/errors.test.ts (CREATE OR MODIFY — assert new codes)
-- server/convex/db/routePlans.test.ts (MODIFY — add IDOR + auth tests)
-- server/convex/__fixtures__/auth-error-taxonomy.json (CREATE — fixture for mobile teams)
-- server/convex/__fixtures__/auth-error-taxonomy.test.ts (CREATE — validate fixture)
-- server/convex/db/savedRoutes.test.ts (MODIFY — update legacy `'Authentication required'` assertions if any)
-- server/convex/db/planningSessions.test.ts (MODIFY — same)
-- server/convex/db/sessionMessages.test.ts (MODIFY — same)
+- convex/errors.ts (MODIFY — add UNAUTHENTICATED + FORBIDDEN)
+- convex/guards.ts (MODIFY — refactor requireIdentity + ensureSession + requireSession to structured ConvexError)
+- convex/db/routePlans.ts (MODIFY — add requireIdentity + session ownership to getActiveRoutePlansForSession)
+- convex/guards.test.ts (CREATE OR MODIFY — assert structured error shape)
+- convex/errors.test.ts (CREATE OR MODIFY — assert new codes)
+- convex/db/routePlans.test.ts (MODIFY — add IDOR + auth tests)
+- convex/__fixtures__/auth-error-taxonomy.json (CREATE — fixture for mobile teams)
+- convex/__fixtures__/auth-error-taxonomy.test.ts (CREATE — validate fixture)
+- convex/db/savedRoutes.test.ts (MODIFY — update legacy `'Authentication required'` assertions if any)
+- convex/db/planningSessions.test.ts (MODIFY — same)
+- convex/db/sessionMessages.test.ts (MODIFY — same)
 
 writeProhibited:
-- server/convex/_generated/** — auto-generated
+- convex/_generated/** — auto-generated
 - ios/LaneShadow/Services/LaneShadowErrorMapping.swift — mobile mapper alignment is CHAT-S04-R13
 - android/app/src/main/java/com/laneshadow/services/LaneShadowErrorMapper.kt — mobile mapper alignment is CHAT-S04-R14
-- server/convex/schema.ts — no schema changes required
-- Any file outside server/convex/
+- convex/schema.ts — no schema changes required
+- Any file outside convex/
 
 --------------------------------------------------------------------------------
 BOUNDARIES
@@ -172,11 +172,11 @@ BOUNDARIES
 DELIVERABLE
 --------------------------------------------------------------------------------
 
-- server/convex/errors.ts (MODIFY): add UNAUTHENTICATED + FORBIDDEN to ERROR_CODES
-- server/convex/guards.ts (MODIFY): refactor to structured ConvexError throws
-- server/convex/db/routePlans.ts (MODIFY): close IDOR on getActiveRoutePlansForSession
-- server/convex/__fixtures__/auth-error-taxonomy.json (NEW): mobile mapper alignment contract
-- server/convex/__fixtures__/auth-error-taxonomy.test.ts (NEW): fixture validation
+- convex/errors.ts (MODIFY): add UNAUTHENTICATED + FORBIDDEN to ERROR_CODES
+- convex/guards.ts (MODIFY): refactor to structured ConvexError throws
+- convex/db/routePlans.ts (MODIFY): close IDOR on getActiveRoutePlansForSession
+- convex/__fixtures__/auth-error-taxonomy.json (NEW): mobile mapper alignment contract
+- convex/__fixtures__/auth-error-taxonomy.test.ts (NEW): fixture validation
 
 --------------------------------------------------------------------------------
 AGENT INSTRUCTIONS (TDD Flow)
@@ -204,19 +204,19 @@ AGENT INSTRUCTIONS (TDD Flow)
 READING LIST
 --------------------------------------------------------------------------------
 
-1. server/convex/guards.ts [PRIMARY PATTERN]
+1. convex/guards.ts [PRIMARY PATTERN]
    - Lines: 1-83
    - Focus: requireIdentity, ensureSession, requireSession — convert all to structured ConvexError
 
-2. server/convex/errors.ts
+2. convex/errors.ts
    - Lines: 1-29
    - Focus: Add UNAUTHENTICATED + FORBIDDEN; preserve existing ERROR_CODES order
 
-3. server/convex/db/routePlans.ts
+3. convex/db/routePlans.ts
    - Lines: 560-610
    - Focus: getActiveRoutePlansForSession — add requireIdentity + session ownership check
 
-4. server/convex/db/planningSessions.ts
+4. convex/db/planningSessions.ts
    - Lines: 119-129
    - Focus: getSessionByIdHandler ownership pattern — reuse for session-id ownership in routePlans
 
@@ -247,11 +247,11 @@ Gate 5: Typecheck clean
   Expected: Exit 0.
 
 Gate 6: Biome lint clean
-  Command: pnpm exec biome check --no-errors-on-unmatched server/convex/errors.ts server/convex/guards.ts server/convex/db/routePlans.ts
+  Command: pnpm exec biome check --no-errors-on-unmatched convex/errors.ts convex/guards.ts convex/db/routePlans.ts
   Expected: Exit 0.
 
 Gate 7: No legacy freeform 'Authentication required' string remains in throws
-  Command: grep -rn "ConvexError('Authentication required')" server/convex/ || true
+  Command: grep -rn "ConvexError('Authentication required')" convex/ || true
   Expected: Empty output (zero matches).
 
 Gate 8: Scope compliance

@@ -29,15 +29,15 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 import { useSelectedRoute } from '../../contexts/selected-route'
+import { api } from '../../convex/_generated/api'
+import type { Id } from '../../convex/_generated/dataModel'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { api } from '../../server/convex/_generated/api'
-import type { Id } from '../../server/convex/_generated/dataModel'
 import {
   ROUTE_PLAN_PHASE,
   type RoutePlanPhase,
   type RoutePlanStatus,
-} from '../../server/models/route-plans'
-import type { PlannedRouteOptionsView } from '../../server/types/routes'
+} from '../../shared/models/route-plans'
+import type { PlannedRouteOptionsView } from '../../shared/types/routes'
 import { CuratedRouteCard } from './cards/curated-route-card'
 import { RouteAttachmentCard } from './route-attachment-card'
 

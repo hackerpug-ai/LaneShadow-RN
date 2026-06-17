@@ -71,7 +71,7 @@ Chat-driven curated discovery (DATA-008/008b) produces a routing_card whose opti
 - `components/chat/routing-card.tsx` (229-289) — PRIMARY — CompletedCard curated branch (isCurated → CuratedRouteCard at 247-268) and the planned branch's onViewOnMap (279-281) to mirror for curated parity
 - `components/chat/cards/curated-route-card.tsx` (1-110) — the curated card to extend: composite rendered as `${Math.round(compositeScore*100)}/100` (line 26) + road icon; add mileage + %/bars
 - `app/(app)/(tabs)/index.tsx` (503-542, 1234-1242) — doFit centroid fallback (523-529) + ChatTranscript onViewOnMap={() => setChatMode(false)} — the return-to-map handler
-- `server/convex/actions/agent/tools/discoverCuratedRoutes.ts` (132-186) — the option.scores shape the card consumes (DATA-008b fixes route.score→compositeScore etc.); centroid polyline fallback at encodeCentroidToPolyline
+- `convex/actions/agent/tools/discoverCuratedRoutes.ts` (132-186) — the option.scores shape the card consumes (DATA-008b fixes route.score→compositeScore etc.); centroid polyline fallback at encodeCentroidToPolyline
 - `.spec/prds/mvp/10-e2e-testing-criteria.md` (85-89) — T-DISC-010 pass/fail — cards in chat, latest plots, earlier-card loop, score 0–1 as bars/percent never 0–100
 
 ## Guardrails

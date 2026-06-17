@@ -28,7 +28,7 @@ iOS `LaneShadowErrorMapping` consumes the `auth-error-taxonomy.json` fixture fro
 - MUST add `.forbidden` case to `LaneShadowError` enum if not present
 - MUST update `LaneShadowErrorMapping.swift` codeMap to include `UNAUTHENTICATED → .unauthenticated` and `FORBIDDEN → .forbidden`
 - MUST drop the legacy `mapCanonicalPhrase("authentication required")` entry (no longer needed since server emits structured code)
-- MUST add a fixture-driven test that round-trips every entry in `server/convex/__fixtures__/auth-error-taxonomy.json` through the mapper and asserts the `mobile_mapping_target` matches the resulting enum case
+- MUST add a fixture-driven test that round-trips every entry in `convex/__fixtures__/auth-error-taxonomy.json` through the mapper and asserts the `mobile_mapping_target` matches the resulting enum case
 - NEVER hand-code mapping that diverges from the server fixture
 - NEVER edit ios/LaneShadow.xcodeproj/** directly
 - STRICTLY mapping is sourced from the canonical fixture, not duplicated freeform
@@ -67,7 +67,7 @@ AC-2: codeMap includes UNAUTHENTICATED + FORBIDDEN
   TEST_FUNCTION: test_codeMap_includesUnauthenticatedAndForbidden
 
 AC-3: Fixture round-trip test passes for every entry
-  GIVEN: `server/convex/__fixtures__/auth-error-taxonomy.json` exists and is loaded as a test resource
+  GIVEN: `convex/__fixtures__/auth-error-taxonomy.json` exists and is loaded as a test resource
   WHEN:  Each fixture entry's `code` is passed through `LaneShadowErrorMapping.from(code:)` (or equivalent)
   THEN:  The resulting `LaneShadowError` case description matches the fixture's `mobile_mapping_target` for every entry; zero mismatches
 
@@ -100,7 +100,7 @@ writeAllowed:
 writeProhibited:
 - ios/LaneShadow.xcodeproj/** — generated
 - ios/LaneShadow/Generated/** — generated
-- server/convex/** — fixture is consumed read-only
+- convex/** — fixture is consumed read-only
 - android/** — Android handled by R14
 
 --------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ READING LIST
    - Lines: all
    - Focus: enum cases + user-facing copy; add .forbidden following existing pattern
 
-3. server/convex/__fixtures__/auth-error-taxonomy.json (after R03)
+3. convex/__fixtures__/auth-error-taxonomy.json (after R03)
    - Lines: all
    - Focus: source of truth for test fixtures
 

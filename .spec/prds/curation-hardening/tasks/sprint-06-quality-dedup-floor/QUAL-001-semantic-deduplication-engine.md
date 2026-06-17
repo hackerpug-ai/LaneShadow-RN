@@ -158,7 +158,7 @@ Boolean statements that map 1:1 to acceptance criteria. No conditional language.
 - `scripts/curation/pipeline/embed/batch_embed_routes.py` (lines: 1-80) — CLI entrypoint pattern, cost ledger dataclass, main() structure to replicate
 - `scripts/curation/pipeline/sync/convex_push.py` (lines: 1-60) — How to POST to Convex HTTP action endpoint; auth header pattern
 - `scripts/curation/tests/test_inf004_embed.py` (lines: 1-80) — responses library mock pattern for Convex HTTP calls; MagicMock fixture conventions
-- `server/convex/semanticSearch.ts` (lines: 1-100) — Exact signatures of findCandidateRoutesByEmbedding and addRouteMatch — do not deviate
+- `convex/semanticSearch.ts` (lines: 1-100) — Exact signatures of findCandidateRoutesByEmbedding and addRouteMatch — do not deviate
 - `.spec/prds/curation-hardening/tasks/epic-03-foundation-models-schema/INF-006.md` (lines: 1-60) — INF-006 contract: return shape of findCandidateRoutesByEmbedding, route_matches schema fields
 
 ## GUARDRAILS
@@ -171,7 +171,7 @@ Boolean statements that map 1:1 to acceptance criteria. No conditional language.
 - scripts/curation/data/arbitration/arbitration_queue.json
 
 ### WRITE-PROHIBITED
-- server/convex/** — schema contract frozen, handled by INF-003; QUAL-001 is a consumer only
+- convex/** — schema contract frozen, handled by INF-003; QUAL-001 is a consumer only
 - scripts/curation/pipeline/embed/** — embedding generation owned by INF-004; never re-embed
 - scripts/curation/pipeline/sync/** — Convex HTTP bridge is stable; do not modify
 - scripts/curation/pipeline/models.py — Route dataclass is shared; changes require cross-task review

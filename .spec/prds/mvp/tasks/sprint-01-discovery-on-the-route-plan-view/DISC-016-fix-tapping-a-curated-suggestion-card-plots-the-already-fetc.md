@@ -71,7 +71,7 @@ Today index.tsx wires the suggestion card to handleSelectCuratedRoute (lines 386
 - `app/(app)/(tabs)/index.tsx` (385-395, 503-542, 620-681, 1375-1391) — PRIMARY — the buggy handleSelectCuratedRoute, doFit (centroid fallback at 523-529), auto-fit effect, and the ChatInput onSelectRoute wiring to rewire
 - `components/chat/routing-card.tsx` (229-289) — CompletedCard onSelect = setSelectedRouteId + setDisplayedRoutePlanId + requestFitToRouteWithReset — the exact card→map plot seam to reuse
 - `hooks/use-active-session-route.ts` (28-96) — how displayedRoutePlanId/selectedRouteId resolve to activeOption that index.tsx plots — drive this without a chat message
-- `server/convex/actions/agent/tools/discoverCuratedRoutes.ts` (104-186) — how a curated route_plan/options (centroid polyline fallback) is constructed — the plan shape to resolve for a tapped route
+- `convex/actions/agent/tools/discoverCuratedRoutes.ts` (104-186) — how a curated route_plan/options (centroid polyline fallback) is constructed — the plan shape to resolve for a tapped route
 - `.spec/prds/mvp/10-e2e-testing-criteria.md` (79-83) — T-DISC-009 pass/fail — tap plots correct route, NO IDLE prompts, cards hide/return
 
 ## Guardrails

@@ -58,7 +58,7 @@ scripts/check-convex-health.mjs runs `npx convex function-spec` from server/, pa
 - `scripts/check-convex-health.mjs` (1-66) — PRIMARY PATTERN — function-spec parse, empty/canary checks, loud exit; the guard under verification
 - `package.json` (5-21) — dev/dev:all/server:dev/client:dev/convex:health script chain
 - `server/package.json` (6-15) — convex:dev resolution (the guarded sh wrapper that errors if convex/ is missing)
-- `server/convex/curatedRoutes.ts` (156-283) — the listCuratedRoutes canary export the health check probes
+- `convex/curatedRoutes.ts` (156-283) — the listCuratedRoutes canary export the health check probes
 - `.spec/prds/mvp/tasks/sprint-01-discovery-on-the-route-plan-view/SPRINT.md` (80-90) — OPS-001 source coverage + dev-workflow-integrity capability
 
 ## Guardrails
@@ -66,7 +66,7 @@ scripts/check-convex-health.mjs runs `npx convex function-spec` from server/, pa
 - WRITE-ALLOWED: `scripts/check-convex-health.mjs (MODIFY — harden: temp-file cleanup, distinct empty-vs-missing messages, connection-failure exit)`
 - WRITE-ALLOWED: `scripts/__tests__/check-convex-health.integration.test.ts (NEW)`
 - WRITE-ALLOWED: `package.json (MODIFY — only if the dev/server:dev chain is found to not launch convex dev)`
-- WRITE-PROHIBITED: server/convex/** — no backend code change in this ops task
+- WRITE-PROHIBITED: convex/** — no backend code change in this ops task
 - WRITE-PROHIBITED: server/package.json — do not weaken the convex/ existence guard
 - WRITE-PROHIBITED: Any file not listed above
 

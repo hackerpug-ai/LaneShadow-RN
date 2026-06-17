@@ -14,9 +14,9 @@ SPRINT:     sprint-07-context-capsule-map-controls -> ./SPRINT.md
 PRD_REFS:   UC-CHAT-01, UC-MAP-01
 
 RUNTIME_COMMANDS:
-  test:      pnpm test -- server/convex/__tests__/places-autocomplete.test.ts
+  test:      pnpm test -- convex/__tests__/places-autocomplete.test.ts
   typecheck: pnpm type-check:native
-  lint:      pnpm exec biome check --no-errors-on-unmatched server/convex/actions/places.ts server/convex/__tests__/places-autocomplete.test.ts
+  lint:      pnpm exec biome check --no-errors-on-unmatched convex/actions/places.ts convex/__tests__/places-autocomplete.test.ts
 ```
 
 ---
@@ -58,31 +58,31 @@ iOS and Android can request up to three Mapbox Search Box place suggestions for 
 - **GIVEN** Mapbox Search Box `/suggest` returns five suggestions for query `Big Sur`
 - **WHEN** `actions/places:suggestPlaces` is invoked with a valid `sessionToken`
 - **THEN** the action returns exactly the first three `PlaceSuggestion` DTOs with `id`, `name`, `label`, optional `secondaryText`, `featureType`, and optional `distanceMeters`
-- **VERIFY:** `pnpm test -- server/convex/__tests__/places-autocomplete.test.ts`
+- **VERIFY:** `pnpm test -- convex/__tests__/places-autocomplete.test.ts`
 
 ### AC-2: Short query avoids network
 - **GIVEN** query text trims to one character
 - **WHEN** `suggestPlaces` runs
 - **THEN** it returns an empty `suggestions` array and `fetch` is not called
-- **VERIFY:** `pnpm test -- server/convex/__tests__/places-autocomplete.test.ts`
+- **VERIFY:** `pnpm test -- convex/__tests__/places-autocomplete.test.ts`
 
 ### AC-3: Search Box request contract
 - **GIVEN** query `Santa Cruz` and proximity `{lat:36.97,lng:-122.03}`
 - **WHEN** `suggestPlaces` builds the Mapbox request
 - **THEN** the URL contains `q`, `session_token`, `limit=3`, `country=US`, `language=en`, and `proximity=-122.03,36.97`
-- **VERIFY:** `pnpm test -- server/convex/__tests__/places-autocomplete.test.ts`
+- **VERIFY:** `pnpm test -- convex/__tests__/places-autocomplete.test.ts`
 
 ### AC-4: Retrieve selected place coordinates
 - **GIVEN** Mapbox Search Box `/retrieve/{mapboxId}` returns a feature with coordinates
 - **WHEN** `actions/places:retrievePlace` runs with the same `sessionToken`
 - **THEN** it returns `SelectedPlace` with `lat/lng` converted from Mapbox `[lng,lat]`
-- **VERIFY:** `pnpm test -- server/convex/__tests__/places-autocomplete.test.ts`
+- **VERIFY:** `pnpm test -- convex/__tests__/places-autocomplete.test.ts`
 
 ### AC-5: Upstream failure is safe
 - **GIVEN** Mapbox returns HTTP 500 or malformed JSON
 - **WHEN** suggest or retrieve runs
 - **THEN** the action throws a typed Convex error that omits access tokens and provider response secrets
-- **VERIFY:** `pnpm test -- server/convex/__tests__/places-autocomplete.test.ts`
+- **VERIFY:** `pnpm test -- convex/__tests__/places-autocomplete.test.ts`
 
 ---
 
@@ -103,15 +103,15 @@ iOS and Android can request up to three Mapbox Search Box place suggestions for 
 ## SCOPE
 
 **writeAllowed:**
-- `server/convex/actions/places.ts` (MODIFY)
-- `server/convex/__tests__/places-autocomplete.test.ts` (NEW)
-- `server/convex/errors.ts` (MODIFY only if new typed error constants are required)
+- `convex/actions/places.ts` (MODIFY)
+- `convex/__tests__/places-autocomplete.test.ts` (NEW)
+- `convex/errors.ts` (MODIFY only if new typed error constants are required)
 - `ios/LaneShadow/Services/ConvexClient+LaneShadow.swift` (READ-ONLY contract reference)
 - `android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt` (READ-ONLY contract reference)
 
 **writeProhibited:**
 - `ios/**` and `android/**` implementation changes - owned by platform autocomplete remediation tasks
-- `server/convex/actions/agent/providers/placesProvider.ts` - Google Places agent provider is not the idle autocomplete path
+- `convex/actions/agent/providers/placesProvider.ts` - Google Places agent provider is not the idle autocomplete path
 - Any route-planning, map-camera, or polyline code
 
 ---
@@ -133,8 +133,8 @@ iOS and Android can request up to three Mapbox Search Box place suggestions for 
 
 ## DELIVERABLE
 
-- `server/convex/actions/places.ts` (MODIFY): add `suggestPlaces`, `retrievePlace`, DTO validators, request builders, and safe error mapping.
-- `server/convex/__tests__/places-autocomplete.test.ts` (NEW): contract tests for max-3 suggestions, no-fetch short query, request URL, retrieve mapping, and failure safety.
+- `convex/actions/places.ts` (MODIFY): add `suggestPlaces`, `retrievePlace`, DTO validators, request builders, and safe error mapping.
+- `convex/__tests__/places-autocomplete.test.ts` (NEW): contract tests for max-3 suggestions, no-fetch short query, request URL, retrieve mapping, and failure safety.
 
 ---
 
@@ -146,9 +146,9 @@ For each AC: RED -> GREEN -> REFACTOR. Start with `places-autocomplete.test.ts` 
 
 ## READING LIST
 
-1. `server/convex/actions/places.ts` - existing Mapbox reverse-geocode patterns and validators
-2. `server/convex/__tests__/places.test.ts` - current mocked-fetch contract-test style
-3. `server/convex/actions/agent/lib/reliability.ts` - timeout/retry helper pattern
+1. `convex/actions/places.ts` - existing Mapbox reverse-geocode patterns and validators
+2. `convex/__tests__/places.test.ts` - current mocked-fetch contract-test style
+3. `convex/actions/agent/lib/reliability.ts` - timeout/retry helper pattern
 4. `ios/LaneShadow/Services/ConvexClient+LaneShadow.swift` - Swift action enum and protocol surface
 5. `android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt` - Kotlin Convex action wrapper pattern
 6. `https://docs.mapbox.com/api/search/search-box/` - Mapbox Search Box suggest/retrieve request contract
@@ -159,9 +159,9 @@ For each AC: RED -> GREEN -> REFACTOR. Start with `places-autocomplete.test.ts` 
 
 | Gate | Command | Expected |
 |------|---------|----------|
-| Autocomplete tests | `pnpm test -- server/convex/__tests__/places-autocomplete.test.ts` | Exit 0 |
+| Autocomplete tests | `pnpm test -- convex/__tests__/places-autocomplete.test.ts` | Exit 0 |
 | Typecheck | `pnpm type-check:native` | Exit 0 |
-| Biome | `pnpm exec biome check --no-errors-on-unmatched server/convex/actions/places.ts server/convex/__tests__/places-autocomplete.test.ts` | Exit 0 |
+| Biome | `pnpm exec biome check --no-errors-on-unmatched convex/actions/places.ts convex/__tests__/places-autocomplete.test.ts` | Exit 0 |
 | Convex build | `pnpm --dir server run convex:dev -- --once` | Exit 0 |
 
 ---
@@ -187,7 +187,7 @@ Reviewer must verify that `suggestPlaces` and `retrievePlace` use Mapbox Search 
 
 **Pattern:** Small Convex action DTOs isolate native clients from provider-specific JSON.
 
-**Pattern source:** `server/convex/actions/places.ts` reverse-geocode handler and `server/convex/__tests__/places.test.ts`.
+**Pattern source:** `convex/actions/places.ts` reverse-geocode handler and `convex/__tests__/places.test.ts`.
 
 **Anti-pattern:** Adding native Google Places SDKs or using the existing Google Places agent provider for idle autocomplete.
 
@@ -215,7 +215,7 @@ Reviewer must verify that `suggestPlaces` and `retrievePlace` use Mapbox Search 
       "id": "AC-1",
       "type": "acceptance_criterion",
       "description": "GIVEN Mapbox Search Box returns five suggestions WHEN actions/places:suggestPlaces is invoked THEN exactly three PlaceSuggestion DTOs return",
-      "verify": "pnpm test -- server/convex/__tests__/places-autocomplete.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places-autocomplete.test.ts",
       "maps_to_ac": null,
       "satisfied": null,
       "evidence": null,
@@ -227,7 +227,7 @@ Reviewer must verify that `suggestPlaces` and `retrievePlace` use Mapbox Search 
       "id": "AC-2",
       "type": "acceptance_criterion",
       "description": "GIVEN query text trims to one character WHEN suggestPlaces runs THEN it returns empty suggestions without upstream fetch",
-      "verify": "pnpm test -- server/convex/__tests__/places-autocomplete.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places-autocomplete.test.ts",
       "maps_to_ac": null,
       "satisfied": null,
       "evidence": null,
@@ -239,7 +239,7 @@ Reviewer must verify that `suggestPlaces` and `retrievePlace` use Mapbox Search 
       "id": "AC-3",
       "type": "acceptance_criterion",
       "description": "GIVEN query and proximity WHEN suggestPlaces builds the request THEN q/session_token/limit/country/language/proximity are forwarded",
-      "verify": "pnpm test -- server/convex/__tests__/places-autocomplete.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places-autocomplete.test.ts",
       "maps_to_ac": null,
       "satisfied": null,
       "evidence": null,
@@ -251,7 +251,7 @@ Reviewer must verify that `suggestPlaces` and `retrievePlace` use Mapbox Search 
       "id": "AC-4",
       "type": "acceptance_criterion",
       "description": "GIVEN Mapbox retrieve returns coordinates WHEN retrievePlace runs THEN SelectedPlace returns lat/lng converted from Mapbox coordinate order",
-      "verify": "pnpm test -- server/convex/__tests__/places-autocomplete.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places-autocomplete.test.ts",
       "maps_to_ac": null,
       "satisfied": null,
       "evidence": null,
@@ -263,7 +263,7 @@ Reviewer must verify that `suggestPlaces` and `retrievePlace` use Mapbox Search 
       "id": "AC-5",
       "type": "acceptance_criterion",
       "description": "GIVEN Mapbox fails WHEN suggest or retrieve runs THEN typed Convex errors omit access tokens and secrets",
-      "verify": "pnpm test -- server/convex/__tests__/places-autocomplete.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places-autocomplete.test.ts",
       "maps_to_ac": null,
       "satisfied": null,
       "evidence": null,
@@ -276,7 +276,7 @@ Reviewer must verify that `suggestPlaces` and `retrievePlace` use Mapbox Search 
       "type": "test_criterion",
       "description": "suggestPlaces returns three suggestions when Mapbox returns five suggestions",
       "maps_to_ac": "AC-1",
-      "verify": "pnpm test -- server/convex/__tests__/places-autocomplete.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places-autocomplete.test.ts",
       "satisfied": null,
       "evidence": null,
       "remediation": null,
@@ -288,7 +288,7 @@ Reviewer must verify that `suggestPlaces` and `retrievePlace` use Mapbox Search 
       "type": "test_criterion",
       "description": "suggestPlaces returns zero suggestions when trimmed query length is one",
       "maps_to_ac": "AC-2",
-      "verify": "pnpm test -- server/convex/__tests__/places-autocomplete.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places-autocomplete.test.ts",
       "satisfied": null,
       "evidence": null,
       "remediation": null,
@@ -300,7 +300,7 @@ Reviewer must verify that `suggestPlaces` and `retrievePlace` use Mapbox Search 
       "type": "test_criterion",
       "description": "fetch is not called when trimmed query length is one",
       "maps_to_ac": "AC-2",
-      "verify": "pnpm test -- server/convex/__tests__/places-autocomplete.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places-autocomplete.test.ts",
       "satisfied": null,
       "evidence": null,
       "remediation": null,
@@ -312,7 +312,7 @@ Reviewer must verify that `suggestPlaces` and `retrievePlace` use Mapbox Search 
       "type": "test_criterion",
       "description": "Suggest URL contains limit=3 when query length is valid",
       "maps_to_ac": "AC-3",
-      "verify": "pnpm test -- server/convex/__tests__/places-autocomplete.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places-autocomplete.test.ts",
       "satisfied": null,
       "evidence": null,
       "remediation": null,
@@ -324,7 +324,7 @@ Reviewer must verify that `suggestPlaces` and `retrievePlace` use Mapbox Search 
       "type": "test_criterion",
       "description": "Suggest URL contains proximity=-122.03,36.97 when proximity is supplied",
       "maps_to_ac": "AC-3",
-      "verify": "pnpm test -- server/convex/__tests__/places-autocomplete.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places-autocomplete.test.ts",
       "satisfied": null,
       "evidence": null,
       "remediation": null,
@@ -336,7 +336,7 @@ Reviewer must verify that `suggestPlaces` and `retrievePlace` use Mapbox Search 
       "type": "test_criterion",
       "description": "retrievePlace returns latitude from the second Mapbox coordinate value",
       "maps_to_ac": "AC-4",
-      "verify": "pnpm test -- server/convex/__tests__/places-autocomplete.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places-autocomplete.test.ts",
       "satisfied": null,
       "evidence": null,
       "remediation": null,
@@ -348,7 +348,7 @@ Reviewer must verify that `suggestPlaces` and `retrievePlace` use Mapbox Search 
       "type": "test_criterion",
       "description": "Convex error message excludes MAPBOX_ACCESS_TOKEN when Mapbox fails",
       "maps_to_ac": "AC-5",
-      "verify": "pnpm test -- server/convex/__tests__/places-autocomplete.test.ts",
+      "verify": "pnpm test -- convex/__tests__/places-autocomplete.test.ts",
       "satisfied": null,
       "evidence": null,
       "remediation": null,

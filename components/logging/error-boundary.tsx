@@ -8,7 +8,7 @@ import type React from 'react'
 import { Component, type ReactNode } from 'react'
 import { View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { logger } from '../../server/lib/logger/frontend-logger'
+import { logger } from '../../shared/lib/logger/frontend-logger'
 
 interface Props {
   children: ReactNode

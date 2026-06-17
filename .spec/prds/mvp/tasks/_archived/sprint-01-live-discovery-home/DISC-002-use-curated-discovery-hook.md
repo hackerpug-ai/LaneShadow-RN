@@ -186,7 +186,7 @@ The Discovery screen currently renders 8 hardcoded `MOCK_ROUTES` and needs to be
 
 **WRITE_PROHIBITED:**
 - `hooks/use-route-discovery.ts` — leave untouched for offline fast-follow
-- `server/convex/*.ts` — no backend changes in this task
+- `convex/*.ts` — no backend changes in this task
 - Any file not explicitly listed above
 
 ## CODE PATTERN

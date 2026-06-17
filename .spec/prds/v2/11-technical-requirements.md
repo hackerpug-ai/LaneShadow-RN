@@ -34,7 +34,7 @@ This section is a CONSTITUTION-layer artifact — it describes the load-bearing 
 
 ## Data Schema (Mock-only in V2)
 
-Navigator-domain entities. `Route` and `User` shapes mirror `server/convex/schema.ts` read types where they align; Navigator-specific entities are declared here. All schemas are used only by mock providers in V2 — no live Convex wiring.
+Navigator-domain entities. `Route` and `User` shapes mirror `convex/schema.ts` read types where they align; Navigator-specific entities are declared here. All schemas are used only by mock providers in V2 — no live Convex wiring.
 
 ### User
 ```
@@ -309,7 +309,7 @@ PolylineData {
 
 {native-theme} primitives (ColorSet, TypographyStyle, parseColorString) — consumed by every platform's generated theme module.
 {native-sandbox} runtime (Story, SandboxRoot, ThemeController, ArgValues) — consumed by both platforms' sandbox modules.
-{server/convex/schema.ts} — read-only shape reference for mock fixture types (Route + User). Not a runtime dependency in V2.
+{convex/schema.ts} — read-only shape reference for mock fixture types (Route + User). Not a runtime dependency in V2.
 ```
 
 ## External Dependencies
@@ -374,7 +374,7 @@ All three families are bundled into `ios/LaneShadow/Resources/Fonts/` and `andro
 | Node.js / TypeScript (for token generation + sync + icon scripts) | https://nodejs.org |
 | Biome (lint/format) | https://biomejs.dev |
 | lefthook | https://github.com/evilmartians/lefthook |
-| Convex schema (read-only reference) | `server/convex/schema.ts` (local) |
+| Convex schema (read-only reference) | `convex/schema.ts` (local) |
 
 ### Component: Design source
 | Dependency | Documentation |

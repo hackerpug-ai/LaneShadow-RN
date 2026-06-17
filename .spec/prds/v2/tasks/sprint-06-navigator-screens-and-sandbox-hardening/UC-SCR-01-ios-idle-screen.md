@@ -118,7 +118,7 @@ Render the dormant Navigator `IdleScreen` template on iOS as a sandbox story sou
 - `tokens/platforms/swift/**` — read only
 - `react-native/**` — RN shell retiring
 - `ios/LaneShadow/Views/Organisms/**` — Sprint 5 frozen
-- `server/convex/**` — no backend coupling
+- `convex/**` — no backend coupling
 
 ## Code Pattern
 

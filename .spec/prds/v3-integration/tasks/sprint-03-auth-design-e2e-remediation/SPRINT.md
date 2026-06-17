@@ -63,7 +63,7 @@ The native auth flow is missing or under-specifies these component and behavior 
 - `docs/REAL_DEVICE_E2E.md`
 - `ios/LaneShadow/Features/Auth/**`
 - `android/app/src/main/java/com/laneshadow/ui/auth/**`
-- `server/convex/db/users.ts`
+- `convex/db/users.ts`
 
 ## Blocks
 

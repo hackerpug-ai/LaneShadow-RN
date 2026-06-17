@@ -8,7 +8,7 @@ prd_version: 2.0.0
 
 ## curated_routes — lean fields actually present (read-only in MVP)
 
-The table is defined by `curatedRouteValidator` (`server/models/curated-routes.ts`) and indexed in `server/convex/schema.ts`. MVP reads only the lean subset below. **All scores are 0-1.** Fields marked (sparse) are not 100% populated per the D0 data truth.
+The table is defined by `curatedRouteValidator` (`server/models/curated-routes.ts`) and indexed in `convex/schema.ts`. MVP reads only the lean subset below. **All scores are 0-1.** Fields marked (sparse) are not 100% populated per the D0 data truth.
 
 ```typescript
 curated_routes: {

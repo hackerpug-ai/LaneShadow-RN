@@ -177,7 +177,7 @@ writeProhibited:
 - android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt — touched only via DI wiring; do not refactor
 - android/app/src/main/java/com/laneshadow/ui/** — production composables out of scope
 - ios/** — iOS handled by R08
-- server/convex/** — server out of scope
+- convex/** — server out of scope
 
 --------------------------------------------------------------------------------
 BOUNDARIES

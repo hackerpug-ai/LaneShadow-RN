@@ -15,7 +15,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'reac
 import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import type { PlannedRouteOptionView } from '../../server/types/routes'
+import type { PlannedRouteOptionView } from '../../shared/types/routes'
 import { SubpageLayout } from '../layouts/subpage-layout'
 import { Button } from '../ui/button'
 import { IconSymbol } from '../ui/icon-symbol'

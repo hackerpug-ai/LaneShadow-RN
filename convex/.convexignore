@@ -1,0 +1,28 @@
+# Source-only helper directories (not Convex function modules)
+lib/**
+util/**
+
+# Test files and directories - exclude from Convex deployment
+**/__tests__/**
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js
+
+# Documentation
+**/docs/**
+**/*.md
+**/README.md
+
+# Mocks
+**/__mocks__/**
+
+# Large files that shouldn't be deployed
+**/.DS_Store
+**/node_modules/**
+
+# Development files
+**/.git/**
+**/.vscode/**
+**/.idea/**
+

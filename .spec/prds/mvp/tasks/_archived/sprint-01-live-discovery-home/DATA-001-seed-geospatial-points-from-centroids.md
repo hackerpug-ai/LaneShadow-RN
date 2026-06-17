@@ -10,7 +10,7 @@
 | Proposed By | convex-planner |
 
 ## Background
-`@convex-dev/geospatial` (v0.2.1) is installed, registered in `server/convex/convex.config.ts` (`app.use(geospatial)`), and wired in `server/convex/geospatialIndex.ts` (key = route doc id, coordinates = centroid, filterKeys = {state, primaryArchetype}, sortKey = compositeScore) — but its component points table is EMPTY (`debugGeospatialData` returns total_in_index=0). Without seeded points, bbox/nearest browse (the hero Discovery screen) returns nothing. This GATE seeds one point per curated_route from its 100%-present centroid, idempotently, so `listCuratedRoutes` (DATA-005) can resolve proximity. Enabling-only: it does NOT alter curated_routes.
+`@convex-dev/geospatial` (v0.2.1) is installed, registered in `convex/convex.config.ts` (`app.use(geospatial)`), and wired in `convex/geospatialIndex.ts` (key = route doc id, coordinates = centroid, filterKeys = {state, primaryArchetype}, sortKey = compositeScore) — but its component points table is EMPTY (`debugGeospatialData` returns total_in_index=0). Without seeded points, bbox/nearest browse (the hero Discovery screen) returns nothing. This GATE seeds one point per curated_route from its 100%-present centroid, idempotently, so `listCuratedRoutes` (DATA-005) can resolve proximity. Enabling-only: it does NOT alter curated_routes.
 
 ## Critical Constraints
 - MUST seed one geospatial point per curated_route from centroidLat/centroidLng, carrying filterKeys {state, primaryArchetype} and sortKey compositeScore.
@@ -53,15 +53,15 @@
 - **TC-4** (maps_to_ac AC-4): Invalid-centroid routes are skipped without aborting the seed — verify: seed action returns success with skip log
 
 ## Reading List
-- `server/convex/geospatialIndex.ts` — declared index shape (key, filterKeys, sortKey)
-- `server/convex/convex.config.ts` — `app.use(geospatial)` registration
-- `server/convex/geospatialValidation.ts` — existing nearest/rectangle + <500ms latency assertion pattern (validation-only; quarantine before prod)
+- `convex/geospatialIndex.ts` — declared index shape (key, filterKeys, sortKey)
+- `convex/convex.config.ts` — `app.use(geospatial)` registration
+- `convex/geospatialValidation.ts` — existing nearest/rectangle + <500ms latency assertion pattern (validation-only; quarantine before prod)
 - `server/models/curated-routes.ts` — centroid fields (centroidLat/centroidLng, 100% present)
 - PRD `.spec/prds/mvp/04-uc-data.md` UC-DATA-01; `09-technical-requirements/06-external-dependencies.md`
 
 ## Guardrails
-**Write Allowed:** `server/convex/geospatialSeed.ts (NEW)` internal mutation/action; register/extend in `server/convex/convex.config.ts` if required.
-**Write Prohibited:** `server/models/curated-routes.ts` (read-only model), `server/convex/schema.ts`, `server/convex/geospatialIndex.ts` (already correctly declared).
+**Write Allowed:** `convex/geospatialSeed.ts (NEW)` internal mutation/action; register/extend in `convex/convex.config.ts` if required.
+**Write Prohibited:** `server/models/curated-routes.ts` (read-only model), `convex/schema.ts`, `convex/geospatialIndex.ts` (already correctly declared).
 
 ## Code Pattern / Design
 - Pattern: idempotent seed via geospatial `insert`/`add` keyed by curated_routes doc id; upsert semantics so re-run is a no-op. Iterate curated_routes in a paginated internal action (avoid loading all 5,654 in one transaction).

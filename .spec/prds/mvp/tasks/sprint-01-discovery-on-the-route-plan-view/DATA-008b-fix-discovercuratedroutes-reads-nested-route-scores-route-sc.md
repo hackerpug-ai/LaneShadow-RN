@@ -29,7 +29,7 @@ In tools/discoverCuratedRoutes.ts the options.map (lines 133-172) builds each op
 - **WHEN** runDiscoverCuratedRoutes executes and the created route_plans option is loaded
 - **THEN** option.scores.composite equals the route's real compositeScore (> 0) and each dimension score equals the route's real corresponding flat *Score value (not 0)
 - **Test tier:** `integration` · **Service:** live Convex dev (discoverCuratedRoutes → listCuratedRoutes → route_plans options)
-- **Verify:** `pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts` → `optionCarriesRealNonZeroScores`
+- **Verify:** `pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts` → `optionCarriesRealNonZeroScores`
 - **Scenario** (start `seeded_geospatial_index`):
   - must observe: option.scores.composite > 0; option.scores.composite === the queried route's real compositeScore; ≥1 dimension score > 0 matching the queried route's real *Score
   - must NOT observe: option.scores.composite === 0; all dimension scores === 0 (the start/zero signature)
@@ -40,7 +40,7 @@ In tools/discoverCuratedRoutes.ts the options.map (lines 133-172) builds each op
 - **WHEN** runDiscoverCuratedRoutes builds the option stats
 - **THEN** the option does not present a misleading real 0-distance — distance is undefined/null when distanceMi is absent, and populated only when sort='nearest' returned a distanceMi
 - **Test tier:** `integration` · **Service:** live Convex dev (discoverCuratedRoutes options for best vs nearest)
-- **Verify:** `pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts` → `distanceGuardedToNearestSort`
+- **Verify:** `pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts` → `distanceGuardedToNearestSort`
 - **Scenario** (start `seeded_geospatial_index`):
   - must observe: best-sort option distance === undefined (no fabricated 0); nearest-sort option distance derived from a real distanceMi > 0
   - must NOT observe: best-sort option distanceMeters === 0 (fabricated real 0); nearest-sort option distance === 0; nearest-sort option distance === undefined; 0 options returned (empty result)
@@ -50,23 +50,23 @@ In tools/discoverCuratedRoutes.ts the options.map (lines 133-172) builds each op
 
 | ID | Statement | Maps to | Verify |
 |----|-----------|---------|--------|
-| TC-1 | Integration: a fixtured intent's route_plans option has scores.composite > 0 equal to the route's real compositeScore and ≥1 real non-zero dimension score (the DATA-008b PRIMARY fix). | AC-1 | `pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts` |
-| TC-2 | Integration: best-sort options do not fabricate a real 0 distance; nearest-sort options carry the real distance. | AC-2 | `pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts` |
+| TC-1 | Integration: a fixtured intent's route_plans option has scores.composite > 0 equal to the route's real compositeScore and ≥1 real non-zero dimension score (the DATA-008b PRIMARY fix). | AC-1 | `pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts` |
+| TC-2 | Integration: best-sort options do not fabricate a real 0 distance; nearest-sort options carry the real distance. | AC-2 | `pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts` |
 
 ## Reading List
 
-- `server/convex/actions/agent/tools/discoverCuratedRoutes.ts` (133-172) — PRIMARY PATTERN (the bug) — options.map reading route.score/route.scores.* + distanceMi fallback to fix
-- `server/convex/curatedRoutes.ts` (36-54) — the authoritative FLAT returnValidator: compositeScore + 5 flat *Score fields (the contract the tool must read)
-- `server/convex/curatedRoutes.ts` (119-137) — buildRouteCard — confirms which flat fields the card actually carries
-- `server/convex/actions/agent/sendMessage.ts` (247-276) — how the routing_card consumes the route_plans option (attachment) — confirm expected dimension keys
+- `convex/actions/agent/tools/discoverCuratedRoutes.ts` (133-172) — PRIMARY PATTERN (the bug) — options.map reading route.score/route.scores.* + distanceMi fallback to fix
+- `convex/curatedRoutes.ts` (36-54) — the authoritative FLAT returnValidator: compositeScore + 5 flat *Score fields (the contract the tool must read)
+- `convex/curatedRoutes.ts` (119-137) — buildRouteCard — confirms which flat fields the card actually carries
+- `convex/actions/agent/sendMessage.ts` (247-276) — how the routing_card consumes the route_plans option (attachment) — confirm expected dimension keys
 - `.spec/prds/mvp/05-uc-disc.md` (91-96) — UC-DISC-10 AC5: composite carries through 0–1 as bars/percent, never 0-100, never 0
 
 ## Guardrails
 
-- WRITE-ALLOWED: `server/convex/actions/agent/tools/discoverCuratedRoutes.ts (MODIFY — fix the option score mapping + distance guard)`
-- WRITE-ALLOWED: `server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts (NEW)`
-- WRITE-PROHIBITED: server/convex/curatedRoutes.ts — the query already returns correct flat 0–1 scores; do not change it
-- WRITE-PROHIBITED: server/convex/util/archetypeMap.ts
+- WRITE-ALLOWED: `convex/actions/agent/tools/discoverCuratedRoutes.ts (MODIFY — fix the option score mapping + distance guard)`
+- WRITE-ALLOWED: `convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts (NEW)`
+- WRITE-PROHIBITED: convex/curatedRoutes.ts — the query already returns correct flat 0–1 scores; do not change it
+- WRITE-PROHIBITED: convex/util/archetypeMap.ts
 - WRITE-PROHIBITED: Any file not listed above
 
 ## Design
@@ -80,8 +80,8 @@ In tools/discoverCuratedRoutes.ts the options.map (lines 133-172) builds each op
 | Gate | Command |
 |------|---------|
 | gate | `pnpm type-check` |
-| gate | `pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts` |
-| gate | `pnpm exec biome check server/convex/actions/agent/tools/discoverCuratedRoutes.ts` |
+| gate | `pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts` |
+| gate | `pnpm exec biome check convex/actions/agent/tools/discoverCuratedRoutes.ts` |
 | gate | `pnpm --dir server run convex:dev -- --once` |
 
 ## Coding Standards
@@ -113,7 +113,7 @@ In tools/discoverCuratedRoutes.ts the options.map (lines 133-172) builds each op
       "type": "acceptance_criterion",
       "primary": true,
       "description": "GIVEN a fixtured intent returning a route with real compositeScore>0 WHEN runDiscoverCuratedRoutes runs THEN the route_plans option's scores.composite equals that real value (>0) and dimensions equal the real flat *Score values",
-      "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts",
+      "verify": "pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts",
       "maps_to_ac": null
     },
     {
@@ -121,21 +121,21 @@ In tools/discoverCuratedRoutes.ts the options.map (lines 133-172) builds each op
       "type": "acceptance_criterion",
       "primary": false,
       "description": "GIVEN best vs nearest sort WHEN options are built THEN distance is undefined for best and a real value for nearest (no fabricated 0)",
-      "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts",
+      "verify": "pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts",
       "maps_to_ac": null
     },
     {
       "id": "TC-1",
       "type": "test_criterion",
       "description": "real non-zero composite + dimension scores on the option (PRIMARY fix)",
-      "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts",
+      "verify": "pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts",
       "maps_to_ac": "AC-1"
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "distanceMi=0 fallback guarded to nearest sort",
-      "verify": "pnpm test server/convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts",
+      "verify": "pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts",
       "maps_to_ac": "AC-2"
     }
   ]
