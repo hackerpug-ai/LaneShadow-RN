@@ -387,7 +387,12 @@ export const createCuratedRoutePlan = mutation({
     const { clerkUserId } = await requireIdentity(ctx)
     const now = Date.now()
 
-    const overviewGeometry = polyline.encode([[args.centroidLat, args.centroidLng]])
+    const overviewGeometry = {
+      format: 'polyline' as const,
+      encoding: 'polyline' as const,
+      precision: 5,
+      value: polyline.encode([[args.centroidLat, args.centroidLng]]),
+    }
 
     const routeOptionId = `curated-${args.routeId}`
     const option = {
