@@ -1,7 +1,7 @@
 # DISC-016: FIX: tapping a curated suggestion card plots the already-fetched route on the map directly (no chat round-trip)
 
 **Sprint:** [SPRINT.md](./SPRINT.md)  
-**Type:** FEATURE · **Status:** To Do · **Priority:** P0 · **Effort:** M · **Estimate:** 150 min  
+**Type:** FEATURE · **Status:** ✅ Completed · **Priority:** P0 · **Effort:** M · **Estimate:** 150 min  
 **Agent:** react-native-ui-implementer · **Reviewer:** react-native-ui-reviewer  
 **Proposed By:** react-native-ui-planner  
 **Agent rationale:** Core plan-view UI wiring fix touching index.tsx state, SelectedRouteContext, and the Mapbox fit seam — squarely react-native-ui-implementer territory; no Convex schema/query change required.  
