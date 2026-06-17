@@ -140,15 +140,20 @@ async function runDiscoverCuratedRoutes(
         durationSeconds: 0, // Not available for curated routes
         legsCount: 0, // Not available for curated routes
       },
-      // Preserve composite + per-dimension scores on 0-1 scale (already normalized)
+      // DATA-008b: listCuratedRoutes returns FLAT score fields (compositeScore,
+      // scenicScore, curvatureScore, technicalScore, trafficScore, remotenessScore
+      // — all already normalized to 0–1 by buildRouteCard's norm()). The previous
+      // route.score / route.scores?.* reads returned undefined → composite 0 and
+      // all-zero bars on chat cards. Map the flat fields onto the option's
+      // dimension slots (catalog dimensions → option dimension keys).
       scores: {
-        composite: route.score || 0, // already 0-1
+        composite: route.compositeScore ?? 0,
         dimensions: {
-          scenery: route.scores?.scenery || 0, // already 0-1
-          curvature: route.scores?.curvature || 0, // already 0-1
-          elevation: route.scores?.elevation || 0, // already 0-1
-          traffic: route.scores?.traffic || 0, // already 0-1
-          pavement: route.scores?.pavement || 0, // already 0-1
+          scenery: route.scenicScore ?? 0,
+          curvature: route.curvatureScore ?? 0,
+          elevation: route.technicalScore ?? 0, // catalog "technical" slot
+          traffic: route.trafficScore ?? 0,
+          pavement: route.remotenessScore ?? 0, // catalog "remoteness" slot
         },
       },
       map: {
