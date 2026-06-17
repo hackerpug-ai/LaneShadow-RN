@@ -1,7 +1,46 @@
 {
-  "exit_code": 0,
-  "spec_file": ".spec/design/sprint-01/suggestion-card-spec.md",
-  "tokens_validate": "PASS",
-  "type_check": "PASS",
-  "lint": "PASS (spec files not in Biome scope - expected)"
+  "task_id": "DESIGN-S01-001",
+  "commit_sha": "775ef27b7db2272bbb4dba51c0b79aa0e47bbc05",
+  "requirement_results": [
+    {
+      "requirement": "AC-1: Spec document exists at canonical path with all four required sections",
+      "exit_code": 0,
+      "output": "PASS"
+    },
+    {
+      "requirement": "AC-2: Token gap table names exact token paths — no hardcoded hex values",
+      "exit_code": 0,
+      "output": "PASS"
+    },
+    {
+      "requirement": "AC-3: surface.glass token is explicitly named for the chip background (not raw rgba)",
+      "exit_code": 0,
+      "output": "PASS"
+    },
+    {
+      "requirement": "AC-4: Touch target ≥44pt is cited via semantic.control.minTouchTarget token",
+      "exit_code": 0,
+      "output": "PASS"
+    },
+    {
+      "requirement": "TC-1: .spec/design/sprint-01/suggestion-card-spec.md exists and is non-empty",
+      "exit_code": 0,
+      "output": "PASS"
+    },
+    {
+      "requirement": "TC-2: pnpm tokens:validate exits 0 (no token schema regressions)",
+      "exit_code": 0,
+      "output": "PASS"
+    },
+    {
+      "requirement": "TC-3: Spec file contains the string 'surface.glass'",
+      "exit_code": 0,
+      "output": "PASS"
+    },
+    {
+      "requirement": "TC-4: Spec file contains 'minTouchTarget' or 'control.minTouchTarget'",
+      "exit_code": 0,
+      "output": "PASS"
+    }
+  ]
 }
