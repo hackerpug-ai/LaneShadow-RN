@@ -262,6 +262,10 @@ const CompletedCard = ({ result, semantic, routePlanId, onViewOnMap }: Completed
                 setSelectedRouteId(option.routeOptionId)
                 setDisplayedRoutePlanId(routePlanId)
                 requestFitToRouteWithReset()
+                // DISC-020: pressing a curated transcript card must also return
+                // the rider to map view (parity with the planned RouteAttachmentCard
+                // branch's onViewOnMap) — not leave them stuck in chat mode.
+                onViewOnMap?.()
               }}
             />
           )
