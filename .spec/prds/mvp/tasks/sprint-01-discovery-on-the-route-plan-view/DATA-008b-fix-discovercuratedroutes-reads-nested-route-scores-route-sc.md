@@ -1,7 +1,7 @@
 # DATA-008b: FIX: discoverCuratedRoutes reads nested route.scores/route.score but listCuratedRoutes returns flat *Score fields → chat cards show composite 0 / zero bars
 
 **Sprint:** [SPRINT.md](./SPRINT.md)  
-**Type:** FEATURE · **Status:** To Do · **Priority:** P0 · **Effort:** M · **Estimate:** 90 min  
+**Type:** FEATURE · **Status:** ✅ Completed · **Priority:** P0 · **Effort:** M · **Estimate:** 90 min  
 **Agent:** convex-implementer  
 **Proposed By:** convex-planner  
 **Agent rationale:** Confirmed backend bug in the Convex discovery action's option builder: it reads fields that listCuratedRoutes does not return. convex-implementer owns both contracts (the query's flat returnValidator and the tool's option mapping) and can prove the fix against live dev.  
