@@ -10,6 +10,7 @@ interface BatchResult {
   errors: string[]
   continueCursor: string | null
   isDone: boolean
+  batchesRun?: number
 }
 
 interface SeedResult {
@@ -92,6 +93,27 @@ const seedGeospatialBatchInternal = internalMutation({
 })
 
 export { seedGeospatialBatchInternal }
+
+export const seedGeospatialBatch = action({
+  args: {
+    cursor: v.union(v.string(), v.null()),
+  },
+  handler: async (ctx, { cursor }): Promise<BatchResult> => {
+    const batch = await ctx.runMutation(internal.geospatialSeed.seedGeospatialBatchInternal, {
+      cursor,
+    })
+
+    return {
+      seeded: batch.seeded,
+      skipped: batch.skipped,
+      alreadyExisted: batch.alreadyExisted,
+      errors: batch.errors,
+      continueCursor: batch.continueCursor,
+      isDone: batch.isDone,
+      batchesRun: 1,
+    }
+  },
+})
 
 export const seedGeospatialAll = action({
   args: {},
