@@ -2,7 +2,7 @@ import { useAuth } from '@clerk/clerk-expo'
 import { useMutation, useQuery } from 'convex/react'
 import { useLocalSearchParams, useRouter, useSegments } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Keyboard, Pressable, ScrollView, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, Keyboard, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import Animated, {
   FadeInDown,
   useAnimatedStyle,
@@ -42,6 +42,7 @@ import { useActiveSessionRoute } from '../../../hooks/use-active-session-route'
 import { useChatPlanning } from '../../../hooks/use-chat-planning'
 import { useCuratedDiscovery } from '../../../hooks/use-curated-discovery'
 import { useCurrentLocation } from '../../../hooks/use-current-location'
+import { getCurrentLocation } from '../../../lib/get-current-location'
 import { useIsRouteSaved } from '../../../hooks/use-is-route-saved'
 import { usePlanInit, usePlanRide } from '../../../hooks/use-plan-ride'
 import { type RideFlowAction, useRideFlow } from '../../../hooks/use-ride-flow'
@@ -66,6 +67,14 @@ type PersistentCameraState = {
 }
 
 const CHAT_TRANSITION_MS = 260
+
+// Continental fallback used only when device location is denied/unavailable AND
+// there is no saved camera — keeps the map from rendering blank or at a wrong
+// "max zoom" view on a fresh login. Live location always wins (zoom 14).
+const DEFAULT_MAPBOX_CAMERA: MapboxCamera = {
+  center: [-98.5, 39.8],
+  zoom: 3.5,
+}
 
 const HomeMapScreen = () => {
   const router = useRouter()
@@ -146,13 +155,16 @@ const HomeMapScreen = () => {
     resetSession,
   } = useChatPlanning(flowDispatch)
   const { polylines, selectRoute } = useRouteComparison(flowState, flowDispatch)
-  const { location: currentLocation } = useCurrentLocation()
+  const { location: currentLocation, loading: locationLoading } = useCurrentLocation()
 
-  // Fallback readiness: after 2.5s let the map mount even without a camera,
-  // so fresh installs with slow/denied location don't see an indefinite blank.
-  const [cameraFallbackReady, setCameraFallbackReady] = useState(false)
+  // A2: hold the map on a loading state until device location resolves, then
+  // open directly on the rider at zoom 14 (~3-mi radius). Avoids the old
+  // "max zoom" initial view on a fresh login. If location is denied/unavailable,
+  // fall back to a continental default so the map is never blank. Hard cap at
+  // 8s so a stuck permission dialog can't hang the screen.
+  const [maxHoldElapsed, setMaxHoldElapsed] = useState(false)
   useEffect(() => {
-    const t = setTimeout(() => setCameraFallbackReady(true), 2500)
+    const t = setTimeout(() => setMaxHoldElapsed(true), 8000)
     return () => clearTimeout(t)
   }, [])
 
@@ -219,11 +231,22 @@ const HomeMapScreen = () => {
         zoom: 14,
       }
     }
+    // No saved camera and no live location. Once location has settled
+    // (denied/unavailable), fall back to the continental default so the map
+    // isn't blank; while still resolving, return undefined to hold the mount.
+    if (!locationLoading) return DEFAULT_MAPBOX_CAMERA
     return undefined
-  }, [cameraStoreHydrated, activeSessionKey, cameraBySession, defaultCameraSlot, currentLocation])
+  }, [
+    cameraStoreHydrated,
+    activeSessionKey,
+    cameraBySession,
+    defaultCameraSlot,
+    currentLocation,
+    locationLoading,
+  ])
 
-  // Gate the map mount on having a camera, or on the fallback timer.
-  const initialCameraReady = initialCamera !== undefined || cameraFallbackReady
+  // Gate the map mount on having a definitive camera, or on the 8s hard cap.
+  const initialCameraReady = initialCamera !== undefined || maxHoldElapsed
 
   // Keep a ref mirror of the active session id so async camera-move callbacks
   // always read the latest value without forcing re-renders of the memoized
@@ -369,13 +392,17 @@ const HomeMapScreen = () => {
   })
 
   const handleSendMessage = useCallback(
-    (message: string) => {
+    async (message: string) => {
       if (!chatMode) {
         setMapPlanningVisible(true)
       }
+      // Guarantee a location for the first send so the agent always has an
+      // origin and never asks "where are you starting from?". If device
+      // location is already resolved, use it; otherwise resolve now (<=2s).
+      const loc = currentLocation ?? (await getCurrentLocation(2000))
       void sendPlanningMessage(
         message,
-        currentLocation ? { lat: currentLocation.lat, lng: currentLocation.lng } : undefined,
+        loc ? { lat: loc.lat, lng: loc.lng } : undefined,
       )
     },
     [chatMode, sendPlanningMessage, currentLocation],
@@ -1210,6 +1237,11 @@ const HomeMapScreen = () => {
     <MenuLayout testID="home-menu-layout" menuOpen={menuOpen} onMenuOpenChange={setMenuOpen}>
       <View style={styles.container}>
         {/* Map layer — cross-fades out when chat mode is entered */}
+        {mapMounted && !initialCameraReady && (
+          <View style={[StyleSheet.absoluteFill, styles.mapLoading]}>
+            <ActivityIndicator size="large" />
+          </View>
+        )}
         {mapMounted && initialCameraReady && (
           <Animated.View
             style={[StyleSheet.absoluteFill, mapLayerStyle]}
@@ -1478,6 +1510,11 @@ const styles = StyleSheet.create({
   container: {
     position: 'relative',
     flex: 1,
+  },
+  mapLoading: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0b0b0c',
   },
   controls: {
     position: 'absolute',

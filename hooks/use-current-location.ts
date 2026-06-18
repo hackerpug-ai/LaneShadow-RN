@@ -1,5 +1,5 @@
-import * as Location from 'expo-location'
 import { useEffect, useState } from 'react'
+import { getCurrentLocation } from '../lib/get-current-location'
 import type { RouteStop } from '../shared/types/routes'
 
 type CurrentLocationState = {
@@ -18,48 +18,15 @@ export function useCurrentLocation() {
   useEffect(() => {
     let cancelled = false
 
-    async function resolve() {
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync()
-        if (status !== 'granted') {
-          if (!cancelled) setState({ location: null, loading: false, error: 'Permission denied' })
-          return
-        }
+    getCurrentLocation().then((location) => {
+      if (cancelled) return
+      setState({
+        location,
+        loading: false,
+        error: location ? null : 'Location unavailable',
+      })
+    })
 
-        const position = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Low,
-        })
-
-        const [geo] = await Location.reverseGeocodeAsync({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        })
-
-        const label = geo?.city ?? geo?.region ?? 'Current Location'
-
-        if (!cancelled) {
-          setState({
-            location: {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-              label,
-            },
-            loading: false,
-            error: null,
-          })
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setState({
-            location: null,
-            loading: false,
-            error: err instanceof Error ? err.message : 'Failed to get location',
-          })
-        }
-      }
-    }
-
-    resolve()
     return () => {
       cancelled = true
     }
