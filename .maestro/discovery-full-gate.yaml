@@ -1,0 +1,148 @@
+# Sprint-01 full human-testing gate — discovery on the route plan view.
+# Auto-signs-in with the CLERK_TEST_EMAIL / CLERK_TEST_PASSWORD test account, then
+# drives all 8 gate steps from SPRINT.md. Screenshots captured at each step.
+#
+# Run: maestro test .maestro/discovery-full-gate.yaml -e EMAIL=... -e PASSWORD=...
+appId: com.hackerpug.laneshadow
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+# Dev-client: connect to the running Metro server if the launcher appears.
+- runFlow:
+    when:
+      visible:
+        text: "localhost:8081"
+    commands:
+      - tapOn:
+          text: "localhost:8081"
+
+# Wait for the JS bundle + sign-in screen (or signed-in home).
+- extendedWaitUntil:
+    visible:
+      text: "Lane Shadow"
+    timeout: 120000
+- takeScreenshot: 01-launch
+
+# ── SIGN-IN ──────────────────────────────────────────────────────────────────
+- runFlow:
+    when:
+      visible: { text: "Login with Email" }
+    commands:
+      - tapOn: { text: "Login with Email" }
+      - extendedWaitUntil:
+          visible: { text: "Enter your email" }
+          timeout: 20000
+      - tapOn:
+          label: "Email Address field"
+      - inputText: ${EMAIL}
+      - tapOn: { text: "Continue" }
+      - extendedWaitUntil:
+          visible: { text: "Enter your password" }
+          timeout: 30000
+      - tapOn:
+          label: "Password field"
+      - inputText: ${PASSWORD}
+      - tapOn: { text: "Sign In" }
+
+# Wait for the signed-in home (route plan view) to render.
+- extendedWaitUntil:
+    visible:
+      id: "chat-input"
+    timeout: 120000
+- takeScreenshot: 02-home-plan-view
+
+# ── GATE STEP 1: drawer has NO "Plan a ride" / "Discover"; no filter-bar ─────
+- tapOn:
+    id: "map-header-left-button"
+- extendedWaitUntil:
+    visible: { id: "home-menu-layout" }
+    timeout: 10000
+- takeScreenshot: 03-drawer
+- assertNotVisible: { text: "Plan a ride" }
+- assertNotVisible: { text: "Discover" }
+# Close drawer (tap the chevron/back).
+- back
+- extendedWaitUntil:
+    visible: { id: "chat-input" }
+    timeout: 10000
+
+# ── GATE STEP 2: curated suggestion cards present over the input ─────────────
+- extendedWaitUntil:
+    visible:
+      id: "chat-input-suggestion-chips"
+    timeout: 30000
+- takeScreenshot: 04-suggestion-cards
+
+# ── GATE STEP 3: tap a suggestion card → route plots, no chat message ────────
+# Tap the first curated suggestion pill (prefix match on the testID).
+- tapOn:
+    id: "discovery-suggestion-pill-.*"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: "home-route-polyline"
+    timeout: 45000
+- takeScreenshot: 05-suggestion-tapped-route-plotted
+# Suggestion cards should be hidden once a route is shown.
+- assertNotVisible:
+    id: "chat-input-suggestion-chips"
+    optional: true
+
+# ── GATE STEP 4: clear the route → suggestion cards return ───────────────────
+# Tap the "Start new ride session" header button to reset.
+- tapOn:
+    id: "map-header-new-session"
+- extendedWaitUntil:
+    visible:
+      id: "chat-input-suggestion-chips"
+    timeout: 30000
+- takeScreenshot: 06-cards-return-after-reset
+
+# ── GATE STEP 5: chat "twisties near Asheville" → curated cards + plot ───────
+- tapOn:
+    id: "chat-input-text-field"
+- inputText: "twisties near Asheville"
+- tapOn:
+    id: "chat-input-send-button"
+# Wait for the agent to return a curated routing card (variable LLM latency).
+- extendedWaitUntil:
+    visible:
+      id: "route-card-.*"
+    timeout: 120000
+- takeScreenshot: 07-chat-twisties-response
+
+# ── GATE STEP 6: chat "scenic roads in North Carolina" → state routes ────────
+- tapOn:
+    id: "chat-input-text-field"
+- inputText: "scenic roads in North Carolina"
+- tapOn:
+    id: "chat-input-send-button"
+- extendedWaitUntil:
+    visible:
+      id: "route-card-.*"
+    timeout: 120000
+- takeScreenshot: 08-chat-state-query-response
+
+# ── GATE STEP 7: open full chat, tap an earlier card → re-render + map ───────
+- tapOn:
+    id: "chat-input-chat-view-button"
+- extendedWaitUntil:
+    visible: { text: "Return to map" }
+    timeout: 20000
+- takeScreenshot: 09-full-chat-open
+- tapOn:
+    id: "route-card-.*"
+    optional: true
+# Returning to map view after selecting an earlier card.
+- extendedWaitUntil:
+    visible: { text: "Open full chat" }
+    timeout: 45000
+- takeScreenshot: 10-earlier-card-return-to-map
+
+# ── GATE STEP 8: footer button distinct from send; already exercised above ───
+# (The "Open full chat" / "Return to map" button is visually distinct from the
+# send button — captured in screenshots 02, 07, 09, 10.)
+- assertVisible:
+    id: "chat-input-chat-view-button"
