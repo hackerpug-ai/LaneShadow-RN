@@ -271,6 +271,7 @@ export const SignInScreen = () => {
                   autoCapitalize="none"
                   autoComplete="email"
                   error={Boolean(errors.email)}
+                  testID="sign-in-email-input"
                 />
               )}
             />
@@ -310,6 +311,7 @@ export const SignInScreen = () => {
                   autoCapitalize="none"
                   autoComplete="password"
                   error={Boolean(errors.password)}
+                  testID="sign-in-password-input"
                 />
               )}
             />

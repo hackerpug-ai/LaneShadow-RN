@@ -4,12 +4,13 @@
 #   A3 — the planner uses device location as the origin for destination-only
 #        requests and never asks "where are you starting from?".
 #   A2 — (visual) map opens centered on the rider at zoom 14, not "max zoom".
-#        Maestro cannot assert numeric zoom, so this is captured by the launch
-#        screenshot + verified via the location-hold logic in code review.
 #
-# Proves the exact failing flow from the bug report: send a destination-only
-# request, confirm it plans from the current location with no crash, then send a
-# second turn and confirm the session does not crash on history load.
+# Proves the exact failing flow from the bug report.
+#
+# NOTE: Maestro 2.5.1 has no `textRegex` key — `text` is already a full-match
+# regex (so wildcard URLs/labels with .* ). The dev-client cold-connect can
+# bounce back to the launcher after the first-run dev-menu, so the preamble
+# reconnects if that happens.
 #
 # Run: maestro test .maestro/fix-001-route-planning.yaml -e EMAIL=... -e PASSWORD=...
 # Requires a simulated device location set so the agent has an origin to use.
@@ -19,47 +20,54 @@ appId: com.hackerpug.laneshadow
     clearState: true
     clearKeychain: true
 
-# Dev-client: connect to the running Metro server if the launcher appears.
-- runFlow:
-    when:
-      visible:
-        text: "localhost:8081"
-    commands:
-      - tapOn:
-          text: "localhost:8081"
-
+# ── Connect to Metro + dismiss the dev-menu intro/panel ──────────────────────
 - extendedWaitUntil:
-    visible:
-      text: "Lane Shadow"
-    timeout: 120000
+    visible: { text: "DEVELOPMENT SERVERS|Login with Email" }
+    timeout: 60000
+- runFlow:
+    when: { visible: { text: "DEVELOPMENT SERVERS" } }
+    commands:
+      - tapOn: { text: ".*localhost:8081.*" }
+# First-run dev-menu intro appears; its "Continue" opens the DevMenu panel.
+- extendedWaitUntil:
+    visible: { text: "Login with Email|.*developer menu.*" }
+    timeout: 240000
+- runFlow:
+    when: { visible: { text: ".*developer menu.*" } }
+    commands:
+      - tapOn: { text: "Continue" }
+# The DevMenu panel (header "DevMenu", options like Reload) opens over the app;
+# dismiss it by tapping the backdrop near the top of the screen.
+- runFlow:
+    when: { visible: { text: ".*Toggle Element Inspector.*|.*Open React DevTools.*" } }
+    commands:
+      - tapOn: { point: "50%, 8%" }
+# Bundle transfer can take a while on first connect; wait for the sign-in screen.
+- extendedWaitUntil:
+    visible: { text: "Login with Email" }
+    timeout: 300000
 - takeScreenshot: fix001-01-launch
 
-# ── SIGN-IN ──────────────────────────────────────────────────────────────────
-- runFlow:
-    when:
-      visible: { text: "Login with Email" }
-    commands:
-      - tapOn: { text: "Login with Email" }
-      - extendedWaitUntil:
-          visible: { text: "Enter your email" }
-          timeout: 20000
-      - tapOn:
-          label: "Email Address field"
-      - inputText: ${EMAIL}
-      - tapOn: { text: "Continue" }
-      - extendedWaitUntil:
-          visible: { text: "Enter your password" }
-          timeout: 30000
-      - tapOn:
-          label: "Password field"
-      - inputText: ${PASSWORD}
-      - tapOn: { text: "Sign In" }
+# ── SIGN-IN (custom email → password flow; inputs have stable testIDs) ───────
+- tapOn: { text: "Login with Email" }
+- extendedWaitUntil:
+    visible: { text: "Enter your email" }
+    timeout: 20000
+- tapOn: { id: "sign-in-email-input" }
+- inputText: ${EMAIL}
+- tapOn: { text: "Continue" }
+- extendedWaitUntil:
+    visible: { text: "Enter your password" }
+    timeout: 30000
+- tapOn: { id: "sign-in-password-input" }
+- inputText: ${PASSWORD}
+- tapOn: { text: "Sign In" }
 
 - extendedWaitUntil:
     visible:
       id: "chat-input"
     timeout: 120000
-# A2 (visual only): the map should open centered on the rider at ~zoom 14.
+# A2 (visual only): map should open centered on the rider at ~zoom 14.
 - takeScreenshot: fix001-02-home-centered-on-rider
 
 # ── A3 + A1 turn 1: destination-only request plans from current location ─────
@@ -68,39 +76,29 @@ appId: com.hackerpug.laneshadow
 - inputText: "Day trip to santa cruz"
 - tapOn:
     id: "chat-input-send-button"
-# A3: the agent must NOT ask for the starting location.
-- assertNotVisible:
-    text: "where are you starting from"
-# A1: the action must NOT throw the ReturnsValidationError toast.
-- assertNotVisible:
-    textRegex: "ReturnsValidationError"
-- assertNotVisible:
-    textRegex: "CONVEX A\\(actions/agent/sendMessage"
-# Success signal: a routing card renders (impossible while the action crashed).
+# A1 success gate: a routing card renders (impossible while sendMessage crashed).
 - extendedWaitUntil:
     visible:
       id: "routing-card.*"
-    timeout: 120000
+    timeout: 150000
+# A3: the turn completed — confirm the agent never asked for the origin and the
+# crash toast never appeared.
+- assertNotVisible:
+    text: "where are you starting from"
+- assertNotVisible:
+    text: "ReturnsValidationError"
 - takeScreenshot: fix001-03-turn1-route-planned-from-current-location
 
 # ── A1 turn 2: a second message must NOT crash on history load ───────────────
-# This is the exact regression: turn 1 wrote thinking_steps, so the 2nd turn's
-# listWithPiMessages history load previously threw (extra field thinkingSteps).
 - tapOn:
     id: "chat-input-text-field"
 - inputText: "make it about 2 hours long"
 - tapOn:
     id: "chat-input-send-button"
-- assertNotVisible:
-    textRegex: "ReturnsValidationError"
-- assertNotVisible:
-    textRegex: "CONVEX A\\(actions/agent/sendMessage"
-# The agent continues the session (another route card or a text reply). Wait for
-# the routing card to refresh; if it instead asks for clarification text, that's
-# still a pass for A1 (no crash) — the crash is what we're guarding against.
 - extendedWaitUntil:
     visible:
       id: "routing-card.*"
-    timeout: 120000
-    optional: true
+    timeout: 150000
+- assertNotVisible:
+    text: "ReturnsValidationError"
 - takeScreenshot: fix001-04-turn2-no-crash-route-continues

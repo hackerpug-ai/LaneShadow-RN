@@ -27,20 +27,36 @@ appId: com.hackerpug.laneshadow
     clearState: true
     clearKeychain: true
 
-# Dev-client: connect to the running Metro server if the launcher appears.
-- runFlow:
-    when:
-      visible:
-        text: "localhost:8081"
-    commands:
-      - tapOn:
-          text: "localhost:8081"
-
-# Wait for the JS bundle + sign-in screen (or signed-in home).
+# Dev-client: the launcher lists the localhost:8081 Metro server under
+# "DEVELOPMENT SERVERS". Wait for it to render BEFORE the conditional tap, then
+# tap to connect. Maestro text regex is a full match, so wildcard the URL.
 - extendedWaitUntil:
     visible:
-      text: "Lane Shadow"
-    timeout: 120000
+      text: "DEVELOPMENT SERVERS|Lane Shadow"
+    timeout: 60000
+- runFlow:
+    when:
+      visible: { text: "DEVELOPMENT SERVERS" }
+    commands:
+      - tapOn:
+          text: ".*localhost:8081.*"
+
+# Wait for the JS bundle. The dev client shows a first-run "developer menu"
+# popup over the sign-in screen — dismiss it if present.
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|.*developer menu.*"
+    timeout: 240000
+- runFlow:
+    when:
+      visible: { text: ".*developer menu.*" }
+    commands:
+      - tapOn: { text: "Continue" }
+# Bundle transfer can take a while on first connect; wait generously for sign-in.
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email"
+    timeout: 300000
 - takeScreenshot: 01-launch
 
 # ── SIGN-IN ──────────────────────────────────────────────────────────────────
@@ -52,15 +68,13 @@ appId: com.hackerpug.laneshadow
       - extendedWaitUntil:
           visible: { text: "Enter your email" }
           timeout: 20000
-      - tapOn:
-          label: "Email Address field"
+      - tapOn: { id: "sign-in-email-input" }
       - inputText: ${EMAIL}
       - tapOn: { text: "Continue" }
       - extendedWaitUntil:
           visible: { text: "Enter your password" }
           timeout: 30000
-      - tapOn:
-          label: "Password field"
+      - tapOn: { id: "sign-in-password-input" }
       - inputText: ${PASSWORD}
       - tapOn: { text: "Sign In" }
 

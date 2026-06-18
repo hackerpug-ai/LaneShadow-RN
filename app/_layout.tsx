@@ -2,6 +2,7 @@ import { ClerkProvider, useAuth } from '@clerk/clerk-expo'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { ConvexReactClient } from 'convex/react'
 import { ConvexProviderWithClerk } from 'convex/react-clerk'
+import { requireOptionalNativeModule } from 'expo'
 import { Stack } from 'expo-router'
 import type React from 'react'
 import { useEffect } from 'react'
@@ -48,6 +49,23 @@ const RootLayoutInner = () => {
     return () => {
       // Flush logs on unmount
       logger.flush()
+    }
+  }, [])
+
+  // Disable the Expo dev-client dev menu (floating button + first-run intro
+  // panel) on launch so cold launches are deterministic for Maestro e2e — the
+  // dev-menu intro can intercept the bundle load and bounce back to the
+  // launcher. No-op in release builds (native module absent).
+  useEffect(() => {
+    if (!__DEV__) return
+    try {
+      const DevMenuPreferences = requireOptionalNativeModule('DevMenuPreferences')
+      DevMenuPreferences?.setPreferencesAsync?.({
+        isEnabled: false,
+        showFloatingActionButton: false,
+      })
+    } catch {
+      // dev-menu module unavailable — ignore
     }
   }, [])
 
