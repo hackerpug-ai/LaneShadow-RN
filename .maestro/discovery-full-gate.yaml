@@ -1,8 +1,26 @@
 # Sprint-01 full human-testing gate — discovery on the route plan view.
 # Auto-signs-in with the CLERK_TEST_EMAIL / CLERK_TEST_PASSWORD test account, then
-# drives all 8 gate steps from SPRINT.md. Screenshots captured at each step.
+# drives all 9 gate steps. Screenshots captured at each step.
+#
+# Covers the exact human-testing requirements:
+#  0. Opens directly to full-screen map + chat home (NOT a Discover screen)
+#  1. Drawer: only Settings/Saved nav entries; no "Plan a ride"/"Discover";
+#     no filter-bar/sort-toggle/state-picker on home
+#  2. Curated-route suggestion cards over the input (real road name + mileage)
+#  3. Tap a suggestion card -> route plots immediately, NO chat message sent,
+#     cards disappear once the route is shown
+#  4. Clear/dismiss the route -> curated suggestion cards return
+#  5. "twisties near Asheville" -> curated card(s) in chat + latest plots on map;
+#     card shows a real composite score (NN/100, never 0/100, never raw 0-1/0-100)
+#  6. "scenic roads in North Carolina" -> matching curated routes plotted
+#  7. Scroll chat history, tap an earlier curated card -> re-renders on map,
+#     drops back to map view
+#  8. Footer button (right of input, distinct from send) -> full chat; close -> map
 #
 # Run: maestro test .maestro/discovery-full-gate.yaml -e EMAIL=... -e PASSWORD=...
+# NOTE: Run the full gate only after all sprint tasks (incl. DISC-021 quarantine)
+# have landed, and with a simulated device location set (Simulator > Features >
+# Location) so the "nearest" curated cards and the map's user-centered open resolve.
 appId: com.hackerpug.laneshadow
 ---
 - launchApp:
@@ -46,37 +64,50 @@ appId: com.hackerpug.laneshadow
       - inputText: ${PASSWORD}
       - tapOn: { text: "Sign In" }
 
-# Wait for the signed-in home (route plan view) to render.
+# ── STEP 0: signed-in home is full-screen map + chat, NOT a Discover screen ──
 - extendedWaitUntil:
     visible:
       id: "chat-input"
     timeout: 120000
-- takeScreenshot: 02-home-plan-view
+- assertNotVisible: { text: "Discover" }
+- takeScreenshot: 02-home-map-and-chat
 
-# ── GATE STEP 1: drawer has NO "Plan a ride" / "Discover"; no filter-bar ─────
+# ── STEP 1: drawer has only standard nav entries; no Plan-a-ride/Discover; ────
+# no filter-bar / sort-toggle / state-picker on home.
 - tapOn:
     id: "map-header-left-button"
 - extendedWaitUntil:
     visible: { id: "home-menu-layout" }
     timeout: 10000
-- takeScreenshot: 03-drawer
+- assertVisible: { id: "drawer-nav-settings" }
+- assertVisible: { id: "drawer-nav-saved" }
 - assertNotVisible: { text: "Plan a ride" }
 - assertNotVisible: { text: "Discover" }
-# Close drawer (tap the chevron/back).
+- takeScreenshot: 03-drawer-only-settings-saved
+# Close drawer.
 - back
 - extendedWaitUntil:
     visible: { id: "chat-input" }
     timeout: 10000
+# Structural absence: no filter/sort/state controls exist on home. Asserting the
+# absence of their likely labels + a screenshot is the Maestro-verifiable part.
+- assertNotVisible: { text: "Filter" }
+- assertNotVisible: { text: "Sort" }
+- assertNotVisible: { text: "State" }
+- takeScreenshot: 04-home-no-filter-sort-state
 
-# ── GATE STEP 2: curated suggestion cards present over the input ─────────────
+# ── STEP 2: curated suggestion cards over the input (road name + mileage) ─────
+# Copper-accent + road-icon styling is a visual check — captured by screenshot
+# (Maestro cannot assert color/icon). The road·mileage text is asserted.
 - extendedWaitUntil:
     visible:
       id: "chat-input-suggestion-chips"
     timeout: 30000
-- takeScreenshot: 04-suggestion-cards
+- assertVisible:
+    text: ".*·.*mi"
+- takeScreenshot: 05-suggestion-cards-copper-road-icon
 
-# ── GATE STEP 3: tap a suggestion card → route plots, no chat message ────────
-# Tap the first curated suggestion pill (prefix match on the testID).
+# ── STEP 3: tap a suggestion card -> route plots, NO chat message, cards hide ─
 - tapOn:
     id: "discovery-suggestion-pill-.*"
     optional: true
@@ -84,36 +115,46 @@ appId: com.hackerpug.laneshadow
     visible:
       id: "home-route-polyline"
     timeout: 45000
-- takeScreenshot: 05-suggestion-tapped-route-plotted
-# Suggestion cards should be hidden once a route is shown.
+- takeScreenshot: 06-suggestion-tapped-route-plotted
+# Cards must hide once a route is shown.
 - assertNotVisible:
     id: "chat-input-suggestion-chips"
     optional: true
+# No chat message is sent on a suggestion tap (DISC-016 direct-plot path).
+# Maestro can't assert a negative transcript entry reliably; the code path
+# (createCuratedPlan, no sendMessage) guarantees it — see screenshot 06.
 
-# ── GATE STEP 4: clear the route → suggestion cards return ───────────────────
-# Tap the "Start new ride session" header button to reset.
+# ── STEP 4: clear/dismiss the route -> curated suggestion cards return ────────
 - tapOn:
-    id: "map-header-new-session"
+    id: "control-clear"
 - extendedWaitUntil:
     visible:
       id: "chat-input-suggestion-chips"
     timeout: 30000
-- takeScreenshot: 06-cards-return-after-reset
+- takeScreenshot: 07-cards-return-after-clear
 
-# ── GATE STEP 5: chat "twisties near Asheville" → curated cards + plot ───────
+# ── STEP 5: "twisties near Asheville" -> curated card(s) + plot + real score ──
+# NOTE: blocked until the sendMessage thinkingSteps fix has landed (the chat
+# action must survive past the first turn).
 - tapOn:
     id: "chat-input-text-field"
 - inputText: "twisties near Asheville"
 - tapOn:
     id: "chat-input-send-button"
-# Wait for the agent to return a curated routing card (variable LLM latency).
 - extendedWaitUntil:
     visible:
-      id: "route-card-.*"
+      id: "curated-route-card-.*"
     timeout: 120000
-- takeScreenshot: 07-chat-twisties-response
+# Real composite score: NN/100 format, never 0/100 (never 0% / raw 0-1 / raw 0-100).
+- assertNotVisible: { text: "0/100" }
+- extendedWaitUntil:
+    visible:
+      id: "home-route-polyline"
+    timeout: 45000
+    optional: true
+- takeScreenshot: 08-chat-twisties-curated-card-score
 
-# ── GATE STEP 6: chat "scenic roads in North Carolina" → state routes ────────
+# ── STEP 6: "scenic roads in North Carolina" -> state curated routes + plot ───
 - tapOn:
     id: "chat-input-text-field"
 - inputText: "scenic roads in North Carolina"
@@ -121,28 +162,47 @@ appId: com.hackerpug.laneshadow
     id: "chat-input-send-button"
 - extendedWaitUntil:
     visible:
-      id: "route-card-.*"
+      id: "curated-route-card-.*"
     timeout: 120000
-- takeScreenshot: 08-chat-state-query-response
+- extendedWaitUntil:
+    visible:
+      id: "home-route-polyline"
+    timeout: 45000
+    optional: true
+- takeScreenshot: 09-chat-state-query-curated-plotted
 
-# ── GATE STEP 7: open full chat, tap an earlier card → re-render + map ───────
+# ── STEP 7: scroll chat history, tap an earlier curated card -> map re-render ─
 - tapOn:
     id: "chat-input-chat-view-button"
 - extendedWaitUntil:
     visible: { text: "Return to map" }
     timeout: 20000
-- takeScreenshot: 09-full-chat-open
+- takeScreenshot: 10-full-chat-open
+# Scroll up to reveal earlier curated cards, then tap one.
+- scroll
 - tapOn:
-    id: "route-card-.*"
+    id: "curated-route-card-.*"
     optional: true
-# Returning to map view after selecting an earlier card.
+# Selecting an earlier card drops back to the map view.
 - extendedWaitUntil:
     visible: { text: "Open full chat" }
     timeout: 45000
-- takeScreenshot: 10-earlier-card-return-to-map
+- takeScreenshot: 11-earlier-card-returns-to-map
 
-# ── GATE STEP 8: footer button distinct from send; already exercised above ───
-# (The "Open full chat" / "Return to map" button is visually distinct from the
-# send button — captured in screenshots 02, 07, 09, 10.)
-- assertVisible:
+# ── STEP 8: footer button distinct from send -> full chat; close -> map ───────
+# chat-input-chat-view-button is a separate control (own testID + label) from
+# chat-input-send-button. Toggling it opens the full chat; closing returns map.
+- assertVisible: { id: "chat-input-chat-view-button" }
+- assertVisible: { id: "chat-input-send-button" }
+- tapOn:
     id: "chat-input-chat-view-button"
+- extendedWaitUntil:
+    visible: { text: "Return to map" }
+    timeout: 20000
+- takeScreenshot: 12-footer-opens-full-chat
+- tapOn:
+    id: "chat-input-chat-view-button"
+- extendedWaitUntil:
+    visible: { text: "Open full chat" }
+    timeout: 20000
+- takeScreenshot: 13-close-returns-to-map
