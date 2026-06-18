@@ -59,24 +59,13 @@ appId: com.hackerpug.laneshadow
     timeout: 300000
 - takeScreenshot: 01-launch
 
-# ── SIGN-IN ──────────────────────────────────────────────────────────────────
+# ── SIGN-IN via the hidden E2E test-login button (programmatic email+password)─
+# Button only renders in dev builds bundled with EXPO_PUBLIC_E2E=1.
 - runFlow:
     when:
-      visible: { text: "Login with Email" }
+      visible: { id: "e2e-test-login-button" }
     commands:
-      - tapOn: { text: "Login with Email" }
-      - extendedWaitUntil:
-          visible: { text: "Enter your email" }
-          timeout: 20000
-      - tapOn: { id: "sign-in-email-input" }
-      - inputText: ${EMAIL}
-      - tapOn: { text: "Continue" }
-      - extendedWaitUntil:
-          visible: { text: "Enter your password" }
-          timeout: 30000
-      - tapOn: { id: "sign-in-password-input" }
-      - inputText: ${PASSWORD}
-      - tapOn: { text: "Sign In" }
+      - tapOn: { id: "e2e-test-login-button" }
 
 # ── STEP 0: signed-in home is full-screen map + chat, NOT a Discover screen ──
 - extendedWaitUntil:

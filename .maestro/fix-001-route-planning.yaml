@@ -48,20 +48,12 @@ appId: com.hackerpug.laneshadow
     timeout: 300000
 - takeScreenshot: fix001-01-launch
 
-# ── SIGN-IN (custom email → password flow; inputs have stable testIDs) ───────
-- tapOn: { text: "Login with Email" }
+# ── SIGN-IN via the hidden E2E test-login button (programmatic email+password)─
+# Button only renders in dev builds bundled with EXPO_PUBLIC_E2E=1.
 - extendedWaitUntil:
-    visible: { text: "Enter your email" }
-    timeout: 20000
-- tapOn: { id: "sign-in-email-input" }
-- inputText: ${EMAIL}
-- tapOn: { text: "Continue" }
-- extendedWaitUntil:
-    visible: { text: "Enter your password" }
-    timeout: 30000
-- tapOn: { id: "sign-in-password-input" }
-- inputText: ${PASSWORD}
-- tapOn: { text: "Sign In" }
+    visible: { id: "e2e-test-login-button" }
+    timeout: 60000
+- tapOn: { id: "e2e-test-login-button" }
 
 - extendedWaitUntil:
     visible:
@@ -71,15 +63,17 @@ appId: com.hackerpug.laneshadow
 - takeScreenshot: fix001-02-home-centered-on-rider
 
 # ── A3 + A1 turn 1: destination-only request plans from current location ─────
+# The ChatInput container encapsulates its children in the iOS a11y tree, so tap
+# the container to focus, type, then submit via the keyboard Enter key
+# (onSubmitEditing -> handleSend).
 - tapOn:
-    id: "chat-input-text-field"
-- inputText: "Day trip to santa cruz"
-- tapOn:
-    id: "chat-input-send-button"
+    id: "chat-input"
+- inputText: "Plan a scenic motorcycle route from San Francisco to Santa Cruz"
+- pressKey: Enter
 # A1 success gate: a routing card renders (impossible while sendMessage crashed).
 - extendedWaitUntil:
     visible:
-      id: "routing-card.*"
+      id: "route-on-map-marker"
     timeout: 150000
 # A3: the turn completed — confirm the agent never asked for the origin and the
 # crash toast never appeared.
@@ -91,13 +85,12 @@ appId: com.hackerpug.laneshadow
 
 # ── A1 turn 2: a second message must NOT crash on history load ───────────────
 - tapOn:
-    id: "chat-input-text-field"
+    id: "chat-input"
 - inputText: "make it about 2 hours long"
-- tapOn:
-    id: "chat-input-send-button"
+- pressKey: Enter
 - extendedWaitUntil:
     visible:
-      id: "routing-card.*"
+      id: "route-on-map-marker"
     timeout: 150000
 - assertNotVisible:
     text: "ReturnsValidationError"

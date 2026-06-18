@@ -17,6 +17,7 @@ import {
   useOAuthFlow,
 } from '../../hooks/use-oauth-flow'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { env } from '../../shared/env'
 
 type AuthStep = 'start' | 'email' | 'password' | 'signUp'
 const formSchema = z.object({
@@ -151,6 +152,39 @@ export const SignInScreen = () => {
     }
   })
 
+  // E2E test harness: programmatic email+password sign-in so Maestro can log in
+  // with one tap, bypassing the multi-step UI. The button that calls this is
+  // rendered only when EXPO_PUBLIC_E2E=1 (dev builds bundled for e2e).
+  const handleE2ETestLogin = async () => {
+    if (!isSignInLoaded || !signIn) {
+      showError('Auth is not ready. Please try again.')
+      return
+    }
+    setLoading(true)
+    try {
+      await signIn.create({ identifier: env.E2E_TEST_EMAIL })
+      const result = await signIn.attemptFirstFactor({
+        strategy: 'password',
+        password: env.E2E_TEST_PASSWORD,
+      })
+      if (result.status === 'complete' && result.createdSessionId) {
+        await setSignInActive({ session: result.createdSessionId })
+        onAuthSuccess()
+      } else {
+        showError('E2E test login did not complete. Check the test account.')
+      }
+    } catch (err) {
+      const message = isClerkAPIResponseError(err)
+        ? err.errors?.[0]?.message ?? 'E2E test login failed.'
+        : err instanceof Error
+          ? err.message
+          : 'E2E test login failed.'
+      showError(message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleSignUp = handleSubmit(async (values) => {
     resetErrors()
     clearErrors()
@@ -249,6 +283,18 @@ export const SignInScreen = () => {
             <Button variant="glass" size="xl" onPress={handleStartEmail} disabled={loading}>
               Login with Email
             </Button>
+            {__DEV__ && env.E2E && env.E2E_TEST_EMAIL ? (
+              <Button
+                variant="outline"
+                size="xl"
+                onPress={handleE2ETestLogin}
+                loading={loading}
+                disabled={loading}
+                testID="e2e-test-login-button"
+              >
+                E2E Test Login
+              </Button>
+            ) : null}
           </View>
         ) : null}
 

@@ -19,10 +19,20 @@ if (!CLERK_PUBLISHABLE_KEY) {
   )
 }
 
+// E2E test harness — only present in dev builds bundled for e2e (set
+// EXPO_PUBLIC_E2E=1 + the test creds in .env.local). Drives a hidden
+// programmatic login button so Maestro can sign in without the multi-step UI.
+const E2E = process.env.EXPO_PUBLIC_E2E === '1'
+const E2E_TEST_EMAIL = process.env.EXPO_PUBLIC_E2E_TEST_EMAIL
+const E2E_TEST_PASSWORD = process.env.EXPO_PUBLIC_E2E_TEST_PASSWORD
+
 export const env = {
   CONVEX_URL,
   CLERK_PUBLISHABLE_KEY,
   GOOGLE_PLACES_API_KEY,
+  E2E,
+  E2E_TEST_EMAIL,
+  E2E_TEST_PASSWORD,
 } as const
 
 /**

@@ -2,7 +2,7 @@ import { useAuth } from '@clerk/clerk-expo'
 import { useMutation, useQuery } from 'convex/react'
 import { useLocalSearchParams, useRouter, useSegments } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ActivityIndicator, Keyboard, Pressable, ScrollView, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, Keyboard, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import Animated, {
   FadeInDown,
   useAnimatedStyle,
@@ -1433,6 +1433,17 @@ const HomeMapScreen = () => {
           />
         )}
 
+        {/* E2E hook: a top-level (a11y-exposed) marker present whenever a route
+            is active. Most of the map-mode UI is accessibility-encapsulated, so
+            this sibling of ChatInput lets Maestro assert the route rendered. */}
+        {hasActiveRoute ? (
+          <View testID="route-on-map-marker" style={styles.e2eMarker} pointerEvents="none">
+            <Text accessibilityLabel="route on map" style={styles.e2eMarkerText}>
+              route
+            </Text>
+          </View>
+        ) : null}
+
         {/* Chat input - always visible at bottom */}
         <ChatInput
           onSend={handleSendMessage}
@@ -1515,6 +1526,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#0b0b0c',
+  },
+  e2eMarker: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
+  e2eMarkerText: {
+    fontSize: 2,
+    color: '#000',
   },
   controls: {
     position: 'absolute',

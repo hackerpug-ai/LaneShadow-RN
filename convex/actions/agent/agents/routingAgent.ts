@@ -19,6 +19,29 @@ import type { RoutingAgentResult, SubAgentConfig } from './types.js'
 // Uncapped for levelsetting — log attempts but don't limit
 export const MAX_COMPILE_ATTEMPTS = 20
 
+/**
+ * Persist a routing_card session message that links the just-completed
+ * route_plan to its session so the map can render it. The orchestrator runs
+ * planRoute inside a sub-agent whose tool loop doesn't fire the parent
+ * onToolFinish callback, so without this the route_plan is orphaned (created in
+ * the route_plans table but never linked to a session_message for display).
+ * Mirrors the card logic in sendMessage.ts onToolFinish. (FIX-001 display.)
+ */
+async function persistRoutingCard(ctx: AgentContext, routePlanId: Id<'route_plans'>) {
+  const { messageId } = await ctx.runMutation(
+    internal.db.sessionMessages.createPendingAssistantMessage,
+    {
+      sessionId: ctx.planningSessionId,
+      kind: 'routing_card',
+      attachments: [{ type: 'route_options', routePlanId }],
+    },
+  )
+  await ctx.runMutation(internal.db.sessionMessages.finalizeAssistantMessage, {
+    messageId,
+    status: 'complete',
+  })
+}
+
 // -----------------------------------------------------------------------------
 // In-Memory Sketch Store (per-session)
 // -----------------------------------------------------------------------------
@@ -475,6 +498,7 @@ async function runCompileSketch(
         await ctx.runMutation(internal.db.planUsage.incrementUsageInternal, {
           clerkUserId: ctx.clerkUserId,
         })
+        await persistRoutingCard(ctx, routePlanId)
         return { type: 'routes', data: built, routePlanId }
       }
 
@@ -617,6 +641,7 @@ async function runCompileSketch(
       clerkUserId: ctx.clerkUserId,
     })
 
+    await persistRoutingCard(ctx, routePlanId)
     return { type: 'routes', data: built, routePlanId }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
@@ -784,6 +809,7 @@ async function runPlanRoute(
         clerkUserId: ctx.clerkUserId,
       })
 
+      await persistRoutingCard(ctx, routePlanId)
       return { type: 'routes', data: built, routePlanId }
     } catch (error) {
       _lastError = error
