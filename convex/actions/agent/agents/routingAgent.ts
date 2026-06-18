@@ -987,7 +987,14 @@ export async function executeRoutingTool(
 export function buildRoutingPrompt(ctx: AgentContext): string {
   let locBlock: string
   if (ctx.currentLocation) {
-    locBlock = `The rider's current location is lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng}. Use this as the default origin when the rider asks for a route without specifying where they're starting from. Do NOT ask "where are you starting from?" when this location is available — just use it.`
+    locBlock = `The rider's current location is lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng} (label: "Current Location").
+
+Treat this as the DEFAULT ORIGIN for every route. Destination-only requests are COMPLETE route requests — use the current location as the start and plan immediately:
+- "day trip to Santa Cruz" → start = current location, end = Santa Cruz
+- "ride to Napa" → start = current location, end = Napa
+- "take me somewhere fun" → start = current location, end = your pick
+
+NEVER ask "where are you starting from?" — the location above is always available. The only valid reason to ask about the start is if the rider explicitly wants to start somewhere OTHER than their current location.`
   } else {
     locBlock = `Rider's current location: unknown — ask where they are starting from before planning a route.`
   }

@@ -123,7 +123,7 @@ const discoveryAgentTool: Tool = {
  */
 export function buildOrchestratorPrompt(ctx: AgentContext, availableTools: string[]): string {
   const locBlock = ctx.currentLocation
-    ? `The rider's current location is lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng}.`
+    ? `The rider's current location is lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng}. This is always available — destination-only requests like "day trip to Santa Cruz" are COMPLETE route requests (current location is the origin). Route them to routing_agent immediately; never ask the rider where they're starting from.`
     : `The rider's current location is unknown.`
 
   const toolLines = availableTools

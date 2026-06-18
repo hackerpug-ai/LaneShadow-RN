@@ -393,9 +393,22 @@ export const sendMessage = action({
     const { clerkUserId } = await requireIdentity(ctx)
 
     // Validates ownership — throws if session does not belong to this user.
-    await ctx.runQuery(api.db.planningSessions.getSessionById, {
+    // Captures the session so we can fall back to its stored lastKnownLocation
+    // when the client didn't pass a live currentLocation (e.g. a repeat turn
+    // that dropped the arg, or a first send before device location resolved).
+    const session = await ctx.runQuery(api.db.planningSessions.getSessionById, {
       sessionId: args.sessionId,
     })
+
+    // Resolve the location the agent should use: prefer the live value from the
+    // client, otherwise the session's last-known location. This keeps the agent
+    // location-aware on every turn once a location was ever captured, so it
+    // never has to ask "where are you starting from?" unnecessarily.
+    const currentLocation =
+      args.currentLocation ??
+      (session.lastKnownLocation
+        ? { lat: session.lastKnownLocation.lat, lng: session.lastKnownLocation.lng }
+        : undefined)
 
     // Step 1b: Update last known location if provided (deterministic)
     if (args.currentLocation) {
@@ -482,7 +495,7 @@ export const sendMessage = action({
             planningSessionId: args.sessionId,
             clerkUserId,
             piMessages,
-            currentLocation: args.currentLocation,
+            currentLocation,
             runQuery: ctx.runQuery.bind(ctx),
             runMutation: ctx.runMutation.bind(ctx),
             runAction: ctx.runAction.bind(ctx),
