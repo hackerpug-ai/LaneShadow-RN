@@ -549,6 +549,7 @@ const sessionMessageRowValidator = v.object({
   kind: v.optional(sessionMessageKindValidator),
   status: v.optional(sessionMessageStatusValidator),
   piMessage: v.optional(v.any()),
+  thinkingSteps: v.optional(v.array(thinkingStepValidator)),
   phase: v.optional(planningPhaseValidator),
 })
 
