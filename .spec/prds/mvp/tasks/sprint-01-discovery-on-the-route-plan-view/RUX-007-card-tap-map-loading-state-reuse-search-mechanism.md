@@ -111,8 +111,8 @@ The loading/ephemeral mechanism already exists: `mapPlanningVisible` state (`ind
       "records": [ "curated suggestion cards from listCuratedRoutes", "no active route on the map", "chatMode === false" ]
     },
     "map_mode_card_tap_pending_mutation": {
-      "description": "screen in map mode where createCuratedPlan is mocked as a pending (unresolved) promise to observe the loading window",
-      "seed_method": "test_harness_props",
+      "description": "the RN screen rendered via the testing-library UI-flow harness in map mode, where createCuratedPlan is wired to a controllable pending (unresolved) promise so the loading window is observable",
+      "seed_method": "ui_flow",
       "records": [ "chatMode === false", "createCuratedPlan returns a controllable pending promise" ]
     }
   },
@@ -127,9 +127,9 @@ The loading/ephemeral mechanism already exists: `mapPlanningVisible` state (`ind
         "start_ref": "map_mode_with_curated_cards", "tier": "visible", "test_tier": "e2e",
         "verification_service": "dev client + live Convex dev + Simulator location",
         "negative_control": { "would_fail_if": [
-          "map-planning-indicator never appears on card tap (no setMapPlanningVisible(true) in handleSelectCuratedRoute — current code)",
-          "a new transcript bubble appears (the card re-introduced a chat message)",
-          "home-route-polyline never appears (route did not plot)"
+          "the setMapPlanningVisible(true) call is omitted from handleSelectCuratedRoute (current code) so map-planning-indicator is never shown on card tap",
+          "a new transcript bubble appears because a session_messages write was re-introduced (the card re-added a chat message)",
+          "the createCuratedPlan path is a no-op / disconnected so home-route-polyline never appears (route did not plot)"
         ] },
         "evidence": { "artifact_type": "screenshot", "required_capture": true },
         "cases": [ {
@@ -141,8 +141,8 @@ The loading/ephemeral mechanism already exists: `mapPlanningVisible` state (`ind
             "wait for home-route-polyline visible"
           ] },
           "end_state": {
-            "must_observe": [ "map-planning-indicator becomes visible after the tap and BEFORE home-route-polyline", "home-route-polyline visible after resolution" ],
-            "must_not_observe": [ "a new transcript message bubble for the tapped card", "map-planning-indicator never appearing" ]
+            "must_observe": [ "testID 'map-planning-indicator' is asserted visible after the tap and BEFORE testID 'home-route-polyline' (1 indicator shown during the await)", "testID 'home-route-polyline' is visible after resolution (the route line plots)" ],
+            "must_not_observe": [ "a new transcript message bubble for the tapped card (transcript delta === 0)", "the map-planning-indicator staying empty / never appearing (0 indicators shown)" ]
           }
         } ]
       }
@@ -156,8 +156,8 @@ The loading/ephemeral mechanism already exists: `mapPlanningVisible` state (`ind
         "start_ref": "map_mode_card_tap_pending_mutation", "tier": "visible", "test_tier": "integration", "primary": false,
         "verification_service": "@testing-library/react-native (Convex+RN mocked per harness reality)",
         "negative_control": { "would_fail_if": [
-          "the indicator stays null throughout (current handler has no setMapPlanningVisible call)",
-          "the indicator stays visible after the mutation resolves (no finally clear)"
+          "the setMapPlanningVisible call is omitted so the indicator stays null throughout (current handler is a no-op for the loading state)",
+          "the finally clear is removed so the indicator stays visible (stuck) after the mutation resolves"
         ] },
         "evidence": { "artifact_type": "stdout", "required_capture": true },
         "cases": [ {
@@ -169,7 +169,7 @@ The loading/ephemeral mechanism already exists: `mapPlanningVisible` state (`ind
           ] },
           "end_state": {
             "must_observe": [ "queryByTestId('map-planning-indicator') !== null while pending (chatMode === false)", "queryByTestId('map-planning-indicator') === null after resolution" ],
-            "must_not_observe": [ "indicator null throughout", "indicator stuck visible after resolution" ]
+            "must_not_observe": [ "queryByTestId('map-planning-indicator') === null throughout (0 indicators, the empty no-op state)", "the indicator stuck visible after resolution (still !== null when 0 should remain)" ]
           }
         } ]
       }
@@ -182,12 +182,12 @@ The loading/ephemeral mechanism already exists: `mapPlanningVisible` state (`ind
       "scenario": {
         "start_ref": "map_mode_with_curated_cards", "tier": "visible", "test_tier": "integration", "primary": false,
         "verification_service": "@testing-library/react-native (mocked per harness reality)",
-        "negative_control": { "would_fail_if": [ "transcript count increments by 1 (a session_messages write was re-introduced)" ] },
+        "negative_control": { "would_fail_if": [ "a session_messages write is re-introduced (not omitted) so transcript count increments by 1 instead of staying unchanged" ] },
         "evidence": { "artifact_type": "stdout", "required_capture": true },
         "cases": [ {
           "start_ref": "map_mode_with_curated_cards",
           "action": { "actor": "user", "steps": [ "record transcript message count N", "tap the card and let it complete", "record count again" ] },
-          "end_state": { "must_observe": [ "transcript count after === N (unchanged)" ], "must_not_observe": [ "transcript count === N + 1" ] }
+          "end_state": { "must_observe": [ "transcript count after === N (delta === 0, unchanged)" ], "must_not_observe": [ "transcript count === N + 1 (delta !== 0 — an extra message bubble appeared instead of the expected empty delta of 0)" ] }
         } ]
       }
     },

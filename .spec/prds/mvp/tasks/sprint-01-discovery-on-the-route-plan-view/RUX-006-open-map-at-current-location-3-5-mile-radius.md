@@ -109,13 +109,13 @@ On a fresh cold open with location permission granted, the map mounts centered o
 {
   "fixtures": {
     "fresh_install_known_sim_location": {
-      "description": "fresh install (clearState), simulator location set to a known city, location permission granted, signed in via e2e-test-login-button",
-      "seed_method": "maestro_device_state",
+      "description": "fresh install (clearState), simulator location set to a known city, location permission granted, signed in via e2e-test-login-button (Maestro drives the real sign-in UI flow)",
+      "seed_method": "ui_flow",
       "records": [ "Simulator location = known lat/lng", "no saved camera slot (fresh install)" ]
     },
     "resolved_location_no_session_slot": {
-      "description": "useCurrentLocation resolves a known {lat,lng}; camera store hydrated with NO session slot and (for AC-3) a stale defaultCamera slot",
-      "seed_method": "test_harness_props",
+      "description": "the RN screen rendered via the testing-library UI-flow harness: useCurrentLocation resolves a known {lat,lng}; camera store hydrated with NO session slot and (for AC-3) a stale defaultCamera slot",
+      "seed_method": "ui_flow",
       "records": [ "currentLocation = {lat,lng}", "cameraBySession empty", "defaultCameraSlot = a stale slot (AC-3 only)" ]
     }
   },
@@ -130,9 +130,9 @@ On a fresh cold open with location permission granted, the map mounts centered o
         "start_ref": "fresh_install_known_sim_location", "tier": "visible", "test_tier": "e2e",
         "verification_service": "dev client + live Convex dev + Simulator location",
         "negative_control": { "would_fail_if": [
-          "the screenshot shows the z14 single-block framing (current bug)",
-          "the screenshot shows the continental US fallback (location never resolved)",
-          "chat-input never appears (home did not load)"
+          "the camera zoom literal is left hardcoded at 14 so the screenshot shows the z14 single-block framing (current bug)",
+          "the currentLocation branch is a no-op / disconnected so the screenshot shows the continental US fallback (location never resolved)",
+          "the home shell is static and chat-input never appears (home did not load)"
         ] },
         "evidence": { "artifact_type": "screenshot", "required_capture": true },
         "cases": [ {
@@ -144,8 +144,8 @@ On a fresh cold open with location permission granted, the map mounts centered o
             "capture screenshot 01-open-radius"
           ] },
           "end_state": {
-            "must_observe": [ "chat-input visible (home loaded)", "screenshot shows the set city centered with multi-mile context (recognizable ~5-mi span)" ],
-            "must_not_observe": [ "continental/whole-country framing", "street-level single-block framing" ]
+            "must_observe": [ "queryByTestId('chat-input') !== null (home loaded)", "the screenshot frames the set city at a multi-mile span (zoom === 11, recognizable ~5-mi context, neither z14 nor continental)" ],
+            "must_not_observe": [ "continental/whole-country framing (0 city-level detail, the empty default-fallback camera)", "street-level single-block framing (zoom === 14)" ]
           }
         } ]
       }
@@ -159,8 +159,8 @@ On a fresh cold open with location permission granted, the map mounts centered o
         "start_ref": "resolved_location_no_session_slot", "tier": "visible", "test_tier": "integration", "primary": false,
         "verification_service": "@testing-library/react-native + additive camera-capture ref on the rnmapbox mock (Convex+RN mocked per harness reality)",
         "negative_control": { "would_fail_if": [
-          "zoom === 14 (the current literal at index.tsx:232)",
-          "center === DEFAULT_MAPBOX_CAMERA while a live location exists"
+          "the zoom is left as the hardcoded literal zoom === 14 (the current static value at index.tsx:232)",
+          "the currentLocation branch is a no-op so center === DEFAULT_MAPBOX_CAMERA (the static default) while a live location exists"
         ] },
         "evidence": { "artifact_type": "stdout", "required_capture": true },
         "cases": [ {
@@ -182,8 +182,8 @@ On a fresh cold open with location permission granted, the map mounts centered o
         "start_ref": "resolved_location_no_session_slot", "tier": "visible", "test_tier": "integration", "primary": false,
         "verification_service": "@testing-library/react-native (mocked per harness reality)",
         "negative_control": { "would_fail_if": [
-          "initialCamera.center === the saved default slot (current memo order returns the slot first, index.tsx:220-227)",
-          "session-slot precedence is broken (an explicit session resume no longer wins)"
+          "the memo ordering is unchanged so initialCamera.center === the stale saved default slot (current code returns the slot first, index.tsx:220-227)",
+          "session-slot precedence is removed/broken so an explicit session resume no longer wins"
         ] },
         "evidence": { "artifact_type": "stdout", "required_capture": true },
         "cases": [ {

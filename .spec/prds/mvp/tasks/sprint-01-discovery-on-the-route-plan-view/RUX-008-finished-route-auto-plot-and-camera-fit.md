@@ -119,13 +119,13 @@ Two sub-causes (one frontend, one backend):
       "records": [ "chatMode === true", "an agent plan that completes with a multi-point overviewGeometry" ]
     },
     "completed_multipoint_plan_in_chat": {
-      "description": "a completed plan with a real multi-point decoded overviewGeometry, rider in chat mode (test fixture)",
-      "seed_method": "test_harness_props",
+      "description": "the RN screen rendered via the testing-library UI-flow harness with a completed plan carrying a real multi-point decoded overviewGeometry, rider in chat mode",
+      "seed_method": "ui_flow",
       "records": [ "chatMode === true", "completed plan with overviewGeometry decoding to >1 coordinate", "fresh planId (not previously fitted)" ]
     },
     "completed_centroid_plan_in_map": {
-      "description": "a centroid-only completed plan (pre-DATA-011 curated shape), rider in map mode",
-      "seed_method": "test_harness_props",
+      "description": "the RN screen rendered via the testing-library UI-flow harness with a centroid-only completed plan (pre-DATA-011 curated shape), rider in map mode",
+      "seed_method": "ui_flow",
       "records": [ "chatMode === false", "completed plan whose overviewGeometry decodes to a single coordinate" ]
     }
   },
@@ -140,9 +140,9 @@ Two sub-causes (one frontend, one backend):
         "start_ref": "chat_mode_agent_discovery_in_progress", "tier": "visible", "test_tier": "e2e",
         "verification_service": "dev client + live Convex dev + Simulator location",
         "negative_control": { "would_fail_if": [
-          "after completion in chat mode, home-route-polyline does not appear until a manual tap of chat-input-chat-view-button (current pending-fit-only-on-remount behavior)",
-          "the route stays only in the transcript with a blank map",
-          "the app crashes or shows no route after completion"
+          "the auto chat->map switch is omitted (setChatMode(false) absent) so home-route-polyline does not appear until a manual tap of chat-input-chat-view-button (current pending-fit-only-on-remount behavior)",
+          "the doFit seam is disconnected so the route stays only in the transcript with a blank map",
+          "the completion bridge is a no-op so the app shows no route (0 polylines) after completion"
         ] },
         "evidence": { "artifact_type": "screenshot", "required_capture": true },
         "cases": [ {
@@ -154,8 +154,8 @@ Two sub-causes (one frontend, one backend):
             "assert the chat toggle reads 'Open full chat' (i.e. now in map mode)"
           ] },
           "end_state": {
-            "must_observe": [ "home-route-polyline visible without a manual toggle", "in map mode after completion" ],
-            "must_not_observe": [ "route present only in the transcript with a blank map", "home-route-polyline appearing only after a manual chat-view toggle" ]
+            "must_observe": [ "testID 'home-route-polyline' is visible WITHOUT a manual toggle (1 route line plotted)", "the chat toggle reads 'Open full chat' (chatMode === false, now in map mode) after completion" ],
+            "must_not_observe": [ "route present only in the transcript with a blank map (0 polylines on the map)", "testID 'home-route-polyline' appearing only after a manual chat-view toggle" ]
           }
         } ]
       }
@@ -169,17 +169,17 @@ Two sub-causes (one frontend, one backend):
         "start_ref": "completed_multipoint_plan_in_chat", "tier": "visible", "test_tier": "integration", "primary": false,
         "verification_service": "@testing-library/react-native + fit-spy on the rnmapbox mock (Convex+RN mocked per harness reality)",
         "negative_control": { "would_fail_if": [
-          "no auto chat→map switch → fitToCoordinates never called while in chat mode (current code)",
-          "setCameraPosition zoom 12 (wrong branch) called for a multi-point route",
-          "0 fit calls after completion"
+          "the auto chat->map switch is omitted so fitToCoordinates is never called while in chat mode (current code — the seam stays disconnected)",
+          "the wrong branch fires: setCameraPosition zoom 12 is called for a multi-point route",
+          "the completion bridge is a no-op so there are 0 fit calls after completion"
         ] },
         "evidence": { "artifact_type": "stdout", "required_capture": true },
         "cases": [ {
           "start_ref": "completed_multipoint_plan_in_chat",
           "action": { "actor": "system", "steps": [ "drive a completed multi-point plan while chatMode === true", "assert chatMode flips false and the fit-spy received fitToCoordinates with coords.length > 1" ] },
           "end_state": {
-            "must_observe": [ "chatMode became false", "fitToCoordinates called with coords.length > 1" ],
-            "must_not_observe": [ "setCameraPosition zoom 12 for the multi-point route", "0 fit calls" ]
+            "must_observe": [ "chatMode === false after the bridge fires (flipped from true)", "fitToCoordinates called 1 time with coords.length > 1 (whole-route branch)" ],
+            "must_not_observe": [ "setCameraPosition zoom 12 invoked for the multi-point route (wrong branch)", "0 fit calls (the completion bridge stayed a no-op)" ]
           }
         } ]
       }
@@ -193,17 +193,17 @@ Two sub-causes (one frontend, one backend):
         "start_ref": "completed_centroid_plan_in_map", "tier": "visible", "test_tier": "integration", "primary": false,
         "verification_service": "@testing-library/react-native (mocked per harness reality)",
         "negative_control": { "would_fail_if": [
-          "the auto-switch re-fires every render (missing lastFittedPlanIdRef guard) — repeated mode switches",
-          "fitToCoordinates called with a 1-coord array for the centroid route",
-          "setCameraPosition called with zoom !== 12"
+          "the lastFittedPlanIdRef guard is removed so the auto-switch re-fires every render — repeated mode switches",
+          "the wrong branch fires: fitToCoordinates called with a 1-coord array for the centroid route",
+          "setCameraPosition called with a static/hardcoded zoom !== 12"
         ] },
         "evidence": { "artifact_type": "stdout", "required_capture": true },
         "cases": [ {
           "start_ref": "completed_centroid_plan_in_map",
           "action": { "actor": "system", "steps": [ "drive a centroid-only completed plan in map mode", "assert one setCameraPosition zoom 12 call", "re-render with the same plan", "assert no additional fit call and chatMode unchanged" ] },
           "end_state": {
-            "must_observe": [ "setCameraPosition called once with zoom === 12", "second render → no additional fit call; chatMode unchanged" ],
-            "must_not_observe": [ "repeated mode switches", "fitToCoordinates with a 1-coord array" ]
+            "must_observe": [ "setCameraPosition called exactly 1 time with zoom === 12 (centroid branch)", "after the second render the fit-spy call count stays === 1 (0 additional fit calls) and chatMode is unchanged" ],
+            "must_not_observe": [ "the fit-spy count > 1 (repeated mode switches / re-yanking instead of 0 additional calls)", "fitToCoordinates invoked with a 1-coord array (wrong branch for a centroid route)" ]
           }
         } ]
       }

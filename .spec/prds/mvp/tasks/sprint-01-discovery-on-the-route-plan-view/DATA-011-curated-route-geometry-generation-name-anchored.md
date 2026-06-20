@@ -163,7 +163,7 @@ The catalog has a REAL bounding box (`boundsNeLat/Lng`, `boundsSwLat/Lng`) even 
           "action": { "actor": "system", "steps": [ "run generateForRoute({routeId}) against real services", "re-read the route from live Convex", "decode routeGeometry" ] },
           "end_state": {
             "must_observe": [ "decode(routeGeometry).length > 1", "geometryStatus === 'generated'" ],
-            "must_not_observe": [ "decode(routeGeometry).length === 1", "routeGeometry unset while geometryStatus === 'generated'" ]
+            "must_not_observe": [ "decode(routeGeometry).length === 1 (a single point, not a line — the empty centroid signature)", "routeGeometry empty/unset while geometryStatus === 'generated'" ]
           }
         } ]
       }
@@ -177,16 +177,16 @@ The catalog has a REAL bounding box (`boundsNeLat/Lng`, `boundsSwLat/Lng`) even 
         "start_ref": "unresolvable_named_route_live", "tier": "visible", "test_tier": "integration", "primary": false,
         "verification_service": "live Convex dev (forced unresolved name)",
         "negative_control": { "would_fail_if": [
-          "a single-point or fabricated polyline is written for the unresolved route (fake success — Supreme Rule violation)",
-          "geometryStatus stays unset / 'generated' for an unresolved route"
+          "a single-point or fabricated/stubbed polyline is written for the unresolved route (fake success — Supreme Rule violation)",
+          "geometryStatus is left unset / hardcoded to 'generated' for an unresolved route"
         ] },
         "evidence": { "artifact_type": "stdout", "required_capture": true },
         "cases": [ {
           "start_ref": "unresolvable_named_route_live",
           "action": { "actor": "system", "steps": [ "run generateForRoute on the unresolvable route", "re-read the row" ] },
           "end_state": {
-            "must_observe": [ "geometryStatus === 'unresolved' OR 'failed'", "routeGeometry is unset" ],
-            "must_not_observe": [ "routeGeometry written (any value) for the unresolved route" ]
+            "must_observe": [ "geometryStatus === 'unresolved' OR === 'failed'", "routeGeometry === undefined (left unset, no value written)" ],
+            "must_not_observe": [ "routeGeometry written (any non-empty value) for the unresolved route instead of staying empty/undefined" ]
           }
         } ]
       }
@@ -200,8 +200,8 @@ The catalog has a REAL bounding box (`boundsNeLat/Lng`, `boundsSwLat/Lng`) even 
         "start_ref": "one_generated_one_unresolved_route", "tier": "visible", "test_tier": "integration", "primary": false,
         "verification_service": "live Convex dev discovery pipeline",
         "negative_control": { "would_fail_if": [
-          "the generated route's overviewGeometry still decodes to 1 coordinate (reader ignores routeGeometry)",
-          "the unresolved route throws instead of falling back to the centroid encode"
+          "the reader is disconnected / left unchanged so the generated route's overviewGeometry still decodes to 1 coordinate (routeGeometry never read)",
+          "the unresolved route throws instead of falling back to the static centroid encode"
         ] },
         "evidence": { "artifact_type": "stdout", "required_capture": true },
         "cases": [ {
@@ -209,7 +209,7 @@ The catalog has a REAL bounding box (`boundsNeLat/Lng`, `boundsSwLat/Lng`) even 
           "action": { "actor": "system", "steps": [ "run discoverCuratedRoutes over both routes", "decode each option's map.overviewGeometry" ] },
           "end_state": {
             "must_observe": [ "generated route option: decode(overviewGeometry).length > 1", "unresolved route option: decode(overviewGeometry).length === 1 (centroid fallback), no crash" ],
-            "must_not_observe": [ "generated route option decoding to 1 coordinate (reader ignored routeGeometry)", "an exception on the unresolved route" ]
+            "must_not_observe": [ "generated route option decoding to 1 coordinate (a single point / empty line — reader ignored routeGeometry)", "an exception or empty (0-option) result on the unresolved route instead of the centroid fallback" ]
           }
         } ]
       }
@@ -232,8 +232,8 @@ The catalog has a REAL bounding box (`boundsNeLat/Lng`, `boundsSwLat/Lng`) even 
           "start_ref": "resolvable_named_route_live",
           "action": { "actor": "system", "steps": [ "run scripts/backfill-curated-geometry.ts --sample=25", "read .tmp/DATA-011/sample-report.json" ] },
           "end_state": {
-            "must_observe": [ "report.routes.length === 25", "report.resolved >= 1", "each entry has routeId, name, state, geometryStatus, decodedCoordCount" ],
-            "must_not_observe": [ "report missing or routes.length !== 25", "a full --all backfill triggered without the sample gate" ]
+            "must_observe": [ "report.routes.length === 25", "report.resolved >= 1", "each entry has the keys 'routeId', 'name', 'state', 'geometryStatus', 'decodedCoordCount' (5 required fields present)" ],
+            "must_not_observe": [ "the report is empty/missing or routes.length !== 25 (0 routes written)", "a full --all backfill triggered without the sample gate" ]
           }
         } ]
       }
