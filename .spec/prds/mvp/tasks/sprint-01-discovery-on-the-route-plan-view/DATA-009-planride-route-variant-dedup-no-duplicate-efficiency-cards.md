@@ -121,13 +121,18 @@ The single scenic variant uses `scenicBias: 'high', avoidHighways: true` — pre
   "fixtures": {
     "provider_single_valid_route": {
       "description": "routing-provider response (fixtured at the routeFromSketch/compileSketch boundary) returning ONE valid ProviderRouteResponse with non-empty overviewGeometry.value for an SF->Santa Cruz OD",
-      "seed_method": "provider_response_fixture",
-      "records": [ "one ProviderRouteResponse with multi-point overviewGeometry, distance/duration" ]
+      "seed_method": "recorded_external",
+      "records": [ "one recorded ProviderRouteResponse with multi-point overviewGeometry, distanceMeters, durationSeconds" ]
     },
     "provider_single_route_rejects": {
-      "description": "routing-provider response that REJECTS/fails to compile the single variant for one OD",
-      "seed_method": "provider_response_fixture",
-      "records": [ "a rejected/failed provider compile for the single variant" ]
+      "description": "recorded routing-provider response that REJECTS/fails to compile the single variant for one OD",
+      "seed_method": "recorded_external",
+      "records": [ "a recorded rejected/failed provider compile (throw / non-2xx) for the single variant" ]
+    },
+    "generator_input_any_od": {
+      "description": "a static start/end input pair for the pure findScenicWaypoints generator (no I/O; the input IS the fixture)",
+      "seed_method": "migration_fixture",
+      "records": [ "{ start: {lat,lng}, end: {lat,lng} } for any origin->destination" ]
     }
   },
   "requirements": [
@@ -158,7 +163,7 @@ The single scenic variant uses `scenicBias: 'high', avoidHighways: true` — pre
               "options[0].routeOptionId is a non-empty string",
               "options[0].map.overviewGeometry.value is a non-empty string and format === 'polyline'"
             ],
-            "must_not_observe": [ "options.length >= 2", "options.length === 0" ]
+            "must_not_observe": [ "options.length >= 2 (multi-variant cards survive)", "options.length === 0 (empty options array)" ]
           }
         } ]
       }
@@ -173,15 +178,16 @@ The single scenic variant uses `scenicBias: 'high', avoidHighways: true` — pre
         "verification_service": "live Convex dev pipeline",
         "negative_control": { "would_fail_if": [
           "the 3-variant generator is retained -> balanced/efficient labels reappear (buildSketchFromVariant derives label from variant.id)",
-          "a variant id other than the single scenic variant survives"
+          "the label is hardcoded/stubbed to a static string masking the real variant id",
+          "options is an empty array (0 options) — over-pruned to nothing"
         ] },
         "evidence": { "artifact_type": "stdout", "required_capture": true },
         "cases": [ {
           "start_ref": "provider_single_valid_route",
           "action": { "actor": "system", "steps": [ "build options from the single-route fixture", "inspect every option label/variant id" ] },
           "end_state": {
-            "must_observe": [ "options.every(o => !/^(balanced|efficient)$/i.test(o.label))", "options.length === 1" ],
-            "must_not_observe": [ "any option whose label or variant id is 'balanced' or 'efficient'" ]
+            "must_observe": [ "options.length === 1", "the count of options whose label matches /^(balanced|efficient)$/i === 0" ],
+            "must_not_observe": [ "any option whose label or variant id is 'balanced' or 'efficient'", "options is empty (0 options)" ]
           }
         } ]
       }
@@ -195,16 +201,16 @@ The single scenic variant uses `scenicBias: 'high', avoidHighways: true` — pre
         "start_ref": "provider_single_route_rejects", "tier": "visible", "test_tier": "integration", "primary": false,
         "verification_service": "live Convex dev pipeline",
         "negative_control": { "would_fail_if": [
-          "the successful.length === 0 guard (planRideOrchestrator.ts:127) is bypassed and returns [] on all-failure -> empty options reach the render",
-          "the success fixture throws or returns results.length !== 1"
+          "the successful.length === 0 guard (planRideOrchestrator.ts:127) is stubbed/bypassed to return a static empty [] on all-failure (empty options reach the render)",
+          "the orchestrator is disconnected so the rejecting fixture never reaches the NO_ROUTES_GENERATED throw"
         ] },
         "evidence": { "artifact_type": "stdout", "required_capture": true },
         "cases": [ {
           "start_ref": "provider_single_route_rejects",
-          "action": { "actor": "system", "steps": [ "run with a rejecting provider fixture", "assert it throws NO_ROUTES_GENERATED", "run with a success fixture", "assert results.length === 1" ] },
+          "action": { "actor": "system", "steps": [ "run with a rejecting provider fixture", "assert it throws an Error whose message contains 'NO_ROUTES_GENERATED'", "run with a success fixture", "assert results.length === 1" ] },
           "end_state": {
-            "must_observe": [ "rejecting fixture -> throws NO_ROUTES_GENERATED", "success fixture -> results.length === 1, no throw" ],
-            "must_not_observe": [ "rejecting fixture -> silent [] return", "success fixture -> results.length === 0 or thrown error" ]
+            "must_observe": [ "the rejecting fixture causes a thrown Error whose message contains the literal 'NO_ROUTES_GENERATED'", "the success fixture yields results.length === 1 with no throw" ],
+            "must_not_observe": [ "the rejecting fixture returns a silent empty array (0 results) instead of throwing", "the success fixture yields results.length === 0 (empty) or throws" ]
           }
         } ]
       }
@@ -215,19 +221,19 @@ The single scenic variant uses `scenicBias: 'high', avoidHighways: true` — pre
       "description": "UNIT (justified, pure no-I/O): findScenicWaypoints returns exactly one scenic variant; no balanced/efficient",
       "verify": "pnpm test convex/actions/agent/tools/__tests__/findScenicWaypoints.test.ts -t returnsSingleScenicVariant",
       "scenario": {
-        "start_ref": "n/a-pure-function", "tier": "visible", "test_tier": "unit", "primary": false,
+        "start_ref": "generator_input_any_od", "tier": "visible", "test_tier": "unit", "primary": false,
         "verification_service": "pure function (no I/O) — UNIT_TEST_JUSTIFIED: deterministic array generator, end-to-end covered by AC-1..AC-3",
         "negative_control": { "would_fail_if": [
-          "the generator still returns the 3-element array -> result.length === 3 (current assertions at findScenicWaypoints.test.ts:13,62,63,71)",
-          "an entry with id 'balanced' or 'efficient' survives"
+          "the generator still returns the static 3-element array -> result.length === 3 (current assertions at findScenicWaypoints.test.ts:13,62,63,71)",
+          "the generator is stubbed to return an empty [] (0 variants)"
         ] },
         "evidence": { "artifact_type": "stdout", "required_capture": true },
         "cases": [ {
-          "start_ref": "n/a-pure-function",
+          "start_ref": "generator_input_any_od",
           "action": { "actor": "system", "steps": [ "call findScenicWaypoints({start,end})", "inspect the returned RouteVariant[]" ] },
           "end_state": {
             "must_observe": [ "result.length === 1", "result[0].preferences.scenicBias === 'high'" ],
-            "must_not_observe": [ "result.length === 3", "any entry with id === 'balanced' or id === 'efficient'" ]
+            "must_not_observe": [ "result.length === 3 (the old 3-variant array)", "result is empty (0 variants)", "any entry with id === 'balanced' or id === 'efficient'" ]
           }
         } ]
       }
