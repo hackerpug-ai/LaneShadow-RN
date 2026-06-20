@@ -44,6 +44,7 @@ type BackfillRouteRow = {
   routeId: string
   name: string
   state: string
+  highwayNumber: string | null
   geometryStatus: 'generated' | 'unresolved' | 'failed' | null
 }
 
@@ -82,6 +83,7 @@ export const listForGeometryBackfill = internalQuery({
         routeId: r.routeId,
         name: r.name,
         state: r.state,
+        highwayNumber: r.highwayNumber ?? null,
         geometryStatus: r.geometryStatus ?? null,
       })),
       continueCursor: page.continueCursor,
@@ -109,13 +111,12 @@ export const patchRouteGeometry = internalMutation({
 type GeocodeResult = { value: string; coordCount: number }
 
 /**
- * Geocode a named road via Nominatim and encode its LineString as a polyline.
- * Returns null when the name does not resolve to a Line/MultiLineString of ≥2 points
- * (Point/Polygon-only or no match → caller records `unresolved`, never a fake line).
+ * One Nominatim lookup → LineString polyline. Sleeps 1.1s BEFORE the call so every
+ * HTTP request (across all candidate attempts) is spaced ≥1/s per Nominatim policy.
  */
-async function geocodeRouteGeometry(name: string, state: string): Promise<GeocodeResult | null> {
-  const q = encodeURIComponent(`${name}, ${state}`)
-  const url = `https://nominatim.openstreetmap.org/search?q=${q}&format=jsonv2&polygon_geojson=1&limit=1`
+async function fetchLineString(query: string): Promise<GeocodeResult | null> {
+  await new Promise((r) => setTimeout(r, 1100))
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=jsonv2&polygon_geojson=1&limit=1`
   const res = await fetch(url, {
     headers: {
       'User-Agent': 'LaneShadow/1.0 (curated route geometry backfill; justin@formulist.ai)',
@@ -139,6 +140,63 @@ async function geocodeRouteGeometry(name: string, state: string): Promise<Geocod
   }
   if (coords.length < 2) return null
   return { value: polyline.encode(coords), coordCount: coords.length }
+}
+
+/**
+ * Build an ordered, de-duped list of Nominatim query candidates for a curated route.
+ * Many curated names carry nicknames ("Route 86 - Ride the Eagle"), ranges ("HWY 160
+ * from Alton to Donaphin"), or county qualifiers that block a single-way match — so we
+ * try the raw name, a cleaned name, and an extracted highway designator in priority order.
+ */
+function buildGeocodeCandidates(
+  name: string,
+  state: string,
+  highwayNumber?: string | null,
+): string[] {
+  const candidates: string[] = []
+  const add = (q: string) => {
+    const t = q.trim().replace(/\s+/g, ' ')
+    if (t && !candidates.includes(t)) candidates.push(t)
+  }
+
+  add(`${name}, ${state}`)
+
+  const cleaned = name
+    .replace(/\s+-\s+.*$/, '') // strip " - <nickname/descriptor>"
+    .replace(/\s+from\s+.*$/i, '') // strip " from X to Y"
+    .replace(/\s+between\s+.*$/i, '') // strip " between X and Y"
+    .replace(/^the\s+/i, '')
+    .trim()
+  if (cleaned && cleaned !== name) add(`${cleaned}, ${state}`)
+
+  const hw = cleaned.match(
+    /\b(?:Route|Highway|Hwy|HWY|US|SR|MO|State Road|County Road|CR)\s*-?\s*([A-Za-z0-9]+)\b/,
+  )
+  if (hw) {
+    add(`${state} Route ${hw[1]}`)
+    add(`Highway ${hw[1]}, ${state}`)
+  }
+  if (highwayNumber) {
+    add(`${state} Route ${highwayNumber}`)
+    add(`Highway ${highwayNumber}, ${state}`)
+  }
+  return candidates.slice(0, 4) // cap attempts per route
+}
+
+/**
+ * Geocode a curated route, trying each candidate query until one yields a Line/
+ * MultiLineString of ≥2 points. Returns null when none resolve (→ `unresolved`, no fake line).
+ */
+async function geocodeRouteGeometry(
+  name: string,
+  state: string,
+  highwayNumber?: string | null,
+): Promise<GeocodeResult | null> {
+  for (const q of buildGeocodeCandidates(name, state, highwayNumber)) {
+    const hit = await fetchLineString(q)
+    if (hit) return hit
+  }
+  return null
 }
 
 /**
@@ -176,7 +234,7 @@ export const backfill = internalAction({
         if (processed >= target) break
         processed++
         try {
-          const geo = await geocodeRouteGeometry(route.name, route.state)
+          const geo = await geocodeRouteGeometry(route.name, route.state, route.highwayNumber)
           if (geo) {
             await ctx.runMutation(internal.curatedGeometry.patchRouteGeometry, {
               id: route.id,
@@ -223,8 +281,8 @@ export const backfill = internalAction({
             error: e instanceof Error ? e.message : String(e),
           })
         }
-        // Nominatim usage policy: ≤1 request/second.
-        await new Promise((resolve) => setTimeout(resolve, 1100))
+        // Rate-limiting is handled per HTTP call inside fetchLineString (≤1 req/s),
+        // covering every candidate attempt — no extra per-route sleep needed.
       }
 
       curCursor = page.continueCursor
