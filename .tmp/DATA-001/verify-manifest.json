@@ -1,11 +1,11 @@
 {
   "task_id": "DATA-001",
-  "project": {
-    "test_cmd": "pnpm test",
-    "typecheck_cmd": "pnpm type-check",
-    "lint_cmd": "pnpm lint"
-  },
-  "verification_commands": [
-    "pnpm test server/convex/__tests__/geospatialSeed.integration.test.ts"
+  "verification_policy": {"requires_tests": true, "requires_red_evidence": false, "requires_seeded_evidence": true},
+  "project_commands": {"typecheck": "pnpm type-check", "lint": "pnpm exec biome check", "test": "pnpm test"},
+  "requirements": [
+    {"id": "AC-1", "verify": "pnpm test convex/__tests__/geospatialSeed.integration.test.ts"},
+    {"id": "AC-2", "verify": "pnpm test convex/__tests__/geospatialSeed.integration.test.ts"},
+    {"id": "TC-1", "verify": "pnpm test convex/__tests__/geospatialSeed.integration.test.ts"},
+    {"id": "TC-2", "verify": "pnpm test convex/__tests__/geospatialSeed.integration.test.ts"}
   ]
 }
