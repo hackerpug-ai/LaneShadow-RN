@@ -97,7 +97,11 @@ appId: com.hackerpug.laneshadow
 - extendedWaitUntil:
     visible: { id: "home-menu-layout" }
     timeout: 10000
-- assertVisible: { id: "drawer-nav-settings" }
+# Wait out the drawer slide-open animation before asserting the nav items (they
+# mount with the drawer but aren't on-screen until the slide completes).
+- extendedWaitUntil:
+    visible: { id: "drawer-nav-settings" }
+    timeout: 10000
 - assertVisible: { id: "drawer-nav-saved" }
 - assertNotVisible: { text: "Plan a ride" }
 - assertNotVisible: { text: "Discover" }
