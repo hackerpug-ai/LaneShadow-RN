@@ -72,7 +72,7 @@ Founder testing of the route plan view surfaced 7 UX defects. These remedial tas
 
 | ID | Title | Agent | Estimate | Feedback |
 |----|-------|-------|----------|----------|
-| DATA-009 | planRide route-variant dedup — no duplicate efficiency-variant cards for the same OD | convex-implementer | 120 min | #4 |
+| DATA-009 | **(re-scoped 06-20)** plan a SINGLE route per OD — remove balanced/efficient variant generation | convex-implementer | 90 min | R1 #4 · R2 #5 |
 | DATA-010 | Verify + harden the agent start-location default (plan from current/last-known; don't ask) | convex-implementer | 105 min | #3 |
 | DESIGN-S01-005 | Route carousel + single route-summary-card-above-input visual/interaction spec | frontend-designer | 75 min | #1 |
 | DESIGN-S01-006 | On-route map TAG/label spec (tappable polyline tag replacing the floating button) | frontend-designer | 60 min | #7 |
@@ -90,6 +90,33 @@ Founder testing of the route plan view surfaced 7 UX defects. These remedial tas
 - Wave 3: `RUX-004` (after RUX-002 + RUX-003 + DESIGN-S01-006)
 
 Design specs (`DESIGN-S01-005/006/007`) are written FIRST and each blocks its matching `RUX-*` impl task. `DATA-009`/`DATA-010` are independent backend work. `DATA-010` coordinates with the pending BOY-SCOUT migration of `ridePlanningAgent.test.ts` (land the location-prompt assertions consistent with the corrected builders).
+
+---
+
+## Remedial Round 2 — Sprint 1 Testing Feedback (added 2026-06-20)
+
+A second founder testing pass surfaced 5 items. #4 (carousel/one-at-a-time) is already covered by R1 `RUX-001`/`RUX-002`/`DESIGN-S01-005`; #5 (duplicate routes) is covered by re-scoping `DATA-009` (dedup → **remove** balanced/efficient variant generation). Three genuine gaps are added below. Specialists: react-native-ui-planner + convex-planner; orchestrator-consolidated; root causes independently verified at file:line.
+
+**What the human verifies after these land:** the app opens centered on **current location at a 3–5 mile radius** (not street-level, not whole-country); tapping a discovery route card shows the **existing map loading indicator** during resolution (reused from regular search), with no new chat message; a **finished route auto-plots and the camera frames the whole route** without a manual toggle (agent-planned routes show the full line immediately; curated routes show the real line once geometry is generated); and curated discovery routes have **real line geometry generated** into the data model (name-anchored, sample-validated before full backfill).
+
+| ID | Title | Agent | Estimate | Feedback |
+|----|-------|-------|----------|----------|
+| RUX-006 | Open the map at current location, 3–5 mi radius (zoom ~11, not 14) + slot precedence | react-native-ui-implementer | 90 min | R2 #1 |
+| RUX-007 | Show the existing map loading-state on a discovery card tap (reuse search mechanism) | react-native-ui-implementer | 90 min | R2 #2 |
+| RUX-008 | Auto-plot + camera-fit a finished route to the whole route (reuse `doFit`); bonded to DATA-011 | react-native-ui-implementer | 150 min | R2 #3 |
+| DATA-009 | **(re-scoped)** plan a SINGLE route per OD — remove balanced/efficient variant generation | convex-implementer | 90 min | R2 #5 |
+| DATA-011 | Generate per-route line geometry for curated routes (name-anchored Nominatim→Google Routes), persist to the data model, sample-validate then backfill | convex-implementer | 300 min | R2 #3 |
+
+**Coverage of the 5 R2 items:** #1 → RUX-006 · #2 → RUX-007 · #3 → RUX-008 (frontend auto-plot/fit) + DATA-011 (curated line geometry) · #4 → already R1 RUX-001/RUX-002/DESIGN-S01-005 · #5 → DATA-009 (re-scoped).
+
+**R2 waves:**
+- Wave R2-A (independent, pure frontend): `RUX-006`, `RUX-007` (after R1 DISC-016, which is Done)
+- Wave R2-B (independent backend): `DATA-009` (re-scoped), `DATA-011` generation half (per-route action + schema + reader + 25-route sample gate)
+- Wave R2-C (bonded): `RUX-008` + `DATA-011` `--all` backfill — integrate and verify the curated whole-route line end-to-end after both land. RUX-008's agent-route path can verify in R2-A; the curated-line human gate runs after DATA-011.
+
+**Test tier (harness reality):** this repo's vitest aliases Convex `_generated/*` to `__mocks__/convex/*` and stubs `@rnmapbox/maps` without an imperative handle (`vitest.config.ts:150-162,195`), so the genuine real-service tier is **Maestro e2e against the dev client + live Convex dev**. Every R2 RUX task's PRIMARY AC is a Maestro flow; vitest is supplementary (asserting wiring via an additive camera/fit spy on the rnmapbox mock). DATA-009/DATA-011 PRIMARY ACs are Convex integration tests against live dev (and, for DATA-011, real Nominatim + real Google Routes). *(The inherited "live Convex via @testing-library" wording in R1 RUX-002/DISC-016 is aspirational — reconcile when those execute.)*
+
+> **One-time cost flag:** DATA-011's full `--all` backfill is ~5,654 Google Routes calls — gated behind the 25-route sample fidelity review (founder authorizes `--all`).
 
 ---
 
@@ -160,3 +187,11 @@ Generated by /kb-sprint-tasks-plan on 2026-06-16. Each carries a `<!-- REQUIREME
 - RUX-003-tap-route-line-opens-details-not-save.md
 - RUX-004-on-route-tag-tappable-archetype-distance-opens-details.md
 - RUX-005-route-overview-details-sheet-expand-actions-not-cut-off.md
+
+**Remedial Round 2 — Sprint 1 testing feedback** (added 2026-06-20; react-native-ui-planner + convex-planner proposed, orchestrator-consolidated; root causes verified at file:line; PRIMARY ACs are Maestro e2e / live-Convex integration per the harness-reality note above):
+
+- DATA-009-planride-route-variant-dedup-no-duplicate-efficiency-cards.md *(re-scoped: single route per OD)*
+- RUX-006-open-map-at-current-location-3-5-mile-radius.md
+- RUX-007-card-tap-map-loading-state-reuse-search-mechanism.md
+- RUX-008-finished-route-auto-plot-and-camera-fit.md
+- DATA-011-curated-route-geometry-generation-name-anchored.md
