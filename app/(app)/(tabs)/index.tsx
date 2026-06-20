@@ -2,15 +2,7 @@ import { useAuth } from '@clerk/clerk-expo'
 import { useMutation, useQuery } from 'convex/react'
 import { useLocalSearchParams, useRouter, useSegments } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import {
-  ActivityIndicator,
-  Keyboard,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native'
+import { ActivityIndicator, Keyboard, Pressable, StyleSheet, Text, View } from 'react-native'
 import Animated, {
   FadeInDown,
   useAnimatedStyle,
@@ -18,7 +10,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ChatInput, RouteAttachmentCard } from '../../../components/chat'
+import { ChatInput } from '../../../components/chat'
 import { MenuLayout } from '../../../components/layouts/menu-layout'
 import type { MapboxMapViewHandle } from '../../../components/map'
 import { MapboxMapView } from '../../../components/map'
@@ -32,6 +24,7 @@ import {
   RoutePolyline,
   type SegmentSelectData,
 } from '../../../components/map/route-polyline-component'
+import { RouteSummaryCarousel } from '../../../components/map/route-summary-carousel'
 import { SearchResultMarker } from '../../../components/map/search-result-marker'
 import { WeatherPillsRow } from '../../../components/map/weather-pills-row'
 import { PlanRideSheet } from '../../../components/sheets/plan-ride-sheet'
@@ -51,13 +44,14 @@ import { useActiveSessionRoute } from '../../../hooks/use-active-session-route'
 import { useChatPlanning } from '../../../hooks/use-chat-planning'
 import { useCuratedDiscovery } from '../../../hooks/use-curated-discovery'
 import { useCurrentLocation } from '../../../hooks/use-current-location'
-import { getCurrentLocation } from '../../../lib/get-current-location'
 import { useIsRouteSaved } from '../../../hooks/use-is-route-saved'
 import { usePlanInit, usePlanRide } from '../../../hooks/use-plan-ride'
 import { type RideFlowAction, useRideFlow } from '../../../hooks/use-ride-flow'
 import { useRouteComparison } from '../../../hooks/use-route-comparison'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useToastMessages } from '../../../hooks/use-toast-messages'
+import { getCurrentLocation } from '../../../lib/get-current-location'
+import { deduplicateRouteOptions } from '../../../lib/routes/dedupe-route-options'
 import { decodePolylineGeometry } from '../../../shared/lib/polyline'
 import type { RouteProvenance } from '../../../shared/models/saved-routes'
 import type { PlanInput, RouteStop } from '../../../shared/types/routes'
@@ -270,6 +264,17 @@ const HomeMapScreen = () => {
 
   // Determine if there's an active route for chat input logic
   const hasActiveRoute = !!agentActiveOption || !!selectedCuratedRouteId
+
+  // RUX-001: Deduplicate routes for the carousel
+  const distinctRoutes = useMemo(
+    () =>
+      (flowState as { routeOptions?: { options: any[] } }).routeOptions?.options
+        ? deduplicateRouteOptions(
+            (flowState as { routeOptions?: { options: any[] } }).routeOptions!.options,
+          )
+        : [],
+    [flowState],
+  )
 
   // Curated route discovery pills (DISC-011)
   const {
@@ -1199,6 +1204,18 @@ const HomeMapScreen = () => {
     setSelectedSegment(null)
   }, [])
 
+  // RUX-001: Handle carousel card press — opens RouteDetailsSheet (not SaveRouteSheet)
+  const handleCarouselCardPress = useCallback(
+    (routeId: string) => {
+      // Select the route so the map polyline updates
+      selectRoute(routeId)
+      // Open RouteDetailsSheet (components/sheets/route-details-sheet.tsx)
+      setRouteDetailsSheetVisible(true)
+      // Do NOT send a chat message
+    },
+    [selectRoute],
+  )
+
   // RUX-003: Handle Save button from details sheet — opens SaveRouteSheet
   const handleSaveFromDetails = useCallback(() => {
     if (!agentRoutePlan || !agentActiveOption) {
@@ -1391,43 +1408,28 @@ const HomeMapScreen = () => {
           />
         </View>
 
-        {/* Route attachment cards when showing results (map mode only, hidden while toasts are visible) */}
-        {/* Show during ROUTE_RESULTS, ROUTE_DETAILS, and PLANNING (when refining existing routes) */}
+        {/* Route summary carousel — single card above input (replaces per-variant stack) */}
         {!chatMode &&
           toasts.length === 0 &&
           !mapPlanningVisible &&
           (flowState.phase === 'ROUTE_RESULTS' ||
             flowState.phase === 'ROUTE_DETAILS' ||
-            flowState.phase === 'PLANNING') &&
-          'routeOptions' in flowState &&
-          flowState.routeOptions?.options && (
+            flowState.phase === 'PLANNING') && (
             <Animated.View
               pointerEvents="box-none"
-              key={`route-cards-${flowState.phase}-${flowState.sessionId}`}
+              key={`route-carousel-${flowState.phase}-${flowState.sessionId}`}
               entering={FadeInDown.duration(300).springify()}
-              style={[
-                styles.routeCards,
-                {
-                  paddingBottom: insets.bottom + semantic.space.xl + 80, // Space for chat input
-                  paddingHorizontal: semantic.space.md,
-                },
-              ]}
             >
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ gap: semantic.space.sm }}
-              >
-                {flowState.routeOptions.options.map((option) => (
-                  <RouteAttachmentCard
-                    key={option.routeOptionId}
-                    route={option}
-                    isSelected={option.routeOptionId === flowState.selectedRouteId}
-                    onSelect={selectRoute}
-                    testID={`route-card-${option.routeOptionId}`}
-                    includeFavorites={includeFavorites}
-                  />
-                ))}
-              </ScrollView>
+              <RouteSummaryCarousel
+                distinctRoutes={distinctRoutes}
+                selectedRouteId={
+                  'selectedRouteId' in flowState ? (flowState.selectedRouteId ?? null) : null
+                }
+                onCardPress={handleCarouselCardPress}
+                onRouteChange={selectRoute}
+                hasActiveRoute={hasActiveRoute}
+                bottomOffset={insets.bottom + 80}
+              />
             </Animated.View>
           )}
 
@@ -1581,14 +1583,6 @@ const styles = StyleSheet.create({
   weatherPills: {
     position: 'absolute',
     zIndex: 26,
-  },
-  routeCards: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 15,
-    alignItems: 'center',
   },
   chatLayer: {
     zIndex: 10,
