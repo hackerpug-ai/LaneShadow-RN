@@ -157,13 +157,9 @@ async function runDiscoverCuratedRoutes(
         },
       },
       map: {
-        bounds: {
-          north: route.centroidLat + 0.5, // Fallback bounds
-          south: route.centroidLat - 0.5,
-          east: route.centroidLng + 0.5,
-          west: route.centroidLng - 0.5,
-        },
-        overviewGeometry: encodeCentroidToPolyline(route.centroidLat, route.centroidLng),
+        // DATA-011: use the name-anchored generated LineString when present; otherwise
+        // fall back to the centroid point (existing behavior — no regression).
+        ...buildCuratedMapGeometry(route),
         legs: [], // No detailed legs for curated routes
         overlays: {},
       },
@@ -192,6 +188,43 @@ async function runDiscoverCuratedRoutes(
 // Helper function to encode centroid as polyline (single point fallback)
 function encodeCentroidToPolyline(lat: number, lng: number): string {
   return polyline.encode([[lat, lng]])
+}
+
+/**
+ * DATA-011: build the map geometry + bounds for a curated route option.
+ * Prefers the name-anchored generated LineString (geometryStatus === 'generated');
+ * decodes it to derive real bounds. Falls back to the centroid point + ±0.5° bounds
+ * when no generated geometry exists (unresolved/un-backfilled) — never a fake line.
+ */
+function buildCuratedMapGeometry(route: any): {
+  overviewGeometry: string
+  bounds: { north: number; south: number; east: number; west: number }
+} {
+  if (route.geometryStatus === 'generated' && route.routeGeometry?.value) {
+    const decoded = polyline.decode(route.routeGeometry.value) as [number, number][] // [lat, lng]
+    if (decoded.length >= 2) {
+      let north = -90
+      let south = 90
+      let east = -180
+      let west = 180
+      for (const [lat, lng] of decoded) {
+        if (lat > north) north = lat
+        if (lat < south) south = lat
+        if (lng > east) east = lng
+        if (lng < west) west = lng
+      }
+      return { overviewGeometry: route.routeGeometry.value, bounds: { north, south, east, west } }
+    }
+  }
+  return {
+    overviewGeometry: encodeCentroidToPolyline(route.centroidLat, route.centroidLng),
+    bounds: {
+      north: route.centroidLat + 0.5,
+      south: route.centroidLat - 0.5,
+      east: route.centroidLng + 0.5,
+      west: route.centroidLng - 0.5,
+    },
+  }
 }
 
 export async function executeDiscoverCuratedRoutes(
