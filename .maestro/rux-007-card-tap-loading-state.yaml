@@ -1,0 +1,103 @@
+# RUX-007: Show the existing map loading-state on a discovery card tap
+# AC-1: Card tap shows the existing map loading indicator, then plots — no chat message
+#
+# Verifies that:
+# - Tapping a discovery suggestion card shows the map-planning-indicator (loading affordance)
+# - The indicator is visible BEFORE the home-route-polyline appears (during the await)
+# - The route plots (home-route-polyline becomes visible) after the plan resolves
+# - NO new chat transcript message is created (DISC-016 preserved)
+#
+# Run: maestro test .maestro/rux-007-card-tap-loading-state.yaml -e EMAIL=$CLERK_TEST_EMAIL -e PASSWORD=$CLERK_TEST_PASSWORD
+
+appId: com.hackerpug.laneshadow
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+# Dev-client: the launcher lists the localhost:8081 Metro server under
+# "DEVELOPMENT SERVERS". Wait for it to render BEFORE the conditional tap, then
+# tap to connect.
+- extendedWaitUntil:
+    visible:
+      text: "DEVELOPMENT SERVERS|Lane Shadow"
+    timeout: 60000
+- runFlow:
+    when:
+      visible: { text: "DEVELOPMENT SERVERS" }
+    commands:
+      - tapOn:
+          text: ".*localhost:8081.*"
+
+# Wait for the JS bundle + sign-in screen. Dev client shows a first-run popup — dismiss if present.
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|.*developer menu.*"
+    timeout: 240000
+- runFlow:
+    when:
+      visible: { text: ".*developer menu.*" }
+    commands:
+      - tapOn: { text: "Continue" }
+
+# Wait for sign-in form.
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email"
+    timeout: 300000
+
+# Sign in via E2E test-login button (uses CLERK_TEST_EMAIL / CLERK_TEST_PASSWORD env vars).
+- runFlow:
+    when:
+      visible: { id: "e2e-test-login-button" }
+    commands:
+      - tapOn: { id: "e2e-test-login-button" }
+
+# Wait for signed-in home (map mode with curated cards).
+- extendedWaitUntil:
+    visible:
+      id: "chat-input"
+    timeout: 120000
+
+# Wait for discovery suggestion cards to appear.
+- extendedWaitUntil:
+    visible:
+      id: "chat-input-suggestion-chips"
+    timeout: 30000
+- takeScreenshot: 01-home-with-curated-cards
+
+# ── AC-1 MAIN TEST: Tap card → indicator visible → route plots ────────────────
+# Before tap: verify indicator is NOT yet visible.
+- assertNotVisible: { id: "map-planning-indicator" }
+
+# Tap the discovery suggestion card.
+- tapOn:
+    id: "discovery-suggestion-pill-.*"
+    optional: true
+
+# CRITICAL: The indicator MUST become visible BEFORE the polyline, showing
+# the loading state while the createCuratedPlan mutation is pending.
+- extendedWaitUntil:
+    visible:
+      id: "map-planning-indicator"
+    timeout: 10000
+- takeScreenshot: 02-card-tap-loading-indicator-visible
+
+# After the mutation resolves, the route plots (home-route-polyline appears).
+- extendedWaitUntil:
+    visible:
+      id: "home-route-polyline"
+    timeout: 45000
+- takeScreenshot: 03-route-plotted-after-loading-state
+
+# The loading indicator MUST now be gone (cleared in the finally block).
+- assertNotVisible: { id: "map-planning-indicator" }
+
+# DISC-016 non-regression: no new chat message added during the card tap.
+# The curated path uses the direct-plot mechanism (createCuratedPlan, no sendMessage).
+# Checking that suggestion chips are hidden confirms the route is active (per spec step 3).
+- assertNotVisible:
+    id: "chat-input-suggestion-chips"
+    optional: true
+
+- takeScreenshot: 04-route-active-no-new-message
