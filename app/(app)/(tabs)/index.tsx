@@ -1507,7 +1507,9 @@ const HomeMapScreen = () => {
             leftAction={{
               icon: 'menu',
               onPress: () => setMenuOpen(true),
-              testID: 'map-header-left-button',
+              // MapHeaderOverlay appends "-left-button" → renders "map-header-left-button"
+              // (passing the full id here doubled the suffix and broke the e2e selector).
+              testID: 'map-header',
               accessibilityLabel: 'Open menu',
             }}
             rightAction={{

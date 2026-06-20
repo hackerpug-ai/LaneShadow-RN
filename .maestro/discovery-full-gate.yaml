@@ -52,6 +52,21 @@ appId: com.hackerpug.laneshadow
       visible: { text: ".*developer menu.*" }
     commands:
       - tapOn: { text: "Continue" }
+# The Expo dev-client menu (Reload / Go home / Toggle perf monitor) can sit OVER the
+# sign-in screen after connecting. Dismiss it: tap "Reload" (reloads JS + closes the
+# menu) if present, else tap the dimmed backdrop above the sheet. Guarded so a clean
+# launch (no menu) skips both.
+- runFlow:
+    when:
+      visible: { text: "Reload" }
+    commands:
+      - tapOn: { text: "Reload" }
+- runFlow:
+    when:
+      visible: { text: "Go home|Toggle performance monitor" }
+    commands:
+      - tapOn:
+          point: "50%,7%"
 # Bundle transfer can take a while on first connect; wait generously for sign-in.
 - extendedWaitUntil:
     visible:
