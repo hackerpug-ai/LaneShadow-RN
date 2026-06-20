@@ -1009,10 +1009,14 @@ export async function executeRoutingTool(
 /**
  * Build the routing sub-agent system prompt.
  * Phase 1 only — no enrichment instructions.
+ *
+ * Async to support lastKnownLocation lookup when currentLocation is undefined.
  */
-export function buildRoutingPrompt(ctx: AgentContext): string {
+export async function buildRoutingPrompt(ctx: AgentContext): Promise<string> {
   let locBlock: string
+
   if (ctx.currentLocation) {
+    // State 1: Live current location
     locBlock = `The rider's current location is lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng} (label: "Current Location").
 
 Treat this as the DEFAULT ORIGIN for every route. Destination-only requests are COMPLETE route requests — use the current location as the start and plan immediately:
@@ -1022,10 +1026,34 @@ Treat this as the DEFAULT ORIGIN for every route. Destination-only requests are 
 
 NEVER ask "where are you starting from?" — the location above is always available. The only valid reason to ask about the start is if the rider explicitly wants to start somewhere OTHER than their current location.`
   } else {
-    locBlock = `Rider's current location: unknown — ask where they are starting from before planning a route.`
+    // Try to resolve lastKnownLocation for State 2 fallback
+    let lastKnownLocation: { lat: number; lng: number; updatedAt?: number } | undefined
+    try {
+      const sessionData = await ctx.runQuery(
+        (await import('../../_generated/api')).api.db.planningSessions.getSessionById,
+        { sessionId: ctx.planningSessionId },
+      )
+      lastKnownLocation = sessionData?.lastKnownLocation
+    } catch {
+      // Silently ignore lookup failures — fall through to State 3
+    }
+
+    if (lastKnownLocation) {
+      // State 2: Last-known location (possibly stale)
+      locBlock = `The rider's current location is unknown, but we have a last known location: lat=${lastKnownLocation.lat}, lng=${lastKnownLocation.lng} (this may be stale).
+
+Use this as the DEFAULT ORIGIN for routing. Destination-only requests are COMPLETE route requests — use the last known location as the start:
+- "day trip to Santa Cruz" → start = last known location, end = Santa Cruz
+- "ride to the coast" → start = last known location, end = coast
+
+NEVER ask "where are you starting from?" — prefer the last known location. The only valid reason to ask about the start is if the rider explicitly wants to start somewhere different.`
+    } else {
+      // State 3: No location anywhere
+      locBlock = `Rider's current location: unknown — ask where they are starting from before planning a route.`
+    }
   }
 
-  return `You are an expert motorcycle navigator with strong opinions about the best routes — think of yourself as a local who has ridden every road in the area. Be concise — 1-2 sentences per response. Use 2nd person ("your ride", "you'll see").
+  return Promise.resolve(`You are an expert motorcycle navigator with strong opinions about the best routes — think of yourself as a local who has ridden every road in the area. Be concise — 1-2 sentences per response. Use 2nd person ("your ride", "you'll see").
 
 ${locBlock}
 
@@ -1093,7 +1121,7 @@ When done, respond with a JSON summary:
 OR if clarification needed:
 {"status": "needs_clarification", "question": "<what you need to know>"}
 OR if failed:
-{"status": "failed", "reason": "<why it failed>"}`
+{"status": "failed", "reason": "<why it failed>"}`)
 }
 
 // -----------------------------------------------------------------------------
@@ -1110,7 +1138,7 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
   // Routing agent uses low-reasoning model for latency — narrower tool set and focused prompt compensate
   const model = getAgentModel('low')
 
-  const systemPrompt = buildRoutingPrompt(ctx)
+  const systemPrompt = await buildRoutingPrompt(ctx)
 
   const context = {
     systemPrompt,
