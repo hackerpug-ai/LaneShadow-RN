@@ -9,9 +9,9 @@
  *                screen behavior covered by AC-1..AC-3 integration tests
  */
 
-import { describe, it, expect } from 'vitest'
-import { deduplicateRouteOptions } from './dedupe-route-options'
+import { describe, expect, it } from 'vitest'
 import type { PlannedRouteOptionView } from '../../shared/types/routes'
+import { deduplicateRouteOptions } from './dedupe-route-options'
 
 describe('deduplicateRouteOptions', () => {
   /**
