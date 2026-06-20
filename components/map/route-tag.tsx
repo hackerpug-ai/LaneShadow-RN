@@ -13,7 +13,9 @@
 
 import { NativeModules } from 'react-native'
 
-const mapboxAvailable = NativeModules.RNMBXModule != null
+// Optional chaining so importing this module never throws when NativeModules is
+// absent (e.g. the jsdom test harness) — the pure buildRouteTagText export stays testable.
+const mapboxAvailable = NativeModules?.RNMBXModule != null
 let MarkerView: any = null
 if (mapboxAvailable) {
   try {
