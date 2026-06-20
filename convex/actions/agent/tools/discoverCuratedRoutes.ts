@@ -163,9 +163,7 @@ async function runDiscoverCuratedRoutes(
           east: route.centroidLng + 0.5,
           west: route.centroidLng - 0.5,
         },
-        overviewGeometry:
-          route.routeGeometry?.value ??
-          encodeCentroidToPolyline(route.centroidLat, route.centroidLng),
+        overviewGeometry: encodeCentroidToPolyline(route.centroidLat, route.centroidLng),
         legs: [], // No detailed legs for curated routes
         overlays: {},
       },

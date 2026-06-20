@@ -5,9 +5,8 @@
  * state, and archetype filtering over the 5,654-row curated catalog.
  */
 
-import { paginationOptsValidator } from 'convex/server'
 import { v } from 'convex/values'
-import { internalMutation, query } from './_generated/server'
+import { query } from './_generated/server'
 import { geospatial } from './geospatialIndex'
 import { requireIdentity } from './guards'
 import {
@@ -51,14 +50,6 @@ const returnValidator = v.array(
     lengthMiles: v.optional(v.number()),
     distanceMi: v.optional(v.number()),
     summary: v.optional(v.string()),
-    routeGeometry: v.optional(
-      v.object({
-        format: v.literal('polyline'),
-        encoding: v.string(),
-        precision: v.number(),
-        value: v.string(),
-      }),
-    ),
   }),
 )
 
@@ -142,7 +133,6 @@ function buildRouteCard(route: any, distanceMi?: number) {
     lengthMiles: clampLength(route.lengthMiles),
     distanceMi,
     summary: route.summary,
-    routeGeometry: route.routeGeometry ?? undefined,
   }
 }
 
@@ -309,89 +299,5 @@ export const listCuratedRouteStates = query({
         routeCount: record.routeCount,
       }))
       .sort((a, b) => a.name.localeCompare(b.name))
-  },
-})
-
-// ============================================================================
-// DATA-011: Geometry backfill query and mutation
-// ============================================================================
-
-const geometryBackfillReturnValidator = v.array(
-  v.object({
-    routeId: v.string(),
-    name: v.string(),
-    state: v.string(),
-    geometryStatus: v.optional(
-      v.union(v.literal('generated'), v.literal('unresolved'), v.literal('failed')),
-    ),
-  }),
-)
-
-export const listForGeometryBackfill = query({
-  args: {
-    paginationOpts: paginationOptsValidator,
-  },
-  returns: v.object({
-    page: geometryBackfillReturnValidator,
-    isDone: v.boolean(),
-    continueCursor: v.string(),
-  }),
-  handler: async (ctx, args) => {
-    // Paginate over all curated_routes, returning only those needing geometry
-    // (geometryStatus is unset or for re-runs, return all)
-    const result = await ctx.db.query('curated_routes').paginate({
-      numItems: args.paginationOpts.numItems,
-      cursor: args.paginationOpts.cursor ? ({ id: args.paginationOpts.cursor } as any) : undefined,
-    })
-
-    const page = result.page.map((route: any) => ({
-      routeId: route.routeId,
-      name: route.name,
-      state: route.state,
-      geometryStatus: route.geometryStatus,
-    }))
-
-    return {
-      page,
-      isDone: result.isDone,
-      continueCursor: result.continueCursor ?? '',
-    }
-  },
-})
-
-export const patchRouteGeometry = internalMutation({
-  args: {
-    routeId: v.string(),
-    routeGeometry: v.optional(
-      v.object({
-        format: v.literal('polyline'),
-        encoding: v.string(),
-        precision: v.number(),
-        value: v.string(),
-      }),
-    ),
-    geometryStatus: v.union(v.literal('generated'), v.literal('unresolved'), v.literal('failed')),
-  },
-  handler: async (ctx, args) => {
-    // Look up the route by routeId
-    const routes = await ctx.db
-      .query('curated_routes')
-      .filter((q: any) => q.eq(q.field('routeId'), args.routeId))
-      .collect()
-
-    if (routes.length === 0) {
-      throw new Error(`Route not found: ${args.routeId}`)
-    }
-
-    const route = routes[0]
-    const update: Record<string, any> = {
-      geometryStatus: args.geometryStatus,
-    }
-
-    if (args.routeGeometry !== undefined) {
-      update.routeGeometry = args.routeGeometry
-    }
-
-    await ctx.db.patch(route._id, update)
   },
 })
