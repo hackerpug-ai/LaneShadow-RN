@@ -103,7 +103,7 @@ export function extractRouteAttachments(
 // -----------------------------------------------------------------------------
 
 export const buildSystemPrompt = async (ctx: AgentContext): Promise<string> => {
-  return buildOrchestratorPrompt(ctx, ['routing_agent', 'search_agent', 'enrichment_agent'])
+  return await buildOrchestratorPrompt(ctx, ['routing_agent', 'search_agent', 'enrichment_agent'])
 }
 
 // -----------------------------------------------------------------------------

@@ -120,11 +120,36 @@ const discoveryAgentTool: Tool = {
 /**
  * Build the orchestrator system prompt.
  * Injects current location, in-session route block, and dynamic tool list.
+ *
+ * Async to support lastKnownLocation lookup when currentLocation is undefined.
  */
-export function buildOrchestratorPrompt(ctx: AgentContext, availableTools: string[]): string {
-  const locBlock = ctx.currentLocation
-    ? `The rider's current location is lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng}. This is always available — destination-only requests like "day trip to Santa Cruz" are COMPLETE route requests (current location is the origin). Route them to routing_agent immediately; never ask the rider where they're starting from.`
-    : `The rider's current location is unknown.`
+export async function buildOrchestratorPrompt(ctx: AgentContext, availableTools: string[]): Promise<string> {
+  let locBlock: string
+
+  if (ctx.currentLocation) {
+    // State 1: Live current location
+    locBlock = `The rider's current location is lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng}. Use this as the default origin for every route. Destination-only requests like "day trip to Santa Cruz" are COMPLETE route requests (current location is the origin). Route them to routing_agent immediately. Do NOT ask "where are you starting from?" — this location is always available.`
+  } else {
+    // Try to resolve lastKnownLocation for State 2 fallback
+    let lastKnownLocation: { lat: number; lng: number; updatedAt?: number } | undefined
+    try {
+      const sessionData = await ctx.runQuery(
+        (await import('../../_generated/api')).api.db.planningSessions.getSessionById,
+        { sessionId: ctx.planningSessionId },
+      )
+      lastKnownLocation = sessionData?.lastKnownLocation
+    } catch {
+      // Silently ignore lookup failures — fall through to State 3
+    }
+
+    if (lastKnownLocation) {
+      // State 2: Last-known location (possibly stale)
+      locBlock = `The rider's current location is unknown, but we have a last known location: lat=${lastKnownLocation.lat}, lng=${lastKnownLocation.lng} (this may be stale). Use this as the default origin if the rider doesn't provide a current location. Do NOT ask "where are you starting from?" — prefer the last known location as a starting point.`
+    } else {
+      // State 3: No location anywhere
+      locBlock = `The rider's current location is unknown — ask where they are starting from before planning a route.`
+    }
+  }
 
   const toolLines = availableTools
     .map((name) => {
@@ -139,7 +164,7 @@ export function buildOrchestratorPrompt(ctx: AgentContext, availableTools: strin
     })
     .join('\n')
 
-  return `You are a motorcycle ride planning assistant. Your job is to understand rider intent and pick the right specialist.
+  return Promise.resolve(`You are a motorcycle ride planning assistant. Your job is to understand rider intent and pick the right specialist.
 
 ${locBlock}
 
@@ -161,7 +186,7 @@ When the rider asks for a route, search, question about a route, or route discov
 When reasoning (in extended thinking / chain-of-thought), use plain rider-friendly language — your thinking is displayed as a planning indicator. Say "scenic coastal route via Big Sur" not "calling routing_agent with geocoded coordinates".
 
 ## Presentation rules
-Respond in 1-2 sentences, 2nd person. Never expose tool names or technical details to the rider.`
+Respond in 1-2 sentences, 2nd person. Never expose tool names or technical details to the rider.`)
 }
 
 // -----------------------------------------------------------------------------
@@ -427,7 +452,7 @@ export async function executeOrchestrator(
   // -------------------------------------------------------------------------
   // High-reasoning model for orchestrator — intent classification and multi-agent coordination
   const model = getAgentModel('high')
-  const systemPrompt = buildOrchestratorPrompt(ctx, availableToolNames)
+  const systemPrompt = await buildOrchestratorPrompt(ctx, availableToolNames)
 
   const context: Context = {
     systemPrompt,
