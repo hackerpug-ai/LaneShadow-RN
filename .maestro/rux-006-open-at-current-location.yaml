@@ -1,0 +1,81 @@
+# RUX-006 E2E test: Map opens on current location at 3-5 mile radius (zoom 11)
+#
+# Acceptance Criterion (AC-1):
+#   GIVEN: Fresh install with simulator location set to a known city + location permission granted
+#   WHEN: Signed-in home opens
+#   THEN: Map is centered on that location showing a 3-5 mile radius (zoom ~11),
+#         not a street-level view (~0.35 mi at z14) and not the continental fallback
+#
+# Test Procedure:
+# 1. Launch the dev client with clearState (fresh install)
+# 2. Sign in via e2e-test-login-button (programmatic Clerk auth)
+# 3. Wait for home to load (chat-input visible)
+# 4. Verify the map is centered on the set simulator location
+# 5. Capture a screenshot showing a ~5-mile radius view (city-level detail)
+#
+# Pre-steps (manual, one-time):
+#   - Set simulator location: Xcode > Simulator > Features > Location >
+#     Custom Location (e.g., Denver at 39.7392, -104.9903)
+#   - Run the app with EXPO_PUBLIC_E2E=1 (dev build)
+#
+# Run: maestro test .maestro/rux-006-open-at-current-location.yaml \
+#      -e EMAIL=$CLERK_TEST_EMAIL -e PASSWORD=$CLERK_TEST_PASSWORD
+#
+appId: com.hackerpug.laneshadow
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+# Dev-client: wait for the Metro server selection or app to render
+- extendedWaitUntil:
+    visible:
+      text: "DEVELOPMENT SERVERS|Lane Shadow"
+    timeout: 60000
+- runFlow:
+    when:
+      visible: { text: "DEVELOPMENT SERVERS" }
+    commands:
+      - tapOn:
+          text: ".*localhost:8081.*"
+
+# Wait for the JS bundle and sign-in screen
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|.*developer menu.*"
+    timeout: 240000
+- runFlow:
+    when:
+      visible: { text: ".*developer menu.*" }
+    commands:
+      - tapOn: { text: "Continue" }
+
+# Wait for sign-in screen
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email"
+    timeout: 300000
+
+# ── AC-1: Sign in via e2e-test-login-button and verify map opens at current location ──
+- runFlow:
+    when:
+      visible: { id: "e2e-test-login-button" }
+    commands:
+      - tapOn: { id: "e2e-test-login-button" }
+
+# Wait for home to fully load — chat input visible indicates map + chat are ready
+- extendedWaitUntil:
+    visible:
+      id: "chat-input"
+    timeout: 120000
+
+# Screenshot 1: Verify the map is centered on current location at a 3-5 mile radius
+# Human verification: The screenshot should show a city-level view (not street-level z14,
+# not continental z3.5). At z11 (~5.6 mi diameter), a recognizable city context should
+# be visible (e.g., major intersections, neighborhood boundaries, but not individual blocks).
+- takeScreenshot: 01-map-opens-at-current-location-zoom-11
+
+# Optional: Assert that visible UI elements indicate successful load
+# (Not a direct zoom assertion, but confirms the map and chat are both present)
+- assertVisible: { id: "chat-input" }
+- assertVisible: { id: "map-header-left-button" }

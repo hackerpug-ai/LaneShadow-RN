@@ -70,11 +70,16 @@ const CHAT_TRANSITION_MS = 260
 
 // Continental fallback used only when device location is denied/unavailable AND
 // there is no saved camera — keeps the map from rendering blank or at a wrong
-// "max zoom" view on a fresh login. Live location always wins (zoom 14).
+// "max zoom" view on a fresh login. Live location always wins at the
+// CURRENT_LOCATION_OPEN_ZOOM level.
 const DEFAULT_MAPBOX_CAMERA: MapboxCamera = {
   center: [-98.5, 39.8],
   zoom: 3.5,
 }
+
+// Open zoom level for current location on cold open: ~3–5 mile radius
+// At ~37°N, a ~390pt-wide phone shows ≈5.6 mi diameter at z11, vs 0.7 mi at z14
+const CURRENT_LOCATION_OPEN_ZOOM = 11
 
 const HomeMapScreen = () => {
   const router = useRouter()
@@ -211,26 +216,38 @@ const HomeMapScreen = () => {
     setLastViewedSession(activeChatSessionId ?? null)
   }, [activeChatSessionId, lastViewedSessionId, cameraStoreHydrated, setLastViewedSession])
 
-  // Session-scoped camera lookup — use the active session's cached position
-  // when available, otherwise fall back to the default slot, then to current
-  // location. Recomputes when the session id or cache contents change.
+  // Session-scoped camera lookup — apply in strict precedence order:
+  // 1. Active session slot (explicit resume)
+  // 2. Current location (cold open with live location)
+  // 3. Default slot (cold open fallback)
+  // 4. Continental default (location denied/unavailable)
+  // Recomputes when any of these inputs change.
   const activeSessionKey: string | null = activeChatSessionId ?? null
   const initialCamera: MapboxCamera | undefined = useMemo(() => {
     if (!cameraStoreHydrated) return undefined
+    // Priority 1: active session slot wins (explicit resume)
     const sessionSlot = activeSessionKey ? cameraBySession[activeSessionKey] : null
-    const slot = sessionSlot ?? defaultCameraSlot
-    if (slot) {
+    if (sessionSlot) {
       return {
-        center: [slot.center.longitude, slot.center.latitude],
-        zoom: slot.zoom,
+        center: [sessionSlot.center.longitude, sessionSlot.center.latitude],
+        zoom: sessionSlot.zoom,
       }
     }
+    // Priority 2: current location wins on cold open (live location with correct zoom)
     if (currentLocation) {
       return {
         center: [currentLocation.lng, currentLocation.lat],
-        zoom: 14,
+        zoom: CURRENT_LOCATION_OPEN_ZOOM,
       }
     }
+    // Priority 3: default slot (cold open, no live location)
+    if (defaultCameraSlot) {
+      return {
+        center: [defaultCameraSlot.center.longitude, defaultCameraSlot.center.latitude],
+        zoom: defaultCameraSlot.zoom,
+      }
+    }
+    // Priority 4: continental default (location denied/unavailable)
     // No saved camera and no live location. Once location has settled
     // (denied/unavailable), fall back to the continental default so the map
     // isn't blank; while still resolving, return undefined to hold the mount.
