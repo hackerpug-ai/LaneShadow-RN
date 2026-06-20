@@ -2,7 +2,15 @@ import { useAuth } from '@clerk/clerk-expo'
 import { useMutation, useQuery } from 'convex/react'
 import { useLocalSearchParams, useRouter, useSegments } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ActivityIndicator, Keyboard, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import {
+  ActivityIndicator,
+  Keyboard,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native'
 import Animated, {
   FadeInDown,
   useAnimatedStyle,
@@ -29,6 +37,7 @@ import { WeatherPillsRow } from '../../../components/map/weather-pills-row'
 import { PlanRideSheet } from '../../../components/sheets/plan-ride-sheet'
 import { PlanningErrorSheet } from '../../../components/sheets/planning-error-sheet'
 import { RoutePlannerLoading } from '../../../components/sheets/planning-loading'
+import { RouteDetailsSheet } from '../../../components/sheets/route-details-sheet'
 import type { ChatMessage as TranscriptMessage } from '../../../components/ui/chat-transcript'
 import { ChatTranscript } from '../../../components/ui/chat-transcript'
 import { MotorcyclePlusIcon } from '../../../components/ui/motorcycle-plus-icon'
@@ -68,8 +77,6 @@ type PersistentCameraState = {
 }
 
 const CHAT_TRANSITION_MS = 260
-
-
 
 const HomeMapScreen = () => {
   const router = useRouter()
@@ -138,6 +145,10 @@ const HomeMapScreen = () => {
     snapshotMeta: any
     routeProvenance?: RouteProvenance
   } | null>(null)
+
+  // RUX-003: Route Details Sheet state
+  const [routeDetailsSheetVisible, setRouteDetailsSheetVisible] = useState(false)
+
   const [_selectedSegment, setSelectedSegment] = useState<SegmentSelectData | null>(null)
   const [highlightedSegmentId, setHighlightedSegmentId] = useState<string | undefined>(undefined)
 
@@ -386,10 +397,7 @@ const HomeMapScreen = () => {
       // origin and never asks "where are you starting from?". If device
       // location is already resolved, use it; otherwise resolve now (<=2s).
       const loc = currentLocation ?? (await getCurrentLocation(2000))
-      void sendPlanningMessage(
-        message,
-        loc ? { lat: loc.lat, lng: loc.lng } : undefined,
-      )
+      void sendPlanningMessage(message, loc ? { lat: loc.lat, lng: loc.lng } : undefined)
     },
     [chatMode, sendPlanningMessage, currentLocation],
   )
@@ -1093,11 +1101,11 @@ const HomeMapScreen = () => {
       : undefined
   }, [])
 
-  // US-050: Handle segment long-press for route saving
+  // RUX-003: Handle polyline tap — opens RouteDetailsSheet (not SaveRouteSheet)
   const handleSegmentSelect = useCallback(
     (segment: SegmentSelectData) => {
-      // When long-pressing a segment, we want to save the full route, not just the segment
-      // So we use the same data flow as the bookmark button
+      // Tap on polyline opens the details sheet for the active route
+      // Save is relocated to be reachable from the details sheet and the map controls
       if (!agentRoutePlan || !agentActiveOption) {
         return
       }
@@ -1105,59 +1113,12 @@ const HomeMapScreen = () => {
       setSelectedSegment(segment)
       setHighlightedSegmentId(segment.segmentId)
 
-      // Build the same route data as the bookmark button
-      const startLabel = agentRoutePlan.startLabel ?? 'Start'
-      const endLabel = agentRoutePlan.endLabel ?? 'Destination'
-      const suggestedName = `${startLabel} → ${endLabel}`
-
-      const routeIndex = {
-        routeFingerprint: agentActiveOption.routeOptionId,
-        sampledPoints: [],
-      }
-
-      const snapshotMeta = {
-        savedAt: Date.now(),
-        routingProvider: 'route_plans',
-        overlays: {
-          wind: agentActiveOption.overlaysPreview?.windSummary
-            ? { generatedAt: Date.now(), modelVersion: '1.0' }
-            : undefined,
-        },
-        conditionsStatus: agentActiveOption.overlaysPreview?.conditionsStatus ?? 'unavailable',
-        metaVersion: 1,
-      }
-
-      // Build complete RouteSnapshot from agentActiveOption.map
-      // The map object only has bounds, overviewGeometry, legs - we need to add missing fields
-      const routeSnapshot = {
-        provider: 'route_plans',
-        bounds: agentActiveOption.map.bounds,
-        origin: agentRoutePlan.planInput.start,
-        destination: agentRoutePlan.planInput.end,
-        waypoints: [], // No waypoints for simple A->B routes
-        overviewGeometry: agentActiveOption.map.overviewGeometry,
-        legs: agentActiveOption.map.legs,
-        annotations: [], // Will be populated by enrichment if needed
-        overlays: agentActiveOption.map.overlays || {},
-      }
-
-      const routeData = {
-        suggestedName,
-        planInput: agentRoutePlan.planInput,
-        routeSnapshot,
-        routeIndex,
-        snapshotMeta,
-        routeProvenance: buildRouteProvenance(agentActiveOption),
-      }
-
-      setSaveRouteData(routeData)
-
       // Small delay to show highlight before sheet appears
       setTimeout(() => {
-        setSaveRouteSheetVisible(true)
+        setRouteDetailsSheetVisible(true)
       }, 100)
     },
-    [agentRoutePlan, agentActiveOption, buildRouteProvenance],
+    [agentRoutePlan, agentActiveOption],
   )
 
   // US-050: Handle save route button press
@@ -1230,6 +1191,67 @@ const HomeMapScreen = () => {
     setHighlightedSegmentId(undefined)
     setSelectedSegment(null)
   }, [])
+
+  // RUX-003: Close details sheet
+  const handleCloseDetailsSheet = useCallback(() => {
+    setRouteDetailsSheetVisible(false)
+    setHighlightedSegmentId(undefined)
+    setSelectedSegment(null)
+  }, [])
+
+  // RUX-003: Handle Save button from details sheet — opens SaveRouteSheet
+  const handleSaveFromDetails = useCallback(() => {
+    if (!agentRoutePlan || !agentActiveOption) {
+      return
+    }
+
+    // Build save data for the active route
+    const startLabel = agentRoutePlan.startLabel ?? 'Start'
+    const endLabel = agentRoutePlan.endLabel ?? 'Destination'
+    const suggestedName = `${startLabel} → ${endLabel}`
+
+    const routeIndex = {
+      routeFingerprint: agentActiveOption.routeOptionId,
+      sampledPoints: [],
+    }
+
+    const snapshotMeta = {
+      savedAt: Date.now(),
+      routingProvider: 'route_plans',
+      overlays: {
+        wind: agentActiveOption.overlaysPreview?.windSummary
+          ? { generatedAt: Date.now(), modelVersion: '1.0' }
+          : undefined,
+      },
+      conditionsStatus: agentActiveOption.overlaysPreview?.conditionsStatus ?? 'unavailable',
+      metaVersion: 1,
+    }
+
+    const routeSnapshot = {
+      provider: 'route_plans',
+      bounds: agentActiveOption.map.bounds,
+      origin: agentRoutePlan.planInput.start,
+      destination: agentRoutePlan.planInput.end,
+      waypoints: [],
+      overviewGeometry: agentActiveOption.map.overviewGeometry,
+      legs: agentActiveOption.map.legs,
+      annotations: [],
+      overlays: agentActiveOption.map.overlays || {},
+    }
+
+    const routeData = {
+      suggestedName,
+      planInput: agentRoutePlan.planInput,
+      routeSnapshot,
+      routeIndex,
+      snapshotMeta,
+      routeProvenance: buildRouteProvenance(agentActiveOption),
+    }
+
+    setSaveRouteData(routeData)
+    setRouteDetailsSheetVisible(false)
+    setSaveRouteSheetVisible(true)
+  }, [agentRoutePlan, agentActiveOption, buildRouteProvenance])
 
   return (
     <MenuLayout testID="home-menu-layout" menuOpen={menuOpen} onMenuOpenChange={setMenuOpen}>
@@ -1499,6 +1521,15 @@ const HomeMapScreen = () => {
         />
 
         <RoutePlannerLoading isVisible={isManualPlanning} onCancel={cancelPlanning} />
+
+        {/* RUX-003: Route Details Sheet */}
+        <RouteDetailsSheet
+          isVisible={routeDetailsSheetVisible}
+          onClose={handleCloseDetailsSheet}
+          route={agentActiveOption || selectedOption}
+          onSave={handleSaveFromDetails}
+          testID="route-details-sheet"
+        />
 
         {/* US-050: Save Route Sheet */}
         <SaveRouteSheet

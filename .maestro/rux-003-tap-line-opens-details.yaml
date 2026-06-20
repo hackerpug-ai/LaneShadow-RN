@@ -1,0 +1,133 @@
+# RUX-003 E2E test: Tapping the route polyline opens RouteDetailsSheet (not SaveRouteSheet)
+#
+# Acceptance Criteria:
+#   AC-1: GIVEN an active route with both sheets closed
+#         WHEN the rider taps the route polyline
+#         THEN RouteDetailsSheet opens and SaveRouteSheet does NOT open
+#
+#   AC-2: GIVEN RouteDetailsSheet is open from a polyline tap
+#         WHEN the rider presses the details sheet's Save action
+#         THEN SaveRouteSheet opens with the active route's save data
+#
+#   AC-3: GIVEN plan view with NO active route
+#         WHEN a polyline onSegmentSelect fires (stale event)
+#         THEN neither sheet opens and no crash occurs
+#
+# Test Procedure:
+# 1. Launch the dev client with clearState (fresh install)
+# 2. Sign in via e2e-test-login-button
+# 3. Wait for home to load and plan a route
+# 4. Tap the route polyline and verify details sheet opens (not save sheet)
+# 5. Verify save sheet is NOT visible
+# 6. Press the Save button in the details sheet
+# 7. Verify save sheet opens
+#
+# Run: maestro test .maestro/rux-003-tap-line-opens-details.yaml
+#
+appId: com.hackerpug.laneshadow
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+# Dev-client: wait for the Metro server selection or app to render
+- extendedWaitUntil:
+    visible:
+      text: "DEVELOPMENT SERVERS|Lane Shadow"
+    timeout: 60000
+- runFlow:
+    when:
+      visible: { text: "DEVELOPMENT SERVERS" }
+    commands:
+      - tapOn:
+          text: ".*localhost:8081.*"
+
+# Wait for the JS bundle and sign-in screen
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|.*developer menu.*"
+    timeout: 240000
+- runFlow:
+    when:
+      visible: { text: ".*developer menu.*" }
+    commands:
+      - tapOn: { text: "Continue" }
+
+# Wait for sign-in screen
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email"
+    timeout: 300000
+
+# ── Sign in via e2e-test-login-button ──
+- runFlow:
+    when:
+      visible: { id: "e2e-test-login-button" }
+    commands:
+      - tapOn: { id: "e2e-test-login-button" }
+
+# Wait for home to fully load — chat input visible indicates map + chat are ready
+- extendedWaitUntil:
+    visible:
+      id: "chat-input"
+    timeout: 120000
+
+# ── AC-1: Polyline tap opens RouteDetailsSheet (not SaveRouteSheet) ──
+#
+# Plan a route by sending a chat message
+# (This requires the agent to generate a route plan)
+- tapOn: { id: "chat-input" }
+- typeText: "plan a route from downtown denver to boulder colorado"
+- tapOn: { id: "chat-input-send" }
+
+# Wait for the agent to plan and render a route (polyline visible)
+- extendedWaitUntil:
+    visible:
+      id: "route-polyline"
+    timeout: 120000
+
+# Verify initial state: no details sheet, no save sheet
+- assertNotVisible: { id: "route-details-sheet" }
+- assertNotVisible: { testID: "save-route-sheet" }
+
+# Tap on the route polyline to trigger onSegmentSelect
+- tapOn: { id: "route-polyline" }
+
+# Wait for the RouteDetailsSheet to open
+- extendedWaitUntil:
+    visible:
+      id: "route-details-sheet"
+    timeout: 10000
+
+# Verify the details sheet is open
+- assertVisible: { id: "route-details-sheet" }
+
+# Verify the save sheet is NOT open (the bug would show it open here)
+- assertNotVisible: { testID: "save-route-sheet" }
+
+# Screenshot 1: Verify RouteDetailsSheet opened and SaveRouteSheet did not
+- takeScreenshot: 01-details-sheet-opened-not-save-sheet
+
+# ── AC-2: Save is reachable from the details sheet ──
+#
+# Find and tap the Save button inside the details sheet
+- tapOn: { id: "route-details-sheet-save-button" }
+
+# Wait for the SaveRouteSheet to open
+- extendedWaitUntil:
+    visible:
+      testID: "save-route-sheet"
+    timeout: 10000
+
+# Verify the save sheet is now visible
+- assertVisible: { testID: "save-route-sheet" }
+
+# Screenshot 2: Verify SaveRouteSheet opened from the details sheet Save action
+- takeScreenshot: 02-save-sheet-opened-from-details-sheet-save-button
+
+# ── Teardown: Close the sheet to show clean state ──
+- tapOn: { id: "save-route-sheet-close" }
+- extendedWaitUntil:
+    notVisible:
+      testID: "save-route-sheet"
+    timeout: 5000
