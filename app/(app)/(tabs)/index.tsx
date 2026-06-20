@@ -410,30 +410,42 @@ const HomeMapScreen = () => {
     async (routeId: string) => {
       const route = curatedDiscoveryRoutes?.find((r: any) => r.id === routeId)
       if (!route) return
+      // RUX-007: Show the map planning indicator while the mutation is pending,
+      // mirroring the regular-search path (handleSendMessage calls setMapPlanningVisible(true))
+      if (!chatMode) {
+        setMapPlanningVisible(true)
+      }
       // DISC-016: plot DIRECTLY through the standard route machinery — NO chat
       // message is appended to the transcript. The mutation creates a COMPLETED
       // route_plan whose option carries the centroid-encoded overviewGeometry;
       // setting displayedRoutePlanId + selectedRouteId makes useActiveSessionRoute
       // resolve it, RoutePolyline renders home-route-polyline, and the auto-fit
       // effect (doFit) frames the centroid at zoom 12.
-      const { routePlanId } = await createCuratedPlan({
-        routeId: route.id,
-        name: route.name,
-        centroidLat: route.lat,
-        centroidLng: route.lng,
-        archetype: route.archetype,
-        compositeScore: route.score,
-        distanceMi: route.distanceMi ?? 0,
-      })
-      setSelectedCuratedRouteId(routeId)
-      setSelectedRouteId(`curated-${route.id}`)
-      setDisplayedRoutePlanId(routePlanId)
-      requestFitToRouteWithReset()
+      try {
+        const { routePlanId } = await createCuratedPlan({
+          routeId: route.id,
+          name: route.name,
+          centroidLat: route.lat,
+          centroidLng: route.lng,
+          archetype: route.archetype,
+          compositeScore: route.score,
+          distanceMi: route.distanceMi ?? 0,
+        })
+        setSelectedCuratedRouteId(routeId)
+        setSelectedRouteId(`curated-${route.id}`)
+        setDisplayedRoutePlanId(routePlanId)
+        requestFitToRouteWithReset()
+      } finally {
+        // Clear the indicator once the mutation resolves (or rejects).
+        // The isPlanning-keyed auto-dismiss effect (343-344) won't fire here
+        // because this isn't a streaming session_messages update; we clear explicitly.
+        setMapPlanningVisible(false)
+      }
     },
     [
+      chatMode,
       curatedDiscoveryRoutes,
       createCuratedPlan,
-      setSelectedCuratedRouteId,
       setSelectedRouteId,
       setDisplayedRoutePlanId,
       requestFitToRouteWithReset,
