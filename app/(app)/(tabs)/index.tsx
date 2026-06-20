@@ -524,6 +524,7 @@ const HomeMapScreen = () => {
 
   // Reactive bridge: transition out of PLANNING/IDLE when agent route plan completes.
   // Also updates flowState when already in ROUTE_RESULTS and a new plan arrives.
+  // RUX-008: Auto-switch from chat mode to map mode on plan completion so route plots + fits.
   useEffect(() => {
     if (
       (flowState.phase === 'PLANNING' ||
@@ -532,12 +533,19 @@ const HomeMapScreen = () => {
       agentRoutePlan?.status === 'completed' &&
       agentRoutePlan?.result
     ) {
+      // RUX-008: If currently in chat mode, auto-switch to map mode so the
+      // route can be plotted and the camera fit. This ensures the rider sees
+      // the completed route immediately on the map instead of in chat mode.
+      if (chatMode) {
+        setChatMode(false)
+      }
+
       flowDispatch({
         type: 'PLANNING_SUCCESS',
         routeOptions: agentRoutePlan.result,
       })
     }
-  }, [flowState.phase, agentRoutePlan?.status, agentRoutePlan?.result, flowDispatch])
+  }, [flowState.phase, agentRoutePlan?.status, agentRoutePlan?.result, flowDispatch, chatMode])
 
   useEffect(() => {
     if (flowState.phase === 'PLANNING' && agentRoutePlan?.status === 'failed') {
