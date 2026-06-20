@@ -1,0 +1,142 @@
+# RUX-005 E2E test: Route Details Sheet action buttons are always visible and reachable
+#
+# Bug: route-details-sheet.tsx uses preset='half' (single 60% snap) with flex ScrollView
+# followed by actions View OUTSIDE the scroll. On tall content, the Save button is cut off
+# and never reaches the bottom of the sheet.
+#
+# Fix: Adopt route-directions-sheet.tsx pattern — multi-stop snap (60%→90%) + pinned footer
+# above safe area insets, so Save button is always reachable at every snap height.
+#
+# Acceptance Criteria:
+#   AC-1: GIVEN a planned route with details sheet open
+#         WHEN the sheet is snapped at 60% (minimum snap point)
+#         THEN the Save button is fully visible and tappable
+#
+#   AC-2: GIVEN a planned route with details sheet open
+#         WHEN the sheet is snapped at 90% (expanded snap point)
+#         THEN the Save button is still fully visible and tappable
+#
+#   AC-3: GIVEN the details sheet is at 60% snap
+#         WHEN the rider swipe-expands to 90%
+#         THEN the body scrolls to show content AND the Save button remains pinned and visible
+#
+# Test Procedure:
+# 1. Launch dev client and sign in
+# 2. Plan a route (trigger agent to generate route)
+# 3. Tap polyline to open RouteDetailsSheet
+# 4. Verify Save button is visible (assertVisible)
+# 5. Tap Save button to prove it's reachable (not clipped)
+#
+# The assertVisible + tapOn prove the button is NOT clipped off-screen.
+# A clipped button fails both assertions.
+#
+# Run: maestro test .maestro/rux-005-details-sheet-actions.yaml
+#
+appId: com.hackerpug.laneshadow
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+# Dev-client: wait for the Metro server selection or app to render
+- extendedWaitUntil:
+    visible:
+      text: "DEVELOPMENT SERVERS|Lane Shadow"
+    timeout: 60000
+- runFlow:
+    when:
+      visible: { text: "DEVELOPMENT SERVERS" }
+    commands:
+      - tapOn:
+          text: ".*localhost:8081.*"
+
+# Wait for the JS bundle and sign-in screen
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|.*developer menu.*"
+    timeout: 240000
+- runFlow:
+    when:
+      visible: { text: ".*developer menu.*" }
+    commands:
+      - tapOn: { text: "Continue" }
+
+# Wait for sign-in screen
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email"
+    timeout: 300000
+
+# ── Sign in via e2e-test-login-button ──
+- runFlow:
+    when:
+      visible: { id: "e2e-test-login-button" }
+    commands:
+      - tapOn: { id: "e2e-test-login-button" }
+
+# Wait for home to fully load — chat input visible indicates map + chat are ready
+- extendedWaitUntil:
+    visible:
+      id: "chat-input"
+    timeout: 120000
+
+# ── Setup: Plan a route ──
+- tapOn: { id: "chat-input" }
+- typeText: "plan a motorcycle route from san francisco to santa cruz"
+- tapOn: { id: "chat-input-send" }
+
+# Wait for the agent to plan and render a route (polyline visible)
+- extendedWaitUntil:
+    visible:
+      id: "route-polyline"
+    timeout: 120000
+
+# ── AC-1: Save button is visible and tappable at 60% snap (initial snap) ──
+#
+# Tap on the route polyline to trigger onSegmentSelect and open RouteDetailsSheet
+- tapOn: { id: "route-polyline" }
+
+# Wait for the RouteDetailsSheet to open
+- extendedWaitUntil:
+    visible:
+      id: "route-details-sheet"
+    timeout: 10000
+
+# CRITICAL: assertVisible on the Save button proves it is NOT clipped off-screen.
+# If the button is cut off (current bug), this assertion FAILS.
+- assertVisible: { id: "route-details-sheet-save-button" }
+
+# Screenshot 1: Save button is visible at 60% snap
+- takeScreenshot: rux-005-01-save-button-visible-at-60-percent
+
+# ── AC-2 + AC-3: Swipe to expand sheet and verify Save button stays visible ──
+#
+# Swipe up from the bottom to expand the sheet to the 90% snap point.
+# This proves the button doesn't get clipped when the sheet expands.
+- swipeUp:
+    duration: 500
+
+# Small delay for animation
+- wait: 300
+
+# CRITICAL: After expanding, the Save button must still be assertVisible.
+# This proves it's pinned and never pushed off-screen by scrollable content.
+- assertVisible: { id: "route-details-sheet-save-button" }
+
+# Screenshot 2: Save button is still visible after swipe-expand to 90%
+- takeScreenshot: rux-005-02-save-button-visible-at-90-percent
+
+# ── Final proof: Tap the Save button to confirm it's reachable ──
+#
+# If the button is cut off, tapOn will fail (element not interactable).
+# A successful tap proves the fix works.
+- tapOn: { id: "route-details-sheet-save-button" }
+
+# Wait for save sheet to open (proves the tap was successful)
+- extendedWaitUntil:
+    visible:
+      testID: "save-route-sheet"
+    timeout: 10000
+
+# Screenshot 3: Save sheet opened successfully from the details sheet
+- takeScreenshot: rux-005-03-save-button-tappable-proof

@@ -6,11 +6,13 @@
  * - Uses semantic theme tokens
  * - Uses existing UI components
  * - Supports save functionality with loading state
+ * - Multi-stop snap points with pinned action footer (RUX-005)
  */
 
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet'
 import { StyleSheet, View } from 'react-native'
-import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from 'react-native-paper'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { PlannedRouteOptionView } from '../../shared/types/routes'
 import { WindBadge } from '../planning/wind-badge'
@@ -64,6 +66,10 @@ const formatDuration = (seconds: number): string => {
 
 /**
  * Route details sheet component that displays detailed route information
+ *
+ * RUX-005: Uses multi-stop snap points (60%→90%) with pinned footer to ensure
+ * action buttons are always reachable. Footer is positioned above safe area insets
+ * to prevent clipping on notched devices.
  */
 export const RouteDetailsSheet = ({
   isVisible,
@@ -74,148 +80,34 @@ export const RouteDetailsSheet = ({
   testID,
 }: RouteDetailsSheetProps) => {
   const { semantic } = useSemanticTheme()
+  const insets = useSafeAreaInsets()
 
   if (!route) {
     return null
   }
 
   return (
-    <BottomSheetWrapper isVisible={isVisible} onClose={onClose} preset="half" testID={testID}>
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text variant="titleLarge" style={{ color: semantic.color.onSurface.default }}>
-            Route Details
-          </Text>
+    <BottomSheetWrapper
+      isVisible={isVisible}
+      onClose={onClose}
+      snapPoints={['60%', '90%']}
+      testID={testID}
+      wrapChildren={false}
+      showHandle={true}
+      footer={
+        onSave ? (
           <View
             style={[
-              styles.badge,
-              { backgroundColor: `${semantic.color.primary.default}1F` }, // Add 12% alpha
+              styles.footer,
+              {
+                paddingHorizontal: semantic.space.lg,
+                paddingTop: semantic.space.md,
+                paddingBottom: semantic.space.lg + insets.bottom,
+                borderTopColor: `${semantic.color.border.default}33`,
+                backgroundColor: semantic.color.surface.default,
+              },
             ]}
           >
-            <IconSymbol name="routes" size={14} color={semantic.color.primary.default} />
-            <Text style={[styles.badgeText, { color: semantic.color.primary.default }]}>
-              {route.label}
-            </Text>
-          </View>
-        </View>
-
-        <ScrollView
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
-          testID={`${testID}-scroll-view`}
-        >
-          {/* Rationale Section */}
-          <View style={styles.section}>
-            <Text
-              variant="labelMedium"
-              style={[styles.sectionLabel, { color: semantic.color.onSurface.subtle }]}
-            >
-              About this route
-            </Text>
-            <Text
-              variant="bodyMedium"
-              style={[styles.rationale, { color: semantic.color.onSurface.default }]}
-            >
-              {route.rationale}
-            </Text>
-          </View>
-
-          {/* Stats Section */}
-          <View style={styles.section}>
-            <Text
-              variant="labelMedium"
-              style={[styles.sectionLabel, { color: semantic.color.onSurface.subtle }]}
-            >
-              Route Statistics
-            </Text>
-            <View
-              style={[
-                styles.statsCard,
-                { backgroundColor: addOpacity(semantic.color.surface.default, 0.8) },
-              ]}
-            >
-              <StatRow
-                icon="map-marker-distance"
-                value={formatDistance(route.stats.distanceMeters)}
-                testID={`${testID}-stat-distance`}
-              />
-              <StatRow
-                icon="clock-outline"
-                value={formatDuration(route.stats.durationSeconds)}
-                testID={`${testID}-stat-duration`}
-              />
-              <StatRow
-                icon="vector-polyline"
-                value={`${route.stats.legsCount} legs`}
-                testID={`${testID}-stat-legs`}
-              />
-            </View>
-          </View>
-
-          {/* Conditions Section */}
-          <View style={styles.section}>
-            <Text
-              variant="labelMedium"
-              style={[styles.sectionLabel, { color: semantic.color.onSurface.subtle }]}
-            >
-              Conditions
-            </Text>
-            <View
-              style={[
-                styles.conditionsCard,
-                { backgroundColor: addOpacity(semantic.color.surface.default, 0.8) },
-              ]}
-            >
-              <View style={styles.conditionRow}>
-                <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.default }}>
-                  Wind
-                </Text>
-                <WindBadge
-                  windLevel={route.overlaysPreview.windSummary}
-                  testID={`${testID}-wind-badge`}
-                />
-              </View>
-              <View style={styles.conditionRow}>
-                <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.default }}>
-                  Status
-                </Text>
-                <View style={styles.statusRow}>
-                  <IconSymbol
-                    name={
-                      route.overlaysPreview.conditionsStatus === 'ok'
-                        ? 'check-circle'
-                        : 'alert-circle'
-                    }
-                    size={16}
-                    color={
-                      route.overlaysPreview.conditionsStatus === 'ok'
-                        ? semantic.color.success.default
-                        : semantic.color.warning.default
-                    }
-                  />
-                  <Text
-                    variant="bodySmall"
-                    style={{
-                      color:
-                        route.overlaysPreview.conditionsStatus === 'ok'
-                          ? semantic.color.success.default
-                          : semantic.color.warning.default,
-                    }}
-                  >
-                    {route.overlaysPreview.conditionsStatus === 'ok'
-                      ? 'Good conditions'
-                      : 'Data unavailable'}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-        </ScrollView>
-
-        {/* Actions */}
-        {onSave && (
-          <View style={styles.actions}>
             <Button
               variant="default"
               size="lg"
@@ -233,7 +125,155 @@ export const RouteDetailsSheet = ({
               {isSaving ? 'Saving...' : 'Save Route'}
             </Button>
           </View>
-        )}
+        ) : null
+      }
+    >
+      <View style={styles.container}>
+        {/* Fixed header */}
+        <View
+          style={[
+            styles.header,
+            {
+              paddingHorizontal: semantic.space.lg,
+              paddingTop: semantic.space.md,
+              paddingBottom: semantic.space.sm,
+              borderBottomColor: `${semantic.color.border.default}33`,
+            },
+          ]}
+        >
+          <View style={styles.headerRow}>
+            <Text variant="titleLarge" style={{ color: semantic.color.onSurface.default }}>
+              Route Details
+            </Text>
+            <View
+              style={[
+                styles.badge,
+                { backgroundColor: `${semantic.color.primary.default}1F` }, // Add 12% alpha
+              ]}
+            >
+              <IconSymbol name="routes" size={14} color={semantic.color.primary.default} />
+              <Text style={[styles.badgeText, { color: semantic.color.primary.default }]}>
+                {route.label}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Scrollable content */}
+        <View style={styles.scrollWrapper}>
+          <BottomSheetScrollView
+            contentContainerStyle={[styles.scrollContent, { paddingHorizontal: semantic.space.lg }]}
+            showsVerticalScrollIndicator={true}
+            testID={`${testID}-scroll-view`}
+          >
+            {/* Rationale Section */}
+            <View style={styles.section}>
+              <Text
+                variant="labelMedium"
+                style={[styles.sectionLabel, { color: semantic.color.onSurface.subtle }]}
+              >
+                About this route
+              </Text>
+              <Text
+                variant="bodyMedium"
+                style={[styles.rationale, { color: semantic.color.onSurface.default }]}
+              >
+                {route.rationale}
+              </Text>
+            </View>
+
+            {/* Stats Section */}
+            <View style={styles.section}>
+              <Text
+                variant="labelMedium"
+                style={[styles.sectionLabel, { color: semantic.color.onSurface.subtle }]}
+              >
+                Route Statistics
+              </Text>
+              <View
+                style={[
+                  styles.statsCard,
+                  { backgroundColor: addOpacity(semantic.color.surface.default, 0.8) },
+                ]}
+              >
+                <StatRow
+                  icon="map-marker-distance"
+                  value={formatDistance(route.stats.distanceMeters)}
+                  testID={`${testID}-stat-distance`}
+                />
+                <StatRow
+                  icon="clock-outline"
+                  value={formatDuration(route.stats.durationSeconds)}
+                  testID={`${testID}-stat-duration`}
+                />
+                <StatRow
+                  icon="vector-polyline"
+                  value={`${route.stats.legsCount} legs`}
+                  testID={`${testID}-stat-legs`}
+                />
+              </View>
+            </View>
+
+            {/* Conditions Section */}
+            <View style={styles.section}>
+              <Text
+                variant="labelMedium"
+                style={[styles.sectionLabel, { color: semantic.color.onSurface.subtle }]}
+              >
+                Conditions
+              </Text>
+              <View
+                style={[
+                  styles.conditionsCard,
+                  { backgroundColor: addOpacity(semantic.color.surface.default, 0.8) },
+                ]}
+              >
+                <View style={styles.conditionRow}>
+                  <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.default }}>
+                    Wind
+                  </Text>
+                  <WindBadge
+                    windLevel={route.overlaysPreview.windSummary}
+                    testID={`${testID}-wind-badge`}
+                  />
+                </View>
+                <View style={styles.conditionRow}>
+                  <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.default }}>
+                    Status
+                  </Text>
+                  <View style={styles.statusRow}>
+                    <IconSymbol
+                      name={
+                        route.overlaysPreview.conditionsStatus === 'ok'
+                          ? 'check-circle'
+                          : 'alert-circle'
+                      }
+                      size={16}
+                      color={
+                        route.overlaysPreview.conditionsStatus === 'ok'
+                          ? semantic.color.success.default
+                          : semantic.color.warning.default
+                      }
+                    />
+                    <Text
+                      variant="bodySmall"
+                      style={{
+                        color:
+                          route.overlaysPreview.conditionsStatus === 'ok'
+                            ? semantic.color.success.default
+                            : semantic.color.warning.default,
+                      }}
+                    >
+                      {route.overlaysPreview.conditionsStatus === 'ok'
+                        ? 'Good conditions'
+                        : 'Data unavailable'}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </BottomSheetScrollView>
+        </View>
       </View>
     </BottomSheetWrapper>
   )
@@ -244,13 +284,17 @@ RouteDetailsSheet.displayName = 'RouteDetailsSheet'
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    gap: 16,
+    backgroundColor: 'transparent',
+    flexDirection: 'column',
   },
   header: {
+    borderBottomWidth: 1,
+  },
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: 8,
+    gap: 8,
   },
   badge: {
     flexDirection: 'row',
@@ -266,8 +310,12 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  scrollView: {
+  scrollWrapper: {
     flex: 1,
+  },
+  scrollContent: {
+    paddingTop: 12, // semantic.space.md
+    paddingBottom: 120, // Extra padding for footer and safe area
   },
   section: {
     marginBottom: 20,
@@ -276,6 +324,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+    fontWeight: '600',
   },
   rationale: {
     lineHeight: 22,
@@ -300,7 +349,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
   },
-  actions: {
-    paddingTop: 8,
+  footer: {
+    borderTopWidth: 1,
   },
 })
