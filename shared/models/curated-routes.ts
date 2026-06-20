@@ -141,6 +141,9 @@ export type CuratedRoute = {
   seededAt: number // timestamp
   location?: { type: 'Point'; coordinates: [number, number] } | null
   sourceLabel?: string | null
+  // DATA-011: generated per-route line geometry (name-anchored). Absent until backfilled.
+  routeGeometry?: { format: 'polyline'; encoding: string; precision: number; value: string } | null
+  geometryStatus?: 'generated' | 'unresolved' | 'failed' | null
 }
 
 /**
@@ -148,6 +151,22 @@ export type CuratedRoute = {
  */
 export const curatedRouteValidator = v.object({
   ...CURATED_ROUTE_FIELDS,
+
+  // ========================================================================
+  // DATA-011: generated per-route line geometry (name-anchored backfill).
+  // Optional — rows without it fall back to the centroid in discoverCuratedRoutes.
+  // ========================================================================
+  routeGeometry: v.optional(
+    v.object({
+      format: v.literal('polyline'),
+      encoding: v.string(),
+      precision: v.number(),
+      value: v.string(),
+    }),
+  ),
+  geometryStatus: v.optional(
+    v.union(v.literal('generated'), v.literal('unresolved'), v.literal('failed')),
+  ),
 
   // ========================================================================
   // Semantic matching (Epic 3 — INF-003)
