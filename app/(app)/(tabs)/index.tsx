@@ -694,6 +694,22 @@ const HomeMapScreen = () => {
     doFit()
   }, [agentActiveOption, agentRoutePlan, doFit])
 
+  // RUX-002: Re-fit camera when carousel pages to a new route (selectedRouteId changes)
+  useEffect(() => {
+    if (flowState.phase !== 'ROUTE_RESULTS' && flowState.phase !== 'ROUTE_DETAILS') {
+      return
+    }
+    const state = flowState as any
+    if (!state.selectedRouteId) return
+    if (!mapMounted || !mapRef.current) return
+
+    // Defer fit briefly to ensure map is ready
+    const t = setTimeout(() => {
+      doFit()
+    }, 100)
+    return () => clearTimeout(t)
+  }, [flowState, mapMounted, doFit])
+
   // Fit camera to search results when they populate
   const lastSearchResultCountRef = useRef(0)
   useEffect(() => {

@@ -80,35 +80,43 @@ export const useRouteComparison = (
     return null
   }, [state])
 
-  // Build polylines for all routes
+  // Build polylines for the SELECTED route only (RUX-002)
   const polylines = useMemo((): RoutePolyline[] => {
-    if (!routeOptions?.options?.length) {
+    if (!routeOptions?.options?.length || !selectedRouteId) {
       return []
     }
 
-    return routeOptions.options.map((option) => {
-      const isSelected = option.routeOptionId === selectedRouteId
+    // Find the selected route option
+    const selectedOption = routeOptions.options.find(
+      (option) => option.routeOptionId === selectedRouteId,
+    )
 
-      // Build polylines for this route
-      const routePolylines = buildRoutePolylines({
-        route: {
-          overviewGeometry: option.map.overviewGeometry,
-          legs: option.map.legs,
-          overlays: (option.map as any)?.overlays,
-        },
-        variant: isSelected ? 'selected' : 'alternate',
-        showLegs: true,
-        showWindOverlay: isSelected, // Only show wind on selected route
-        semantic,
-      })
+    // If selected route not found, return empty (no mismatch polylines)
+    if (!selectedOption) {
+      return []
+    }
 
-      return {
-        id: `route-${option.routeOptionId}`,
-        routeOptionId: option.routeOptionId,
-        isSelected,
-        polylines: routePolylines,
-      }
+    // Build polylines for the SELECTED route only
+    const routePolylines = buildRoutePolylines({
+      route: {
+        overviewGeometry: selectedOption.map.overviewGeometry,
+        legs: selectedOption.map.legs,
+        overlays: (selectedOption.map as any)?.overlays,
+      },
+      variant: 'selected',
+      showLegs: true,
+      showWindOverlay: true,
+      semantic,
     })
+
+    return [
+      {
+        id: `route-${selectedOption.routeOptionId}`,
+        routeOptionId: selectedOption.routeOptionId,
+        isSelected: true,
+        polylines: routePolylines,
+      },
+    ]
   }, [routeOptions, selectedRouteId, semantic])
 
   // Select a route

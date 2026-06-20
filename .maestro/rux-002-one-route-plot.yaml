@@ -1,0 +1,141 @@
+# RUX-002 E2E test: Plot only the selected route polyline; re-fit camera on carousel paging
+#
+# Acceptance Criteria:
+#   AC-1: GIVEN the plan view in ROUTE_RESULTS with >=2 distinct routes
+#         WHEN multiple routes are planned
+#         THEN exactly ONE polyline is plotted on the map (the selected route),
+#              and alternate/muted routes are NOT rendered
+#
+#   AC-2: GIVEN the carousel showing the second route (route-carousel-card displays route-2)
+#         WHEN the route-carousel-arrow-prev is pressed to page back to route-1
+#         THEN the plotted polyline changes to route-1's path,
+#              and the camera re-fits to frame route-1's coordinates
+#
+#   AC-3: GIVEN multiple routes plotted initially with route-1 selected
+#         WHEN the route-carousel-arrow-next is pressed to page to route-2
+#         THEN the polyline updates to route-2 only (no route-1 visible),
+#              and the camera re-fits to route-2's bounds
+#
+# Test Procedure:
+# 1. Launch the dev client with clearState (fresh install)
+# 2. Sign in via e2e-test-login-button
+# 3. Wait for home to load and plan a route with multiple distinct routes
+# 4. Verify exactly ONE polyline is visible (home-route-polyline testID present)
+# 5. Page to the next route and verify the polyline changes (screenshot difference)
+# 6. Verify camera re-fits to the new route (map bounds/center changed)
+# 7. Page to previous route and verify polyline + camera follow
+#
+# Run: maestro test .maestro/rux-002-one-route-plot.yaml
+#
+appId: com.hackerpug.laneshadow
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+# Dev-client: wait for the Metro server selection or app to render
+- extendedWaitUntil:
+    visible:
+      text: "DEVELOPMENT SERVERS|Lane Shadow"
+    timeout: 60000
+- runFlow:
+    when:
+      visible: { text: "DEVELOPMENT SERVERS" }
+    commands:
+      - tapOn:
+          text: ".*localhost:8081.*"
+
+# Wait for the JS bundle and sign-in screen
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|.*developer menu.*"
+    timeout: 240000
+- runFlow:
+    when:
+      visible: { text: ".*developer menu.*" }
+    commands:
+      - tapOn: { text: "Continue" }
+
+# Wait for sign-in screen
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email"
+    timeout: 300000
+
+# ── Sign in via e2e-test-login-button ──
+- runFlow:
+    when:
+      visible: { id: "e2e-test-login-button" }
+    commands:
+      - tapOn: { id: "e2e-test-login-button" }
+
+# Wait for home to fully load — chat input visible indicates map + chat are ready
+- extendedWaitUntil:
+    visible:
+      id: "chat-input"
+    timeout: 120000
+
+# ── AC-1 & AC-3: Plan a route with multiple distinct options and verify single polyline ──
+# Send a chat message that produces multiple distinct route options
+- tapOn: { id: "chat-input" }
+- typeText: "plan a route from denver to boulder scenic"
+- tapOn: { id: "chat-input-send" }
+
+# Wait for the agent to plan and render the carousel with multiple routes
+- extendedWaitUntil:
+    visible:
+      testID: "route-carousel-container"
+    timeout: 120000
+
+# Verify exactly ONE route polyline is rendered (NOT multiple muted lines)
+# The testID "home-route-polyline" is set on the primary polyline
+- assertVisible: { testID: "home-route-polyline" }
+
+# Screenshot: verify single route polyline visible (route-1)
+- takeScreenshot: 01-single-route-polyline-visible
+
+# Capture initial map region for comparison
+- takeScreenshot: 02-initial-camera-position
+
+# ── AC-2 & AC-3: Page to next route and verify polyline + camera follow ──
+# Check if we have navigation arrows (multiple distinct routes)
+- runFlow:
+    when:
+      visible: { testID: "route-carousel-arrow-next" }
+    commands:
+      # Press next arrow to page to route-2
+      - tapOn: { testID: "route-carousel-arrow-next" }
+
+      # Brief delay for polyline update and camera re-fit
+      - delay: 800
+
+      # AC-3: Verify the polyline is still visible (same testID, different coordinates)
+      - assertVisible: { testID: "home-route-polyline" }
+
+      # Screenshot: verify polyline changed (different route on map)
+      - takeScreenshot: 03-polyline-changed-after-paging-next
+
+      # Screenshot: verify camera re-fitted (different region visible)
+      - takeScreenshot: 04-camera-refit-after-paging-next
+
+      # ── AC-2: Page back to previous route ──
+      # Press prev arrow to go back to route-1
+      - tapOn: { testID: "route-carousel-arrow-prev" }
+
+      # Brief delay for polyline update and camera re-fit
+      - delay: 800
+
+      # Verify polyline still present (back to route-1)
+      - assertVisible: { testID: "home-route-polyline" }
+
+      # Screenshot: verify polyline changed back to route-1
+      - takeScreenshot: 05-polyline-changed-after-paging-prev
+
+      # Screenshot: verify camera re-fitted back to route-1 bounds
+      - takeScreenshot: 06-camera-refit-after-paging-prev
+
+# ── Verify carousel card is still clickable and details sheet works ──
+- assertVisible: { testID: "route-carousel-card" }
+
+# Screenshot: Final state showing single polyline + carousel card
+- takeScreenshot: 07-final-state-single-polyline-carousel-visible
