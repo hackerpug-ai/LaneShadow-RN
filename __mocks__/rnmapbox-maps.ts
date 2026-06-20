@@ -5,14 +5,25 @@
 import React from 'react'
 import { vi } from 'vitest'
 
+// Global camera capture for RUX-006 AC-2/AC-3 tests
+export const __capturedCamera = {
+  initialCamera: null as any,
+}
+
 const createMapComponent = (name: string) => {
   const Component = ({
     children,
     testID,
     id,
+    initialCamera,
     ...props
-  }: Record<string, unknown>) =>
-    React.createElement(name, { testID, id, ...props }, children as React.ReactNode)
+  }: Record<string, unknown>) => {
+    // Capture initialCamera for test assertions (RUX-006)
+    if (initialCamera) {
+      __capturedCamera.initialCamera = initialCamera
+    }
+    return React.createElement(name, { testID, id, initialCamera, ...props }, children as React.ReactNode)
+  }
   Component.displayName = name
   return Component
 }

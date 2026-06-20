@@ -53,6 +53,7 @@ import { decodePolylineGeometry } from '../../../shared/lib/polyline'
 import type { RouteProvenance } from '../../../shared/models/saved-routes'
 import type { PlanInput, RouteStop } from '../../../shared/types/routes'
 import { useChatSessionStore } from '../../../stores/chat-session-store'
+import { computeInitialCamera } from './compute-initial-camera'
 
 type CameraState = {
   center?: { latitude: number; longitude: number }
@@ -68,13 +69,7 @@ type PersistentCameraState = {
 
 const CHAT_TRANSITION_MS = 260
 
-// Continental fallback used only when device location is denied/unavailable AND
-// there is no saved camera — keeps the map from rendering blank or at a wrong
-// "max zoom" view on a fresh login. Live location always wins (zoom 14).
-const DEFAULT_MAPBOX_CAMERA: MapboxCamera = {
-  center: [-98.5, 39.8],
-  zoom: 3.5,
-}
+
 
 const HomeMapScreen = () => {
   const router = useRouter()
@@ -158,7 +153,7 @@ const HomeMapScreen = () => {
   const { location: currentLocation, loading: locationLoading } = useCurrentLocation()
 
   // A2: hold the map on a loading state until device location resolves, then
-  // open directly on the rider at zoom 14 (~3-mi radius). Avoids the old
+  // open directly on the rider at zoom CURRENT_LOCATION_OPEN_ZOOM (~3–5 mi radius). Avoids the old
   // "max zoom" initial view on a fresh login. If location is denied/unavailable,
   // fall back to a continental default so the map is never blank. Hard cap at
   // 8s so a stuck permission dialog can't hang the screen.
@@ -211,31 +206,22 @@ const HomeMapScreen = () => {
     setLastViewedSession(activeChatSessionId ?? null)
   }, [activeChatSessionId, lastViewedSessionId, cameraStoreHydrated, setLastViewedSession])
 
-  // Session-scoped camera lookup — use the active session's cached position
-  // when available, otherwise fall back to the default slot, then to current
-  // location. Recomputes when the session id or cache contents change.
+  // Session-scoped camera lookup — apply in strict precedence order:
+  // 1. Active session slot (explicit resume)
+  // 2. Current location (cold open with live location)
+  // 3. Default slot (cold open fallback)
+  // 4. Continental default (location denied/unavailable)
+  // Recomputes when any of these inputs change.
   const activeSessionKey: string | null = activeChatSessionId ?? null
   const initialCamera: MapboxCamera | undefined = useMemo(() => {
-    if (!cameraStoreHydrated) return undefined
     const sessionSlot = activeSessionKey ? cameraBySession[activeSessionKey] : null
-    const slot = sessionSlot ?? defaultCameraSlot
-    if (slot) {
-      return {
-        center: [slot.center.longitude, slot.center.latitude],
-        zoom: slot.zoom,
-      }
-    }
-    if (currentLocation) {
-      return {
-        center: [currentLocation.lng, currentLocation.lat],
-        zoom: 14,
-      }
-    }
-    // No saved camera and no live location. Once location has settled
-    // (denied/unavailable), fall back to the continental default so the map
-    // isn't blank; while still resolving, return undefined to hold the mount.
-    if (!locationLoading) return DEFAULT_MAPBOX_CAMERA
-    return undefined
+    return computeInitialCamera({
+      sessionSlot,
+      currentLocation,
+      defaultCameraSlot,
+      locationLoading,
+      cameraStoreHydrated,
+    })
   }, [
     cameraStoreHydrated,
     activeSessionKey,
