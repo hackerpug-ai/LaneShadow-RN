@@ -44,7 +44,9 @@ export type SemanticColors = {
   info: SemanticColorSet
 
   // Surface layers
-  surface: SemanticColorSet
+  surface: SemanticColorSet & {
+    glass?: string // Glass-morphic overlay (semi-transparent)
+  }
   surfaceVariant: SemanticColorSet
   background: SemanticColorSet
 
@@ -60,7 +62,9 @@ export type SemanticColors = {
   onSecondaryContainer: SemanticColorSet & { muted?: string; subtle?: string }
 
   // UI element colors
-  border: SemanticColorSet
+  border: SemanticColorSet & {
+    glass?: string // Glass-morphic border (semi-transparent)
+  }
   input: SemanticColorSet
   ring: SemanticColorSet
 
@@ -208,6 +212,24 @@ export type SemanticElevation = {
 }
 
 /**
+ * Semantic control sizing
+ */
+export type SemanticControl = {
+  minTouchTarget: number // Minimum touch target size (44pt)
+  minHeight?: number // Minimum button height
+}
+
+/**
+ * Semantic opacity levels
+ */
+export type SemanticOpacity = {
+  pressed: number // Opacity when button is pressed
+  disabled?: number // Opacity when element is disabled
+  focus?: number // Opacity for focus indicators
+  overlay?: number // Opacity for overlays
+}
+
+/**
  * Complete semantic theme structure
  * Additive layer on top of React Native Paper's MD3Theme
  */
@@ -217,6 +239,13 @@ export type SemanticTheme = {
   radius: SemanticRadius
   type: SemanticTypography
   elevation: SemanticElevation
+  control: SemanticControl
+  opacity: SemanticOpacity
+  borderWidth: {
+    thin: number
+    medium?: number
+    thick?: number
+  }
 }
 
 /**

@@ -25,6 +25,7 @@ import {
   type SegmentSelectData,
 } from '../../../components/map/route-polyline-component'
 import { RouteSummaryCarousel } from '../../../components/map/route-summary-carousel'
+import { RouteTag } from '../../../components/map/route-tag'
 import { SearchResultMarker } from '../../../components/map/search-result-marker'
 import { WeatherPillsRow } from '../../../components/map/weather-pills-row'
 import { PlanRideSheet } from '../../../components/sheets/plan-ride-sheet'
@@ -52,7 +53,11 @@ import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useToastMessages } from '../../../hooks/use-toast-messages'
 import { getCurrentLocation } from '../../../lib/get-current-location'
 import { deduplicateRouteOptions } from '../../../lib/routes/dedupe-route-options'
-import { decodePolylineGeometry } from '../../../shared/lib/polyline'
+import {
+  computeCumulativeDistances,
+  decodePolylineGeometry,
+  type MapLatLng,
+} from '../../../shared/lib/polyline'
 import type { RouteProvenance } from '../../../shared/models/saved-routes'
 import type { PlanInput, RouteStop } from '../../../shared/types/routes'
 import { useChatSessionStore } from '../../../stores/chat-session-store'
@@ -71,6 +76,99 @@ type PersistentCameraState = {
 }
 
 const CHAT_TRANSITION_MS = 260
+
+// ─────────────────────────────────────────────────────────────────────────
+// RUX-004: RouteTag helpers
+// ─────────────────────────────────────────────────────────────────────────
+
+/**
+ * Compute the midpoint of a route's overview geometry.
+ * Uses linear interpolation between decoded coordinates at 50% arc-length.
+ * Fallback: bounding box midpoint if geometry is too short.
+ */
+const computeRouteMidpoint = (overviewGeometry: any, bounds?: any): MapLatLng => {
+  if (!overviewGeometry) {
+    // Fallback: use bounds center if no geometry
+    if (bounds) {
+      return {
+        latitude: (bounds.northeast.lat + bounds.southwest.lat) / 2,
+        longitude: (bounds.northeast.lng + bounds.southwest.lng) / 2,
+      }
+    }
+    return { latitude: 0, longitude: 0 } // Safe default
+  }
+
+  try {
+    const decoded = decodePolylineGeometry(overviewGeometry)
+    if (decoded.length < 2) {
+      // Fallback: use bounds center for single-point routes
+      if (bounds) {
+        return {
+          latitude: (bounds.northeast.lat + bounds.southwest.lat) / 2,
+          longitude: (bounds.northeast.lng + bounds.southwest.lng) / 2,
+        }
+      }
+      return decoded[0] || { latitude: 0, longitude: 0 }
+    }
+
+    // Compute cumulative distances along the polyline
+    const cumulativeDistances = computeCumulativeDistances(decoded)
+    const totalDistance = cumulativeDistances[cumulativeDistances.length - 1]
+
+    // Find the coordinate at 50% of total distance
+    const targetDistance = totalDistance / 2
+
+    // Linear search to find the segment containing the midpoint
+    for (let i = 0; i < cumulativeDistances.length - 1; i += 1) {
+      const segStart = cumulativeDistances[i]
+      const segEnd = cumulativeDistances[i + 1]
+
+      if (targetDistance >= segStart && targetDistance <= segEnd) {
+        // Interpolate within this segment
+        const t = (targetDistance - segStart) / (segEnd - segStart)
+        const start = decoded[i]
+        const end = decoded[i + 1]
+
+        return {
+          latitude: start.latitude + (end.latitude - start.latitude) * t,
+          longitude: start.longitude + (end.longitude - start.longitude) * t,
+        }
+      }
+    }
+
+    // Fallback: return last decoded point
+    return decoded[decoded.length - 1]
+  } catch (_error) {
+    // Fallback: use bounds center on any decode error
+    if (bounds) {
+      return {
+        latitude: (bounds.northeast.lat + bounds.southwest.lat) / 2,
+        longitude: (bounds.northeast.lng + bounds.southwest.lng) / 2,
+      }
+    }
+    return { latitude: 0, longitude: 0 }
+  }
+}
+
+/**
+ * Derive archetype label from route option.
+ * Uses the route label or falls back to 'Route' for MVP.
+ * In future: extract from session plan context (scenic bias, etc.).
+ */
+const deriveArchetypeLabel = (route: any): string => {
+  // Check if the label contains common archetype keywords
+  const label = (route?.label || '').toLowerCase()
+
+  if (label.includes('scenic')) return 'scenic'
+  if (label.includes('twisties')) return 'twisties'
+  if (label.includes('technical')) return 'technical'
+  if (label.includes('cruising')) return 'cruising'
+  if (label.includes('sport')) return 'sport'
+  if (label.includes('adventure')) return 'adventure'
+
+  // Fallback: 'Route' (MVP acceptable per design spec §14)
+  return 'Route'
+}
 
 const HomeMapScreen = () => {
   const router = useRouter()
@@ -1165,6 +1263,13 @@ const HomeMapScreen = () => {
     [agentRoutePlan, agentActiveOption],
   )
 
+  // RUX-004: Handle route tag tap — reuses the same open-details flow as RUX-003
+  const handleRouteTagPress = useCallback(() => {
+    // Open RouteDetailsSheet (same destination as polyline tap)
+    // No chat message, no SaveRouteSheet (save is in the details sheet)
+    setRouteDetailsSheetVisible(true)
+  }, [])
+
   // US-050: Handle save route button press
   const handleSaveRoutePress = useCallback(() => {
     if (!agentRoutePlan || !agentActiveOption) {
@@ -1349,6 +1454,22 @@ const HomeMapScreen = () => {
                   onPress={setSelectedSearchResultId}
                 />
               ))}
+
+              {/* RUX-004: Route Tag — tappable pill showing archetype + distance on the selected route */}
+              {(agentActiveOption || selectedOption) && (
+                <RouteTag
+                  routeId={(agentActiveOption || selectedOption)!.routeOptionId}
+                  coordinate={computeRouteMidpoint(
+                    (agentActiveOption || selectedOption)!.map.overviewGeometry,
+                    (agentActiveOption || selectedOption)!.map.bounds,
+                  )}
+                  archetype={deriveArchetypeLabel(agentActiveOption || selectedOption)}
+                  distanceMeters={(agentActiveOption || selectedOption)!.stats.distanceMeters}
+                  isSelected={true}
+                  onPress={handleRouteTagPress}
+                  testID="route-tag"
+                />
+              )}
             </MapboxMapView>
           </Animated.View>
         )}

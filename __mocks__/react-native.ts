@@ -90,6 +90,10 @@ export const useColorScheme = () => 'dark'
 
 export const useWindowDimensions = () => ({ width: 375, height: 812, scale: 1, fontScale: 1 })
 
+export const NativeModules = {
+  RNMBXModule: null, // Mapbox available guard checks this
+}
+
 export default {
   View,
   Text,
@@ -101,4 +105,5 @@ export default {
   Keyboard,
   useColorScheme,
   useWindowDimensions,
+  NativeModules,
 }
