@@ -3,121 +3,151 @@
 /**
  * Integration tests for start location defaulting behavior (DATA-010).
  *
- * Tests verify end-to-end that:
- * - AC-1: currentLocation present → plans from it, never asks origin
- * - AC-2: lastKnownLocation present (no currentLocation) → prefers it, never asks origin
- * - AC-4: no location anywhere → asks origin as last resort
+ * Tests verify that:
+ * - AC-1: currentLocation present → prompt contains resolved coords + no-ask instruction
+ * - AC-2: lastKnownLocation present (no currentLocation) → prompt surfaces it as stale default + no-ask
+ * - AC-4: no location anywhere → prompt asks origin as last resort
  *
- * Driven against live Convex dev sendMessage API with real session state.
- *
- * STATUS: Placeholder structure. Requires live Convex dev environment to execute.
- * The prompt builders (AC-3) are verified via ridePlanningAgent.test.ts.
- * These tests validate the end-to-end behavior when the prompts are deployed.
+ * These tests call the REAL buildOrchestratorPrompt function with mocked session queries,
+ * asserting the prompt content per the must_observe contract in the spec.
  */
 
-import { describe, it, expect, beforeAll, afterAll, skip } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { buildOrchestratorPrompt } from '../agents/orchestrator'
+import type { AgentContext } from '../ridePlanningAgent'
 
-describe('Start Location Defaulting Integration Tests (AC-1, AC-2, AC-4)', () => {
-  // Skip these tests in CI environments where live Convex dev is not available.
-  // To run locally against a live Convex dev instance:
-  // 1. Set CONVEX_URL to your dev instance (e.g. http://localhost:8000)
-  // 2. Ensure a planning session exists or can be created
-  // 3. Run with: pnpm test convex/actions/agent/__tests__/startLocationDefault.integration.test.ts
-  const skipIntegration = !process.env.CONVEX_URL || process.env.CONVEX_URL.includes('prod')
-
-  describe('AC-1: Live currentLocation present', () => {
-    it.skipIf(skipIntegration)(
-      'plans from current location and never asks origin',
-      async () => {
-        // This test verifies the happy path: with a live location provided,
-        // the agent plans from it immediately without asking "where are you starting from?"
-        //
-        // To implement against live Convex:
-        // 1. Create a planning session via api.db.planningSessions.create
-        // 2. Call sendMessage with:
-        //    - sessionId: the created session
-        //    - content: "plan a ride to Santa Cruz"
-        //    - currentLocation: { lat: 37.7749, lng: -122.4194 }
-        // 3. Verify the response:
-        //    - Does NOT contain "where are you starting from"
-        //    - A route_plan was created with planInput.start === currentLocation
-        //    - The route goes from SF → Santa Cruz
-        expect(true).toBe(true) // Placeholder pass
+// Mock the Convex API module
+vi.mock('../../../_generated/api', () => ({
+  api: {
+    db: {
+      planningSessions: {
+        getSessionById: { __fake: true },
       },
-    )
+    },
+  },
+}))
+
+describe('Start Location Defaulting (AC-1, AC-2, AC-4) - Prompt Builder Integration', () => {
+  describe('AC-1: Live currentLocation present', () => {
+    it('builds prompt with resolved current location + no-ask instruction', async () => {
+      const ctx = {
+        planningSessionId: 'session_ac1' as any,
+        clerkUserId: 'user_test',
+        piMessages: [],
+        currentLocation: { lat: 37.7749, lng: -122.4194 }, // San Francisco
+        runQuery: vi.fn(),
+        runMutation: vi.fn(),
+        runAction: vi.fn(),
+      } as unknown as AgentContext
+
+      const prompt = await buildOrchestratorPrompt(ctx, ['routing_agent', 'search_agent'])
+
+      // must_observe (per spec AC-1):
+      // - the resolved lat/lng is named (e.g., "37.77" or "37.7749")
+      expect(prompt).toContain('37.7749')
+      expect(prompt).toContain('-122.4194')
+
+      // - a default-origin / no-ask instruction is present
+      expect(prompt).toContain('Use this as the default origin')
+      expect(prompt).toContain('Do NOT ask "where are you starting from?"')
+
+      // must NOT observe:
+      // - an ask for origin when location is resolved
+      // Note: We check the negative by ensuring the current-location block is used,
+      // not the fallback "ask where" block
+      expect(prompt.toLowerCase()).not.toMatch(/ask where they are starting from/)
+    })
   })
 
   describe('AC-2: lastKnownLocation present (no live currentLocation)', () => {
-    it.skipIf(skipIntegration)(
-      'prefers lastKnownLocation and never asks origin',
-      async () => {
-        // This test verifies the fallback path: when no currentLocation is provided
-        // but the session has a stored lastKnownLocation, the agent uses it as the
-        // default origin without asking.
-        //
-        // To implement against live Convex:
-        // 1. Create a planning session via api.db.planningSessions.create
-        // 2. Seed lastKnownLocation via updateLastKnownLocation: { lat: 34.05, lng: -118.24 }
-        //    (e.g., LA coordinates)
-        // 3. Call sendMessage with:
-        //    - sessionId: the seeded session
-        //    - content: "plan a ride to the coast"
-        //    - currentLocation: OMITTED (undefined)
-        // 4. Verify the response:
-        //    - Does NOT contain "where are you starting from"
-        //    - The resolved planning origin is LA (lastKnownLocation)
-        //    - A route_plan was created
-        expect(true).toBe(true) // Placeholder pass
-      },
-    )
+    it('surfaces last-known location as possibly-stale default + no-ask instruction', async () => {
+      const lastKnownValue = { lat: 34.05, lng: -118.24 } // Los Angeles
+
+      const ctx = {
+        planningSessionId: 'session_ac2' as any,
+        clerkUserId: 'user_test',
+        piMessages: [],
+        currentLocation: undefined, // No live location
+        runQuery: vi.fn().mockResolvedValue({
+          lastKnownLocation: lastKnownValue,
+        }),
+        runMutation: vi.fn(),
+        runAction: vi.fn(),
+      } as unknown as AgentContext
+
+      const prompt = await buildOrchestratorPrompt(ctx, ['routing_agent', 'search_agent'])
+
+      // must_observe (per spec AC-2):
+      // - the last-known location is surfaced with the resolved coords
+      expect(prompt).toContain('last known location')
+      expect(prompt).toContain('34.05')
+      expect(prompt).toContain('-118.24')
+
+      // - a "may be stale" warning is present
+      expect(prompt).toContain('may be stale')
+
+      // - a no-ask instruction is present
+      expect(prompt).toContain('Do NOT ask "where are you starting from?"')
+
+      // must NOT observe:
+      // - an instruction to ask for origin (that belongs to the no-location state)
+      expect(prompt.toLowerCase()).not.toMatch(/ask where they are starting from\?\s*$/)
+    })
   })
 
   describe('AC-4: No location anywhere', () => {
-    it.skipIf(skipIntegration)(
-      'asks origin as last resort when no location ever captured',
-      async () => {
-        // This test verifies the hardened unknown branch: when a brand-new session
-        // has no currentLocation arg and no stored lastKnownLocation, the agent
-        // asks "where are you starting from?" instead of fabricating a fake origin.
-        //
-        // To implement against live Convex:
-        // 1. Create a fresh planning session via api.db.planningSessions.create
-        //    (ensure lastKnownLocation is undefined)
-        // 2. Call sendMessage with:
-        //    - sessionId: the fresh session
-        //    - content: "plan a ride to Napa"
-        //    - currentLocation: OMITTED (undefined)
-        // 3. Verify the response:
-        //    - CONTAINS the string "where are you starting from"
-        //    - No route_plan was created (planInput.start is absent)
-        //    - The agent did NOT fabricate a default origin (e.g., 0,0 or hardcoded city)
-        expect(true).toBe(true) // Placeholder pass
-      },
-    )
+    it('asks origin as last resort when no location anywhere', async () => {
+      const ctx = {
+        planningSessionId: 'session_ac4' as any,
+        clerkUserId: 'user_test',
+        piMessages: [],
+        currentLocation: undefined, // No live location
+        runQuery: vi.fn().mockResolvedValue({
+          lastKnownLocation: undefined, // No stored location either
+        }),
+        runMutation: vi.fn(),
+        runAction: vi.fn(),
+      } as unknown as AgentContext
+
+      const prompt = await buildOrchestratorPrompt(ctx, ['routing_agent', 'search_agent'])
+
+      // must_observe (per spec AC-4):
+      // - the origin-ask instruction is present
+      expect(prompt).toContain('ask where they are starting from')
+
+      // must NOT observe:
+      // - a fabricated/hardcoded origin (0,0 or a default city)
+      expect(prompt).not.toContain('lat=0')
+      expect(prompt).not.toContain('lng=0')
+      expect(prompt).not.toContain('San Francisco') // No hardcoded defaults
+      expect(prompt).not.toContain('Los Angeles')
+
+      // - a "Use this as the default origin" instruction (that belongs to when we have a location)
+      expect(prompt).not.toContain('Use this as the default origin')
+    })
   })
 
-  describe('Integration behavior notes', () => {
-    it('prompts are built dynamically based on AgentContext.currentLocation', async () => {
-      // The prompt builders (buildOrchestratorPrompt, buildRoutingPrompt) are async
-      // and fetch lastKnownLocation from the session when currentLocation is undefined.
-      // This ensures the agent always has the best available location context without
-      // requiring the client to track it.
-      expect(true).toBe(true)
-    })
+  describe('Boundary: runQuery failure on AC-2 fallback', () => {
+    it('falls through to AC-4 (ask origin) if lastKnownLocation lookup fails', async () => {
+      const ctx = {
+        planningSessionId: 'session_boundary' as any,
+        clerkUserId: 'user_test',
+        piMessages: [],
+        currentLocation: undefined,
+        // Simulate a lookup failure (e.g., network error, session deleted)
+        runQuery: vi.fn().mockRejectedValue(new Error('Query failed')),
+        runMutation: vi.fn(),
+        runAction: vi.fn(),
+      } as unknown as AgentContext
 
-    it('sendMessage.ts resolves currentLocation = args.currentLocation ?? session.lastKnownLocation', async () => {
-      // The sendMessage action (lines 393-420) already implements the deterministic
-      // resolution path: prefer the live arg, fall back to stored lastKnownLocation.
-      // This hands the resolved location to AgentContext.currentLocation for the
-      // prompt builders to use.
-      expect(true).toBe(true)
-    })
+      const prompt = await buildOrchestratorPrompt(ctx, ['routing_agent', 'search_agent'])
 
-    it('no location fallback never fabricates an origin', async () => {
-      // The unknown branch (State 3) tells the agent to ask "where are you starting from?"
-      // It does NOT provide a fake origin (e.g., hardcoded 0,0 or default city).
-      // This preserves the last-resort behavior per AC-4.
-      expect(true).toBe(true)
+      // When the lastKnownLocation lookup fails, we silently fall through to State 3
+      // and ask for the origin (the safe fallback).
+      expect(prompt).toContain('ask where they are starting from')
+
+      // Verify no stale location is accidentally used
+      expect(prompt).not.toContain('last known location')
     })
   })
 })
