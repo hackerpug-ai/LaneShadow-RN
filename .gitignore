@@ -38,6 +38,3 @@ react-native/ios/
 convex/_generated/
 convex/.env-aware
 .convex/
-
-# kb-run-sprint agent worktrees (scratch)
-.claude/worktrees/
