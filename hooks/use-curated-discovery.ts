@@ -36,6 +36,19 @@ export interface UseCuratedDiscoveryResult {
   isEmpty: boolean
 }
 
+// Validate that a value is a valid DiscoveryArchetype
+function isValidArchetype(value: unknown): value is DiscoveryArchetype {
+  const validArchetypes: DiscoveryArchetype[] = [
+    'twisties',
+    'scenic',
+    'technical',
+    'cruising',
+    'sport',
+    'adventure',
+  ]
+  return typeof value === 'string' && validArchetypes.includes(value as DiscoveryArchetype)
+}
+
 export function useCuratedDiscovery(
   params: UseCuratedDiscoveryParams = {},
 ): UseCuratedDiscoveryResult {
@@ -62,15 +75,22 @@ export function useCuratedDiscovery(
   const routes = useMemo(() => {
     if (data === undefined) return undefined
 
-    return data.map((route) => ({
-      id: route.routeId,
-      name: route.name,
-      lat: route.centroidLat,
-      lng: route.centroidLng,
-      archetype: route.primaryArchetype as DiscoveryArchetype,
-      score: route.compositeScore,
-      distanceMi: route.distanceMi,
-    }))
+    return data.map((route) => {
+      // Validate archetype to ensure it's a valid UI enum (hardening against backend changes)
+      const validatedArchetype: DiscoveryArchetype = isValidArchetype(route.primaryArchetype)
+        ? route.primaryArchetype
+        : 'scenic'
+
+      return {
+        id: route.routeId,
+        name: route.name,
+        lat: route.centroidLat,
+        lng: route.centroidLng,
+        archetype: validatedArchetype,
+        score: route.compositeScore,
+        distanceMi: route.distanceMi,
+      }
+    })
   }, [data])
 
   return {
