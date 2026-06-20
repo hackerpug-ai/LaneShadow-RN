@@ -1,0 +1,21 @@
+// Ban runtime dynamic imports (lazy loading) in production code.
+//
+// Why: lazy-loading the Convex generated API — `(await import('../../_generated/api')).api`
+// — hid a wrong relative-path bug that only `tsc` caught. vitest's path alias resolves the
+// wrong depth, so the test tier stayed green while typecheck failed. Static
+// `import { api } from '...'` surfaces that class of bug at both tsc and bundle time.
+//
+// Tests are exempt: they legitimately use `await import()` to control env-var load
+// ordering. The $filename guard skips *.test.* / *.spec.* / __tests__ / __mocks__ /
+// vitest.* files (Biome 2.4 has no per-plugin `includes`, so the exemption lives here).
+//
+// Type-position imports (`let x: import('./m').T`) are a different CST node than the
+// runtime call form `import(...)`, so they are not matched.
+`import($source)` as $imp where {
+    $filename <: not r".*(\.test\.|\.spec\.|__tests__|__mocks__|vitest\.).*",
+    register_diagnostic(
+        span = $imp,
+        message = "Dynamic import() (lazy loading) is banned in production code — use a static top-of-file import. Lazy-loading the Convex generated API hid a wrong-path bug that only tsc caught (vitest's alias masks wrong-depth paths). If you genuinely need deferral, raise it in review.",
+        severity = "error"
+    )
+}

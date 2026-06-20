@@ -5,6 +5,7 @@
     "clientKind": "git",
     "useIgnoreFile": true
   },
+  "plugins": ["./biome-plugins/no-dynamic-import.grit"],
   "files": {
     "includes": [
       "**",

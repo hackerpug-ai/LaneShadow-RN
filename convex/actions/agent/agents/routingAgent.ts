@@ -9,7 +9,15 @@ import { type PlanRideProgressEvent, planRideOrchestrator } from '../lib/planRid
 import { buildOptionsFromResults } from '../planRide.js'
 import { createGeocodingProvider } from '../providers/geocodingProvider.js'
 import type { AgentContext, ExecuteContext } from '../ridePlanningAgent.js'
+import { extractRouteAttachments } from '../ridePlanningAgent.js'
 import { runAgent } from '../runAgent.js'
+import {
+  compileSegments,
+  compileSketch as compileSketchImpl,
+  stitchSegments,
+} from '../tools/compileSketch.js'
+import { lookupRoad } from '../tools/lookupRoad.js'
+import { normalizeRoute } from '../tools/normalizeRoute.js'
 import type { RoutingAgentResult, SubAgentConfig } from './types.js'
 
 // -----------------------------------------------------------------------------
@@ -180,8 +188,6 @@ async function _runLookupRoad(
     bbox: { south: number; west: number; north: number; east: number }
   },
 ): Promise<unknown> {
-  const lookupRoad = await import('../tools/lookupRoad.js')
-
   // Try Convex OSM data first for fast name lookup
   try {
     const ways = await ctx.runAction(internal.actions.osm.queryWaysByName, {
@@ -204,7 +210,7 @@ async function _runLookupRoad(
   } catch (_error) {}
 
   // Fall back to Overpass tool
-  return lookupRoad.lookupRoad(args)
+  return lookupRoad(args)
 }
 
 async function runCreateRouteSketch(
@@ -346,15 +352,6 @@ async function runCompileSketch(
   })
 
   try {
-    // Import compilation tools dynamically to avoid circular deps
-    const {
-      compileSketch: compileSketchImpl,
-      compileSegments,
-      stitchSegments,
-    } = await import('../tools/compileSketch.js')
-    const { normalizeRoute } = await import('../tools/normalizeRoute.js')
-    const { buildOptionsFromResults: buildOpts } = await import('../planRide.js')
-
     let providerRoute: import('../providers/routingProvider').ProviderRouteResponse
 
     if (sketch.segments.length > 0) {
@@ -411,7 +408,7 @@ async function runCompileSketch(
 
           let built
           try {
-            built = buildOpts(results, crypto.randomUUID())
+            built = buildOptionsFromResults(results, crypto.randomUUID())
           } catch (buildError) {
             await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
               routePlanId,
@@ -475,7 +472,7 @@ async function runCompileSketch(
 
         let built
         try {
-          built = buildOpts(results, crypto.randomUUID())
+          built = buildOptionsFromResults(results, crypto.randomUUID())
         } catch (buildError) {
           await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
             routePlanId,
@@ -612,7 +609,7 @@ async function runCompileSketch(
 
     let built
     try {
-      built = buildOpts(results, crypto.randomUUID())
+      built = buildOptionsFromResults(results, crypto.randomUUID())
     } catch (buildError) {
       await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
         routePlanId,
@@ -1029,10 +1026,9 @@ NEVER ask "where are you starting from?" — the location above is always availa
     // Try to resolve lastKnownLocation for State 2 fallback
     let lastKnownLocation: { lat: number; lng: number; updatedAt?: number } | undefined
     try {
-      const sessionData = await ctx.runQuery(
-        api.db.planningSessions.getSessionById,
-        { sessionId: ctx.planningSessionId },
-      )
+      const sessionData = await ctx.runQuery(api.db.planningSessions.getSessionById, {
+        sessionId: ctx.planningSessionId,
+      })
       lastKnownLocation = sessionData?.lastKnownLocation
     } catch {
       // Silently ignore lookup failures — fall through to State 3
@@ -1167,7 +1163,6 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
   })
 
   // Determine result from tool results and response text
-  const { extractRouteAttachments } = await import('../ridePlanningAgent.js')
   const attachments = extractRouteAttachments(result.toolResults)
 
   if (attachments.length > 0 && attachments[0].routePlanId) {
