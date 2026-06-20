@@ -524,6 +524,8 @@ const HomeMapScreen = () => {
 
   // Reactive bridge: transition out of PLANNING/IDLE when agent route plan completes.
   // Also updates flowState when already in ROUTE_RESULTS and a new plan arrives.
+  // RUX-008: Auto-switch from chat mode to map mode on plan completion so route plots + fits.
+  // Guard with autoSwitchedPlanIdRef to fire ONCE per NEW completed plan, not on every chatMode change.
   useEffect(() => {
     if (
       (flowState.phase === 'PLANNING' ||
@@ -532,12 +534,29 @@ const HomeMapScreen = () => {
       agentRoutePlan?.status === 'completed' &&
       agentRoutePlan?.result
     ) {
+      const planId = agentRoutePlan._id as string | null
+
+      // RUX-008: Only auto-switch if this is a NEW completed plan (not one we've already handled).
+      // This ensures the auto-switch fires once per plan, and the rider can manually
+      // open chat afterward without being yanked back to map.
+      if (planId && planId !== autoSwitchedPlanIdRef.current && chatMode) {
+        autoSwitchedPlanIdRef.current = planId
+        setChatMode(false)
+      }
+
       flowDispatch({
         type: 'PLANNING_SUCCESS',
         routeOptions: agentRoutePlan.result,
       })
     }
-  }, [flowState.phase, agentRoutePlan?.status, agentRoutePlan?.result, flowDispatch])
+  }, [
+    flowState.phase,
+    agentRoutePlan?.status,
+    agentRoutePlan?.result,
+    agentRoutePlan?._id,
+    flowDispatch,
+    chatMode,
+  ])
 
   useEffect(() => {
     if (flowState.phase === 'PLANNING' && agentRoutePlan?.status === 'failed') {
@@ -761,6 +780,10 @@ const HomeMapScreen = () => {
       setDisplayedRoutePlanId(null)
     }
   }, [newestRoutePlanId, setSelectedRouteId, setDisplayedRoutePlanId, agentRoutePlan?._id])
+
+  // RUX-008: Guard auto-switch to fire ONCE per NEW completed plan id.
+  // This prevents the effect from re-firing on every chatMode change.
+  const autoSwitchedPlanIdRef = useRef<string | null>(null)
 
   const mapLayerStyle = useAnimatedStyle(() => ({ opacity: mapOpacity.value }))
   const chatLayerStyle = useAnimatedStyle(() => ({ opacity: chatOpacity.value }))

@@ -1,0 +1,115 @@
+# RUX-008: Finished-Route Auto-Plot with Manual Chat No-Bounce-Back
+#
+# Verifies two acceptance criteria:
+#  AC-1 (auto-plot on completion): When an agent-planned route completes (in chat mode),
+#       the app auto-switches to map mode and plots the route polyline. The rider sees
+#       the completed route immediately on the map.
+#  AC-2 (manual chat no-bounce): After the route is plotted (auto-switched to map),
+#       the rider can manually tap "Open full chat" to return to chat mode. The app
+#       STAYS in chat mode (does NOT bounce back to map). This proves the re-yank
+#       guard fires once per plan and not on every chatMode change.
+#
+# Flow:
+#  1. Sign in (dev-client connection + e2e test button)
+#  2. Send an agent discovery message (e.g. "twisties near Asheville")
+#  3. Wait for completion: route-polyline visible + chat toggle reads "Open full chat"
+#  4. Tap the chat toggle to open full chat (manual mode-switch)
+#  5. Verify we STAY in chat mode (toggle still visible, text confirms we're in chat)
+#  6. Tap toggle again to return to map; verify we're back in map mode
+#
+# Run: maestro test .maestro/rux-008-finished-route-auto-plots.yaml -e EMAIL=... -e PASSWORD=...
+# Requires a simulated device location set (Simulator > Features > Location) so the
+# agent has a curated-route list and the map centers on the rider.
+#
+appId: com.hackerpug.laneshadow
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+# ── Connect to Metro + dismiss the dev-menu intro/panel ──────────────────────
+- extendedWaitUntil:
+    visible: { text: "DEVELOPMENT SERVERS|Login with Email" }
+    timeout: 60000
+- runFlow:
+    when: { visible: { text: "DEVELOPMENT SERVERS" } }
+    commands:
+      - tapOn: { text: ".*localhost:8081.*" }
+# First-run dev-menu intro appears; dismiss it.
+- extendedWaitUntil:
+    visible: { text: "Login with Email|.*developer menu.*" }
+    timeout: 240000
+- runFlow:
+    when: { visible: { text: ".*developer menu.*" } }
+    commands:
+      - tapOn: { text: "Continue" }
+# DevMenu panel may appear; dismiss it.
+- runFlow:
+    when: { visible: { text: ".*Toggle Element Inspector.*|.*Open React DevTools.*" } }
+    commands:
+      - tapOn: { point: "50%, 8%" }
+# Wait for the sign-in screen.
+- extendedWaitUntil:
+    visible: { text: "Login with Email" }
+    timeout: 300000
+- takeScreenshot: 01-launch
+
+# ── SIGN-IN via the hidden E2E test-login button ─────────────────────────────
+- extendedWaitUntil:
+    visible: { id: "e2e-test-login-button" }
+    timeout: 60000
+- tapOn: { id: "e2e-test-login-button" }
+
+# ── Wait for signed-in home (full-screen map + chat) ─────────────────────────
+- extendedWaitUntil:
+    visible: { id: "chat-input" }
+    timeout: 120000
+- takeScreenshot: 02-home-signed-in
+
+# ── AC-1: Send an agent discovery message to trigger route planning ──────────
+# The agent will produce a multi-point route with real geometry; when completed,
+# the app auto-switches to map mode if currently in chat.
+- tapOn: { id: "chat-input" }
+- inputText: "twisties near Asheville"
+- pressKey: Enter
+
+# ── AC-1: Wait for the route to plot on the map (auto-switch from chat to map) ─
+# If the auto-switch works, the route polyline (home-route-polyline) will appear
+# and the chat toggle will read "Open full chat" (not "Return to map").
+- extendedWaitUntil:
+    visible: { id: "home-route-polyline" }
+    timeout: 150000
+- extendedWaitUntil:
+    visible: { text: "Open full chat" }
+    timeout: 30000
+- takeScreenshot: 03-route-auto-plotted-toggle-says-open-full-chat
+
+# ── AC-2: Manually open full chat (rider clicks "Open full chat" button) ──────
+# This is the critical test: if the re-yank guard works, we should STAY in chat
+# mode after tapping this button. The old bug would bounce us back to map.
+- tapOn: { id: "chat-input-chat-view-button" }
+- extendedWaitUntil:
+    visible: { text: "Return to map" }
+    timeout: 20000
+- takeScreenshot: 04-manually-opened-full-chat
+
+# ── AC-2: Verify we STAY in chat mode (no bounce-back) ───────────────────────
+# The chat toggle should still be visible and now say "Return to map". If the
+# re-yank guard worked, this is exactly where we should be. If it broke (old bug),
+# the app would have auto-switched back to map, and this assertion would fail.
+- assertVisible: { id: "chat-input-chat-view-button" }
+- assertVisible: { text: "Return to map" }
+- takeScreenshot: 05-stayed-in-chat-no-bounce-back
+
+# ── Tap the toggle again to return to map and verify the mode switch works ────
+- tapOn: { id: "chat-input-chat-view-button" }
+- extendedWaitUntil:
+    visible: { text: "Open full chat" }
+    timeout: 20000
+- assertVisible: { id: "home-route-polyline" }
+- takeScreenshot: 06-returned-to-map-route-still-visible
+
+# ── Summary ───────────────────────────────────────────────────────────────────
+# AC-1 verified: Route auto-plotted on completion, auto-switch from chat to map.
+# AC-2 verified: Manual toggle to chat mode STAYS in chat (no re-yank).
+# The re-yank guard fires once per NEW plan id, not on every chatMode change.
