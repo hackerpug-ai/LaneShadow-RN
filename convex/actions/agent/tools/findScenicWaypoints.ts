@@ -37,52 +37,34 @@ export type RouteVariant = {
 /**
  * Find scenic waypoints for route planning.
  *
- * NOTE: This function now returns deterministic variants with different routing
- * preferences. It does NOT query external APIs (Overpass, Protomaps) because:
+ * NOTE: This function now returns a single scenic route variant with high scenic
+ * bias. It does NOT query external APIs (Overpass, Protomaps) because:
  * 1. Overpass API is unreliable and slow (timeouts, rate limits)
  * 2. Protomaps is for tile rendering, not feature search
  *
- * Instead, we generate 3 route variants purely through routing preferences:
- * - scenic-coastal: high scenic bias, avoid highways
- * - balanced: default preferences
- * - efficient: avoid tolls, fewer waypoints
+ * Instead, we generate 1 route variant purely through routing preferences:
+ * - scenic: high scenic bias, avoid highways
  *
- * The Google Routes API will generate meaningfully different routes based on
- * these preferences even with the same (empty) waypoint list.
+ * The Google Routes API will generate a single route based on these preferences
+ * even with an empty waypoint list. This eliminates the duplicate-card bug
+ * where metric-based variants (balanced/efficient) returned visually identical
+ * geometry but with different labels.
  */
 const findScenicWaypointsImpl = async (params: {
   start: { lat: number; lng: number }
   end: { lat: number; lng: number }
   preferences?: { scenicBias?: string }
 }): Promise<RouteVariant[]> => {
-  // Generate 3 deterministic variants with different routing preferences
-  // No waypoints needed - Google Routes API will create diverse routes based on preferences alone
+  // Generate 1 deterministic scenic variant
+  // No waypoints needed - Google Routes API will create the route based on preferences alone
   return [
     {
-      id: 'scenic-coastal',
+      id: 'scenic',
       waypoints: [],
       preferences: {
         scenicBias: 'high',
         avoidHighways: true,
         avoidTolls: false,
-      },
-    },
-    {
-      id: 'balanced',
-      waypoints: [],
-      preferences: {
-        scenicBias: 'default',
-        avoidHighways: false,
-        avoidTolls: false,
-      },
-    },
-    {
-      id: 'efficient',
-      waypoints: [],
-      preferences: {
-        scenicBias: 'default',
-        avoidHighways: false,
-        avoidTolls: true,
       },
     },
   ]
