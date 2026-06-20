@@ -157,16 +157,16 @@ export const RouteSummaryCarousel: React.FC<RouteSummaryCarouselProps> = ({
             accessibilityHint="Pages to the previous route option"
             accessibilityState={prevAccessibilityState}
             style={({ pressed }) => ({
-              width: semantic.control.minTouchTarget,
-              height: semantic.control.minTouchTarget,
+              width: 44,
+              height: 44,
               alignItems: 'center',
               justifyContent: 'center',
-              opacity: pressed && !isFirstRoute ? semantic.opacity.pressed : 1,
+              opacity: pressed && !isFirstRoute ? 0.8 : 1,
             })}
           >
             <IconSymbol
               name="chevron-left"
-              size={semantic.iconSize.medium}
+              size={24}
               color={
                 isFirstRoute ? semantic.color.onSurface.muted : semantic.color.onSurface.default
               }
@@ -179,9 +179,9 @@ export const RouteSummaryCarousel: React.FC<RouteSummaryCarouselProps> = ({
           style={[
             styles.cardWrapper,
             {
-              backgroundColor: semantic.color.surface.glass,
-              borderColor: semantic.color.border.glass,
-              borderWidth: semantic.borderWidth.thin,
+              backgroundColor: semantic.color.surface.default,
+              borderColor: semantic.color.border.default,
+              borderWidth: StyleSheet.hairlineWidth,
               borderRadius: semantic.radius.md,
               ...semantic.elevation[2],
             },
@@ -208,16 +208,16 @@ export const RouteSummaryCarousel: React.FC<RouteSummaryCarouselProps> = ({
             accessibilityHint="Pages to the next route option"
             accessibilityState={nextAccessibilityState}
             style={({ pressed }) => ({
-              width: semantic.control.minTouchTarget,
-              height: semantic.control.minTouchTarget,
+              width: 44,
+              height: 44,
               alignItems: 'center',
               justifyContent: 'center',
-              opacity: pressed && !isLastRoute ? semantic.opacity.pressed : 1,
+              opacity: pressed && !isLastRoute ? 0.8 : 1,
             })}
           >
             <IconSymbol
               name="chevron-right"
-              size={semantic.iconSize.medium}
+              size={24}
               color={
                 isLastRoute ? semantic.color.onSurface.muted : semantic.color.onSurface.default
               }
