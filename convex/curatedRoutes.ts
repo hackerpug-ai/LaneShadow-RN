@@ -50,6 +50,18 @@ const returnValidator = v.array(
     lengthMiles: v.optional(v.number()),
     distanceMi: v.optional(v.number()),
     summary: v.optional(v.string()),
+    // DATA-011: name-anchored generated geometry (absent until backfilled).
+    routeGeometry: v.optional(
+      v.object({
+        format: v.literal('polyline'),
+        encoding: v.string(),
+        precision: v.number(),
+        value: v.string(),
+      }),
+    ),
+    geometryStatus: v.optional(
+      v.union(v.literal('generated'), v.literal('unresolved'), v.literal('failed')),
+    ),
   }),
 )
 
@@ -133,6 +145,10 @@ function buildRouteCard(route: any, distanceMi?: number) {
     lengthMiles: clampLength(route.lengthMiles),
     distanceMi,
     summary: route.summary,
+    // DATA-011: pass through generated geometry so discoverCuratedRoutes can draw
+    // the real route line (falls through to the centroid when absent/unresolved).
+    routeGeometry: route.routeGeometry,
+    geometryStatus: route.geometryStatus,
   }
 }
 
