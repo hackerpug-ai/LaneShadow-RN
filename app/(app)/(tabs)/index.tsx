@@ -2,15 +2,7 @@ import { useAuth } from '@clerk/clerk-expo'
 import { useMutation, useQuery } from 'convex/react'
 import { useLocalSearchParams, useRouter, useSegments } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import {
-  ActivityIndicator,
-  Keyboard,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native'
+import { ActivityIndicator, Keyboard, Pressable, StyleSheet, Text, View } from 'react-native'
 import Animated, {
   FadeInDown,
   useAnimatedStyle,

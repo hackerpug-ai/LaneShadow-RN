@@ -142,6 +142,7 @@ export const RouteSummaryCarousel: React.FC<RouteSummaryCarouselProps> = ({
           styles.contentRow,
           {
             paddingHorizontal: semantic.space.lg,
+            gap: semantic.space.xs,
           },
         ]}
       >
@@ -182,6 +183,7 @@ export const RouteSummaryCarousel: React.FC<RouteSummaryCarouselProps> = ({
               borderColor: semantic.color.border.glass,
               borderWidth: semantic.borderWidth.thin,
               borderRadius: semantic.radius.md,
+              ...semantic.elevation[2],
             },
           ]}
         >
@@ -238,14 +240,8 @@ const styles = StyleSheet.create({
   contentRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4, // semantic.space.xs gap between arrow and card
   },
   cardWrapper: {
     flex: 1,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.21,
-    shadowRadius: 6,
-    elevation: 2, // Android shadow
   },
 })
