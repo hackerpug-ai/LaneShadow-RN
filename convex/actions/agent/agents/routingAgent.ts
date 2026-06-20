@@ -1,7 +1,7 @@
 'use node'
 
 import { type Tool, type ToolCall, validateToolCall } from '@mariozechner/pi-ai'
-import { internal } from '../../../_generated/api.js'
+import { api, internal } from '../../../_generated/api.js'
 import type { Id } from '../../../_generated/dataModel.js'
 import { getAgentModel } from '../lib/models.js'
 import { AgentToolSchemas } from '../lib/piTools.js'
@@ -1030,7 +1030,7 @@ NEVER ask "where are you starting from?" — the location above is always availa
     let lastKnownLocation: { lat: number; lng: number; updatedAt?: number } | undefined
     try {
       const sessionData = await ctx.runQuery(
-        (await import('../../_generated/api')).api.db.planningSessions.getSessionById,
+        api.db.planningSessions.getSessionById,
         { sessionId: ctx.planningSessionId },
       )
       lastKnownLocation = sessionData?.lastKnownLocation

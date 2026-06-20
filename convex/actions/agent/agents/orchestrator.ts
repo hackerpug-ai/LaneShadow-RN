@@ -7,6 +7,7 @@ import {
   type ToolCall,
   validateToolCall,
 } from '@mariozechner/pi-ai'
+import { api } from '../../../_generated/api'
 import type { Id } from '../../../_generated/dataModel'
 import { BudgetTracker } from '../budgetTracker'
 import { getAgentModel } from '../lib/models'
@@ -134,7 +135,7 @@ export async function buildOrchestratorPrompt(ctx: AgentContext, availableTools:
     let lastKnownLocation: { lat: number; lng: number; updatedAt?: number } | undefined
     try {
       const sessionData = await ctx.runQuery(
-        (await import('../../_generated/api')).api.db.planningSessions.getSessionById,
+        api.db.planningSessions.getSessionById,
         { sessionId: ctx.planningSessionId },
       )
       lastKnownLocation = sessionData?.lastKnownLocation
