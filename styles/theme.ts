@@ -100,7 +100,10 @@ const lightSemanticTheme: SemanticTheme = {
 
     // Surface layers (light)
     // Calibrated to pair with dark surface #2B2725; use warm off-white for parity
-    surface: createColorSet('#F7F3EF', '#EFE8E2', '#E5DCD5', '#FFFFFF'),
+    surface: {
+      ...createColorSet('#F7F3EF', '#EFE8E2', '#E5DCD5', '#FFFFFF'),
+      glass: 'rgba(253,251,248,0.72)', // RUX-004: glass-morphic background
+    } as any,
     surfaceVariant: createColorSet('#EBE3DD', '#E2D8CF', '#D7CCC2', '#F7F1EB'),
     background: createColorSet('#F5F0EB', '#EEE8E2', '#E3DAD2', '#F5F0EB'),
 
@@ -126,7 +129,10 @@ const lightSemanticTheme: SemanticTheme = {
     },
 
     // UI element colors
-    border: createColorSet('#D9D0C7', '#CEC3B9', '#C2B6AC', '#EFEAE4'),
+    border: {
+      ...createColorSet('#D9D0C7', '#CEC3B9', '#C2B6AC', '#EFEAE4'),
+      glass: 'rgba(255,255,255,0.55)', // RUX-004: glass-morphic border
+    } as any,
     input: createColorSet('#FFFFFF', '#F5F3F0', '#EAE4DD', '#F7F3EE'),
     ring: createColorSet('#B87333', '#C58545', '#8C5A2B', '#E3C3A5'),
 
@@ -176,6 +182,24 @@ const lightSemanticTheme: SemanticTheme = {
 
   space: SPACING,
   radius: BORDER_RADIUS,
+
+  control: {
+    minTouchTarget: MIN_TOUCH_TARGET,
+    minHeight: MIN_TOUCH_TARGET,
+  },
+
+  opacity: {
+    pressed: 0.7,
+    disabled: 0.38,
+    focus: 0.12,
+    overlay: 0.6,
+  },
+
+  borderWidth: {
+    thin: 1,
+    medium: 2,
+    thick: 3,
+  },
 
   type: {
     label: {
@@ -272,7 +296,10 @@ const darkSemanticTheme: SemanticTheme = {
 
     // Surface layers (dark)
     // Nav/tab surfaces should sit on #2B2725 by default
-    surface: createColorSet('#2B2725', '#332F2B', '#221E1C', '#3A3431'),
+    surface: {
+      ...createColorSet('#2B2725', '#332F2B', '#221E1C', '#3A3431'),
+      glass: 'rgba(45,34,24,0.72)', // RUX-004: glass-morphic background
+    } as any,
     surfaceVariant: createColorSet('#34302D', '#3C3633', '#272321', '#3D3734'),
     background: createColorSet('#1B1715', '#231E1B', '#14110F', '#1B1715'),
 
@@ -298,7 +325,10 @@ const darkSemanticTheme: SemanticTheme = {
     },
 
     // UI element colors
-    border: createColorSet('#3A3431', '#443E3A', '#2F2A27', 'rgba(255,255,255,0.06)'),
+    border: {
+      ...createColorSet('#3A3431', '#443E3A', '#2F2A27', 'rgba(255,255,255,0.06)'),
+      glass: 'rgba(242,238,232,0.22)', // RUX-004: glass-morphic border
+    } as any,
     input: createColorSet('#24272B', '#2D3136', '#1A1C1F', '#1A1C1F'),
     ring: createColorSet('#B87333', '#C58545', '#8C5A2B', '#6A3F1F'),
 
@@ -348,6 +378,24 @@ const darkSemanticTheme: SemanticTheme = {
 
   space: SPACING,
   radius: BORDER_RADIUS,
+
+  control: {
+    minTouchTarget: MIN_TOUCH_TARGET,
+    minHeight: MIN_TOUCH_TARGET,
+  },
+
+  opacity: {
+    pressed: 0.7,
+    disabled: 0.38,
+    focus: 0.12,
+    overlay: 0.6,
+  },
+
+  borderWidth: {
+    thin: 1,
+    medium: 2,
+    thick: 3,
+  },
 
   type: {
     label: {
