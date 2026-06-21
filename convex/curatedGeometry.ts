@@ -76,7 +76,14 @@ export const listForGeometryBackfill = internalQuery({
     batchSize: v.number(),
   },
   handler: async (ctx, { cursor, batchSize }): Promise<BackfillPage> => {
-    const page = await ctx.db.query('curated_routes').paginate({ cursor, numItems: batchSize })
+    // Resumable + idempotent: only ever return rows that have NOT been processed yet
+    // (geometryStatus unset). Re-running the backfill from cursor=null thus skips every
+    // already-generated/unresolved row and continues where a prior (possibly aborted)
+    // run left off — no re-geocoding, no lost-cursor problem.
+    const page = await ctx.db
+      .query('curated_routes')
+      .filter((q) => q.eq(q.field('geometryStatus'), undefined))
+      .paginate({ cursor, numItems: batchSize })
     return {
       routes: page.page.map((r) => ({
         id: r._id,
