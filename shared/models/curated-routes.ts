@@ -141,8 +141,16 @@ export type CuratedRoute = {
   seededAt: number // timestamp
   location?: { type: 'Point'; coordinates: [number, number] } | null
   sourceLabel?: string | null
-  // DATA-011: generated per-route line geometry (name-anchored). Absent until backfilled.
-  routeGeometry?: { format: 'polyline'; encoding: string; precision: number; value: string } | null
+  // DATA-011: generated per-route geometry. Absent until backfilled.
+  // 'polyline' → single encoded line in `value`; 'multipolyline' → Overpass full-route
+  // segments in `segments` (each an encoded polyline). One of value/segments is present.
+  routeGeometry?: {
+    format: 'polyline' | 'multipolyline'
+    encoding: string
+    precision: number
+    value?: string
+    segments?: string[]
+  } | null
   geometryStatus?: 'generated' | 'unresolved' | 'failed' | null
 }
 
@@ -158,10 +166,11 @@ export const curatedRouteValidator = v.object({
   // ========================================================================
   routeGeometry: v.optional(
     v.object({
-      format: v.literal('polyline'),
+      format: v.union(v.literal('polyline'), v.literal('multipolyline')),
       encoding: v.string(),
       precision: v.number(),
-      value: v.string(),
+      value: v.optional(v.string()), // single-line form
+      segments: v.optional(v.array(v.string())), // multipolyline form (Overpass full route)
     }),
   ),
   geometryStatus: v.optional(

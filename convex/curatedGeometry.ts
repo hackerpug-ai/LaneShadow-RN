@@ -24,10 +24,11 @@ import { internal } from './_generated/api'
 import { internalAction, internalMutation, internalQuery } from './_generated/server'
 
 const GEOMETRY_VALUE = v.object({
-  format: v.literal('polyline'),
+  format: v.union(v.literal('polyline'), v.literal('multipolyline')),
   encoding: v.string(),
   precision: v.number(),
-  value: v.string(),
+  value: v.optional(v.string()), // single-line form
+  segments: v.optional(v.array(v.string())), // multipolyline form (Overpass full route)
 })
 
 const GEOMETRY_STATUS = v.union(
@@ -139,7 +140,7 @@ export const clearGeometry = internalMutation({
   },
 })
 
-type GeocodeResult = { value: string; coordCount: number }
+type GeocodeResult = { segments: string[]; coordCount: number }
 type Bounds = { neLat: number; neLng: number; swLat: number; swLng: number }
 
 const R_MI = 3958.7613
@@ -153,96 +154,120 @@ function haversineMi(aLat: number, aLng: number, bLat: number, bLng: number): nu
   return 2 * R_MI * Math.asin(Math.min(1, Math.sqrt(s)))
 }
 
-/**
- * One Nominatim lookup → decoded [lat,lng] coords. `viewbox` + `bounded=1` constrain the
- * result to the route's own area so a same-named road elsewhere can't match (the precision
- * bug the QA caught). Sleeps 1.1s BEFORE the call (≤1 req/s per Nominatim policy).
- */
-async function fetchLineString(query: string, viewbox: string): Promise<[number, number][] | null> {
-  await new Promise((r) => setTimeout(r, 1100))
-  const url =
-    `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}` +
-    `&format=jsonv2&polygon_geojson=1&limit=1&countrycodes=us&bounded=1&viewbox=${viewbox}`
-  const res = await fetch(url, {
-    headers: {
-      'User-Agent': 'LaneShadow/1.0 (curated route geometry backfill; justin@formulist.ai)',
-      'Accept-Language': 'en',
-    },
-  })
-  if (!res.ok) return null
-  const data = (await res.json()) as Array<{ geojson?: { type: string; coordinates: unknown } }>
-  if (!Array.isArray(data) || data.length === 0) return null
-  const geo = data[0]?.geojson
-  if (!geo) return null
+const MAX_CENTROID_MI = 40 // drop a way whose midpoint is farther than this from the route centroid
+const MIN_SPAN_MI = 0.5 // a real route covers at least this many miles total
+const MAX_SEGMENTS = 400 // cap stored segments (Convex doc-size guard); keep the longest
 
-  // Nominatim GeoJSON is [lng, lat]; we want [lat, lng].
-  let coords: [number, number][] = []
-  if (geo.type === 'LineString') {
-    coords = (geo.coordinates as [number, number][]).map(([lng, lat]) => [lat, lng])
-  } else if (geo.type === 'MultiLineString') {
-    coords = (geo.coordinates as [number, number][][]).flat().map(([lng, lat]) => [lat, lng])
-  } else {
-    return null // Point / Polygon — not a drivable line
-  }
-  if (coords.length < 2) return null
-  return coords
+const STATE_ABBR: Record<string, string> = {
+  Alabama: 'AL', Alaska: 'AK', Arizona: 'AZ', Arkansas: 'AR', California: 'CA',
+  Colorado: 'CO', Connecticut: 'CT', Delaware: 'DE', Florida: 'FL', Georgia: 'GA',
+  Hawaii: 'HI', Idaho: 'ID', Illinois: 'IL', Indiana: 'IN', Iowa: 'IA', Kansas: 'KS',
+  Kentucky: 'KY', Louisiana: 'LA', Maine: 'ME', Maryland: 'MD', Massachusetts: 'MA',
+  Michigan: 'MI', Minnesota: 'MN', Mississippi: 'MS', Missouri: 'MO', Montana: 'MT',
+  Nebraska: 'NE', Nevada: 'NV', 'New Hampshire': 'NH', 'New Jersey': 'NJ',
+  'New Mexico': 'NM', 'New York': 'NY', 'North Carolina': 'NC', 'North Dakota': 'ND',
+  Ohio: 'OH', Oklahoma: 'OK', Oregon: 'OR', Pennsylvania: 'PA', 'Rhode Island': 'RI',
+  'South Carolina': 'SC', 'South Dakota': 'SD', Tennessee: 'TN', Texas: 'TX', Utah: 'UT',
+  Vermont: 'VT', Virginia: 'VA', Washington: 'WA', 'West Virginia': 'WV',
+  Wisconsin: 'WI', Wyoming: 'WY', 'District of Columbia': 'DC',
+}
+function stateAbbr(state: string): string | null {
+  const s = state.replace(/-/g, ' ').trim() // catalog uses "New-York", "North-Carolina"
+  return STATE_ABBR[s] ?? (s.length === 2 ? s.toUpperCase() : null)
+}
+
+const segLen = (w: [number, number][]): number => {
+  let t = 0
+  for (let i = 1; i < w.length; i++) t += haversineMi(w[i - 1][0], w[i - 1][1], w[i][0], w[i][1])
+  return t
 }
 
 /**
- * Build an ordered, de-duped list of Nominatim query candidates for a curated route.
- * Many curated names carry nicknames ("Route 86 - Ride the Eagle"), ranges ("HWY 160
- * from Alton to Donaphin"), or county qualifiers that block a single-way match — so we
- * try the raw name, a cleaned name, and an extracted highway designator in priority order.
+ * Ordered Overpass filter candidates (OSM `ref` or `name`) for a curated route. We extract
+ * highway designators (US 50, MO 47, lettered Hwy N, …) and fall back to a name match.
  */
-function buildGeocodeCandidates(
+function buildOverpassFilters(
   name: string,
   state: string,
-  highwayNumber?: string | null,
-): string[] {
-  const candidates: string[] = []
-  const add = (q: string) => {
-    const t = q.trim().replace(/\s+/g, ' ')
-    if (t && !candidates.includes(t)) candidates.push(t)
+  highwayNumber: string | null,
+): Array<{ key: 'ref' | 'name'; value: string }> {
+  const out: Array<{ key: 'ref' | 'name'; value: string }> = []
+  const add = (key: 'ref' | 'name', value: string) => {
+    const v2 = value.trim().replace(/\s+/g, ' ')
+    if (v2 && !out.some((o) => o.key === key && o.value === v2)) out.push({ key, value: v2 })
   }
-
-  add(`${name}, ${state}`)
-
+  const abbr = stateAbbr(state)
   const cleaned = name
-    .replace(/\s+-\s+.*$/, '') // strip " - <nickname/descriptor>"
-    .replace(/\s+from\s+.*$/i, '') // strip " from X to Y"
-    .replace(/\s+between\s+.*$/i, '') // strip " between X and Y"
+    .replace(/\s+-\s+.*$/, '')
+    .replace(/\s+from\s+.*$/i, '')
+    .replace(/\s+between\s+.*$/i, '')
     .replace(/^the\s+/i, '')
     .trim()
-  if (cleaned && cleaned !== name) add(`${cleaned}, ${state}`)
 
-  const hw = cleaned.match(
-    /\b(?:Route|Highway|Hwy|HWY|US|SR|MO|State Road|County Road|CR)\s*-?\s*([A-Za-z0-9]+)\b/,
-  )
-  if (hw) {
-    add(`${state} Route ${hw[1]}`)
-    add(`Highway ${hw[1]}, ${state}`)
+  let m = name.match(/\b(?:US|U\.S\.)\s*-?\s*(\d+)\b/i)
+  if (m) add('ref', `US ${m[1]}`)
+  if (abbr) {
+    m = name.match(new RegExp(`\\b${abbr}\\s*-?\\s*(\\d+)\\b`, 'i'))
+    if (m) add('ref', `${abbr} ${m[1]}`)
+  }
+  m = cleaned.match(/\b(?:State Route|State Highway|Route|Rte|Rt|Hwy|Highway|SR)\s*-?\s*(\d+)\b/i)
+  if (m && abbr) add('ref', `${abbr} ${m[1]}`)
+  m = cleaned.match(/\b(?:Route|Rte|Rt|Hwy|Highway)\s+([A-Z]{1,2})\b/)
+  if (m) {
+    if (abbr) add('ref', `${abbr} ${m[1]}`)
+    add('ref', m[1])
   }
   if (highwayNumber) {
-    add(`${state} Route ${highwayNumber}`)
-    add(`Highway ${highwayNumber}, ${state}`)
+    if (abbr) add('ref', `${abbr} ${highwayNumber}`)
+    add('ref', `US ${highwayNumber}`)
+    add('ref', highwayNumber)
   }
-  return candidates.slice(0, 4) // cap attempts per route
-}
-
-const MAX_CENTROID_MI = 40 // reject a match whose midpoint is farther than this from the route centroid
-const MIN_SPAN_MI = 0.2 // reject degenerate point-like geometry
-
-/** Nominatim viewbox = "x1,y1,x2,y2" (lng,lat of two opposite corners) + ~0.15° margin. */
-function buildViewbox(b: Bounds): string {
-  const m = 0.15
-  return `${b.swLng - m},${b.swLat - m},${b.neLng + m},${b.neLat + m}`
+  add('name', cleaned)
+  return out.slice(0, 4)
 }
 
 /**
- * Geocode a curated route within its OWN area (viewbox+bounded) and VALIDATE the result
- * before accepting it: the midpoint must be within MAX_CENTROID_MI of the route centroid
- * and the line must span ≥ MIN_SPAN_MI. This bakes the QA into the persist decision — a
- * same-named road elsewhere or a degenerate point can never be saved. Returns null → `unresolved`.
+ * Query Overpass for ALL highway ways matching a ref/name within the bbox → [lat,lng][][]
+ * (one entry per OSM way). Sleeps 2s BEFORE the call (polite: ≤1 req/2s on the public API).
+ */
+async function fetchOverpassWays(
+  filter: { key: 'ref' | 'name'; value: string },
+  bbox: string,
+): Promise<[number, number][][] | null> {
+  await new Promise((r) => setTimeout(r, 2000))
+  const clause =
+    filter.key === 'ref'
+      ? `["ref"="${filter.value.replace(/"/g, '')}"]`
+      : `["name"~"${filter.value.replace(/[\\"]/g, '')}",i]`
+  const q = `[out:json][timeout:25];way["highway"]${clause}(${bbox});out geom;`
+  let res: Response
+  try {
+    res = await fetch('https://overpass-api.de/api/interpreter', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'LaneShadow/1.0 (curated route geometry; justin@formulist.ai)',
+      },
+      body: `data=${encodeURIComponent(q)}`,
+    })
+  } catch {
+    return null
+  }
+  if (!res.ok) return null
+  const data = (await res.json()) as {
+    elements?: Array<{ type: string; geometry?: Array<{ lat: number; lon: number }> }>
+  }
+  const ways = (data.elements ?? [])
+    .filter((e) => e.type === 'way' && Array.isArray(e.geometry) && e.geometry.length > 1)
+    .map((e) => (e.geometry ?? []).map((p) => [p.lat, p.lon] as [number, number]))
+  return ways.length ? ways : null
+}
+
+/**
+ * Geocode a curated route via Overpass within its OWN bbox, returning the FULL route as a
+ * MultiLineString (every matching OSM way as a segment). VALIDATES before accepting: drop
+ * ways whose midpoint is >MAX_CENTROID_MI from the centroid, require total span ≥ MIN_SPAN_MI,
+ * cap to MAX_SEGMENTS. A wrong/empty match can't be saved (→ null → `unresolved`).
  */
 async function geocodeRouteGeometry(
   name: string,
@@ -252,18 +277,24 @@ async function geocodeRouteGeometry(
   centroidLat: number,
   centroidLng: number,
 ): Promise<GeocodeResult | null> {
-  const viewbox = buildViewbox(bounds)
-  for (const q of buildGeocodeCandidates(name, state, highwayNumber)) {
-    const coords = await fetchLineString(q, viewbox)
-    if (!coords) continue
-    const mid = coords[Math.floor(coords.length / 2)]
-    if (haversineMi(mid[0], mid[1], centroidLat, centroidLng) > MAX_CENTROID_MI) continue // wrong location
-    let span = 0
-    for (let i = 1; i < coords.length; i++) {
-      span += haversineMi(coords[i - 1][0], coords[i - 1][1], coords[i][0], coords[i][1])
+  // Overpass bbox = S,W,N,E (+ ~0.1° margin).
+  const bbox = `${bounds.swLat - 0.1},${bounds.swLng - 0.1},${bounds.neLat + 0.1},${bounds.neLng + 0.1}`
+  for (const filter of buildOverpassFilters(name, state, highwayNumber)) {
+    const ways = await fetchOverpassWays(filter, bbox)
+    if (!ways) continue
+    const near = ways.filter((w) => {
+      const mid = w[Math.floor(w.length / 2)]
+      return haversineMi(mid[0], mid[1], centroidLat, centroidLng) <= MAX_CENTROID_MI
+    })
+    if (!near.length) continue
+    const totalSpan = near.reduce((s, w) => s + segLen(w), 0)
+    if (totalSpan < MIN_SPAN_MI) continue
+    near.sort((a, b) => segLen(b) - segLen(a))
+    const kept = near.slice(0, MAX_SEGMENTS)
+    return {
+      segments: kept.map((w) => polyline.encode(w)),
+      coordCount: kept.reduce((s, w) => s + w.length, 0),
     }
-    if (span < MIN_SPAN_MI) continue // degenerate / point-like
-    return { value: polyline.encode(coords), coordCount: coords.length }
   }
   return null
 }
@@ -320,10 +351,10 @@ export const backfill = internalAction({
             await ctx.runMutation(internal.curatedGeometry.patchRouteGeometry, {
               id: route.id,
               routeGeometry: {
-                format: 'polyline',
+                format: 'multipolyline',
                 encoding: 'polyline',
                 precision: 5,
-                value: geo.value,
+                segments: geo.segments,
               },
               geometryStatus: 'generated',
             })

@@ -53,10 +53,11 @@ const returnValidator = v.array(
     // DATA-011: name-anchored generated geometry (absent until backfilled).
     routeGeometry: v.optional(
       v.object({
-        format: v.literal('polyline'),
+        format: v.union(v.literal('polyline'), v.literal('multipolyline')),
         encoding: v.string(),
         precision: v.number(),
-        value: v.string(),
+        value: v.optional(v.string()),
+        segments: v.optional(v.array(v.string())),
       }),
     ),
     geometryStatus: v.optional(
