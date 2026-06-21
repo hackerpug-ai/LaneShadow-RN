@@ -244,3 +244,30 @@ export const resetSuspects = internalAction({
     return { scanned, kept, cleared: toClear.length }
   },
 })
+
+/**
+ * DATA-011-C5: clear EVERY generated geometry → null, re-queuing all of them for the
+ * Overpass MultiLineString backfill (upgrades the single-line Nominatim fragments to full
+ * multi-segment routes). Unresolved rows are left as-is (Overpass won't help name-only byways).
+ */
+export const clearAllGenerated = internalAction({
+  args: {},
+  handler: async (ctx): Promise<{ cleared: number }> => {
+    let cursor: string | null = null
+    let isDone = false
+    const ids: Array<import('./_generated/dataModel').Id<'curated_routes'>> = []
+    while (!isDone) {
+      const page: QaPage = await ctx.runQuery(internal.curatedGeometryQa.listGeneratedForQa, {
+        cursor,
+        batchSize: 200,
+      })
+      for (const r of page.rows) ids.push(r.id)
+      cursor = page.continueCursor
+      isDone = page.isDone
+    }
+    for (const id of ids) {
+      await ctx.runMutation(internal.curatedGeometry.clearGeometry, { id })
+    }
+    return { cleared: ids.length }
+  },
+})
