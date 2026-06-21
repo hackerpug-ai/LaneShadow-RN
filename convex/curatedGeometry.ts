@@ -45,6 +45,12 @@ type BackfillRouteRow = {
   name: string
   state: string
   highwayNumber: string | null
+  centroidLat: number
+  centroidLng: number
+  boundsNeLat: number
+  boundsNeLng: number
+  boundsSwLat: number
+  boundsSwLng: number
   geometryStatus: 'generated' | 'unresolved' | 'failed' | null
 }
 
@@ -91,6 +97,12 @@ export const listForGeometryBackfill = internalQuery({
         name: r.name,
         state: r.state,
         highwayNumber: r.highwayNumber ?? null,
+        centroidLat: r.centroidLat,
+        centroidLng: r.centroidLng,
+        boundsNeLat: r.boundsNeLat,
+        boundsNeLng: r.boundsNeLng,
+        boundsSwLat: r.boundsSwLat,
+        boundsSwLng: r.boundsSwLng,
         geometryStatus: r.geometryStatus ?? null,
       })),
       continueCursor: page.continueCursor,
@@ -115,15 +127,42 @@ export const patchRouteGeometry = internalMutation({
   },
 })
 
+/**
+ * Internal mutation: clear a route's geometry (remove routeGeometry + unset geometryStatus)
+ * so it falls back to the centroid AND is re-queued for the resumable backfill. Used to
+ * reset QA-failing rows (the wrong same-name-road matches the QA caught).
+ */
+export const clearGeometry = internalMutation({
+  args: { id: v.id('curated_routes') },
+  handler: async (ctx, { id }) => {
+    await ctx.db.patch(id, { geometryStatus: undefined, routeGeometry: undefined })
+  },
+})
+
 type GeocodeResult = { value: string; coordCount: number }
+type Bounds = { neLat: number; neLng: number; swLat: number; swLng: number }
+
+const R_MI = 3958.7613
+function haversineMi(aLat: number, aLng: number, bLat: number, bLng: number): number {
+  const toRad = (d: number) => (d * Math.PI) / 180
+  const dLat = toRad(bLat - aLat)
+  const dLng = toRad(bLng - aLng)
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.sin(dLng / 2) ** 2
+  return 2 * R_MI * Math.asin(Math.min(1, Math.sqrt(s)))
+}
 
 /**
- * One Nominatim lookup → LineString polyline. Sleeps 1.1s BEFORE the call so every
- * HTTP request (across all candidate attempts) is spaced ≥1/s per Nominatim policy.
+ * One Nominatim lookup → decoded [lat,lng] coords. `viewbox` + `bounded=1` constrain the
+ * result to the route's own area so a same-named road elsewhere can't match (the precision
+ * bug the QA caught). Sleeps 1.1s BEFORE the call (≤1 req/s per Nominatim policy).
  */
-async function fetchLineString(query: string): Promise<GeocodeResult | null> {
+async function fetchLineString(query: string, viewbox: string): Promise<[number, number][] | null> {
   await new Promise((r) => setTimeout(r, 1100))
-  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=jsonv2&polygon_geojson=1&limit=1`
+  const url =
+    `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}` +
+    `&format=jsonv2&polygon_geojson=1&limit=1&countrycodes=us&bounded=1&viewbox=${viewbox}`
   const res = await fetch(url, {
     headers: {
       'User-Agent': 'LaneShadow/1.0 (curated route geometry backfill; justin@formulist.ai)',
@@ -136,7 +175,7 @@ async function fetchLineString(query: string): Promise<GeocodeResult | null> {
   const geo = data[0]?.geojson
   if (!geo) return null
 
-  // Nominatim GeoJSON is [lng, lat]; polyline.encode wants [lat, lng].
+  // Nominatim GeoJSON is [lng, lat]; we want [lat, lng].
   let coords: [number, number][] = []
   if (geo.type === 'LineString') {
     coords = (geo.coordinates as [number, number][]).map(([lng, lat]) => [lat, lng])
@@ -146,7 +185,7 @@ async function fetchLineString(query: string): Promise<GeocodeResult | null> {
     return null // Point / Polygon — not a drivable line
   }
   if (coords.length < 2) return null
-  return { value: polyline.encode(coords), coordCount: coords.length }
+  return coords
 }
 
 /**
@@ -190,18 +229,41 @@ function buildGeocodeCandidates(
   return candidates.slice(0, 4) // cap attempts per route
 }
 
+const MAX_CENTROID_MI = 40 // reject a match whose midpoint is farther than this from the route centroid
+const MIN_SPAN_MI = 0.2 // reject degenerate point-like geometry
+
+/** Nominatim viewbox = "x1,y1,x2,y2" (lng,lat of two opposite corners) + ~0.15° margin. */
+function buildViewbox(b: Bounds): string {
+  const m = 0.15
+  return `${b.swLng - m},${b.swLat - m},${b.neLng + m},${b.neLat + m}`
+}
+
 /**
- * Geocode a curated route, trying each candidate query until one yields a Line/
- * MultiLineString of ≥2 points. Returns null when none resolve (→ `unresolved`, no fake line).
+ * Geocode a curated route within its OWN area (viewbox+bounded) and VALIDATE the result
+ * before accepting it: the midpoint must be within MAX_CENTROID_MI of the route centroid
+ * and the line must span ≥ MIN_SPAN_MI. This bakes the QA into the persist decision — a
+ * same-named road elsewhere or a degenerate point can never be saved. Returns null → `unresolved`.
  */
 async function geocodeRouteGeometry(
   name: string,
   state: string,
-  highwayNumber?: string | null,
+  highwayNumber: string | null,
+  bounds: Bounds,
+  centroidLat: number,
+  centroidLng: number,
 ): Promise<GeocodeResult | null> {
+  const viewbox = buildViewbox(bounds)
   for (const q of buildGeocodeCandidates(name, state, highwayNumber)) {
-    const hit = await fetchLineString(q)
-    if (hit) return hit
+    const coords = await fetchLineString(q, viewbox)
+    if (!coords) continue
+    const mid = coords[Math.floor(coords.length / 2)]
+    if (haversineMi(mid[0], mid[1], centroidLat, centroidLng) > MAX_CENTROID_MI) continue // wrong location
+    let span = 0
+    for (let i = 1; i < coords.length; i++) {
+      span += haversineMi(coords[i - 1][0], coords[i - 1][1], coords[i][0], coords[i][1])
+    }
+    if (span < MIN_SPAN_MI) continue // degenerate / point-like
+    return { value: polyline.encode(coords), coordCount: coords.length }
   }
   return null
 }
@@ -241,7 +303,19 @@ export const backfill = internalAction({
         if (processed >= target) break
         processed++
         try {
-          const geo = await geocodeRouteGeometry(route.name, route.state, route.highwayNumber)
+          const geo = await geocodeRouteGeometry(
+            route.name,
+            route.state,
+            route.highwayNumber,
+            {
+              neLat: route.boundsNeLat,
+              neLng: route.boundsNeLng,
+              swLat: route.boundsSwLat,
+              swLng: route.boundsSwLng,
+            },
+            route.centroidLat,
+            route.centroidLng,
+          )
           if (geo) {
             await ctx.runMutation(internal.curatedGeometry.patchRouteGeometry, {
               id: route.id,
