@@ -1,4 +1,5 @@
 import { useAuth } from '@clerk/clerk-expo'
+import polyline from '@mapbox/polyline'
 import { useMutation, useQuery } from 'convex/react'
 import { useLocalSearchParams, useRouter, useSegments } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -690,23 +691,41 @@ const HomeMapScreen = () => {
       pendingFitRef.current = true
       return
     }
-    const coords = decodePolylineGeometry(agentActiveOption.map.overviewGeometry)
-    if (coords.length > 1) {
+
+    // Multi-segment route (DATA-011-C4): if overviewSegments present, fit all segments
+    const overviewSegments = (agentActiveOption.map as any)?.overviewSegments
+    let allCoords: Array<{ latitude: number; longitude: number }> = []
+
+    if (overviewSegments?.length) {
+      // Decode all segments and collect all coordinates
+      for (const segmentStr of overviewSegments) {
+        const decoded = polyline.decode(segmentStr, 5)
+        const segmentCoords: Array<{ latitude: number; longitude: number }> = decoded.map(
+          ([latitude, longitude]: [number, number]) => ({ latitude, longitude }),
+        )
+        allCoords.push(...segmentCoords)
+      }
+    } else {
+      // Single-line route (legacy): use overviewGeometry
+      allCoords = decodePolylineGeometry(agentActiveOption.map.overviewGeometry)
+    }
+
+    if (allCoords.length > 1) {
       // Multi-point: fit to the polyline bounds
       // Pad enough to clear the floating header (safe area top + header ~72)
       // and the bottom input bar + suggestions (~160 + safe area bottom).
       const padTop = insets.top + 80
       const padBottom = insets.bottom + 180
-      mapRef.current.fitToCoordinates(coords, {
+      mapRef.current.fitToCoordinates(allCoords, {
         top: padTop,
         right: 60,
         bottom: padBottom,
         left: 60,
       })
-    } else if (coords.length === 1) {
+    } else if (allCoords.length === 1) {
       // DISC-012 AC-3: centroid-only curated route — center on the single point
       mapRef.current.setCameraPosition({
-        coordinates: coords[0],
+        coordinates: allCoords[0],
         zoom: 12,
       })
     }

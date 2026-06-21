@@ -1,3 +1,4 @@
+import polyline from '@mapbox/polyline'
 import { getRainColor, getTemperatureColor, getWindColor } from '../../lib/map/overlay-colors'
 import {
   computeCumulativeDistances,
@@ -21,6 +22,7 @@ import type { ExtendedTheme } from '../../styles/types'
 type RoutePolylineInput = {
   route: {
     overviewGeometry: PolylineGeometry
+    overviewSegments?: string[]
     legs: RouteLeg[]
     overlays?: RouteOverlays
   }
@@ -138,7 +140,6 @@ export const buildRoutePolylines = ({
   showTemperatureOverlay = true,
   semantic,
 }: RoutePolylineInput & { semantic: ExtendedTheme['semantic'] }): BuiltPolyline[] => {
-  const overviewCoords = decodePolylineGeometry(route.overviewGeometry)
   const legCoords = route.legs.map((leg) => decodeLeg(leg))
 
   const overviewColor =
@@ -151,13 +152,34 @@ export const buildRoutePolylines = ({
   const prefix = routeId ? `${routeId}-` : ''
   const polylines: BuiltPolyline[] = []
 
-  if (overviewCoords.length > 1) {
-    polylines.push({
-      id: `${prefix}overview`,
-      coordinates: overviewCoords,
-      strokeColor: overviewColor,
-      strokeWidth: 6,
+  // Multi-segment route (overviewSegments): decode each segment separately
+  if (route.overviewSegments?.length) {
+    route.overviewSegments.forEach((segmentStr, index) => {
+      const decoded = polyline.decode(segmentStr, 5)
+      const segmentCoords: MapLatLng[] = decoded.map(([latitude, longitude]: [number, number]) => ({
+        latitude,
+        longitude,
+      }))
+      if (segmentCoords.length > 1) {
+        polylines.push({
+          id: `${prefix}overview-seg-${index}`,
+          coordinates: segmentCoords,
+          strokeColor: overviewColor,
+          strokeWidth: 6,
+        })
+      }
     })
+  } else {
+    // Single-line route (legacy): decode overviewGeometry as before
+    const overviewCoords = decodePolylineGeometry(route.overviewGeometry)
+    if (overviewCoords.length > 1) {
+      polylines.push({
+        id: `${prefix}overview`,
+        coordinates: overviewCoords,
+        strokeColor: overviewColor,
+        strokeWidth: 6,
+      })
+    }
   }
 
   if (showLegs) {

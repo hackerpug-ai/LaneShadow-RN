@@ -172,4 +172,42 @@ describe('useRouteComparison', () => {
     // No polylines should be returned if selectedRouteId doesn't match
     expect(result.current.polylines.length).toBe(0)
   })
+
+  it('DATA-011-C4: should produce 3 polylines (one per segment) when overviewSegments is present', () => {
+    const mockDispatch = vi.fn()
+    const mockState: RideFlowState = {
+      phase: 'ROUTE_RESULTS',
+      sessionId: 'test-session',
+      routeOptions: {
+        planId: 'test-plan',
+        options: [
+          {
+            routeOptionId: 'route-multi',
+            label: 'Multi-Segment Route',
+            map: {
+              overviewGeometry: { value: 'fallback-polyline' },
+              overviewSegments: ['segment-1-encoded', 'segment-2-encoded', 'segment-3-encoded'],
+              bounds: { north: 0, south: 0, east: 0, west: 0 },
+              legs: [],
+            },
+          } as any,
+        ],
+      },
+      selectedRouteId: 'route-multi',
+    }
+
+    const { result } = renderHook(() => useRouteComparison(mockState, mockDispatch))
+
+    // Should have exactly one RoutePolyline item (the selected one)
+    expect(result.current.polylines.length).toBe(1)
+
+    // Should contain 3 segment polylines (one per overviewSegments item)
+    expect(result.current.polylines[0].polylines.length).toBe(3)
+
+    // Verify segment IDs match the pattern overview-seg-{index}
+    const segmentIds = result.current.polylines[0].polylines.map((p) => p.id)
+    expect(segmentIds[0]).toMatch(/overview-seg-0/)
+    expect(segmentIds[1]).toMatch(/overview-seg-1/)
+    expect(segmentIds[2]).toMatch(/overview-seg-2/)
+  })
 })

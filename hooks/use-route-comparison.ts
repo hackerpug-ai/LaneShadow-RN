@@ -100,6 +100,7 @@ export const useRouteComparison = (
     const routePolylines = buildRoutePolylines({
       route: {
         overviewGeometry: selectedOption.map.overviewGeometry,
+        overviewSegments: (selectedOption.map as any)?.overviewSegments,
         legs: selectedOption.map.legs,
         overlays: (selectedOption.map as any)?.overlays,
       },
