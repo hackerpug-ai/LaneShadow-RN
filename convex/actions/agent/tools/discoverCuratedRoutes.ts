@@ -198,22 +198,63 @@ function encodeCentroidToPolyline(lat: number, lng: number): string {
  */
 function buildCuratedMapGeometry(route: any): {
   overviewGeometry: string
+  overviewSegments?: string[]
   bounds: { north: number; south: number; east: number; west: number }
 } {
-  if (route.geometryStatus === 'generated' && route.routeGeometry?.value) {
-    const decoded = polyline.decode(route.routeGeometry.value) as [number, number][] // [lat, lng]
-    if (decoded.length >= 2) {
+  const g = route.routeGeometry
+  if (route.geometryStatus === 'generated' && g) {
+    const precision = g.precision ?? 5
+
+    // multipolyline (Overpass full route): one encoded polyline per OSM way segment.
+    if (g.format === 'multipolyline' && Array.isArray(g.segments) && g.segments.length > 0) {
       let north = -90
       let south = 90
       let east = -180
       let west = 180
-      for (const [lat, lng] of decoded) {
-        if (lat > north) north = lat
-        if (lat < south) south = lat
-        if (lng > east) east = lng
-        if (lng < west) west = lng
+      let pts = 0
+      let longest = g.segments[0] as string
+      let longestN = -1
+      for (const seg of g.segments as string[]) {
+        const dec = polyline.decode(seg, precision) as [number, number][]
+        if (dec.length > longestN) {
+          longestN = dec.length
+          longest = seg
+        }
+        for (const [lat, lng] of dec) {
+          pts++
+          if (lat > north) north = lat
+          if (lat < south) south = lat
+          if (lng > east) east = lng
+          if (lng < west) west = lng
+        }
       }
-      return { overviewGeometry: route.routeGeometry.value, bounds: { north, south, east, west } }
+      if (pts >= 2) {
+        // overviewGeometry = the longest segment (single-line fallback for consumers that
+        // only read overviewGeometry); overviewSegments = the full set for the map render.
+        return {
+          overviewGeometry: longest,
+          overviewSegments: g.segments,
+          bounds: { north, south, east, west },
+        }
+      }
+    }
+
+    // single-line (legacy 'polyline' form)
+    if (g.value) {
+      const decoded = polyline.decode(g.value, precision) as [number, number][] // [lat, lng]
+      if (decoded.length >= 2) {
+        let north = -90
+        let south = 90
+        let east = -180
+        let west = 180
+        for (const [lat, lng] of decoded) {
+          if (lat > north) north = lat
+          if (lat < south) south = lat
+          if (lng > east) east = lng
+          if (lng < west) west = lng
+        }
+        return { overviewGeometry: g.value, bounds: { north, south, east, west } }
+      }
     }
   }
   return {

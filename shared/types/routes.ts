@@ -79,6 +79,10 @@ export type PlannedRouteOptionView = {
   map: {
     bounds: RouteSnapshot['bounds']
     overviewGeometry: RouteSnapshot['overviewGeometry']
+    // DATA-011-C: full-route geometry as encoded polyline segments (Overpass MultiLineString).
+    // When present, the map renders one polyline per segment; overviewGeometry is the longest
+    // segment (single-line fallback for consumers that read only it).
+    overviewSegments?: string[]
     legs: RouteSnapshot['legs']
   }
   overlaysPreview: {
