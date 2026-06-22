@@ -1069,8 +1069,9 @@ export async function resolveStartLocation(
 
   if (explicitOrigin) {
     try {
-      // Geocode the named origin — take the TOP result only, no ambiguity
-      const results = await geocoder.geocode(explicitOrigin)
+      // Geocode the named origin — take the TOP result only, no ambiguity.
+      // Bias by currentLocation (same as runGeocode) so a named city resolves near the rider.
+      const results = await geocoder.geocode(explicitOrigin, currentLocation)
       if (results && results.length > 0) {
         const topResult = results[0]
         return {
@@ -1098,6 +1099,27 @@ export async function resolveStartLocation(
   return null
 }
 
+/**
+ * The rider's effective location for start resolution: live currentLocation if present,
+ * otherwise the session's lastKnownLocation (possibly stale). Returns undefined only when
+ * we have NO location at all (→ the agent legitimately asks where they're starting).
+ */
+async function getEffectiveLocation(
+  ctx: AgentContext,
+): Promise<{ lat: number; lng: number } | undefined> {
+  if (ctx.currentLocation) return ctx.currentLocation
+  try {
+    const sessionData = await ctx.runQuery(api.db.planningSessions.getSessionById, {
+      sessionId: ctx.planningSessionId,
+    })
+    const lk = sessionData?.lastKnownLocation
+    if (lk) return { lat: lk.lat, lng: lk.lng }
+  } catch {
+    // Silently ignore lookup failures — fall through to "no location".
+  }
+  return undefined
+}
+
 // -----------------------------------------------------------------------------
 // Routing Prompt
 // -----------------------------------------------------------------------------
@@ -1108,10 +1130,23 @@ export async function resolveStartLocation(
  *
  * Async to support lastKnownLocation lookup when currentLocation is undefined.
  */
-export async function buildRoutingPrompt(ctx: AgentContext): Promise<string> {
+export async function buildRoutingPrompt(
+  ctx: AgentContext,
+  resolvedStart?: { lat: number; lng: number; label: string } | null,
+): Promise<string> {
   let locBlock: string
 
-  if (ctx.currentLocation) {
+  if (resolvedStart) {
+    // DETERMINISTIC start: resolved in code (explicit named origin geocoded to its top result,
+    // else current/last-known location) BEFORE the LLM runs. The start is a fixed coordinate, so
+    // the agent has nothing to ask about — it only interprets the DESTINATION.
+    locBlock = `The rider's START is already resolved — do NOT ask about it: lat=${resolvedStart.lat}, lng=${resolvedStart.lng} (label: "${resolvedStart.label}").
+
+Use this EXACT start for planRoute. NEVER ask "where are you starting from?" and NEVER ask for sub-city precision — the start is fixed. Only interpret the DESTINATION from the rider's message:
+- "Sf to Marin county" → start = the resolved start above, end = Marin County (geocode the destination, take the FIRST result)
+- "day trip to Santa Cruz" → start = the resolved start above, end = Santa Cruz
+- Ambiguous destination names: COMMIT to the first geocode result; never ask the rider to clarify.`
+  } else if (ctx.currentLocation) {
     // State 1: Live current location
     locBlock = `The rider's current location is lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng} (label: "Current Location").
 
@@ -1238,170 +1273,175 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
   // Routing agent uses low-reasoning model for latency — narrower tool set and focused prompt compensate
   const model = getAgentModel('low')
 
-  const systemPrompt = await buildRoutingPrompt(ctx)
+  // DETERMINISTIC start resolution (binding invariant: start = current location UNLESS the rider
+  // names an explicit origin; the rider must NEVER be asked where they're starting when a location
+  // exists). Resolved in CODE here — explicit named origin geocoded to its top result, else the
+  // current/last-known location — BEFORE the LLM, so the start is a fixed coordinate the routing
+  // sub-agent cannot reinterpret or ask about.
+  const effectiveLocation = await getEffectiveLocation(ctx)
+  const resolvedStart = await resolveStartLocation(
+    userMessage,
+    effectiveLocation,
+    createGeocodingProvider(),
+  )
 
-  const context = {
-    systemPrompt,
-    // Sub-agent gets NO conversation history — only the current user message
-    messages: [{ role: 'user' as const, content: userMessage, timestamp: Date.now() }],
-    tools: routingTools,
-  }
+  const systemPrompt = await buildRoutingPrompt(ctx, resolvedStart)
 
-  const result = await runAgent({
-    model,
-    context,
-    executor: (call: ToolCall) => executeRoutingTool(ctx, call, executeCtx),
-    callbacks: executeCtx
-      ? {
-          onToolStart: executeCtx.onToolStart,
-          onToolFinish: executeCtx.onToolFinish,
-          onAgentTurn: executeCtx.onAgentTurn,
-          onToolResultPiMessage: executeCtx.onToolResultPiMessage,
-          // NOT forwarding onTextDelta or onThinkingDelta — sub-agent text doesn't stream to UI
-        }
-      : undefined,
-    maxSteps: 20, // uncapped for now — levelsetting resource needs
-    timeoutMs: 300_000, // 5 min — uncapped for levelsetting
-    budgetTracker,
-    parallelSafeTools: routingParallelSafeTools,
-  })
-
-  // Determine result from tool results and response text
-  const attachments = extractRouteAttachments(result.toolResults)
-
-  if (attachments.length > 0 && attachments[0].routePlanId) {
-    const summary = result.response || 'Route ready!'
-    return {
-      status: 'route_ready',
-      routePlanId: attachments[0].routePlanId,
-      summary,
+  // One routing attempt: run the sub-agent on `attemptMessage` and interpret its output.
+  const attempt = async (attemptMessage: string): Promise<RoutingAgentResult> => {
+    const context = {
+      systemPrompt,
+      // Sub-agent gets NO conversation history — only the current user message
+      messages: [{ role: 'user' as const, content: attemptMessage, timestamp: Date.now() }],
+      tools: routingTools,
     }
-  }
 
-  if (result.response && result.toolResults.length === 0) {
-    // Agent responded with text but no tool calls — this might be needs_clarification.
-    // AC-4 Guard: If a location is available, never surface a start-clarification (AC-4).
-    //
-    // The prompt now includes a strong "COMMIT to the first geocode result" instruction,
-    // so the agent should never ask. But as a deterministic defense, if it does ask
-    // about the start despite available location, suppress it and try planRoute with
-    // the current location as fallback.
+    const result = await runAgent({
+      model,
+      context,
+      executor: (call: ToolCall) => executeRoutingTool(ctx, call, executeCtx),
+      callbacks: executeCtx
+        ? {
+            onToolStart: executeCtx.onToolStart,
+            onToolFinish: executeCtx.onToolFinish,
+            onAgentTurn: executeCtx.onAgentTurn,
+            onToolResultPiMessage: executeCtx.onToolResultPiMessage,
+            // NOT forwarding onTextDelta or onThinkingDelta — sub-agent text doesn't stream to UI
+          }
+        : undefined,
+      maxSteps: 20, // uncapped for now — levelsetting resource needs
+      timeoutMs: 300_000, // 5 min — uncapped for levelsetting
+      budgetTracker,
+      parallelSafeTools: routingParallelSafeTools,
+    })
 
-    const locationAvailable = ctx.currentLocation !== undefined
+    // Determine result from tool results and response text
+    const attachments = extractRouteAttachments(result.toolResults)
 
-    if (locationAvailable) {
-      const questionLower = result.response.toLowerCase()
-      const isAskingAboutStart =
-        (questionLower.includes('where') &&
-          (questionLower.includes('start') || questionLower.includes('from'))) ||
-        (questionLower.includes('which') &&
-          (questionLower.includes('francisco') || questionLower.includes('city')))
-
-      if (isAskingAboutStart && ctx.currentLocation) {
-        // Guard activated: location available but agent asked about start.
-        // This is a defensive fallback. The tightened prompt should prevent reaching
-        // here in practice. If the agent still asks despite location being available,
-        // we return needs_clarification anyway since we cannot synthesize a route.
+    if (attachments.length > 0 && attachments[0].routePlanId) {
+      const summary = result.response || 'Route ready!'
+      return {
+        status: 'route_ready',
+        routePlanId: attachments[0].routePlanId,
+        summary,
       }
     }
 
-    // No route plan was created, so nothing to update
-    return {
-      status: 'needs_clarification',
-      question: result.response,
-    }
-  }
-
-  // Try to parse structured result from response text
-  if (result.response) {
-    try {
-      const parsed = JSON.parse(result.response)
-      if (parsed.status === 'route_ready' && parsed.routePlanId) {
-        return {
-          status: 'route_ready',
-          routePlanId: parsed.routePlanId,
-          summary: parsed.summary ?? '',
-        }
+    if (result.response && result.toolResults.length === 0) {
+      // Agent responded with text but no tool calls — treat as a clarification request.
+      // The start-clarification invariant is enforced deterministically by the caller below
+      // (re-drive once with the resolved start; never surface a start question when a location exists).
+      return {
+        status: 'needs_clarification',
+        question: result.response,
       }
-      if (parsed.status === 'needs_clarification' && parsed.question) {
-        // Agent explicitly returned needs_clarification as JSON
-        // If any route plans were created in tool results, mark them as cancelled
-        // since the agent interrupted the plan to ask for more info
-        for (const tr of result.toolResults) {
-          const toolResult = tr.result as any
-          if (toolResult?.routePlanId) {
-            await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
-              routePlanId: toolResult.routePlanId,
-              status: 'cancelled',
-              errorMessage: parsed.question ?? 'Agent needs clarification',
-            })
-            break
+    }
+
+    // Try to parse structured result from response text
+    if (result.response) {
+      try {
+        const parsed = JSON.parse(result.response)
+        if (parsed.status === 'route_ready' && parsed.routePlanId) {
+          return {
+            status: 'route_ready',
+            routePlanId: parsed.routePlanId,
+            summary: parsed.summary ?? '',
           }
         }
-        return { status: 'needs_clarification', question: parsed.question }
+        if (parsed.status === 'needs_clarification' && parsed.question) {
+          // Agent explicitly returned needs_clarification as JSON
+          // If any route plans were created in tool results, mark them as cancelled
+          // since the agent interrupted the plan to ask for more info
+          for (const tr of result.toolResults) {
+            const toolResult = tr.result as any
+            if (toolResult?.routePlanId) {
+              await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+                routePlanId: toolResult.routePlanId,
+                status: 'cancelled',
+                errorMessage: parsed.question ?? 'Agent needs clarification',
+              })
+              break
+            }
+          }
+          return { status: 'needs_clarification', question: parsed.question }
+        }
+        if (parsed.status === 'failed') {
+          // Update any route plan that was created before the failure
+          for (const tr of result.toolResults) {
+            const toolResult = tr.result as any
+            if (toolResult?.routePlanId) {
+              await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+                routePlanId: toolResult.routePlanId,
+                status: 'failed',
+                errorMessage: parsed.reason ?? 'Unknown failure',
+              })
+              break
+            }
+          }
+          return { status: 'failed', reason: parsed.reason ?? 'Unknown failure' }
+        }
+      } catch {
+        // Not JSON — fall through to handle unstructured response
       }
-      if (parsed.status === 'failed') {
-        // Update any route plan that was created before the failure
+
+      // Agent responded with non-JSON text but has tool results
+      // This is an error - the agent should return structured JSON when it calls tools
+      if (result.toolResults.length > 0) {
+        // Mark any created route plans as failed
         for (const tr of result.toolResults) {
           const toolResult = tr.result as any
           if (toolResult?.routePlanId) {
             await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
               routePlanId: toolResult.routePlanId,
               status: 'failed',
-              errorMessage: parsed.reason ?? 'Unknown failure',
+              errorMessage: 'Agent did not return structured response after creating route plan',
             })
             break
           }
         }
-        return { status: 'failed', reason: parsed.reason ?? 'Unknown failure' }
-      }
-    } catch {
-      // Not JSON — fall through to handle unstructured response
-    }
-
-    // Agent responded with non-JSON text but has tool results
-    // This is an error - the agent should return structured JSON when it calls tools
-    if (result.toolResults.length > 0) {
-      // Mark any created route plans as failed
-      for (const tr of result.toolResults) {
-        const toolResult = tr.result as any
-        if (toolResult?.routePlanId) {
-          await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
-            routePlanId: toolResult.routePlanId,
-            status: 'failed',
-            errorMessage: 'Agent did not return structured response after creating route plan',
-          })
-          break
+        return {
+          status: 'failed',
+          reason: 'Agent returned unstructured response after calling tools',
         }
       }
+
+      // Non-JSON response with no tool results — treat as clarification request
       return {
-        status: 'failed',
-        reason: 'Agent returned unstructured response after calling tools',
+        status: 'needs_clarification',
+        question: result.response,
       }
     }
 
-    // Non-JSON response with no tool results — treat as clarification request
+    // No response and no tool results — complete failure
+    // Update any route plan that was created before the failure
+    for (const tr of result.toolResults) {
+      const toolResult = tr.result as any
+      if (toolResult?.routePlanId) {
+        await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
+          routePlanId: toolResult.routePlanId,
+          status: 'failed',
+          errorMessage: 'Routing agent did not produce a route or response',
+        })
+        break
+      }
+    }
     return {
-      status: 'needs_clarification',
-      question: result.response,
+      status: 'failed',
+      reason: 'Routing agent did not produce a route or response',
     }
   }
 
-  // No response and no tool results — complete failure
-  // Update any route plan that was created before the failure
-  for (const tr of result.toolResults) {
-    const toolResult = tr.result as any
-    if (toolResult?.routePlanId) {
-      await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
-        routePlanId: toolResult.routePlanId,
-        status: 'failed',
-        errorMessage: 'Routing agent did not produce a route or response',
-      })
-      break
-    }
+  // First attempt with the rider's verbatim message.
+  let outcome = await attempt(userMessage)
+
+  // DETERMINISTIC GUARANTEE (AC-4): when a location is available the rider must NEVER see a
+  // start-clarification. If the agent still asked, re-drive ONCE with the resolved start
+  // re-asserted inline. A clarification surviving this can only concern the DESTINATION (the
+  // start was handed over as a fixed coordinate), so surfacing it is safe and correct.
+  if (outcome.status === 'needs_clarification' && resolvedStart) {
+    const augmentedMessage = `${userMessage}\n\n(System: the START is already fixed at lat=${resolvedStart.lat}, lng=${resolvedStart.lng} ("${resolvedStart.label}"). Call planRoute now using this exact start. Do NOT ask about the starting location under any circumstance.)`
+    outcome = await attempt(augmentedMessage)
   }
-  return {
-    status: 'failed',
-    reason: 'Routing agent did not produce a route or response',
-  }
+
+  return outcome
 }

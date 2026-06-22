@@ -12,7 +12,7 @@
  * defaults to current location, and prevents the agent from asking for clarification.
  */
 
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AgentContext } from '../ridePlanningAgent'
 
 // Mock the Convex API to avoid network deps
@@ -34,6 +34,18 @@ vi.mock('../../../_generated/api', () => ({
       },
     },
   },
+}))
+
+// Mock ONLY the external boundaries (the LLM call + the geocoding network provider) so we can
+// drive executeRoutingAgent's DETERMINISTIC recovery for real. runAgent is the model round-trip
+// (the project's real LLM tier is Maestro E2E); the geocoder hits Google over the network.
+// Everything under test — start resolution + the re-drive guard — runs real.
+const runAgentMock = vi.fn()
+vi.mock('../runAgent.js', () => ({ runAgent: (...args: unknown[]) => runAgentMock(...args) }))
+
+const geocodeMock = vi.fn()
+vi.mock('../providers/geocodingProvider.js', () => ({
+  createGeocodingProvider: () => ({ geocode: (...args: unknown[]) => geocodeMock(...args) }),
 }))
 
 // Import the real implementation from routingAgent
@@ -163,20 +175,114 @@ describe('Route Start Resolution (AC-1..AC-4)', () => {
     })
   })
 
-  describe('AC-4: executeRoutingAgent suppresses needs_clarification when location available', () => {
-    it('should NOT return needs_clarification when location is available and agent asks for start', async () => {
-      // The routing agent, when given "Sf to Marin county" with a location available,
-      // should NOT return needs_clarification, even if the LLM tries to ask for start precision.
-      // It should resolve "Sf" as the origin and plan the route.
-      //
-      // The guard is implemented in executeRoutingAgent: if a location is available
-      // and the agent responds asking about the start, the guard logs and suppresses
-      // the clarification. The prompt is tightened to prevent the agent from asking
-      // in the first place with the new "COMMIT to the first geocode result" rule.
+  describe('resolveStartLocation: deterministic start (explicit origin geocoded, else current)', () => {
+    it('explicit origin → uses the geocoder TOP result (commit-to-first, never disambiguates)', async () => {
+      const { resolveStartLocation } = await import('../agents/routingAgent')
+      const geocoder = {
+        geocode: vi.fn().mockResolvedValue([
+          { lat: 37.7749, lng: -122.4194, label: 'San Francisco, CA' },
+          { lat: 37.78, lng: -122.41, label: 'San Francisco (other candidate)' },
+        ]),
+      }
+      const start = await resolveStartLocation('Sf to Marin county', { lat: 1, lng: 2 }, geocoder)
+      expect(geocoder.geocode).toHaveBeenCalledWith('Sf', { lat: 1, lng: 2 })
+      // Top result — NOT the second candidate, NOT a clarification.
+      expect(start).toEqual({ lat: 37.7749, lng: -122.4194, label: 'San Francisco, CA' })
+    })
 
-      // Verification: the prompt tightening and guard are in place in the source code.
-      // Full E2E verification is in the Maestro gate (human testing).
-      expect(true).toBe(true)
+    it('destination-only ("day trip to Santa Cruz") → defaults to current location', async () => {
+      const { resolveStartLocation } = await import('../agents/routingAgent')
+      const geocoder = { geocode: vi.fn() }
+      const start = await resolveStartLocation('day trip to Santa Cruz', { lat: 37.3, lng: -121.9 }, geocoder)
+      expect(geocoder.geocode).not.toHaveBeenCalled()
+      expect(start).toEqual({ lat: 37.3, lng: -121.9, label: 'Current Location' })
+    })
+
+    it('explicit origin but geocode FAILS → falls back to current location (never asks)', async () => {
+      const { resolveStartLocation } = await import('../agents/routingAgent')
+      const geocoder = { geocode: vi.fn().mockRejectedValue(new Error('network')) }
+      const start = await resolveStartLocation('Oakland to Half Moon Bay', { lat: 37.8, lng: -122.27 }, geocoder)
+      expect(start).toEqual({ lat: 37.8, lng: -122.27, label: 'Current Location' })
+    })
+
+    it('no explicit origin AND no location → null (agent legitimately asks where they are)', async () => {
+      const { resolveStartLocation } = await import('../agents/routingAgent')
+      const geocoder = { geocode: vi.fn() }
+      const start = await resolveStartLocation('plan me a ride', undefined, geocoder)
+      expect(start).toBeNull()
+    })
+  })
+
+  describe('buildRoutingPrompt: injects the deterministically-resolved start as a fixed coordinate', () => {
+    it('with a resolvedStart, the prompt hands the agent exact coords + forbids asking', async () => {
+      const { buildRoutingPrompt } = await import('../agents/routingAgent')
+      const ctx = { runQuery: vi.fn() } as unknown as AgentContext
+      const prompt = await buildRoutingPrompt(ctx, {
+        lat: 37.7749,
+        lng: -122.4194,
+        label: 'San Francisco, CA',
+      })
+      expect(prompt).toContain('lat=37.7749')
+      expect(prompt).toContain('lng=-122.4194')
+      expect(prompt).toContain('San Francisco, CA')
+      expect(prompt).toContain('START is already resolved')
+      expect(prompt).toContain('NEVER ask "where are you starting from?"')
+    })
+  })
+
+  describe('AC-4: executeRoutingAgent never surfaces a start-clarification when a location exists', () => {
+    beforeEach(() => {
+      runAgentMock.mockReset()
+      geocodeMock.mockReset()
+    })
+
+    const makeConfig = (currentLocation: { lat: number; lng: number } | undefined) => ({
+      ctx: {
+        planningSessionId: 'sess_1' as any,
+        clerkUserId: 'user_1',
+        currentLocation,
+        runQuery: vi.fn().mockResolvedValue(null),
+        runMutation: vi.fn().mockResolvedValue(undefined),
+        runAction: vi.fn(),
+      } as unknown as AgentContext,
+      executeCtx: undefined,
+      budgetTracker: {} as any,
+      userMessage: 'Sf to Marin county',
+    })
+
+    it('agent asks for start on attempt 1 → code re-drives and returns the route (no clarification surfaced)', async () => {
+      const { executeRoutingAgent } = await import('../agents/routingAgent')
+      geocodeMock.mockResolvedValue([{ lat: 37.7749, lng: -122.4194, label: 'San Francisco, CA' }])
+      // Attempt 1: the LLM asks for sub-city precision (the bug). Attempt 2 (after the resolved
+      // start is re-asserted by our deterministic guard): it plans the route.
+      runAgentMock
+        .mockResolvedValueOnce({ response: 'Which part of SF are you starting from?', toolResults: [] })
+        .mockResolvedValueOnce({
+          response: 'Planned your SF→Marin ride.',
+          // A real route_ready: the agent CALLED planRoute (extractRouteAttachments picks this up).
+          toolResults: [{ toolName: 'planRoute', result: { type: 'routes', routePlanId: 'plan_123' } }],
+        })
+
+      const result = await executeRoutingAgent(makeConfig({ lat: 37.77, lng: -122.41 }))
+
+      expect(runAgentMock).toHaveBeenCalledTimes(2) // re-drove deterministically
+      expect(result.status).toBe('route_ready')
+      // The augmented retry message must carry the resolved start coordinate.
+      const secondCallMessage = (runAgentMock.mock.calls[1][0] as any).context.messages[0].content
+      expect(secondCallMessage).toContain('lat=37.7749')
+    })
+
+    it('no location available → does NOT re-drive; the (destination) clarification is surfaced once', async () => {
+      const { executeRoutingAgent } = await import('../agents/routingAgent')
+      geocodeMock.mockResolvedValue([])
+      runAgentMock.mockResolvedValue({ response: 'Where would you like to go?', toolResults: [] })
+
+      const cfg = makeConfig(undefined)
+      cfg.userMessage = 'plan me a ride' // no explicit origin, no location → resolvedStart is null
+      const result = await executeRoutingAgent(cfg)
+
+      expect(runAgentMock).toHaveBeenCalledTimes(1) // no recovery loop without a location
+      expect(result.status).toBe('needs_clarification')
     })
   })
 })
