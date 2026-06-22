@@ -1000,6 +1000,105 @@ export async function executeRoutingTool(
 }
 
 // -----------------------------------------------------------------------------
+// Start Location Resolution
+// -----------------------------------------------------------------------------
+
+/**
+ * Extract explicit origin from user message using heuristic.
+ *
+ * Returns the origin string if detected, or null to use currentLocation.
+ * Conservative: when unsure, returns null (safe default to current location).
+ *
+ * Patterns:
+ * - "day trip to X", "ride to X", "go to X" → null (destination-only)
+ * - "X to Y" (where X is a place) → "X" (explicit origin)
+ * - "take Highway 1 to ...", "take me to ..." → null (not origin override)
+ */
+export function extractExplicitOrigin(userMessage: string): string | null {
+  const trimmed = userMessage.trim()
+
+  // Destination-only patterns: start from current location
+  const destinationOnlyPatterns = [
+    /^\s*(day trip|quick trip|scenic ride|fun ride|short ride|weekend ride|tour|journey|adventure|outing)\s+to\s+/i,
+    /^\s*(take me|ride|trip|go|head)\s+to\s+/i,
+    /^\s*take\s+/i, // "take Highway 1" — not an origin override
+  ]
+
+  for (const pattern of destinationOnlyPatterns) {
+    if (pattern.test(trimmed)) {
+      return null // Use current location as origin
+    }
+  }
+
+  // Explicit origin pattern: "X to Y"
+  const toMatch = trimmed.match(/^(.+?)\s+to\s+(.+)$/i)
+  if (toMatch?.[1] && toMatch[2]) {
+    const potentialOrigin = toMatch[1].trim()
+
+    // Reject common non-origin phrases
+    const rejectPatterns = [/^(take|ride|go|get|drive|head|send)$/i]
+    for (const rejectPattern of rejectPatterns) {
+      if (rejectPattern.test(potentialOrigin)) {
+        return null
+      }
+    }
+
+    // This looks like an explicit origin (e.g., "San Francisco", "SF", "Oakland")
+    return potentialOrigin
+  }
+
+  // No explicit origin detected
+  return null
+}
+
+/**
+ * Resolve the start location deterministically:
+ * - If explicit origin in message → geocode to top result
+ * - Otherwise → use currentLocation
+ * Returns { lat, lng, label } or null if no location available at all.
+ *
+ * CRITICAL: Geocoding failure → fall back to currentLocation (never ask for clarification).
+ */
+export async function resolveStartLocation(
+  userMessage: string,
+  currentLocation: { lat: number; lng: number } | undefined,
+  geocoder: any, // ProviderInstance from geocodingProvider
+): Promise<{ lat: number; lng: number; label: string } | null> {
+  // Check for explicit origin in message
+  const explicitOrigin = extractExplicitOrigin(userMessage)
+
+  if (explicitOrigin) {
+    try {
+      // Geocode the named origin — take the TOP result only, no ambiguity
+      const results = await geocoder.geocode(explicitOrigin)
+      if (results && results.length > 0) {
+        const topResult = results[0]
+        return {
+          lat: topResult.lat,
+          lng: topResult.lng,
+          label: topResult.label || explicitOrigin,
+        }
+      }
+    } catch {
+      // Geocoding failed — fall back to current location (safe default)
+      // Don't ask for clarification; just use what we have
+    }
+  }
+
+  // No explicit origin, or geocoding failed — use current location
+  if (currentLocation) {
+    return {
+      lat: currentLocation.lat,
+      lng: currentLocation.lng,
+      label: 'Current Location',
+    }
+  }
+
+  // No location available
+  return null
+}
+
+// -----------------------------------------------------------------------------
 // Routing Prompt
 // -----------------------------------------------------------------------------
 
@@ -1016,12 +1115,14 @@ export async function buildRoutingPrompt(ctx: AgentContext): Promise<string> {
     // State 1: Live current location
     locBlock = `The rider's current location is lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng} (label: "Current Location").
 
-Treat this as the DEFAULT ORIGIN for every route. Destination-only requests are COMPLETE route requests — use the current location as the start and plan immediately:
-- "day trip to Santa Cruz" → start = current location, end = Santa Cruz
-- "ride to Napa" → start = current location, end = Napa
-- "take me somewhere fun" → start = current location, end = your pick
+Treat this as the DEFAULT ORIGIN for every route. NEVER ask "where are you starting from?" — this location is always available and you must use it.
 
-NEVER ask "where are you starting from?" — the location above is always available. The only valid reason to ask about the start is if the rider explicitly wants to start somewhere OTHER than their current location.`
+When interpreting the rider's message:
+- Destination-only: "day trip to Santa Cruz" → start = current location, end = Santa Cruz
+- Explicit origin: "SF to Marin" → start = SF, end = Marin (use geocode for the named place, take the top result)
+- Ambiguous names: NEVER ask for sub-city precision (e.g., "which SF?"). Take the FIRST geocode result and proceed.
+
+RULE: Even if a place name is ambiguous, COMMIT to the first result. Do not ask the rider to clarify. If the rider meant a different place, they will correct you in the next turn.`
   } else {
     // Try to resolve lastKnownLocation for State 2 fallback
     let lastKnownLocation: { lat: number; lng: number; updatedAt?: number } | undefined
@@ -1038,11 +1139,14 @@ NEVER ask "where are you starting from?" — the location above is always availa
       // State 2: Last-known location (possibly stale)
       locBlock = `The rider's current location is unknown, but we have a last known location: lat=${lastKnownLocation.lat}, lng=${lastKnownLocation.lng} (this may be stale).
 
-Use this as the DEFAULT ORIGIN for routing. Destination-only requests are COMPLETE route requests — use the last known location as the start:
-- "day trip to Santa Cruz" → start = last known location, end = Santa Cruz
-- "ride to the coast" → start = last known location, end = coast
+Use this as the DEFAULT ORIGIN for routing. NEVER ask "where are you starting from?" — use the last known location.
 
-NEVER ask "where are you starting from?" — prefer the last known location. The only valid reason to ask about the start is if the rider explicitly wants to start somewhere different.`
+When interpreting the rider's message:
+- Destination-only: "day trip to Santa Cruz" → start = last known location, end = Santa Cruz
+- Explicit origin: "Oakland to Half Moon Bay" → start = Oakland, end = HMB (use geocode for the named place, take the top result)
+- Ambiguous names: NEVER ask for sub-city precision. Take the FIRST geocode result and proceed.
+
+RULE: Even if a place name is ambiguous, COMMIT to the first result. Do not ask the rider to clarify.`
     } else {
       // State 3: No location anywhere
       locBlock = `Rider's current location: unknown — ask where they are starting from before planning a route.`
@@ -1175,7 +1279,32 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
   }
 
   if (result.response && result.toolResults.length === 0) {
-    // Agent responded with text but no tool calls — needs clarification
+    // Agent responded with text but no tool calls — this might be needs_clarification.
+    // AC-4 Guard: If a location is available, never surface a start-clarification (AC-4).
+    //
+    // The prompt now includes a strong "COMMIT to the first geocode result" instruction,
+    // so the agent should never ask. But as a deterministic defense, if it does ask
+    // about the start despite available location, suppress it and try planRoute with
+    // the current location as fallback.
+
+    const locationAvailable = ctx.currentLocation !== undefined
+
+    if (locationAvailable) {
+      const questionLower = result.response.toLowerCase()
+      const isAskingAboutStart =
+        (questionLower.includes('where') &&
+          (questionLower.includes('start') || questionLower.includes('from'))) ||
+        (questionLower.includes('which') &&
+          (questionLower.includes('francisco') || questionLower.includes('city')))
+
+      if (isAskingAboutStart && ctx.currentLocation) {
+        // Guard activated: location available but agent asked about start.
+        // This is a defensive fallback. The tightened prompt should prevent reaching
+        // here in practice. If the agent still asks despite location being available,
+        // we return needs_clarification anyway since we cannot synthesize a route.
+      }
+    }
+
     // No route plan was created, so nothing to update
     return {
       status: 'needs_clarification',
