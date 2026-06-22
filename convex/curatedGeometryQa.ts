@@ -166,7 +166,7 @@ type ExportRow = {
   state: string
   centroidLat: number
   centroidLng: number
-  coords: [number, number][]
+  segments: [number, number][][]
 }
 type ExportResult = { count: number; routes: ExportRow[] }
 
@@ -187,16 +187,23 @@ export const exportGenerated = internalAction({
       })
       for (const r of page.rows) {
         if (routes.length >= cap) break
-        if (!r.value) continue
-        const coords = polyline.decode(r.value, r.precision) as [number, number][]
-        if (coords.length < 2) continue
+        let segments: [number, number][][] = []
+        if (r.segments?.length) {
+          segments = r.segments
+            .map((s) => polyline.decode(s, r.precision) as [number, number][])
+            .filter((c) => c.length >= 2)
+        } else if (r.value) {
+          const c = polyline.decode(r.value, r.precision) as [number, number][]
+          if (c.length >= 2) segments = [c]
+        }
+        if (!segments.length) continue
         routes.push({
           routeId: r.routeId,
           name: r.name,
           state: r.state,
           centroidLat: r.centroidLat,
           centroidLng: r.centroidLng,
-          coords,
+          segments,
         })
       }
       cursor = page.continueCursor
