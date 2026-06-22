@@ -250,6 +250,26 @@ export const curatedRouteValidator = v.object({
 })
 
 /**
+ * Curated route geometry validator (side table).
+ *
+ * DATA-011 16MB-read fix: the generated MultiLineString geometry is large (up to
+ * MAX_SEGMENTS encoded polylines per route). Storing it INSIDE each curated_routes
+ * doc made the browse/scoring queries that scan many rows (mode 4 reads up to 2,000
+ * full docs) exceed Convex's 16MB single-execution read limit. Geometry now lives in
+ * its own table keyed by routeId (by_routeId index) so curated_routes docs stay lean;
+ * only the small geometryStatus stays on the route doc. Fetched on demand for the
+ * ~10 routes a discovery actually plots.
+ */
+export const curatedRouteGeometryValidator = v.object({
+  routeId: v.string(),
+  format: v.union(v.literal('polyline'), v.literal('multipolyline')),
+  encoding: v.string(),
+  precision: v.number(),
+  value: v.optional(v.string()), // single-line form
+  segments: v.optional(v.array(v.string())), // multipolyline form (Overpass full route)
+})
+
+/**
  * Route post raw validator (Epic 3 — INF-003)
  *
  * Stores raw LLM extraction artifacts per community post.

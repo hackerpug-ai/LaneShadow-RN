@@ -86,8 +86,22 @@ async function runDiscoverCuratedRoutes(
     queryArgs.archetypes = args.intent.archetypes!
   }
 
-  // Call the curated routes API
+  // Call the curated routes API (lean — no in-row geometry; DATA-011 16MB-read fix)
   const curatedRoutes = await ctx.runQuery(api.curatedRoutes.listCuratedRoutes, queryArgs)
+
+  // Fetch the real geometry ONLY for the handful of routes we're about to plot, from the
+  // curated_route_geometry side table (keeps geometry off the wide browse-scan path).
+  const generatedRouteIds = curatedRoutes
+    .filter((r: any) => r.geometryStatus === 'generated')
+    .map((r: any) => r.routeId)
+  const geometryRows = generatedRouteIds.length
+    ? await ctx.runQuery(internal.curatedGeometry.getGeometryForRoutes, {
+        routeIds: generatedRouteIds,
+      })
+    : []
+  const geometryByRouteId = new Map<string, any>(
+    (geometryRows as any[]).map((g) => [g.routeId, g]),
+  )
 
   if (curatedRoutes.length === 0) {
     // No matches found - return conversational response
@@ -157,9 +171,9 @@ async function runDiscoverCuratedRoutes(
         },
       },
       map: {
-        // DATA-011: use the name-anchored generated LineString when present; otherwise
-        // fall back to the centroid point (existing behavior — no regression).
-        ...buildCuratedMapGeometry(route),
+        // DATA-011: use the name-anchored generated geometry (from the side table) when
+        // present; otherwise fall back to the centroid point (no regression).
+        ...buildCuratedMapGeometry(route, geometryByRouteId.get(route.routeId)),
         legs: [], // No detailed legs for curated routes
         overlays: {},
       },
@@ -192,17 +206,26 @@ function encodeCentroidToPolyline(lat: number, lng: number): string {
 
 /**
  * DATA-011: build the map geometry + bounds for a curated route option.
- * Prefers the name-anchored generated LineString (geometryStatus === 'generated');
- * decodes it to derive real bounds. Falls back to the centroid point + ±0.5° bounds
- * when no generated geometry exists (unresolved/un-backfilled) — never a fake line.
+ * Prefers the name-anchored generated geometry from the curated_route_geometry side table
+ * (`g`, passed in by the caller); decodes it to derive real bounds. Falls back to the
+ * centroid point + ±0.5° bounds when no generated geometry exists (unresolved/un-backfilled)
+ * — never a fake line.
  */
-function buildCuratedMapGeometry(route: any): {
+function buildCuratedMapGeometry(
+  route: any,
+  g: {
+    format: 'polyline' | 'multipolyline'
+    precision: number
+    value?: string | null
+    segments?: string[] | null
+  } | null
+  | undefined,
+): {
   overviewGeometry: string
   overviewSegments?: string[]
   bounds: { north: number; south: number; east: number; west: number }
 } {
-  const g = route.routeGeometry
-  if (route.geometryStatus === 'generated' && g) {
+  if (g) {
     const precision = g.precision ?? 5
 
     // multipolyline (Overpass full route): one encoded polyline per OSM way segment.

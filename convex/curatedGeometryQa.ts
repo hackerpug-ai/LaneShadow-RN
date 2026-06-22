@@ -51,7 +51,9 @@ function haversineMi(aLat: number, aLng: number, bLat: number, bLng: number): nu
   return 2 * R_MI * Math.asin(Math.min(1, Math.sqrt(s)))
 }
 
-/** Page of generated geometries with the catalog fields needed to QA them. */
+/** Page of generated geometries with the catalog fields needed to QA them.
+ * DATA-011 16MB-read fix: geometry now lives in the curated_route_geometry side table, so
+ * each generated route doc is joined to its geometry row by routeId. */
 export const listGeneratedForQa = internalQuery({
   args: { cursor: v.union(v.string(), v.null()), batchSize: v.number() },
   handler: async (ctx, { cursor, batchSize }): Promise<QaPage> => {
@@ -59,8 +61,13 @@ export const listGeneratedForQa = internalQuery({
       .query('curated_routes')
       .filter((q) => q.eq(q.field('geometryStatus'), 'generated'))
       .paginate({ cursor, numItems: batchSize })
-    return {
-      rows: page.page.map((r) => ({
+    const rows: QaRow[] = []
+    for (const r of page.page) {
+      const geo = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', r.routeId))
+        .first()
+      rows.push({
         id: r._id,
         routeId: r.routeId,
         name: r.name,
@@ -68,10 +75,13 @@ export const listGeneratedForQa = internalQuery({
         centroidLat: r.centroidLat,
         centroidLng: r.centroidLng,
         lengthMiles: r.lengthMiles ?? null,
-        value: r.routeGeometry?.value ?? '',
-        segments: r.routeGeometry?.segments ?? null,
-        precision: r.routeGeometry?.precision ?? 5,
-      })),
+        value: geo?.value ?? '',
+        segments: geo?.segments ?? null,
+        precision: geo?.precision ?? 5,
+      })
+    }
+    return {
+      rows,
       continueCursor: page.continueCursor,
       isDone: page.isDone,
     }
@@ -210,6 +220,36 @@ export const exportGenerated = internalAction({
       isDone = page.isDone
     }
     return { count: routes.length, routes }
+  },
+})
+
+/**
+ * DATA-011 16MB-read fix verification: reproduce the exact wide read that blew the limit —
+ * listCuratedRoutes mode 4 reads up to 2,000 full curated_routes docs via the
+ * by_composite_score index. If this query RETURNS (instead of throwing the 16MB read-limit
+ * error) and reports a size well under 16MB with zero docs still carrying in-doc geometry,
+ * the side-table migration worked. Run: npx convex run curatedGeometryQa:measureWideRead '{}'
+ */
+export const measureWideRead = internalQuery({
+  args: { take: v.optional(v.number()) },
+  handler: async (ctx, { take }) => {
+    const docs = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_composite_score')
+      .order('desc')
+      .take(take ?? 2000)
+    let bytes = 0
+    let docsStillCarryingGeometry = 0
+    for (const d of docs) {
+      bytes += JSON.stringify(d).length
+      if ((d as { routeGeometry?: unknown }).routeGeometry !== undefined) docsStillCarryingGeometry++
+    }
+    return {
+      count: docs.length,
+      approxBytes: bytes,
+      approxMB: Math.round((bytes / 1048576) * 100) / 100,
+      docsStillCarryingGeometry,
+    }
   },
 })
 

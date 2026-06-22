@@ -114,30 +114,189 @@ export const listForGeometryBackfill = internalQuery({
 })
 
 /**
- * Internal mutation: patch one route's generated geometry + status.
+ * Upsert one route's geometry into the curated_route_geometry SIDE TABLE (keyed by
+ * routeId). The large MultiLineString never touches the curated_routes doc — only the
+ * small geometryStatus does — so the browse/scoring queries that scan many route docs
+ * stay under Convex's 16MB single-execution read limit (DATA-011 16MB-read fix).
+ */
+async function upsertGeometry(
+  ctx: { db: import('./_generated/server').MutationCtx['db'] },
+  routeId: string,
+  geometry: {
+    format: 'polyline' | 'multipolyline'
+    encoding: string
+    precision: number
+    value?: string
+    segments?: string[]
+  },
+): Promise<void> {
+  const existing = await ctx.db
+    .query('curated_route_geometry')
+    .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+    .first()
+  const row = { routeId, ...geometry }
+  if (existing) {
+    await ctx.db.replace(existing._id, row)
+  } else {
+    await ctx.db.insert('curated_route_geometry', row)
+  }
+}
+
+/**
+ * Internal mutation: persist one route's generated geometry to the side table + stamp the
+ * small status on the route doc. The route doc itself stays lean (no geometry in-doc).
  */
 export const patchRouteGeometry = internalMutation({
   args: {
     id: v.id('curated_routes'),
+    routeId: v.string(),
     routeGeometry: v.optional(GEOMETRY_VALUE),
     geometryStatus: GEOMETRY_STATUS,
   },
-  handler: async (ctx, { id, routeGeometry, geometryStatus }) => {
-    const patch: Record<string, unknown> = { geometryStatus }
-    if (routeGeometry) patch.routeGeometry = routeGeometry
-    await ctx.db.patch(id, patch)
+  handler: async (ctx, { id, routeId, routeGeometry, geometryStatus }) => {
+    // Only the status lives on the route doc; clear any legacy in-doc geometry.
+    await ctx.db.patch(id, { geometryStatus, routeGeometry: undefined })
+    if (routeGeometry) await upsertGeometry(ctx, routeId, routeGeometry)
   },
 })
 
 /**
- * Internal mutation: clear a route's geometry (remove routeGeometry + unset geometryStatus)
- * so it falls back to the centroid AND is re-queued for the resumable backfill. Used to
- * reset QA-failing rows (the wrong same-name-road matches the QA caught).
+ * Internal mutation: clear a route's geometry (delete the side-table row + unset
+ * geometryStatus on the doc) so it falls back to the centroid AND is re-queued for the
+ * resumable backfill. Used to reset QA-failing rows (the wrong same-name-road matches
+ * the QA caught).
  */
 export const clearGeometry = internalMutation({
   args: { id: v.id('curated_routes') },
   handler: async (ctx, { id }) => {
+    const doc = await ctx.db.get(id)
+    if (doc) {
+      const existing = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', doc.routeId))
+        .first()
+      if (existing) await ctx.db.delete(existing._id)
+    }
     await ctx.db.patch(id, { geometryStatus: undefined, routeGeometry: undefined })
+  },
+})
+
+type GeometryRow = {
+  routeId: string
+  format: 'polyline' | 'multipolyline'
+  encoding: string
+  precision: number
+  value: string | null
+  segments: string[] | null
+}
+
+/**
+ * Internal query: fetch generated geometry for a small set of routeIds (the ~10 a
+ * discovery actually plots) from the side table. Keeps the read off the wide
+ * curated_routes scan path entirely.
+ */
+export const getGeometryForRoutes = internalQuery({
+  args: { routeIds: v.array(v.string()) },
+  handler: async (ctx, { routeIds }): Promise<GeometryRow[]> => {
+    const out: GeometryRow[] = []
+    for (const routeId of routeIds) {
+      const row = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      if (row) {
+        out.push({
+          routeId,
+          format: row.format,
+          encoding: row.encoding,
+          precision: row.precision,
+          value: row.value ?? null,
+          segments: row.segments ?? null,
+        })
+      }
+    }
+    return out
+  },
+})
+
+type MigratePage = {
+  rows: Array<{ id: import('./_generated/dataModel').Id<'curated_routes'>; routeId: string }>
+  continueCursor: string
+  isDone: boolean
+}
+
+/**
+ * Internal query: page of curated_routes that STILL carry in-doc geometry (status
+ * 'generated'). Returns only {id, routeId} so the migrating action stays tiny; the
+ * per-row mutation re-reads the single doc to move its geometry. Small batchSize keeps
+ * each page read (full docs incl. geometry) well under the 16MB limit.
+ */
+export const listGeometryInDoc = internalQuery({
+  args: { cursor: v.union(v.string(), v.null()), batchSize: v.number() },
+  handler: async (ctx, { cursor, batchSize }): Promise<MigratePage> => {
+    const page = await ctx.db
+      .query('curated_routes')
+      .filter((q) => q.eq(q.field('geometryStatus'), 'generated'))
+      .paginate({ cursor, numItems: batchSize })
+    return {
+      rows: page.page.map((r) => ({ id: r._id, routeId: r.routeId })),
+      continueCursor: page.continueCursor,
+      isDone: page.isDone,
+    }
+  },
+})
+
+/**
+ * Internal mutation: move ONE route's in-doc geometry to the side table + clear it from
+ * the doc (keeping geometryStatus). Idempotent — a row already migrated (no in-doc
+ * geometry) is a no-op returning false.
+ */
+export const moveGeometryToSideTable = internalMutation({
+  args: { id: v.id('curated_routes') },
+  handler: async (ctx, { id }): Promise<boolean> => {
+    const doc = await ctx.db.get(id)
+    if (!doc || !doc.routeGeometry) return false
+    await upsertGeometry(ctx, doc.routeId, doc.routeGeometry)
+    await ctx.db.patch(id, { routeGeometry: undefined }) // keep geometryStatus
+    return true
+  },
+})
+
+type MigrateReport = { scanned: number; moved: number; skipped: number }
+
+/**
+ * DATA-011 16MB-read fix migration: copy every in-doc geometry into the side table and
+ * clear it from the route doc, so the wide browse/scoring scans read lean docs. Resumable
+ * + idempotent (re-running skips already-moved rows). This is the action that actually
+ * unblocks the 16MB read error.
+ *   npx convex run curatedGeometry:migrateGeometryToSideTable '{}'
+ */
+export const migrateGeometryToSideTable = internalAction({
+  args: { batchSize: v.optional(v.number()) },
+  handler: async (ctx, { batchSize }): Promise<MigrateReport> => {
+    const size = batchSize ?? 50
+    let cursor: string | null = null
+    let isDone = false
+    let scanned = 0
+    let moved = 0
+    let skipped = 0
+    while (!isDone) {
+      const page: MigratePage = await ctx.runQuery(internal.curatedGeometry.listGeometryInDoc, {
+        cursor,
+        batchSize: size,
+      })
+      for (const r of page.rows) {
+        scanned++
+        const ok = await ctx.runMutation(internal.curatedGeometry.moveGeometryToSideTable, {
+          id: r.id,
+        })
+        if (ok) moved++
+        else skipped++
+      }
+      cursor = page.continueCursor
+      isDone = page.isDone
+    }
+    return { scanned, moved, skipped }
   },
 })
 
@@ -407,6 +566,7 @@ export const backfill = internalAction({
           if (geo) {
             await ctx.runMutation(internal.curatedGeometry.patchRouteGeometry, {
               id: route.id,
+              routeId: route.routeId,
               routeGeometry: {
                 format: 'multipolyline',
                 encoding: 'polyline',
@@ -426,6 +586,7 @@ export const backfill = internalAction({
           } else {
             await ctx.runMutation(internal.curatedGeometry.patchRouteGeometry, {
               id: route.id,
+              routeId: route.routeId,
               geometryStatus: 'unresolved',
             })
             unresolved++
@@ -446,6 +607,7 @@ export const backfill = internalAction({
           }
           await ctx.runMutation(internal.curatedGeometry.patchRouteGeometry, {
             id: route.id,
+            routeId: route.routeId,
             geometryStatus: 'failed',
           })
           failed++

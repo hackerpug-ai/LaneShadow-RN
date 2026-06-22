@@ -4,6 +4,7 @@ import { curatedRouteEnrichmentValidator } from '../shared/models/curated-route-
 import { curatedRouteStateCountValidator } from '../shared/models/curated-route-state-counts'
 import {
   communityWaypointMentionValidator,
+  curatedRouteGeometryValidator,
   curatedRouteValidator,
   routeMatchValidator,
   routePostRawValidator,
@@ -200,6 +201,16 @@ export default defineSchema({
    * Indexed by routeId for finding enrichments for a specific curated route
    */
   curated_route_enrichments: defineTable(curatedRouteEnrichmentValidator).index('by_routeId', [
+    'routeId',
+  ]),
+
+  /**
+   * Curated route geometry table (DATA-011 16MB-read fix).
+   * Large generated MultiLineString geometry lives here, NOT inside curated_routes,
+   * so the browse/scoring queries that scan many route docs stay under Convex's
+   * 16MB single-execution read limit. Keyed + indexed by routeId.
+   */
+  curated_route_geometry: defineTable(curatedRouteGeometryValidator).index('by_routeId', [
     'routeId',
   ]),
 

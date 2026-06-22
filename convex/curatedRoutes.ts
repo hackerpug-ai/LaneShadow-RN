@@ -50,16 +50,9 @@ const returnValidator = v.array(
     lengthMiles: v.optional(v.number()),
     distanceMi: v.optional(v.number()),
     summary: v.optional(v.string()),
-    // DATA-011: name-anchored generated geometry (absent until backfilled).
-    routeGeometry: v.optional(
-      v.object({
-        format: v.union(v.literal('polyline'), v.literal('multipolyline')),
-        encoding: v.string(),
-        precision: v.number(),
-        value: v.optional(v.string()),
-        segments: v.optional(v.array(v.string())),
-      }),
-    ),
+    // DATA-011 16MB-read fix: geometry is NOT returned on the (potentially wide) browse
+    // list — it lives in the curated_route_geometry side table and is fetched on demand
+    // for the ~10 routes a discovery actually plots. Only the small status stays here.
     geometryStatus: v.optional(
       v.union(v.literal('generated'), v.literal('unresolved'), v.literal('failed')),
     ),
@@ -146,9 +139,8 @@ function buildRouteCard(route: any, distanceMi?: number) {
     lengthMiles: clampLength(route.lengthMiles),
     distanceMi,
     summary: route.summary,
-    // DATA-011: pass through generated geometry so discoverCuratedRoutes can draw
-    // the real route line (falls through to the centroid when absent/unresolved).
-    routeGeometry: route.routeGeometry,
+    // DATA-011 16MB-read fix: only the small status is returned; the actual geometry is
+    // fetched from the curated_route_geometry side table by routeId in discoverCuratedRoutes.
     geometryStatus: route.geometryStatus,
   }
 }
@@ -285,12 +277,17 @@ export const listCuratedRoutes = query({
         .slice(0, effectiveLimit)
     }
 
-    // Mode 4: no geography — best sort via by_composite_score index
+    // Mode 4: no geography — best sort via by_composite_score index.
+    // Cap the archetype pre-filter scan at 800 full docs: each curated_routes doc carries a
+    // 1536-float searchEmbedding (~7.4KB) regardless of geometry, so 2,000 docs ≈ 14.8MB —
+    // perilously close to Convex's 16MB single-execution read limit. 800 docs ≈ 5.9MB keeps
+    // comfortable headroom and still amply fills any effectiveLimit (≤200) after filtering.
+    // (No real caller passes limit ≥ 80, so effectiveLimit*10 only reaches this cap in theory.)
     const topRoutes = await ctx.db
       .query('curated_routes')
       .withIndex('by_composite_score')
       .order('desc')
-      .take(dbArchetypeSet ? Math.min(effectiveLimit * 10, 2000) : effectiveLimit)
+      .take(dbArchetypeSet ? Math.min(effectiveLimit * 10, 800) : effectiveLimit)
 
     return topRoutes
       .filter(matchesArchetype)
