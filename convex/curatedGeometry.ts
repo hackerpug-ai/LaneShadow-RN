@@ -66,6 +66,7 @@ type BackfillReport = {
   generated: number
   unresolved: number
   failed: number
+  throttled: boolean
   resolveRate: number
   continueCursor: string | null
   isDone: boolean
@@ -159,17 +160,57 @@ const MIN_SPAN_MI = 0.5 // a real route covers at least this many miles total
 const MAX_SEGMENTS = 400 // cap stored segments (Convex doc-size guard); keep the longest
 
 const STATE_ABBR: Record<string, string> = {
-  Alabama: 'AL', Alaska: 'AK', Arizona: 'AZ', Arkansas: 'AR', California: 'CA',
-  Colorado: 'CO', Connecticut: 'CT', Delaware: 'DE', Florida: 'FL', Georgia: 'GA',
-  Hawaii: 'HI', Idaho: 'ID', Illinois: 'IL', Indiana: 'IN', Iowa: 'IA', Kansas: 'KS',
-  Kentucky: 'KY', Louisiana: 'LA', Maine: 'ME', Maryland: 'MD', Massachusetts: 'MA',
-  Michigan: 'MI', Minnesota: 'MN', Mississippi: 'MS', Missouri: 'MO', Montana: 'MT',
-  Nebraska: 'NE', Nevada: 'NV', 'New Hampshire': 'NH', 'New Jersey': 'NJ',
-  'New Mexico': 'NM', 'New York': 'NY', 'North Carolina': 'NC', 'North Dakota': 'ND',
-  Ohio: 'OH', Oklahoma: 'OK', Oregon: 'OR', Pennsylvania: 'PA', 'Rhode Island': 'RI',
-  'South Carolina': 'SC', 'South Dakota': 'SD', Tennessee: 'TN', Texas: 'TX', Utah: 'UT',
-  Vermont: 'VT', Virginia: 'VA', Washington: 'WA', 'West Virginia': 'WV',
-  Wisconsin: 'WI', Wyoming: 'WY', 'District of Columbia': 'DC',
+  Alabama: 'AL',
+  Alaska: 'AK',
+  Arizona: 'AZ',
+  Arkansas: 'AR',
+  California: 'CA',
+  Colorado: 'CO',
+  Connecticut: 'CT',
+  Delaware: 'DE',
+  Florida: 'FL',
+  Georgia: 'GA',
+  Hawaii: 'HI',
+  Idaho: 'ID',
+  Illinois: 'IL',
+  Indiana: 'IN',
+  Iowa: 'IA',
+  Kansas: 'KS',
+  Kentucky: 'KY',
+  Louisiana: 'LA',
+  Maine: 'ME',
+  Maryland: 'MD',
+  Massachusetts: 'MA',
+  Michigan: 'MI',
+  Minnesota: 'MN',
+  Mississippi: 'MS',
+  Missouri: 'MO',
+  Montana: 'MT',
+  Nebraska: 'NE',
+  Nevada: 'NV',
+  'New Hampshire': 'NH',
+  'New Jersey': 'NJ',
+  'New Mexico': 'NM',
+  'New York': 'NY',
+  'North Carolina': 'NC',
+  'North Dakota': 'ND',
+  Ohio: 'OH',
+  Oklahoma: 'OK',
+  Oregon: 'OR',
+  Pennsylvania: 'PA',
+  'Rhode Island': 'RI',
+  'South Carolina': 'SC',
+  'South Dakota': 'SD',
+  Tennessee: 'TN',
+  Texas: 'TX',
+  Utah: 'UT',
+  Vermont: 'VT',
+  Virginia: 'VA',
+  Washington: 'WA',
+  'West Virginia': 'WV',
+  Wisconsin: 'WI',
+  Wyoming: 'WY',
+  'District of Columbia': 'DC',
 }
 function stateAbbr(state: string): string | null {
   const s = state.replace(/-/g, ' ').trim() // catalog uses "New-York", "North-Carolina"
@@ -226,41 +267,56 @@ function buildOverpassFilters(
   return out.slice(0, 4)
 }
 
+class OverpassThrottled extends Error {
+  constructor() {
+    super('OVERPASS_THROTTLED')
+    this.name = 'OverpassThrottled'
+  }
+}
+
 /**
  * Query Overpass for ALL highway ways matching a ref/name within the bbox → [lat,lng][][]
- * (one entry per OSM way). Sleeps 2s BEFORE the call (polite: ≤1 req/2s on the public API).
+ * (one entry per OSM way). Sleeps 2s before the call (polite). Retries on throttle (429/5xx/
+ * network) with backoff; if STILL throttled after retries, throws OverpassThrottled so the
+ * caller can leave the row unprocessed (re-queued) rather than mismark it as unresolved.
+ * Returns null only for a genuine empty/no-match response.
  */
 async function fetchOverpassWays(
   filter: { key: 'ref' | 'name'; value: string },
   bbox: string,
 ): Promise<[number, number][][] | null> {
-  await new Promise((r) => setTimeout(r, 2000))
   const clause =
     filter.key === 'ref'
       ? `["ref"="${filter.value.replace(/"/g, '')}"]`
       : `["name"~"${filter.value.replace(/[\\"]/g, '')}",i]`
   const q = `[out:json][timeout:25];way["highway"]${clause}(${bbox});out geom;`
-  let res: Response
-  try {
-    res = await fetch('https://overpass-api.de/api/interpreter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'LaneShadow/1.0 (curated route geometry; justin@formulist.ai)',
-      },
-      body: `data=${encodeURIComponent(q)}`,
-    })
-  } catch {
-    return null
+  const backoffs = [2000, 8000, 20000] // first attempt waits 2s (polite); retries back off
+  for (let attempt = 0; attempt < backoffs.length; attempt++) {
+    await new Promise((r) => setTimeout(r, backoffs[attempt]))
+    let res: Response
+    try {
+      res = await fetch('https://overpass-api.de/api/interpreter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'LaneShadow/1.0 (curated route geometry; justin@formulist.ai)',
+        },
+        body: `data=${encodeURIComponent(q)}`,
+      })
+    } catch {
+      continue // network error → retry
+    }
+    if (res.status === 429 || res.status === 504 || res.status >= 500) continue // throttled → retry
+    if (!res.ok) return null // other client error → genuine miss
+    const data = (await res.json()) as {
+      elements?: Array<{ type: string; geometry?: Array<{ lat: number; lon: number }> }>
+    }
+    const ways = (data.elements ?? [])
+      .filter((e) => e.type === 'way' && Array.isArray(e.geometry) && e.geometry.length > 1)
+      .map((e) => (e.geometry ?? []).map((p) => [p.lat, p.lon] as [number, number]))
+    return ways.length ? ways : null
   }
-  if (!res.ok) return null
-  const data = (await res.json()) as {
-    elements?: Array<{ type: string; geometry?: Array<{ lat: number; lon: number }> }>
-  }
-  const ways = (data.elements ?? [])
-    .filter((e) => e.type === 'way' && Array.isArray(e.geometry) && e.geometry.length > 1)
-    .map((e) => (e.geometry ?? []).map((p) => [p.lat, p.lon] as [number, number]))
-  return ways.length ? ways : null
+  throw new OverpassThrottled() // exhausted retries
 }
 
 /**
@@ -317,6 +373,7 @@ export const backfill = internalAction({
     let generated = 0
     let unresolved = 0
     let failed = 0
+    let throttled = false
     const perRoute: Array<Record<string, unknown>> = []
 
     let curCursor: string | null = cursor ?? null
@@ -380,6 +437,13 @@ export const backfill = internalAction({
             })
           }
         } catch (e) {
+          if (e instanceof Error && e.message === 'OVERPASS_THROTTLED') {
+            // Persistent throttle: do NOT mark the row — leave it unprocessed (re-queued)
+            // and stop this run cleanly so the resumable driver retries it later.
+            processed--
+            throttled = true
+            break
+          }
           await ctx.runMutation(internal.curatedGeometry.patchRouteGeometry, {
             id: route.id,
             geometryStatus: 'failed',
@@ -393,10 +457,10 @@ export const backfill = internalAction({
             error: e instanceof Error ? e.message : String(e),
           })
         }
-        // Rate-limiting is handled per HTTP call inside fetchLineString (≤1 req/s),
-        // covering every candidate attempt — no extra per-route sleep needed.
+        // Rate-limiting is handled per HTTP call inside fetchOverpassWays (with backoff).
       }
 
+      if (throttled) break
       curCursor = page.continueCursor
       isDone = page.isDone
     }
@@ -406,6 +470,7 @@ export const backfill = internalAction({
       generated,
       unresolved,
       failed,
+      throttled,
       resolveRate: processed > 0 ? generated / processed : 0,
       continueCursor: curCursor,
       isDone,
