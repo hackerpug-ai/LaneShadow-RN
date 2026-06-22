@@ -26,6 +26,7 @@ type QaRow = {
   centroidLng: number
   lengthMiles: number | null
   value: string
+  segments: string[] | null
   precision: number
 }
 type QaPage = { rows: QaRow[]; continueCursor: string; isDone: boolean }
@@ -68,6 +69,7 @@ export const listGeneratedForQa = internalQuery({
         centroidLng: r.centroidLng,
         lengthMiles: r.lengthMiles ?? null,
         value: r.routeGeometry?.value ?? '',
+        segments: r.routeGeometry?.segments ?? null,
         precision: r.routeGeometry?.precision ?? 5,
       })),
       continueCursor: page.continueCursor,
@@ -102,17 +104,30 @@ export const qa = internalAction({
       for (const r of page.rows) {
         if (processed >= cap) break
         processed++
-        if (!r.value) continue
-        const coords = polyline.decode(r.value, r.precision) as [number, number][] // [lat,lng]
-        if (coords.length < 2) continue
-        const mid = coords[Math.floor(coords.length / 2)]
+        // Build the coordinate set: multipolyline → all segments; single-line → value.
+        let segList: [number, number][][] = []
+        if (r.segments?.length) {
+          segList = r.segments
+            .map((s) => polyline.decode(s, r.precision) as [number, number][])
+            .filter((c) => c.length >= 2)
+        } else if (r.value) {
+          const c = polyline.decode(r.value, r.precision) as [number, number][]
+          if (c.length >= 2) segList = [c]
+        }
+        if (!segList.length) continue
+        const totalPts = segList.reduce((s, c) => s + c.length, 0)
+        // midpoint of the longest segment for the centroid (location) check
+        const longest = segList.reduce((a, b) => (b.length > a.length ? b : a))
+        const mid = longest[Math.floor(longest.length / 2)]
         const dCentroidMi = haversineMi(mid[0], mid[1], r.centroidLat, r.centroidLng)
         let geomLenMi = 0
-        for (let i = 1; i < coords.length; i++) {
-          geomLenMi += haversineMi(coords[i - 1][0], coords[i - 1][1], coords[i][0], coords[i][1])
+        for (const c of segList) {
+          for (let i = 1; i < c.length; i++) {
+            geomLenMi += haversineMi(c[i - 1][0], c[i - 1][1], c[i][0], c[i][1])
+          }
         }
         const lenRatio = r.lengthMiles && r.lengthMiles > 0 ? geomLenMi / r.lengthMiles : null
-        if (coords.length === 2) twoPointOnly++
+        if (totalPts === 2) twoPointOnly++
 
         let kind = 'ok'
         if (dCentroidMi > 25) {
@@ -133,7 +148,8 @@ export const qa = internalAction({
             dCentroidMi: Math.round(dCentroidMi),
             geomLenMi: Math.round(geomLenMi),
             routeLenMi: r.lengthMiles,
-            points: coords.length,
+            points: totalPts,
+            segments: segList.length,
           })
         }
       }
