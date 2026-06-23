@@ -116,6 +116,31 @@ type SampleReport = {
 /** The Convex function path for the backfill action. */
 const BACKFILL_FUNCTION = 'actions/curatedGeometry:backfill'
 
+/** The Convex function path for the sample-reset helper. */
+const RESET_SAMPLE_FUNCTION = 'actions/curatedGeometry:clearGeometryStatusForSample'
+
+/**
+ * DATA-011 test-setup: reset `count` routes to unprocessed state so the sample
+ * backfill has exactly `count` rows to process. Clears geometryStatus + deletes
+ * side-table geometry. This is called BEFORE --sample so the backfill has a
+ * deterministic pool of unprocessed routes.
+ */
+function resetSampleRoutes(count: number): number {
+  const argsJson = JSON.stringify({ count })
+  const cmd = `npx convex run ${RESET_SAMPLE_FUNCTION} '${argsJson.replace(/'/g, "'\"'\"'")}'`
+  process.stdout.write(`Resetting ${count} routes to unprocessed state...\n`)
+
+  try {
+    const result = execSync(cmd, { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'] })
+    const parsed = JSON.parse(result) as { cleared: number }
+    process.stdout.write(`  Cleared ${parsed.cleared} routes.\n`)
+    return parsed.cleared
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error)
+    throw new Error(`Sample reset failed: ${msg}`)
+  }
+}
+
 /**
  * Run the backfill action via `npx convex run`.
  * The action handles pagination internally when given a sample count.
@@ -232,6 +257,12 @@ async function main(): Promise<void> {
   const { sample, all, cursor } = parseArgs(process.argv)
 
   if (sample !== null) {
+    // DATA-011 test-setup: reset routes to unprocessed so the sample has
+    // exactly `sample` unprocessed rows to process. Without this, prior runs
+    // may have already processed many rows, resulting in fewer than `sample`
+    // routes in the report.
+    resetSampleRoutes(sample)
+
     process.stdout.write(`Running sample backfill: ${sample} routes\n`)
     const report = runBackfill(sample, cursor)
 

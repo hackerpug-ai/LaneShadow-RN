@@ -199,6 +199,30 @@ export const listForGeometryBackfill = internalQuery({
 })
 
 /**
+ * Internal query: list ALL curated routes (regardless of geometryStatus) for the
+ * test-setup helper that resets rows to unprocessed. Returns only {id, routeId}
+ * to keep reads small. Paginated via the by_composite_score index.
+ */
+export const listAllRoutesForReset = internalQuery({
+  args: {
+    cursor: v.union(v.string(), v.null()),
+    batchSize: v.number(),
+  },
+  handler: async (ctx, { cursor, batchSize }) => {
+    const page = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_composite_score')
+      .order('desc')
+      .paginate({ cursor, numItems: batchSize })
+    return {
+      rows: page.page.map((r) => ({ id: r._id, routeId: r.routeId })),
+      continueCursor: page.continueCursor,
+      isDone: page.isDone,
+    }
+  },
+})
+
+/**
  * Internal query: fetch a single curated route by routeId for geometry generation.
  * Returns the fields needed by geocodeRouteGeometry, or null if not found.
  */

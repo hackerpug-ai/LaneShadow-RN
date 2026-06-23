@@ -434,3 +434,53 @@ export const backfill = internalAction({
     }
   },
 })
+
+/**
+ * DATA-011 test-setup helper: reset up to `count` curated routes to
+ * unprocessed state so the sample backfill has exactly that many rows
+ * to process. Clears geometryStatus on the route doc and deletes the
+ * corresponding side-table geometry row.
+ *
+ * This is a TEST-SETUP action only — the production backfill action
+ * (`backfill`) remains unchanged. Call before `--sample=25` to ensure
+ * there are at least 25 unprocessed routes.
+ *
+ * Run: npx convex run actions/curatedGeometry:clearGeometryStatusForSample '{"count":25}'
+ */
+type ResetPage = {
+  rows: Array<{ id: import('../_generated/dataModel').Id<'curated_routes'>; routeId: string }>
+  continueCursor: string
+  isDone: boolean
+}
+
+export const clearGeometryStatusForSample = internalAction({
+  args: { count: v.number() },
+  handler: async (ctx, { count }): Promise<{ cleared: number }> => {
+    let cursor: string | null = null
+    let isDone = false
+    const ids: Array<{
+      id: import('../_generated/dataModel').Id<'curated_routes'>
+      routeId: string
+    }> = []
+
+    // Scan ALL routes (not just unprocessed) so we can reset already-processed ones
+    while (!isDone && ids.length < count) {
+      const page: ResetPage = await ctx.runQuery(internal.curatedGeometry.listAllRoutesForReset, {
+        cursor,
+        batchSize: 100,
+      })
+      for (const r of page.rows) {
+        if (ids.length >= count) break
+        ids.push({ id: r.id, routeId: r.routeId })
+      }
+      cursor = page.continueCursor
+      isDone = page.isDone
+    }
+
+    for (const { id } of ids) {
+      await ctx.runMutation(internal.curatedGeometry.clearGeometry, { id })
+    }
+
+    return { cleared: ids.length }
+  },
+})
