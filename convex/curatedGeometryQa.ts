@@ -242,7 +242,8 @@ export const measureWideRead = internalQuery({
     let docsStillCarryingGeometry = 0
     for (const d of docs) {
       bytes += JSON.stringify(d).length
-      if ((d as { routeGeometry?: unknown }).routeGeometry !== undefined) docsStillCarryingGeometry++
+      if ((d as { routeGeometry?: unknown }).routeGeometry !== undefined)
+        docsStillCarryingGeometry++
     }
     return {
       count: docs.length,
@@ -310,8 +311,8 @@ export const resetSuspects = internalAction({
 
 /**
  * DATA-011-C5: clear EVERY generated geometry → null, re-queuing all of them for the
- * Overpass MultiLineString backfill (upgrades the single-line Nominatim fragments to full
- * multi-segment routes). Unresolved rows are left as-is (Overpass won't help name-only byways).
+ * Nominatim + Google Routes backfill (re-routes with the corrected pipeline).
+ * Unresolved rows are left as-is (the pipeline won't help name-only byways).
  */
 export const clearAllGenerated = internalAction({
   args: {},

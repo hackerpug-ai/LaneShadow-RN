@@ -4,7 +4,10 @@
  * DATA-011: Backfill curated route geometry (driver script).
  *
  * Generates per-route line geometry for curated discovery routes by calling
- * the Convex internal action `curatedGeometry:backfill` via `npx convex run`.
+ * the Convex internal action `actions/curatedGeometry:backfill` via `npx convex run`.
+ *
+ * Architecture: geocode "{name}, {state}" via Nominatim → derive start/end endpoints
+ * → route via Google Routes provider → persist encoded polyline to side table.
  *
  * Two modes:
  *   --sample=25   Generate geometry for 25 routes and write a fidelity report
@@ -13,7 +16,7 @@
  *   --cursor=X    Resume a prior run from the given continueCursor.
  *
  * Resumable: skips rows already generated (geometryStatus='generated').
- * Rate-limited: the backfill action handles Overpass rate-limiting internally.
+ * Rate-limited: the backfill action handles Nominatim rate-limiting internally (≤1 req/s).
  *
  * Usage:
  *   pnpm tsx scripts/backfill-curated-geometry.ts --sample=25
@@ -24,7 +27,6 @@
 import { execSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
-import polyline from '@mapbox/polyline'
 
 // ---------------------------------------------------------------------------
 // CLI arg parsing
@@ -45,13 +47,13 @@ function parseArgs(argv: string[]): {
     } else if (arg.startsWith('--sample=')) {
       sample = parseInt(arg.split('=')[1], 10)
       if (Number.isNaN(sample) || sample < 1) {
-        console.error(`Invalid --sample value: ${arg}`)
+        process.stderr.write(`Invalid --sample value: ${arg}\n`)
         process.exit(1)
       }
     } else if (arg.startsWith('--cursor=')) {
       cursor = arg.split('=').slice(1).join('=')
     } else if (arg === '--help' || arg === '-h') {
-      console.log(`
+      process.stdout.write(`
 DATA-011: Backfill curated route geometry
 
 Usage:
@@ -111,6 +113,9 @@ type SampleReport = {
   failed: number
 }
 
+/** The Convex function path for the backfill action. */
+const BACKFILL_FUNCTION = 'actions/curatedGeometry:backfill'
+
 /**
  * Run the backfill action via `npx convex run`.
  * The action handles pagination internally when given a sample count.
@@ -121,8 +126,8 @@ function runBackfill(sample: number | null, cursor: string | null): BackfillRepo
   if (cursor !== null) args.cursor = cursor
   const argsJson = JSON.stringify(args)
 
-  const cmd = `npx convex run curatedGeometry:backfill '${argsJson.replace(/'/g, "'\"'\"'")}'`
-  console.log(`Running: ${cmd}`)
+  const cmd = `npx convex run ${BACKFILL_FUNCTION} '${argsJson.replace(/'/g, "'\"'\"'")}'`
+  process.stdout.write(`Running: ${cmd}\n`)
 
   try {
     const result = execSync(cmd, { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'] })
@@ -130,19 +135,6 @@ function runBackfill(sample: number | null, cursor: string | null): BackfillRepo
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error)
     throw new Error(`Backfill action failed: ${msg}`)
-  }
-}
-
-/**
- * Decode a polyline string and return the coordinate count.
- * Returns 0 for empty/invalid strings.
- */
-function _decodedCoordCount(encoded: string, precision = 5): number {
-  try {
-    const decoded = polyline.decode(encoded, precision) as [number, number][]
-    return decoded.length
-  } catch {
-    return 0
   }
 }
 
@@ -181,7 +173,7 @@ function writeSampleReport(report: SampleReport, outDir: string): string {
 // ---------------------------------------------------------------------------
 
 async function runFullBackfill(): Promise<void> {
-  console.log('Starting full backfill...')
+  process.stdout.write('Starting full backfill...\n')
   let cursor: string | null = null
   let totalProcessed = 0
   let totalGenerated = 0
@@ -195,19 +187,19 @@ async function runFullBackfill(): Promise<void> {
     totalUnresolved += report.unresolved
     totalFailed += report.failed
 
-    console.log(
+    process.stdout.write(
       `Batch: processed=${report.processed} generated=${report.generated} ` +
         `unresolved=${report.unresolved} failed=${report.failed} ` +
-        `throttled=${report.throttled}`,
+        `throttled=${report.throttled}\n`,
     )
 
     if (report.isDone) {
-      console.log('Backfill complete (all routes processed).')
+      process.stdout.write('Backfill complete (all routes processed).\n')
       break
     }
 
     if (report.throttled) {
-      console.log(`Throttled. Resume with --cursor="${report.continueCursor}"`)
+      process.stdout.write(`Throttled. Resume with --cursor="${report.continueCursor}"\n`)
       break
     }
 
@@ -215,18 +207,20 @@ async function runFullBackfill(): Promise<void> {
 
     // Safety: if no routes were processed, we're stuck
     if (report.processed === 0) {
-      console.log('No routes processed in this batch. Stopping.')
+      process.stdout.write('No routes processed in this batch. Stopping.\n')
       break
     }
   }
 
-  console.log('\nFinal totals:')
-  console.log(`  Processed:  ${totalProcessed}`)
-  console.log(`  Generated:  ${totalGenerated}`)
-  console.log(`  Unresolved: ${totalUnresolved}`)
-  console.log(`  Failed:     ${totalFailed}`)
+  process.stdout.write('\nFinal totals:\n')
+  process.stdout.write(`  Processed:  ${totalProcessed}\n`)
+  process.stdout.write(`  Generated:  ${totalGenerated}\n`)
+  process.stdout.write(`  Unresolved: ${totalUnresolved}\n`)
+  process.stdout.write(`  Failed:     ${totalFailed}\n`)
   if (totalProcessed > 0) {
-    console.log(`  Resolve rate: ${((totalGenerated / totalProcessed) * 100).toFixed(1)}%`)
+    process.stdout.write(
+      `  Resolve rate: ${((totalGenerated / totalProcessed) * 100).toFixed(1)}%\n`,
+    )
   }
 }
 
@@ -238,60 +232,62 @@ async function main(): Promise<void> {
   const { sample, all, cursor } = parseArgs(process.argv)
 
   if (sample !== null) {
-    console.log(`Running sample backfill: ${sample} routes`)
+    process.stdout.write(`Running sample backfill: ${sample} routes\n`)
     const report = runBackfill(sample, cursor)
 
-    console.log(`\nSample results:`)
-    console.log(`  Processed:  ${report.processed}`)
-    console.log(`  Generated:  ${report.generated}`)
-    console.log(`  Unresolved: ${report.unresolved}`)
-    console.log(`  Failed:     ${report.failed}`)
-    console.log(`  Resolve rate: ${(report.resolveRate * 100).toFixed(1)}%`)
+    process.stdout.write(`\nSample results:\n`)
+    process.stdout.write(`  Processed:  ${report.processed}\n`)
+    process.stdout.write(`  Generated:  ${report.generated}\n`)
+    process.stdout.write(`  Unresolved: ${report.unresolved}\n`)
+    process.stdout.write(`  Failed:     ${report.failed}\n`)
+    process.stdout.write(`  Resolve rate: ${(report.resolveRate * 100).toFixed(1)}%\n`)
 
     const sampleReport = buildSampleReport(report)
     const outDir = path.resolve(process.cwd(), '.tmp', 'DATA-011')
     const outPath = writeSampleReport(sampleReport, outDir)
 
-    console.log(`\nSample report written to: ${outPath}`)
-    console.log(
+    process.stdout.write(`\nSample report written to: ${outPath}\n`)
+    process.stdout.write(
       `  Routes: ${sampleReport.routes.length}, ` +
         `Resolved: ${sampleReport.resolved}, ` +
         `Unresolved: ${sampleReport.unresolved}, ` +
-        `Failed: ${sampleReport.failed}`,
+        `Failed: ${sampleReport.failed}\n`,
     )
 
     // Validation: the report must have the requested number of routes
     // and at least 1 resolved route
     if (sampleReport.routes.length !== sample) {
-      console.warn(
+      process.stderr.write(
         `WARNING: Expected ${sample} routes in report but got ${sampleReport.routes.length}. ` +
-          `This may indicate the catalog is smaller than the sample size.`,
+          `This may indicate the catalog is smaller than the sample size.\n`,
       )
     }
     if (sampleReport.resolved < 1 && report.processed > 0) {
-      console.warn('WARNING: No routes resolved in this sample. Check that Overpass is accessible.')
+      process.stderr.write(
+        'WARNING: No routes resolved in this sample. Check that Nominatim and Google Routes are accessible.\n',
+      )
     }
 
     if (report.continueCursor && !report.isDone) {
-      console.log(`\nTo continue: --cursor="${report.continueCursor}"`)
+      process.stdout.write(`\nTo continue: --cursor="${report.continueCursor}"\n`)
     }
   } else if (all) {
     await runFullBackfill()
   } else if (cursor) {
     // Resume from cursor — run one batch
-    console.log('Resuming from cursor...')
+    process.stdout.write('Resuming from cursor...\n')
     const report = runBackfill(null, cursor)
-    console.log(`Processed: ${report.processed}, Generated: ${report.generated}`)
+    process.stdout.write(`Processed: ${report.processed}, Generated: ${report.generated}\n`)
     if (!report.isDone && report.continueCursor) {
-      console.log(`Continue with: --cursor="${report.continueCursor}"`)
+      process.stdout.write(`Continue with: --cursor="${report.continueCursor}"\n`)
     }
   } else {
-    console.error('No mode specified. Use --sample=25 or --all. Run --help for usage.')
+    process.stderr.write('No mode specified. Use --sample=25 or --all. Run --help for usage.\n')
     process.exit(1)
   }
 }
 
 main().catch((error: unknown) => {
-  console.error('Fatal error:', error instanceof Error ? error.message : String(error))
+  process.stderr.write(`Fatal error: ${error instanceof Error ? error.message : String(error)}\n`)
   process.exit(1)
 })
