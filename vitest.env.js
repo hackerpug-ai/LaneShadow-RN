@@ -74,7 +74,9 @@ const BOTTOM_SHEET_STUB = path.resolve(__dirname, '__mocks__/gorhom-bottom-sheet
 const EXPO_MODULES_CORE_STUB = path.resolve(__dirname, '__mocks__/expo-modules-core.ts')
 const NOTIFIER_STUB = path.resolve(__dirname, '__mocks__/react-native-notifier.ts')
 const SAFE_AREA_STUB = path.resolve(__dirname, '__mocks__/react-native-safe-area-context.ts')
+const RNMAPBOX_STUB = path.resolve(__dirname, '__mocks__/rnmapbox-maps.ts')
 const STUB_MAP = {
+  '@rnmapbox/maps': RNMAPBOX_STUB,
   'react-native': path.resolve(__dirname, '__mocks__/react-native.ts'),
   'react-native-paper': path.resolve(__dirname, '__mocks__/react-native-paper.ts'),
   '@expo/vector-icons': EXPO_ICONS_STUB,

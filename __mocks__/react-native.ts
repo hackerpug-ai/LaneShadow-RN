@@ -86,6 +86,10 @@ export const I18nManager = {
   isRTL: false,
 }
 
+export const NativeModules = {
+  RNMBXModule: {}, // Enable RoutePolyline rendering in test env
+}
+
 export const useColorScheme = () => 'dark'
 
 export const useWindowDimensions = () => ({ width: 375, height: 812, scale: 1, fontScale: 1 })
@@ -99,6 +103,7 @@ export default {
   Animated,
   Alert,
   Keyboard,
+  NativeModules,
   useColorScheme,
   useWindowDimensions,
 }
