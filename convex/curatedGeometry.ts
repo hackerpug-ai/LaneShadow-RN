@@ -162,9 +162,20 @@ export const listForGeometryBackfill = internalQuery({
     // (geometryStatus unset). Re-running the backfill from cursor=null thus skips every
     // already-generated/unresolved row and continues where a prior (possibly aborted)
     // run left off — no re-geocoding, no lost-cursor problem.
+    //
+    // CRITICAL: In Convex, neither `q.eq(q.field('geometryStatus'), undefined)` nor
+    // `q.eq(q.field('geometryStatus'), null)` reliably matches absent optional fields.
+    // The working pattern is to exclude all known values with q.neq, which leaves only
+    // unprocessed (absent) rows.
     const page = await ctx.db
       .query('curated_routes')
-      .filter((q) => q.eq(q.field('geometryStatus'), undefined))
+      .filter((q) =>
+        q.and(
+          q.neq(q.field('geometryStatus'), 'generated'),
+          q.neq(q.field('geometryStatus'), 'unresolved'),
+          q.neq(q.field('geometryStatus'), 'failed'),
+        ),
+      )
       .paginate({ cursor, numItems: batchSize })
     return {
       routes: page.page.map((r) => ({

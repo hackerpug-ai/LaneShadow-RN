@@ -44,7 +44,7 @@ import {
 type NominatimResult = {
   lat: number
   lng: number
-  boundingbox: [number, number, number, number] // [south, north, west, east]
+  boundingbox?: [number, number, number, number] // [south, north, west, east]; absent for centroid-only results
 } | null
 
 /**
@@ -89,7 +89,7 @@ async function geocodeViaNominatim(name: string, state: string): Promise<Nominat
     lng: parseFloat(r.lon),
     boundingbox: bb
       ? [parseFloat(bb[0]), parseFloat(bb[1]), parseFloat(bb[2]), parseFloat(bb[3])]
-      : (undefined as never),
+      : undefined,
   }
 }
 
@@ -177,20 +177,30 @@ async function geocodeRouteGeometry(
   // Step 1: Geocode "{name}, {state}" via Nominatim
   const geo = await geocodeViaNominatim(name, state)
 
+  // CRITICAL (Supreme Rule: no fake line): If Nominatim returns null (no result),
+  // the route name is unresolvable. Return null → caller stamps 'unresolved' and
+  // writes NO geometry. NEVER fall back to catalog bounds to fabricate a route line —
+  // a diagonal line across the bounding box of an unresolvable name is a fake success.
+  if (!geo) return null
+
   let startLat: number
   let startLng: number
   let endLat: number
   let endLng: number
 
-  if (geo?.boundingbox) {
-    // Use the geocode bounding box to derive endpoints
+  if (geo.boundingbox) {
+    // Nominatim returned a result WITH a bounding box — use it to derive endpoints.
     const [south, north, west, east] = geo.boundingbox
     startLat = south
     startLng = west // SW corner
     endLat = north
     endLng = east // NE corner
   } else {
-    // Nominatim returned nothing or no bounding box; use catalog bounds
+    // Nominatim returned a result but WITHOUT a bounding box (centroid-only result).
+    // The spec says: "if only a centroid resolves, anchor endpoints from the catalog
+    // boundsNe/Sw". This is the ONLY acceptable use of catalog bounds as fallback —
+    // we have a real geocoded location, just no extent, so we borrow the catalog's
+    // known bounding box for endpoint derivation.
     startLat = bounds.swLat
     startLng = bounds.swLng
     endLat = bounds.neLat
