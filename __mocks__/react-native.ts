@@ -82,6 +82,10 @@ export const Keyboard = {
   addListener: () => ({ remove: () => undefined }),
 }
 
+export const NativeModules = {
+  RNMBXModule: {}, // Enable RoutePolyline rendering in test env
+}
+
 export const I18nManager = {
   isRTL: false,
 }
@@ -99,6 +103,7 @@ export default {
   Animated,
   Alert,
   Keyboard,
+  NativeModules,
   useColorScheme,
   useWindowDimensions,
 }
