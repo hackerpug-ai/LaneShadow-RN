@@ -149,7 +149,7 @@ export const RouteSummaryCarousel: React.FC<RouteSummaryCarouselProps> = ({
         {/* Left arrow (‹) */}
         {showArrows && (
           <Pressable
-            testID="route-carousel-arrow-prev"
+            testID="route-carousel-prev-arrow"
             onPress={handlePrev}
             disabled={isFirstRoute}
             accessibilityRole="button"
@@ -191,7 +191,7 @@ export const RouteSummaryCarousel: React.FC<RouteSummaryCarouselProps> = ({
             route={currentRoute}
             isSelected={currentRoute.routeOptionId === selectedRouteId}
             onSelect={onCardPress}
-            testID="route-carousel-card"
+            testID="route-summary-card"
             variant="compact"
             includeFavorites={false}
           />
@@ -200,7 +200,7 @@ export const RouteSummaryCarousel: React.FC<RouteSummaryCarouselProps> = ({
         {/* Right arrow (›) */}
         {showArrows && (
           <Pressable
-            testID="route-carousel-arrow-next"
+            testID="route-carousel-next-arrow"
             onPress={handleNext}
             disabled={isLastRoute}
             accessibilityRole="button"
