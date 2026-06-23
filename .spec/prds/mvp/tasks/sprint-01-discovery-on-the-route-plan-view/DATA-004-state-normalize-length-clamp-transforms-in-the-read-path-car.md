@@ -25,6 +25,7 @@ util/dataNormalization.ts defines normalizeState (trim, dash/underscore→space,
 
 ### AC-1: state filter resolves both dirty spellings under one canonical spelling
 *(PRIMARY)*
+- **flow_ref:** `HF-DATA-04-CORE` · `.spec/scenarios/UC-DATA-04/core-state-normalize-length-clamp.scenario.md` *(bound 2026-06-23 by /kb-e2e-retrofit --apply)*
 - **GIVEN** live Convex dev where North Carolina rows are split across 'North-Carolina' and 'North Carolina'
 - **WHEN** listCuratedRoutes is called with state='North Carolina'
 - **THEN** routes from BOTH spelling variants are returned and every returned card's state === 'North Carolina' (single canonical spelling)

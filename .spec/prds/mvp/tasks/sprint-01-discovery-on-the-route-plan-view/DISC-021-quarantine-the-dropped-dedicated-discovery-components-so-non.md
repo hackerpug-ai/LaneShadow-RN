@@ -26,6 +26,7 @@ Per UC-DISC-11 and 07-ui-infrastructure.md §1, the dropped dedicated-discovery 
 
 ### AC-1: Zero active references to quarantined components
 *(PRIMARY)*
+- **flow_ref:** `HF-DISC-11-EDGE` · `.spec/scenarios/UC-DISC-11/edge-dropped-components-quarantined.scenario.md` *(bound 2026-06-23 by /kb-e2e-retrofit --apply)*
 - **GIVEN** the final post-sprint source tree
 - **WHEN** an import-graph check walks active sources (app/, hooks/, contexts/, components/ excluding components/discovery/, server/) for imports resolving to the quarantined modules
 - **THEN** it finds zero such imports

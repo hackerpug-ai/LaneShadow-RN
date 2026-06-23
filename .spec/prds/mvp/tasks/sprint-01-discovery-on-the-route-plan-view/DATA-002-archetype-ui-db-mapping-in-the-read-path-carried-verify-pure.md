@@ -25,6 +25,7 @@ util/archetypeMap.ts defines UI_TO_DB (scenic→[scenic_byway,coastal], technica
 
 ### AC-1: scenic filter returns only scenic-mapped routes with UI-enum archetypes
 *(PRIMARY)*
+- **flow_ref:** `HF-DATA-02-CORE` · `.spec/scenarios/UC-DATA-02/core-archetype-mapping.scenario.md` *(bound 2026-06-23 by /kb-e2e-retrofit --apply)*
 - **GIVEN** the seeded live Convex dev catalog
 - **WHEN** listCuratedRoutes is called with archetypes=['scenic']
 - **THEN** every returned route's source DB primaryArchetype ∈ {scenic_byway,coastal} and every returned primaryArchetype === 'scenic' (a UI enum, never a raw DB value)

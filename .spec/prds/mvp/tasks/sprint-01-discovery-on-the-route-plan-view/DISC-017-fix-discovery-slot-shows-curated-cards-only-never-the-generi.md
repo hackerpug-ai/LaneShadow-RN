@@ -26,6 +26,7 @@ index.tsx currently passes `suggestions={curatedPills.length > 0 ? curatedPills 
 
 ### AC-1: Curated routes present → real road names + mileage
 *(PRIMARY)*
+- **flow_ref:** `HF-DISC-09-EDGE` · `.spec/scenarios/UC-DISC-09/edge-cards-return-and-empty-catalog.scenario.md` *(bound 2026-06-23 by /kb-e2e-retrofit --apply)*
 - **GIVEN** the plan view with no active route and useCuratedDiscovery returning >=1 curated route from live Convex
 - **WHEN** the discovery slot renders
 - **THEN** the slot shows curated cards bearing a real catalog road name and its mileage (e.g. 'Blue Ridge Parkway · 12mi'), and none of the IDLE_SUGGESTIONS strings appear

@@ -26,6 +26,7 @@ Chat-driven curated discovery (DATA-008/008b) produces a routing_card whose opti
 
 ### AC-1: Curated transcript card shows name + mileage + composite as %/bars (0–1), distinct from planned card
 *(PRIMARY)*
+- **flow_ref:** `HF-DISC-10-CORE` · `.spec/scenarios/UC-DISC-10/core-chat-nl-discovery-card-map-loop.scenario.md` *(bound 2026-06-23 by /kb-e2e-retrofit --apply)*
 - **GIVEN** a routing_card completed with a curated option carrying a real 0–1 compositeScore (post-DATA-008b) and a mileage
 - **WHEN** CompletedCard renders the curated option
 - **THEN** a CuratedRouteCard shows the road name, its mileage, and the composite as a percentage (Math.round(score*100)) or bars — never a raw 0–1 decimal, never 0–100, never 0% for a non-zero route — and it is visually distinct from a RouteAttachmentCard

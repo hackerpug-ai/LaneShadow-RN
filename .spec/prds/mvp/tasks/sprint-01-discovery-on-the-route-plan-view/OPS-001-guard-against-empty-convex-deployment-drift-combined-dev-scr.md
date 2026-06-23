@@ -25,6 +25,7 @@ scripts/check-convex-health.mjs runs `npx convex function-spec` from server/, pa
 
 ### AC-1: health check fails loudly on empty/canary-missing deployment, passes on seeded
 *(PRIMARY)*
+- **flow_ref:** `HF-DATA-01-EDGE` · `.spec/scenarios/UC-DATA-01/edge-empty-deployment-canary.scenario.md` *(bound 2026-06-23 by /kb-e2e-retrofit --apply)*
 - **GIVEN** the convex:health script and a Convex deployment in two states (no listCuratedRoutes vs seeded with listCuratedRoutes)
 - **WHEN** node scripts/check-convex-health.mjs runs against each
 - **THEN** it exits non-zero with a loud message naming the missing canary when listCuratedRoutes is absent/empty, and exits 0 with a function-count success line when listCuratedRoutes is present

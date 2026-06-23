@@ -25,6 +25,7 @@ hooks/use-curated-discovery.ts already wraps useQuery(api.curatedRoutes.listCura
 
 ### AC-1: Returns consumed row shape from live Convex
 *(PRIMARY)*
+- **flow_ref:** `HF-DISC-04-CORE` · `.spec/scenarios/UC-DISC-04/core-hook-returns-rows.scenario.md` *(bound 2026-06-23 by /kb-e2e-retrofit --apply)*
 - **GIVEN** a real ConvexReactClient pointed at live Convex dev with the seeded 5,654-route catalog and a center near a known riding region
 - **WHEN** useCuratedDiscovery({ center, sort:'nearest', limit:5 }) resolves
 - **THEN** routes is a non-empty array whose first row has id,name,lat,lng,archetype(UI enum),score,distanceMi all populated

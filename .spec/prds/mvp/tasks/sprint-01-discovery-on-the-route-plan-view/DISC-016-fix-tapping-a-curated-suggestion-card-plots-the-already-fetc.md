@@ -26,6 +26,7 @@ Today index.tsx wires the suggestion card to handleSelectCuratedRoute (lines 386
 
 ### AC-1: Card tap plots the exact route with no chat message
 *(PRIMARY)*
+- **flow_ref:** `HF-DISC-09-CORE` · `.spec/scenarios/UC-DISC-09/core-suggestion-card-direct-plot.scenario.md` *(bound 2026-06-23 by /kb-e2e-retrofit --apply)*
 - **GIVEN** the plan view with no route on the map and curated suggestion cards from useCuratedDiscovery (live Convex), and a current transcript message count N
 - **WHEN** the rider taps discovery-suggestion-pill-{routeId} for a known curated route
 - **THEN** that route's geometry (polyline or centroid marker) renders on the map AND the transcript message count is still N (no message appended)

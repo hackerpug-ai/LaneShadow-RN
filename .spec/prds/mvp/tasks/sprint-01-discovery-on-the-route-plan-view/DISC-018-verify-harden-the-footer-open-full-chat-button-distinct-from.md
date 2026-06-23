@@ -26,6 +26,7 @@ Two related plan-view contracts (UC-DISC-11 AC3/AC4 + UC-DISC-09 AC4) need verif
 
 ### AC-1: Full-chat button is distinct from send and opens full chat
 *(PRIMARY)*
+- **flow_ref:** `HF-DISC-11-CORE` · `.spec/scenarios/UC-DISC-11/core-plan-view-no-separate-screen.scenario.md` *(bound 2026-06-23 by /kb-e2e-retrofit --apply)*
 - **GIVEN** the plan view in map mode
 - **WHEN** the rider presses chat-input-chat-view-button
 - **THEN** the full chat transcript opens (chatMode true) and the button is a separate element from chat-input-send-button with a distinct icon

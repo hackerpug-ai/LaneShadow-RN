@@ -25,6 +25,7 @@ geospatialSeed.ts already defines seedGeospatialBatchInternal (paginated interna
 
 ### AC-1: Seeding populates ~5,654 idempotent geospatial points
 *(PRIMARY)*
+- **flow_ref:** `HF-DATA-01-CORE` · `.spec/scenarios/UC-DATA-01/core-seed-geospatial-from-centroids.scenario.md` *(bound 2026-06-23 by /kb-e2e-retrofit --apply)*
 - **GIVEN** the live Convex dev deployment holding the 5,654-row curated_routes catalog with the geospatial index empty or partially seeded
 - **WHEN** the founder runs seedGeospatialAll then runs it a second time, reading debugGeospatialData before/after each run
 - **THEN** post-first-run total_in_index is within tolerance of the curated_routes count and the second run yields zero net-new points

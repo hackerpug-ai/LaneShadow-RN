@@ -25,6 +25,7 @@ curatedRoutes.ts.listCuratedRoutes is the Clerk-gated public query powering disc
 
 ### AC-1: all four browse modes return correct ranked/capped results with 0–1 scores
 *(PRIMARY)*
+- **flow_ref:** `HF-DATA-05-CORE` · `.spec/scenarios/UC-DATA-05/core-listcuratedroutes-4-modes.scenario.md` *(bound 2026-06-23 by /kb-e2e-retrofit --apply)*
 - **GIVEN** the seeded live Convex dev catalog (geospatial + by_state + by_composite_score)
 - **WHEN** listCuratedRoutes is called with (a) a bbox, (b) sort='nearest'+center, (c) archetypes=['scenic','twisties'], (d) state='North Carolina'
 - **THEN** bbox returns only in-box centroids ranked by compositeScore; nearest returns ascending-distance rows with distanceMi populated; archetypes return only mapped UI-enum routes; state returns both dirty variants; every card has compositeScore in [0,1] and clamped lengthMiles, capped to the limit

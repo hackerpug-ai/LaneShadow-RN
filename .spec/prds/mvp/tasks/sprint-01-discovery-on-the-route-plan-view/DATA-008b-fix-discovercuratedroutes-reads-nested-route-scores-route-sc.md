@@ -25,6 +25,7 @@ In tools/discoverCuratedRoutes.ts the options.map (lines 133-172) builds each op
 
 ### AC-1: discovery option carries the route's real non-zero composite + dimension scores
 *(PRIMARY)*
+- **flow_ref:** `HF-DISC-10-EDGE` · `.spec/scenarios/UC-DISC-10/edge-zero-score-and-no-result.scenario.md` *(bound 2026-06-23 by /kb-e2e-retrofit --apply)*
 - **GIVEN** the seeded live Convex dev catalog and a fixtured intent that returns a route whose real compositeScore > 0
 - **WHEN** runDiscoverCuratedRoutes executes and the created route_plans option is loaded
 - **THEN** option.scores.composite equals the route's real compositeScore (> 0) and each dimension score equals the route's real corresponding flat *Score value (not 0)
