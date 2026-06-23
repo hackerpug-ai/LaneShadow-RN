@@ -126,6 +126,16 @@
       }
     },
     {
+      "includes": ["scripts/backfill-curated-geometry.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
       "includes": ["scripts/design-review/**"],
       "linter": {
         "rules": {

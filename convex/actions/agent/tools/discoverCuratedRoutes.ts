@@ -99,9 +99,7 @@ async function runDiscoverCuratedRoutes(
         routeIds: generatedRouteIds,
       })
     : []
-  const geometryByRouteId = new Map<string, any>(
-    (geometryRows as any[]).map((g) => [g.routeId, g]),
-  )
+  const geometryByRouteId = new Map<string, any>((geometryRows as any[]).map((g) => [g.routeId, g]))
 
   if (curatedRoutes.length === 0) {
     // No matches found - return conversational response
@@ -200,7 +198,7 @@ async function runDiscoverCuratedRoutes(
 }
 
 // Helper function to encode centroid as polyline (single point fallback)
-function encodeCentroidToPolyline(lat: number, lng: number): string {
+export function encodeCentroidToPolyline(lat: number, lng: number): string {
   return polyline.encode([[lat, lng]])
 }
 
@@ -211,15 +209,17 @@ function encodeCentroidToPolyline(lat: number, lng: number): string {
  * centroid point + ±0.5° bounds when no generated geometry exists (unresolved/un-backfilled)
  * — never a fake line.
  */
-function buildCuratedMapGeometry(
+export function buildCuratedMapGeometry(
   route: any,
-  g: {
-    format: 'polyline' | 'multipolyline'
-    precision: number
-    value?: string | null
-    segments?: string[] | null
-  } | null
-  | undefined,
+  g:
+    | {
+        format: 'polyline' | 'multipolyline'
+        precision: number
+        value?: string | null
+        segments?: string[] | null
+      }
+    | null
+    | undefined,
 ): {
   overviewGeometry: string
   overviewSegments?: string[]

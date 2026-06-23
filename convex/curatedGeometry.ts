@@ -73,6 +73,15 @@ type BackfillReport = {
   perRoute: Array<Record<string, unknown>>
 }
 
+type GenerateForRouteResult = {
+  routeId: string
+  name: string
+  state: string
+  geometryStatus: 'generated' | 'unresolved' | 'failed'
+  coordCount?: number
+  error?: string
+}
+
 /**
  * Internal query: one page of curated routes (id + the fields the geocoder needs).
  * Uses the real `.paginate()` API so the cursor is a string|null (fixes the prior
@@ -219,6 +228,130 @@ export const getGeometryForRoutes = internalQuery({
   },
 })
 
+/**
+ * Internal query: fetch a single curated route by routeId for geometry generation.
+ * Returns the fields needed by geocodeRouteGeometry, or null if not found.
+ */
+export const getRouteForGeneration = internalQuery({
+  args: { routeId: v.string() },
+  handler: async (ctx, { routeId }): Promise<BackfillRouteRow | null> => {
+    const doc = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+    if (!doc) return null
+    return {
+      id: doc._id,
+      routeId: doc.routeId,
+      name: doc.name,
+      state: doc.state,
+      highwayNumber: doc.highwayNumber ?? null,
+      centroidLat: doc.centroidLat,
+      centroidLng: doc.centroidLng,
+      boundsNeLat: doc.boundsNeLat,
+      boundsNeLng: doc.boundsNeLng,
+      boundsSwLat: doc.boundsSwLat,
+      boundsSwLng: doc.boundsSwLng,
+      geometryStatus: doc.geometryStatus ?? null,
+    }
+  },
+})
+
+/**
+ * Internal action: generate geometry for a single curated route by routeId.
+ *
+ * This is the per-route action that the driver script and tests call directly.
+ * It reads the route, geocodes via Overpass, and persists the result.
+ *
+ * Run: npx convex run curatedGeometry:generateForRoute '{"routeId":"brp-nc"}'
+ */
+export const generateForRoute = internalAction({
+  args: { routeId: v.string() },
+  handler: async (ctx, { routeId }): Promise<GenerateForRouteResult> => {
+    const route = await ctx.runQuery(internal.curatedGeometry.getRouteForGeneration, { routeId })
+    if (!route) {
+      return {
+        routeId,
+        name: '',
+        state: '',
+        geometryStatus: 'failed',
+        error: `Route not found: ${routeId}`,
+      }
+    }
+    // Skip already-processed routes (idempotent)
+    if (route.geometryStatus === 'generated') {
+      return {
+        routeId: route.routeId,
+        name: route.name,
+        state: route.state,
+        geometryStatus: 'generated',
+      }
+    }
+
+    try {
+      const geo = await geocodeRouteGeometry(
+        route.name,
+        route.state,
+        route.highwayNumber,
+        {
+          neLat: route.boundsNeLat,
+          neLng: route.boundsNeLng,
+          swLat: route.boundsSwLat,
+          swLng: route.boundsSwLng,
+        },
+        route.centroidLat,
+        route.centroidLng,
+      )
+      if (geo) {
+        await ctx.runMutation(internal.curatedGeometry.patchRouteGeometry, {
+          id: route.id,
+          routeId: route.routeId,
+          routeGeometry: {
+            format: 'multipolyline',
+            encoding: 'polyline',
+            precision: 5,
+            segments: geo.segments,
+          },
+          geometryStatus: 'generated',
+        })
+        return {
+          routeId: route.routeId,
+          name: route.name,
+          state: route.state,
+          geometryStatus: 'generated',
+          coordCount: geo.coordCount,
+        }
+      } else {
+        await ctx.runMutation(internal.curatedGeometry.patchRouteGeometry, {
+          id: route.id,
+          routeId: route.routeId,
+          geometryStatus: 'unresolved',
+        })
+        return {
+          routeId: route.routeId,
+          name: route.name,
+          state: route.state,
+          geometryStatus: 'unresolved',
+        }
+      }
+    } catch (e) {
+      const errorMsg = e instanceof Error ? e.message : String(e)
+      await ctx.runMutation(internal.curatedGeometry.patchRouteGeometry, {
+        id: route.id,
+        routeId: route.routeId,
+        geometryStatus: 'failed',
+      })
+      return {
+        routeId: route.routeId,
+        name: route.name,
+        state: route.state,
+        geometryStatus: 'failed',
+        error: errorMsg,
+      }
+    }
+  },
+})
+
 type MigratePage = {
   rows: Array<{ id: import('./_generated/dataModel').Id<'curated_routes'>; routeId: string }>
   continueCursor: string
@@ -255,7 +388,7 @@ export const moveGeometryToSideTable = internalMutation({
   args: { id: v.id('curated_routes') },
   handler: async (ctx, { id }): Promise<boolean> => {
     const doc = await ctx.db.get(id)
-    if (!doc || !doc.routeGeometry) return false
+    if (!doc?.routeGeometry) return false
     await upsertGeometry(ctx, doc.routeId, doc.routeGeometry)
     await ctx.db.patch(id, { routeGeometry: undefined }) // keep geometryStatus
     return true
