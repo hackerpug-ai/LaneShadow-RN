@@ -436,14 +436,14 @@ export const backfill = internalAction({
 })
 
 /**
- * DATA-011 test-setup helper: reset up to `count` curated routes to
- * unprocessed state so the sample backfill has exactly that many rows
- * to process. Clears geometryStatus on the route doc and deletes the
- * corresponding side-table geometry row.
+ * DATA-011 sample-gate helper: reset up to `count` already-processed
+ * curated routes (geometryStatus set) to unprocessed state so the sample
+ * backfill has exactly that many rows to process. Clears geometryStatus on the
+ * route doc and deletes the corresponding side-table geometry row.
  *
- * This is a TEST-SETUP action only — the production backfill action
- * (`backfill`) remains unchanged. Call before `--sample=25` to ensure
- * there are at least 25 unprocessed routes.
+ * Only rows with a geometryStatus ('generated', 'unresolved', or 'failed') are
+ * reclaimed; unprocessed rows (geometryStatus absent) are left untouched. Call
+ * before `--sample=25` when the dev deployment no longer has 25 unprocessed rows.
  *
  * Run: npx convex run actions/curatedGeometry:clearGeometryStatusForSample '{"count":25}'
  */

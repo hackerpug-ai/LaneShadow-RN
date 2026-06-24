@@ -199,9 +199,11 @@ export const listForGeometryBackfill = internalQuery({
 })
 
 /**
- * Internal query: list ALL curated routes (regardless of geometryStatus) for the
- * test-setup helper that resets rows to unprocessed. Returns only {id, routeId}
- * to keep reads small. Paginated via the by_composite_score index.
+ * Internal query: list curated routes that have already been processed
+ * (geometryStatus is set) so the sample-gate reset can reclaim them for
+ * re-processing. Unprocessed rows (geometryStatus absent) are left untouched.
+ * Returns only {id, routeId} to keep reads small. Paginated via the
+ * by_composite_score index.
  */
 export const listAllRoutesForReset = internalQuery({
   args: {
@@ -215,7 +217,9 @@ export const listAllRoutesForReset = internalQuery({
       .order('desc')
       .paginate({ cursor, numItems: batchSize })
     return {
-      rows: page.page.map((r) => ({ id: r._id, routeId: r.routeId })),
+      rows: page.page
+        .filter((r) => r.geometryStatus !== undefined && r.geometryStatus !== null)
+        .map((r) => ({ id: r._id, routeId: r.routeId })),
       continueCursor: page.continueCursor,
       isDone: page.isDone,
     }

@@ -257,10 +257,12 @@ async function main(): Promise<void> {
   const { sample, all, cursor } = parseArgs(process.argv)
 
   if (sample !== null) {
-    // DATA-011 test-setup: reset routes to unprocessed so the sample has
-    // exactly `sample` unprocessed rows to process. Without this, prior runs
-    // may have already processed many rows, resulting in fewer than `sample`
-    // routes in the report.
+    // DATA-011 sample-gate: reclaim already-processed routes so the sample
+    // has exactly `sample` rows to process. The reset helper only touches rows
+    // with a geometryStatus set (generated/unresolved/failed); unprocessed
+    // rows are left untouched. This makes repeated --sample runs idempotent
+    // against the unprocessed pool while still producing a deterministic 25-route
+    // fidelity report for human review.
     resetSampleRoutes(sample)
 
     process.stdout.write(`Running sample backfill: ${sample} routes\n`)
