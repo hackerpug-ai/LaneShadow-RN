@@ -96,7 +96,7 @@ export const useRouteComparison = (
       return []
     }
 
-    // Build polylines for the SELECTED route only
+    // Build polylines for the SELECTED route only (RUX-002)
     const routePolylines = buildRoutePolylines({
       route: {
         overviewGeometry: selectedOption.map.overviewGeometry,
@@ -104,6 +104,7 @@ export const useRouteComparison = (
         legs: selectedOption.map.legs,
         overlays: (selectedOption.map as any)?.overlays,
       },
+      routeId: selectedOption.routeOptionId,
       variant: 'selected',
       showLegs: true,
       showWindOverlay: true,
