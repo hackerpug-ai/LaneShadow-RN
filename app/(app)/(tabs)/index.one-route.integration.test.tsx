@@ -14,7 +14,7 @@
  * AC-3: Centroid-only paged route frames at zoom 12 without crashing.
  */
 
-import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react-native'
+import { cleanup, render, waitFor } from '@testing-library/react-native'
 import { createElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -74,8 +74,7 @@ vi.mock('expo-haptics', () => ({
 vi.mock('@rnmapbox/maps', () => {
   const { createElement } = require('react')
   return {
-    ShapeSource: (props: any) =>
-      createElement('View', { testID: props.testID }, props.children),
+    ShapeSource: (props: any) => createElement('View', { testID: props.testID }, props.children),
     LineLayer: () => null,
   }
 })
@@ -186,7 +185,7 @@ vi.mock('../../../hooks/use-ride-flow', () => ({
 // ── useRouteComparison: NOT mocked — runs real code so we can verify
 // that only the selected route's polylines are produced
 
-const mockSelectRoute = vi.fn()
+const _mockSelectRoute = vi.fn()
 
 vi.mock('../../../hooks/use-toast-messages', () => ({
   useToastMessages: () => ({
@@ -633,7 +632,14 @@ const createCentroidRouteOption = (
 
 const routeA = createRouteOption('route-efficient', 'Efficient', routeAPolyline, 103_000, 5400)
 const routeB = createRouteOption('route-scenic', 'Scenic Coastal', routeBPolyline, 125_000, 7200)
-const centroidRoute = createCentroidRouteOption('route-centroid', 'Centroid Spot', 36.85, -121.40, 5000, 300)
+const centroidRoute = createCentroidRouteOption(
+  'route-centroid',
+  'Centroid Spot',
+  36.85,
+  -121.4,
+  5000,
+  300,
+)
 
 /** Build a ROUTE_RESULTS flowState with the given route options. */
 const buildFlowState = (options: any[], selectedId?: string | null) => ({
@@ -660,14 +666,16 @@ const MOCK_ACTIVE_OPTION = {
       format: 'polyline' as const,
       encoding: 'google',
       precision: 5,
-      value: routeAPolyline,    },
+      value: routeAPolyline,
+    },
     legs: [
       {
         geometry: {
           format: 'polyline' as const,
           encoding: 'google',
           precision: 5,
-          value: routeAPolyline,        },
+          value: routeAPolyline,
+        },
         legIndex: 0,
         startLabel: 'San Francisco',
         endLabel: 'Half Moon Bay',
@@ -857,7 +865,8 @@ describe('RUX-002: One Route Plot', () => {
       // THEN: the map handle receives a fit call for the paged route
       // (fitToCoordinates with the second route's coords, or setCameraPosition for centroid)
       await waitFor(() => {
-        const fitCalled = mockFitToCoordinates.mock.calls.length > 0 || mockSetCameraPosition.mock.calls.length > 0
+        const fitCalled =
+          mockFitToCoordinates.mock.calls.length > 0 || mockSetCameraPosition.mock.calls.length > 0
         expect(fitCalled).toBe(true)
       })
     })
@@ -900,11 +909,12 @@ describe('RUX-002: One Route Plot', () => {
 
         // Verify the coordinates belong to the paged route (route B / Sausalito)
         if (allFitCalls.length > 0) {
-          const coords = allFitCalls[allFitCalls.length - 1][0] as Array<{ latitude: number; longitude: number }>
+          const coords = allFitCalls[allFitCalls.length - 1][0] as Array<{
+            latitude: number
+            longitude: number
+          }>
           // Route B coords should include points around lat 37.80-37.85
-          const hasSausalitoArea = coords.some(
-            (c) => c.latitude > 37.79 && c.latitude < 37.86,
-          )
+          const hasSausalitoArea = coords.some((c) => c.latitude > 37.79 && c.latitude < 37.86)
           expect(hasSausalitoArea).toBe(true)
         }
       })
@@ -987,7 +997,7 @@ describe('RUX-002: One Route Plot', () => {
 
       // Verify coordinates near the centroid
       expect(cameraArgs.coordinates.latitude).toBeCloseTo(36.85, 0)
-      expect(cameraArgs.coordinates.longitude).toBeCloseTo(-121.40, 0)
+      expect(cameraArgs.coordinates.longitude).toBeCloseTo(-121.4, 0)
     })
 
     it('centroid route does not call fitToCoordinates (wrong branch)', async () => {
@@ -1047,7 +1057,9 @@ describe('RUX-002: One Route Plot', () => {
         // If called, it should be with more than 1 coordinate (multi-point route)
         // A centroid route should never call fitToCoordinates with 1 coord
         if (coords.length === 1) {
-          expect.fail('fitToCoordinates called with single coordinate — should use setCameraPosition')
+          expect.fail(
+            'fitToCoordinates called with single coordinate — should use setCameraPosition',
+          )
         }
       }
     })

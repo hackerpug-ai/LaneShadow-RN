@@ -688,55 +688,58 @@ const HomeMapScreen = () => {
   // effect can fit the flow-state-selected route without going through
   // agentActiveOption.  Without an override, falls back to agentActiveOption
   // (original auto-fit-on-plan-resolve behaviour).
-  const doFit = useCallback((routeOverride?: { map: any }) => {
-    const option = routeOverride ?? agentActiveOption
-    if (!option) return
-    if (!mapRef.current) {
-      // Map not mounted yet — defer until it remounts
-      pendingFitRef.current = true
-      return
-    }
-
-    // Multi-segment route (DATA-011-C4): if overviewSegments present, fit all segments
-    const overviewSegments = (option.map as any)?.overviewSegments
-    let allCoords: Array<{ latitude: number; longitude: number }> = []
-
-    if (overviewSegments?.length) {
-      // Decode all segments and collect all coordinates
-      for (const segmentStr of overviewSegments) {
-        const decoded = polyline.decode(segmentStr, 5)
-        const segmentCoords: Array<{ latitude: number; longitude: number }> = decoded.map(
-          ([latitude, longitude]: [number, number]) => ({ latitude, longitude }),
-        )
-        allCoords.push(...segmentCoords)
+  const doFit = useCallback(
+    (routeOverride?: { map: any }) => {
+      const option = routeOverride ?? agentActiveOption
+      if (!option) return
+      if (!mapRef.current) {
+        // Map not mounted yet — defer until it remounts
+        pendingFitRef.current = true
+        return
       }
-    } else {
-      // Single-line route (legacy): use overviewGeometry
-      allCoords = decodePolylineGeometry(option.map.overviewGeometry)
-    }
 
-    if (allCoords.length > 1) {
-      // Multi-point: fit to the polyline bounds
-      // Pad enough to clear the floating header (safe area top + header ~72)
-      // and the bottom input bar + suggestions (~160 + safe area bottom).
-      const padTop = insets.top + 80
-      const padBottom = insets.bottom + 180
-      mapRef.current.fitToCoordinates(allCoords, {
-        top: padTop,
-        right: 60,
-        bottom: padBottom,
-        left: 60,
-      })
-    } else if (allCoords.length === 1) {
-      // DISC-012 AC-3: centroid-only curated route — center on the single point
-      mapRef.current.setCameraPosition({
-        coordinates: allCoords[0],
-        zoom: 12,
-      })
-    }
-    // Clear the flag after fitting so subsequent chat/map toggles preserve position
-    setShouldFitToRoute(false)
-  }, [agentActiveOption, insets.top, insets.bottom])
+      // Multi-segment route (DATA-011-C4): if overviewSegments present, fit all segments
+      const overviewSegments = (option.map as any)?.overviewSegments
+      let allCoords: Array<{ latitude: number; longitude: number }> = []
+
+      if (overviewSegments?.length) {
+        // Decode all segments and collect all coordinates
+        for (const segmentStr of overviewSegments) {
+          const decoded = polyline.decode(segmentStr, 5)
+          const segmentCoords: Array<{ latitude: number; longitude: number }> = decoded.map(
+            ([latitude, longitude]: [number, number]) => ({ latitude, longitude }),
+          )
+          allCoords.push(...segmentCoords)
+        }
+      } else {
+        // Single-line route (legacy): use overviewGeometry
+        allCoords = decodePolylineGeometry(option.map.overviewGeometry)
+      }
+
+      if (allCoords.length > 1) {
+        // Multi-point: fit to the polyline bounds
+        // Pad enough to clear the floating header (safe area top + header ~72)
+        // and the bottom input bar + suggestions (~160 + safe area bottom).
+        const padTop = insets.top + 80
+        const padBottom = insets.bottom + 180
+        mapRef.current.fitToCoordinates(allCoords, {
+          top: padTop,
+          right: 60,
+          bottom: padBottom,
+          left: 60,
+        })
+      } else if (allCoords.length === 1) {
+        // DISC-012 AC-3: centroid-only curated route — center on the single point
+        mapRef.current.setCameraPosition({
+          coordinates: allCoords[0],
+          zoom: 12,
+        })
+      }
+      // Clear the flag after fitting so subsequent chat/map toggles preserve position
+      setShouldFitToRoute(false)
+    },
+    [agentActiveOption, insets.top, insets.bottom],
+  )
 
   // When mapMounted flips back to true, flush any pending fit
   useEffect(() => {
