@@ -684,8 +684,13 @@ const HomeMapScreen = () => {
     setExplicitlyNewSession(true)
   }
 
-  const doFit = useCallback(() => {
-    if (!agentActiveOption) return
+  // RUX-002: doFit accepts an optional route override so the carousel re-fit
+  // effect can fit the flow-state-selected route without going through
+  // agentActiveOption.  Without an override, falls back to agentActiveOption
+  // (original auto-fit-on-plan-resolve behaviour).
+  const doFit = useCallback((routeOverride?: { map: any }) => {
+    const option = routeOverride ?? agentActiveOption
+    if (!option) return
     if (!mapRef.current) {
       // Map not mounted yet — defer until it remounts
       pendingFitRef.current = true
@@ -693,7 +698,7 @@ const HomeMapScreen = () => {
     }
 
     // Multi-segment route (DATA-011-C4): if overviewSegments present, fit all segments
-    const overviewSegments = (agentActiveOption.map as any)?.overviewSegments
+    const overviewSegments = (option.map as any)?.overviewSegments
     let allCoords: Array<{ latitude: number; longitude: number }> = []
 
     if (overviewSegments?.length) {
@@ -707,7 +712,7 @@ const HomeMapScreen = () => {
       }
     } else {
       // Single-line route (legacy): use overviewGeometry
-      allCoords = decodePolylineGeometry(agentActiveOption.map.overviewGeometry)
+      allCoords = decodePolylineGeometry(option.map.overviewGeometry)
     }
 
     if (allCoords.length > 1) {
@@ -839,9 +844,16 @@ const HomeMapScreen = () => {
     if (!state.selectedRouteId) return
     if (!mapMounted || !mapRef.current) return
 
+    // Find the selected route option in the flow state so doFit uses the
+    // paged route's coordinates (not the agentActiveOption default).
+    const selectedOption = state.routeOptions?.options?.find(
+      (opt: any) => opt.routeOptionId === state.selectedRouteId,
+    )
+    if (!selectedOption) return
+
     // Defer fit briefly to ensure map is ready
     const t = setTimeout(() => {
-      doFit()
+      doFit(selectedOption)
     }, 100)
     return () => clearTimeout(t)
   }, [flowState, mapMounted, doFit])
