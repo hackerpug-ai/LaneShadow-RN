@@ -15,7 +15,7 @@
  * AC-4: Covered by lib/routes/dedupe-route-options.test.ts (unit test).
  */
 
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react-native'
+import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react-native'
 import { createElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -543,7 +543,7 @@ const routeB = createRouteOption('route-scenic', 'Scenic Coastal', 125_000, 7200
 const routeC = createRouteOption('route-twisties', 'Twisties', 140_000, 8100)
 
 /** Build a ROUTE_RESULTS flowState with the given route options. */
-const buildFlowState = (options: typeof routeA[], selectedId?: string | null) => ({
+const buildFlowState = (options: (typeof routeA)[], selectedId?: string | null) => ({
   phase: 'ROUTE_RESULTS' as const,
   sessionId: 'test-session',
   routeOptions: {
@@ -654,9 +654,7 @@ describe('RUX-001: Route Summary Carousel', () => {
         dispatch: mockFlowDispatch,
       })
 
-      const { queryAllByTestId, getByTestId, queryByTestId } = render(
-        createElement(HomeMapScreen),
-      )
+      const { queryAllByTestId, getByTestId, queryByTestId } = render(createElement(HomeMapScreen))
 
       // THEN: exactly one route-summary-card is shown
       await waitFor(() => {
@@ -669,6 +667,11 @@ describe('RUX-001: Route Summary Carousel', () => {
       const card = getByTestId('route-summary-card')
       expect(card).toBeTruthy()
 
+      // Snapshot the first route's a11y label so we can prove it changed.
+      const initialLabel = card.props.accessibilityLabel as string
+      expect(initialLabel).toMatch(/64\.0mi/)
+      expect(initialLabel).toMatch(/1h 30m/)
+
       // WHEN: the rider presses the next arrow
       const nextArrow = getByTestId('route-carousel-next-arrow')
       expect(nextArrow).toBeTruthy()
@@ -680,6 +683,13 @@ describe('RUX-001: Route Summary Carousel', () => {
       // THEN: selectRoute is called with the second route's ID
       // (onRouteChange → selectRoute on the real screen)
       expect(mockSelectRoute).toHaveBeenCalledWith('route-scenic')
+
+      // THEN: the same single card now reflects the paged route (route-scenic)
+      const pagedCard = getByTestId('route-summary-card')
+      const pagedLabel = pagedCard.props.accessibilityLabel as string
+      expect(pagedLabel).not.toBe(initialLabel)
+      expect(pagedLabel).toMatch(/77\.7mi/)
+      expect(pagedLabel).toMatch(/2h 0m/)
 
       // THEN: exactly one card is still shown (no stack of cards)
       const cardsAfter = queryAllByTestId('route-summary-card')
