@@ -37,6 +37,7 @@ export type RouteDetailsSheetProps = {
   onClose: () => void
   route: PlannedRouteOptionView | null
   onSave?: () => void
+  onRide?: () => void
   isSaving?: boolean
   testID?: string
 }
@@ -76,6 +77,7 @@ export const RouteDetailsSheet = ({
   onClose,
   route,
   onSave,
+  onRide,
   isSaving = false,
   testID,
 }: RouteDetailsSheetProps) => {
@@ -95,8 +97,9 @@ export const RouteDetailsSheet = ({
       wrapChildren={false}
       showHandle={true}
       footer={
-        onSave ? (
+        onSave || onRide ? (
           <View
+            testID="route-details-sheet-footer"
             style={[
               styles.footer,
               {
@@ -108,22 +111,45 @@ export const RouteDetailsSheet = ({
               },
             ]}
           >
-            <Button
-              variant="default"
-              size="lg"
-              onPress={onSave}
-              disabled={isSaving}
-              testID={`${testID}-save-button`}
-              icon={
-                <IconSymbol
-                  name="content-save"
-                  size={20}
-                  color={semantic.color.onPrimary.default}
-                />
-              }
-            >
-              {isSaving ? 'Saving...' : 'Save Route'}
-            </Button>
+            <View style={styles.footerButtons}>
+              {onSave && (
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  onPress={onSave}
+                  disabled={isSaving}
+                  testID="route-details-sheet-save-button"
+                  style={styles.footerButton}
+                  icon={
+                    <IconSymbol
+                      name="content-save"
+                      size={20}
+                      color={semantic.color.onSecondary.default}
+                    />
+                  }
+                >
+                  {isSaving ? 'Saving...' : 'Save'}
+                </Button>
+              )}
+              {onRide && (
+                <Button
+                  variant="default"
+                  size="lg"
+                  onPress={onRide}
+                  testID="route-details-sheet-ride-button"
+                  style={styles.footerButton}
+                  icon={
+                    <IconSymbol
+                      name="navigation"
+                      size={20}
+                      color={semantic.color.onPrimary.default}
+                    />
+                  }
+                >
+                  Ride It
+                </Button>
+              )}
+            </View>
           </View>
         ) : null
       }
@@ -314,11 +340,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 12, // semantic.space.md
-    paddingBottom: 120, // Extra padding for footer and safe area
+    paddingTop: 12, // Matches semantic.space.md; StyleSheet cannot reference hook values
+    paddingBottom: 120, // Clears pinned footer + safe-area; dynamic value applied at runtime
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 20, // Matches semantic.space.lg + semantic.space.sm; structural spacing
   },
   sectionLabel: {
     marginBottom: 8,
@@ -351,5 +377,12 @@ const styles = StyleSheet.create({
   },
   footer: {
     borderTopWidth: 1,
+  },
+  footerButtons: {
+    flexDirection: 'row',
+    gap: 8, // Matches semantic.space.sm; structural gap between action buttons
+  },
+  footerButton: {
+    flex: 1,
   },
 })
