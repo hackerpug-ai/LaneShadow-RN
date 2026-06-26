@@ -835,8 +835,15 @@ const HomeMapScreen = () => {
     lastFittedPlanIdRef.current = planId
     // Set the flag to allow camera reset for new plans
     setShouldFitToRoute(true)
+    // RUX-008: Auto-switch from chat to map so the deferred doFit flushes
+    // and the route plots + frames without a manual toggle. The
+    // lastFittedPlanIdRef guard above ensures this fires once per NEW plan
+    // (not on every re-render), preventing repeated yanking out of chat.
+    if (chatMode) {
+      setChatMode(false)
+    }
     doFit()
-  }, [agentActiveOption, agentRoutePlan, doFit])
+  }, [agentActiveOption, agentRoutePlan, doFit, chatMode])
 
   // RUX-002: Re-fit camera when carousel pages to a new route (selectedRouteId changes)
   useEffect(() => {
