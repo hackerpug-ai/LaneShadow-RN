@@ -638,9 +638,11 @@ const HomeMapScreen = () => {
       // RUX-008: Only auto-switch if this is a NEW completed plan (not one we've already handled).
       // This ensures the auto-switch fires once per plan, and the rider can manually
       // open chat afterward without being yanked back to map.
-      if (planId && planId !== autoSwitchedPlanIdRef.current && chatMode) {
+      if (planId && planId !== autoSwitchedPlanIdRef.current) {
         autoSwitchedPlanIdRef.current = planId
-        setChatMode(false)
+        if (chatMode) {
+          setChatMode(false)
+        }
       }
 
       flowDispatch({
@@ -839,7 +841,8 @@ const HomeMapScreen = () => {
     // and the route plots + frames without a manual toggle. The
     // lastFittedPlanIdRef guard above ensures this fires once per NEW plan
     // (not on every re-render), preventing repeated yanking out of chat.
-    if (chatMode) {
+    if (chatMode && autoSwitchedPlanIdRef.current !== planId) {
+      autoSwitchedPlanIdRef.current = planId
       setChatMode(false)
     }
     doFit()

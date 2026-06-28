@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+# Defense-in-depth: fires on RAW `git merge` ONLY (NOT `but merge` — engine reproduces no merge hook).
+# lefthook has no pre-merge-commit stage, so checks run directly.
+pnpm type-check && pnpm exec biome check . && fallow audit && pnpm test

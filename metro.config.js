@@ -1,14 +1,19 @@
 const { getDefaultConfig } = require('expo/metro-config')
 const { withStorybook } = require('@storybook/react-native/metro/withStorybook')
 
-const path = __dirname
-const config = getDefaultConfig(path)
+const projectRoot = __dirname
+const config = getDefaultConfig(projectRoot)
+const isClaudeWorktree = projectRoot.includes('/.claude/worktrees/')
 
 // Exclude directories that Watchman/Metro should never scan
 config.watchFolders = config.watchFolders || []
 config.resolver = {
   ...config.resolver,
-  blockList: [/\.claude\/worktrees\/.*/, /\.spec\/.*/, /\.git\/worktrees\/.*/],
+  blockList: [
+    ...(!isClaudeWorktree ? [/\.claude\/worktrees\/.*/] : []),
+    /\.spec\/.*/,
+    /\.git\/worktrees\/.*/,
+  ],
 }
 
 // Exclude test files from Metro bundler

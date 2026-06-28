@@ -1,19 +1,40 @@
-# Maestro e2e smoke flow — proves the harness can drive the LaneShadow app on the sim.
-# Handles the Expo dev-client launcher (taps the Metro server if the launcher shows).
+# Maestro e2e smoke flow — proves the harness can drive LaneShadow app elements
+# on the simulator after the Expo dev-client launcher/menu has been dismissed.
 appId: com.hackerpug.laneshadow
 ---
 - launchApp
-# Dev-client: if the recently-opened launcher appears, connect to the running Metro server.
+# Dev-client: if the launcher appears, wait for the Metro server row before tapping it.
+- extendedWaitUntil:
+    visible:
+      text: "DEVELOPMENT SERVERS|Login with Email|.*developer menu.*|Reload|Go home|Toggle performance monitor|Toggle element inspector|Open JS debugger|Close|Open full chat|Return to map"
+    timeout: 60000
 - runFlow:
     when:
       visible:
-        text: "localhost:8081"
+        text: "DEVELOPMENT SERVERS"
     commands:
       - tapOn:
-          text: "localhost:8081"
-# Wait for the real app to bundle + render the Discovery surface.
+          text: ".*localhost:8081.*"
+# Wait for the app or the Expo dev-menu intro/panel. The dev menu owns the native
+# accessibility tree while open, so close it before probing LaneShadow IDs.
 - extendedWaitUntil:
     visible:
-      text: "Discovery"
-    timeout: 90000
+      text: "Login with Email|.*developer menu.*|Reload|Go home|Toggle performance monitor|Toggle element inspector|Open JS debugger|Close|Open full chat|Return to map"
+    timeout: 240000
+- runFlow:
+    when:
+      visible: { text: ".*developer menu.*" }
+    commands:
+      - tapOn: { text: "Continue" }
+- runFlow:
+    when:
+      visible: { text: "Close" }
+    commands:
+      - tapOn: { text: "Close" }
+# The hidden E2E login button is a real RN testID. Seeing it proves the simulator
+# accessibility tree has moved from Expo's native menu to LaneShadow's UI.
+- extendedWaitUntil:
+    visible:
+      id: "e2e-test-login-button|chat-input"
+    timeout: 300000
 - takeScreenshot: discovery-loaded

@@ -11,8 +11,8 @@
 #
 # Flow:
 #  1. Sign in (dev-client connection + e2e test button)
-#  2. Send an agent discovery message (e.g. "twisties near Asheville")
-#  3. Wait for completion: route-polyline visible + chat toggle reads "Open full chat"
+#  2. Send a deterministic agent route-planning message
+#  3. Wait for completion: route-on-map-marker visible + chat toggle reads "Open full chat"
 #  4. Tap the chat toggle to open full chat (manual mode-switch)
 #  5. Verify we STAY in chat mode (toggle still visible, text confirms we're in chat)
 #  6. Tap toggle again to return to map; verify we're back in map mode
@@ -37,12 +37,18 @@ appId: com.hackerpug.laneshadow
       - tapOn: { text: ".*localhost:8081.*" }
 # First-run dev-menu intro appears; dismiss it.
 - extendedWaitUntil:
-    visible: { text: "Login with Email|.*developer menu.*" }
+    visible: { text: "Login with Email|.*developer menu.*|Reload|Go home|Toggle performance monitor|Toggle element inspector|Open JS debugger|Close" }
     timeout: 240000
 - runFlow:
     when: { visible: { text: ".*developer menu.*" } }
     commands:
       - tapOn: { text: "Continue" }
+# The Expo dev-client panel can stay open after the intro; close it deterministically.
+- runFlow:
+    when:
+      visible: { text: "Close" }
+    commands:
+      - tapOn: { text: "Close" }
 # DevMenu panel may appear; dismiss it.
 - runFlow:
     when: { visible: { text: ".*Toggle Element Inspector.*|.*Open React DevTools.*" } }
@@ -69,15 +75,15 @@ appId: com.hackerpug.laneshadow
 # ── AC-1: Send an agent discovery message to trigger route planning ──────────
 # The agent will produce a multi-point route with real geometry; when completed,
 # the app auto-switches to map mode if currently in chat.
-- tapOn: { id: "chat-input" }
-- inputText: "twisties near Asheville"
-- pressKey: Enter
+- tapOn: { id: "chat-input-text-field" }
+- inputText: "Plan a scenic motorcycle route from San Francisco to Santa Cruz"
+- tapOn: { id: "chat-input-send-button" }
 
 # ── AC-1: Wait for the route to plot on the map (auto-switch from chat to map) ─
-# If the auto-switch works, the route polyline (home-route-polyline) will appear
+# If the auto-switch works, the route polyline (route-on-map-marker) will appear
 # and the chat toggle will read "Open full chat" (not "Return to map").
 - extendedWaitUntil:
-    visible: { id: "home-route-polyline" }
+    visible: { id: "route-on-map-marker" }
     timeout: 150000
 - extendedWaitUntil:
     visible: { text: "Open full chat" }
@@ -87,6 +93,8 @@ appId: com.hackerpug.laneshadow
 # ── AC-2: Manually open full chat (rider clicks "Open full chat" button) ──────
 # This is the critical test: if the re-yank guard works, we should STAY in chat
 # mode after tapping this button. The old bug would bounce us back to map.
+- waitForAnimationToEnd:
+    timeout: 1000
 - tapOn: { id: "chat-input-chat-view-button" }
 - extendedWaitUntil:
     visible: { text: "Return to map" }
@@ -102,11 +110,13 @@ appId: com.hackerpug.laneshadow
 - takeScreenshot: 05-stayed-in-chat-no-bounce-back
 
 # ── Tap the toggle again to return to map and verify the mode switch works ────
+- waitForAnimationToEnd:
+    timeout: 1000
 - tapOn: { id: "chat-input-chat-view-button" }
 - extendedWaitUntil:
     visible: { text: "Open full chat" }
     timeout: 20000
-- assertVisible: { id: "home-route-polyline" }
+- assertVisible: { id: "route-on-map-marker" }
 - takeScreenshot: 06-returned-to-map-route-still-visible
 
 # ── Summary ───────────────────────────────────────────────────────────────────

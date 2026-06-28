@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+# Routes pre-push to lefthook (single source of truth: lefthook.yml).
+# Fires via husky (core.hooksPath=.husky/_) on both `git push` and `but push`.
+# Forwards remote + url so lefthook can compute {push_files}.
+lefthook run pre-push --no-auto-install "$@"

@@ -2,7 +2,7 @@
 #
 # Acceptance Criteria:
 #   AC-1: GIVEN the plan view in ROUTE_RESULTS with >=2 distinct routes
-#         WHEN the rider presses route-carousel-arrow-next
+#         WHEN the rider presses route-carousel-next-arrow
 #         THEN exactly one route-summary card is shown, its label/distance update to the next distinct route,
 #              and selectedRouteId updates (polyline reflects new selection)
 #
@@ -47,13 +47,19 @@ appId: com.hackerpug.laneshadow
 # Wait for the JS bundle and sign-in screen
 - extendedWaitUntil:
     visible:
-      text: "Login with Email|.*developer menu.*"
+      text: "Login with Email|.*developer menu.*|Reload|Go home|Toggle performance monitor|Toggle element inspector|Open JS debugger|Close"
     timeout: 240000
 - runFlow:
     when:
       visible: { text: ".*developer menu.*" }
     commands:
       - tapOn: { text: "Continue" }
+# The Expo dev-client panel can stay open after the intro; close it deterministically.
+- runFlow:
+    when:
+      visible: { text: "Close" }
+    commands:
+      - tapOn: { text: "Close" }
 
 # Wait for sign-in screen
 - extendedWaitUntil:
@@ -77,19 +83,19 @@ appId: com.hackerpug.laneshadow
 # ── AC-1: Carousel card pages between distinct routes ──
 #
 # Plan a route by sending a chat message that produces multiple distinct options
-- tapOn: { id: "chat-input" }
-- typeText: "plan a route from downtown denver to boulder colorado scenic"
-- tapOn: { id: "chat-input-send" }
+- tapOn: { id: "chat-input-text-field" }
+- inputText: "plan a route from downtown denver to boulder colorado scenic"
+- tapOn: { id: "chat-input-send-button" }
 
 # Wait for the agent to plan and render the carousel with multiple routes
 # The carousel container must be visible
 - extendedWaitUntil:
     visible:
-      testID: "route-carousel-container"
+      id: "route-carousel-container"
     timeout: 120000
 
 # Verify exactly one route-summary-card is rendered (not a stack)
-- assertVisible: { testID: "route-carousel-card" }
+- assertVisible: { id: "route-carousel-card" }
 
 # Capture initial route info for comparison
 - takeScreenshot: 01-carousel-first-route-visible
@@ -97,31 +103,33 @@ appId: com.hackerpug.laneshadow
 # Check if we have navigation arrows (multiple distinct routes)
 - runFlow:
     when:
-      visible: { testID: "route-carousel-arrow-next" }
+      visible: { id: "route-carousel-next-arrow" }
     commands:
       # ── AC-1 & AC-3: Test paging with next arrow ──
       # Press the next arrow to page to the next route
-      - tapOn: { testID: "route-carousel-arrow-next" }
+      - tapOn: { id: "route-carousel-next-arrow" }
 
       # Wait a brief moment for the card content to update
-      - delay: 500
+      - waitForAnimationToEnd:
+          timeout: 1000
 
       # Verify the card is still visible and content changed
-      - assertVisible: { testID: "route-carousel-card" }
+      - assertVisible: { id: "route-carousel-card" }
 
       # Screenshot: verify second route is now showing
       - takeScreenshot: 02-carousel-second-route-visible
 
       # ── AC-3: Test that prev arrow is now enabled (we're not at first anymore) ──
       # The prev arrow should now be visible and enabled (not muted)
-      - assertVisible: { testID: "route-carousel-arrow-prev" }
+      - assertVisible: { id: "route-carousel-prev-arrow" }
 
       # Try to page back to the first route
-      - tapOn: { testID: "route-carousel-arrow-prev" }
-      - delay: 500
+      - tapOn: { id: "route-carousel-prev-arrow" }
+      - waitForAnimationToEnd:
+          timeout: 1000
 
       # Verify we're back to the first route (card still visible)
-      - assertVisible: { testID: "route-carousel-card" }
+      - assertVisible: { id: "route-carousel-card" }
 
       # Screenshot: back to first route
       - takeScreenshot: 03-carousel-back-to-first-route
@@ -132,13 +140,13 @@ appId: com.hackerpug.laneshadow
 
 # ── Verify polyline updates with carousel paging (selectedRouteId sync) ──
 # After paging, the route-on-map-marker should still be present (route is selected)
-- assertVisible: { testID: "route-on-map-marker" }
+- assertVisible: { id: "route-on-map-marker" }
 
 # Screenshot: Final state showing carousel + polyline
 - takeScreenshot: 04-carousel-with-polyline-visible
 
 # ── Verify card tap opens RouteDetailsSheet (not SendMessage) ──
-- tapOn: { testID: "route-carousel-card" }
+- tapOn: { id: "route-carousel-card" }
 
 # Wait for the RouteDetailsSheet to open
 - extendedWaitUntil:

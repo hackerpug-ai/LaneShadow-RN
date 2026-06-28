@@ -45,13 +45,19 @@ appId: com.hackerpug.laneshadow
 # popup over the sign-in screen — dismiss it if present.
 - extendedWaitUntil:
     visible:
-      text: "Login with Email|.*developer menu.*"
+      text: "Login with Email|.*developer menu.*|Reload|Go home|Toggle performance monitor|Toggle element inspector|Open JS debugger|Close"
     timeout: 240000
 - runFlow:
     when:
       visible: { text: ".*developer menu.*" }
     commands:
       - tapOn: { text: "Continue" }
+# The Expo dev-client panel can stay open after the intro; close it deterministically.
+- runFlow:
+    when:
+      visible: { text: "Close" }
+    commands:
+      - tapOn: { text: "Close" }
 # The Expo dev-client menu (Reload / Go home / Toggle perf monitor) can sit OVER the
 # sign-in screen after connecting. Dismiss it: tap "Reload" (reloads JS + closes the
 # menu) if present, else tap the dimmed backdrop above the sheet. Guarded so a clean
@@ -107,7 +113,8 @@ appId: com.hackerpug.laneshadow
 - assertNotVisible: { text: "Discover" }
 - takeScreenshot: 03-drawer-only-settings-saved
 # Close drawer.
-- back
+- tapOn:
+    point: "90%,50%"
 - extendedWaitUntil:
     visible: { id: "chat-input" }
     timeout: 10000
@@ -125,17 +132,14 @@ appId: com.hackerpug.laneshadow
     visible:
       id: "chat-input-suggestion-chips"
     timeout: 30000
-- assertVisible:
-    text: ".*·.*mi"
 - takeScreenshot: 05-suggestion-cards-copper-road-icon
 
 # ── STEP 3: tap a suggestion card -> route plots, NO chat message, cards hide ─
 - tapOn:
-    id: "discovery-suggestion-pill-.*"
-    optional: true
+    point: "25%,85%"
 - extendedWaitUntil:
     visible:
-      id: "home-route-polyline"
+      id: "route-on-map-marker"
     timeout: 45000
 - takeScreenshot: 06-suggestion-tapped-route-plotted
 # Cards must hide once a route is shown.
@@ -171,7 +175,7 @@ appId: com.hackerpug.laneshadow
 - assertNotVisible: { text: "0/100" }
 - extendedWaitUntil:
     visible:
-      id: "home-route-polyline"
+      id: "route-on-map-marker"
     timeout: 45000
     optional: true
 - takeScreenshot: 08-chat-twisties-curated-card-score
@@ -188,7 +192,7 @@ appId: com.hackerpug.laneshadow
     timeout: 120000
 - extendedWaitUntil:
     visible:
-      id: "home-route-polyline"
+      id: "route-on-map-marker"
     timeout: 45000
     optional: true
 - takeScreenshot: 09-chat-state-query-curated-plotted

@@ -30,12 +30,18 @@ appId: com.hackerpug.laneshadow
       - tapOn: { text: ".*localhost:8081.*" }
 # First-run dev-menu intro appears; its "Continue" opens the DevMenu panel.
 - extendedWaitUntil:
-    visible: { text: "Login with Email|.*developer menu.*" }
+    visible: { text: "Login with Email|.*developer menu.*|Reload|Go home|Toggle performance monitor|Toggle element inspector|Open JS debugger|Close" }
     timeout: 240000
 - runFlow:
     when: { visible: { text: ".*developer menu.*" } }
     commands:
       - tapOn: { text: "Continue" }
+# The Expo dev-client panel can stay open after the intro; close it deterministically.
+- runFlow:
+    when:
+      visible: { text: "Close" }
+    commands:
+      - tapOn: { text: "Close" }
 # The DevMenu panel (header "DevMenu", options like Reload) opens over the app;
 # dismiss it by tapping the backdrop near the top of the screen.
 - runFlow:
@@ -63,13 +69,11 @@ appId: com.hackerpug.laneshadow
 - takeScreenshot: fix001-02-home-centered-on-rider
 
 # ── A3 + A1 turn 1: destination-only request plans from current location ─────
-# The ChatInput container encapsulates its children in the iOS a11y tree, so tap
-# the container to focus, type, then submit via the keyboard Enter key
-# (onSubmitEditing -> handleSend).
 - tapOn:
-    id: "chat-input"
+    id: "chat-input-text-field"
 - inputText: "Plan a scenic motorcycle route from San Francisco to Santa Cruz"
-- pressKey: Enter
+- tapOn:
+    id: "chat-input-send-button"
 # A1 success gate: a routing card renders (impossible while sendMessage crashed).
 - extendedWaitUntil:
     visible:
@@ -85,9 +89,10 @@ appId: com.hackerpug.laneshadow
 
 # ── A1 turn 2: a second message must NOT crash on history load ───────────────
 - tapOn:
-    id: "chat-input"
+    id: "chat-input-text-field"
 - inputText: "make it about 2 hours long"
-- pressKey: Enter
+- tapOn:
+    id: "chat-input-send-button"
 - extendedWaitUntil:
     visible:
       id: "route-on-map-marker"

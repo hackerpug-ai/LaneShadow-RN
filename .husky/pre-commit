@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+# Routes pre-commit to lefthook (single source of truth: lefthook.yml).
+# Fires via husky (core.hooksPath=.husky/_) on both `git commit` and `but commit`.
+lefthook run pre-commit --no-auto-install

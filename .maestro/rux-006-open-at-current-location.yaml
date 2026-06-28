@@ -42,13 +42,19 @@ appId: com.hackerpug.laneshadow
 # Wait for the JS bundle and sign-in screen
 - extendedWaitUntil:
     visible:
-      text: "Login with Email|.*developer menu.*"
+      text: "Login with Email|.*developer menu.*|Reload|Go home|Toggle performance monitor|Toggle element inspector|Open JS debugger|Close"
     timeout: 240000
 - runFlow:
     when:
       visible: { text: ".*developer menu.*" }
     commands:
       - tapOn: { text: "Continue" }
+# The Expo dev-client panel can stay open after the intro; close it deterministically.
+- runFlow:
+    when:
+      visible: { text: "Close" }
+    commands:
+      - tapOn: { text: "Close" }
 
 # Wait for sign-in screen
 - extendedWaitUntil:

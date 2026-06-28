@@ -19,7 +19,6 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -249,6 +248,7 @@ export const ChatInput = ({
     if (isPlanning) return
     const trimmed = text.trim()
     if (trimmed.length > 0) {
+      Keyboard.dismiss()
       onSend(trimmed)
       setText('')
     }
@@ -279,12 +279,11 @@ export const ChatInput = ({
       style={styles.container}
       testID={testID}
     >
-      <Pressable
+      <View
         style={{
           paddingBottom:
             (keyboardVisible ? 0 : insets.bottom) + semantic.space.md + extraBottomOffset,
         }}
-        onPress={Keyboard.dismiss}
         testID="chat-input-suggestion-chips"
       >
         {/* Error message */}
@@ -432,7 +431,7 @@ export const ChatInput = ({
             </TouchableOpacity>
           )}
         </View>
-      </Pressable>
+      </View>
     </KeyboardAvoidingView>
   )
 }
