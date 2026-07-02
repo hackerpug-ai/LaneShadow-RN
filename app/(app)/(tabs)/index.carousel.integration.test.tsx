@@ -787,6 +787,48 @@ describe('RUX-001: Route Summary Carousel', () => {
       // THEN: only one card renders at a time
       expect(queryAllByTestId('route-summary-card')).toHaveLength(1)
     })
+
+    it('renders an empty-leg curated route card without crashing', async () => {
+      const curatedRoute = {
+        ...routeA,
+        routeOptionId: 'route-curated-centroid',
+        label: 'Centroid Loop',
+        stats: { ...routeA.stats, legsCount: 0 },
+        map: {
+          ...routeA.map,
+          legs: [],
+        },
+      }
+
+      mockUseRideFlow.mockReturnValue({
+        state: buildFlowState([curatedRoute], curatedRoute.routeOptionId),
+        dispatch: mockFlowDispatch,
+      })
+      mockUseActiveSessionRoute.mockReturnValue({
+        activeOption: {
+          ...curatedRoute,
+          map: {
+            ...curatedRoute.map,
+            bounds: {
+              northeast: { lat: 37.8, lng: -122.4 },
+              southwest: { lat: 37.7, lng: -122.5 },
+            },
+          },
+        },
+        routePlan: MOCK_ROUTE_PLAN,
+        newestRoutePlanId: 'plan-1',
+      })
+
+      const { getByTestId, getByText, queryByTestId } = render(createElement(HomeMapScreen))
+
+      await waitFor(() => {
+        expect(queryByTestId('route-carousel-container')).not.toBeNull()
+      })
+
+      expect(getByTestId('route-summary-card')).toBeTruthy()
+      expect(getByText('Curated route')).toBeTruthy()
+      expect(getByText('Centroid Loop')).toBeTruthy()
+    })
   })
 
   // ─────────────────────────────────────────────────────────────────────────

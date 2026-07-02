@@ -89,18 +89,22 @@ export const RouteAttachmentCard = ({
 
   // Extract start and end location names from the legs
   const legs = route.map.legs
+  const routeLabelFallback = route.label?.trim() || 'Route overview'
 
   // Helper to format a location label with coordinate fallback
   const formatLocationLabel = (
     label: string | undefined,
     placeId: string | undefined,
-    lat: number,
-    lng: number,
+    lat: number | undefined,
+    lng: number | undefined,
+    fallback: string,
   ): string => {
     if (label) return label
     if (placeId) return placeId
-    // Show coordinates as last resort (more useful than "Unknown")
-    return `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+    if (typeof lat === 'number' && typeof lng === 'number') {
+      return `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+    }
+    return fallback
   }
 
   const startLabel = formatLocationLabel(
@@ -108,12 +112,14 @@ export const RouteAttachmentCard = ({
     legs[0]?.start.placeId,
     legs[0]?.start.lat,
     legs[0]?.start.lng,
+    legs.length === 0 ? 'Curated route' : 'Route start',
   )
   const endLabel = formatLocationLabel(
     legs[legs.length - 1]?.end.label,
     legs[legs.length - 1]?.end.placeId,
     legs[legs.length - 1]?.end.lat,
     legs[legs.length - 1]?.end.lng,
+    routeLabelFallback,
   )
 
   const handlePress = () => {
