@@ -54,15 +54,12 @@ import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useToastMessages } from '../../../hooks/use-toast-messages'
 import { getCurrentLocation } from '../../../lib/get-current-location'
 import { deduplicateRouteOptions } from '../../../lib/routes/dedupe-route-options'
-import {
-  computeCumulativeDistances,
-  decodePolylineGeometry,
-  type MapLatLng,
-} from '../../../shared/lib/polyline'
+import { decodePolylineGeometry } from '../../../shared/lib/polyline'
 import type { RouteProvenance } from '../../../shared/models/saved-routes'
 import type { PlanInput, PlannedRouteOptionView, RouteStop } from '../../../shared/types/routes'
 import { useChatSessionStore } from '../../../stores/chat-session-store'
 import { computeInitialCamera } from './compute-initial-camera'
+import { computeRouteMidpoint } from './route-midpoint'
 
 type CameraState = {
   center?: { latitude: number; longitude: number }
@@ -77,79 +74,6 @@ type PersistentCameraState = {
 }
 
 const CHAT_TRANSITION_MS = 260
-
-// ─────────────────────────────────────────────────────────────────────────
-// RUX-004: RouteTag helpers
-// ─────────────────────────────────────────────────────────────────────────
-
-/**
- * Compute the midpoint of a route's overview geometry.
- * Uses linear interpolation between decoded coordinates at 50% arc-length.
- * Fallback: bounding box midpoint if geometry is too short.
- */
-const computeRouteMidpoint = (overviewGeometry: any, bounds?: any): MapLatLng => {
-  if (!overviewGeometry) {
-    // Fallback: use bounds center if no geometry
-    if (bounds) {
-      return {
-        latitude: (bounds.northeast.lat + bounds.southwest.lat) / 2,
-        longitude: (bounds.northeast.lng + bounds.southwest.lng) / 2,
-      }
-    }
-    return { latitude: 0, longitude: 0 } // Safe default
-  }
-
-  try {
-    const decoded = decodePolylineGeometry(overviewGeometry)
-    if (decoded.length < 2) {
-      // Fallback: use bounds center for single-point routes
-      if (bounds) {
-        return {
-          latitude: (bounds.northeast.lat + bounds.southwest.lat) / 2,
-          longitude: (bounds.northeast.lng + bounds.southwest.lng) / 2,
-        }
-      }
-      return decoded[0] || { latitude: 0, longitude: 0 }
-    }
-
-    // Compute cumulative distances along the polyline
-    const cumulativeDistances = computeCumulativeDistances(decoded)
-    const totalDistance = cumulativeDistances[cumulativeDistances.length - 1]
-
-    // Find the coordinate at 50% of total distance
-    const targetDistance = totalDistance / 2
-
-    // Linear search to find the segment containing the midpoint
-    for (let i = 0; i < cumulativeDistances.length - 1; i += 1) {
-      const segStart = cumulativeDistances[i]
-      const segEnd = cumulativeDistances[i + 1]
-
-      if (targetDistance >= segStart && targetDistance <= segEnd) {
-        // Interpolate within this segment
-        const t = (targetDistance - segStart) / (segEnd - segStart)
-        const start = decoded[i]
-        const end = decoded[i + 1]
-
-        return {
-          latitude: start.latitude + (end.latitude - start.latitude) * t,
-          longitude: start.longitude + (end.longitude - start.longitude) * t,
-        }
-      }
-    }
-
-    // Fallback: return last decoded point
-    return decoded[decoded.length - 1]
-  } catch (_error) {
-    // Fallback: use bounds center on any decode error
-    if (bounds) {
-      return {
-        latitude: (bounds.northeast.lat + bounds.southwest.lat) / 2,
-        longitude: (bounds.northeast.lng + bounds.southwest.lng) / 2,
-      }
-    }
-    return { latitude: 0, longitude: 0 }
-  }
-}
 
 /**
  * Derive archetype label from route option.
@@ -1040,6 +964,7 @@ const HomeMapScreen = () => {
       manualRouteOptions.options[0]
     )
   }, [flowState, manualRouteOptions, selectedRouteOptionId])
+  const hasDisplayedRoute = hasActiveRoute || !!selectedOption
 
   // Determine overlay availability based on selected route option
   const _overlayAvailability = useMemo(() => {
@@ -1302,6 +1227,7 @@ const HomeMapScreen = () => {
     setSelectedRouteOptionId(null)
     setSearchStop(null)
     setSelectedRouteId(null)
+    setDisplayedRoutePlanId(null)
     setSelectedCuratedRouteId(null)
     lastFittedPlanIdRef.current = null
     resetSession()
@@ -1720,7 +1646,7 @@ const HomeMapScreen = () => {
         {/* E2E hook: a top-level (a11y-exposed) marker present whenever a route
             is active. Most of the map-mode UI is accessibility-encapsulated, so
             this sibling of ChatInput lets Maestro assert the route rendered. */}
-        {hasActiveRoute ? (
+        {hasDisplayedRoute ? (
           <View testID="route-on-map-marker" style={styles.e2eMarker} pointerEvents="none">
             <Text accessibilityLabel="route on map" style={styles.e2eMarkerText}>
               route
@@ -1743,12 +1669,14 @@ const HomeMapScreen = () => {
                 : curatedPills // Has routes: show curated pills only
           }
           testID="chat-input"
-          placeholder={!hasActiveRoute ? "Find a route — try 'twisties near Asheville'" : undefined}
+          placeholder={
+            !hasDisplayedRoute ? "Find a route — try 'twisties near Asheville'" : undefined
+          }
           chatMode={chatMode}
           onToggleChatMode={cycleTranscript}
           onManualModePress={handleManualModePress}
           hasMessages={transcriptMessages.length > 0}
-          hasActiveRoute={hasActiveRoute}
+          hasActiveRoute={hasDisplayedRoute}
           dispatch={(action: { type: string }) => flowDispatch(action as RideFlowAction)}
           onSelectRoute={handleSelectCuratedRoute}
         />

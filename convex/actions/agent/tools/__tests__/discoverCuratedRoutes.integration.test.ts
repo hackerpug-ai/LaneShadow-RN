@@ -267,6 +267,18 @@ describe('DATA-008 AC-1: fixtured intent drives a route_plans row whose options 
     const actualLabels = options.map((o: any) => o.label).sort()
     expect(actualLabels).toEqual(expectedLabels)
 
+    // THEN: route geometry matches the RN map contract. A raw encoded string
+    // crashes decodePolylineGeometry because it expects { value, precision }.
+    for (const option of options) {
+      expect(option.map.overviewGeometry).toMatchObject({
+        format: 'polyline',
+        encoding: 'polyline',
+        precision: 5,
+      })
+      expect(typeof option.map.overviewGeometry.value).toBe('string')
+      expect(option.map.overviewGeometry.value.length).toBeGreaterThan(0)
+    }
+
     // Negative controls (would fail if the tool degraded to a chat no-op)
     expect(result.type).not.toBe('chat')
     expect(options.length).toBeGreaterThan(0)

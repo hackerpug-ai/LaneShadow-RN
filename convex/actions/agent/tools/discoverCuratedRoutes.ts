@@ -214,6 +214,7 @@ export function buildCuratedMapGeometry(
   g:
     | {
         format: 'polyline' | 'multipolyline'
+        encoding?: string | null
         precision: number
         value?: string | null
         segments?: string[] | null
@@ -221,7 +222,12 @@ export function buildCuratedMapGeometry(
     | null
     | undefined,
 ): {
-  overviewGeometry: string
+  overviewGeometry: {
+    format: 'polyline'
+    encoding: string
+    precision: number
+    value: string
+  }
   overviewSegments?: string[]
   bounds: { north: number; south: number; east: number; west: number }
 } {
@@ -255,7 +261,12 @@ export function buildCuratedMapGeometry(
         // overviewGeometry = the longest segment (single-line fallback for consumers that
         // only read overviewGeometry); overviewSegments = the full set for the map render.
         return {
-          overviewGeometry: longest,
+          overviewGeometry: {
+            format: 'polyline',
+            encoding: 'polyline',
+            precision,
+            value: longest,
+          },
           overviewSegments: g.segments,
           bounds: { north, south, east, west },
         }
@@ -276,12 +287,26 @@ export function buildCuratedMapGeometry(
           if (lng > east) east = lng
           if (lng < west) west = lng
         }
-        return { overviewGeometry: g.value, bounds: { north, south, east, west } }
+        return {
+          overviewGeometry: {
+            format: 'polyline',
+            encoding: g.encoding ?? 'polyline',
+            precision,
+            value: g.value,
+          },
+          bounds: { north, south, east, west },
+        }
       }
     }
   }
+  const precision = 5
   return {
-    overviewGeometry: encodeCentroidToPolyline(route.centroidLat, route.centroidLng),
+    overviewGeometry: {
+      format: 'polyline',
+      encoding: 'polyline',
+      precision,
+      value: encodeCentroidToPolyline(route.centroidLat, route.centroidLng),
+    },
     bounds: {
       north: route.centroidLat + 0.5,
       south: route.centroidLat - 0.5,

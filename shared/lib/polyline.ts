@@ -4,8 +4,10 @@ import type { PolylineGeometry } from '../models/saved-routes'
 export type LatLng = { lat: number; lng: number }
 export type MapLatLng = { latitude: number; longitude: number }
 
-export const decodePolylineGeometry = (geometry: PolylineGeometry): MapLatLng[] => {
-  const decoded = polyline.decode(geometry.value, geometry.precision)
+export const decodePolylineGeometry = (geometry: PolylineGeometry | string): MapLatLng[] => {
+  const value = typeof geometry === 'string' ? geometry : geometry.value
+  const precision = typeof geometry === 'string' ? 5 : geometry.precision
+  const decoded = polyline.decode(value, precision)
   return decoded.map(([latitude, longitude]: [number, number]) => ({ latitude, longitude }))
 }
 

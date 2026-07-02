@@ -23,6 +23,14 @@ describe('polyline utils', () => {
     expect(coords[2].longitude).toBeCloseTo(-126.453, 3)
   })
 
+  it('decodes legacy raw encoded polyline strings', () => {
+    const coords = decodePolylineGeometry('_p~iF~ps|U_ulLnnqC_mqNvxq`@' as any)
+
+    expect(coords).toHaveLength(3)
+    expect(coords[0].latitude).toBeCloseTo(38.5, 3)
+    expect(coords[0].longitude).toBeCloseTo(-120.2, 3)
+  })
+
   it('slices a polyline by meters with interpolation across segments', () => {
     const coords = [
       { latitude: 0, longitude: 0 },

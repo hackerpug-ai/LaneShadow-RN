@@ -1,7 +1,11 @@
 'use node'
 
 import { describe, expect, it } from 'vitest'
-import { determineAvailableTools } from './orchestrator'
+import {
+  buildDiscoveryIntentFromQuery,
+  determineAvailableTools,
+  extractOrchestratorAttachments,
+} from './orchestrator'
 
 /**
  * AC-1: fetchWeather removed from agent tool registry
@@ -27,5 +31,50 @@ describe('Orchestrator tool availability', () => {
         'fetchWeather',
       )
     }
+  })
+})
+
+describe('Discovery intent extraction', () => {
+  it('maps the Maestro Asheville twisties query to North Carolina curated routes', () => {
+    const intent = buildDiscoveryIntentFromQuery('twisties near Asheville NC')
+
+    expect(intent).toMatchObject({
+      archetypes: ['twisties'],
+      state: 'North Carolina',
+      sort: 'best',
+      limit: 10,
+    })
+  })
+
+  it('maps state-level scenic route queries to canonical state names', () => {
+    const intent = buildDiscoveryIntentFromQuery('scenic roads in North Carolina')
+
+    expect(intent).toMatchObject({
+      archetypes: ['scenic'],
+      state: 'North Carolina',
+      sort: 'best',
+      limit: 10,
+    })
+  })
+
+  it('does not mistake prepositions for state abbreviations', () => {
+    const intent = buildDiscoveryIntentFromQuery('twisties in the mountains')
+
+    expect(intent).not.toHaveProperty('state', 'Indiana')
+  })
+})
+
+describe('Discovery attachments', () => {
+  it('returns route_options attachments for discovery_agent route results', () => {
+    const attachments = extractOrchestratorAttachments([
+      {
+        toolName: 'discovery_agent',
+        result: { type: 'routes', routePlanId: 'route_plans:discovery-result' },
+      },
+    ])
+
+    expect(attachments).toEqual([
+      { type: 'route_options', routePlanId: 'route_plans:discovery-result' },
+    ])
   })
 })

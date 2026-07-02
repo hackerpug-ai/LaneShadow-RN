@@ -9,6 +9,7 @@ import {
 } from '@mariozechner/pi-ai'
 import { api } from '../../../_generated/api'
 import type { Id } from '../../../_generated/dataModel'
+import { normalizeState } from '../../../util/dataNormalization'
 import { BudgetTracker } from '../budgetTracker'
 import { getAgentModel } from '../lib/models'
 import { summarizeToolResult } from '../lib/summarizeToolResult'
@@ -114,6 +115,102 @@ const discoveryAgentTool: Tool = {
   parameters: subAgentQuerySchema,
 }
 
+const STATE_ALIASES: Record<string, string> = {
+  al: 'Alabama',
+  ak: 'Alaska',
+  az: 'Arizona',
+  ar: 'Arkansas',
+  ca: 'California',
+  co: 'Colorado',
+  ct: 'Connecticut',
+  de: 'Delaware',
+  fl: 'Florida',
+  ga: 'Georgia',
+  hi: 'Hawaii',
+  id: 'Idaho',
+  il: 'Illinois',
+  in: 'Indiana',
+  ia: 'Iowa',
+  ks: 'Kansas',
+  ky: 'Kentucky',
+  la: 'Louisiana',
+  me: 'Maine',
+  md: 'Maryland',
+  ma: 'Massachusetts',
+  mi: 'Michigan',
+  mn: 'Minnesota',
+  ms: 'Mississippi',
+  mo: 'Missouri',
+  mt: 'Montana',
+  ne: 'Nebraska',
+  nv: 'Nevada',
+  nh: 'New Hampshire',
+  nj: 'New Jersey',
+  nm: 'New Mexico',
+  ny: 'New York',
+  nc: 'North Carolina',
+  nd: 'North Dakota',
+  oh: 'Ohio',
+  ok: 'Oklahoma',
+  or: 'Oregon',
+  pa: 'Pennsylvania',
+  ri: 'Rhode Island',
+  sc: 'South Carolina',
+  sd: 'South Dakota',
+  tn: 'Tennessee',
+  tx: 'Texas',
+  ut: 'Utah',
+  vt: 'Vermont',
+  va: 'Virginia',
+  wa: 'Washington',
+  wv: 'West Virginia',
+  wi: 'Wisconsin',
+  wy: 'Wyoming',
+}
+
+const KNOWN_PLACE_STATES: Record<string, string> = {
+  asheville: 'North Carolina',
+}
+
+function canonicalStateFromQuery(query: string): string | undefined {
+  const q = query.toLowerCase()
+
+  for (const [place, state] of Object.entries(KNOWN_PLACE_STATES)) {
+    if (q.includes(place)) return state
+  }
+
+  for (const fullName of Object.values(STATE_ALIASES)) {
+    if (q.includes(fullName.toLowerCase())) return fullName
+  }
+
+  const abbreviationTokens: string[] = query.match(/\b[A-Z]{2}\b/g) ?? []
+  for (const [abbr, state] of Object.entries(STATE_ALIASES)) {
+    if (abbreviationTokens.includes(abbr.toUpperCase())) return state
+  }
+
+  const stateMatch = q.match(/\b(?:near|in)\s+([a-z\s]+?)(?:\b|$)/)
+  return stateMatch ? normalizeState(stateMatch[1]) : undefined
+}
+
+export function buildDiscoveryIntentFromQuery(query: string): Record<string, unknown> {
+  const q = query.toLowerCase()
+  const archetypes: string[] = []
+  if (q.includes('twisties') || q.includes('twisty')) archetypes.push('twisties')
+  if (q.includes('scenic')) archetypes.push('scenic')
+  if (q.includes('technical')) archetypes.push('technical')
+  if (q.includes('cruising')) archetypes.push('cruising')
+  if (q.includes('adventure')) archetypes.push('adventure')
+
+  const intent: Record<string, unknown> = {
+    archetypes: archetypes.length > 0 ? archetypes : undefined,
+    sort: 'best',
+    limit: 10,
+  }
+  const state = canonicalStateFromQuery(query)
+  if (state) intent.state = state
+  return intent
+}
+
 // -----------------------------------------------------------------------------
 // Orchestrator prompt (~15 lines)
 // -----------------------------------------------------------------------------
@@ -124,7 +221,10 @@ const discoveryAgentTool: Tool = {
  *
  * Async to support lastKnownLocation lookup when currentLocation is undefined.
  */
-export async function buildOrchestratorPrompt(ctx: AgentContext, availableTools: string[]): Promise<string> {
+export async function buildOrchestratorPrompt(
+  ctx: AgentContext,
+  availableTools: string[],
+): Promise<string> {
   let locBlock: string
 
   if (ctx.currentLocation) {
@@ -134,10 +234,9 @@ export async function buildOrchestratorPrompt(ctx: AgentContext, availableTools:
     // Try to resolve lastKnownLocation for State 2 fallback
     let lastKnownLocation: { lat: number; lng: number; updatedAt?: number } | undefined
     try {
-      const sessionData = await ctx.runQuery(
-        api.db.planningSessions.getSessionById,
-        { sessionId: ctx.planningSessionId },
-      )
+      const sessionData = await ctx.runQuery(api.db.planningSessions.getSessionById, {
+        sessionId: ctx.planningSessionId,
+      })
       lastKnownLocation = sessionData?.lastKnownLocation
     } catch {
       // Silently ignore lookup failures — fall through to State 3
@@ -301,34 +400,29 @@ async function executeOrchestratorTool(
     }
     case 'discovery_agent': {
       const subCtx = buildSubAgentCtx('discovery', {
+        onToolStart: executeCtx?.onToolStart,
+        onToolFinish: executeCtx?.onToolFinish,
         onAgentTurn: executeCtx?.onAgentTurn,
         onToolResultPiMessage: executeCtx?.onToolResultPiMessage,
       })
 
-      // Extract intent from the natural language query
-      const q = query.toLowerCase()
-      const archetypes: string[] = []
-      if (q.includes('twisties') || q.includes('twisty')) archetypes.push('twisties')
-      if (q.includes('scenic')) archetypes.push('scenic')
-      if (q.includes('technical')) archetypes.push('technical')
-      if (q.includes('cruising')) archetypes.push('cruising')
-      if (q.includes('adventure')) archetypes.push('adventure')
+      const intent = buildDiscoveryIntentFromQuery(query)
+      const callId = `discovery-${Date.now()}`
+      let pendingMessageId: Id<'session_messages'> | undefined
 
-      // Extract state if mentioned (basic matching)
-      const stateMatch = q.match(/\b(near|in)\s+([a-z\s]+?)(?:\b|$)/)
-      const intent: Record<string, unknown> = {
-        archetypes: archetypes.length > 0 ? archetypes : undefined,
-      }
-      if (stateMatch) {
-        intent.state = stateMatch[2].trim().charAt(0).toUpperCase() + stateMatch[2].trim().slice(1)
-      }
-
-      const result = await executeDiscoverCuratedRoutes(ctx, {
+      const toolCall = {
         type: 'toolCall',
-        id: 'discovery-' + Date.now(),
+        id: callId,
         name: 'discoverCuratedRoutes',
         arguments: { intent },
-      } as any)
+      } as any
+
+      const startResult = await subCtx.onToolStart?.('discoverCuratedRoutes', { intent })
+      if (startResult) pendingMessageId = startResult.messageId
+
+      const result = await executeDiscoverCuratedRoutes(ctx, toolCall)
+
+      await subCtx.onToolFinish?.(callId, 'discoverCuratedRoutes', pendingMessageId, result)
 
       const summary = summarizeToolResult('discovery_agent', result)
       await executeCtx?.onSubAgentComplete?.('discovery', summary, Date.now() - agentStart)
@@ -372,7 +466,7 @@ function extractPlaceResults(data: unknown): PlaceResult[] {
   return places
 }
 
-function extractOrchestratorAttachments(
+export function extractOrchestratorAttachments(
   toolResults: { toolName: string; result: unknown }[],
 ): OrchestratorAttachment[] {
   const attachments: OrchestratorAttachment[] = []
@@ -411,6 +505,16 @@ function extractOrchestratorAttachments(
             })),
           })
         }
+      }
+    }
+
+    if (tr.toolName === 'discovery_agent') {
+      const result = tr.result as { type?: string; routePlanId?: Id<'route_plans'> }
+      if (result?.type === 'routes' && result.routePlanId) {
+        attachments.push({
+          type: 'route_options',
+          routePlanId: result.routePlanId,
+        })
       }
     }
   }

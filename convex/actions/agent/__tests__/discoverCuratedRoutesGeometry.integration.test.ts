@@ -162,7 +162,10 @@ describe('DATA-011 AC-3: discoverCuratedRoutes geometry reader', () => {
     const result = buildCuratedMapGeometry(GENERATED_ROUTE, g)
 
     // The overviewGeometry should be a polyline that decodes to >1 coordinate
-    const decoded = polyline.decode(result.overviewGeometry, geoRow.precision) as [number, number][]
+    const decoded = polyline.decode(
+      result.overviewGeometry.value,
+      result.overviewGeometry.precision,
+    ) as [number, number][]
     expect(decoded.length).toBeGreaterThan(1)
 
     // Bounds should be derived from the actual geometry
@@ -207,7 +210,10 @@ describe('DATA-011 AC-3: discoverCuratedRoutes geometry reader', () => {
     const result = buildCuratedMapGeometry(UNRESOLVED_ROUTE, null)
 
     // overviewGeometry should be the centroid single-point encode
-    const decoded = polyline.decode(result.overviewGeometry, 5) as [number, number][]
+    const decoded = polyline.decode(
+      result.overviewGeometry.value,
+      result.overviewGeometry.precision,
+    ) as [number, number][]
     expect(decoded.length).toBe(1) // single point (centroid fallback)
     expect(decoded[0][0]).toBeCloseTo(UNRESOLVED_ROUTE.centroidLat, 3)
     expect(decoded[0][1]).toBeCloseTo(UNRESOLVED_ROUTE.centroidLng, 3)
@@ -257,7 +263,10 @@ describe('DATA-011 AC-3: discoverCuratedRoutes geometry reader', () => {
     const result = buildCuratedMapGeometry(GENERATED_ROUTE, badGeometry)
 
     // Falls back to centroid because decoded points < 2
-    const decoded = polyline.decode(result.overviewGeometry, 5) as [number, number][]
+    const decoded = polyline.decode(
+      result.overviewGeometry.value,
+      result.overviewGeometry.precision,
+    ) as [number, number][]
     expect(decoded.length).toBe(1) // centroid fallback
   })
 })
