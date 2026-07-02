@@ -143,7 +143,7 @@ appId: com.hackerpug.laneshadow
       - takeScreenshot: 06-camera-refit-after-paging-prev
 
 # ── Verify carousel card is still clickable and details sheet works ──
-- assertVisible: { id: "route-carousel-card" }
+- assertVisible: { id: "route-summary-card" }
 
 # Screenshot: Final state showing single polyline + carousel card
 - takeScreenshot: 07-final-state-single-polyline-carousel-visible

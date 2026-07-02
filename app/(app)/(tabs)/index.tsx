@@ -374,6 +374,18 @@ const HomeMapScreen = () => {
         : [],
     [flowState],
   )
+  const agentDistinctRoutes = useMemo(() => {
+    if (agentRoutePlan?.result?.options?.length) {
+      return deduplicateRouteOptions(agentRoutePlan.result.options)
+    }
+    return agentActiveOption ? [agentActiveOption] : []
+  }, [agentRoutePlan?.result, agentActiveOption])
+  const carouselRoutes = distinctRoutes.length > 0 ? distinctRoutes : agentDistinctRoutes
+  const carouselSelectedRouteId =
+    'selectedRouteId' in flowState && flowState.selectedRouteId
+      ? flowState.selectedRouteId
+      : (agentActiveOption?.routeOptionId ?? null)
+  const hasAgentRoute = agentDistinctRoutes.length > 0
 
   // Curated route discovery pills (DISC-011)
   const {
@@ -491,6 +503,15 @@ const HomeMapScreen = () => {
     sessionId: activeChatSessionId ?? undefined,
     isLoading: rawTranscriptMessages === undefined,
   })
+  const shouldShowRouteCarousel =
+    !chatMode &&
+    carouselRoutes.length > 0 &&
+    (hasAgentRoute ||
+      (toasts.length === 0 &&
+        !mapPlanningVisible &&
+        (flowState.phase === 'ROUTE_RESULTS' ||
+          flowState.phase === 'ROUTE_DETAILS' ||
+          flowState.phase === 'PLANNING')))
 
   const handleSendMessage = useCallback(
     async (message: string) => {
@@ -644,6 +665,22 @@ const HomeMapScreen = () => {
           setChatMode(false)
         }
       }
+      if (mapPlanningVisible) {
+        setMapPlanningVisible(false)
+      }
+      if (toasts.length > 0) {
+        clearToasts()
+      }
+
+      if (flowState.phase === 'IDLE' && activeChatSessionId) {
+        flowDispatch({
+          type: 'LOAD_SESSION',
+          sessionId: activeChatSessionId,
+          routeOptions: agentRoutePlan.result,
+          selectedRouteId: agentActiveOption?.routeOptionId,
+        })
+        return
+      }
 
       flowDispatch({
         type: 'PLANNING_SUCCESS',
@@ -655,8 +692,13 @@ const HomeMapScreen = () => {
     agentRoutePlan?.status,
     agentRoutePlan?.result,
     agentRoutePlan?._id,
+    agentActiveOption?.routeOptionId,
+    activeChatSessionId,
     flowDispatch,
     chatMode,
+    mapPlanningVisible,
+    toasts.length,
+    clearToasts,
   ])
 
   useEffect(() => {
@@ -1615,40 +1657,34 @@ const HomeMapScreen = () => {
         </View>
 
         {/* Route summary carousel — single card above input (replaces per-variant stack) */}
-        {!chatMode &&
-          toasts.length === 0 &&
-          !mapPlanningVisible &&
-          (flowState.phase === 'ROUTE_RESULTS' ||
-            flowState.phase === 'ROUTE_DETAILS' ||
-            flowState.phase === 'PLANNING') && (
-            <Animated.View
-              pointerEvents="box-none"
-              key={`route-carousel-${flowState.phase}-${flowState.sessionId}`}
-              entering={FadeInDown.duration(300).springify()}
-            >
-              <RouteSummaryCarousel
-                distinctRoutes={distinctRoutes}
-                selectedRouteId={
-                  'selectedRouteId' in flowState ? (flowState.selectedRouteId ?? null) : null
-                }
-                onCardPress={handleCarouselCardPress}
-                onRouteChange={selectRoute}
-                hasActiveRoute={hasActiveRoute}
-                bottomOffset={insets.bottom + 80}
-              />
-            </Animated.View>
-          )}
+        {shouldShowRouteCarousel && (
+          <Animated.View
+            style={StyleSheet.absoluteFill}
+            pointerEvents="box-none"
+            key={`route-carousel-${flowState.phase}-${'sessionId' in flowState ? flowState.sessionId : (activeChatSessionId ?? 'agent')}`}
+            entering={FadeInDown.duration(300).springify()}
+          >
+            <RouteSummaryCarousel
+              distinctRoutes={carouselRoutes}
+              selectedRouteId={carouselSelectedRouteId}
+              onCardPress={handleCarouselCardPress}
+              onRouteChange={selectRoute}
+              hasActiveRoute={hasActiveRoute}
+              bottomOffset={insets.bottom + 80}
+            />
+          </Animated.View>
+        )}
 
         {/* Planning indicator - shown in map mode while agent is working */}
         {/* Planning indicator — stays visible until agent finishes,
             but hides when toasts are showing (toast = agent responded) */}
         <MapPlanningIndicator
-          visible={mapPlanningVisible && !chatMode && toasts.length === 0}
+          visible={mapPlanningVisible && !chatMode && toasts.length === 0 && !hasAgentRoute}
           bottomOffset={insets.bottom + 96}
         />
 
         {/* Toast-style message notifications — map mode only */}
-        {!chatMode && toasts.length > 0 && (
+        {!chatMode && toasts.length > 0 && !shouldShowRouteCarousel && (
           <MapToastStack
             messages={toasts}
             onDismiss={dismissToast}

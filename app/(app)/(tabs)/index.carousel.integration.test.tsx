@@ -25,6 +25,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockUseQuery = vi.fn()
 const mockUseMutation = vi.fn()
+const mockLocalSearchParams = vi.fn(() => ({}))
+let mockAutoSendFromChatInput = false
+let mockToasts: any[] = []
 
 vi.mock('convex/react', () => ({
   useQuery: mockUseQuery,
@@ -34,7 +37,7 @@ vi.mock('convex/react', () => ({
 vi.mock('expo-router', () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
   useSegments: () => ['app', 'tabs', 'index'],
-  useLocalSearchParams: () => ({}),
+  useLocalSearchParams: () => mockLocalSearchParams(),
 }))
 
 vi.mock('react-native-safe-area-context', () => ({
@@ -163,7 +166,7 @@ vi.mock('../../../hooks/use-route-comparison', () => ({
 
 vi.mock('../../../hooks/use-toast-messages', () => ({
   useToastMessages: () => ({
-    toasts: [],
+    toasts: mockToasts,
     dismissToast: vi.fn(),
     clearAll: vi.fn(),
   }),
@@ -435,7 +438,21 @@ vi.mock('../../../components/map/weather-pills-row', () => ({ WeatherPillsRow: (
 // Mock: chat / input / transcript / menu — not under test
 // ---------------------------------------------------------------------------
 
-vi.mock('../../../components/chat', () => ({ ChatInput: () => null }))
+vi.mock('../../../components/chat', () => {
+  const React = require('react')
+  return {
+    ChatInput: (props: any) => {
+      const didSendRef = React.useRef(false)
+      React.useEffect(() => {
+        if (mockAutoSendFromChatInput && !didSendRef.current) {
+          didSendRef.current = true
+          void props.onSend('plan a scenic route')
+        }
+      }, [props.onSend])
+      return null
+    },
+  }
+})
 vi.mock('../../../components/layouts/menu-layout', () => ({
   MenuLayout: (p: any) => p.children,
 }))
@@ -637,6 +654,9 @@ describe('RUX-001: Route Summary Carousel', () => {
 
     mockUseQuery.mockReturnValue(undefined)
     mockUseMutation.mockReturnValue(vi.fn())
+    mockLocalSearchParams.mockReturnValue({})
+    mockAutoSendFromChatInput = false
+    mockToasts = []
 
     // Lazy-import inside each test to avoid module-level require issues
     const mod = await import('./index')
@@ -647,6 +667,54 @@ describe('RUX-001: Route Summary Carousel', () => {
   // AC-1: Single carousel card pages between distinct routes
   // ─────────────────────────────────────────────────────────────────────────
   describe('AC-1: pagesBetweenDistinctRoutes', () => {
+    it('bridgesChatPlannedRouteToMapAndCarousel', async () => {
+      // GIVEN: the rider sends from the home chat input, which raises the
+      // map planning overlay before Convex publishes the completed route plan.
+      const actualRideFlow = await vi.importActual<typeof import('../../../hooks/use-ride-flow')>(
+        '../../../hooks/use-ride-flow',
+      )
+      const bridgedRoute = {
+        ...routeA,
+        map: {
+          ...routeA.map,
+          bounds: {
+            northeast: { lat: 37.8, lng: -122.4 },
+            southwest: { lat: 37.7, lng: -122.5 },
+          },
+        },
+      }
+      mockUseRideFlow.mockImplementation(() => actualRideFlow.useRideFlow())
+      mockLocalSearchParams.mockReturnValue({ sessionId: 'planning-session-1' })
+      mockAutoSendFromChatInput = true
+      mockToasts = [
+        {
+          id: 'route-response-toast',
+          content: 'Route ready',
+          timestamp: new Date(),
+        },
+      ]
+      mockUseActiveSessionRoute.mockReturnValue({
+        activeOption: bridgedRoute,
+        routePlan: {
+          ...MOCK_ROUTE_PLAN,
+          status: 'running',
+          result: undefined,
+        },
+        newestRoutePlanId: 'plan-1',
+      })
+
+      const { queryByTestId } = render(createElement(HomeMapScreen))
+
+      // THEN: a completed chat-planned route is not hidden behind the stale
+      // map-planning state, a non-terminal plan status, or a temporarily
+      // unavailable plan options array; the map marker and carousel are both
+      // backed by the active route.
+      await waitFor(() => {
+        expect(queryByTestId('route-on-map-marker')).not.toBeNull()
+        expect(queryByTestId('route-carousel-container')).not.toBeNull()
+      })
+    })
+
     it('pagesBetweenDistinctRoutes', async () => {
       // GIVEN: plan view in ROUTE_RESULTS with 2 distinct routes
       mockUseRideFlow.mockReturnValue({
