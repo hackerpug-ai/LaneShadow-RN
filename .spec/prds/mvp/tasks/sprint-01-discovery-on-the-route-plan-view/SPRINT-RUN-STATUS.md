@@ -1,6 +1,6 @@
 # Sprint-01 run status (kb-run-sprint) - COMPLETE 2026-07-02
 
-main @ `0135972a` (`Merge branch 'jr-branch-1'`).
+Code closeout landed at `0135972a` (`Merge branch 'jr-branch-1'`); status-only closeout metadata landed afterward.
 
 ## Completion State
 
