@@ -1,132 +1,286 @@
 /**
- * Integration test for DISC-017: Discovery slot shows curated cards only — never generic IDLE_SUGGESTIONS prompts
+ * Integration test for DISC-017: discovery suggestions come only from curated routes.
  */
 
-import { render, screen, waitFor } from '@testing-library/react-native'
-import { describe, expect, it, vi } from 'vitest'
+import { cleanup, render, screen, waitFor } from '@testing-library/react-native'
+import { createElement } from 'react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import HomeMapScreen from './index'
 
-// Mock convex/react first
-const mockUseQuery = vi.fn()
-const mockUseMutation = vi.fn()
-
-vi.mock('convex/react', () => ({
-  useQuery: mockUseQuery,
-  useMutation: mockUseMutation,
+const mocks = vi.hoisted(() => ({
+  useQuery: vi.fn(),
+  useMutation: vi.fn(),
+  useCuratedDiscovery: vi.fn(),
+  useActiveSessionRoute: vi.fn(),
+  useRideFlow: vi.fn(),
+  flowDispatch: vi.fn(),
 }))
 
-// Mock expo-router
+vi.mock('convex/react', () => ({
+  useQuery: mocks.useQuery,
+  useMutation: mocks.useMutation,
+}))
+
 vi.mock('expo-router', () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
   useSegments: () => ['app', 'tabs', 'index'],
   useLocalSearchParams: () => ({}),
 }))
 
 vi.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
-  SafeAreaView: ({ children }) => children,
-}))
-
-vi.mock('react-native-maps', () => ({
-  MapView: () => null,
-  Marker: () => null,
-  PROVIDER_DEFAULT: 'default',
+  SafeAreaView: (props: any) => props.children,
 }))
 
 vi.mock('react-native-reanimated', () => ({
-  useSharedValue: () => ({ value: 0 }),
+  useSharedValue: (initial: number) => ({ value: initial }),
   useAnimatedStyle: () => ({}),
-  withTiming: vi.fn(),
+  withTiming: vi.fn((value: number) => value),
+  FadeInDown: { duration: () => ({ springify: () => undefined }) },
+  default: { View: (props: any) => createElement('View', props, props.children) },
 }))
 
-vi.mock('../../../contexts/auth-context', () => ({
-  AuthProvider: ({ children }) => children,
-  useAuth: () => ({ isLoaded: true, isSignedIn: true, user: { id: 'test-user', name: 'Test User', email: 'test@example.com' } }),
+vi.mock('@clerk/clerk-expo', () => ({
+  useAuth: () => ({ isLoaded: true, isSignedIn: true }),
 }))
 
-vi.mock('../../../contexts/theme-context', () => ({
-  ThemeProvider: ({ children }) => children,
-  useSemanticTheme: () => ({
-    colors: { text: { primary: '#000', secondary: '#666' }, surface: { primary: '#fff', secondary: '#f5f5f5', glass: 'rgba(255, 255, 255, 0.72)', background: '#fff' } },
-    typography: { label: { fontSize: 14, fontWeight: '500', lineHeight: 20 }, caption: { fontSize: 12, fontWeight: '400', lineHeight: 16 } },
+vi.mock('expo-haptics', () => ({
+  impactAsync: vi.fn(),
+  ImpactFeedbackStyle: { Medium: 'Medium' },
+}))
+
+vi.mock('../../../lib/get-current-location', () => ({
+  getCurrentLocation: vi.fn(),
+}))
+
+vi.mock('../../../contexts/search-results', () => ({
+  useSearchResults: () => ({
+    results: [],
+    selectedResultId: null,
+    setSelectedResultId: vi.fn(),
+    clearResults: vi.fn(),
   }),
-  useThemePreference: () => ({ isDark: false }),
 }))
 
-vi.mock('../../../hooks/use-toast-messages', () => ({
-  useToastMessages: () => ({ showToast: vi.fn() }),
+vi.mock('../../../contexts/selected-route', () => ({
+  useSelectedRoute: () => ({
+    selectedRouteId: null,
+    setSelectedRouteId: vi.fn(),
+    displayedRoutePlanId: null,
+    setDisplayedRoutePlanId: vi.fn(),
+    requestFitToRoute: vi.fn(),
+    requestFitToRouteWithReset: vi.fn(),
+    registerFitHandler: vi.fn(),
+  }),
+}))
+
+vi.mock('../../../contexts/theme-preference', () => ({
+  useThemePreference: () => ({ isDark: false, mode: 'light' }),
+}))
+
+vi.mock('../../../hooks/use-active-session-route', () => ({
+  useActiveSessionRoute: (...args: unknown[]) => mocks.useActiveSessionRoute(...args),
+}))
+
+vi.mock('../../../hooks/use-chat-planning', () => ({
+  useChatPlanning: () => ({
+    sendPlanningMessage: vi.fn(),
+    cancel: vi.fn(),
+    sessionId: null,
+    resetSession: vi.fn(),
+  }),
 }))
 
 vi.mock('../../../hooks/use-curated-discovery', () => ({
-  useCuratedDiscovery: vi.fn(),
+  useCuratedDiscovery: (...args: unknown[]) => mocks.useCuratedDiscovery(...args),
 }))
 
 vi.mock('../../../hooks/use-current-location', () => ({
-  useCurrentLocation: () => ({ location: null, isLocationLoaded: true }),
+  useCurrentLocation: () => ({ location: { lat: 37.7749, lng: -122.4194 }, loading: false }),
 }))
 
-// Mock components
+vi.mock('../../../hooks/use-is-route-saved', () => ({
+  useIsRouteSaved: () => false,
+}))
+
+vi.mock('../../../hooks/use-plan-ride', () => ({
+  usePlanInit: () => ({ data: null }),
+  usePlanRide: () => ({
+    planRide: vi.fn(),
+    isRunning: false,
+    error: null,
+    resetError: vi.fn(),
+    cancelPlanning: vi.fn(),
+  }),
+}))
+
+vi.mock('../../../hooks/use-ride-flow', () => ({
+  useRideFlow: (...args: unknown[]) => mocks.useRideFlow(...args),
+}))
+
+vi.mock('../../../hooks/use-route-comparison', () => ({
+  useRouteComparison: () => ({ polylines: [], selectRoute: vi.fn() }),
+}))
+
+vi.mock('../../../hooks/use-semantic-theme', () => ({
+  useSemanticTheme: () => ({
+    semantic: {
+      color: {
+        surface: { default: 'surface' },
+        border: { default: 'border' },
+        onSurface: { default: 'on-surface' },
+      },
+      space: { sm: 8, md: 16 },
+      type: { body: { md: {} } },
+      elevation: { 3: {} },
+    },
+  }),
+}))
+
+vi.mock('../../../hooks/use-toast-messages', () => ({
+  useToastMessages: () => ({
+    toasts: [],
+    dismissToast: vi.fn(),
+    clearAll: vi.fn(),
+  }),
+}))
+
+vi.mock('../../../stores/chat-session-store', () => ({
+  useChatSessionStore: (selector: any) =>
+    selector({
+      defaultCamera: null,
+      bySession: {},
+      lastViewedSessionId: null,
+      _hydrated: true,
+      setCamera: vi.fn(),
+      setLastViewedSession: vi.fn(),
+    }),
+}))
+
 vi.mock('../../../components/layouts/menu-layout', () => ({
-  MenuLayout: ({ children }) => <View testID="menu-layout">{children}</View>,
+  MenuLayout: (props: any) => createElement('View', { testID: 'menu-layout' }, props.children),
 }))
 
 vi.mock('../../../components/chat', () => ({
-  ChatInput: ({ suggestions, testID }) => (
-    <View testID={testID}>
-      {suggestions?.map((suggestion, index) => (
-        <Text key={index} testID={`suggestion-${index}`}>
-          {suggestion}
-        </Text>
-      ))}
-    </View>
-  ),
+  ChatInput: (props: any) =>
+    createElement(
+      'View',
+      { testID: props.testID },
+      props.suggestions.map((suggestion: any, index: number) =>
+        createElement(
+          'Text',
+          { key: index, testID: `suggestion-${index}` },
+          typeof suggestion === 'string' ? suggestion : suggestion.label,
+        ),
+      ),
+    ),
 }))
 
 vi.mock('../../../components/map', () => ({
-  MapboxMapView: () => <View testID="map-view" />,
-  MapControls: () => <View testID="map-controls" />,
-  MapHeaderOverlay: () => <View testID="map-header-overlay" />,
+  MapboxMapView: (props: any) => createElement('View', { testID: 'map-view' }, props.children),
+}))
+
+vi.mock('../../../components/map/map-controls', () => ({
+  MapControls: () => createElement('View', { testID: 'map-controls' }),
+}))
+
+vi.mock('../../../components/map/map-header-overlay', () => ({
+  MapHeaderOverlay: () => createElement('View', { testID: 'map-header-overlay' }),
+}))
+
+vi.mock('../../../components/map/map-planning-indicator', () => ({
+  MapPlanningIndicator: () => createElement('View', { testID: 'map-planning-indicator' }),
+}))
+
+vi.mock('../../../components/map/map-toast-stack', () => ({
+  MapToastStack: () => createElement('View', { testID: 'map-toast-stack' }),
+}))
+
+vi.mock('../../../components/map/route-polyline', () => ({
+  buildRoutePolylines: () => [],
+}))
+
+vi.mock('../../../components/map/route-polyline-component', () => ({
+  RoutePolyline: () => createElement('View', { testID: 'route-polyline' }),
+}))
+
+vi.mock('../../../components/map/route-summary-carousel', () => ({
+  RouteSummaryCarousel: () => createElement('View', { testID: 'route-summary-carousel' }),
+}))
+
+vi.mock('../../../components/map/route-tag', () => ({
+  RouteTag: () => createElement('View', { testID: 'route-tag' }),
 }))
 
 vi.mock('../../../components/map/search-result-marker', () => ({
-  SearchResultMarker: () => <View testID="search-result-marker" />,
+  SearchResultMarker: () => createElement('View', { testID: 'search-result-marker' }),
 }))
 
 vi.mock('../../../components/map/weather-pills-row', () => ({
-  WeatherPillsRow: () => <View testID="weather-pills-row" />,
+  WeatherPillsRow: () => createElement('View', { testID: 'weather-pills-row' }),
 }))
 
 vi.mock('../../../components/sheets/plan-ride-sheet', () => ({
-  PlanRideSheet: () => <View testID="plan-ride-sheet" />,
+  PlanRideSheet: () => createElement('View', { testID: 'plan-ride-sheet' }),
+}))
+
+vi.mock('../../../components/sheets/planning-error-sheet', () => ({
+  PlanningErrorSheet: () => createElement('View', { testID: 'planning-error-sheet' }),
 }))
 
 vi.mock('../../../components/sheets/planning-loading', () => ({
-  RoutePlannerLoading: () => <View testID="planning-loading" />,
+  RoutePlannerLoading: () => createElement('View', { testID: 'planning-loading' }),
 }))
 
-// Import after mocks
-const HomeMapScreen = require('./index').default
+vi.mock('../../../components/sheets/route-details-sheet', () => ({
+  RouteDetailsSheet: () => createElement('View', { testID: 'route-details-sheet' }),
+}))
+
+vi.mock('../../../components/ui/chat-transcript', () => ({
+  ChatTranscript: () => createElement('View', { testID: 'chat-transcript' }),
+}))
+
+vi.mock('../../../components/ui/motorcycle-plus-icon', () => ({
+  MotorcyclePlusIcon: () => createElement('View', { testID: 'motorcycle-plus-icon' }),
+}))
+
+vi.mock('../../../components/ui/save-favorite-sheet', () => ({
+  SaveRouteSheet: () => createElement('View', { testID: 'save-route-sheet' }),
+}))
 
 describe('DISC-017: Discovery slot behavior', () => {
-  it('RED phase: demonstrates current bug - shows IDLE_SUGGESTIONS when curated routes empty', async () => {
-    // ARRANGE: Mock hook to return empty routes (current bug scenario)
-    const { useCuratedDiscovery } = require('../../../hooks/use-curated-discovery')
-    useCuratedDiscovery.mockReturnValue({
-      routes: [], // Empty but resolved
+  beforeEach(() => {
+    mocks.useQuery.mockReturnValue([])
+    mocks.useMutation.mockReturnValue(vi.fn())
+    mocks.useActiveSessionRoute.mockReturnValue({
+      activeOption: null,
+      routePlan: null,
+      newestRoutePlanId: null,
+    })
+    mocks.useRideFlow.mockReturnValue({
+      state: { phase: 'IDLE' },
+      dispatch: mocks.flowDispatch,
+    })
+  })
+
+  afterEach(() => {
+    cleanup()
+    vi.clearAllMocks()
+  })
+
+  it('shows an empty curated-routes message instead of generic idle prompts', async () => {
+    mocks.useCuratedDiscovery.mockReturnValue({
+      routes: [],
       isLoading: false,
       isEmpty: true,
     })
 
-    // ACT: Render the component
     render(<HomeMapScreen />)
 
-    // ASSERT: This demonstrates the current bug - shows IDLE_SUGGESTIONS when it shouldn't
     await waitFor(() => {
-      // Currently BUGGY: Shows IDLE_SUGGESTIONS when empty (should show 'no nearby routes' message)
-      expect(screen.getByText('Plan a scenic ride')).toBeTruthy()
-      expect(screen.getByText('Ride to the coast')).toBeTruthy()
-      
-      // Should NOT show curated pills when none exist
-      expect(screen.queryByTestId('suggestion-0')).toBeNull()
+      expect(screen.getByText('No nearby routes')).toBeTruthy()
+      expect(screen.queryByText('Plan a scenic ride')).toBeNull()
+      expect(screen.queryByText('Ride to the coast')).toBeNull()
     })
   })
 })

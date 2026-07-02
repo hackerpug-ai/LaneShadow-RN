@@ -1,90 +1,69 @@
 /**
- * Integration test for DISC-018: Verify/harden the footer open-full-chat button (distinct from send) + suggestion-card visibility keyed to no-active-route
+ * Integration tests for DISC-018 footer controls and discovery-card visibility.
  */
 
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native'
-import { describe, expect, it, vi } from 'vitest'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { cleanup, render, screen } from '@testing-library/react-native'
+import { createElement } from 'react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import HomeMapScreen from './index'
 
-// Mock convex/react first
-const mockUseQuery = vi.fn()
-const mockUseMutation = vi.fn()
-
-vi.mock('convex/react', () => ({
-  useQuery: mockUseQuery,
-  useMutation: mockUseMutation,
+const mocks = vi.hoisted(() => ({
+  useQuery: vi.fn(),
+  useMutation: vi.fn(),
+  useCuratedDiscovery: vi.fn(),
+  useActiveSessionRoute: vi.fn(),
+  useRideFlow: vi.fn(),
+  flowDispatch: vi.fn(),
 }))
 
-// Mock expo-router
+vi.mock('convex/react', () => ({
+  useQuery: mocks.useQuery,
+  useMutation: mocks.useMutation,
+}))
+
 vi.mock('expo-router', () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
   useSegments: () => ['app', 'tabs', 'index'],
   useLocalSearchParams: () => ({}),
 }))
 
 vi.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
-  SafeAreaView: ({ children }) => children,
-}))
-
-vi.mock('react-native-maps', () => ({
-  MapView: () => null,
-  Marker: () => null,
-  PROVIDER_DEFAULT: 'default',
+  SafeAreaView: (props: any) => props.children,
 }))
 
 vi.mock('react-native-reanimated', () => ({
-  useSharedValue: () => ({ value: 0 }),
+  useSharedValue: (initial: number) => ({ value: initial }),
   useAnimatedStyle: () => ({}),
-  withTiming: vi.fn(),
+  withTiming: vi.fn((value: number) => value),
+  FadeInDown: { duration: () => ({ springify: () => undefined }) },
+  default: { View: (props: any) => createElement('View', props, props.children) },
 }))
 
-vi.mock('../../../contexts/auth-context', () => ({
-  AuthProvider: ({ children }) => children,
-  useAuth: () => ({ isLoaded: true, isSignedIn: true, user: { id: 'test-user', name: 'Test User', email: 'test@example.com' } }),
+vi.mock('@clerk/clerk-expo', () => ({
+  useAuth: () => ({ isLoaded: true, isSignedIn: true }),
 }))
 
-vi.mock('../../../contexts/theme-context', () => ({
-  ThemeProvider: ({ children }) => children,
-  useSemanticTheme: () => ({
-    colors: { 
-      text: { primary: '#000', secondary: '#666' }, 
-      surface: { primary: '#fff', secondary: '#f5f5f5', glass: 'rgba(255, 255, 255, 0.72)', background: '#fff' },
-      primary: { default: '#007AFF' },
-      border: { default: '#E5E5E5' }
-    },
-    space: { sm: 8, md: 16 },
-    typography: { label: { fontSize: 14, fontWeight: '500', lineHeight: 20 }, caption: { fontSize: 12, fontWeight: '400', lineHeight: 16 } },
-    elevation: { [3]: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 } },
+vi.mock('expo-haptics', () => ({
+  impactAsync: vi.fn(),
+  ImpactFeedbackStyle: { Medium: 'Medium' },
+}))
+
+vi.mock('../../../lib/get-current-location', () => ({
+  getCurrentLocation: vi.fn(),
+}))
+
+vi.mock('../../../contexts/search-results', () => ({
+  useSearchResults: () => ({
+    results: [],
+    selectedResultId: null,
+    setSelectedResultId: vi.fn(),
+    clearResults: vi.fn(),
   }),
-  useThemePreference: () => ({ isDark: false }),
-}))
-
-vi.mock('../../../hooks/use-toast-messages', () => ({
-  useToastMessages: () => ({ showToast: vi.fn() }),
-}))
-
-vi.mock('../../../hooks/use-curated-discovery', () => ({
-  useCuratedDiscovery: vi.fn(),
-}))
-
-vi.mock('../../../hooks/use-current-location', () => ({
-  useCurrentLocation: () => ({ location: null, isLocationLoaded: true }),
-}))
-
-vi.mock('../../../hooks/use-active-session-route', () => ({
-  useActiveSessionRoute: vi.fn(),
-}))
-
-vi.mock('../../../hooks/use-flow-state', () => ({
-  useFlowState: vi.fn(() => ({
-    phase: 'IDLE',
-    dispatch: vi.fn(),
-  })),
 }))
 
 vi.mock('../../../contexts/selected-route', () => ({
-  useSelectedRoute: vi.fn(() => ({
+  useSelectedRoute: () => ({
     selectedRouteId: null,
     setSelectedRouteId: vi.fn(),
     displayedRoutePlanId: null,
@@ -92,307 +71,274 @@ vi.mock('../../../contexts/selected-route', () => ({
     requestFitToRoute: vi.fn(),
     requestFitToRouteWithReset: vi.fn(),
     registerFitHandler: vi.fn(),
-  })),
+  }),
 }))
 
-// Mock components
+vi.mock('../../../contexts/theme-preference', () => ({
+  useThemePreference: () => ({ isDark: false, mode: 'light' }),
+}))
+
+vi.mock('../../../hooks/use-active-session-route', () => ({
+  useActiveSessionRoute: (...args: unknown[]) => mocks.useActiveSessionRoute(...args),
+}))
+
+vi.mock('../../../hooks/use-chat-planning', () => ({
+  useChatPlanning: () => ({
+    sendPlanningMessage: vi.fn(),
+    cancel: vi.fn(),
+    sessionId: null,
+    resetSession: vi.fn(),
+  }),
+}))
+
+vi.mock('../../../hooks/use-curated-discovery', () => ({
+  useCuratedDiscovery: (...args: unknown[]) => mocks.useCuratedDiscovery(...args),
+}))
+
+vi.mock('../../../hooks/use-current-location', () => ({
+  useCurrentLocation: () => ({ location: { lat: 37.7749, lng: -122.4194 }, loading: false }),
+}))
+
+vi.mock('../../../hooks/use-is-route-saved', () => ({
+  useIsRouteSaved: () => false,
+}))
+
+vi.mock('../../../hooks/use-plan-ride', () => ({
+  usePlanInit: () => ({ data: null }),
+  usePlanRide: () => ({
+    planRide: vi.fn(),
+    isRunning: false,
+    error: null,
+    resetError: vi.fn(),
+    cancelPlanning: vi.fn(),
+  }),
+}))
+
+vi.mock('../../../hooks/use-ride-flow', () => ({
+  useRideFlow: (...args: unknown[]) => mocks.useRideFlow(...args),
+}))
+
+vi.mock('../../../hooks/use-route-comparison', () => ({
+  useRouteComparison: () => ({ polylines: [], selectRoute: vi.fn() }),
+}))
+
+vi.mock('../../../hooks/use-semantic-theme', () => ({
+  useSemanticTheme: () => ({
+    semantic: {
+      color: {
+        surface: { default: 'surface' },
+        border: { default: 'border' },
+        onSurface: { default: 'on-surface' },
+      },
+      space: { sm: 8, md: 16 },
+      type: { body: { md: {} } },
+      elevation: { 3: {} },
+    },
+  }),
+}))
+
+vi.mock('../../../hooks/use-toast-messages', () => ({
+  useToastMessages: () => ({
+    toasts: [],
+    dismissToast: vi.fn(),
+    clearAll: vi.fn(),
+  }),
+}))
+
+vi.mock('../../../stores/chat-session-store', () => ({
+  useChatSessionStore: (selector: any) =>
+    selector({
+      defaultCamera: null,
+      bySession: {},
+      lastViewedSessionId: null,
+      _hydrated: true,
+      setCamera: vi.fn(),
+      setLastViewedSession: vi.fn(),
+    }),
+}))
+
 vi.mock('../../../components/layouts/menu-layout', () => ({
-  MenuLayout: ({ children }) => <View testID="menu-layout">{children}</View>,
+  MenuLayout: (props: any) => createElement('View', { testID: 'menu-layout' }, props.children),
 }))
 
-vi.mock('../../../components/chat/chat-input', () => ({
-  ChatInput: ({ onToggleChatMode, hasActiveRoute, suggestions, isIdle, isPlanning, chatMode }) => (
-    <View testID="chat-input">
-      {/* Send button */}
-      <TouchableOpacity 
-        testID="chat-input-send-button"
-        style={{ width: 42, height: 42 }}
-      >
-        <Text>Send</Text>
-      </TouchableOpacity>
-      
-      {/* Chat view button */}
-      {onToggleChatMode && (
-        <TouchableOpacity 
-          onPress={onToggleChatMode}
-          testID="chat-input-chat-view-button"
-          style={{ width: 48, height: 48 }}
-        >
-          <Text>Chat</Text>
-        </TouchableOpacity>
-      )}
-      
-      {/* Suggestion chips when idle AND no active route */}
-      {isIdle && !hasActiveRoute && suggestions.length > 0 && !isPlanning && !chatMode && (
-        <View>
-          {suggestions.map((suggestion, index) => (
-            <Text key={index} testID={`discovery-suggestion-pill-${index}`}>
-              {suggestion.label}
-            </Text>
-          ))}
-        </View>
-      )}
-    </View>
-  ),
+vi.mock('../../../components/chat', () => ({
+  ChatInput: (props: any) =>
+    createElement(
+      'View',
+      { testID: props.testID },
+      createElement('TouchableOpacity', {
+        testID: 'chat-input-send-button',
+        style: { width: 42, height: 42 },
+      }),
+      props.onToggleChatMode
+        ? createElement('TouchableOpacity', {
+            testID: 'chat-input-chat-view-button',
+            onPress: props.onToggleChatMode,
+            style: { width: 48, height: 48 },
+          })
+        : null,
+      props.state.phase === 'IDLE' &&
+        !props.hasActiveRoute &&
+        props.suggestions.length > 0 &&
+        !props.isPlanning &&
+        !props.chatMode
+        ? createElement(
+            'View',
+            null,
+            props.suggestions.map((suggestion: any, index: number) =>
+              createElement(
+                'Text',
+                { key: index, testID: `discovery-suggestion-pill-${index}` },
+                typeof suggestion === 'string' ? suggestion : suggestion.label,
+              ),
+            ),
+          )
+        : null,
+    ),
 }))
 
 vi.mock('../../../components/map', () => ({
-  MapboxMapView: () => <View testID="map-view" />,
-  MapControls: ({ onClear }) => (
-    <TouchableOpacity testID="map-controls" onPress={onClear}>
-      <Text>Clear</Text>
-    </TouchableOpacity>
-  ),
-  MapHeaderOverlay: () => <View testID="map-header-overlay" />,
+  MapboxMapView: (props: any) => createElement('View', { testID: 'map-view' }, props.children),
+}))
+
+vi.mock('../../../components/map/map-controls', () => ({
+  MapControls: () => createElement('View', { testID: 'map-controls' }),
+}))
+
+vi.mock('../../../components/map/map-header-overlay', () => ({
+  MapHeaderOverlay: () => createElement('View', { testID: 'map-header-overlay' }),
+}))
+
+vi.mock('../../../components/map/map-planning-indicator', () => ({
+  MapPlanningIndicator: () => createElement('View', { testID: 'map-planning-indicator' }),
+}))
+
+vi.mock('../../../components/map/map-toast-stack', () => ({
+  MapToastStack: () => createElement('View', { testID: 'map-toast-stack' }),
+}))
+
+vi.mock('../../../components/map/route-polyline', () => ({
+  buildRoutePolylines: () => [],
+}))
+
+vi.mock('../../../components/map/route-polyline-component', () => ({
+  RoutePolyline: () => createElement('View', { testID: 'route-polyline' }),
+}))
+
+vi.mock('../../../components/map/route-summary-carousel', () => ({
+  RouteSummaryCarousel: () => createElement('View', { testID: 'route-summary-carousel' }),
+}))
+
+vi.mock('../../../components/map/route-tag', () => ({
+  RouteTag: () => createElement('View', { testID: 'route-tag' }),
 }))
 
 vi.mock('../../../components/map/search-result-marker', () => ({
-  SearchResultMarker: () => <View testID="search-result-marker" />,
+  SearchResultMarker: () => createElement('View', { testID: 'search-result-marker' }),
 }))
 
 vi.mock('../../../components/map/weather-pills-row', () => ({
-  WeatherPillsRow: () => <View testID="weather-pills-row" />,
+  WeatherPillsRow: () => createElement('View', { testID: 'weather-pills-row' }),
 }))
 
 vi.mock('../../../components/sheets/plan-ride-sheet', () => ({
-  PlanRideSheet: () => <View testID="plan-ride-sheet" />,
+  PlanRideSheet: () => createElement('View', { testID: 'plan-ride-sheet' }),
 }))
 
-// Mock components
+vi.mock('../../../components/sheets/planning-error-sheet', () => ({
+  PlanningErrorSheet: () => createElement('View', { testID: 'planning-error-sheet' }),
+}))
+
 vi.mock('../../../components/sheets/planning-loading', () => ({
-  RoutePlannerLoading: () => <View testID="planning-loading" />,
+  RoutePlannerLoading: () => createElement('View', { testID: 'planning-loading' }),
 }))
 
-// Import after mocks
-const HomeMapScreen = require('./index').default
+vi.mock('../../../components/sheets/route-details-sheet', () => ({
+  RouteDetailsSheet: () => createElement('View', { testID: 'route-details-sheet' }),
+}))
+
+vi.mock('../../../components/ui/chat-transcript', () => ({
+  ChatTranscript: () => createElement('View', { testID: 'chat-transcript' }),
+}))
+
+vi.mock('../../../components/ui/motorcycle-plus-icon', () => ({
+  MotorcyclePlusIcon: () => createElement('View', { testID: 'motorcycle-plus-icon' }),
+}))
+
+vi.mock('../../../components/ui/save-favorite-sheet', () => ({
+  SaveRouteSheet: () => createElement('View', { testID: 'save-route-sheet' }),
+}))
+
+const setActiveRoute = (hasActiveRoute: boolean) => {
+  mocks.useActiveSessionRoute.mockReturnValue({
+    activeOption: hasActiveRoute
+      ? {
+          routeOptionId: 'route-1',
+          map: {
+            overviewGeometry: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+            legs: [],
+          },
+          stats: {
+            distanceMeters: 8400,
+          },
+        }
+      : null,
+    routePlan: {
+      status: 'completed',
+      result: { options: [{ routeOptionId: 'route-1' }] },
+    },
+    newestRoutePlanId: 'test-route-plan-id',
+  })
+}
 
 describe('Footer Visibility Integration Tests', () => {
   beforeEach(() => {
+    mocks.useQuery.mockReturnValue([])
+    mocks.useMutation.mockReturnValue(vi.fn())
+    mocks.useRideFlow.mockReturnValue({
+      state: { phase: 'IDLE' },
+      dispatch: mocks.flowDispatch,
+    })
+    mocks.useCuratedDiscovery.mockReturnValue({
+      isLoading: false,
+      isEmpty: false,
+      routes: [{ id: 'route-1', name: 'Test Route', distanceMi: 5.2 }],
+    })
+    setActiveRoute(false)
+  })
+
+  afterEach(() => {
+    cleanup()
     vi.clearAllMocks()
   })
 
-  describe('AC-1: Full-chat button is distinct from send and opens full chat', () => {
-    test('fullChatButtonDistinctFromSendOpensChat', () => {
-      // GIVEN plan view in map mode
-      render(<HomeMapScreen />)
-      
-      // WHEN the component renders
-      // THEN the buttons are distinct elements
-      const chatViewButton = screen.getByTestId('chat-input-chat-view-button')
-      const sendButton = screen.getByTestId('chat-input-send-button')
-      
-      // Verify both buttons exist and are distinct
-      expect(chatViewButton).toBeTruthy()
-      expect(sendButton).toBeTruthy()
-      expect(chatViewButton).not.toBe(sendButton) // Two distinct node references
-      
-      // Verify button sizes meet 44pt requirement
-      const chatViewStyle = chatViewButton.props.style
-      const sendStyle = sendButton.props.style
-      
-      expect(chatViewStyle.width).toBe(48) // chatViewBtnSize = 48
-      expect(chatViewStyle.height).toBe(48) // Meets >=44pt requirement
-      expect(sendStyle.width).toBe(42) // trailingBtnSize = 42 (meets >=44pt requirement)
-      expect(sendStyle.height).toBe(42) // trailingBtnSize = 42 (meets >=44pt requirement)
-      
-      // Verify different icons/behavior
-      expect(chatViewButton.props.testID).toBe('chat-input-chat-view-button')
-      expect(sendButton.props.testID).toBe('chat-input-send-button')
-    })
+  it('renders the full-chat button as a distinct footer control from send', () => {
+    render(<HomeMapScreen />)
+
+    const chatViewButton = screen.getByTestId('chat-input-chat-view-button')
+    const sendButton = screen.getByTestId('chat-input-send-button')
+
+    expect(chatViewButton).toBeTruthy()
+    expect(sendButton).toBeTruthy()
+    expect(chatViewButton).not.toBe(sendButton)
+    expect(chatViewButton.props.style).toMatchObject({ width: 48, height: 48 })
+    expect(sendButton.props.style).toMatchObject({ width: 42, height: 42 })
   })
 
-  describe('AC-2: Cards hidden while a route is active', () => {
-    test('cardsHiddenWhenRouteActive', () => {
-      // Mock active route (hasActiveRoute = true via agentActiveOption)
-      const { useActiveSessionRoute } = require('../../../hooks/use-active-session-route')
-      useActiveSessionRoute.mockReturnValue({
-        routePlanId: 'test-route-plan-id',
-        newestRoutePlanId: 'test-newest-route-plan-id',
-        routePlan: {
-          status: 'completed',
-          result: {
-            options: [
-              { routeOptionId: 'route-1' }
-            ]
-          }
-        },
-        activeOption: { routeOptionId: 'route-1' } // Non-null = hasActiveRoute = true
-      })
+  it('hides curated suggestion cards while a route is active', () => {
+    setActiveRoute(true)
 
-      // Mock curated discovery suggestions
-      const { useCuratedDiscovery } = require('../../../hooks/use-curated-discovery')
-      useCuratedDiscovery.mockReturnValue({
-        isLoading: false,
-        isEmpty: false,
-        routes: [
-          { id: 'route-1', name: 'Test Route', distanceMi: 5.2 }
-        ]
-      })
+    render(<HomeMapScreen />)
 
-      // GIVEN plan view with an active route plotted (hasActiveRoute true)
-      render(<HomeMapScreen />)
-
-      // WHEN the discovery slot renders
-      // THEN no curated suggestion cards are shown
-      const suggestionPills = screen.queryAllByTestId(/^discovery-suggestion-pill-/)
-      expect(suggestionPills.length).toBe(0) // Zero curated pills while a route is on map
-    })
+    expect(screen.queryAllByTestId(/^discovery-suggestion-pill-/)).toHaveLength(0)
   })
 
-  describe('AC-3: Cards return after the active route is cleared', () => {
-    test('cardsReturnAfterRouteCleared', () => {
-      // Mock no active route initially (hasActiveRoute = false via agentActiveOption = null)
-      const { useActiveSessionRoute } = require('../../../hooks/use-active-session-route')
-      useActiveSessionRoute.mockReturnValue({
-        routePlanId: 'test-route-plan-id',
-        newestRoutePlanId: 'test-newest-route-plan-id',
-        routePlan: {
-          status: 'completed',
-          result: {
-            options: [
-              { routeOptionId: 'route-1' }
-            ]
-          }
-        },
-        activeOption: null // Route cleared = hasActiveRoute = false
-      })
+  it('shows curated suggestion cards when no route is active', () => {
+    setActiveRoute(false)
 
-      // Mock curated discovery suggestions
-      const { useCuratedDiscovery } = require('../../../hooks/use-curated-discovery')
-      useCuratedDiscovery.mockReturnValue({
-        isLoading: false,
-        isEmpty: false,
-        routes: [
-          { id: 'route-1', name: 'Test Route', distanceMi: 5.2 }
-        ]
-      })
+    render(<HomeMapScreen />)
 
-      // GIVEN plan view with an active route then cleared (clearAll / new session)
-      render(<HomeMapScreen />)
-
-      // WHEN the rider clears the route and hasActiveRoute flips to false
-      // THEN the curated suggestion cards reappear
-      const suggestionPills = screen.queryAllByTestId(/^discovery-suggestion-pill-/)
-      expect(suggestionPills.length).toBeGreaterThan(0) // Curated pills returned after clear
-    })
-  })
-
-  describe('Negative controls - verify hardcoded conditions would fail', () => {
-    test('should show cards when no active route', () => {
-      // Mock no active route
-      const { useActiveSessionRoute } = require('../../../hooks/use-active-session-route')
-      useActiveSessionRoute.mockReturnValue({
-        routePlanId: 'test-route-plan-id',
-        newestRoutePlanId: 'test-newest-route-plan-id',
-        routePlan: {
-          status: 'completed',
-          result: {
-            options: [
-              { routeOptionId: 'route-1' }
-            ]
-          }
-        },
-        activeOption: null
-      })
-
-      // Mock suggestions
-      const { useCuratedDiscovery } = require('../../../hooks/use-curated-discovery')
-      useCuratedDiscovery.mockReturnValue({
-        isLoading: false,
-        isEmpty: false,
-        routes: [
-          { id: 'route-1', name: 'Test Route', distanceMi: 5.2 }
-        ]
-      })
-
-      render(<HomeMapScreen />)
-
-      // Should show suggestion pills when no active route
-      const suggestionPills = screen.queryAllByTestId(/^discovery-suggestion-pill-/)
-      expect(suggestionPills.length).toBeGreaterThan(0)
-    })
-
-    test('should hide cards when active route exists', () => {
-      // Mock active route
-      const { useActiveSessionRoute } = require('../../../hooks/use-active-session-route')
-      useActiveSessionRoute.mockReturnValue({
-        routePlanId: 'test-route-plan-id',
-        newestRoutePlanId: 'test-newest-route-plan-id',
-        routePlan: {
-          status: 'completed',
-          result: {
-            options: [
-              { routeOptionId: 'route-1' }
-            ]
-          }
-        },
-        activeOption: { routeOptionId: 'route-1' } // Non-null = route active
-      })
-
-      // Mock suggestions
-      const { useCuratedDiscovery } = require('../../../hooks/use-curated-discovery')
-      useCuratedDiscovery.mockReturnValue({
-        isLoading: false,
-        isEmpty: false,
-        routes: [
-          { id: 'route-1', name: 'Test Route', distanceMi: 5.2 }
-        ]
-      })
-
-      render(<HomeMapScreen />)
-
-      // Should hide suggestion pills when active route exists
-      const suggestionPills = screen.queryAllByTestId(/^discovery-suggestion-pill-/)
-      expect(suggestionPills.length).toBe(0)
-    })
-
-    test('hasActiveRoute derives from agentActiveOption, not session messages', () => {
-      // This test verifies that hasActiveRoute = !!agentActiveOption
-      // not from whether there are messages in the session
-      
-      const { useActiveSessionRoute } = require('../../../hooks/use-active-session-route')
-      
-      // Case 1: agentActiveOption = null → hasActiveRoute = false (even with session)
-      useActiveSessionRoute.mockReturnValue({
-        routePlanId: 'test-route-plan-id',
-        newestRoutePlanId: 'test-newest-route-plan-id',
-        routePlan: {
-          status: 'completed',
-          result: {
-            options: [
-              { routeOptionId: 'route-1' }
-            ]
-          }
-        },
-        activeOption: null // No route selected
-      })
-
-      render(<HomeMapScreen />)
-      
-      // Should show cards because hasActiveRoute = false
-      let suggestionPills = screen.queryAllByTestId(/^discovery-suggestion-pill-/)
-      expect(suggestionPills.length).toBeGreaterThan(0)
-
-      // Case 2: agentActiveOption = non-null → hasActiveRoute = true (even with no messages)
-      useActiveSessionRoute.mockReturnValue({
-        routePlanId: 'test-route-plan-id',
-        newestRoutePlanId: 'test-newest-route-plan-id',
-        routePlan: {
-          status: 'completed',
-          result: {
-            options: [
-              { routeOptionId: 'route-1' }
-            ]
-          }
-        },
-        activeOption: { routeOptionId: 'route-1' } // Route selected
-      })
-
-      render(<HomeMapScreen />)
-      
-      // Should hide cards because hasActiveRoute = true
-      suggestionPills = screen.queryAllByTestId(/^discovery-suggestion-pill-/)
-      expect(suggestionPills.length).toBe(0)
-    })
+    expect(screen.getByText('Test Route · 5mi')).toBeTruthy()
+    expect(screen.queryAllByTestId(/^discovery-suggestion-pill-/).length).toBeGreaterThan(0)
   })
 })
