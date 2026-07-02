@@ -54,12 +54,12 @@ import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useToastMessages } from '../../../hooks/use-toast-messages'
 import { getCurrentLocation } from '../../../lib/get-current-location'
 import { deduplicateRouteOptions } from '../../../lib/routes/dedupe-route-options'
+import { computeRouteMidpoint } from '../../../lib/routes/route-midpoint'
 import { decodePolylineGeometry } from '../../../shared/lib/polyline'
 import type { RouteProvenance } from '../../../shared/models/saved-routes'
 import type { PlanInput, PlannedRouteOptionView, RouteStop } from '../../../shared/types/routes'
 import { useChatSessionStore } from '../../../stores/chat-session-store'
 import { computeInitialCamera } from './compute-initial-camera'
-import { computeRouteMidpoint } from './route-midpoint'
 
 type CameraState = {
   center?: { latitude: number; longitude: number }

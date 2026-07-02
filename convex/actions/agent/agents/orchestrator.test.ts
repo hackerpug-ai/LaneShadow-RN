@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import {
   buildDiscoveryIntentFromQuery,
   determineAvailableTools,
+  executeDiscoveryAgentBranch,
   extractOrchestratorAttachments,
 } from './orchestrator'
 
@@ -76,5 +77,79 @@ describe('Discovery attachments', () => {
     expect(attachments).toEqual([
       { type: 'route_options', routePlanId: 'route_plans:discovery-result' },
     ])
+  })
+})
+
+describe('Discovery agent branch dispatch', () => {
+  it('extracts natural-language intent, reaches discoverCuratedRoutes, and emits routing-card lifecycle callbacks', async () => {
+    const toolStarts: unknown[] = []
+    const toolFinishes: unknown[] = []
+    const subAgentCompletes: unknown[] = []
+    const routePlanId = 'route_plans:discovery-branch' as any
+
+    const result = await executeDiscoveryAgentBranch({
+      ctx: {
+        planningSessionId: 'planning_sessions:branch-test' as any,
+        clerkUserId: 'user_branch_test',
+        piMessages: [],
+        runQuery: async () => undefined,
+        runMutation: async () => undefined,
+        runAction: async () => undefined,
+      } as any,
+      query: 'scenic roads in North Carolina',
+      callId: 'discovery-branch-test',
+      discoveryExecuteCtx: {
+        onToolStart: async (toolName, args) => {
+          toolStarts.push({ toolName, args })
+          return { messageId: 'session_messages:routing-card' as any }
+        },
+        onToolFinish: async (toolCallId, toolName, messageId, branchResult) => {
+          toolFinishes.push({ toolCallId, toolName, messageId, result: branchResult })
+        },
+      } as any,
+      parentExecuteCtx: {
+        onSubAgentComplete: async (agent, summary, durationMs) => {
+          subAgentCompletes.push({ agent, summary, durationMs })
+        },
+      } as any,
+      discoveryExecutor: async (_ctx, toolCall) => {
+        expect(toolCall.name).toBe('discoverCuratedRoutes')
+        expect(toolCall.arguments.intent).toMatchObject({
+          archetypes: ['scenic'],
+          state: 'North Carolina',
+          sort: 'best',
+          limit: 10,
+        })
+        return { type: 'routes', routePlanId }
+      },
+    })
+
+    expect(result).toEqual({ type: 'routes', routePlanId })
+    expect(toolStarts).toEqual([
+      {
+        toolName: 'discoverCuratedRoutes',
+        args: {
+          intent: {
+            archetypes: ['scenic'],
+            state: 'North Carolina',
+            sort: 'best',
+            limit: 10,
+          },
+        },
+      },
+    ])
+    expect(toolFinishes).toEqual([
+      {
+        toolCallId: 'discovery-branch-test',
+        toolName: 'discoverCuratedRoutes',
+        messageId: 'session_messages:routing-card',
+        result: { type: 'routes', routePlanId },
+      },
+    ])
+    expect(subAgentCompletes).toHaveLength(1)
+    expect(subAgentCompletes[0]).toMatchObject({ agent: 'discovery' })
+
+    const attachments = extractOrchestratorAttachments([{ toolName: 'discovery_agent', result }])
+    expect(attachments).toEqual([{ type: 'route_options', routePlanId }])
   })
 })

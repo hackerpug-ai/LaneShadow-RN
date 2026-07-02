@@ -6,7 +6,7 @@
  */
 
 import { v } from 'convex/values'
-import { query } from './_generated/server'
+import { internalQuery, query } from './_generated/server'
 import { geospatial } from './geospatialIndex'
 import { requireIdentity } from './guards'
 import {
@@ -162,138 +162,147 @@ function stateCodeForName(name: string): string {
   return STATE_CODES[name] ?? name.slice(0, 2).toUpperCase()
 }
 
+async function listCuratedRoutesHandler(ctx: any, args: any) {
+  const effectiveLimit = Math.min(args.limit ?? 50, 200)
+  const sort = args.sort ?? 'best'
+  const stateValues = args.state ? stateVariants(args.state) : undefined
+  const normalizedState = args.state ? normalizeState(args.state) : undefined
+
+  let dbArchetypeSet: Set<string> | undefined
+  if (args.archetypes && args.archetypes.length > 0) {
+    dbArchetypeSet = new Set<string>()
+    for (const ui of args.archetypes) {
+      for (const db of uiArchetypeToDbSet(ui as UiArchetype)) {
+        dbArchetypeSet.add(db)
+      }
+    }
+  }
+
+  const geoFilter = buildGeoFilter(stateValues, dbArchetypeSet)
+
+  const matchesArchetype = (route: any) =>
+    !dbArchetypeSet || dbArchetypeSet.has(route.primaryArchetype)
+
+  const matchesState = (route: any) =>
+    !normalizedState || normalizeState(route.state) === normalizedState
+
+  // Mode 1: bbox query (geospatial rectangle), ranked by score.
+  if (args.bbox && sort !== 'nearest') {
+    const geoResults = await (geospatial as any).query(ctx, {
+      shape: {
+        type: 'rectangle',
+        rectangle: {
+          west: args.bbox.west,
+          east: args.bbox.east,
+          south: args.bbox.south,
+          north: args.bbox.north,
+        },
+      },
+      filter: geoFilter,
+      limit: effectiveLimit * 2,
+    })
+
+    const routes = await Promise.all(geoResults.results.map((r: any) => ctx.db.get(r.key as any)))
+
+    return routes
+      .filter(
+        (r): r is NonNullable<typeof r> => r !== null && matchesState(r) && matchesArchetype(r),
+      )
+      .map((r) => buildRouteCard(r))
+      .sort((a, b) => b.compositeScore - a.compositeScore)
+      .slice(0, effectiveLimit)
+  }
+
+  // Mode 2: nearest query (geospatial nearest)
+  if (sort === 'nearest') {
+    const center =
+      args.center ??
+      (args.bbox
+        ? {
+            lat: (args.bbox.north + args.bbox.south) / 2,
+            lng: (args.bbox.east + args.bbox.west) / 2,
+          }
+        : undefined)
+
+    if (!center) {
+      throw new Error('Center point required for sort=nearest')
+    }
+
+    const nearestResults = await (geospatial as any).nearest(ctx, {
+      point: { latitude: center.lat, longitude: center.lng },
+      limit: effectiveLimit * 3,
+      filter: geoFilter,
+    })
+
+    const pairs = await Promise.all(
+      nearestResults.map(async (r: any) => ({
+        geo: r,
+        route: await ctx.db.get(r.key as any),
+      })),
+    )
+
+    return pairs
+      .filter((p) => p.route !== null && matchesState(p.route) && matchesArchetype(p.route))
+      .map((p) => buildRouteCard(p.route, p.geo.distance * 0.000621371))
+      .sort((a, b) => (a.distanceMi ?? 0) - (b.distanceMi ?? 0))
+      .slice(0, effectiveLimit)
+  }
+
+  // Mode 3: state-only query (by_state index, both spelling variants)
+  if (args.state && !args.bbox) {
+    const all: any[] = []
+
+    for (const variant of stateValues ?? []) {
+      const batch = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_state', (q: any) => q.eq('state', variant))
+        .take(effectiveLimit * 2)
+      all.push(...batch)
+    }
+
+    const seen = new Set<string>()
+    return all
+      .filter((r) => {
+        if (seen.has(r._id)) return false
+        seen.add(r._id)
+        return matchesArchetype(r)
+      })
+      .map((r) => buildRouteCard(r))
+      .sort((a, b) => b.compositeScore - a.compositeScore)
+      .slice(0, effectiveLimit)
+  }
+
+  // Mode 4: no geography — best sort via by_composite_score index.
+  // Cap the archetype pre-filter scan at 800 full docs: each curated_routes doc carries a
+  // 1536-float searchEmbedding (~7.4KB) regardless of geometry, so 2,000 docs ≈ 14.8MB —
+  // perilously close to Convex's 16MB single-execution read limit. 800 docs ≈ 5.9MB keeps
+  // comfortable headroom and still amply fills any effectiveLimit (≤200) after filtering.
+  // (No real caller passes limit ≥ 80, so effectiveLimit*10 only reaches this cap in theory.)
+  const topRoutes = await ctx.db
+    .query('curated_routes')
+    .withIndex('by_composite_score')
+    .order('desc')
+    .take(dbArchetypeSet ? Math.min(effectiveLimit * 10, 800) : effectiveLimit)
+
+  return topRoutes
+    .filter(matchesArchetype)
+    .map((r: any) => buildRouteCard(r))
+    .slice(0, effectiveLimit)
+}
+
 export const listCuratedRoutes = query({
   args: argsValidator,
   returns: returnValidator,
   handler: async (ctx, args) => {
     await requireIdentity(ctx)
-
-    const effectiveLimit = Math.min(args.limit ?? 50, 200)
-    const sort = args.sort ?? 'best'
-    const stateValues = args.state ? stateVariants(args.state) : undefined
-    const normalizedState = args.state ? normalizeState(args.state) : undefined
-
-    let dbArchetypeSet: Set<string> | undefined
-    if (args.archetypes && args.archetypes.length > 0) {
-      dbArchetypeSet = new Set<string>()
-      for (const ui of args.archetypes) {
-        for (const db of uiArchetypeToDbSet(ui as UiArchetype)) {
-          dbArchetypeSet.add(db)
-        }
-      }
-    }
-
-    const geoFilter = buildGeoFilter(stateValues, dbArchetypeSet)
-
-    const matchesArchetype = (route: any) =>
-      !dbArchetypeSet || dbArchetypeSet.has(route.primaryArchetype)
-
-    const matchesState = (route: any) =>
-      !normalizedState || normalizeState(route.state) === normalizedState
-
-    // Mode 1: bbox query (geospatial rectangle), ranked by score.
-    if (args.bbox && sort !== 'nearest') {
-      const geoResults = await (geospatial as any).query(ctx, {
-        shape: {
-          type: 'rectangle',
-          rectangle: {
-            west: args.bbox.west,
-            east: args.bbox.east,
-            south: args.bbox.south,
-            north: args.bbox.north,
-          },
-        },
-        filter: geoFilter,
-        limit: effectiveLimit * 2,
-      })
-
-      const routes = await Promise.all(geoResults.results.map((r: any) => ctx.db.get(r.key as any)))
-
-      return routes
-        .filter(
-          (r): r is NonNullable<typeof r> => r !== null && matchesState(r) && matchesArchetype(r),
-        )
-        .map((r) => buildRouteCard(r))
-        .sort((a, b) => b.compositeScore - a.compositeScore)
-        .slice(0, effectiveLimit)
-    }
-
-    // Mode 2: nearest query (geospatial nearest)
-    if (sort === 'nearest') {
-      const center =
-        args.center ??
-        (args.bbox
-          ? {
-              lat: (args.bbox.north + args.bbox.south) / 2,
-              lng: (args.bbox.east + args.bbox.west) / 2,
-            }
-          : undefined)
-
-      if (!center) {
-        throw new Error('Center point required for sort=nearest')
-      }
-
-      const nearestResults = await (geospatial as any).nearest(ctx, {
-        point: { latitude: center.lat, longitude: center.lng },
-        limit: effectiveLimit * 3,
-        filter: geoFilter,
-      })
-
-      const pairs = await Promise.all(
-        nearestResults.map(async (r: any) => ({
-          geo: r,
-          route: await ctx.db.get(r.key as any),
-        })),
-      )
-
-      return pairs
-        .filter((p) => p.route !== null && matchesState(p.route) && matchesArchetype(p.route))
-        .map((p) => buildRouteCard(p.route, p.geo.distance * 0.000621371))
-        .sort((a, b) => (a.distanceMi ?? 0) - (b.distanceMi ?? 0))
-        .slice(0, effectiveLimit)
-    }
-
-    // Mode 3: state-only query (by_state index, both spelling variants)
-    if (args.state && !args.bbox) {
-      const all: any[] = []
-
-      for (const variant of stateValues ?? []) {
-        const batch = await ctx.db
-          .query('curated_routes')
-          .withIndex('by_state', (q) => q.eq('state', variant))
-          .take(effectiveLimit * 2)
-        all.push(...batch)
-      }
-
-      const seen = new Set<string>()
-      return all
-        .filter((r) => {
-          if (seen.has(r._id)) return false
-          seen.add(r._id)
-          return matchesArchetype(r)
-        })
-        .map((r) => buildRouteCard(r))
-        .sort((a, b) => b.compositeScore - a.compositeScore)
-        .slice(0, effectiveLimit)
-    }
-
-    // Mode 4: no geography — best sort via by_composite_score index.
-    // Cap the archetype pre-filter scan at 800 full docs: each curated_routes doc carries a
-    // 1536-float searchEmbedding (~7.4KB) regardless of geometry, so 2,000 docs ≈ 14.8MB —
-    // perilously close to Convex's 16MB single-execution read limit. 800 docs ≈ 5.9MB keeps
-    // comfortable headroom and still amply fills any effectiveLimit (≤200) after filtering.
-    // (No real caller passes limit ≥ 80, so effectiveLimit*10 only reaches this cap in theory.)
-    const topRoutes = await ctx.db
-      .query('curated_routes')
-      .withIndex('by_composite_score')
-      .order('desc')
-      .take(dbArchetypeSet ? Math.min(effectiveLimit * 10, 800) : effectiveLimit)
-
-    return topRoutes
-      .filter(matchesArchetype)
-      .map((r) => buildRouteCard(r))
-      .slice(0, effectiveLimit)
+    return listCuratedRoutesHandler(ctx, args)
   },
+})
+
+export const listCuratedRoutesInternal = internalQuery({
+  args: argsValidator,
+  returns: returnValidator,
+  handler: listCuratedRoutesHandler,
 })
 
 export const listCuratedRouteStates = query({

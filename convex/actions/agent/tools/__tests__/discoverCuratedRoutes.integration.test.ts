@@ -12,14 +12,13 @@
  * never assert agent prose and never exercise the orchestrator's brittle regex
  * intent parser (orchestrator.ts 309-324).
  *
- * Mocked Convex: vitest aliases `convex/_generated/api` to a deep proxy
- * (vitest.config.ts), so we cannot reach live dev from this harness. Instead we
- * inject a fake `AgentContext` whose `runQuery`/`runMutation` capture every
- * call and return fixtured rows — letting us assert the engine outcome
- * (route_plans row created + options built from the queried routes + correct
- * queryArgs). This is the same pattern as the existing
- * discoverCuratedRoutes-card-mapping.test.ts and other tool tests in this dir
- * (see compileSketch.test.ts).
+ * Unit seam coverage: vitest aliases `convex/_generated/api` to a deep proxy
+ * (vitest.config.ts), so the in-process tests inject a fake `AgentContext`
+ * whose `runQuery`/`runMutation` capture every call and return fixtured rows.
+ *
+ * Live Convex coverage: the DATA-008 live test shells through `npx convex run`
+ * to execute the real discovery action against dev data, then reads the created
+ * route_plans row through a real internal query. This is the non-fakeable gate.
  *
  * Score CORRECTNESS (composite>0, real dimensions) is owned by DATA-008b —
  * we deliberately do NOT assert non-zero scores here.
@@ -27,12 +26,30 @@
  * Reference: .spec/prds/mvp/tasks/sprint-01-discovery-on-the-route-plan-view/DATA-008-verify-discovercuratedroutes-maps-nl-intent-listcuratedroute.md
  */
 
+import { execSync } from 'node:child_process'
 import { type ToolCall, validateToolCall } from '@mariozechner/pi-ai'
 import { describe, expect, it, vi } from 'vitest'
 import { determineAvailableTools } from '../../agents/orchestrator'
 import type { AgentContext } from '../../ridePlanningAgent'
 import { TOOL_TO_CARD_KIND } from '../../sendMessage'
 import { discoverCuratedRoutesSchema, executeDiscoverCuratedRoutes } from '../discoverCuratedRoutes'
+
+function convexRun(fnPath: string, args: Record<string, unknown>): unknown {
+  const argsJson = JSON.stringify(args).replace(/'/g, "'\"'\"'")
+  const cmd = `npx convex run ${fnPath} '${argsJson}'`
+  const result = execSync(cmd, {
+    encoding: 'utf-8',
+    timeout: 120_000,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+  const lines = result
+    .split('\n')
+    .filter((line) => !line.startsWith('npm warn'))
+    .join('\n')
+    .trim()
+  if (!lines) return null
+  return JSON.parse(lines)
+}
 
 // ---------------------------------------------------------------------------
 // Fixtures: a listCuratedRoutes result for {archetypes:['scenic'], state:'North Carolina'}
@@ -204,6 +221,38 @@ function buildDiscoveryToolCall(intent: Record<string, unknown>): ToolCall {
 // ---------------------------------------------------------------------------
 
 describe('DATA-008 AC-1: fixtured intent drives a route_plans row whose options match the queried routes', () => {
+  it('liveDiscoveryCreatesCompletedRoutePlan: real Convex discovery path creates route_plans options', () => {
+    const result = convexRun(
+      'actions/agent/tools/discoverCuratedRoutesLiveTest:runLiveDiscoverySmoke',
+      {
+        clerkUserId: `data-008-live-${Date.now()}`,
+        archetypes: ['scenic'],
+        state: 'North Carolina',
+        limit: 5,
+      },
+    ) as {
+      type: string
+      routePlanId?: string
+      status?: string
+      optionsCount: number
+      optionIds: string[]
+      optionLabels: string[]
+      firstOptionGeometryFormat?: string
+    }
+
+    expect(result.type).toBe('routes')
+    expect(typeof result.routePlanId).toBe('string')
+    expect(result.routePlanId!.length).toBeGreaterThan(0)
+    expect(result.status).toBe('completed')
+    expect(result.optionsCount).toBeGreaterThan(0)
+    expect(result.optionsCount).toBeLessThanOrEqual(5)
+    expect(result.optionIds.length).toBe(result.optionsCount)
+    expect(result.optionLabels.length).toBe(result.optionsCount)
+    expect(result.optionIds.every((id) => id.startsWith('curated-'))).toBe(true)
+    expect(result.optionLabels.some((label) => label.length > 0)).toBe(true)
+    expect(result.firstOptionGeometryFormat).toBe('polyline')
+  }, 180_000)
+
   it('fixturedIntentPlotsQueriedRoutes: returns routes + creates route_plans row + options match listCuratedRoutes result', async () => {
     // GIVEN: a fixtured intent (NL parsing bypassed) + the seeded catalog fixture
     const intent = {

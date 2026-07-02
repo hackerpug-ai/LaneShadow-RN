@@ -12,7 +12,7 @@
 #  4. Clear/dismiss the route -> curated suggestion cards return
 #  5. "twisties near Asheville" -> curated card(s) in chat + latest plots on map;
 #     card shows a real composite score (NN/100, never 0/100, never raw 0-1/0-100)
-#  6. "scenic NC" -> matching North Carolina curated routes plotted
+#  6. "scenic roads in North Carolina" -> matching North Carolina curated routes plotted
 #  7. Scroll chat history, tap an earlier curated card -> re-renders on map,
 #     drops back to map view
 #  8. Footer button (right of input, distinct from send) -> full chat; close -> map
@@ -139,11 +139,15 @@ appId: com.hackerpug.laneshadow
     point: "25%,85%"
 - waitForAnimationToEnd:
     timeout: 5000
-- takeScreenshot: 06-suggestion-tapped-route-plotted
 - tapOn:
     point: "50%,45%"
 - waitForAnimationToEnd:
     timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: "route-on-map-marker"
+    timeout: 30000
+- takeScreenshot: 06-suggestion-tapped-route-plotted
 # Cards must hide once a route is shown.
 - assertNotVisible:
     id: "chat-input-suggestion-chips"
@@ -182,8 +186,18 @@ appId: com.hackerpug.laneshadow
     visible:
       id: "route-on-map-marker"
     timeout: 120000
-- tapOn:
-    id: "chat-input-chat-view-button"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: "chat-input-chat-view-button"
+    timeout: 10000
+- runFlow:
+    when:
+      visible: { text: "Open full chat" }
+    commands:
+      - tapOn:
+          id: "chat-input-chat-view-button"
 - extendedWaitUntil:
     visible: { text: "Return to map" }
     timeout: 20000
@@ -195,10 +209,23 @@ appId: com.hackerpug.laneshadow
 - assertNotVisible: { text: "0/100" }
 - takeScreenshot: 08-chat-twisties-curated-card-score
 
-# ── STEP 6: "scenic NC" -> state curated routes + plot ───────────────────────
+# ── STEP 6: "scenic roads in North Carolina" -> state curated routes + plot ──
+- runFlow:
+    when:
+      visible: { text: "Open full chat" }
+    commands:
+      - tapOn:
+          id: "chat-input-chat-view-button"
+      - extendedWaitUntil:
+          visible: { text: "Return to map" }
+          timeout: 20000
 - tapOn:
     id: "chat-input-text-field"
-- inputText: "scenic NC"
+- inputText: "scenic roads in North Carolina"
+- extendedWaitUntil:
+    visible:
+      text: "scenic roads in North Carolina"
+    timeout: 10000
 - assertVisible:
     id: "chat-input-send-button"
     enabled: true
@@ -208,8 +235,18 @@ appId: com.hackerpug.laneshadow
     visible:
       id: "route-on-map-marker"
     timeout: 120000
-- tapOn:
-    point: "89%,92%"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: "chat-input-chat-view-button"
+    timeout: 10000
+- runFlow:
+    when:
+      visible: { text: "Open full chat" }
+    commands:
+      - tapOn:
+          id: "chat-input-chat-view-button"
 - extendedWaitUntil:
     visible: { text: "Return to map" }
     timeout: 20000
@@ -226,20 +263,33 @@ appId: com.hackerpug.laneshadow
 
 # ── STEP 7: scroll chat history, tap an earlier curated card -> map re-render ─
 - tapOn:
-    point: "89%,92%"
+    id: "chat-input-chat-view-button"
 - extendedWaitUntil:
     visible: { text: "Return to map" }
     timeout: 20000
 - takeScreenshot: 10-full-chat-open
 # Scroll up to reveal earlier curated cards, then tap one.
 - scroll
+- extendedWaitUntil:
+    visible:
+      id: "routing-card-route-.*"
+    timeout: 20000
 - tapOn:
-    id: "curated-route-card-.*"
-    optional: true
+    id: "routing-card-route-.*"
 # Selecting an earlier card drops back to the map view.
+- runFlow:
+    when:
+      visible: { text: "Return to map" }
+    commands:
+      - tapOn:
+          id: "chat-input-chat-view-button"
 - extendedWaitUntil:
     visible: { text: "Open full chat" }
     timeout: 45000
+- extendedWaitUntil:
+    visible:
+      id: "route-on-map-marker"
+    timeout: 30000
 - takeScreenshot: 11-earlier-card-returns-to-map
 
 # ── STEP 8: footer button distinct from send -> full chat; close -> map ───────
@@ -248,13 +298,13 @@ appId: com.hackerpug.laneshadow
 - assertVisible: { id: "chat-input-chat-view-button" }
 - assertVisible: { id: "chat-input-send-button" }
 - tapOn:
-    point: "89%,92%"
+    id: "chat-input-chat-view-button"
 - extendedWaitUntil:
     visible: { text: "Return to map" }
     timeout: 20000
 - takeScreenshot: 12-footer-opens-full-chat
 - tapOn:
-    point: "89%,92%"
+    id: "chat-input-chat-view-button"
 - extendedWaitUntil:
     visible: { text: "Open full chat" }
     timeout: 20000

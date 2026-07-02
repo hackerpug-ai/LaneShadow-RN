@@ -23,6 +23,8 @@ import { executeRoutingAgent, getPendingSketchState } from './routingAgent'
 import { executeSearchAgent } from './searchAgent'
 import type { RoutingAgentResult, SearchAgentResult } from './types'
 
+type DiscoverCuratedRoutesExecutor = typeof executeDiscoverCuratedRoutes
+
 // -----------------------------------------------------------------------------
 // Result type
 // -----------------------------------------------------------------------------
@@ -209,6 +211,50 @@ export function buildDiscoveryIntentFromQuery(query: string): Record<string, unk
   const state = canonicalStateFromQuery(query)
   if (state) intent.state = state
   return intent
+}
+
+export async function executeDiscoveryAgentBranch({
+  ctx,
+  query,
+  discoveryExecuteCtx,
+  parentExecuteCtx,
+  agentStart = Date.now(),
+  callId = `discovery-${Date.now()}`,
+  discoveryExecutor = executeDiscoverCuratedRoutes,
+}: {
+  ctx: AgentContext
+  query: string
+  discoveryExecuteCtx?: ExecuteContext
+  parentExecuteCtx?: ExecuteContext
+  agentStart?: number
+  callId?: string
+  discoveryExecutor?: DiscoverCuratedRoutesExecutor
+}): Promise<unknown> {
+  const intent = buildDiscoveryIntentFromQuery(query)
+  let pendingMessageId: Id<'session_messages'> | undefined
+
+  const toolCall = {
+    type: 'toolCall',
+    id: callId,
+    name: 'discoverCuratedRoutes',
+    arguments: { intent },
+  } as any
+
+  const startResult = await discoveryExecuteCtx?.onToolStart?.('discoverCuratedRoutes', { intent })
+  if (startResult) pendingMessageId = startResult.messageId
+
+  const result = await discoveryExecutor(ctx, toolCall)
+
+  await discoveryExecuteCtx?.onToolFinish?.(
+    callId,
+    'discoverCuratedRoutes',
+    pendingMessageId,
+    result,
+  )
+
+  const summary = summarizeToolResult('discovery_agent', result)
+  await parentExecuteCtx?.onSubAgentComplete?.('discovery', summary, Date.now() - agentStart)
+  return result
 }
 
 // -----------------------------------------------------------------------------
@@ -406,27 +452,13 @@ async function executeOrchestratorTool(
         onToolResultPiMessage: executeCtx?.onToolResultPiMessage,
       })
 
-      const intent = buildDiscoveryIntentFromQuery(query)
-      const callId = `discovery-${Date.now()}`
-      let pendingMessageId: Id<'session_messages'> | undefined
-
-      const toolCall = {
-        type: 'toolCall',
-        id: callId,
-        name: 'discoverCuratedRoutes',
-        arguments: { intent },
-      } as any
-
-      const startResult = await subCtx.onToolStart?.('discoverCuratedRoutes', { intent })
-      if (startResult) pendingMessageId = startResult.messageId
-
-      const result = await executeDiscoverCuratedRoutes(ctx, toolCall)
-
-      await subCtx.onToolFinish?.(callId, 'discoverCuratedRoutes', pendingMessageId, result)
-
-      const summary = summarizeToolResult('discovery_agent', result)
-      await executeCtx?.onSubAgentComplete?.('discovery', summary, Date.now() - agentStart)
-      return result
+      return executeDiscoveryAgentBranch({
+        ctx,
+        query,
+        discoveryExecuteCtx: executeCtx ? subCtx : undefined,
+        parentExecuteCtx: executeCtx,
+        agentStart,
+      })
     }
     default:
       return { type: 'error', message: `Unknown orchestrator tool: ${call.name}` }

@@ -2,7 +2,7 @@ import {
   computeCumulativeDistances,
   decodePolylineGeometry,
   type MapLatLng,
-} from '../../../shared/lib/polyline'
+} from '../../shared/lib/polyline'
 
 function boundsCenter(bounds: any): MapLatLng | null {
   if (
