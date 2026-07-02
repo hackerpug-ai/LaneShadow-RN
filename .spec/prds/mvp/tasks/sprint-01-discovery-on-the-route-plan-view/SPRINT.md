@@ -3,14 +3,14 @@ sprint: 1
 title: Discovery on the Route Plan View
 sequence: 1
 timeline: Phase 1
-status: In Progress
+status: Complete
 ---
 
 # Sprint 1: Discovery on the Route Plan View
 
 **Sequence:** 1
 **Timeline:** Phase 1
-**Status:** In Progress
+**Status:** Complete
 **Proposed by:** react-native-ui-planner + convex-planner + frontend-designer
 
 > Generated JIT from [ROADMAP.md](../../ROADMAP.md) by /kb-sprint-tasks-plan (2026-06-15). Re-homed from the deprecated `sprint-01-live-discovery-home` (archived at `../_archived/`) after PRD v3.0.0 removed the separate discovery view.

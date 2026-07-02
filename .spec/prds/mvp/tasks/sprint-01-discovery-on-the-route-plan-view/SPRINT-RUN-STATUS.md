@@ -1,38 +1,48 @@
-# Sprint-01 run status (but-run-sprint) — COMPLETE 2026-06-26
+# Sprint-01 run status (kb-run-sprint) - COMPLETE 2026-07-02
 
-main @ `7f6e7420` · typecheck exit 0 · sprint tests 44/44 pass.
+main @ `0135972a` (`Merge branch 'jr-branch-1'`).
 
-## All 30 tasks COMPLETE
+## Completion State
 
-### Completed in this run (but-run-sprint, 2026-06-26)
-- **RUX-008** — auto-switch chat→map on plan completion so doFit flushes (merged `91d12f4b`, reviewed APPROVED HIGH)
-- **DATA-005** — verify listCuratedRoutes all 4 modes + Clerk gate (merged `495df0b3`, 15 tests, live gate verified)
-- **DATA-008** — verify discoverCuratedRoutes determinism seam + card mapping (merged `7f6e7420`, 8 tests)
-- **DISC-002** — verify useCuratedDiscovery hook (19/19 tests pass, verified in-place)
+- All sprint task branches checked during closeout are ancestors of `main`.
+- No unlanded sprint/worktree task commits remain.
+- Red-hat review state is cycle 3 and `converged: true`; findings are addressed or upstream-escalated.
+- Sprint status metadata is `Complete`.
 
-### Previously merged (26 tasks)
-- Backend: DATA-001/002/004/005-built/008/008b/009/010/011, OPS-001
-- Discovery UX: DISC-016/017/018/019/020/021
-- Design: DESIGN-S01-001/002/003/004/005/006/007
-- RUX: RUX-001/002/003/004/005/006/007
+## Closeout Fixes Landed 2026-07-02
 
-## Build verification (PHASE 4)
-- typecheck: ✅ exit 0
-- sprint tests: ✅ 44/44 pass (RUX-008: 2, DATA-005: 15, DATA-008: 8, DISC-002: 19)
-- full suite: 1191/1718 pass (527 pre-existing failures in design-review scripts etc.)
-- lint: 29 pre-existing errors across 779 files (not from sprint changes)
+- `cea0d7a2` - use real `ChatInput` in RN discovery/footer tests.
+- `4f7c9561` - show the chat-planned route carousel with the plotted route.
+- `6e5dee22` - guard carousel route-option sources before dedupe/rendering.
+- `eeb0b973` - render empty-leg route attachment cards with safe fallback labels.
 
-## E2E (PHASE 3.5)
-- Maestro v2.5.1 available
-- All sprint flows present: discovery-full-gate, rux-001 through rux-008
-- Execution requires booted iOS sim + dev client + live Convex (human setup)
+## Verification Evidence
 
-## Red-hat (PHASE 4.5)
-- RUX-008 reviewed: APPROVED, HIGH confidence, zero findings
-- DATA-005/DATA-008/DISC-002: verify-only tasks (no source code changes to review)
+- `pnpm type-check` - pass.
+- RN route/discovery closeout:
+  - `pnpm exec vitest run 'app/(app)/(tabs)/index.one-route.integration.test.tsx' 'app/(app)/(tabs)/index.carousel.integration.test.tsx' 'app/(app)/(tabs)/index.suggestions.integration.test.tsx' 'app/(app)/(tabs)/index.footer-visibility.integration.test.tsx' 'app/(app)/(tabs)/index.footer-minimal.test.tsx'`
+  - Result: 5 files, 21 tests passed.
+- Backend/discovery aggregate:
+  - `pnpm test convex/__tests__/listCuratedRoutes.integration.test.ts convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts hooks/__tests__/use-curated-discovery.integration.test.ts app/(app)/(tabs)/index.finished-route-fit.integration.test.tsx`
+  - Result: pass. With stale worktrees still present at the time, Vitest also discovered duplicate worktree copies; total observed result was 16 files, 164 tests passed.
+- Backend/live geometry aggregate:
+  - `pnpm test convex/actions/agent/__tests__/planRideSingleRoute.integration.test.ts convex/actions/agent/__tests__/routeStartResolution.test.ts convex/actions/__tests__/curatedGeometry.integration.test.ts convex/actions/agent/__tests__/discoverCuratedRoutesGeometry.integration.test.ts convex/actions/agent/tools/__tests__/discoverCuratedRoutes-card-mapping.test.ts`
+  - Result: pass. With stale worktrees still present at the time, Vitest also discovered duplicate worktree copies; total observed result was 20 files, 144 tests passed.
+- Scoped Biome:
+  - `pnpm exec biome check 'app/(app)/(tabs)/index.tsx' 'components/chat/route-attachment-card.tsx' 'app/(app)/(tabs)/index.carousel.integration.test.tsx' '.maestro/rux-002-one-route-plot.yaml'`
+  - Result: pass, with the existing informational `no-dynamic-import` plugin message in the carousel test.
+- Post-merge Maestro E2E:
+  - `maestro test .maestro/rux-002-one-route-plot.yaml -e EMAIL="$TEST_USER_EMAIL" -e PASSWORD="$TEST_USER_PASSWORD"`
+  - Result: pass on iPhone 17 Pro / iOS 26.4 simulator.
+  - Debug path: `/Users/justinrich/.maestro/tests/2026-07-02_135156`.
+  - Screenshots preserved under `.tmp/sprint-01-e2e-proof/2026-07-02-final/`.
 
-## Orchestration notes
-- GitButler workspace had stale virtual-branch state; used raw git branches + `git merge --no-verify` (pre-merge hooks have pre-existing lint failures)
-- `lefthook.yml` uncommitted hygiene changes (fallow audit addition) restored to committed state to unblock pre-commit
-- `.husky/` hooks are untracked artifacts; not needed (project uses lefthook)
-- Orchestrator auth via `BUT_AUTHZ_ALLOW_ENV_HANDLE=1 BUT_AGENT_HANDLE=orchestrator` (OpenCode harness — each bash call is a new PID)
+## Workspace Hygiene
+
+- Stale sprint worktrees under `.kb-run-sprint/worktrees/` were removed after their commits were verified landed on `main`; this prevents duplicate Vitest/Biome discovery.
+- No Expo, Maestro, Convex, or Vitest processes were left running after closeout.
+- Current GitButler workspace has no unassigned tracked changes after the status-doc update is committed/merged.
+
+## Advisory Follow-Up
+
+- `.maestro/rux-001-route-carousel-paging.yaml` still references stale `route-carousel-card` selectors. The sprint-closing `rux-002` gate uses the corrected `route-summary-card` selector and passed; update the `rux-001` flow before using it as a gate.
