@@ -32,6 +32,16 @@ vi.mock('react-native-safe-area-context', () => ({
   SafeAreaView: (props: any) => props.children,
 }))
 
+vi.mock('react-native', async (importOriginal) => {
+  const actual = await importOriginal<any>()
+  return {
+    ...actual,
+    KeyboardAvoidingView:
+      actual.KeyboardAvoidingView ??
+      ((props: any) => createElement(actual.View, props, props.children)),
+  }
+})
+
 vi.mock('react-native-reanimated', () => ({
   useSharedValue: (initial: number) => ({ value: initial }),
   useAnimatedStyle: () => ({}),
@@ -47,6 +57,11 @@ vi.mock('@clerk/clerk-expo', () => ({
 vi.mock('expo-haptics', () => ({
   impactAsync: vi.fn(),
   ImpactFeedbackStyle: { Medium: 'Medium' },
+}))
+
+vi.mock('react-native-paper', () => ({
+  Icon: (props: any) => createElement('View', { testID: `paper-icon-${props.source}` }),
+  Text: (props: any) => createElement('Text', props, props.children),
 }))
 
 vi.mock('../../../lib/get-current-location', () => ({
@@ -126,13 +141,18 @@ vi.mock('../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({
     semantic: {
       color: {
+        primary: { default: 'primary', pressed: 'primary-pressed' },
         surface: { default: 'surface' },
+        surfaceVariant: { default: 'surface-variant' },
         border: { default: 'border' },
-        onSurface: { default: 'on-surface' },
+        onPrimary: { default: 'on-primary' },
+        onSurface: { default: 'on-surface', muted: 'on-surface-muted' },
+        accent: { default: 'accent' },
       },
       space: { sm: 8, md: 16 },
-      type: { body: { md: {} } },
-      elevation: { 3: {} },
+      radius: { md: 12, full: 999 },
+      type: { body: { sm: {}, md: {} } },
+      elevation: { 2: {}, 3: {} },
     },
   }),
 }))
@@ -159,42 +179,6 @@ vi.mock('../../../stores/chat-session-store', () => ({
 
 vi.mock('../../../components/layouts/menu-layout', () => ({
   MenuLayout: (props: any) => createElement('View', { testID: 'menu-layout' }, props.children),
-}))
-
-vi.mock('../../../components/chat', () => ({
-  ChatInput: (props: any) =>
-    createElement(
-      'View',
-      { testID: props.testID },
-      createElement('TouchableOpacity', {
-        testID: 'chat-input-send-button',
-        style: { width: 42, height: 42 },
-      }),
-      props.onToggleChatMode
-        ? createElement('TouchableOpacity', {
-            testID: 'chat-input-chat-view-button',
-            onPress: props.onToggleChatMode,
-            style: { width: 48, height: 48 },
-          })
-        : null,
-      props.state.phase === 'IDLE' &&
-        !props.hasActiveRoute &&
-        props.suggestions.length > 0 &&
-        !props.isPlanning &&
-        !props.chatMode
-        ? createElement(
-            'View',
-            null,
-            props.suggestions.map((suggestion: any, index: number) =>
-              createElement(
-                'Text',
-                { key: index, testID: `discovery-suggestion-pill-${index}` },
-                typeof suggestion === 'string' ? suggestion : suggestion.label,
-              ),
-            ),
-          )
-        : null,
-    ),
 }))
 
 vi.mock('../../../components/map', () => ({
@@ -291,6 +275,14 @@ const setActiveRoute = (hasActiveRoute: boolean) => {
   })
 }
 
+const flattenStyle = (style: unknown) =>
+  (Array.isArray(style) ? style : [style]).reduce<Record<string, unknown>>((acc, item) => {
+    if (item && typeof item === 'object') {
+      Object.assign(acc, item)
+    }
+    return acc
+  }, {})
+
 describe('Footer Visibility Integration Tests', () => {
   beforeEach(() => {
     mocks.useQuery.mockReturnValue([])
@@ -321,8 +313,10 @@ describe('Footer Visibility Integration Tests', () => {
     expect(chatViewButton).toBeTruthy()
     expect(sendButton).toBeTruthy()
     expect(chatViewButton).not.toBe(sendButton)
-    expect(chatViewButton.props.style).toMatchObject({ width: 48, height: 48 })
-    expect(sendButton.props.style).toMatchObject({ width: 42, height: 42 })
+    expect(chatViewButton.props.accessibilityLabel).toBe('Open full chat')
+    expect(sendButton.props.accessibilityLabel).toBe('Send message')
+    expect(flattenStyle(chatViewButton.props.style)).toMatchObject({ width: 48, height: 48 })
+    expect(flattenStyle(sendButton.props.style)).toMatchObject({ width: 42, height: 42 })
   })
 
   it('hides curated suggestion cards while a route is active', () => {
