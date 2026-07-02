@@ -1,6 +1,6 @@
 # Sprint-01 run status (kb-run-sprint) - COMPLETE 2026-07-02
 
-Code closeout landed at `0135972a` (`Merge branch 'jr-branch-1'`); status-only closeout metadata landed afterward.
+Primary code closeout landed at `0135972a` (`Merge branch 'jr-branch-1'`). A later full human-gate audit found the aggregate discovery gate was still failing; the final full-gate closeout landed at `a6581765` (`Merge branch 'react-native-ui-implementer'`).
 
 ## Completion State
 
@@ -15,6 +15,7 @@ Code closeout landed at `0135972a` (`Merge branch 'jr-branch-1'`); status-only c
 - `4f7c9561` - show the chat-planned route carousel with the plotted route.
 - `6e5dee22` - guard carousel route-option sources before dedupe/rendering.
 - `eeb0b973` - render empty-leg route attachment cards with safe fallback labels.
+- `66fcc6c3` / `125b1abe` - make the aggregate discovery full gate pass without weakening assertions: restore the route-plotted assertion, keep the required `scenic roads in North Carolina` phrase, use stable footer testIDs, move the midpoint helper out of Expo Router's `app/` tree, add live Convex discovery smoke coverage, and prove the deterministic `discovery_agent` dispatch path.
 
 ## Verification Evidence
 
@@ -31,6 +32,16 @@ Code closeout landed at `0135972a` (`Merge branch 'jr-branch-1'`); status-only c
 - Scoped Biome:
   - `pnpm exec biome check 'app/(app)/(tabs)/index.tsx' 'components/chat/route-attachment-card.tsx' 'app/(app)/(tabs)/index.carousel.integration.test.tsx' '.maestro/rux-002-one-route-plot.yaml'`
   - Result: pass, with the existing informational `no-dynamic-import` plugin message in the carousel test.
+- Final full-gate trunk checks after `a6581765`:
+  - `pnpm type-check`
+  - `pnpm exec biome check .maestro/discovery-full-gate.yaml app/(app)/(tabs)/index.tsx components/chat/cards/curated-route-card.tsx components/chat/routing-card.tsx convex/actions/agent/agents/orchestrator.ts convex/actions/agent/agents/orchestrator.test.ts convex/actions/agent/tools/discoverCuratedRoutes.ts convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts convex/actions/agent/tools/discoverCuratedRoutesLiveTest.ts convex/curatedRoutes.ts lib/routes/route-midpoint.ts lib/routes/route-midpoint.test.ts shared/lib/polyline.ts shared/lib/polyline.test.ts`
+  - `pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts convex/actions/agent/agents/orchestrator.test.ts convex/actions/agent/__tests__/discoverCuratedRoutesGeometry.integration.test.ts shared/lib/polyline.test.ts lib/routes/route-midpoint.test.ts 'app/(app)/(tabs)/index.one-route.integration.test.tsx' 'app/(app)/(tabs)/index.carousel.integration.test.tsx' components/chat/routing-card.test.tsx`
+  - Result: type-check pass; changed-file Biome pass; 8 Vitest files, 55 tests passed.
+- Final full discovery Maestro E2E:
+  - `maestro test .maestro/discovery-full-gate.yaml -e EMAIL="$TEST_USER_EMAIL" -e PASSWORD="$TEST_USER_PASSWORD"`
+  - Result: pass on iPhone 17 Pro / iOS 26.4 simulator.
+  - Debug path: `/Users/justinrich/.maestro/tests/2026-07-02_162033`.
+  - Screenshots preserved under `.tmp/sprint-01-e2e-proof/2026-07-02-full-gate-post-merge/`.
 - Post-merge Maestro E2E:
   - `maestro test .maestro/rux-002-one-route-plot.yaml -e EMAIL="$TEST_USER_EMAIL" -e PASSWORD="$TEST_USER_PASSWORD"`
   - Result: pass on iPhone 17 Pro / iOS 26.4 simulator.
