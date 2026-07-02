@@ -60,7 +60,7 @@ import {
   type MapLatLng,
 } from '../../../shared/lib/polyline'
 import type { RouteProvenance } from '../../../shared/models/saved-routes'
-import type { PlanInput, RouteStop } from '../../../shared/types/routes'
+import type { PlanInput, PlannedRouteOptionView, RouteStop } from '../../../shared/types/routes'
 import { useChatSessionStore } from '../../../stores/chat-session-store'
 import { computeInitialCamera } from './compute-initial-camera'
 
@@ -170,6 +170,28 @@ const deriveArchetypeLabel = (route: any): string => {
   // Fallback: 'Route' (MVP acceptable per design spec §14)
   return 'Route'
 }
+
+const isRouteOptionRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null
+
+const isCarouselRouteOption = (value: unknown): value is PlannedRouteOptionView => {
+  if (!isRouteOptionRecord(value)) return false
+  if (typeof value.routeOptionId !== 'string') return false
+  const stats = value.stats
+  const map = value.map
+  if (!isRouteOptionRecord(stats)) return false
+  if (typeof stats.distanceMeters !== 'number') return false
+  if (typeof stats.durationSeconds !== 'number') return false
+  if (typeof stats.legsCount !== 'number') return false
+  if (!isRouteOptionRecord(map)) return false
+  if (!map.overviewGeometry) return false
+  if (!Array.isArray(map.legs)) return false
+
+  return true
+}
+
+const getCarouselRouteOptions = (options: unknown): PlannedRouteOptionView[] =>
+  Array.isArray(options) ? options.filter(isCarouselRouteOption) : []
 
 const HomeMapScreen = () => {
   const router = useRouter()
@@ -365,20 +387,18 @@ const HomeMapScreen = () => {
   const hasActiveRoute = !!agentActiveOption || !!selectedCuratedRouteId
 
   // RUX-001: Deduplicate routes for the carousel
-  const distinctRoutes = useMemo(
-    () =>
-      (flowState as { routeOptions?: { options: any[] } }).routeOptions?.options
-        ? deduplicateRouteOptions(
-            (flowState as { routeOptions?: { options: any[] } }).routeOptions!.options,
-          )
-        : [],
-    [flowState],
-  )
+  const distinctRoutes = useMemo(() => {
+    const routeOptions = getCarouselRouteOptions(
+      (flowState as { routeOptions?: { options?: unknown } }).routeOptions?.options,
+    )
+    return routeOptions.length > 0 ? deduplicateRouteOptions(routeOptions) : []
+  }, [flowState])
   const agentDistinctRoutes = useMemo(() => {
-    if (agentRoutePlan?.result?.options?.length) {
-      return deduplicateRouteOptions(agentRoutePlan.result.options)
+    const routePlanOptions = getCarouselRouteOptions(agentRoutePlan?.result?.options)
+    if (routePlanOptions.length > 0) {
+      return deduplicateRouteOptions(routePlanOptions)
     }
-    return agentActiveOption ? [agentActiveOption] : []
+    return isCarouselRouteOption(agentActiveOption) ? [agentActiveOption] : []
   }, [agentRoutePlan?.result, agentActiveOption])
   const carouselRoutes = distinctRoutes.length > 0 ? distinctRoutes : agentDistinctRoutes
   const carouselSelectedRouteId =
