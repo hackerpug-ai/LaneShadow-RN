@@ -25,7 +25,7 @@
 
 import { execSync } from 'node:child_process'
 import type { ToolCall } from '@mariozechner/pi-ai'
-import { describe, expect, it, vi } from 'vitest'
+import { afterAll, describe, expect, it, vi } from 'vitest'
 import type { AgentContext } from '../../ridePlanningAgent'
 import { executeDiscoverCuratedRoutes } from '../discoverCuratedRoutes'
 
@@ -138,6 +138,39 @@ function buildDiscoveryToolCall(intent: Record<string, unknown>): ToolCall {
     arguments: { intent },
   } as unknown as ToolCall
 }
+
+// ---------------------------------------------------------------------------
+// REDHAT-FIX-005 AC-4 / M-2: route_plans test-row cleanup.
+//
+// Every test in this file creates real route_plans rows on the live Convex
+// dev deployment (via runLiveDiscoverySmoke) using clerkUserId values that
+// share one of the prefixes below. The previous test had NO afterEach/all
+// cleanup — rows accumulated on dev across runs (M-2 finding). This afterAll
+// hook deletes every row whose clerkUserId starts with a test prefix so dev
+// does not accumulate red-hat test artifacts.
+//
+// The delete mutation is INTERNAL and scoped to the clerkUserId prefix — it
+// can never touch production data (real Clerk user IDs never start with
+// `redhat-001-` or `redhat-005-`).
+// ---------------------------------------------------------------------------
+
+const TEST_CLERK_USER_ID_PREFIXES = ['redhat-001-', 'redhat-005-']
+
+afterAll(() => {
+  // Best-effort cleanup. If a delete fails (e.g. transient Convex error), we
+  // intentionally swallow it rather than mask a real test failure with
+  // cleanup noise — the NEXT run's prefix-matched delete will reap any stale
+  // rows left behind, so dev never accumulates unbounded red-hat artifacts.
+  for (const prefix of TEST_CLERK_USER_ID_PREFIXES) {
+    try {
+      convexRun('db/routePlans:deleteByClerkUserIdPrefixInternal', {
+        clerkUserIdPrefix: prefix,
+      })
+    } catch {
+      // swallow — see comment above
+    }
+  }
+})
 
 // ---------------------------------------------------------------------------
 // AC-1: discovery option carries the route's real non-zero composite + dimension scores (LIVE)
@@ -319,5 +352,154 @@ describe('REDHAT-FIX-001 AC-2: distanceGuardedToNearestSort', () => {
     //                    must NOT be a fabricated 0.
     expect(firstStats.distanceMeters).not.toBeUndefined()
     expect(firstStats.distanceMeters).not.toBe(0)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// REDHAT-FIX-005 AC-1 (PRIMARY): curated options omit durationSeconds and
+// legsCount (undefined, never fabricated 0). Mirrors the REDHAT-FIX-001
+// distanceMeters guard pattern — when curated routes carry no duration/legs
+// data, the option must OMIT those stats rather than fabricate a real 0.
+// ---------------------------------------------------------------------------
+
+describe('REDHAT-FIX-005 AC-1: omitCuratedStatsFabricatedZeros', () => {
+  it('best-sort (LIVE): option[0].stats.durationSeconds === undefined and legsCount === undefined (no fabricated 0)', () => {
+    const clerkUserId = `redhat-005-ac1-${Date.now()}`
+
+    // Drive the real best-sort discovery → creates a route_plans row whose
+    // options carry the stats block built at discoverCuratedRoutes.ts:150-157.
+    const smoke = convexRun(
+      'actions/agent/tools/discoverCuratedRoutesLiveTest:runLiveDiscoverySmoke',
+      {
+        clerkUserId,
+        archetypes: ['scenic'],
+        state: 'North Carolina',
+        limit: 5,
+      },
+    ) as {
+      type: string
+      routePlanId?: string
+      optionsCount: number
+    }
+    expect(smoke.type).toBe('routes')
+    expect(smoke.optionsCount).toBeGreaterThan(0)
+    expect(typeof smoke.routePlanId).toBe('string')
+
+    // Read the full option stats from the persisted route_plans row.
+    const plan = convexRun('db/routePlans:getPlanByIdInternal', {
+      routePlanId: smoke.routePlanId!,
+    }) as {
+      result?: { options?: Array<Record<string, any>> }
+    }
+    const options = plan.result?.options ?? []
+    expect(options.length).toBeGreaterThan(0)
+    const firstStats = options[0].stats as Record<string, unknown>
+
+    // THEN: curated options OMIT durationSeconds and legsCount (undefined).
+    //       Curated routes carry no duration/legs data, so the option must
+    //       not present a misleading real 0 (the same anti-pattern as the
+    //       original CRITICAL distanceMeters: 0 bug from REDHAT-FIX-001).
+    //       Convex JSON serialization drops undefined keys entirely, so
+    //       accessing the absent key yields undefined.
+    expect(firstStats.durationSeconds).toBeUndefined()
+    expect(firstStats.legsCount).toBeUndefined()
+
+    // Negative control: must NOT be a fabricated real 0 (the pre-fix signature).
+    expect(firstStats.durationSeconds).not.toBe(0)
+    expect(firstStats.legsCount).not.toBe(0)
+  }, 180_000)
+})
+
+// ---------------------------------------------------------------------------
+// REDHAT-FIX-005 AC-2: best-sort without a center uses the first route
+// centroid, not {0,0}; nearest-sort with a center is unchanged.
+// ---------------------------------------------------------------------------
+
+describe('REDHAT-FIX-005 AC-2: centerPointFallsBackToRouteCentroid', () => {
+  it('best-sort (LIVE, no center): planInput.start uses the first route centroid, NOT {0,0}', () => {
+    const clerkUserId = `redhat-005-ac2-best-${Date.now()}`
+
+    // Drive the real best-sort discovery with NO center → discoverCuratedRoutes
+    // must fall back to the first returned route's centroid (a real coordinate)
+    // instead of the Atlantic-Ocean sentinel {lat:0,lng:0} for planInput.start/end.
+    const smoke = convexRun(
+      'actions/agent/tools/discoverCuratedRoutesLiveTest:runLiveDiscoverySmoke',
+      {
+        clerkUserId,
+        archetypes: ['scenic'],
+        state: 'North Carolina',
+        limit: 5,
+      },
+    ) as {
+      type: string
+      routePlanId?: string
+      optionsCount: number
+    }
+    expect(smoke.type).toBe('routes')
+    expect(smoke.optionsCount).toBeGreaterThan(0)
+    expect(typeof smoke.routePlanId).toBe('string')
+
+    // Read the persisted route_plans row to inspect planInput.
+    const plan = convexRun('db/routePlans:getPlanByIdInternal', {
+      routePlanId: smoke.routePlanId!,
+    }) as {
+      planInput?: {
+        start: { lat: number; lng: number; label?: string }
+        end: { lat: number; lng: number; label?: string }
+      }
+      result?: { options?: Array<Record<string, any>> }
+    }
+
+    // Look up the first returned route's real centroid (the value the fallback
+    // should mirror) via the same internal query the discovery action used.
+    const routes = convexRun('curatedRoutes:listCuratedRoutesInternal', {
+      archetypes: ['scenic'],
+      state: 'North Carolina',
+      sort: 'best',
+      limit: 5,
+    }) as Array<Record<string, any>>
+    expect(routes.length).toBeGreaterThan(0)
+    const firstRoute = routes[0]
+    const expectedLat = firstRoute.centroidLat as number
+    const expectedLng = firstRoute.centroidLng as number
+
+    // THEN: best-sort planInput.start/end equal the first route's centroid.
+    expect(plan.planInput).toBeDefined()
+    expect(plan.planInput!.start.lat).toBeCloseTo(expectedLat, 5)
+    expect(plan.planInput!.start.lng).toBeCloseTo(expectedLng, 5)
+    expect(plan.planInput!.end.lat).toBeCloseTo(expectedLat, 5)
+    expect(plan.planInput!.end.lng).toBeCloseTo(expectedLng, 5)
+
+    // Negative control: must NOT be the Atlantic-Ocean sentinel {0,0}.
+    expect(plan.planInput!.start.lat).not.toBe(0)
+    expect(plan.planInput!.start.lng).not.toBe(0)
+    expect(plan.planInput!.end.lat).not.toBe(0)
+    expect(plan.planInput!.end.lng).not.toBe(0)
+  }, 180_000)
+
+  it('nearest-sort (in-process mock, with center): planInput.start uses the supplied center, unchanged', async () => {
+    // GIVEN: a nearest-sort intent that supplies a real center.
+    const intent = {
+      archetypes: ['scenic'],
+      state: 'North Carolina',
+      sort: 'nearest' as const,
+      center: { lat: 35.5, lng: -82.0 },
+      limit: 5,
+    }
+    const { ctx, mutations } = buildNearestMockCtx()
+
+    // WHEN: the discovery tool runs against the mock ctx.
+    const result = await executeDiscoverCuratedRoutes(ctx, buildDiscoveryToolCall(intent))
+    expect(result.type).toBe('routes')
+
+    // THEN: the persisted planInput.start/end equal the SUPPLIED center
+    //       (the route-centroid fallback must NOT overwrite a real center).
+    const createCall = mutations.find((m) => m.name === 'routePlans.createForAgentInternal')
+    expect(createCall, 'route_plans createForAgentInternal mutation must fire').toBeDefined()
+    const planInput = createCall!.args.planInput
+    expect(planInput.start.lat).toBe(35.5)
+    expect(planInput.start.lng).toBe(-82.0)
+    expect(planInput.end.lat).toBe(35.5)
+    expect(planInput.end.lng).toBe(-82.0)
   })
 })

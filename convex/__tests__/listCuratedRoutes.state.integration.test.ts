@@ -12,6 +12,35 @@
  * stored value mutated, the card output would change. Comparing card outputs
  * before/after exercising the gate IS therefore a valid write-back purity test.
  *
+ * REDHAT-FIX-005 / H-3 — LIMITATION & REAL GUARD (read this before weakening
+ * or relying on this test):
+ *
+ * This is a card-output comparison, NOT a raw-row comparison. buildRouteCard
+ * applies normalizeState on every read, so if normalizeState is IDEMPOTENT
+ * (it is — normalizeState(normalizeState(x)) === normalizeState(x)), a
+ * hypothetical write-back of the normalized value would be MASKED by the
+ * re-normalization on the post-sample read. In other words, this card-output
+ * comparison alone cannot distinguish "no write happened" from "a write
+ * happened but normalized to the same value the reader already returns."
+ *
+ * We accept this limitation because the REAL write-back guard is structural,
+ * not empirical: `listCuratedRoutes` / `listCuratedRoutesInternal` are Convex
+ * `query` / `internalQuery` functions, and Convex queries are READ-PATH ONLY
+ * by construction — the query handler has no `ctx.db.patch` / `ctx.db.insert`
+ * / `ctx.db.delete` mutation API on its context. A query literally cannot
+ * write to the database regardless of what normalizeState (or any other
+ * helper it calls) does. There is no code path by which reading
+ * curated_routes could mutate it. The card-output comparison below is a
+ * defense-in-depth secondary check; the read-path-only query contract is
+ * the primary guarantee.
+ *
+ * A raw-row internal query that bypasses buildRouteCard would eliminate the
+ * idempotent-masking caveat, but no such query exists on curated_routes
+ * (both listCuratedRoutes and listCuratedRoutesInternal route through
+ * buildRouteCard), and adding one would require modifying the write-prohibited
+ * convex/curatedRoutes.ts. Option (b) — this explicit comment — is therefore
+ * the correct and complete remediation for H-3.
+ *
  * Strategy:
  *   0. assert normalizeState('North-Carolina') === 'North Carolina' (pure unit)
  *   1. pre-sample  20 cards via listCuratedRoutesInternal {limit:20,sort:'best'}

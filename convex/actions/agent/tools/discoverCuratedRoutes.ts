@@ -115,9 +115,21 @@ async function runDiscoverCuratedRoutes(
     }
   }
 
-  // Persist a route_plans row for the curated routes
-  // Use the centroid as both start and end since this is a single-point discovery, not a trip
-  const centerPoint = args.intent.center || { lat: 0, lng: 0 }
+  // Persist a route_plans row for the curated routes.
+  //
+  // REDHAT-FIX-005 / M-3: when the caller supplies a `center` (nearest-sort),
+  // use it. When `center` is absent (best-sort discovery), fall back to the
+  // FIRST returned route's centroid — a real coordinate — instead of the
+  // Atlantic-Ocean sentinel {lat:0,lng:0}. planInput.start/end require real
+  // lat/lng (routeStopValidator: shared/models/saved-routes.ts:75-80), so the
+  // fallback cannot simply be omitted; it must be a meaningful coordinate.
+  // Using the first route's centroid ties the persisted planInput to the
+  // actual discovery result rather than a fabricated origin.
+  const centerPoint =
+    args.intent.center ??
+    (curatedRoutes[0]
+      ? { lat: curatedRoutes[0].centroidLat, lng: curatedRoutes[0].centroidLng }
+      : { lat: 0, lng: 0 })
   const planInput = {
     start: {
       lat: centerPoint.lat,
@@ -152,8 +164,16 @@ async function runDiscoverCuratedRoutes(
         // (not a fabricated real 0). best-sort options omit distanceMi; only
         // nearest-sort carries a real distance. scores block (below) untouched.
         distanceMeters: route.distanceMi != null ? route.distanceMi * 1609.344 : undefined,
-        durationSeconds: 0, // Not available for curated routes
-        legsCount: 0, // Not available for curated routes
+        // REDHAT-FIX-005: mirror the != null guard philosophy for the remaining
+        // curated-absent stats. Curated routes carry NO duration / legs data,
+        // so the option must OMIT these keys (undefined) rather than fabricate
+        // a real 0 — the SAME anti-pattern as the original CRITICAL
+        // distanceMeters: 0 bug. Convex JSON serialization drops undefined
+        // keys, so consumers reading option.stats.durationSeconds / legsCount
+        // get undefined (the honest "unavailable" signal), never a misleading
+        // real 0.
+        durationSeconds: undefined, // Not available for curated routes
+        legsCount: undefined, // Not available for curated routes
       },
       // DATA-008b: listCuratedRoutes returns FLAT score fields (compositeScore,
       // scenicScore, curvatureScore, technicalScore, trafficScore, remotenessScore

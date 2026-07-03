@@ -570,6 +570,38 @@ export const getPlanByIdInternal = internalQuery({
   },
 })
 
+/**
+ * REDHAT-FIX-005 / AC-4 / M-2 — INTERNAL TEST-ONLY cleanup mutation.
+ *
+ * Deletes every route_plans row whose `clerkUserId` starts with the supplied
+ * prefix. Exists so the scores integration test
+ * (`convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts`)
+ * can clean up the rows it creates on the live dev deployment via
+ * `runLiveDiscoverySmoke`, preventing red-hat test artifacts from accumulating
+ * across runs.
+ *
+ * Safety: this is an `internalMutation` (not a public `mutation`), so it can
+ * only be invoked server-side by trusted code (tests, migrations, agents) —
+ * never directly from the client. The `clerkUserIdPrefix` filter scopes every
+ * delete to rows the caller names explicitly; real Clerk user IDs never start
+ * with the test prefixes (`redhat-001-`, `redhat-005-`), so production data
+ * is unreachable.
+ *
+ * Returns `{ deletedCount }` so callers can log/verify the cleanup.
+ */
+export const deleteByClerkUserIdPrefixInternal = internalMutation({
+  args: { clerkUserIdPrefix: v.string() },
+  returns: v.object({ deletedCount: v.number() }),
+  handler: async (ctx, args): Promise<{ deletedCount: number }> => {
+    const all = await ctx.db.query('route_plans').collect()
+    const toDelete = all.filter((doc) => doc.clerkUserId.startsWith(args.clerkUserIdPrefix))
+    for (const doc of toDelete) {
+      await ctx.db.delete(doc._id)
+    }
+    return { deletedCount: toDelete.length }
+  },
+})
+
 // ---------------------------------------------------------------------------
 // Agent-context query: summarized rows by planning session
 // ---------------------------------------------------------------------------
