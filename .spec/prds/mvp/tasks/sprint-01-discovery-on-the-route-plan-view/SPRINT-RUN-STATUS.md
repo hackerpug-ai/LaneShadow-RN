@@ -1,13 +1,26 @@
-# Sprint-01 run status (kb-run-sprint) - COMPLETE 2026-07-02
+# Sprint-01 run status (kb-run-sprint) - COMPLETE 2026-07-03 (REDHAT-FIX round)
 
 Primary code closeout landed at `0135972a` (`Merge branch 'jr-branch-1'`). A later full human-gate audit found the aggregate discovery gate was still failing; the final full-gate closeout landed at `a6581765` (`Merge branch 'react-native-ui-implementer'`).
+
+A fresh independent red-hat review (2026-07-03, `convex-reviewer` + `react-native-ui-reviewer`) flagged 2 CRITICAL + 6 HIGH findings. The 3 REDHAT-FIX remediation tasks were implemented, reviewed, and landed via GitButler governance (`but commit` / `but review` / `but merge`):
+
+- `d83b706b` — Merge `redhat-fix-001` (`e69769c8`): fix `distanceMeters: 0` fabrication at `discoverCuratedRoutes.ts:151` + create `discoverCuratedRoutes.scores.integration.test.ts` (3 tests, live Convex dev).
+- `7f860668` — Merge `redhat-fix-002` (`78ab6cd5`): create `listCuratedRoutes.archetype.integration.test.ts` + `listCuratedRoutes.state.integration.test.ts` (2 tests, live Convex dev — DB write-back purity).
+- `fcd2b106` — Merge `redhat-fix-003` (`5e26f44`): create 4 RN integration test files — `index.route-tag`, `index.card-loading`, `index.discovery`, `curated-route-card` (11 tests, `@testing-library/react-native`).
 
 ## Completion State
 
 - All sprint task branches checked during closeout are ancestors of `main`.
 - No unlanded sprint/worktree task commits remain.
-- Red-hat review state is cycle 3 and `converged: true`; findings are addressed or upstream-escalated.
+- Red-hat review state is cycle 3 and `converged: true`; fresh cycle-1 findings addressed via REDHAT-FIX-001/002/003.
 - Sprint status metadata is `Complete`.
+
+## REDHAT-FIX Verification (2026-07-03)
+
+- `pnpm type-check` — pass.
+- All 7 new test files (16 tests): pass — 5 live-Convex integration tests + 11 RN integration tests.
+- All 3 REDHAT-FIX commits confirmed on trunk (`git merge-base --is-ancestor` ✓).
+- Biome lint on all changed files: clean (4 pre-existing info-level `no-dynamic-import` notices on RN test files).
 
 ## Closeout Fixes Landed 2026-07-02
 
