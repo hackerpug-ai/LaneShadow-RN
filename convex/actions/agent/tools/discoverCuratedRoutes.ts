@@ -148,7 +148,10 @@ async function runDiscoverCuratedRoutes(
       label: route.name,
       rationale: route.summary || `Curated ${route.primaryArchetype} route in ${route.state}`,
       stats: {
-        distanceMeters: (route.distanceMi || 0) * 1609.344, // Convert miles to meters
+        // REDHAT-FIX-001 / DATA-008b: guard absent distanceMi to undefined
+        // (not a fabricated real 0). best-sort options omit distanceMi; only
+        // nearest-sort carries a real distance. scores block (below) untouched.
+        distanceMeters: route.distanceMi != null ? route.distanceMi * 1609.344 : undefined,
         durationSeconds: 0, // Not available for curated routes
         legsCount: 0, // Not available for curated routes
       },
