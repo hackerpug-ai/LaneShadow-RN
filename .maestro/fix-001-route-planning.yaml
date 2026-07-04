@@ -3,7 +3,8 @@
 #        the 2nd turn, so routes actually render.
 #   A3 — the planner uses device location as the origin for destination-only
 #        requests and never asks "where are you starting from?".
-#   A2 — (visual) map opens centered on the rider at zoom 14, not "max zoom".
+#   A2 — map opens with no active route; visually centered on the rider at
+#        the current-location opening radius, not on a prior route/session.
 #
 # Proves the exact failing flow from the bug report.
 #
@@ -65,13 +66,18 @@ appId: com.hackerpug.laneshadow
     visible:
       id: "chat-input"
     timeout: 120000
-# A2 (visual only): map should open centered on the rider at ~zoom 14.
+# A2: map should open with no old route rendered. The screenshot remains the
+# visual evidence for current-location centering/radius.
+- assertNotVisible:
+    id: "route-on-map-marker"
+- assertNotVisible:
+    id: "route-line-on-map-marker"
 - takeScreenshot: fix001-02-home-centered-on-rider
 
 # ── A3 + A1 turn 1: destination-only request plans from current location ─────
 - tapOn:
     id: "chat-input-text-field"
-- inputText: "Plan a scenic motorcycle route from San Francisco to Santa Cruz"
+- inputText: "SF to Santa Cruze"
 - tapOn:
     id: "chat-input-send-button"
 # A1 success gate: a routing card renders (impossible while sendMessage crashed).
@@ -79,6 +85,10 @@ appId: com.hackerpug.laneshadow
     visible:
       id: "route-on-map-marker"
     timeout: 150000
+- extendedWaitUntil:
+    visible:
+      id: "route-line-on-map-marker"
+    timeout: 30000
 # A3: the turn completed — confirm the agent never asked for the origin and the
 # crash toast never appeared.
 - assertNotVisible:
@@ -97,6 +107,10 @@ appId: com.hackerpug.laneshadow
     visible:
       id: "route-on-map-marker"
     timeout: 150000
+- extendedWaitUntil:
+    visible:
+      id: "route-line-on-map-marker"
+    timeout: 30000
 - assertNotVisible:
     text: "ReturnsValidationError"
 - takeScreenshot: fix001-04-turn2-no-crash-route-continues

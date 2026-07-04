@@ -46,17 +46,100 @@ type NominatimResult = {
   lng: number
   boundingbox?: [number, number, number, number] // [south, north, west, east]; absent for centroid-only results
 } | null
+type NominatimCandidate = NonNullable<NominatimResult> & { query: string }
+type CatalogCenter = { lat: number; lng: number }
+
+const MAX_NOMINATIM_CANDIDATE_DISTANCE_MI = 35
+
+function haversineMi(aLat: number, aLng: number, bLat: number, bLng: number): number {
+  const toRad = (d: number) => (d * Math.PI) / 180
+  const dLat = toRad(bLat - aLat)
+  const dLng = toRad(bLng - aLng)
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.sin(dLng / 2) ** 2
+  return 2 * 3958.7613 * Math.asin(Math.min(1, Math.sqrt(s)))
+}
+
+function normalizeNominatimQueries(
+  name: string,
+  state: string,
+  highwayNumber: string | null,
+): string[] {
+  const abbr = stateAbbr(state)
+  const stateText = abbr ?? state.replace(/-/g, ' ')
+  const candidates = new Set<string>()
+  const add = (value: string) => {
+    const cleaned = value.replace(/\s+/g, ' ').trim()
+    if (cleaned) candidates.add(`${cleaned}, ${stateText}`)
+  }
+
+  add(name)
+
+  const beforeColon = name.split(':')[0]?.trim()
+  if (beforeColon && beforeColon !== name) add(beforeColon)
+
+  const withoutDashSubtitle = name.split(/\s--\s|\s*--\s*/)[0]?.trim()
+  if (withoutDashSubtitle && withoutDashSubtitle !== name) add(withoutDashSubtitle)
+
+  for (const parenthetical of name.matchAll(/\(([^)]*)\)/g)) {
+    const tokens = parenthetical[1]
+      .split(/[,/&]|\band\b/gi)
+      .map((part) => part.trim())
+      .filter(Boolean)
+    for (const token of tokens) {
+      if (/^\d+[A-Za-z]?$/.test(token)) {
+        if (abbr) {
+          add(`${abbr} ${token}`)
+          add(`${abbr}-${token}`)
+        }
+        add(`Route ${token}`)
+      }
+    }
+  }
+
+  if (highwayNumber) add(`Route ${highwayNumber}`)
+
+  return [...candidates]
+}
 
 /**
- * Geocode "{name}, {state}" via Nominatim. Returns the centroid + bounding box,
- * or null if no result. Respects Nominatim usage policy (≤1 req/s, User-Agent).
+ * Geocode normalized "{route name}, {state}" candidates via Nominatim. Multiple
+ * same-name roads can exist in one state, so when a catalog centroid is available
+ * we choose the nearest candidate and reject far-away matches.
  */
-async function geocodeViaNominatim(name: string, state: string): Promise<NominatimResult> {
-  const abbr = stateAbbr(state)
-  const query = `${name}, ${abbr ?? state.replace(/-/g, ' ')}`
+async function geocodeViaNominatim(
+  name: string,
+  state: string,
+  highwayNumber: string | null,
+  center: CatalogCenter,
+): Promise<NominatimResult> {
+  const queries = normalizeNominatimQueries(name, state, highwayNumber)
+  let nearest: NominatimCandidate | null = null
+  let nearestDistanceMi = Number.POSITIVE_INFINITY
+
+  for (const query of queries) {
+    const candidates = await searchNominatim(query)
+    for (const candidate of candidates) {
+      const distanceMi = haversineMi(center.lat, center.lng, candidate.lat, candidate.lng)
+      if (!nearest || distanceMi < nearestDistanceMi) {
+        nearest = { ...candidate, query }
+        nearestDistanceMi = distanceMi
+      }
+    }
+
+    if (nearest && nearestDistanceMi <= MAX_NOMINATIM_CANDIDATE_DISTANCE_MI) {
+      return nearest
+    }
+  }
+
+  return nearest && nearestDistanceMi <= MAX_NOMINATIM_CANDIDATE_DISTANCE_MI ? nearest : null
+}
+
+async function searchNominatim(query: string): Promise<NonNullable<NominatimResult>[]> {
   const url =
     `https://nominatim.openstreetmap.org/search?` +
-    `q=${encodeURIComponent(query)}&format=json&limit=1&addressdetails=0`
+    `q=${encodeURIComponent(query)}&format=json&limit=8&addressdetails=0`
 
   // Nominatim usage policy: ≤1 req/s, identify with User-Agent
   await new Promise((r) => setTimeout(r, 1100))
@@ -70,9 +153,9 @@ async function geocodeViaNominatim(name: string, state: string): Promise<Nominat
       },
     })
   } catch {
-    return null // network error
+    return [] // network error
   }
-  if (!res.ok) return null
+  if (!res.ok) return []
 
   const data = (await res.json()) as Array<{
     lat: string
@@ -80,17 +163,18 @@ async function geocodeViaNominatim(name: string, state: string): Promise<Nominat
     boundingbox?: [string, string, string, string] // [south, north, west, east]
   }>
 
-  if (!data.length) return null
+  if (!data.length) return []
 
-  const r = data[0]
-  const bb = r.boundingbox
-  return {
-    lat: parseFloat(r.lat),
-    lng: parseFloat(r.lon),
-    boundingbox: bb
-      ? [parseFloat(bb[0]), parseFloat(bb[1]), parseFloat(bb[2]), parseFloat(bb[3])]
-      : undefined,
-  }
+  return data.map((r) => {
+    const bb = r.boundingbox
+    return {
+      lat: parseFloat(r.lat),
+      lng: parseFloat(r.lon),
+      boundingbox: bb
+        ? [parseFloat(bb[0]), parseFloat(bb[1]), parseFloat(bb[2]), parseFloat(bb[3])]
+        : undefined,
+    }
+  })
 }
 
 // ---------------------------------------------------------------------------
@@ -171,11 +255,12 @@ type GeocodeRouteResult = { value: string; coordCount: number }
 async function geocodeRouteGeometry(
   name: string,
   state: string,
-  _highwayNumber: string | null,
+  highwayNumber: string | null,
   bounds: Bounds,
+  center: CatalogCenter,
 ): Promise<GeocodeRouteResult | null> {
   // Step 1: Geocode "{name}, {state}" via Nominatim
-  const geo = await geocodeViaNominatim(name, state)
+  const geo = await geocodeViaNominatim(name, state, highwayNumber, center)
 
   // CRITICAL (Supreme Rule: no fake line): If Nominatim returns null (no result),
   // the route name is unresolvable. Return null → caller stamps 'unresolved' and
@@ -258,12 +343,18 @@ export const generateForRoute = internalAction({
     }
 
     try {
-      const geo = await geocodeRouteGeometry(route.name, route.state, route.highwayNumber, {
-        neLat: route.boundsNeLat,
-        neLng: route.boundsNeLng,
-        swLat: route.boundsSwLat,
-        swLng: route.boundsSwLng,
-      })
+      const geo = await geocodeRouteGeometry(
+        route.name,
+        route.state,
+        route.highwayNumber,
+        {
+          neLat: route.boundsNeLat,
+          neLng: route.boundsNeLng,
+          swLat: route.boundsSwLat,
+          swLng: route.boundsSwLng,
+        },
+        { lat: route.centroidLat, lng: route.centroidLng },
+      )
       if (geo) {
         await ctx.runMutation(internal.curatedGeometry.patchRouteGeometry, {
           id: route.id,
@@ -356,12 +447,18 @@ export const backfill = internalAction({
         if (processed >= target) break
         processed++
         try {
-          const geo = await geocodeRouteGeometry(route.name, route.state, route.highwayNumber, {
-            neLat: route.boundsNeLat,
-            neLng: route.boundsNeLng,
-            swLat: route.boundsSwLat,
-            swLng: route.boundsSwLng,
-          })
+          const geo = await geocodeRouteGeometry(
+            route.name,
+            route.state,
+            route.highwayNumber,
+            {
+              neLat: route.boundsNeLat,
+              neLng: route.boundsNeLng,
+              swLat: route.boundsSwLat,
+              swLng: route.boundsSwLng,
+            },
+            { lat: route.centroidLat, lng: route.centroidLng },
+          )
           if (geo) {
             await ctx.runMutation(internal.curatedGeometry.patchRouteGeometry, {
               id: route.id,

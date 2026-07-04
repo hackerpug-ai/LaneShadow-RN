@@ -1,0 +1,61 @@
+{
+  "run_id": "laneshadow-mvp-sprint-02-tasks-20260703T002510Z",
+  "workspace": "110CE8C4-DC54-480E-A269-BCE56E844D9A",
+  "implement_skill": "kb-sprint-tasks-plan",
+  "cycle": "implement:review:plan",
+  "max_cycles": 3,
+  "tick_seconds": 30,
+  "stall_window_seconds": 600,
+  "audit_path": ".spec/orchestrate/laneshadow-mvp-sprint-02-tasks-20260703T002510Z-audit.jsonl",
+  "targets": [
+    "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/mvp/ROADMAP.md --sprint 2"
+  ],
+  "normalized_target": "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/mvp/ROADMAP.md#sprint-02",
+  "status": "blocked-rn-planner-batch",
+  "created_at": "2026-07-03T00:25:25Z",
+  "surfaces": [
+    {
+      "surface_ref": "surface:282",
+      "origin": "spawned",
+      "spawner": "spawn-stage.sh",
+      "driver": "orch",
+      "role": "run",
+      "sprint": "sprint-02",
+      "cwd": "/Users/justinrich/Projects/LaneShadow-RN",
+      "harness": "opencode",
+      "model": "zai-coding-plan/glm-5.2",
+      "provider": "zai-coding-plan",
+      "session_id": "ses_0daa2ba25ffePJf3IzUaMLLFAL",
+      "commands_or_skills": [
+        "/goal",
+        "kb-sprint-tasks-plan",
+        "--sprint"
+      ],
+      "base_prompt_excerpt": "Run /kb-sprint-tasks-plan ROADMAP.md --sprint 2",
+      "base_prompt_sha256": "",
+      "goal": {
+        "text": "Run /kb-sprint-tasks-plan /Users/justinrich/Projects/LaneShadow-RN/.spec/prds/mvp/ROADMAP.md --sprint 2 until Sprint 02 files are verified and [goal:complete] is emitted",
+        "verification": {
+          "kind": "artifact_count_gt_plus_sentinel",
+          "signal": "Sprint 02 TASK-*.md count > 8 plus OpenCode session [goal:complete]",
+          "status": "derived"
+        }
+      },
+      "active": false,
+      "status": "blocked_closed",
+      "cycle": 0,
+      "state_label": "blocked-rn-planner-batch",
+      "last_verdict_artifact": "opencode:ses_0daa2ba25ffePJf3IzUaMLLFAL/[goal:blocked]",
+      "last_observed_ts": "2026-07-03T00:48:38Z",
+      "nudge_count": 2,
+      "watch_glob": "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/mvp/tasks/sprint-02-route-detail-close-the-loop/TASK-*.md",
+      "verdict_kind": "count_gt",
+      "verdict_grep": "",
+      "blocked_grep": "\\[goal:blocked\\]",
+      "baseline_count": 8,
+      "reaped": true,
+      "last_nudge_at": "2026-07-03T00:44:33Z"
+    }
+  ],
+  "blocked_reason": "react-native-ui-planner failed the 7-task batch: empty first output; malformed/truncated 1-of-7 retry. Need smaller RN dispatch batches."
+}

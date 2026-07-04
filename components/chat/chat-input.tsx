@@ -451,6 +451,9 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     paddingHorizontal: 14,
     paddingVertical: 9,
   },

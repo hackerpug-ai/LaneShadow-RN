@@ -7,8 +7,9 @@
 #  1. Drawer: only Settings/Saved nav entries; no "Plan a ride"/"Discover";
 #     no filter-bar/sort-toggle/state-picker on home
 #  2. Curated-route suggestion cards over the input (real road name + mileage)
-#  3. Tap a suggestion card -> route plots immediately, NO chat message sent,
-#     cards disappear once the route is shown
+#  3. Tap a suggestion card -> route plots immediately; opening chat shows the
+#     same route-card overview UX as a typed route search; cards disappear once
+#     the route is shown
 #  4. Clear/dismiss the route -> curated suggestion cards return
 #  5. "twisties near Asheville" -> curated card(s) in chat + latest plots on map;
 #     card shows a real composite score (NN/100, never 0/100, never raw 0-1/0-100)
@@ -93,18 +94,21 @@ appId: com.hackerpug.laneshadow
     visible:
       id: "chat-input"
     timeout: 120000
+- assertNotVisible:
+    id: "route-on-map-marker"
+- assertNotVisible:
+    id: "route-line-on-map-marker"
 - assertNotVisible: { text: "Discover" }
 - takeScreenshot: 02-home-map-and-chat
 
 # ── STEP 1: drawer has only standard nav entries; no Plan-a-ride/Discover; ────
 # no filter-bar / sort-toggle / state-picker on home.
+- waitForAnimationToEnd:
+    timeout: 5000
 - tapOn:
     id: "map-header-left-button"
-- extendedWaitUntil:
-    visible: { id: "home-menu-layout" }
-    timeout: 10000
-# Wait out the drawer slide-open animation before asserting the nav items (they
-# mount with the drawer but aren't on-screen until the slide completes).
+# Wait out the drawer slide-open animation by asserting the drawer's actual
+# visible items. The drawer root is mounted while closed, so it is not enough.
 - extendedWaitUntil:
     visible: { id: "drawer-nav-settings" }
     timeout: 10000
@@ -130,38 +134,56 @@ appId: com.hackerpug.laneshadow
 # (Maestro cannot assert color/icon). The road·mileage text is asserted.
 - extendedWaitUntil:
     visible:
-      id: "chat-input-suggestion-chips"
+      id: "discovery-suggestion-pill-.*"
     timeout: 30000
 - takeScreenshot: 05-suggestion-cards-copper-road-icon
 
-# ── STEP 3: tap a suggestion card -> route plots, NO chat message, cards hide ─
+# ── STEP 3: tap suggestion -> route plots, chat shows route-card overview ────
 - tapOn:
-    point: "25%,85%"
-- waitForAnimationToEnd:
-    timeout: 5000
-- tapOn:
-    point: "50%,45%"
+    id: "discovery-suggestion-pill-.*"
 - waitForAnimationToEnd:
     timeout: 5000
 - extendedWaitUntil:
     visible:
       id: "route-on-map-marker"
     timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: "route-line-on-map-marker"
+    timeout: 30000
 - takeScreenshot: 06-suggestion-tapped-route-plotted
 # Cards must hide once a route is shown.
 - assertNotVisible:
-    id: "chat-input-suggestion-chips"
+    id: "discovery-suggestion-pill-.*"
     optional: true
-# No chat message is sent on a suggestion tap (DISC-016 direct-plot path).
-# Maestro can't assert a negative transcript entry reliably; the code path
-# (createCuratedPlan, no sendMessage) guarantees it — see screenshot 06.
+# Opening chat after a suggestion tap must show the same route overview card
+# users get when they type a curated-route request into chat.
+- extendedWaitUntil:
+    visible:
+      id: "chat-input-chat-view-button"
+    timeout: 10000
+- tapOn:
+    id: "chat-input-chat-view-button"
+- extendedWaitUntil:
+    visible: { text: "Return to map" }
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "curated-route-card-.*"
+    timeout: 45000
+- takeScreenshot: 06b-suggestion-route-card-visible-in-chat
+- tapOn:
+    id: "chat-input-chat-view-button"
+- extendedWaitUntil:
+    visible: { text: "Open full chat" }
+    timeout: 20000
 
 # ── STEP 4: clear/dismiss the route -> curated suggestion cards return ────────
 - tapOn:
     id: "control-clear"
 - extendedWaitUntil:
     visible:
-      id: "chat-input-suggestion-chips"
+      id: "discovery-suggestion-pill-.*"
     timeout: 30000
 - takeScreenshot: 07-cards-return-after-clear
 
@@ -186,6 +208,10 @@ appId: com.hackerpug.laneshadow
     visible:
       id: "route-on-map-marker"
     timeout: 120000
+- extendedWaitUntil:
+    visible:
+      id: "route-line-on-map-marker"
+    timeout: 30000
 - waitForAnimationToEnd:
     timeout: 5000
 - extendedWaitUntil:
@@ -235,6 +261,10 @@ appId: com.hackerpug.laneshadow
     visible:
       id: "route-on-map-marker"
     timeout: 120000
+- extendedWaitUntil:
+    visible:
+      id: "route-line-on-map-marker"
+    timeout: 30000
 - waitForAnimationToEnd:
     timeout: 5000
 - extendedWaitUntil:
@@ -289,6 +319,10 @@ appId: com.hackerpug.laneshadow
 - extendedWaitUntil:
     visible:
       id: "route-on-map-marker"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: "route-line-on-map-marker"
     timeout: 30000
 - takeScreenshot: 11-earlier-card-returns-to-map
 

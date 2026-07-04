@@ -177,7 +177,22 @@ vi.mock('../components/map', () => {
   }
 })
 
-vi.mock('../components/map/map-controls', () => ({ MapControls: () => null }))
+vi.mock('../components/map/map-controls', () => {
+  const { createElement } = require('react')
+  const { TouchableOpacity, Text } = require('react-native')
+  return {
+    MapControls: (props: any) =>
+      createElement(
+        TouchableOpacity,
+        {
+          testID: 'control-clear',
+          onPress: props.onClear,
+          accessibilityRole: 'button',
+        },
+        createElement(Text, null, 'Clear'),
+      ),
+  }
+})
 vi.mock('../components/map/map-header-overlay', () => ({ MapHeaderOverlay: () => null }))
 vi.mock('../components/map/map-toast-stack', () => ({ MapToastStack: () => null }))
 vi.mock('../components/map/route-summary-carousel', () => ({

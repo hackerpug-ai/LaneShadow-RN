@@ -69,6 +69,14 @@ type UpdatePlanStatusCtx = {
   }
 }
 
+type CuratedRouteGeometryRow = {
+  format: 'polyline' | 'multipolyline'
+  encoding?: string | null
+  precision?: number | null
+  value?: string | null
+  segments?: string[] | null
+}
+
 type CancelPlanCtx = {
   db: {
     get: (id: Id<'route_plans'>) => Promise<RoutePlanDoc | null>
@@ -351,17 +359,120 @@ export const createPlan = mutation({
   },
 })
 
+const normalizeCuratedScore = (score: number | undefined): number =>
+  typeof score === 'number' ? (score > 1 ? score / 100 : score) : 0
+
+const centroidOverviewGeometry = (lat: number, lng: number) => ({
+  format: 'polyline' as const,
+  encoding: 'polyline' as const,
+  precision: 5,
+  value: polyline.encode([[lat, lng]]),
+})
+
+const centroidBounds = (lat: number, lng: number) => ({
+  north: lat + 0.5,
+  south: lat - 0.5,
+  east: lng + 0.5,
+  west: lng - 0.5,
+})
+
+const buildCuratedPlanMap = (
+  route: { centroidLat: number; centroidLng: number },
+  geometry: CuratedRouteGeometryRow | null | undefined,
+) => {
+  if (geometry) {
+    const precision = geometry.precision ?? 5
+
+    if (
+      geometry.format === 'multipolyline' &&
+      Array.isArray(geometry.segments) &&
+      geometry.segments.length > 0
+    ) {
+      let north = -90
+      let south = 90
+      let east = -180
+      let west = 180
+      let pointCount = 0
+      let longestSegment = geometry.segments[0]
+      let longestPointCount = -1
+      const validSegments: string[] = []
+
+      for (const segment of geometry.segments) {
+        const decoded = polyline.decode(segment, precision) as [number, number][]
+        if (decoded.length < 2) continue
+        validSegments.push(segment)
+        if (decoded.length > longestPointCount) {
+          longestPointCount = decoded.length
+          longestSegment = segment
+        }
+        for (const [lat, lng] of decoded) {
+          pointCount++
+          if (lat > north) north = lat
+          if (lat < south) south = lat
+          if (lng > east) east = lng
+          if (lng < west) west = lng
+        }
+      }
+
+      if (pointCount >= 2 && longestSegment) {
+        return {
+          bounds: { north, south, east, west },
+          overviewGeometry: {
+            format: 'polyline' as const,
+            encoding: 'polyline' as const,
+            precision,
+            value: longestSegment,
+          },
+          overviewSegments: validSegments,
+        }
+      }
+    }
+
+    if (geometry.value) {
+      const decoded = polyline.decode(geometry.value, precision) as [number, number][]
+      if (decoded.length >= 2) {
+        let north = -90
+        let south = 90
+        let east = -180
+        let west = 180
+
+        for (const [lat, lng] of decoded) {
+          if (lat > north) north = lat
+          if (lat < south) south = lat
+          if (lng > east) east = lng
+          if (lng < west) west = lng
+        }
+
+        return {
+          bounds: { north, south, east, west },
+          overviewGeometry: {
+            format: 'polyline' as const,
+            encoding: geometry.encoding ?? 'polyline',
+            precision,
+            value: geometry.value,
+          },
+        }
+      }
+    }
+  }
+
+  return {
+    bounds: centroidBounds(route.centroidLat, route.centroidLng),
+    overviewGeometry: centroidOverviewGeometry(route.centroidLat, route.centroidLng),
+  }
+}
+
 /**
  * DISC-016: Create a COMPLETED route_plans row for a single curated route so the
  * plan-view suggestion-card tap plots directly through the standard route
  * machinery (displayedRoutePlanId → useActiveSessionRoute → RoutePolyline → doFit)
  * WITHOUT a chat round-trip to the NL agent.
  *
- * Mirrors the option shape built by the agent's `discoverCuratedRoutes` tool
- * (centroid-encoded overviewGeometry so doFit's single-point fallback centers
- * the camera at zoom 12). No planning session, no scheduled action, no usage
- * metering — this is a discovery affordance over existing curated data, not a
- * planning action.
+ * Mirrors the option shape built by the agent's `discoverCuratedRoutes` tool:
+ * use generated side-table geometry when it exists, and fall back to the
+ * route centroid only when the catalog row has not been resolved/backfilled.
+ * No planning session, no scheduled action, no usage metering — this is a
+ * discovery affordance over existing curated data, not a planning action.
  */
 export const createCuratedRoutePlan = mutation({
   args: {
@@ -387,41 +498,52 @@ export const createCuratedRoutePlan = mutation({
     const { clerkUserId } = await requireIdentity(ctx)
     const now = Date.now()
 
-    const overviewGeometry = {
-      format: 'polyline' as const,
-      encoding: 'polyline' as const,
-      precision: 5,
-      value: polyline.encode([[args.centroidLat, args.centroidLng]]),
-    }
+    const db = ctx.db as any
+    const routeDoc = await db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q: any) => q.eq('routeId', args.routeId))
+      .first()
+    const geometry = await db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q: any) => q.eq('routeId', args.routeId))
+      .first()
+
+    const routeName = routeDoc?.name ?? args.name
+    const routeArchetype = routeDoc?.primaryArchetype ?? args.archetype
+    const routeDistanceMi =
+      typeof routeDoc?.lengthMiles === 'number' ? routeDoc.lengthMiles : args.distanceMi
+    const centroidLat = routeDoc?.centroidLat ?? args.centroidLat
+    const centroidLng = routeDoc?.centroidLng ?? args.centroidLng
+    const map = buildCuratedPlanMap(
+      {
+        centroidLat,
+        centroidLng,
+      },
+      geometry as CuratedRouteGeometryRow | null,
+    )
 
     const routeOptionId = `curated-${args.routeId}`
     const option = {
       routeOptionId,
-      label: args.name,
-      rationale: `Curated ${args.archetype} route`,
+      label: routeName,
+      rationale: routeDoc?.summary || `Curated ${routeArchetype} route`,
       stats: {
-        distanceMeters: args.distanceMi * 1609.344,
+        distanceMeters: routeDistanceMi * 1609.344,
         durationSeconds: 0,
         legsCount: 0,
       },
       scores: {
-        composite: args.compositeScore,
+        composite: normalizeCuratedScore(routeDoc?.compositeScore ?? args.compositeScore),
         dimensions: {
-          scenery: args.scores?.scenery ?? 0,
-          curvature: args.scores?.curvature ?? 0,
-          elevation: args.scores?.elevation ?? 0,
-          traffic: args.scores?.traffic ?? 0,
-          pavement: args.scores?.pavement ?? 0,
+          scenery: normalizeCuratedScore(routeDoc?.scenicScore ?? args.scores?.scenery),
+          curvature: normalizeCuratedScore(routeDoc?.curvatureScore ?? args.scores?.curvature),
+          elevation: normalizeCuratedScore(routeDoc?.technicalScore ?? args.scores?.elevation),
+          traffic: normalizeCuratedScore(routeDoc?.trafficScore ?? args.scores?.traffic),
+          pavement: normalizeCuratedScore(routeDoc?.remotenessScore ?? args.scores?.pavement),
         },
       },
       map: {
-        bounds: {
-          north: args.centroidLat + 0.5,
-          south: args.centroidLat - 0.5,
-          east: args.centroidLng + 0.5,
-          west: args.centroidLng - 0.5,
-        },
-        overviewGeometry,
+        ...map,
         legs: [],
         overlays: {},
       },
@@ -437,20 +559,20 @@ export const createCuratedRoutePlan = mutation({
       clerkUserId,
       planInput: {
         start: {
-          lat: args.centroidLat,
-          lng: args.centroidLng,
+          lat: centroidLat,
+          lng: centroidLng,
           label: 'Curated discovery',
         },
         end: {
-          lat: args.centroidLat,
-          lng: args.centroidLng,
-          label: args.name,
+          lat: centroidLat,
+          lng: centroidLng,
+          label: routeName,
         },
         departureTime: now,
         preferences: { scenicBias: 'default', avoidHighways: false, avoidTolls: false },
       },
       startLabel: 'Curated discovery',
-      endLabel: args.name,
+      endLabel: routeName,
       status: ROUTE_PLAN_STATUS.COMPLETED,
       result: { planId: null, options: [option] },
       createdAt: now,

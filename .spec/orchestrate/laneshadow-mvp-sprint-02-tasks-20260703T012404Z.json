@@ -1,0 +1,17 @@
+{
+  "run_id": "laneshadow-mvp-sprint-02-tasks-20260703T012404Z",
+  "workspace": "110CE8C4-DC54-480E-A269-BCE56E844D9A",
+  "implement_skill": "kb-sprint-tasks-plan",
+  "cycle": "implement:review:plan",
+  "max_cycles": 3,
+  "tick_seconds": 30,
+  "stall_window_seconds": 600,
+  "audit_path": ".spec/orchestrate/laneshadow-mvp-sprint-02-tasks-20260703T012404Z-audit.jsonl",
+  "targets": [
+    "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/mvp/ROADMAP.md --sprint 2 --overwrite"
+  ],
+  "normalized_target": "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/mvp/ROADMAP.md#sprint-02",
+  "status": "blocked",
+  "created_at": "2026-07-03T01:24:04Z",
+  "surfaces": []
+}

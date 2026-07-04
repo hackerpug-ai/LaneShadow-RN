@@ -29,7 +29,7 @@ Re-anchor LaneShadow on its strategic hero — **Discovery** — delivered as th
 | # | Milestone | Sprint | Gate | Tasks | Dependencies | Status |
 |---|-----------|--------|------|-------|--------------|--------|
 | 1 | — | [Sprint 01: Discovery on the Route Plan View](#sprint-01-discovery-on-the-route-plan-view) | App opens to the route plan view (no dedicated Discover screen, filter-bar, sort-toggle, state-picker, or "Plan a ride" drawer entry); with no route on the map, curated-route suggestion cards over the input plot a route directly on tap; chatting "twisties near Asheville" returns curated routes as cards and plots the latest. | 18 | — | In Progress |
-| 2 | — | [Sprint 02: Route Detail + Close the Loop](#sprint-02-route-detail--close-the-loop) | Tapping a curated route on the plan view opens honest detail (headline, score bars, geometry-or-centroid, conditions) → save → reopen → Ride-It opens maps with a web fallback. | 9 | Sprint 01 | Planned |
+| 2 | — | [Sprint 02: Route Detail + Close the Loop](#sprint-02-route-detail--close-the-loop) | Tapping a curated route on the plan view opens honest detail (headline, score bars, geometry-or-centroid, conditions) → save → reopen → Ride-It opens maps with a web fallback. | 9 | Sprint 01 | In Progress |
 | 3 | — | [Sprint 03: On-Device D9 Capstone](#sprint-03-on-device-d9-capstone) | The founder completes the full discover-to-ride arc on the route plan view on real iOS **and** real Android against live Convex, with recorded evidence. | 1 | Sprint 01, 02 | Planned |
 
 The `Milestone` cell links to the GitHub Milestone whose title is `sprint-{NN}`. For these locally-planned sprints not yet pushed to GitHub, the cell is `—`.
@@ -118,7 +118,7 @@ The `Milestone` cell links to the GitHub Milestone whose title is `sprint-{NN}`.
 
 **Sequence:** 2
 **Timeline:** Phase 2
-**Status:** Planned
+**Status:** In Progress
 **Proposed by:** convex-planner + react-native-ui-planner + frontend-designer
 **Milestone:** — (`sprint-02`)
 
@@ -152,7 +152,17 @@ The `Milestone` cell links to the GitHub Milestone whose title is `sprint-{NN}`.
 | SAVE-001 | Save curated route via `curatedRouteRef` (`useSaveCuratedRoute`, fires `recordRouteFeedback('save')`); Saved-screen + SavedRouteCard tolerance | react-native-ui-implementer | 180 min |
 | SAVE-002 | Ride-It maps deep-link util `lib/maps-deeplink.ts` (Apple Maps iOS / Google Maps Android via `expo-linking`; web fallback) | react-native-ui-implementer | 90 min |
 
-**Next Sprint Tasks:** *(populated JIT when sprint becomes active by kb-sprint-tasks-plan)*
+**Next Sprint Tasks:** Expanded by /kb-sprint-tasks-plan (2026-07-02) → [`tasks/sprint-02-route-detail-close-the-loop/`](./tasks/sprint-02-route-detail-close-the-loop/SPRINT.md) — 9 task files + SPRINT.md. Specialist authorship: `convex-planner` (DATA-006, DATA-003); `react-native-ui-implementer` standing in as RN planning specialist for all 7 RN tasks (DTL-001, DESIGN-001..004, SAVE-001, SAVE-002) because the nominal `react-native-ui-planner` is non-responsive in this harness (every task carries an honest `Proposed By:`); `frontend-designer` returned 5 design-enrichment sets merged into the RN tasks. Every FEATURE task passes the fakeability floor (`validate_scenario.py`, 0 CRITICAL/HIGH); all 9 are `tdd_mode: red_first`. Run with `/kb-run-sprint tasks/sprint-02-route-detail-close-the-loop`.
+
+- DATA-006-getcuratedroutedetail-public-query-lean-fields-01-scores.md
+- DATA-003-add-optional-curatedrouteref-to-saved-routes-additive-xor.md
+- DTL-001-create-curated-route-id-route-usecuratedroutedetail-hook-wire.md
+- DESIGN-001-build-scoredimensionbar-primitive-in-components-ui-labeled-percent-bar.md
+- DESIGN-002-build-the-lean-curated-route-detail-screen-body-six-sections.md
+- DESIGN-003-geometry-graceful-degradation-polyline-centroid-approximate-badge.md
+- DESIGN-004-detail-actions-ux-save-loading-saved-in-place-ride-it.md
+- SAVE-001-save-curated-route-via-curatedrouteref-usesavecuratedroute-saved.md
+- SAVE-002-ride-it-maps-deep-link-util-lib-maps-deeplink-ts-apple-google.md
 
 #### Dependencies
 

@@ -1,9 +1,8 @@
-import { useAuth } from '@clerk/clerk-expo'
 import polyline from '@mapbox/polyline'
 import { useMutation, useQuery } from 'convex/react'
 import { useLocalSearchParams, useRouter, useSegments } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ActivityIndicator, Keyboard, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Keyboard, Pressable, StyleSheet, Text, View } from 'react-native'
 import Animated, {
   FadeInDown,
   useAnimatedStyle,
@@ -14,7 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChatInput } from '../../../components/chat'
 import { MenuLayout } from '../../../components/layouts/menu-layout'
 import type { MapboxMapViewHandle } from '../../../components/map'
-import { MapboxMapView } from '../../../components/map'
+import { MapboxMapView, MapLoadingState } from '../../../components/map'
 import { MapControls } from '../../../components/map/map-controls'
 import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
 import { MapPlanningIndicator } from '../../../components/map/map-planning-indicator'
@@ -53,13 +52,14 @@ import { useRouteComparison } from '../../../hooks/use-route-comparison'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useToastMessages } from '../../../hooks/use-toast-messages'
 import { getCurrentLocation } from '../../../lib/get-current-location'
+import { resolveActiveChatSessionId } from '../../../lib/route-plan/active-session-selection'
 import { deduplicateRouteOptions } from '../../../lib/routes/dedupe-route-options'
 import { computeRouteMidpoint } from '../../../lib/routes/route-midpoint'
 import { decodePolylineGeometry } from '../../../shared/lib/polyline'
 import type { RouteProvenance } from '../../../shared/models/saved-routes'
 import type { PlanInput, PlannedRouteOptionView, RouteStop } from '../../../shared/types/routes'
 import { useChatSessionStore } from '../../../stores/chat-session-store'
-import { computeInitialCamera } from './compute-initial-camera'
+import { CURRENT_LOCATION_OPEN_ZOOM, computeInitialCamera } from './compute-initial-camera'
 
 type CameraState = {
   center?: { latitude: number; longitude: number }
@@ -74,6 +74,25 @@ type PersistentCameraState = {
 }
 
 const CHAT_TRANSITION_MS = 260
+const MAP_CENTERED_ON_USER_TOLERANCE_M = 250
+const MAP_CENTERED_ON_USER_MIN_ZOOM = CURRENT_LOCATION_OPEN_ZOOM - 0.5
+
+const toRadians = (degrees: number) => (degrees * Math.PI) / 180
+
+const distanceMeters = (
+  a: { latitude: number; longitude: number },
+  b: { latitude: number; longitude: number },
+) => {
+  const earthRadiusMeters = 6_371_000
+  const deltaLat = toRadians(b.latitude - a.latitude)
+  const deltaLng = toRadians(b.longitude - a.longitude)
+  const lat1 = toRadians(a.latitude)
+  const lat2 = toRadians(b.latitude)
+  const h =
+    Math.sin(deltaLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLng / 2) ** 2
+
+  return 2 * earthRadiusMeters * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h))
+}
 
 /**
  * Derive archetype label from route option.
@@ -124,7 +143,6 @@ const HomeMapScreen = () => {
   const { semantic } = useSemanticTheme()
   const { isDark } = useThemePreference()
   const insets = useSafeAreaInsets()
-  const { isLoaded: clerkLoaded, isSignedIn } = useAuth()
   const { sessionId: sessionIdParam, chat: chatParam } = useLocalSearchParams<{
     sessionId?: string
     chat?: string
@@ -147,9 +165,9 @@ const HomeMapScreen = () => {
   const isProgrammaticMoveRef = useRef(false)
   const previousChatModeRef = useRef(chatMode)
 
-  // Chat session store — persisted to AsyncStorage. Holds the last viewed
-  // session id (so we resume where the user left off) plus the per-session
-  // camera cache (so each session restores its own map position).
+  // Chat session store — persisted to AsyncStorage. Holds the per-session
+  // camera cache. `lastViewedSessionId` is cleared on cold open so old route
+  // state cannot implicitly hijack the no-route discovery home.
   const defaultCameraSlot = useChatSessionStore((s) => s.defaultCamera)
   const cameraBySession = useChatSessionStore((s) => s.bySession)
   const lastViewedSessionId = useChatSessionStore((s) => s.lastViewedSessionId)
@@ -170,9 +188,6 @@ const HomeMapScreen = () => {
   const [searchStop, setSearchStop] = useState<RouteStop | null>(null)
   const [controlsHeight, setControlsHeight] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
-
-  // Track when we've explicitly started a new session (to prevent falling back to old session)
-  const [explicitlyNewSession, setExplicitlyNewSession] = useState(false)
 
   // US-050: Save Route Sheet state
   const [saveRouteSheetVisible, setSaveRouteSheetVisible] = useState(false)
@@ -203,7 +218,7 @@ const HomeMapScreen = () => {
   const { location: currentLocation, loading: locationLoading } = useCurrentLocation()
 
   // A2: hold the map on a loading state until device location resolves, then
-  // open directly on the rider at zoom CURRENT_LOCATION_OPEN_ZOOM (~3–5 mi radius). Avoids the old
+  // open directly on the rider at zoom CURRENT_LOCATION_OPEN_ZOOM (~1 mi radius). Avoids the old
   // "max zoom" initial view on a fresh login. If location is denied/unavailable,
   // fall back to a continental default so the map is never blank. Hard cap at
   // 8s so a stuck permission dialog can't hang the screen.
@@ -220,36 +235,26 @@ const HomeMapScreen = () => {
     clearResults: clearSearchResults,
   } = useSearchResults()
 
-  // Fetch sessions so we can fall back to the most recent one on app open.
-  // Only query when Clerk auth is loaded and user is signed in to prevent race conditions.
-  const sessions = useQuery(
-    api.db.planningSessions.listSessions,
-    clerkLoaded && isSignedIn ? undefined : 'skip',
-  )
-
   // Resolve which session drives the chat transcript and map route.
   // Priority:
   //   1. explicit URL param (deep link / drawer tap)
   //   2. active planning session (currently-running chat)
-  //   3. last viewed session from persistent store (if it still exists)
-  //   4. most recent session (newest in the list) — only as a last resort
+  //
+  // Deliberately no cold-open fallback to last/newest session: Sprint 1's
+  // default home state is no route on the map, centered on the rider, with
+  // discovery suggestions over the input. Resuming old route history requires
+  // an explicit session selection.
   // Note: we deliberately DO NOT use `flowState.sessionId` — that's a
   // locally-generated string used by the state machine.
   const activeChatSessionId: Id<'planning_sessions'> | null = useMemo(() => {
-    if (sessionIdParam) return sessionIdParam as Id<'planning_sessions'>
-    if (planningSessionId) return planningSessionId as Id<'planning_sessions'>
-    if (explicitlyNewSession) return null
-    if (!sessions || sessions.length === 0) return null
-    // Prefer the last-viewed session if it still exists in the list.
-    if (lastViewedSessionId) {
-      const match = sessions.find((s: Doc<'planning_sessions'>) => s._id === lastViewedSessionId)
-      if (match) return match._id
-    }
-    // Fall back to the newest session.
-    return sessions[0]._id
-  }, [sessionIdParam, planningSessionId, sessions, explicitlyNewSession, lastViewedSessionId])
+    return resolveActiveChatSessionId({
+      sessionIdParam,
+      planningSessionId: planningSessionId as string | null,
+    }) as Id<'planning_sessions'> | null
+  }, [sessionIdParam, planningSessionId])
 
-  // Persist the active session id so the next launch resumes here.
+  // Persist explicit active-session choices, and clear stale persisted choices
+  // on cold open so old routes do not reappear unprompted.
   useEffect(() => {
     if (!cameraStoreHydrated) return
     if (activeChatSessionId === lastViewedSessionId) return
@@ -269,7 +274,7 @@ const HomeMapScreen = () => {
       sessionSlot,
       currentLocation,
       defaultCameraSlot,
-      locationLoading,
+      locationLoading: locationLoading && !maxHoldElapsed,
       cameraStoreHydrated,
     })
   }, [
@@ -279,10 +284,13 @@ const HomeMapScreen = () => {
     defaultCameraSlot,
     currentLocation,
     locationLoading,
+    maxHoldElapsed,
   ])
 
-  // Gate the map mount on having a definitive camera, or on the 8s hard cap.
-  const initialCameraReady = initialCamera !== undefined || maxHoldElapsed
+  // Gate the map mount on having a definitive camera. After the 8s hard cap,
+  // computeInitialCamera receives locationLoading=false and returns a saved or
+  // continental fallback instead of leaving this undefined.
+  const initialCameraReady = initialCamera !== undefined
 
   // Keep a ref mirror of the active session id so async camera-move callbacks
   // always read the latest value without forcing re-renders of the memoized
@@ -342,9 +350,9 @@ const HomeMapScreen = () => {
     routeId: r.id,
   }))
 
-  // Hydrate flowState from a restored session on app reload. When the session
-  // came from the sessions[0] fallback (not active planning) and has completed
-  // routes, transition the flow state to ROUTE_RESULTS so route cards appear.
+  // Hydrate flowState from an explicitly selected active session. Cold app
+  // opens intentionally do not pick old sessions, so this cannot surface a
+  // random prior route on the no-route discovery home.
   const hydratedSessionRef = useRef<string | null>(null)
   useEffect(() => {
     if (
@@ -373,13 +381,6 @@ const HomeMapScreen = () => {
     sessionIdParam,
     flowDispatch,
   ])
-
-  // Clear the explicitly-new-session flag when a new session is actually created
-  useEffect(() => {
-    if (planningSessionId && explicitlyNewSession) {
-      setExplicitlyNewSession(false)
-    }
-  }, [planningSessionId, explicitlyNewSession])
 
   const rawTranscriptMessages = useQuery(
     api.db.sessionMessages.list,
@@ -479,7 +480,7 @@ const HomeMapScreen = () => {
   } = useSelectedRoute()
 
   // DISC-016: create a completed curated route_plan on tap so the standard
-  // machinery (displayedRoutePlanId → useActiveSessionRoute → RoutePolyline →
+  // machinery (displayedRoutePlanId -> useActiveSessionRoute -> RoutePolyline ->
   // doFit) plots the route directly, with NO chat round-trip.
   const createCuratedPlan = useMutation(api.db.routePlans.createCuratedRoutePlan)
 
@@ -492,12 +493,9 @@ const HomeMapScreen = () => {
       if (!chatMode) {
         setMapPlanningVisible(true)
       }
-      // DISC-016: plot DIRECTLY through the standard route machinery — NO chat
-      // message is appended to the transcript. The mutation creates a COMPLETED
-      // route_plan whose option carries the centroid-encoded overviewGeometry;
-      // setting displayedRoutePlanId + selectedRouteId makes useActiveSessionRoute
-      // resolve it, RoutePolyline renders home-route-polyline, and the auto-fit
-      // effect (doFit) frames the centroid at zoom 12.
+      // DISC-016: plot DIRECTLY through the standard route machinery. The
+      // mutation creates a COMPLETED route_plan from curated catalog data,
+      // including side-table geometry when the route has been backfilled.
       try {
         const { routePlanId } = await createCuratedPlan({
           routeId: route.id,
@@ -668,8 +666,6 @@ const HomeMapScreen = () => {
     lastFittedPlanIdRef.current = null
     resetSession()
     clearSearchResults()
-    // Mark that we've explicitly started a new session (prevent falling back to old session)
-    setExplicitlyNewSession(true)
   }
 
   // RUX-002: doFit accepts an optional route override so the carousel re-fit
@@ -922,6 +918,7 @@ const HomeMapScreen = () => {
   const [selectedRouteOptionId, setSelectedRouteOptionId] = useState<string | null>(null)
   const [manualRouteOptions, setManualRouteOptions] = useState<any>(null)
   const [camera, setCamera] = useState<CameraState>({})
+  const [reportedMapCamera, setReportedMapCamera] = useState<CameraState>({})
 
   const [scenicBias, setScenicBias] = useState<'default' | 'high'>('default')
   const [avoidHighways, setAvoidHighways] = useState(false)
@@ -965,6 +962,59 @@ const HomeMapScreen = () => {
     )
   }, [flowState, manualRouteOptions, selectedRouteOptionId])
   const hasDisplayedRoute = hasActiveRoute || !!selectedOption
+  const currentMapLocation = useMemo(
+    () =>
+      currentLocation ? { latitude: currentLocation.lat, longitude: currentLocation.lng } : null,
+    [currentLocation],
+  )
+  const startupCenteredLocationRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (!mapMounted || !initialCameraReady || !mapRef.current || !currentMapLocation) return
+    if (activeSessionKey || hasDisplayedRoute || shouldFitToRoute) return
+
+    const locationKey = `${currentMapLocation.latitude.toFixed(5)},${currentMapLocation.longitude.toFixed(5)}`
+    if (startupCenteredLocationRef.current === locationKey) return
+    startupCenteredLocationRef.current = locationKey
+
+    isProgrammaticMoveRef.current = true
+    mapRef.current.setCameraPosition({
+      coordinates: currentMapLocation,
+      zoom: CURRENT_LOCATION_OPEN_ZOOM,
+      duration: 300,
+    })
+    setCamera({ center: currentMapLocation, zoom: CURRENT_LOCATION_OPEN_ZOOM })
+    setPersistentCamera({
+      center: currentMapLocation,
+      zoom: CURRENT_LOCATION_OPEN_ZOOM,
+      timestamp: Date.now(),
+    })
+    saveCameraToStore(null, currentMapLocation, CURRENT_LOCATION_OPEN_ZOOM)
+
+    const t = setTimeout(() => {
+      isProgrammaticMoveRef.current = false
+    }, 350)
+    return () => {
+      clearTimeout(t)
+      isProgrammaticMoveRef.current = false
+    }
+  }, [
+    activeSessionKey,
+    currentMapLocation,
+    hasDisplayedRoute,
+    initialCameraReady,
+    mapMounted,
+    saveCameraToStore,
+    shouldFitToRoute,
+  ])
+  const mapReportedCenteredOnUser = useMemo(() => {
+    if (!currentMapLocation || !reportedMapCamera.center || hasDisplayedRoute) return false
+    if ((reportedMapCamera.zoom ?? 0) < MAP_CENTERED_ON_USER_MIN_ZOOM) return false
+
+    return (
+      distanceMeters(reportedMapCamera.center, currentMapLocation) <=
+      MAP_CENTERED_ON_USER_TOLERANCE_M
+    )
+  }, [currentMapLocation, hasDisplayedRoute, reportedMapCamera])
 
   // Determine overlay availability based on selected route option
   const _overlayAvailability = useMemo(() => {
@@ -1006,6 +1056,7 @@ const HomeMapScreen = () => {
       return buildRoutePolylines({
         route: {
           overviewGeometry: agentActiveOption.map.overviewGeometry,
+          overviewSegments: (agentActiveOption.map as any)?.overviewSegments,
           legs: agentActiveOption.map.legs,
           overlays: (agentActiveOption.map as any)?.overlays,
         },
@@ -1021,6 +1072,7 @@ const HomeMapScreen = () => {
     return buildRoutePolylines({
       route: {
         overviewGeometry: selectedOption.map.overviewGeometry,
+        overviewSegments: (selectedOption.map as any)?.overviewSegments,
         legs: selectedOption.map.legs,
         overlays: (selectedOption.map as any)?.overlays,
       },
@@ -1031,6 +1083,7 @@ const HomeMapScreen = () => {
       semantic,
     })
   }, [selectedOption, semantic, flowState, polylines, agentActiveOption])
+  const hasDisplayedRouteLine = routePolylines.some((line) => line.coordinates.length > 1)
 
   const markers = useMemo(() => {
     const items: any[] = []
@@ -1145,11 +1198,14 @@ const HomeMapScreen = () => {
 
   const handleCameraMove = useCallback(
     (event: { coordinates: { latitude: number; longitude: number }; zoom: number }) => {
-      if (!event.coordinates?.latitude || !event.coordinates?.longitude) return
+      const latitude = Number(event.coordinates?.latitude)
+      const longitude = Number(event.coordinates?.longitude)
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return
       const newCamera = {
-        center: { latitude: event.coordinates.latitude, longitude: event.coordinates.longitude },
+        center: { latitude, longitude },
         zoom: event.zoom,
       }
+      setReportedMapCamera(newCamera)
       setCamera(newCamera)
       // Skip persistence during programmatic restores (chat→map, session switch).
       if (isProgrammaticMoveRef.current) return
@@ -1232,6 +1288,26 @@ const HomeMapScreen = () => {
     lastFittedPlanIdRef.current = null
     resetSession()
     flowDispatch({ type: 'NEW_SESSION' })
+    if (currentLocation) {
+      const resetCamera = {
+        center: { latitude: currentLocation.lat, longitude: currentLocation.lng },
+        zoom: CURRENT_LOCATION_OPEN_ZOOM,
+      }
+      mapRef.current?.setCameraPosition({
+        coordinates: resetCamera.center,
+        zoom: resetCamera.zoom,
+        duration: 300,
+      })
+      setCamera(resetCamera)
+      setPersistentCamera({
+        center: resetCamera.center,
+        zoom: resetCamera.zoom,
+        timestamp: Date.now(),
+      })
+      saveCameraToStore(null, resetCamera.center, resetCamera.zoom)
+      return
+    }
+    mapRef.current?.recenterToUser()
   }
 
   const handleTryAgain = () => {
@@ -1451,9 +1527,11 @@ const HomeMapScreen = () => {
       <View style={styles.container}>
         {/* Map layer — cross-fades out when chat mode is entered */}
         {mapMounted && !initialCameraReady && (
-          <View style={[StyleSheet.absoluteFill, styles.mapLoading]}>
-            <ActivityIndicator size="large" />
-          </View>
+          <MapLoadingState
+            style={StyleSheet.absoluteFill}
+            theme={isDark ? 'dark' : 'light'}
+            testID="home-map-loading"
+          />
         )}
         {mapMounted && initialCameraReady && (
           <Animated.View
@@ -1464,6 +1542,7 @@ const HomeMapScreen = () => {
               ref={mapRef}
               theme={isDark ? 'dark' : 'light'}
               initialCamera={initialCamera}
+              userLocation={currentMapLocation}
               markers={markers}
               onMapClick={handleMapClick}
               onCameraMove={handleCameraMove}
@@ -1646,10 +1725,24 @@ const HomeMapScreen = () => {
         {/* E2E hook: a top-level (a11y-exposed) marker present whenever a route
             is active. Most of the map-mode UI is accessibility-encapsulated, so
             this sibling of ChatInput lets Maestro assert the route rendered. */}
+        {mapReportedCenteredOnUser ? (
+          <View testID="map-centered-on-user-marker" style={styles.e2eMarker} pointerEvents="none">
+            <Text accessibilityLabel="map centered on user location" style={styles.e2eMarkerText}>
+              map centered
+            </Text>
+          </View>
+        ) : null}
         {hasDisplayedRoute ? (
           <View testID="route-on-map-marker" style={styles.e2eMarker} pointerEvents="none">
             <Text accessibilityLabel="route on map" style={styles.e2eMarkerText}>
               route
+            </Text>
+          </View>
+        ) : null}
+        {hasDisplayedRouteLine ? (
+          <View testID="route-line-on-map-marker" style={styles.e2eMarker} pointerEvents="none">
+            <Text accessibilityLabel="route line on map" style={styles.e2eMarkerText}>
+              route line
             </Text>
           </View>
         ) : null}
@@ -1742,11 +1835,6 @@ const styles = StyleSheet.create({
   container: {
     position: 'relative',
     flex: 1,
-  },
-  mapLoading: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#0b0b0c',
   },
   e2eMarker: {
     position: 'absolute',

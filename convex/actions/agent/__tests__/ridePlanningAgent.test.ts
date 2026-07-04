@@ -312,7 +312,7 @@ describe('buildSystemPrompt', () => {
     const prompt = await buildSystemPrompt(ctx)
 
     expect(prompt).toContain('lat=37.77, lng=-122.42')
-    expect(prompt).toContain('Use this as the default origin')
+    expect(prompt).toContain('as the default origin')
     expect(prompt).toContain('Do NOT ask "where are you starting from?"')
   })
 

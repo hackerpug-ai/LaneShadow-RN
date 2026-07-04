@@ -1,17 +1,18 @@
-# RUX-006 E2E test: Map opens on current location at 3-5 mile radius (zoom 11)
+# RUX-006 E2E test: Map opens with no route centered on current location
 #
 # Acceptance Criterion (AC-1):
 #   GIVEN: Fresh install with simulator location set to a known city + location permission granted
 #   WHEN: Signed-in home opens
-#   THEN: Map is centered on that location showing a 3-5 mile radius (zoom ~11),
-#         not a street-level view (~0.35 mi at z14) and not the continental fallback
+#   THEN: No route is rendered, and the native map camera reports centered on
+#         the current device location at the current-location opening zoom.
 #
 # Test Procedure:
 # 1. Launch the dev client with clearState (fresh install)
 # 2. Sign in via e2e-test-login-button (programmatic Clerk auth)
 # 3. Wait for home to load (chat-input visible)
-# 4. Verify the map is centered on the set simulator location
-# 5. Capture a screenshot showing a ~5-mile radius view (city-level detail)
+# 4. Verify no route is rendered
+# 5. Verify the map camera reports centered on the set simulator location
+# 6. Capture a screenshot for visual evidence
 #
 # Pre-steps (manual, one-time):
 #   - Set simulator location: Xcode > Simulator > Features > Location >
@@ -74,14 +75,19 @@ appId: com.hackerpug.laneshadow
     visible:
       id: "chat-input"
     timeout: 120000
+- assertNotVisible:
+    id: "route-on-map-marker"
+- assertNotVisible:
+    id: "route-line-on-map-marker"
 
-# Screenshot 1: Verify the map is centered on current location at a 3-5 mile radius
-# Human verification: The screenshot should show a city-level view (not street-level z14,
-# not continental z3.5). At z11 (~5.6 mi diameter), a recognizable city context should
-# be visible (e.g., major intersections, neighborhood boundaries, but not individual blocks).
-- takeScreenshot: 01-map-opens-at-current-location-zoom-11
+# Deterministic app-level e2e gate:
+# `map-centered-on-user-marker` is rendered only after Mapbox's native camera
+# callback reports a center within 250m of the app-resolved device location,
+# with no route displayed and zoom at the current-location opening level.
+- extendedWaitUntil:
+    visible:
+      id: "map-centered-on-user-marker"
+    timeout: 30000
 
-# Optional: Assert that visible UI elements indicate successful load
-# (Not a direct zoom assertion, but confirms the map and chat are both present)
-- assertVisible: { id: "chat-input" }
-- assertVisible: { id: "map-header-left-button" }
+# Screenshot 1: visual evidence for the deterministic assertion above.
+- takeScreenshot: 01-map-opens-at-current-location

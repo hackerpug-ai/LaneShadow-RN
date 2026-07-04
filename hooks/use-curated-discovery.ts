@@ -52,50 +52,71 @@ function isValidArchetype(value: unknown): value is DiscoveryArchetype {
 export function useCuratedDiscovery(
   params: UseCuratedDiscoveryParams = {},
 ): UseCuratedDiscoveryResult {
-  const { location } = useCurrentLocation()
+  const { location, loading: locationLoading } = useCurrentLocation()
+  const requestedLimit = params.limit ?? 50
 
   const derivedCenter =
     params.center ?? (location ? { lat: location.lat, lng: location.lng } : undefined)
+  const nearestNeedsCenter = params.sort === 'nearest' && !derivedCenter
+  const waitingForNearestCenter = nearestNeedsCenter && locationLoading
 
   const queryArgs = useMemo(() => {
+    if (nearestNeedsCenter) return 'skip' as const
+
     const args: Record<string, unknown> = {}
 
     if (params.bbox) args.bbox = params.bbox
     if (params.state) args.state = params.state
     if (derivedCenter && params.sort === 'nearest') args.center = derivedCenter
     if (params.archetypes && params.archetypes.length > 0) args.archetypes = params.archetypes
-    args.sort = params.sort === 'nearest' && !derivedCenter ? 'best' : (params.sort ?? 'best')
-    args.limit = params.limit ?? 50
+    args.sort = params.sort ?? 'best'
+    args.limit =
+      params.sort === 'nearest'
+        ? Math.min(Math.max(requestedLimit * 4, requestedLimit), 200)
+        : requestedLimit
 
     return args
-  }, [params.bbox, params.state, params.archetypes, params.sort, params.limit, derivedCenter])
+  }, [
+    params.bbox,
+    params.state,
+    params.archetypes,
+    params.sort,
+    requestedLimit,
+    derivedCenter,
+    nearestNeedsCenter,
+  ])
 
   const data = useQuery(api.curatedRoutes.listCuratedRoutes, queryArgs)
 
   const routes = useMemo(() => {
+    if (waitingForNearestCenter) return undefined
+    if (nearestNeedsCenter) return []
     if (data === undefined) return undefined
 
-    return data.map((route) => {
-      // Validate archetype to ensure it's a valid UI enum (hardening against backend changes)
-      const validatedArchetype: DiscoveryArchetype = isValidArchetype(route.primaryArchetype)
-        ? route.primaryArchetype
-        : 'scenic'
+    return data
+      .filter((route) => route.geometryStatus === 'generated')
+      .slice(0, requestedLimit)
+      .map((route) => {
+        // Validate archetype to ensure it's a valid UI enum (hardening against backend changes)
+        const validatedArchetype: DiscoveryArchetype = isValidArchetype(route.primaryArchetype)
+          ? route.primaryArchetype
+          : 'scenic'
 
-      return {
-        id: route.routeId,
-        name: route.name,
-        lat: route.centroidLat,
-        lng: route.centroidLng,
-        archetype: validatedArchetype,
-        score: route.compositeScore,
-        distanceMi: route.distanceMi,
-      }
-    })
-  }, [data])
+        return {
+          id: route.routeId,
+          name: route.name,
+          lat: route.centroidLat,
+          lng: route.centroidLng,
+          archetype: validatedArchetype,
+          score: route.compositeScore,
+          distanceMi: route.distanceMi,
+        }
+      })
+  }, [data, nearestNeedsCenter, requestedLimit, waitingForNearestCenter])
 
   return {
     routes,
-    isLoading: data === undefined,
+    isLoading: waitingForNearestCenter || (!nearestNeedsCenter && data === undefined),
     isEmpty: routes !== undefined && routes.length === 0,
   }
 }

@@ -27,7 +27,10 @@ import { execSync } from 'node:child_process'
 import type { ToolCall } from '@mariozechner/pi-ai'
 import { afterAll, describe, expect, it, vi } from 'vitest'
 import type { AgentContext } from '../../ridePlanningAgent'
-import { executeDiscoverCuratedRoutes } from '../discoverCuratedRoutes'
+import {
+  CURATED_ROUTE_DISCOVERY_CANDIDATE_LIMIT,
+  executeDiscoverCuratedRoutes,
+} from '../discoverCuratedRoutes'
 
 // ---------------------------------------------------------------------------
 // Live Convex invocation helper (shells through `npx convex run`).
@@ -214,14 +217,15 @@ describe('REDHAT-FIX-001 AC-1: optionCarriesRealNonZeroScores', () => {
     const firstOption = options[0]
     const firstRouteOptionId = firstOption.routeOptionId as string
 
-    // 3. Read the real flat scores the discovery queried (best-sort, same intent)
-    //    and match the underlying route by routeId. This is the contract the
-    //    option builder reads (flat compositeScore / *Score, never route.score).
+    // 3. Read the real flat scores from the same expanded candidate window
+    //    discovery uses before preferring plottable generated routes, then
+    //    match the underlying route by routeId. This is the contract the option
+    //    builder reads (flat compositeScore / *Score, never route.score).
     const routes = convexRun('curatedRoutes:listCuratedRoutesInternal', {
       archetypes: ['scenic'],
       state: 'North Carolina',
       sort: 'best',
-      limit: 5,
+      limit: CURATED_ROUTE_DISCOVERY_CANDIDATE_LIMIT,
     }) as Array<Record<string, any>>
     expect(routes.length).toBeGreaterThan(0)
 
@@ -450,20 +454,24 @@ describe('REDHAT-FIX-005 AC-2: centerPointFallsBackToRouteCentroid', () => {
       result?: { options?: Array<Record<string, any>> }
     }
 
-    // Look up the first returned route's real centroid (the value the fallback
-    // should mirror) via the same internal query the discovery action used.
+    const firstRouteOptionId = plan.result?.options?.[0]?.routeOptionId as string | undefined
+    expect(firstRouteOptionId).toBeDefined()
+
+    // Look up the selected route's real centroid (the value the fallback should
+    // mirror) via the same expanded candidate query the discovery action used.
     const routes = convexRun('curatedRoutes:listCuratedRoutesInternal', {
       archetypes: ['scenic'],
       state: 'North Carolina',
       sort: 'best',
-      limit: 5,
+      limit: CURATED_ROUTE_DISCOVERY_CANDIDATE_LIMIT,
     }) as Array<Record<string, any>>
     expect(routes.length).toBeGreaterThan(0)
-    const firstRoute = routes[0]
-    const expectedLat = firstRoute.centroidLat as number
-    const expectedLng = firstRoute.centroidLng as number
+    const firstRoute = routes.find((r) => `curated-${r.routeId}` === firstRouteOptionId)
+    expect(firstRoute, `underlying route for ${firstRouteOptionId} must exist`).toBeDefined()
+    const expectedLat = firstRoute!.centroidLat as number
+    const expectedLng = firstRoute!.centroidLng as number
 
-    // THEN: best-sort planInput.start/end equal the first route's centroid.
+    // THEN: best-sort planInput.start/end equal the selected route's centroid.
     expect(plan.planInput).toBeDefined()
     expect(plan.planInput!.start.lat).toBeCloseTo(expectedLat, 5)
     expect(plan.planInput!.start.lng).toBeCloseTo(expectedLng, 5)

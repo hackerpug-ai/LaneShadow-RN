@@ -463,6 +463,29 @@ describe('RoutingCard', () => {
       expect(getByTestId('routing-card-route-opt-2')).toBeTruthy()
     })
 
+    it('deduplicates identical route variants before rendering chat cards', () => {
+      mockUseQuery.mockReturnValue({
+        _id: 'plan1',
+        status: 'completed',
+        result: {
+          ...MOCK_RESULT,
+          options: [
+            MOCK_RESULT.options[0],
+            {
+              ...MOCK_RESULT.options[0],
+              routeOptionId: 'opt-1-duplicate',
+            },
+          ],
+        },
+      })
+
+      const { getByTestId, queryByTestId } = render(
+        <RoutingCard message={BASE_MESSAGE} attachments={BASE_ATTACHMENTS} />,
+      )
+      expect(getByTestId('routing-card-route-opt-1')).toBeTruthy()
+      expect(queryByTestId('routing-card-route-opt-1-duplicate')).toBeNull()
+    })
+
     it('falls back to pending when status is completed but result is missing', () => {
       mockUseQuery.mockReturnValue({
         _id: 'plan1',

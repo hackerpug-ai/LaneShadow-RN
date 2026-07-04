@@ -275,7 +275,7 @@ export async function buildOrchestratorPrompt(
 
   if (ctx.currentLocation) {
     // State 1: Live current location
-    locBlock = `The rider's current location is lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng}. Use this as the default origin for every route. Destination-only requests like "day trip to Santa Cruz" are COMPLETE route requests (current location is the origin). Route them to routing_agent immediately. Do NOT ask "where are you starting from?" — this location is always available.`
+    locBlock = `The rider's current location is lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng}. Treat chat as an agent conversation: use this location as context and as the default origin for destination-only route requests. Do NOT ask "where are you starting from?" when a destination-only route can use this location. Natural-language intent still matters: "SF to Santacruze" near the Bay Area is likely a routing request, while "where is SF Bread Company" is likely a place/search request.`
   } else {
     // Try to resolve lastKnownLocation for State 2 fallback
     let lastKnownLocation: { lat: number; lng: number; updatedAt?: number } | undefined
@@ -290,10 +290,10 @@ export async function buildOrchestratorPrompt(
 
     if (lastKnownLocation) {
       // State 2: Last-known location (possibly stale)
-      locBlock = `The rider's current location is unknown, but we have a last known location: lat=${lastKnownLocation.lat}, lng=${lastKnownLocation.lng} (this may be stale). Use this as the default origin if the rider doesn't provide a current location. Do NOT ask "where are you starting from?" — prefer the last known location as a starting point.`
+      locBlock = `The rider's current location is unknown, but we have a last known location: lat=${lastKnownLocation.lat}, lng=${lastKnownLocation.lng} (this may be stale). Treat chat as an agent conversation: use the last known location as context and as the default origin for destination-only route requests unless the rider names an origin. Do NOT ask "where are you starting from?" when that default is enough. Natural-language intent still matters: "SF to Santacruze" can be routing, while "where is SF Bread Company" can be search.`
     } else {
       // State 3: No location anywhere
-      locBlock = `The rider's current location is unknown — ask where they are starting from before planning a route.`
+      locBlock = `The rider's current location is unknown. Use natural-language intent: if the rider gives an origin and destination, that is a complete route request ("SF to Santacruze", "from DFW to Austin", "NY to Bear Mountain"). Ask where they are starting from only for destination-only route requests that do not name an origin.`
     }
   }
 
@@ -319,6 +319,8 @@ ${toolLines}
 
 ## How to use them
 - Route requests ("take me somewhere", "plan a ride to X") → routing_agent
+- When intent calls for a place, common shorthand can be real place language: SF/S.F. = San Francisco, DFW = Dallas-Fort Worth, NY/NYC = New York City. Compact/misspelled Santa Cruz variants like "Santacruze" can mean Santa Cruz.
+- Use context to distinguish route intent from search intent before choosing a specialist.
 - Nearby places, road closures, general knowledge → search_agent
 - Questions about an existing route (twisty? surface? weather?) → enrichment_agent
 - Route discovery ("twisties near Asheville", "scenic routes in Oregon") → discovery_agent

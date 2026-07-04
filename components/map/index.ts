@@ -1,5 +1,11 @@
 export { MapControls } from './map-controls'
 export { MapHeaderOverlay } from './map-header-overlay'
+export {
+  getMapLoadingPalette,
+  MapLoadingState,
+  type MapLoadingStateProps,
+  type MapLoadingTheme,
+} from './map-loading-state'
 export { MapToastStack } from './map-toast-stack'
 // Google Maps wrapper (kept for rollback)
 export { type MapViewHandle, type MapViewProps, MapViewWrapper } from './map-view'

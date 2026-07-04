@@ -1,5 +1,6 @@
 'use node'
 import { GOOGLE_MAPS_API_KEY } from '../../../lib/env'
+import { normalizePlaceQueryForGeocode } from '../lib/placeAliases'
 import { withTimeout } from '../lib/reliability'
 
 export type GeocodeResult = {
@@ -37,8 +38,9 @@ const geocodeWithKey = async (
   query: string,
   locationOptions?: GeocodeBias,
 ): Promise<GeocodeResult[]> => {
+  const normalizedQuery = normalizePlaceQueryForGeocode(query)
   const makeUrl = (bias?: { lat: number; lng: number }, radius?: number) => {
-    let url = `${GEOCODING_ENDPOINT}?address=${encodeURIComponent(query)}&key=${encodeURIComponent(apiKey)}`
+    let url = `${GEOCODING_ENDPOINT}?address=${encodeURIComponent(normalizedQuery)}&key=${encodeURIComponent(apiKey)}`
     if (bias && radius) {
       url += `&location=${encodeURIComponent(`${bias.lat},${bias.lng}`)}&radius=${radius}`
     }

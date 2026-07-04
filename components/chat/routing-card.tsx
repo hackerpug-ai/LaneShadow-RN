@@ -32,6 +32,7 @@ import { useSelectedRoute } from '../../contexts/selected-route'
 import { api } from '../../convex/_generated/api'
 import type { Id } from '../../convex/_generated/dataModel'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { deduplicateRouteOptions } from '../../lib/routes/dedupe-route-options'
 import {
   ROUTE_PLAN_PHASE,
   type RoutePlanPhase,
@@ -234,8 +235,15 @@ const CompletedCard = ({ result, semantic, routePlanId, onViewOnMap }: Completed
     requestFitToRouteWithReset,
   } = useSelectedRoute()
 
-  // When no route is selected, default to the first route option
-  const defaultSelectedRouteId = selectedRouteId ?? result.options[0]?.routeOptionId ?? null
+  const displayOptions = deduplicateRouteOptions(result.options)
+  const selectedRouteIsVisible =
+    selectedRouteId != null &&
+    displayOptions.some((option) => option.routeOptionId === selectedRouteId)
+
+  // When no visible route is selected, default to the first distinct route option.
+  const defaultSelectedRouteId = selectedRouteIsVisible
+    ? selectedRouteId
+    : (displayOptions[0]?.routeOptionId ?? null)
 
   return (
     <View
@@ -244,7 +252,7 @@ const CompletedCard = ({ result, semantic, routePlanId, onViewOnMap }: Completed
       accessibilityLiveRegion="polite"
       accessibilityLabel="Route options ready"
     >
-      {result.options.map((option) => {
+      {displayOptions.map((option) => {
         const isCurated =
           (option as unknown as { scores?: { composite?: number } }).scores?.composite != null
         if (isCurated) {

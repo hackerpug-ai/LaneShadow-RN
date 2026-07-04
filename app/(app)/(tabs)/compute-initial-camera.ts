@@ -14,9 +14,9 @@ const DEFAULT_MAPBOX_CAMERA: MapboxCamera = {
   zoom: 3.5,
 }
 
-// Open zoom level for current location on cold open: ~3–5 mile radius
-// At ~37°N, a ~390pt-wide phone shows ≈5.6 mi diameter at z11, vs 0.7 mi at z14
-export const CURRENT_LOCATION_OPEN_ZOOM = 11
+// Open zoom level for current location on cold open: about a 1 mile visible radius.
+// At ~37°N, a phone-width viewport shows roughly a 2 mi diameter at z12.5.
+export const CURRENT_LOCATION_OPEN_ZOOM = 12.5
 
 /**
  * Derives initialCamera from session state, current location, and persisted defaults.
@@ -63,6 +63,12 @@ export function computeInitialCamera(args: {
     }
   }
 
+  // On a no-route cold open, do not let a stale persisted default mount the map
+  // before live location has had a chance to resolve. The screen passes
+  // locationLoading=false after its hard timeout so denied/stuck permissions
+  // still fall through to saved/default camera below.
+  if (locationLoading) return undefined
+
   // Priority 3: default slot (cold open, no live location)
   if (defaultCameraSlot) {
     return {
@@ -74,7 +80,7 @@ export function computeInitialCamera(args: {
   // Priority 4: continental default (location denied/unavailable)
   // No saved camera and no live location. Once location has settled
   // (denied/unavailable), fall back to the continental default so the map
-  // isn't blank; while still resolving, return undefined to hold the mount.
+  // isn't blank.
   if (!locationLoading) return DEFAULT_MAPBOX_CAMERA
   return undefined
 }

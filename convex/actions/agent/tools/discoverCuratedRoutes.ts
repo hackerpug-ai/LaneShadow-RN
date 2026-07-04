@@ -41,6 +41,46 @@ export const discoverCuratedRoutesSchema = {
   parameters: discoverCuratedRoutesArgsValidator,
 }
 
+export const CURATED_ROUTE_DISCOVERY_CANDIDATE_LIMIT = 200
+const CURATED_ROUTE_GEOMETRY_LOOKUP_BATCH_SIZE = 25
+
+function normalizeRequestedLimit(limit: unknown): number {
+  if (typeof limit !== 'number' || !Number.isFinite(limit)) {
+    return 10
+  }
+  return Math.min(Math.max(Math.trunc(limit), 1), CURATED_ROUTE_DISCOVERY_CANDIDATE_LIMIT)
+}
+
+function hasRenderableCuratedGeometry(
+  g:
+    | {
+        format: 'polyline' | 'multipolyline'
+        precision: number
+        value?: string | null
+        segments?: string[] | null
+      }
+    | null
+    | undefined,
+): boolean {
+  if (!g) return false
+
+  const precision = g.precision ?? 5
+
+  try {
+    if (g.format === 'multipolyline' && Array.isArray(g.segments)) {
+      return g.segments.some((segment) => polyline.decode(segment, precision).length >= 2)
+    }
+
+    if (g.value) {
+      return polyline.decode(g.value, precision).length >= 2
+    }
+  } catch {
+    return false
+  }
+
+  return false
+}
+
 async function runDiscoverCuratedRoutes(
   ctx: AgentContext,
   args: { intent: any },
@@ -68,9 +108,14 @@ async function runDiscoverCuratedRoutes(
     }
   }
 
-  // Build query parameters for listCuratedRoutes
+  const requestedLimit = normalizeRequestedLimit(args.intent.limit)
+
+  // Build query parameters for listCuratedRoutes. Fetch the full supported
+  // candidate window, then choose plottable routes from it. This keeps discovery
+  // from returning an unresolved centroid-only top score when real generated
+  // geometry exists a little deeper in the ranked catalog.
   const queryArgs: any = {
-    limit: args.intent.limit ?? 10,
+    limit: CURATED_ROUTE_DISCOVERY_CANDIDATE_LIMIT,
     sort: args.intent.sort ?? 'best',
   }
 
@@ -87,21 +132,9 @@ async function runDiscoverCuratedRoutes(
   }
 
   // Call the curated routes API (lean — no in-row geometry; DATA-011 16MB-read fix)
-  const curatedRoutes = await ctx.runQuery(api.curatedRoutes.listCuratedRoutes, queryArgs)
+  const candidateRoutes = await ctx.runQuery(api.curatedRoutes.listCuratedRoutes, queryArgs)
 
-  // Fetch the real geometry ONLY for the handful of routes we're about to plot, from the
-  // curated_route_geometry side table (keeps geometry off the wide browse-scan path).
-  const generatedRouteIds = curatedRoutes
-    .filter((r: any) => r.geometryStatus === 'generated')
-    .map((r: any) => r.routeId)
-  const geometryRows = generatedRouteIds.length
-    ? await ctx.runQuery(internal.curatedGeometry.getGeometryForRoutes, {
-        routeIds: generatedRouteIds,
-      })
-    : []
-  const geometryByRouteId = new Map<string, any>((geometryRows as any[]).map((g) => [g.routeId, g]))
-
-  if (curatedRoutes.length === 0) {
+  if (candidateRoutes.length === 0) {
     // No matches found - return conversational response
     const searchQuery = args.intent.archetypes?.join(', ') || 'routes'
     const location =
@@ -114,6 +147,43 @@ async function runDiscoverCuratedRoutes(
       message: `I couldn't find any ${searchQuery} routes ${location}. Try a different search or broaden your criteria.`,
     }
   }
+
+  // Fetch real side-table geometry in ranked batches and stop as soon as we
+  // have enough routes with decodable line geometry for the requested result
+  // count. If none of the candidates have generated lines yet, fall back to the
+  // original ranked set below rather than pretending a centroid is a route.
+  const generatedCandidates = candidateRoutes.filter((r: any) => r.geometryStatus === 'generated')
+  const geometryByRouteId = new Map<string, any>()
+  const plottableRoutes: any[] = []
+
+  for (
+    let i = 0;
+    i < generatedCandidates.length && plottableRoutes.length < requestedLimit;
+    i += CURATED_ROUTE_GEOMETRY_LOOKUP_BATCH_SIZE
+  ) {
+    const batch = generatedCandidates.slice(i, i + CURATED_ROUTE_GEOMETRY_LOOKUP_BATCH_SIZE)
+    const geometryRows = await ctx.runQuery(internal.curatedGeometry.getGeometryForRoutes, {
+      routeIds: batch.map((route: any) => route.routeId),
+    })
+
+    for (const geometry of geometryRows as any[]) {
+      geometryByRouteId.set(geometry.routeId, geometry)
+    }
+
+    for (const route of batch) {
+      if (hasRenderableCuratedGeometry(geometryByRouteId.get(route.routeId))) {
+        plottableRoutes.push(route)
+      }
+      if (plottableRoutes.length >= requestedLimit) {
+        break
+      }
+    }
+  }
+
+  const curatedRoutes =
+    plottableRoutes.length > 0
+      ? plottableRoutes.slice(0, requestedLimit)
+      : candidateRoutes.slice(0, requestedLimit)
 
   // Persist a route_plans row for the curated routes.
   //

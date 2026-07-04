@@ -121,6 +121,9 @@ const STATE_CODES: Record<string, string> = {
 }
 
 const norm = (v: number) => (v > 1 ? v / 100 : v)
+export const MAX_NEAREST_CURATED_ROUTE_DISTANCE_MI = 20
+export const isWithinNearestCuratedRouteDistance = (distanceMi: number | undefined): boolean =>
+  (distanceMi ?? Number.POSITIVE_INFINITY) <= MAX_NEAREST_CURATED_ROUTE_DISTANCE_MI
 
 function buildRouteCard(route: any, distanceMi?: number) {
   return {
@@ -244,6 +247,7 @@ async function listCuratedRoutesHandler(ctx: any, args: any) {
     return pairs
       .filter((p) => p.route !== null && matchesState(p.route) && matchesArchetype(p.route))
       .map((p) => buildRouteCard(p.route, p.geo.distance * 0.000621371))
+      .filter((route) => isWithinNearestCuratedRouteDistance(route.distanceMi))
       .sort((a, b) => (a.distanceMi ?? 0) - (b.distanceMi ?? 0))
       .slice(0, effectiveLimit)
   }

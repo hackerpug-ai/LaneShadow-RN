@@ -72,7 +72,7 @@ describe('geocoding provider', () => {
     const [calledUrl] = fetchMock.mock.calls[0]
     const urlStr = String(calledUrl)
     expect(urlStr).toContain('location=37.77%2C-122.42')
-    expect(urlStr).toContain('radius=50000')
+    expect(urlStr).toContain('radius=200000')
   })
 
   it('omits location and radius params when no bias is provided', async () => {
@@ -99,6 +99,23 @@ describe('geocoding provider', () => {
     const urlStr = String(calledUrl)
     // encodeURIComponent('San Francisco, CA') = 'San%20Francisco%2C%20CA'
     expect(urlStr).toContain('San%20Francisco%2C%20CA')
+  })
+
+  it('expands city aliases before sending the Google geocode request', async () => {
+    const fetchMock = makeOkFetch(makeSampleResults(1))
+    ;(global.fetch as Mock) = fetchMock
+
+    const provider = createGeocodingProvider()
+    await provider.geocode('SF')
+    await provider.geocode('Santacruze')
+    await provider.geocode('DFW')
+    await provider.geocode('NY')
+
+    const urls = fetchMock.mock.calls.map(([calledUrl]) => String(calledUrl))
+    expect(urls[0]).toContain('San%20Francisco%2C%20CA')
+    expect(urls[1]).toContain('Santa%20Cruz%2C%20CA')
+    expect(urls[2]).toContain('Dallas-Fort%20Worth%2C%20TX')
+    expect(urls[3]).toContain('New%20York%20City%2C%20NY')
   })
 
   it('returns [] on network error (does not throw)', async () => {

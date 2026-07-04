@@ -5,10 +5,12 @@
  * unit-tested without a running Convex backend.
  */
 
+import polyline from '@mapbox/polyline'
 import { ConvexError } from 'convex/values'
 import { describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../_generated/dataModel'
 import { ERROR_CODES } from '../../errors'
+import { requireIdentity } from '../../guards'
 
 vi.mock('../_generated/server', () => ({
   mutation: (def: unknown) => def,
@@ -34,6 +36,7 @@ vi.mock('../../guards', () => ({
 
 import {
   cancelPlanHandler,
+  createCuratedRoutePlan,
   createPlanHandler,
   getActivePlanHandler,
   getActiveRoutePlansForSessionHandler,
@@ -88,6 +91,81 @@ const makePlanDoc = (overrides: Record<string, unknown> = {}) =>
     updatedAt: Date.now() - 5000,
     ...overrides,
   }) as any
+
+describe('createCuratedRoutePlan', () => {
+  it('uses side-table geometry so direct suggestion taps draw the road line', async () => {
+    vi.mocked(requireIdentity).mockResolvedValue({ clerkUserId: CLERK_USER_ID } as any)
+
+    const encodedLine = polyline.encode([
+      [37.891, -122.58],
+      [37.884, -122.56],
+      [37.872, -122.54],
+    ] as [number, number][])
+    let inserted: any = null
+
+    const ctx = {
+      db: {
+        query: vi.fn((table: string) => ({
+          withIndex: vi.fn(() => ({
+            first: vi.fn().mockResolvedValue(
+              table === 'curated_routes'
+                ? {
+                    routeId: 'motorcycleroads:muir-woods-road',
+                    name: 'Muir Woods Road',
+                    primaryArchetype: 'scenic',
+                    centroidLat: 37.88,
+                    centroidLng: -122.56,
+                    lengthMiles: 22,
+                    compositeScore: 87,
+                    scenicScore: 91,
+                    curvatureScore: 74,
+                    technicalScore: 42,
+                    trafficScore: 65,
+                    remotenessScore: 80,
+                    summary: 'Redwoods and ridge turns',
+                  }
+                : {
+                    routeId: 'motorcycleroads:muir-woods-road',
+                    format: 'polyline',
+                    encoding: 'polyline',
+                    precision: 5,
+                    value: encodedLine,
+                  },
+            ),
+          })),
+        })),
+        insert: vi.fn().mockImplementation(async (_table: string, fields: any) => {
+          inserted = fields
+          return PLAN_ID
+        }),
+      },
+    }
+
+    const result = await (createCuratedRoutePlan as any).handler(ctx, {
+      routeId: 'motorcycleroads:muir-woods-road',
+      name: 'Client Name',
+      centroidLat: 37.88,
+      centroidLng: -122.56,
+      archetype: 'scenic',
+      compositeScore: 0.5,
+      distanceMi: 11,
+    })
+
+    expect(result).toEqual({ routePlanId: PLAN_ID })
+    const option = inserted.result.options[0]
+    expect(option.label).toBe('Muir Woods Road')
+    expect(option.rationale).toBe('Redwoods and ridge turns')
+    expect(option.stats.distanceMeters).toBeCloseTo(22 * 1609.344)
+
+    const decoded = polyline.decode(
+      option.map.overviewGeometry.value,
+      option.map.overviewGeometry.precision,
+    ) as [number, number][]
+    expect(decoded.length).toBeGreaterThan(1)
+    expect(option.map.bounds.north).toBeGreaterThan(option.map.bounds.south)
+    expect(option.map.bounds.east).toBeGreaterThan(option.map.bounds.west)
+  })
+})
 
 // ---------------------------------------------------------------------------
 // AC-1: createPlan inserts a new record with status='pending' and schedules execution

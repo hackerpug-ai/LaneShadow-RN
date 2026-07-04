@@ -2,25 +2,25 @@
  * Integration tests for the computeInitialCamera function (AC-2, AC-3)
  *
  * Tests verify that:
- * - AC-2: initialCamera derives current location at a 3-5 mi zoom (zoom 11)
+ * - AC-2: initialCamera derives current location at about a 1 mile radius (zoom 12.5)
  * - AC-3: current location beats a stale default slot on cold open
  *
  * These tests import and call the REAL computeInitialCamera function,
  * not a re-implemented local copy. They exercise actual production code.
  *
- * @see RUX-006: Open map at current location 3-5 mile radius
+ * @see RUX-006: Open map at current location 1 mile radius
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { computeInitialCamera } from './compute-initial-camera'
 
 describe('computeInitialCamera - RUX-006', () => {
-  describe('AC-2: opensAtCurrentLocationThreeToFiveMiRadius', () => {
-    it('should compute initialCamera with zoom===11 (CURRENT_LOCATION_OPEN_ZOOM) when currentLocation is available', () => {
+  describe('AC-2: opensAtCurrentLocationOneMileRadius', () => {
+    it('should compute initialCamera with zoom===12.5 (CURRENT_LOCATION_OPEN_ZOOM) when currentLocation is available', () => {
       /**
        * GIVEN: currentLocation resolved to {lat: 37.7749, lng: -122.4194}, no session slot
        * WHEN: computeInitialCamera is called
-       * THEN: zoom should be 11 (3-5 mi radius), not 14
+       * THEN: zoom should be 12.5 (about a 1 mile radius), not 11 or 14
        */
 
       const result = computeInitialCamera({
@@ -33,15 +33,15 @@ describe('computeInitialCamera - RUX-006', () => {
 
       expect(result).toBeDefined()
       expect(result?.center).toEqual([-122.4194, 37.7749])
-      expect(result?.zoom).toBe(11) // MUST be 11, not 14
+      expect(result?.zoom).toBe(12.5)
     })
 
-    it('should fail with zoom 14 (old broken behavior)', () => {
+    it('should fail with zoom 11 or 14 (old broken behavior)', () => {
       /**
-       * This test documents the RED failure — if zoom were 14,
+       * This test documents the RED failures — if zoom were 11 or 14,
        * the test above would fail. This test shows the broken state.
        *
-       * Once the fix is applied (zoom=11), this test is reference only.
+       * Once the fix is applied (zoom=12.5), this test is reference only.
        */
       const result = computeInitialCamera({
         sessionSlot: null,
@@ -51,7 +51,8 @@ describe('computeInitialCamera - RUX-006', () => {
         cameraStoreHydrated: true,
       })
 
-      // Zoom should NOT be 14 (old broken behavior)
+      // Zoom should NOT be 11 (too wide) or 14 (too tight old broken behavior)
+      expect(result?.zoom).not.toBe(11)
       expect(result?.zoom).not.toBe(14)
     })
   })
@@ -83,7 +84,7 @@ describe('computeInitialCamera - RUX-006', () => {
       // Should use current location, not stale default
       expect(result?.center).toEqual([-74.006, 40.7128]) // NYC
       expect(result?.center).not.toEqual([-0.1278, 51.5074]) // Not London
-      expect(result?.zoom).toBe(11) // Uses CURRENT_LOCATION_OPEN_ZOOM
+      expect(result?.zoom).toBe(12.5) // Uses CURRENT_LOCATION_OPEN_ZOOM
     })
 
     it('should use default slot when currentLocation is null but defaultCameraSlot exists', () => {
@@ -110,6 +111,28 @@ describe('computeInitialCamera - RUX-006', () => {
       expect(result).toBeDefined()
       expect(result?.center).toEqual([-0.1278, 51.5074])
       expect(result?.zoom).toBe(12)
+    })
+
+    it('should hold the mount instead of using stale default while location is still loading', () => {
+      /**
+       * GIVEN: defaultCameraSlot exists but live location is still resolving
+       * WHEN: computeInitialCamera is called on a no-route cold open
+       * THEN: return undefined so the screen waits for currentLocation instead
+       *       of opening off-center from a stale saved camera.
+       */
+
+      const result = computeInitialCamera({
+        sessionSlot: null,
+        currentLocation: null,
+        defaultCameraSlot: {
+          center: { latitude: 51.5074, longitude: -0.1278 },
+          zoom: 12,
+        },
+        locationLoading: true,
+        cameraStoreHydrated: true,
+      })
+
+      expect(result).toBeUndefined()
     })
   })
 
