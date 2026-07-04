@@ -18,6 +18,7 @@
 
 import { fireEvent, render } from '@testing-library/react-native'
 import React from 'react'
+import { StyleSheet } from 'react-native'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ---------------------------------------------------------------------------
@@ -279,6 +280,27 @@ describe('RouteAttachmentCard - Mini-map Integration (US-061)', () => {
 
       expect(getByText(/3.1mi/)).toBeTruthy()
       expect(getByText(/30m/)).toBeTruthy() // 1800 seconds = 30min
+    })
+  })
+
+  describe('Compact route path spacing', () => {
+    it('keeps curated fallback labels inline instead of spreading the arrow across the card', () => {
+      const curatedRoute = createMockRoute()
+      curatedRoute.label = 'Coronado Trail Scenic Byway'
+      curatedRoute.map.legs = []
+
+      const { getByText } = render(
+        <RouteAttachmentCard {...defaultProps} route={curatedRoute} variant="compact" />,
+      )
+
+      const startStyle = StyleSheet.flatten(getByText('Curated route').props.style)
+      const endStyle = StyleSheet.flatten(getByText('Coronado Trail Scenic Byway').props.style)
+
+      expect(startStyle.flexGrow).toBe(0)
+      expect(startStyle.flexShrink).toBe(1)
+      expect(startStyle.maxWidth).toBe('45%')
+      expect(endStyle.flexGrow).toBe(1)
+      expect(endStyle.flexShrink).toBe(1)
     })
   })
 

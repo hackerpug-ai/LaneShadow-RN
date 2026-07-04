@@ -1,0 +1,22 @@
+{
+  "run_id": "orch-s01-review-20260703T160747Z",
+  "workspace": "workspace:8",
+  "project": "/Users/justinrich/Projects/LaneShadow-RN",
+  "sprint": "sprint-01",
+  "sprint_path": "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/mvp/tasks/sprint-01-discovery-on-the-route-plan-view",
+  "cycle": 1,
+  "max_cycles": 3,
+  "models": {
+    "review": "opencode-go/kimi-k2.7-code",
+    "run": "zai-coding-plan/glm-5.2",
+    "plan": "zai-coding-plan/glm-5.2",
+    "qa": "zai-coding-plan/glm-5.2"
+  },
+  "surfaces": [],
+  "last_review_verdict": "needs-revision",
+  "last_review_report": ".spec/reviews/red-hat-sprint-01-discovery-2026-07-03T00-00-00Z.md",
+  "plan_complete": true,
+  "run_complete": true,
+  "run_verdict": "GATE-GOAL: ACHIEVED",
+  "cycle1_review_complete": true
+}

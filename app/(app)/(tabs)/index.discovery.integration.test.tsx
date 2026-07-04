@@ -45,6 +45,8 @@ const {
   mockFitToCoordinates,
   mockSetCameraPosition,
   mockMapRef,
+  mockSetSelectedRouteId,
+  mockSetDisplayedRoutePlanId,
 } = setupHomeScreenMocks()
 
 // ---------------------------------------------------------------------------
@@ -275,7 +277,9 @@ describe('DISC-016: Discovery tap plots route, camera fits, typed send', () => {
   it('tapPlotsRouteWithoutChatMessage', async () => {
     // Start with no active route; the discovery pill is rendered from
     // useCuratedDiscovery.
-    const { findByTestId, queryAllByTestId, rerender } = render(createElement(HomeMapScreen))
+    const { findByTestId, queryAllByTestId, queryByTestId, rerender } = render(
+      createElement(HomeMapScreen),
+    )
 
     const pill = await findByTestId(`discovery-suggestion-pill-${CURATED_ROUTE.id}`)
 
@@ -301,6 +305,7 @@ describe('DISC-016: Discovery tap plots route, camera fits, typed send', () => {
     // THEN: the route's polyline segments render on the map.
     await waitFor(() => {
       expect(queryAllByTestId(/home-route-polyline--segment-/).length).toBeGreaterThanOrEqual(1)
+      expect(queryByTestId('route-line-on-map-marker')).toBeTruthy()
     })
 
     // AND: no chat message was appended — the chat-send path was NOT taken.
@@ -352,6 +357,36 @@ describe('DISC-016: Discovery tap plots route, camera fits, typed send', () => {
     const fitCall = mockFitToCoordinates.mock.calls[mockFitToCoordinates.mock.calls.length - 1]
     const coords = fitCall[0] as Array<{ latitude: number; longitude: number }>
     expect(coords.length).toBeGreaterThan(1)
+  })
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // AC-3d: clear route resets route state and recenters on rider
+  // ─────────────────────────────────────────────────────────────────────────
+  it('clearRouteRecentersOnCurrentLocation', async () => {
+    const multiPointOption = buildCuratedActiveOption(multiPointPolyline, 1)
+    mockUseActiveSessionRoute.mockReturnValue({
+      activeOption: multiPointOption,
+      routePlan: buildCompletedPlan(multiPointOption, 'plan-curated-clear'),
+      newestRoutePlanId: 'plan-curated-clear',
+    })
+
+    const { getByTestId } = render(createElement(HomeMapScreen))
+
+    await waitFor(() => {
+      expect(getByTestId('control-clear')).toBeTruthy()
+    })
+    mockSetCameraPosition.mockClear()
+
+    fireEvent.press(getByTestId('control-clear'))
+
+    expect(mockSetSelectedRouteId).toHaveBeenCalledWith(null)
+    expect(mockSetDisplayedRoutePlanId).toHaveBeenCalledWith(null)
+    expect(mockFlowDispatch).toHaveBeenCalledWith({ type: 'NEW_SESSION' })
+    expect(mockSetCameraPosition).toHaveBeenCalledWith({
+      coordinates: { latitude: 37.7749, longitude: -122.4194 },
+      zoom: 12.5,
+      duration: 300,
+    })
   })
 
   // ─────────────────────────────────────────────────────────────────────────

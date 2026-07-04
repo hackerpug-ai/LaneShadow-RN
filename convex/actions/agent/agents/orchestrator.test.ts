@@ -1,8 +1,10 @@
 'use node'
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import type { AgentContext } from '../ridePlanningAgent'
 import {
   buildDiscoveryIntentFromQuery,
+  buildOrchestratorPrompt,
   determineAvailableTools,
   executeDiscoveryAgentBranch,
   extractOrchestratorAttachments,
@@ -32,6 +34,29 @@ describe('Orchestrator tool availability', () => {
         'fetchWeather',
       )
     }
+  })
+})
+
+describe('Orchestrator route prompt', () => {
+  it('treats explicit alias A-to-B input as complete even when current location is unknown', async () => {
+    const ctx = {
+      planningSessionId: 'session_no_location' as any,
+      clerkUserId: 'user_test',
+      piMessages: [],
+      currentLocation: undefined,
+      runQuery: vi.fn().mockResolvedValue({ lastKnownLocation: undefined }),
+      runMutation: vi.fn(),
+      runAction: vi.fn(),
+    } as unknown as AgentContext
+
+    const prompt = await buildOrchestratorPrompt(ctx, ['routing_agent', 'search_agent'])
+
+    expect(prompt).toContain('"SF to Santacruze"')
+    expect(prompt).toContain('complete route request')
+    expect(prompt).toContain('SF/S.F. = San Francisco')
+    expect(prompt).toContain('Santacruze')
+    expect(prompt).toContain('Ask where they are starting from only for destination-only')
+    expect(prompt).toContain('Use natural-language intent')
   })
 })
 

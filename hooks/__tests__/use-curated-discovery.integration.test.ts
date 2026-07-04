@@ -5,7 +5,7 @@
  * - AC-1 (PRIMARY): Hook returns correct row shape with all fields populated
  * - AC-2: Loading ≠ Empty (isLoading true while undefined, isEmpty true only when [])
  * - AC-3: Center derivation from current location
- * - AC-4: Located vs unlocated ordering (located ascending distanceMi, unlocated descending compositeScore)
+ * - AC-4: Located nearest ordering; unlocated nearest waits/skips instead of global fallback
  * - AC-5: 0–1 score passthrough (never rescaled to 0-100)
  *
  * Test Data:
@@ -72,6 +72,7 @@ const createMockRoute = (overrides: Partial<any> = {}): any => ({
   lengthMiles: 120.5,
   distanceMi: undefined,
   summary: 'A scenic route',
+  geometryStatus: 'generated',
   ...overrides,
 })
 
@@ -270,6 +271,35 @@ describe('useCuratedDiscovery', () => {
       expect(route.score).toBe(0.82) // compositeScore (already 0-1 from Convex)
       expect(route.distanceMi).toBe(5.2) // distanceMi passed through
     })
+
+    it('filters out curated rows without generated geometry so suggestion taps can draw a line', async () => {
+      mockUseQuery.mockReturnValue([
+        createMockRoute({
+          routeId: 'unresolved-route',
+          name: 'Unresolved Route',
+          geometryStatus: 'unresolved',
+        }),
+        createMockRoute({
+          routeId: 'generated-route',
+          name: 'Generated Route',
+          geometryStatus: 'generated',
+        }),
+      ])
+
+      const { result } = renderHook(() =>
+        useCuratedDiscovery({
+          sort: 'nearest',
+          center: { lat: 37.7749, lng: -122.4194 },
+          limit: 5,
+        }),
+      )
+
+      await waitFor(() => {
+        expect(result.current.routes).toBeDefined()
+      })
+
+      expect(result.current.routes?.map((route) => route.id)).toEqual(['generated-route'])
+    })
   })
 
   describe('AC-2: Loading and empty are distinct signals', () => {
@@ -432,8 +462,8 @@ describe('useCuratedDiscovery', () => {
     })
   })
 
-  describe('AC-4: Nearest-first when located, best-first fallback', () => {
-    it('ordersNearestThenBestFallback', async () => {
+  describe('AC-4: Nearest-first when located, unlocated nearest skips', () => {
+    it('ordersNearestThenSkipsWhenUnlocated', async () => {
       // Test 1: Located query (sort:nearest with center)
       mockUseQuery.mockReturnValue(mockCuratedRoutesNearestOrdered)
 
@@ -459,7 +489,7 @@ describe('useCuratedDiscovery', () => {
         }
       }
 
-      // Test 2: Unlocated query (sort:nearest, no center) -> degrades to best
+      // Test 2: Unlocated query (sort:nearest, no center) -> skip instead of global best
       mockUseQuery.mockReturnValue(mockCuratedRoutesBestOrdered)
       mockUseCurrentLocation.mockReturnValue({
         location: null,
@@ -473,15 +503,30 @@ describe('useCuratedDiscovery', () => {
         }),
       )
 
-      await waitFor(() => {
-        expect(unlocatedResult.current.routes).toBeDefined()
-      })
+      expect(mockUseQuery.mock.calls[mockUseQuery.mock.calls.length - 1]?.[1]).toBe('skip')
+      expect(unlocatedResult.current.routes).toEqual([])
+      expect(unlocatedResult.current.isLoading).toBe(false)
+      expect(unlocatedResult.current.isEmpty).toBe(true)
+    })
 
-      // Must observe: descending score
-      const unlocatedRoutes = unlocatedResult.current.routes!
-      for (let i = 0; i < unlocatedRoutes.length - 1; i++) {
-        expect(unlocatedRoutes[i].score).toBeGreaterThanOrEqual(unlocatedRoutes[i + 1].score)
-      }
+    it('keeps nearest discovery loading while waiting for current location', async () => {
+      mockUseCurrentLocation.mockReturnValue({
+        location: null,
+        loading: true,
+        error: null,
+      })
+      mockUseQuery.mockReturnValue(mockCuratedRoutesBestOrdered)
+
+      const { result } = renderHook(() =>
+        useCuratedDiscovery({
+          sort: 'nearest',
+        }),
+      )
+
+      expect(mockUseQuery.mock.calls[0]?.[1]).toBe('skip')
+      expect(result.current.routes).toBeUndefined()
+      expect(result.current.isLoading).toBe(true)
+      expect(result.current.isEmpty).toBe(false)
     })
 
     it('should order by distance ascending when sort=nearest with center', async () => {

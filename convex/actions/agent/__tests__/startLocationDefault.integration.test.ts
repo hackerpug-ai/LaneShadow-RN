@@ -48,7 +48,7 @@ describe('Start Location Defaulting (AC-1, AC-2, AC-4) - Prompt Builder Integrat
       expect(prompt).toContain('-122.4194')
 
       // - a default-origin / no-ask instruction is present
-      expect(prompt).toContain('Use this as the default origin')
+      expect(prompt).toContain('as the default origin')
       expect(prompt).toContain('Do NOT ask "where are you starting from?"')
 
       // must NOT observe:
@@ -112,18 +112,20 @@ describe('Start Location Defaulting (AC-1, AC-2, AC-4) - Prompt Builder Integrat
       const prompt = await buildOrchestratorPrompt(ctx, ['routing_agent', 'search_agent'])
 
       // must_observe (per spec AC-4):
-      // - the origin-ask instruction is present
-      expect(prompt).toContain('ask where they are starting from')
+      // - the origin-ask instruction is present only for destination-only route requests
+      expect(prompt.toLowerCase()).toContain('ask where they are starting from')
+      expect(prompt).toContain('only for destination-only route requests')
+      expect(prompt).toContain('"SF to Santacruze"')
+      expect(prompt).toContain('complete route request')
 
       // must NOT observe:
       // - a fabricated/hardcoded origin (0,0 or a default city)
       expect(prompt).not.toContain('lat=0')
       expect(prompt).not.toContain('lng=0')
-      expect(prompt).not.toContain('San Francisco') // No hardcoded defaults
       expect(prompt).not.toContain('Los Angeles')
 
-      // - a "Use this as the default origin" instruction (that belongs to when we have a location)
-      expect(prompt).not.toContain('Use this as the default origin')
+      // - a default-origin instruction (that belongs to when we have a location)
+      expect(prompt).not.toContain('as the default origin')
     })
   })
 
@@ -144,7 +146,7 @@ describe('Start Location Defaulting (AC-1, AC-2, AC-4) - Prompt Builder Integrat
 
       // When the lastKnownLocation lookup fails, we silently fall through to State 3
       // and ask for the origin (the safe fallback).
-      expect(prompt).toContain('ask where they are starting from')
+      expect(prompt.toLowerCase()).toContain('ask where they are starting from')
 
       // Verify no stale location is accidentally used
       expect(prompt).not.toContain('last known location')

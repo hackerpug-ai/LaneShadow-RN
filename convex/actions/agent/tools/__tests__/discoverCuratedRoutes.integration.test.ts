@@ -27,12 +27,17 @@
  */
 
 import { execSync } from 'node:child_process'
+import polyline from '@mapbox/polyline'
 import { type ToolCall, validateToolCall } from '@mariozechner/pi-ai'
 import { describe, expect, it, vi } from 'vitest'
 import { determineAvailableTools } from '../../agents/orchestrator'
 import type { AgentContext } from '../../ridePlanningAgent'
 import { TOOL_TO_CARD_KIND } from '../../sendMessage'
-import { discoverCuratedRoutesSchema, executeDiscoverCuratedRoutes } from '../discoverCuratedRoutes'
+import {
+  CURATED_ROUTE_DISCOVERY_CANDIDATE_LIMIT,
+  discoverCuratedRoutesSchema,
+  executeDiscoverCuratedRoutes,
+} from '../discoverCuratedRoutes'
 
 function convexRun(fnPath: string, args: Record<string, unknown>): unknown {
   const argsJson = JSON.stringify(args).replace(/'/g, "'\"'\"'")
@@ -127,7 +132,7 @@ const MOCK_PLANNING_SESSION_ID = 'planning_sessions:abc123' as any
 type CapturedMutation = { name: string; args: any }
 type CapturedQuery = { name: string; args: any }
 
-function buildMockCtx(opts: { curatedRoutes?: any[]; allowed?: boolean }): {
+function buildMockCtx(opts: { curatedRoutes?: any[]; geometryRows?: any[]; allowed?: boolean }): {
   ctx: AgentContext
   queries: CapturedQuery[]
   mutations: CapturedMutation[]
@@ -135,6 +140,7 @@ function buildMockCtx(opts: { curatedRoutes?: any[]; allowed?: boolean }): {
   const queries: CapturedQuery[] = []
   const mutations: CapturedMutation[] = []
   const curatedRoutes = opts.curatedRoutes ?? FIXTURE_NC_SCENIC_ROUTES
+  const geometryRows = opts.geometryRows ?? []
   const allowed = opts.allowed ?? true
 
   /**
@@ -177,9 +183,10 @@ function buildMockCtx(opts: { curatedRoutes?: any[]; allowed?: boolean }): {
       if (name === 'curatedRoutes.listCuratedRoutes') {
         return curatedRoutes
       }
-      // geometry side-table lookup — return empty (fallback path)
+      // geometry side-table lookup
       if (name === 'curatedGeometry.getGeometryForRoutes') {
-        return []
+        const requestedRouteIds = new Set(args.routeIds ?? [])
+        return geometryRows.filter((row) => requestedRouteIds.has(row.routeId))
       }
       return undefined
     }) as any,
@@ -278,7 +285,7 @@ describe('DATA-008 AC-1: fixtured intent drives a route_plans row whose options 
     expect(listCall, 'listCuratedRoutes must be invoked by the tool').toBeDefined()
     // queryArgs built from intent: limit, sort, state, archetypes
     expect(listCall!.args).toMatchObject({
-      limit: 5,
+      limit: CURATED_ROUTE_DISCOVERY_CANDIDATE_LIMIT,
       sort: 'best',
       state: 'North Carolina',
     })
@@ -331,6 +338,68 @@ describe('DATA-008 AC-1: fixtured intent drives a route_plans row whose options 
     // Negative controls (would fail if the tool degraded to a chat no-op)
     expect(result.type).not.toBe('chat')
     expect(options.length).toBeGreaterThan(0)
+  })
+
+  it('prefersPlottableGeneratedRoutes: skips unresolved top-ranked candidates when real geometry exists deeper in the catalog', async () => {
+    // GIVEN: a realistic ranked list where the highest-score route is unresolved
+    // and the next route has generated geometry in the side table. This mirrors
+    // the production failure mode: a card with no line even though a plottable
+    // curated road exists in the candidate set.
+    const plottableRoute = {
+      ...FIXTURE_NC_SCENIC_ROUTES[1],
+      routeId: 'nc-plottable-generated-002',
+      name: 'NC 215 Alternate to the Blue Ridge Parkway',
+      geometryStatus: 'generated',
+    }
+    const unresolvedRoute = {
+      ...FIXTURE_NC_SCENIC_ROUTES[0],
+      routeId: 'nc-unresolved-top-score-001',
+      name: 'Unresolved Scenic Byway',
+      geometryStatus: 'unresolved',
+    }
+    const geometryValue = polyline.encode([
+      [35.33, -82.9],
+      [35.4, -82.82],
+      [35.48, -82.72],
+    ] as [number, number][])
+
+    const intent = {
+      archetypes: ['scenic'],
+      state: 'North Carolina',
+      sort: 'best' as const,
+      limit: 1,
+    }
+    const { ctx, mutations } = buildMockCtx({
+      curatedRoutes: [unresolvedRoute, plottableRoute],
+      geometryRows: [
+        {
+          routeId: plottableRoute.routeId,
+          format: 'polyline',
+          encoding: 'polyline',
+          precision: 5,
+          value: geometryValue,
+          segments: null,
+        },
+      ],
+    })
+
+    // WHEN: discovery builds a route plan.
+    const result = await executeDiscoverCuratedRoutes(ctx, buildDiscoveryToolCall(intent))
+
+    // THEN: it selects the generated/plottable route rather than the unresolved
+    // top score, so tapping the card can draw a route line on the map.
+    expect(result.type).toBe('routes')
+    const updateCall = mutations.find((m) => m.name === 'routePlans.updatePlanStatus')
+    expect(updateCall, 'route_plans updatePlanStatus mutation must fire').toBeDefined()
+    const options = updateCall!.args.result?.options
+    expect(options).toHaveLength(1)
+    expect(options[0].routeOptionId).toBe(`curated-${plottableRoute.routeId}`)
+
+    const decoded = polyline.decode(
+      options[0].map.overviewGeometry.value,
+      options[0].map.overviewGeometry.precision,
+    ) as [number, number][]
+    expect(decoded.length).toBeGreaterThan(1)
   })
 
   it('emptyCatalogReturnsChat: when listCuratedRoutes returns [], the tool returns chat and creates no route_plans row', async () => {

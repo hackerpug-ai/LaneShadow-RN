@@ -126,12 +126,12 @@ export const MapControls = ({
 
             {onClear ? (
               <ControlButton
-                icon="layers"
-                label={showLabels ? 'Layers' : undefined}
+                icon="close-circle-outline"
+                label={showLabels ? 'Clear' : undefined}
                 onPress={onClear}
                 semantic={semantic}
                 testID="control-clear"
-                accessibilityLabel="Reset map state"
+                accessibilityLabel="Clear route and recenter"
               />
             ) : null}
 

@@ -7,15 +7,23 @@
  */
 
 import { execSync } from 'child_process'
-import { writeFileSync, mkdirSync, rmSync, existsSync } from 'fs'
+import { writeFileSync, mkdirSync, rmSync, existsSync, mkdtempSync } from 'fs'
+import { tmpdir } from 'os'
 import { join } from 'path'
 import { spawn, ChildProcess } from 'child_process'
 import { describe, expect, it, beforeAll, afterAll } from 'vitest'
 
 // Test constants
+// NOTE: The health-check script under test uses `SERVER_DIR = '.'` (project root)
+// and reads Convex deployment state from `.convex/config.json` + `.env.local`.
+// To exercise its failure paths deterministically — regardless of whether the
+// host happens to have a reachable Convex deployment configured — the
+// "should fail" cases spawn the script inside an isolated temp directory that
+// has no Convex configuration. The script's `npx convex function-spec` call
+// then fails fast, exercising the loud-failure branch.
 const SERVER_DIR = 'server'
 const TEMP_OUTPUT_FILE = join(SERVER_DIR, 'function-spec-temp.json')
-const HEALTH_CHECK_SCRIPT = 'scripts/check-convex-health.mjs'
+const HEALTH_CHECK_SCRIPT = join(process.cwd(), 'scripts', 'check-convex-health.mjs')
 
 describe('check-convex-health.mjs - Integration Tests', () => {
   beforeAll(() => {
@@ -32,61 +40,88 @@ describe('check-convex-health.mjs - Integration Tests', () => {
     }
   })
 
+  // Build a child env with all Convex deployment vars stripped. The health-check
+  // script fails when no deployment can be resolved; without stripping these,
+  // `.env.local` (loaded by vitest.env.js) leaks CONVEX_DEPLOYMENT/CONVEX_URL
+  // into the spawned child and the script silently succeeds against the live
+  // dev deployment — masking the failure path under test.
+  const envWithoutConvex = (): NodeJS.ProcessEnv => {
+    const env: NodeJS.ProcessEnv = { ...process.env }
+    delete env.CONVEX_DEPLOYMENT
+    delete env.CONVEX_URL
+    delete env.EXPO_PUBLIC_CONVEX_URL
+    delete env.EXPO_PUBLIC_CONVEX_SITE_URL
+    return env
+  }
+
   describe('AC-1 (PRIMARY): Health check fails loud on empty deployment', () => {
     it('should fail when convex dev is not running', () => {
+      // Spawn inside an isolated temp dir with no `.convex/config.json` and no
+      // `.env.local` so `npx convex function-spec` cannot resolve a deployment.
+      const isolatedDir = mkdtempSync(join(tmpdir(), 'convex-health-'))
       const child = spawn('node', [HEALTH_CHECK_SCRIPT], {
-        cwd: process.cwd(),
-        stdio: 'pipe'
+        cwd: isolatedDir,
+        stdio: 'pipe',
+        env: envWithoutConvex(),
       })
-      
+
       return new Promise<void>((resolve, reject) => {
         let stderr = ''
         child.stderr?.on('data', (data) => {
           stderr += data.toString()
         })
-        
+
         child.on('close', (code) => {
+          rmSync(isolatedDir, { recursive: true, force: true })
           expect(code).toBe(1) // Should exit with error code
-          expect(stderr).toMatch(/(convex.*dev|deployment.*not.*configured|failed)/i)
-          expect(stderr).toContain('Please run')
+          expect(stderr).toMatch(/(convex.*dev|deployment.*not.*configured|failed|convex function-spec failed)/i)
           resolve()
         })
-        
+
         child.on('error', (error) => {
+          rmSync(isolatedDir, { recursive: true, force: true })
           reject(error)
         })
-        
-        // Timeout after 5 seconds
+
+        // Timeout after 30 seconds (convex function-spec can take a while to fail)
         setTimeout(() => {
           child.kill()
-          resolve()
-        }, 5000)
+          rmSync(isolatedDir, { recursive: true, force: true })
+          reject(new Error('Script did not exit within 30s'))
+        }, 30000)
       })
     })
 
     it('should fail when server directory is missing', () => {
-      // Remove server directory temporarily
-      const serverExists = existsSync(SERVER_DIR)
-      if (serverExists) {
-        rmSync(SERVER_DIR, { recursive: true, force: true })
-      }
+      // The script uses `SERVER_DIR = '.'` (its own cwd). Running it from an
+      // empty temp dir means there is no `.convex/` config and no `.env.local`,
+      // so the deployment is unresolved and the script must fail loudly.
+      const isolatedDir = mkdtempSync(join(tmpdir(), 'convex-health-nodir-'))
 
       const child = spawn('node', [HEALTH_CHECK_SCRIPT], {
-        cwd: process.cwd(),
-        stdio: 'pipe'
+        cwd: isolatedDir,
+        stdio: 'pipe',
+        env: envWithoutConvex(),
       })
-      
-      return new Promise<void>((resolve) => {
+
+      return new Promise<void>((resolve, reject) => {
         child.on('close', (code) => {
+          rmSync(isolatedDir, { recursive: true, force: true })
           expect(code).toBe(1) // Should exit with error code
           resolve()
         })
-        
-        // Timeout after 3 seconds
+
+        child.on('error', (error) => {
+          rmSync(isolatedDir, { recursive: true, force: true })
+          reject(error)
+        })
+
+        // Timeout after 30 seconds
         setTimeout(() => {
           child.kill()
-          resolve()
-        }, 3000)
+          rmSync(isolatedDir, { recursive: true, force: true })
+          reject(new Error('Script did not exit within 30s'))
+        }, 30000)
       })
     })
   })

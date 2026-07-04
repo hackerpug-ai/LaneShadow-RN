@@ -13,6 +13,7 @@ export const TouchableOpacity = createComponent('TouchableOpacity')
 export const TouchableWithoutFeedback = createComponent('TouchableWithoutFeedback')
 export const TouchableHighlight = createComponent('TouchableHighlight')
 export const ScrollView = createComponent('ScrollView')
+export const KeyboardAvoidingView = createComponent('KeyboardAvoidingView')
 export const FlatList = createComponent('FlatList')
 export const Image = createComponent('Image')
 export const TextInput = createComponent('TextInput')
@@ -23,7 +24,13 @@ export const ActivityIndicator = createComponent('ActivityIndicator')
 
 export const StyleSheet = {
   create: (styles: Record<string, unknown>) => styles,
-  flatten: (style: unknown) => style,
+  flatten: (style: unknown): Record<string, unknown> => {
+    if (Array.isArray(style)) {
+      return Object.assign({}, ...style.filter(Boolean).map((s) => StyleSheet.flatten(s)))
+    }
+    if (style && typeof style === 'object') return style as Record<string, unknown>
+    return {}
+  },
   hairlineWidth: 1,
 }
 
@@ -97,6 +104,7 @@ export const useWindowDimensions = () => ({ width: 375, height: 812, scale: 1, f
 export default {
   View,
   Text,
+  KeyboardAvoidingView,
   StyleSheet,
   Platform,
   Dimensions,

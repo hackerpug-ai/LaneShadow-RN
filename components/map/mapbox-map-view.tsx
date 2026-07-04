@@ -12,7 +12,15 @@
 
 import type { FeatureCollection, LineString, Position } from 'geojson'
 import type { ReactNode } from 'react'
-import { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import type { StyleProp, ViewStyle } from 'react-native'
 import { NativeModules, Platform, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
@@ -133,6 +141,12 @@ export interface MapboxMapViewProps {
   onMapClick?: (event: { coordinates?: { latitude: number; longitude: number } }) => void
   /** Whether to show the user location indicator (default: true) */
   showsUserLocation?: boolean
+  /**
+   * App-resolved user location from Expo Location.
+   * Used as a fallback marker/recenter source until Mapbox's native location
+   * manager emits its own update.
+   */
+  userLocation?: { latitude: number; longitude: number } | null
   /** Optional style prop for the map container */
   style?: StyleProp<ViewStyle>
   /** Optional children to render overlays */
@@ -197,6 +211,14 @@ export interface MapboxMapViewHandle {
   ) => void
 }
 
+type CameraCommand = {
+  centerCoordinate?: [number, number]
+  zoom?: number
+  pitch?: number
+  heading?: number
+  duration?: number
+}
+
 const styles = StyleSheet.create({
   map: {
     flex: 1,
@@ -213,6 +235,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#B87333',
     borderRadius: 12,
     borderWidth: 2,
+    borderColor: '#FFFFFF',
+  },
+  userLocationFallback: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(47, 155, 255, 0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  userLocationFallbackDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#2F9BFF',
+    borderWidth: 3,
     borderColor: '#FFFFFF',
   },
 })
@@ -260,12 +298,14 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
       onPress,
       onMapClick,
       showsUserLocation = true,
+      userLocation,
       style,
       children,
     },
     ref,
   ) => {
     const cameraRef = useRef<any>(null)
+    const pendingCameraCommandRef = useRef<CameraCommand | null>(null)
     const mapViewRef = useRef<any>(null)
     const isWeb = Platform.OS === 'web'
 
@@ -283,17 +323,44 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
     const lastUserLocationRef = useRef<{ latitude: number; longitude: number } | null>(null)
     const [hasUserLocation, setHasUserLocation] = useState(false)
 
+    useEffect(() => {
+      if (
+        userLocation &&
+        Number.isFinite(userLocation.latitude) &&
+        Number.isFinite(userLocation.longitude)
+      ) {
+        lastUserLocationRef.current = userLocation
+      }
+    }, [userLocation])
+
     // Get the appropriate style URL based on theme
     const styleURL = useMemo(() => {
       return MAP_STYLES[theme]
     }, [theme])
 
+    const applyCameraCommand = useCallback((command: CameraCommand) => {
+      if (!cameraRef.current) {
+        pendingCameraCommandRef.current = command
+        return false
+      }
+
+      cameraRef.current.setCamera(command)
+      pendingCameraCommandRef.current = null
+      return true
+    }, [])
+
+    const handleCameraRef = useCallback((node: any) => {
+      cameraRef.current = node
+      if (!node || !pendingCameraCommandRef.current) return
+
+      node.setCamera(pendingCameraCommandRef.current)
+      pendingCameraCommandRef.current = null
+    }, [])
+
     // Imperative handle for camera controls
     useImperativeHandle(ref, () => ({
       setCamera: (cameraConfig, duration = 500) => {
-        if (!cameraRef.current) return
-
-        cameraRef.current.setCamera({
+        applyCameraCommand({
           centerCoordinate: cameraConfig.center,
           zoom: cameraConfig.zoom,
           pitch: cameraConfig.pitch ?? 0,
@@ -344,11 +411,10 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
 
       setCameraPosition: (input) => {
         const { coordinates, zoom, duration = 500 } = input
-        if (!cameraRef.current) return
 
         if (coordinates) {
           const center: [number, number] = latLngToMapbox(coordinates)
-          cameraRef.current.setCamera({
+          applyCameraCommand({
             centerCoordinate: center,
             zoom: zoom ?? lastCameraState.zoom,
             pitch: 0,
@@ -358,7 +424,9 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
           setLastCameraState({ center, zoom: zoom ?? lastCameraState.zoom })
         } else if (zoom !== undefined) {
           // Zoom only, keep current center
-          cameraRef.current.zoomTo(zoom, duration)
+          if (cameraRef.current) {
+            cameraRef.current.zoomTo(zoom, duration)
+          }
           setLastCameraState((prev) => ({ ...prev, zoom }))
         }
       },
@@ -385,10 +453,10 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
       },
 
       recenterToUser: () => {
-        if (!cameraRef.current || !lastUserLocationRef.current) return
+        if (!lastUserLocationRef.current) return
         const userLoc = lastUserLocationRef.current
         const center: [number, number] = latLngToMapbox(userLoc)
-        cameraRef.current.setCamera({
+        applyCameraCommand({
           centerCoordinate: center,
           zoom: lastCameraState.zoom,
           pitch: 0,
@@ -399,10 +467,9 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
       },
 
       animateToRegion: (region, duration = 500) => {
-        if (!cameraRef.current) return
         const center: [number, number] = [region.longitude, region.latitude]
         const zoom = Math.log2(360 / region.latitudeDelta)
-        cameraRef.current.setCamera({
+        applyCameraCommand({
           centerCoordinate: center,
           zoom,
           pitch: 0,
@@ -487,18 +554,20 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
     const handleUserLocationUpdate = useCallback(
       (location: any) => {
         const coords = location?.coords
-        if (coords?.latitude && coords?.longitude) {
+        const latitude = Number(coords?.latitude)
+        const longitude = Number(coords?.longitude)
+        if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
           lastUserLocationRef.current = {
-            latitude: coords.latitude,
-            longitude: coords.longitude,
+            latitude,
+            longitude,
           }
           if (!hasUserLocation) {
             // Only auto-snap when there's no camera position at all.
             // When initialCamera (persisted) or camera (controlled) is supplied,
             // respect the caller's choice and do not move on first location fix.
-            if (!camera?.center && !initialCamera?.center && cameraRef.current) {
-              const center: [number, number] = [coords.longitude, coords.latitude]
-              cameraRef.current.setCamera({
+            if (!camera?.center && !initialCamera?.center) {
+              const center: [number, number] = [longitude, latitude]
+              applyCameraCommand({
                 centerCoordinate: center,
                 zoom: 14,
                 duration: 0,
@@ -509,8 +578,32 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
           }
         }
       },
-      [camera?.center, initialCamera?.center, hasUserLocation],
+      [applyCameraCommand, camera?.center, initialCamera?.center, hasUserLocation],
     )
+
+    const userLocationFallbackElement = useMemo(() => {
+      if (!showsUserLocation || hasUserLocation || !userLocation) return null
+      if (!Number.isFinite(userLocation.latitude) || !Number.isFinite(userLocation.longitude)) {
+        return null
+      }
+
+      return (
+        <MarkerView
+          key="current-location-fallback"
+          coordinate={latLngToMapbox(userLocation)}
+          allowOverlap={true}
+          allowOverlapWithPuck={false}
+        >
+          <View
+            testID="map-user-location-fallback"
+            pointerEvents="none"
+            style={styles.userLocationFallback}
+          >
+            <View style={styles.userLocationFallbackDot} />
+          </View>
+        </MarkerView>
+      )
+    }, [showsUserLocation, hasUserLocation, userLocation])
 
     // Convert polylines to Mapbox format
     const polylineElements = useMemo(() => {
@@ -607,7 +700,7 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
         scaleBarEnabled={false}
       >
         <Camera
-          ref={cameraRef}
+          ref={handleCameraRef}
           defaultSettings={defaultSettings}
           centerCoordinate={isValidCenter ? validCenter : undefined}
           zoomLevel={camera?.zoom ?? (defaultSettings ? undefined : 14)}
@@ -615,8 +708,17 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
           heading={camera?.heading ?? 0}
         />
 
-        {showsUserLocation && <UserLocation visible={true} onUpdate={handleUserLocationUpdate} />}
+        {showsUserLocation && UserLocation ? (
+          <UserLocation
+            visible={true}
+            animated={true}
+            showsUserHeadingIndicator={true}
+            minDisplacement={1}
+            onUpdate={handleUserLocationUpdate}
+          />
+        ) : null}
 
+        {userLocationFallbackElement}
         {markerElements}
         {polylineElements}
         {children}

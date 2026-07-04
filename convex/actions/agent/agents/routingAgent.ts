@@ -1000,124 +1000,48 @@ export async function executeRoutingTool(
 }
 
 // -----------------------------------------------------------------------------
-// Start Location Resolution
+// Start Location Context
 // -----------------------------------------------------------------------------
 
-/**
- * Extract explicit origin from user message using heuristic.
- *
- * Returns the origin string if detected, or null to use currentLocation.
- * Conservative: when unsure, returns null (safe default to current location).
- *
- * Patterns:
- * - "day trip to X", "ride to X", "go to X" → null (destination-only)
- * - "X to Y" (where X is a place) → "X" (explicit origin)
- * - "take Highway 1 to ...", "take me to ..." → null (not origin override)
- */
-export function extractExplicitOrigin(userMessage: string): string | null {
-  const trimmed = userMessage.trim()
-
-  // Destination-only patterns: start from current location
-  const destinationOnlyPatterns = [
-    /^\s*(day trip|quick trip|scenic ride|fun ride|short ride|weekend ride|tour|journey|adventure|outing)\s+to\s+/i,
-    /^\s*(take me|ride|trip|go|head)\s+to\s+/i,
-    /^\s*take\s+/i, // "take Highway 1" — not an origin override
-  ]
-
-  for (const pattern of destinationOnlyPatterns) {
-    if (pattern.test(trimmed)) {
-      return null // Use current location as origin
-    }
-  }
-
-  // Explicit origin pattern: "X to Y"
-  const toMatch = trimmed.match(/^(.+?)\s+to\s+(.+)$/i)
-  if (toMatch?.[1] && toMatch[2]) {
-    const potentialOrigin = toMatch[1].trim()
-
-    // Reject common non-origin phrases
-    const rejectPatterns = [/^(take|ride|go|get|drive|head|send)$/i]
-    for (const rejectPattern of rejectPatterns) {
-      if (rejectPattern.test(potentialOrigin)) {
-        return null
-      }
-    }
-
-    // This looks like an explicit origin (e.g., "San Francisco", "SF", "Oakland")
-    return potentialOrigin
-  }
-
-  // No explicit origin detected
-  return null
+export type DefaultStartContext = {
+  lat: number
+  lng: number
+  label: string
+  source: 'current' | 'lastKnown'
 }
 
 /**
- * Resolve the start location deterministically:
- * - If explicit origin in message → geocode to top result
- * - Otherwise → use currentLocation
- * Returns { lat, lng, label } or null if no location available at all.
- *
- * CRITICAL: Geocoding failure → fall back to currentLocation (never ask for clarification).
+ * The rider's default origin context: live currentLocation if present, otherwise the
+ * session's lastKnownLocation (possibly stale). This is context for the agent, not
+ * intent parsing. The agent still decides whether the rider named an explicit origin.
  */
-export async function resolveStartLocation(
-  userMessage: string,
-  currentLocation: { lat: number; lng: number } | undefined,
-  geocoder: any, // ProviderInstance from geocodingProvider
-): Promise<{ lat: number; lng: number; label: string } | null> {
-  // Check for explicit origin in message
-  const explicitOrigin = extractExplicitOrigin(userMessage)
-
-  if (explicitOrigin) {
-    try {
-      // Geocode the named origin — take the TOP result only, no ambiguity.
-      // Bias by currentLocation (same as runGeocode) so a named city resolves near the rider.
-      const results = await geocoder.geocode(explicitOrigin, currentLocation)
-      if (results && results.length > 0) {
-        const topResult = results[0]
-        return {
-          lat: topResult.lat,
-          lng: topResult.lng,
-          label: topResult.label || explicitOrigin,
-        }
-      }
-    } catch {
-      // Geocoding failed — fall back to current location (safe default)
-      // Don't ask for clarification; just use what we have
-    }
-  }
-
-  // No explicit origin, or geocoding failed — use current location
-  if (currentLocation) {
-    return {
-      lat: currentLocation.lat,
-      lng: currentLocation.lng,
-      label: 'Current Location',
-    }
-  }
-
-  // No location available
-  return null
-}
-
-/**
- * The rider's effective location for start resolution: live currentLocation if present,
- * otherwise the session's lastKnownLocation (possibly stale). Returns undefined only when
- * we have NO location at all (→ the agent legitimately asks where they're starting).
- */
-async function getEffectiveLocation(
+export async function getDefaultStartContext(
   ctx: AgentContext,
-): Promise<{ lat: number; lng: number } | undefined> {
-  if (ctx.currentLocation) return ctx.currentLocation
+): Promise<DefaultStartContext | null> {
+  if (ctx.currentLocation) {
+    return { ...ctx.currentLocation, label: 'Current Location', source: 'current' }
+  }
   try {
     const sessionData = await ctx.runQuery(api.db.planningSessions.getSessionById, {
       sessionId: ctx.planningSessionId,
     })
     const lk = sessionData?.lastKnownLocation
-    if (lk) return { lat: lk.lat, lng: lk.lng }
+    if (lk) return { lat: lk.lat, lng: lk.lng, label: 'Last Known Location', source: 'lastKnown' }
   } catch {
     // Silently ignore lookup failures — fall through to "no location".
   }
-  return undefined
+  return null
+}
+
+export function isStartLocationClarification(question: string): boolean {
+  const normalized = question.toLowerCase()
+  return (
+    /\bwhere\b.{0,40}\b(start|starting|begin|beginning|leav|depart|origin)\b/.test(normalized) ||
+    /\b(start|starting|origin)\b.{0,40}\b(where|from|location|point)\b/.test(normalized) ||
+    /\bwhich\s+(part|area|neighborhood|neighbourhood)\b.{0,40}\b(start|starting|from)\b/.test(
+      normalized,
+    )
+  )
 }
 
 // -----------------------------------------------------------------------------
@@ -1132,60 +1056,31 @@ async function getEffectiveLocation(
  */
 export async function buildRoutingPrompt(
   ctx: AgentContext,
-  resolvedStart?: { lat: number; lng: number; label: string } | null,
+  defaultStartContext?: DefaultStartContext | null,
 ): Promise<string> {
   let locBlock: string
+  const startContext =
+    defaultStartContext === undefined ? await getDefaultStartContext(ctx) : defaultStartContext
 
-  if (resolvedStart) {
-    // DETERMINISTIC start: resolved in code (explicit named origin geocoded to its top result,
-    // else current/last-known location) BEFORE the LLM runs. The start is a fixed coordinate, so
-    // the agent has nothing to ask about — it only interprets the DESTINATION.
-    locBlock = `The rider's START is already resolved — do NOT ask about it: lat=${resolvedStart.lat}, lng=${resolvedStart.lng} (label: "${resolvedStart.label}").
+  if (startContext) {
+    const freshness =
+      startContext.source === 'lastKnown'
+        ? 'This may be stale, so prefer a clearly named origin if the rider gives one.'
+        : 'This is live device context.'
+    locBlock = `The rider has default origin context: lat=${startContext.lat}, lng=${startContext.lng} (label: "${startContext.label}"). ${freshness}
 
-Use this EXACT start for planRoute. NEVER ask "where are you starting from?" and NEVER ask for sub-city precision — the start is fixed. Only interpret the DESTINATION from the rider's message:
-- "Sf to Marin county" → start = the resolved start above, end = Marin County (geocode the destination, take the FIRST result)
-- "day trip to Santa Cruz" → start = the resolved start above, end = Santa Cruz
-- Ambiguous destination names: COMMIT to the first geocode result; never ask the rider to clarify.`
-  } else if (ctx.currentLocation) {
-    // State 1: Live current location
-    locBlock = `The rider's current location is lat=${ctx.currentLocation.lat}, lng=${ctx.currentLocation.lng} (label: "Current Location").
+You are responsible for natural-language intent. Do NOT rely on string-shape rules. Use the rider's words, location, and conversation context to decide whether they named an explicit origin or only a destination.
 
-Treat this as the DEFAULT ORIGIN for every route. NEVER ask "where are you starting from?" — this location is always available and you must use it.
-
-When interpreting the rider's message:
-- Destination-only: "day trip to Santa Cruz" → start = current location, end = Santa Cruz
-- Explicit origin: "SF to Marin" → start = SF, end = Marin (use geocode for the named place, take the top result)
-- Ambiguous names: NEVER ask for sub-city precision (e.g., "which SF?"). Take the FIRST geocode result and proceed.
-
-RULE: Even if a place name is ambiguous, COMMIT to the first result. Do not ask the rider to clarify. If the rider meant a different place, they will correct you in the next turn.`
+Origin policy:
+- If the rider gives only a destination or an ambiguous route idea, use the default origin above. NEVER ask "where are you starting from?" when this default origin is available.
+- If the rider appears to name an origin and destination, geocode BOTH named places and use those results. Example: near the Bay Area, "SF to Santacruze" means San Francisco, CA to Santa Cruz, CA.
+- If context makes a phrase look like a place/business lookup rather than a route, do not force route semantics; ask a concise clarification.
+- Normalize common place shorthand when you geocode: SF/S.F. = San Francisco, CA; DFW = Dallas-Fort Worth, TX; NY/NYC = New York City, NY; Santacruze = Santa Cruz, CA.
+- Use context first, clarify only when the route cannot be planned from the available context.`
   } else {
-    // Try to resolve lastKnownLocation for State 2 fallback
-    let lastKnownLocation: { lat: number; lng: number; updatedAt?: number } | undefined
-    try {
-      const sessionData = await ctx.runQuery(api.db.planningSessions.getSessionById, {
-        sessionId: ctx.planningSessionId,
-      })
-      lastKnownLocation = sessionData?.lastKnownLocation
-    } catch {
-      // Silently ignore lookup failures — fall through to State 3
-    }
+    locBlock = `Rider's current location: unknown. If the rider gives an explicit origin and destination, that is a COMPLETE route request: "SF to Santacruze", "from DFW to Austin", and "NY to Bear Mountain" all go straight to routing.
 
-    if (lastKnownLocation) {
-      // State 2: Last-known location (possibly stale)
-      locBlock = `The rider's current location is unknown, but we have a last known location: lat=${lastKnownLocation.lat}, lng=${lastKnownLocation.lng} (this may be stale).
-
-Use this as the DEFAULT ORIGIN for routing. NEVER ask "where are you starting from?" — use the last known location.
-
-When interpreting the rider's message:
-- Destination-only: "day trip to Santa Cruz" → start = last known location, end = Santa Cruz
-- Explicit origin: "Oakland to Half Moon Bay" → start = Oakland, end = HMB (use geocode for the named place, take the top result)
-- Ambiguous names: NEVER ask for sub-city precision. Take the FIRST geocode result and proceed.
-
-RULE: Even if a place name is ambiguous, COMMIT to the first result. Do not ask the rider to clarify.`
-    } else {
-      // State 3: No location anywhere
-      locBlock = `Rider's current location: unknown — ask where they are starting from before planning a route.`
-    }
+You are responsible for natural-language intent. Normalize common place shorthand when you geocode: SF/S.F. = San Francisco, CA; DFW = Dallas-Fort Worth, TX; NY/NYC = New York City, NY; Santacruze = Santa Cruz, CA. Ask where they are starting from only for destination-only route requests that do not name an origin.`
   }
 
   return Promise.resolve(`You are an expert motorcycle navigator with strong opinions about the best routes — think of yourself as a local who has ridden every road in the area. Be concise — 1-2 sentences per response. Use 2nd person ("your ride", "you'll see").
@@ -1273,19 +1168,10 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
   // Routing agent uses low-reasoning model for latency — narrower tool set and focused prompt compensate
   const model = getAgentModel('low')
 
-  // DETERMINISTIC start resolution (binding invariant: start = current location UNLESS the rider
-  // names an explicit origin; the rider must NEVER be asked where they're starting when a location
-  // exists). Resolved in CODE here — explicit named origin geocoded to its top result, else the
-  // current/last-known location — BEFORE the LLM, so the start is a fixed coordinate the routing
-  // sub-agent cannot reinterpret or ask about.
-  const effectiveLocation = await getEffectiveLocation(ctx)
-  const resolvedStart = await resolveStartLocation(
-    userMessage,
-    effectiveLocation,
-    createGeocodingProvider(),
-  )
-
-  const systemPrompt = await buildRoutingPrompt(ctx, resolvedStart)
+  // Deterministic code supplies context only. The routing agent owns intent parsing:
+  // whether "SF" is an origin, destination, business name, or needs clarification.
+  const defaultStartContext = await getDefaultStartContext(ctx)
+  const systemPrompt = await buildRoutingPrompt(ctx, defaultStartContext)
 
   // One routing attempt: run the sub-agent on `attemptMessage` and interpret its output.
   const attempt = async (attemptMessage: string): Promise<RoutingAgentResult> => {
@@ -1329,8 +1215,6 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
 
     if (result.response && result.toolResults.length === 0) {
       // Agent responded with text but no tool calls — treat as a clarification request.
-      // The start-clarification invariant is enforced deterministically by the caller below
-      // (re-drive once with the resolved start; never surface a start question when a location exists).
       return {
         status: 'needs_clarification',
         question: result.response,
@@ -1434,12 +1318,14 @@ export async function executeRoutingAgent(config: SubAgentConfig): Promise<Routi
   // First attempt with the rider's verbatim message.
   let outcome = await attempt(userMessage)
 
-  // DETERMINISTIC GUARANTEE (AC-4): when a location is available the rider must NEVER see a
-  // start-clarification. If the agent still asked, re-drive ONCE with the resolved start
-  // re-asserted inline. A clarification surviving this can only concern the DESTINATION (the
-  // start was handed over as a fixed coordinate), so surfacing it is safe and correct.
-  if (outcome.status === 'needs_clarification' && resolvedStart) {
-    const augmentedMessage = `${userMessage}\n\n(System: the START is already fixed at lat=${resolvedStart.lat}, lng=${resolvedStart.lng} ("${resolvedStart.label}"). Call planRoute now using this exact start. Do NOT ask about the starting location under any circumstance.)`
+  // Guardrail: if a default origin is available, do not surface a start-origin question.
+  // This is not request parsing; it only corrects the agent when it ignores supplied context.
+  if (
+    outcome.status === 'needs_clarification' &&
+    defaultStartContext &&
+    isStartLocationClarification(outcome.question)
+  ) {
+    const augmentedMessage = `${userMessage}\n\n(System: the rider already has a default origin available at lat=${defaultStartContext.lat}, lng=${defaultStartContext.lng} ("${defaultStartContext.label}"). You still own the intent decision: if the rider named an explicit origin and destination, geocode those named places; otherwise use this default origin. Do NOT ask where the rider is starting.)`
     outcome = await attempt(augmentedMessage)
   }
 

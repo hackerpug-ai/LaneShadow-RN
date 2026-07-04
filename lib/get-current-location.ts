@@ -14,36 +14,91 @@ import * as Location from 'expo-location'
 import type { RouteStop } from '../shared/types/routes'
 
 const DEFAULT_TIMEOUT_MS = 2000
+const LAST_KNOWN_LOCATION_MAX_AGE_MS = 10 * 60 * 1000
+const LAST_KNOWN_LOCATION_REQUIRED_ACCURACY_M = 5000
+const REVERSE_GEOCODE_TIMEOUT_MS = 500
 
-export async function getCurrentLocation(timeoutMs = DEFAULT_TIMEOUT_MS): Promise<RouteStop | null> {
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T | null> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<null>((resolve) => {
+        timeoutId = setTimeout(() => resolve(null), timeoutMs)
+      }),
+    ])
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId)
+  }
+}
+
+async function getLastKnownPosition(): Promise<Location.LocationObject | null> {
+  try {
+    return await Location.getLastKnownPositionAsync({
+      maxAge: LAST_KNOWN_LOCATION_MAX_AGE_MS,
+      requiredAccuracy: LAST_KNOWN_LOCATION_REQUIRED_ACCURACY_M,
+    })
+  } catch {
+    return null
+  }
+}
+
+async function resolveLocationLabel(
+  coords: Pick<Location.LocationObjectCoords, 'latitude' | 'longitude'>,
+  timeoutMs: number,
+): Promise<string> {
+  try {
+    const reverseGeocode = await withTimeout(
+      Location.reverseGeocodeAsync({
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+      }),
+      timeoutMs,
+    )
+    const [geo] = reverseGeocode ?? []
+    return geo?.city ?? geo?.region ?? 'Current Location'
+  } catch {
+    return 'Current Location'
+  }
+}
+
+export async function getCurrentLocation(
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<RouteStop | null> {
   const task = (async (): Promise<RouteStop | null> => {
+    const startedAt = Date.now()
+    const remainingBudget = () => Math.max(0, timeoutMs - (Date.now() - startedAt))
     const { status } = await Location.requestForegroundPermissionsAsync()
     if (status !== 'granted') return null
 
-    const position = await Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.Low,
-    })
+    const currentPositionBudgetMs = Math.max(500, remainingBudget() - 750)
+    const position =
+      (await withTimeout(
+        Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Low,
+        }),
+        currentPositionBudgetMs,
+      )) ?? (await withTimeout(getLastKnownPosition(), Math.min(750, remainingBudget())))
 
-    const [geo] = await Location.reverseGeocodeAsync({
-      latitude: position.coords.latitude,
-      longitude: position.coords.longitude,
-    })
+    if (!position) return null
 
-    const label = geo?.city ?? geo?.region ?? 'Current Location'
-
+    const { latitude, longitude } = position.coords
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null
+    const reverseGeocodeBudgetMs = Math.min(REVERSE_GEOCODE_TIMEOUT_MS, remainingBudget())
+    const label =
+      reverseGeocodeBudgetMs >= 100
+        ? await resolveLocationLabel(position.coords, reverseGeocodeBudgetMs)
+        : 'Current Location'
     return {
-      lat: position.coords.latitude,
-      lng: position.coords.longitude,
+      lat: latitude,
+      lng: longitude,
       label,
     }
   })()
 
-  const timeout = new Promise<RouteStop | null>((resolve) => {
-    setTimeout(() => resolve(null), timeoutMs)
-  })
-
   try {
-    return await Promise.race([task, timeout])
+    return await withTimeout(task, timeoutMs)
   } catch {
     return null
   }
