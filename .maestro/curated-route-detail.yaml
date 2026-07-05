@@ -36,9 +36,10 @@ appId: ${MAESTRO_APP_ID}
 - assertVisible:
     id: 'curated-route-detail-name'
     text: 'Cherohala Skyway'
-# AND: the map polyline layer rendered (child count >= 1).
+# AND: the map section rendered (DESIGN-002 renamed the map section root from
+# curated-route-detail-map → curated-detail-map; the polyline probe is separate).
 - assertVisible:
-    id: 'curated-route-detail-map'
+    id: 'curated-detail-map'
 - assertVisible:
     id: 'curated-route-detail-polyline'
 
@@ -74,4 +75,4 @@ appId: ${MAESTRO_APP_ID}
     id: 'curated-route-detail-name'
     text: 'Cherohala Skyway'
 - assertVisible:
-    id: 'curated-route-detail-map'
+    id: 'curated-detail-map'
