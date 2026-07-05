@@ -54,7 +54,9 @@ export default defineSchema({
   saved_routes: defineTable(savedRouteValidator)
     .index('by_ownerType_and_ownerId', ['ownerType', 'ownerId'])
     .index('by_createdByUserId', ['createdByUserId'])
-    .index('by_ownerType_ownerId_routeFingerprint', ['ownerType', 'ownerId', 'routeFingerprint']),
+    .index('by_ownerType_ownerId_routeFingerprint', ['ownerType', 'ownerId', 'routeFingerprint'])
+    // DATA-003: bookmark lookup — "is this curated route saved?" / list bookmarks.
+    .index('by_curated_route', ['curatedRouteRef']),
 
   /**
    * Favorite roads table - Stores user's favorite road segments
