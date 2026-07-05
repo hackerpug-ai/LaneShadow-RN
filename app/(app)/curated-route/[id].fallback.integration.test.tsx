@@ -36,6 +36,9 @@ const mockRouterBack = vi.fn()
 
 vi.mock('convex/react', () => ({
   useQuery: (...args: unknown[]) => mockUseQuery(...args),
+  // DESIGN-004: useSaveCuratedRoute calls useMutation — include a no-op stub.
+  useMutation: () => vi.fn(),
+  useAction: () => vi.fn(),
 }))
 
 vi.mock('expo-router', () => ({
@@ -67,6 +70,17 @@ vi.mock('../../../components/map', () => {
 
 vi.mock('../../../components/map/map-header-overlay', () => ({
   MapHeaderOverlay: () => null,
+}))
+
+// DESIGN-004: the screen now imports SAVE-001 hooks + SAVE-002 deeplink.
+// Mock both so the DTL-001 fallback assertions are unaffected by the new wiring.
+vi.mock('../../../hooks/use-save-curated-route', () => ({
+  useSaveCuratedRoute: () => ({ save: vi.fn(), isLoading: false }),
+  useIsCuratedRouteSaved: () => ({ isSaved: false }),
+}))
+
+vi.mock('../../../lib/maps-deeplink', () => ({
+  openRouteInMaps: vi.fn(),
 }))
 
 describe('DTL-001 AC-4: curated-route detail fallback', () => {

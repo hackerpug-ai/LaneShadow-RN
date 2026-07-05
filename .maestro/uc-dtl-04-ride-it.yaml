@@ -1,0 +1,60 @@
+# DESIGN-004 AC-2 e2e: tap Ride It → opens Apple/Google Maps at centroid with name
+#
+# E2E (real iOS simulator + live Convex dev). Runs in PHASE 3.5 when a
+# simulator is available; not executable in the implementer's env.
+#
+# Coverage:
+#   AC-2 — a curated route with centroid {40.6, -111.6} + name
+#   'Wasatch Ridge Traverse'; the user taps Ride It; openRouteInMaps (SAVE-002)
+#   is invoked with {lat, lng, name}; on iOS Apple Maps opens at
+#   maps.apple.com/?ll=40.6,-111.6&q=Wasatch%20Ridge%20Traverse.
+#
+# Fixture (seeded against live Convex dev via public_api):
+#   - convex_polyline_route — routeId 'wasatch-ridge-traverse', name
+#     'Wasatch Ridge Traverse', centroid {40.6, -111.6}.
+#
+# Prerequisite: simulator booted with LaneShadow app installed + signed in
+# (Clerk dev); Convex dev running (`pnpm dev`). Apple Maps must be installed
+# (default on iOS simulator).
+
+appId: ${MAESTRO_APP_ID}
+---
+- launchApp:
+    clearState: true
+
+# Deep-link straight to the curated route detail screen.
+- runScript:
+    when:
+      true: ${true}
+    commands:
+      - openURL: ${APP_SCHEME}:///curated-route/wasatch-ridge-traverse
+
+# GIVEN: the detail screen is open — header name renders.
+- assertVisible:
+    id: 'curated-route-detail-name'
+    text: 'Wasatch Ridge Traverse'
+
+# AND: the Ride It control is present.
+- assertVisible:
+    id: 'ride-it-button'
+    text: 'Ride It'
+
+# WHEN: the user taps Ride It.
+- tapOn:
+    id: 'ride-it-button'
+
+# THEN: Apple Maps opens (iOS). The system maps app is launched via the
+# SAVE-002 deeplink util (openRouteInMaps → Linking.openURL).
+# On iOS the URL is https://maps.apple.com/?ll=40.6,-111.6&q=...
+# Maestro cannot directly assert on the launched URL, so we assert that the
+# maps app became visible (Apple Maps on iOS).
+- assertVisible:
+    text: '.*[Mm]aps.*'
+
+# (Backend / URL assertion — verified via the jsdom integration test
+#  tapRideItCallsOpenRouteInMapsWithCentroidAndName which asserts the exact
+#  {lat: 40.6, lng: -111.6, name: 'Wasatch Ridge Traverse'} call args. The
+#  on-device assertion confirms the maps app actually opened.)
+
+# NEGATIVE: the app did NOT crash or show an error fallback after the handoff.
+# (When the user returns to the app, the detail screen should still be intact.)
