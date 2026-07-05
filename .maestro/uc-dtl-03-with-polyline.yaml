@@ -1,0 +1,52 @@
+# DESIGN-003 AC-1 e2e: route WITH polyline → polyline renders, NO badge
+#
+# E2E (real iOS simulator + live Convex dev). Runs in PHASE 3.5 when a
+# simulator is available; not executable in the implementer's env.
+#
+# Coverage:
+#   AC-1 (PRIMARY) — a curated route WITH routePolyline opens to a detail
+#   screen where the polyline layer is drawn (camera fits bounds) AND the
+#   'Approximate location' badge is ABSENT.
+#
+# Fixture (seeded against live Convex dev via public_api):
+#   - convex_polyline_route — routeId 'wasatch-ridge-traverse', name
+#     'Wasatch Ridge Traverse', routePolyline present.
+#
+# Prerequisite: simulator booted with LaneShadow app installed + signed in
+# (Clerk dev); Convex dev running (`pnpm dev`).
+
+appId: ${MAESTRO_APP_ID}
+---
+- launchApp:
+    clearState: true
+
+# Deep-link straight to the curated route detail screen.
+- runScript:
+    when:
+      true: ${true}
+    commands:
+      - openURL: ${APP_SCHEME}:///curated-route/wasatch-ridge-traverse
+
+# THEN: the screen opens without crashing — header name renders.
+- assertVisible:
+    id: 'curated-route-detail-name'
+    text: 'Wasatch Ridge Traverse'
+
+# AND: the DESIGN-002 map section is present.
+- assertVisible:
+    id: 'curated-detail-map'
+
+# AND: the polyline-presence probe (sibling of the map renderer) renders —
+# proof the polyline branch was taken (state 1).
+- assertVisible:
+    id: 'curated-route-detail-polyline'
+
+# NEGATIVE: the 'Approximate location' badge MUST NOT appear when a polyline
+# is present (mutual-exclusion invariant).
+- assertNotVisible:
+    id: 'curated-detail-approximate-badge'
+- assertNotVisible: 'Approximate location'
+
+# (Camera fits-bounds is verified visually — no opaque probe is available
+# without instrumenting the native map. The jsdom suite asserts the camera
+# prop absence in this branch; on-device verifies the fit.)

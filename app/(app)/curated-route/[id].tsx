@@ -30,12 +30,16 @@
 
 import { useAction } from 'convex/react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ErrorBoundary } from '../../../components/logging/error-boundary'
-import { MapboxMapView, type MapboxPolyline } from '../../../components/map'
+import {
+  MapboxMapView,
+  type MapboxMapViewHandle,
+  type MapboxPolyline,
+} from '../../../components/map'
 import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
 import { Badge } from '../../../components/ui/badge'
 import { Button } from '../../../components/ui/button'
@@ -120,17 +124,80 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
     }
   }, [detail, getCurrentWeather])
 
+  // ─── DESIGN-003 geometry state (polyline / centroid+badge / null-safe) ─────
+  //
+  // Three branches keyed off the loaded detail:
+  //   1. routePolyline present (~55%) → render polyline, camera fits bounds,
+  //      NO approximate badge, NO centroid marker.
+  //   2. routePolyline null + centroid present (~45%) → ONE centroid marker +
+  //      'Approximate location' outline badge centered below the map + camera
+  //      zoom 11 centered on the centroid.
+  //   3. Both null → graceful (no crash, map stays at default, no badge).
+  //
+  // `hasPolyline` is the single discriminator for the polyline branch (state 1).
+  const hasPolyline = Boolean(detail?.routePolyline)
+
+  // Centroid coordinates are valid only when BOTH lat + lng are finite numbers.
+  // Guards state 3 (null centroid) against an uncaught TypeError when building
+  // the camera center tuple [lng, lat] (Mapbox format).
+  const centroid =
+    detail && Number.isFinite(detail.centroidLat) && Number.isFinite(detail.centroidLng)
+      ? { latitude: detail.centroidLat, longitude: detail.centroidLng }
+      : null
+
+  // State 2 discriminator: no polyline + a usable centroid.
+  const showApproximateBadge = !hasPolyline && centroid !== null
+
   const polylines: MapboxPolyline[] = useMemo(() => {
     if (!detail?.routePolyline) return []
     return [
       {
         id: `curated-${detail.routeId}`,
         coordinates: decodePolylineGeometry(detail.routePolyline),
+        // copper-500 is the brand primary in the active palette; using the
+        // semantic token keeps the stroke theme-aware (dark/light) instead
+        // of hardcoding the hex per the design enrichment.
         strokeColor: semantic.color.primary.default,
-        strokeWidth: 6,
+        strokeWidth: 4,
       },
     ]
   }, [detail, semantic.color.primary.default])
+
+  // Centroid marker — ONE pin in state 2 only (state 1 fits the polyline bounds
+  // and the polyline carries the geometry; state 3 has nothing to show).
+  const centroidMarkers = useMemo(() => {
+    if (hasPolyline || !centroid || !detail) return []
+    return [
+      {
+        id: `curated-centroid-${detail.routeId}`,
+        coordinates: centroid,
+      },
+    ]
+  }, [hasPolyline, centroid, detail])
+
+  // Camera for state 2: zoom 11 centered on the centroid (no padding). State 1
+  // fits the polyline bounds via the imperative ref effect below.
+  const centroidCamera = useMemo(() => {
+    if (hasPolyline || !centroid) return undefined
+    return {
+      center: [centroid.longitude, centroid.latitude] as [number, number],
+      zoom: 11,
+      pitch: 0,
+      heading: 0,
+    }
+  }, [hasPolyline, centroid])
+
+  // Imperative fit-bounds for state 1: when a polyline resolves, call the
+  // map's fitToCoordinates once. (Default fitToCoordinates padding matches the
+  // existing wrapper's; the camera prop is left undefined so the imperative
+  // call is the source of truth.) Phase 3.5 verifies the fit on-device.
+  const mapRef = useRef<MapboxMapViewHandle | null>(null)
+  useEffect(() => {
+    if (!hasPolyline || polylines.length === 0) return
+    const coords = polylines[0].coordinates
+    if (coords.length === 0) return
+    mapRef.current?.fitToCoordinates(coords)
+  }, [hasPolyline, polylines])
 
   // Loading → shared skeleton.
   if (isLoading) {
@@ -163,11 +230,35 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
         style={[styles.mapSection, { backgroundColor: semantic.color.background.default }]}
         accessibilityLabel={`Route map for ${detail.name}`}
       >
-        <MapboxMapView theme={isDark ? 'dark' : 'light'} polylines={polylines} />
+        <MapboxMapView
+          ref={mapRef}
+          theme={isDark ? 'dark' : 'light'}
+          polylines={polylines}
+          markers={centroidMarkers}
+          camera={centroidCamera}
+        />
         {/* Polyline-presence marker so AC-1's "polyline layer rendered" can be
-            asserted independently of the native map children. */}
-        {polylines.length > 0 ? (
+            asserted independently of the native map children. Rendered ONLY in
+            state 1 (polyline present) — never in state 2/3. */}
+        {hasPolyline ? (
           <View testID="curated-route-detail-polyline" style={styles.polylineProbe} />
+        ) : null}
+        {/* DESIGN-003 state 2: 'Approximate location' outline badge, centered
+            BELOW the map. Mutually exclusive with the polyline branch — nulls
+            the moment a real polyline resolves (no fade). The Badge atom
+            applies the exact design-enrichment tokens (borderWidth 1, border
+            semantic.color.border.default, text semantic.color.onSurface.default,
+            radius semantic.radius.full, type.label.sm). */}
+        {showApproximateBadge ? (
+          <View
+            testID="curated-detail-approximate-badge-wrap"
+            style={[styles.approximateBadgeWrap, { bottom: semantic.space.sm }]}
+            pointerEvents="none"
+          >
+            <Badge variant="outline" testID="curated-detail-approximate-badge">
+              Approximate location
+            </Badge>
+          </View>
         ) : null}
       </View>
 
@@ -400,5 +491,16 @@ const styles = StyleSheet.create({
     height: 1,
     marginTop: 8,
     backgroundColor: 'transparent',
+  },
+  // DESIGN-003 state 2: badge wrapper centered BELOW the map viewport.
+  // Position absolute over the map's bottom edge so the map's flex sizing
+  // is unaffected; the badge floats centered with semantic breathing room.
+  // (Inline `bottom: semantic.space.sm` — keeps the offset theme-aware.)
+  approximateBadgeWrap: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 })

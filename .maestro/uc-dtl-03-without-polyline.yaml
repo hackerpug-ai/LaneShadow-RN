@@ -1,0 +1,55 @@
+# DESIGN-003 AC-2 e2e: route WITHOUT polyline → single centroid marker +
+# literal 'Approximate location' badge + zoom 11
+#
+# E2E (real iOS simulator + live Convex dev). Runs in PHASE 3.5 when a
+# simulator is available; not executable in the implementer's env.
+#
+# Coverage:
+#   AC-2 — a curated route WITHOUT routePolyline (but with a centroid) opens
+#   to a detail screen where exactly ONE centroid marker is rendered, the
+#   literal 'Approximate location' badge appears centered below the map, and
+#   the camera is at zoom 11.
+#
+# Fixture (seeded against live Convex dev via public_api):
+#   - convex_no_polyline_route — routeId 'blue-ridge-overlook', name
+#     'Blue Ridge Overlook', routePolyline = null, centroidLat/Lng set.
+#
+# Prerequisite: simulator booted with LaneShadow app installed + signed in
+# (Clerk dev); Convex dev running (`pnpm dev`).
+
+appId: ${MAESTRO_APP_ID}
+---
+- launchApp:
+    clearState: true
+
+# Deep-link straight to the curated route detail screen.
+- runScript:
+    when:
+      true: ${true}
+    commands:
+      - openURL: ${APP_SCHEME}:///curated-route/blue-ridge-overlook
+
+# THEN: the screen opens without crashing — header name renders.
+- assertVisible:
+    id: 'curated-route-detail-name'
+    text: 'Blue Ridge Overlook'
+
+# AND: the DESIGN-002 map section is present.
+- assertVisible:
+    id: 'curated-detail-map'
+
+# AND: the 'Approximate location' badge renders centered below the map with
+# the literal text (state 2).
+- assertVisible:
+    id: 'curated-detail-approximate-badge'
+    text: 'Approximate location'
+
+# NEGATIVE: the polyline probe MUST NOT appear when routePolyline is absent
+# (mutual-exclusion invariant).
+- assertNotVisible:
+    id: 'curated-route-detail-polyline'
+
+# (Marker count + camera zoom 11 are native-map concerns — no opaque probe
+# is available without instrumenting Mapbox. The jsdom suite asserts marker
+# count == 1 and camera zoom == 11 in this branch; on-device verifies the
+# marker is visible and the map is zoomed to ~11.)
