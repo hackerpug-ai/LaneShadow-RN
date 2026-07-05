@@ -1,42 +1,138 @@
 /**
- * Curated Route Detail Screen
+ * Curated Route Detail Screen (DESIGN-002 — six-section lean body).
  *
- * Full-screen view of a single curated route: name + basic map.
+ * Full-screen view of a single curated route. Six sections top→bottom:
+ *   1. header      — name (title.lg) + archetype Badge (variant=secondary)
+ *   2. summary     — body.md content.secondary, or italic "No description yet"
+ *   3. scores      — DESIGN-001 ScoreDimensionBarSection (composite + 5 bars)
+ *   4. map         — ~40% top, non-scrolling (polyline-guarded; DESIGN-003 owns degradation)
+ *   5. conditions  — basic weather via getCurrentWeather action on centroid;
+ *                    per-section "conditions unavailable" on failure (NEVER a
+ *                    screen-level error — isolated try/catch state)
+ *   6. actions     — Save + Ride It buttons (RENDERED here; WIRED by DESIGN-004)
+ *
+ * Layout mirrors `app/(app)/saved-route/[id].tsx`: top ~40% map (non-scrolling
+ * flex sibling) + bottom ~60% ScrollView body. The actions row is INSIDE the
+ * ScrollView so it scrolls with the body on long pages (NOT pinned/absolute).
  *
  * Reached by tapping a curated-route chat card OR its map pin on the plan
  * view (both `router.push('/(app)/curated-route/{id}')` via the shared
  * `goToCuratedRoute(id)` helper on the plan tab).
  *
- * Scaffold mirrors `app/(app)/saved-route/[id].tsx`:
- *   - `useLocalSearchParams<{ id: string }>()` for the route id (NEVER a
- *     query prop / global state)
- *   - shared loading skeleton (ActivityIndicator)
- *   - error/null fallback ('Route not found') that REPLACES the whole body
- *
- * Per DTL-001 scope: this screen renders the route name + a polyline-guarded
- * map (no crash when `routePolyline` is null). DESIGN-002 owns the full
- * six-section body; DESIGN-003 owns the graceful centroid-degradation UX.
+ * Backward-compat testIDs preserved from DTL-001 (consumed by the DTL-001
+ * maestro flow + fallback test):
+ *   - `curated-route-detail-name`     — the name Text (leaf inside header section)
+ *   - `curated-route-detail-polyline` — polyline-presence probe (inside map section)
+ *   - `curated-route-detail-fallback` — null/error fallback node (unchanged)
+ *   - `curated-route-detail-loading`  — loading skeleton (unchanged)
+ * The six section ROOT Views carry the canonical `curated-detail-*` testIDs.
  */
 
+import { useAction } from 'convex/react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useMemo } from 'react'
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import { useEffect, useMemo, useState } from 'react'
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ErrorBoundary } from '../../../components/logging/error-boundary'
 import { MapboxMapView, type MapboxPolyline } from '../../../components/map'
 import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
+import { Badge } from '../../../components/ui/badge'
+import { Button } from '../../../components/ui/button'
+import {
+  type ScoreDimension,
+  ScoreDimensionBarSection,
+} from '../../../components/ui/score-dimension-bar'
 import { useThemePreference } from '../../../contexts/theme-preference'
-import { useCuratedRouteDetail } from '../../../hooks/use-curated-route-detail'
+import { api } from '../../../convex/_generated/api'
+import {
+  type CuratedRouteDetail,
+  useCuratedRouteDetail,
+} from '../../../hooks/use-curated-route-detail'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { decodePolylineGeometry } from '../../../shared/lib/polyline'
+
+// ─── Weather action result shape (mirrors convex/actions/weather.ts returns) ─
+
+type WeatherResult = {
+  tempF: number
+  condition: string
+  severity: string
+  dayOfWeek: string
+}
+
+// ─── Score-dimension catalog (fixed order; null scores filtered by the section) ─
+
+type ScoredDetail = Pick<
+  CuratedRouteDetail,
+  'curvatureScore' | 'scenicScore' | 'technicalScore' | 'trafficScore' | 'remotenessScore'
+>
+
+const buildScoreDimensions = (detail: ScoredDetail): ScoreDimension[] => [
+  { key: 'curvature', label: 'Curvature', score: detail.curvatureScore },
+  { key: 'scenic', label: 'Scenic', score: detail.scenicScore },
+  { key: 'technical', label: 'Technical', score: detail.technicalScore },
+  { key: 'traffic', label: 'Traffic', score: detail.trafficScore },
+  { key: 'remoteness', label: 'Remoteness', score: detail.remotenessScore },
+]
+
+// ─── Pure presentational helpers ─────────────────────────────────────────────
+
+/** Title-case a UiArchetype slug ('scenic' → 'Scenic') for the Badge label. */
+const titleCaseArchetype = (archetype: string): string =>
+  archetype.length === 0 ? archetype : archetype.charAt(0).toUpperCase() + archetype.slice(1)
+
+/** A summary is "present" only when it's a non-blank string. */
+const hasSummary = (summary: string | null | undefined): boolean =>
+  Boolean(summary && summary.trim().length > 0)
+
+// ─── Body (the six sections) ─────────────────────────────────────────────────
 
 const PolylineGuardedBody = ({ id }: { id: string }) => {
   const { semantic } = useSemanticTheme()
   const { isDark } = useThemePreference()
   const { detail, isLoading } = useCuratedRouteDetail(id)
 
-  // Loading → shared skeleton (reuses the saved-route detail loading pattern).
+  // Per-section weather: useAction returns a stable action caller; the
+  // effect fires on the centroid (never on the whole screen). Failure is
+  // captured in `weatherError` and surfaces ONLY in the conditions section —
+  // it NEVER unmounts the screen or blocks the other five sections.
+  const getCurrentWeather = useAction(api.actions.weather.getCurrentWeather)
+  const [weather, setWeather] = useState<WeatherResult | null>(null)
+  const [weatherError, setWeatherError] = useState(false)
+
+  useEffect(() => {
+    // No detail yet → nothing to fetch. (Hooks stay unconditional above; this
+    // guard is inside the effect body so hook call order is stable.)
+    if (!detail) return
+    let cancelled = false
+    setWeatherError(false)
+    setWeather(null)
+    getCurrentWeather({ lat: detail.centroidLat, lng: detail.centroidLng })
+      .then((result) => {
+        if (!cancelled) setWeather(result as WeatherResult)
+      })
+      .catch(() => {
+        if (!cancelled) setWeatherError(true)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [detail, getCurrentWeather])
+
+  const polylines: MapboxPolyline[] = useMemo(() => {
+    if (!detail?.routePolyline) return []
+    return [
+      {
+        id: `curated-${detail.routeId}`,
+        coordinates: decodePolylineGeometry(detail.routePolyline),
+        strokeColor: semantic.color.primary.default,
+        strokeWidth: 6,
+      },
+    ]
+  }, [detail, semantic.color.primary.default])
+
+  // Loading → shared skeleton.
   if (isLoading) {
     return (
       <View
@@ -57,53 +153,132 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
     return <CuratedRouteFallback semantic={semantic} />
   }
 
-  // Decode the encoded polyline string (precision 5) when present. When null
-  // (the ~45% of the catalog lacking geometry) we render no polyline layer —
-  // a no-crash guard. DESIGN-003 replaces this with the centroid + badge UX.
-  const polylines: MapboxPolyline[] = detail.routePolyline
-    ? [
-        {
-          id: `curated-${detail.routeId}`,
-          coordinates: decodePolylineGeometry(detail.routePolyline),
-          strokeColor: semantic.color.primary.default,
-          strokeWidth: 6,
-        },
-      ]
-    : []
+  const sectionGap = { gap: semantic.space.xl }
 
   return (
     <View style={styles.bodyRoot}>
+      {/* ─── MAP section (~40% top, non-scrolling) ─────────────────────────── */}
       <View
-        testID="curated-route-detail-map"
+        testID="curated-detail-map"
         style={[styles.mapSection, { backgroundColor: semantic.color.background.default }]}
         accessibilityLabel={`Route map for ${detail.name}`}
       >
         <MapboxMapView theme={isDark ? 'dark' : 'light'} polylines={polylines} />
-      </View>
-
-      {/* Name block — DESIGN-002 expands this into the six-section body. */}
-      <View
-        style={[
-          styles.nameBlock,
-          {
-            paddingHorizontal: semantic.space.lg,
-            paddingTop: semantic.space.lg,
-            backgroundColor: semantic.color.background.default,
-          },
-        ]}
-      >
-        <Text
-          testID="curated-route-detail-name"
-          style={[semantic.type.title.lg, { color: semantic.color.onSurface.default }]}
-        >
-          {detail.name}
-        </Text>
         {/* Polyline-presence marker so AC-1's "polyline layer rendered" can be
             asserted independently of the native map children. */}
         {polylines.length > 0 ? (
           <View testID="curated-route-detail-polyline" style={styles.polylineProbe} />
         ) : null}
       </View>
+
+      {/* ─── BODY (~60%, scrollable) ──────────────────────────────────────── */}
+      <ScrollView
+        testID="curated-detail-scroll"
+        style={styles.bodyScroll}
+        contentContainerStyle={{
+          paddingHorizontal: semantic.space.lg,
+          paddingTop: semantic.space.lg,
+          paddingBottom: semantic.space.xl,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={sectionGap}>
+          {/* 1. Header — name + archetype Badge */}
+          <View
+            testID="curated-detail-header"
+            style={[styles.headerRow, { gap: semantic.space.sm }]}
+          >
+            <Text
+              testID="curated-route-detail-name"
+              style={[
+                semantic.type.title.lg,
+                styles.headerName,
+                { color: semantic.color.onSurface.default },
+              ]}
+            >
+              {detail.name}
+            </Text>
+            <Badge variant="secondary" testID="curated-detail-archetype">
+              {titleCaseArchetype(detail.primaryArchetype)}
+            </Badge>
+          </View>
+
+          {/* 2. Summary — body.md content.secondary, or italic "No description yet" */}
+          <View testID="curated-detail-summary">
+            {hasSummary(detail.summary) ? (
+              <Text style={[semantic.type.body.md, { color: semantic.color.onSurface.subtle }]}>
+                {detail.summary}
+              </Text>
+            ) : (
+              <Text
+                testID="curated-detail-summary-empty"
+                style={[
+                  semantic.type.body.md,
+                  { color: semantic.color.onSurface.subtle, fontStyle: 'italic' },
+                ]}
+              >
+                No description yet
+              </Text>
+            )}
+          </View>
+
+          {/* 3. Scores — compose DESIGN-001's ScoreDimensionBarSection */}
+          <View testID="curated-detail-scores">
+            <ScoreDimensionBarSection
+              compositeScore={detail.compositeScore}
+              dimensions={buildScoreDimensions(detail)}
+            />
+          </View>
+
+          {/* 4. Conditions — per-section weather (isolated error, never screen-level) */}
+          <View testID="curated-detail-conditions">
+            {weatherError ? (
+              <Text
+                style={[
+                  semantic.type.body.md,
+                  { color: semantic.color.onSurface.subtle, fontStyle: 'italic' },
+                ]}
+              >
+                conditions unavailable
+              </Text>
+            ) : weather ? (
+              <View style={[styles.conditionsRow, { gap: semantic.space.md }]}>
+                <Text style={[semantic.type.body.md, { color: semantic.color.onSurface.default }]}>
+                  {weather.tempF}°F
+                </Text>
+                <Text style={[semantic.type.body.md, { color: semantic.color.onSurface.subtle }]}>
+                  {weather.condition}
+                </Text>
+              </View>
+            ) : (
+              <ActivityIndicator color={semantic.color.primary.default} />
+            )}
+          </View>
+
+          {/* 5. Actions — Save + Ride It (RENDERED here, WIRED by DESIGN-004) */}
+          <View
+            testID="curated-detail-actions"
+            style={[styles.actionsRow, { gap: semantic.space.md }]}
+          >
+            <Button
+              variant="outline"
+              onPress={() => {}}
+              testID="curated-detail-save"
+              style={styles.actionButton}
+            >
+              Save
+            </Button>
+            <Button
+              variant="default"
+              onPress={() => {}}
+              testID="curated-detail-ride"
+              style={styles.actionButton}
+            >
+              Ride It
+            </Button>
+          </View>
+        </View>
+      </ScrollView>
     </View>
   )
 }
@@ -161,7 +336,9 @@ const CuratedRouteDetailScreen = () => {
       />
       {/* ErrorBoundary: a throwing getCuratedRouteDetail (DATA-006 NOT_FOUND)
           renders the SAME fallback as the explicit null-check — no uncaught
-          error reaches the top-level boundary. */}
+          error reaches the top-level boundary. NOTE: this boundary does NOT
+          swallow per-section weather failures — those are isolated inside
+          PolylineGuardedBody's conditions section. */}
       <ErrorBoundary fallback={<CuratedRouteFallback semantic={semantic} />}>
         <PolylineGuardedBody id={id ?? ''} />
       </ErrorBoundary>
@@ -182,11 +359,32 @@ const styles = StyleSheet.create({
   bodyRoot: {
     flex: 1,
   },
+  // ~40% map (non-scrolling flex sibling above the body, mirroring saved-route).
   mapSection: {
-    flex: 1,
+    flex: 0.4,
   },
-  nameBlock: {
-    paddingBottom: 24,
+  // ~60% body.
+  bodyScroll: {
+    flex: 0.6,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  headerName: {
+    flexShrink: 1,
+  },
+  conditionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionButton: {
+    flex: 1,
   },
   centered: {
     flex: 1,
