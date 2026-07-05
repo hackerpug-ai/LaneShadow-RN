@@ -14,7 +14,7 @@
 #
 # Prerequisite: the plan tab is mounted with curated discovery routes visible.
 
-appId: ${MAESTRO_APP_ID}
+appId: com.hackerpug.laneshadow
 ---
 # ─── AC-1: chat card with geometry → detail + polyline ──────────────────────
 - launchApp:
@@ -47,11 +47,7 @@ appId: ${MAESTRO_APP_ID}
 - launchApp:
     clearState: true
 # Deep-link straight to a curated route whose routePolyline is null.
-- runScript:
-    when:
-      true: ${true}
-    commands:
-      - openURL: ${APP_SCHEME}:///curated-route/blue-ridge-overlook
+- openLink: laneshadow:///curated-route/blue-ridge-overlook
 # THEN: the screen opens without crashing (no red error box) and the name
 # renders — the map renderer is guarded against null geometry.
 - assertVisible:

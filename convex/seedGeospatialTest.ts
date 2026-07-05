@@ -228,3 +228,112 @@ export const clearSeeded = mutation({
     return { deleted: routes.length }
   },
 })
+
+export const seedE2ETestRoutes = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now()
+    const routes = [
+      {
+        routeId: 'wasatch-ridge-traverse',
+        name: 'Wasatch Ridge Traverse',
+        state: 'UT',
+        source: 'editorial' as const,
+        primaryArchetype: 'scenic_byway' as const,
+        secondaryTags: ['mountain', 'views'],
+        centroidLat: 40.6,
+        centroidLng: -111.6,
+        compositeScore: 85,
+        curvatureScore: 60,
+        scenicScore: 90,
+        technicalScore: 45,
+        trafficScore: 30,
+        remotenessScore: 75,
+        lengthMiles: 45.2,
+        oneLiner: 'A stunning traverse through the Wasatch Range.',
+        summary: 'A stunning traverse through the Wasatch Range with epic views.',
+        badges: ['scenic', 'mountain'],
+        season: 'may_sep' as const,
+        contentVersion: 1,
+        seededAt: now,
+        routePolyline: 'encoded_polyline_placeholder',
+        boundsNeLat: 40.65,
+        boundsSwLat: 40.55,
+        boundsNeLng: -111.55,
+        boundsSwLng: -111.65,
+      },
+      {
+        routeId: 'blue-ridge-overlook',
+        name: 'Blue Ridge Overlook',
+        state: 'NC',
+        source: 'editorial' as const,
+        primaryArchetype: 'scenic_byway' as const,
+        secondaryTags: ['overlook', 'quiet'],
+        centroidLat: 35.6,
+        centroidLng: -82.5,
+        compositeScore: 72,
+        curvatureScore: 50,
+        scenicScore: 85,
+        technicalScore: 30,
+        trafficScore: 40,
+        remotenessScore: 55,
+        lengthMiles: 32.8,
+        oneLiner: 'A quiet overlook along the Blue Ridge.',
+        summary: '',
+        badges: ['scenic'],
+        season: 'apr_nov' as const,
+        contentVersion: 1,
+        seededAt: now,
+        routePolyline: undefined,
+        boundsNeLat: 35.65,
+        boundsSwLat: 35.55,
+        boundsNeLng: -82.45,
+        boundsSwLng: -82.55,
+      },
+      {
+        routeId: 'cherohala-skyway',
+        name: 'Cherohala Skyway',
+        state: 'TN',
+        source: 'editorial' as const,
+        primaryArchetype: 'mountain' as const,
+        secondaryTags: ['twisties', 'views'],
+        centroidLat: 35.3,
+        centroidLng: -84.0,
+        compositeScore: 90,
+        curvatureScore: 75,
+        scenicScore: 95,
+        technicalScore: 50,
+        trafficScore: 35,
+        remotenessScore: 80,
+        lengthMiles: 43.0,
+        oneLiner: 'The Cherohala Skyway — a legendary motorcycle road.',
+        summary: 'The Cherohala Skyway — a legendary motorcycle road.',
+        badges: ['scenic', 'great_road', 'mountain'],
+        season: 'may_sep' as const,
+        contentVersion: 1,
+        seededAt: now,
+        routePolyline: 'encoded_polyline_placeholder',
+        boundsNeLat: 35.35,
+        boundsSwLat: 35.25,
+        boundsNeLng: -83.95,
+        boundsSwLng: -84.05,
+      },
+    ]
+
+    const existing = await ctx.db.query('curated_routes')
+      .withIndex('by_routeId', q =>
+        q.eq('routeId', 'wasatch-ridge-traverse')
+      )
+      .collect()
+    if (existing.length > 0) {
+      return { created: 0, message: 'E2E test routes already exist' }
+    }
+
+    const ids: string[] = []
+    for (const route of routes) {
+      const id = await ctx.db.insert('curated_routes', route as any)
+      ids.push(id)
+    }
+    return { created: ids.length, ids }
+  },
+})

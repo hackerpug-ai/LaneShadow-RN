@@ -17,27 +17,30 @@
 # (Clerk dev); Convex dev running (`pnpm dev`). Apple Maps must be installed
 # (default on iOS simulator).
 
-appId: ${MAESTRO_APP_ID}
+appId: com.hackerpug.laneshadow
 ---
 - launchApp:
     clearState: true
+    clearKeychain: true
+
+- runFlow: _common-auth.yaml
 
 # Deep-link straight to the curated route detail screen.
-- runScript:
-    when:
-      true: ${true}
-    commands:
-      - openURL: ${APP_SCHEME}:///curated-route/wasatch-ridge-traverse
+- openLink: laneshadow:///curated-route/wasatch-ridge-traverse
 
 # GIVEN: the detail screen is open — header name renders.
 - assertVisible:
     id: 'curated-route-detail-name'
     text: 'Wasatch Ridge Traverse'
 
-# AND: the Ride It control is present.
-- assertVisible:
-    id: 'ride-it-button'
-    text: 'Ride It'
+# Scroll down past the scores section to reveal the action buttons
+- swipe:
+    direction: UP
+
+- extendedWaitUntil:
+    visible:
+      id: 'ride-it-button'
+    timeout: 10000
 
 # WHEN: the user taps Ride It.
 - tapOn:

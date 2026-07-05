@@ -230,10 +230,10 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
   //   — a Convex read-path change outside this task's WRITE scope.
   //   The wiring is correct; the `_id` source is the gap.
   const { isSaved: isAlreadySaved } = useIsCuratedRouteSaved({
-    curatedRouteId: detail?.routeId ?? null,
+    curatedRouteId: detail?._id ?? null,
   })
   const { save } = useSaveCuratedRoute({
-    curatedRouteId: detail?.routeId ?? '',
+    curatedRouteId: detail?._id ?? '',
     name: detail?.name ?? '',
   })
 

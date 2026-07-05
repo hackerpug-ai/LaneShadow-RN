@@ -1,0 +1,48 @@
+appId: com.hackerpug.laneshadow
+---
+
+# _common-auth.yaml — Shared auth helper (mirrors rux-007 pattern).
+#
+# CALLER owns launchApp (clearState: true, clearKeychain: true).
+
+- extendedWaitUntil:
+    visible:
+      text: "DEVELOPMENT SERVERS|Lane Shadow"
+    timeout: 60000
+- runFlow:
+    when:
+      visible: { text: "DEVELOPMENT SERVERS" }
+    commands:
+      - tapOn:
+          text: ".*localhost:8081.*"
+
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|.*developer menu.*|Reload|Go home|Toggle performance monitor|Toggle element inspector|Open JS debugger|Close"
+    timeout: 240000
+- runFlow:
+    when:
+      visible: { text: ".*developer menu.*" }
+    commands:
+      - tapOn: { text: "Continue" }
+- runFlow:
+    when:
+      visible: { text: "Close" }
+    commands:
+      - tapOn: { text: "Close" }
+
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email"
+    timeout: 300000
+
+- runFlow:
+    when:
+      visible: { id: "e2e-test-login-button" }
+    commands:
+      - tapOn: { id: "e2e-test-login-button" }
+
+- extendedWaitUntil:
+    visible:
+      id: "chat-input"
+    timeout: 120000

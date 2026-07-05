@@ -23,16 +23,16 @@ appId: host.exp.Exponent  # swap for the production bundle id when not on Expo G
 
 # Sanity: the Save control is present and reads 'Save' (unsaved).
 - assertVisible:
-    id: 'curated-detail-save'
+    id: 'save-curated-button'
     text: 'Save'
 
 # Tap Save.
 - tapOn:
-    id: 'curated-detail-save'
+    id: 'save-curated-button'
 
 # Control must flip to 'Saved'.
 - assertVisible:
-    id: 'curated-detail-save'
+    id: 'save-curated-button'
     text: 'Saved'
 
 # (Backend assertion — run out-of-band via `npx convex run` between steps:)
@@ -79,12 +79,12 @@ appId: host.exp.Exponent  # swap for the production bundle id when not on Expo G
 # bookmark, 1 row). From the curated detail screen, the Save control now reads
 # 'Saved'; tapping it unsaves.
 - tapOn:
-    id: 'curated-detail-save'
+    id: 'save-curated-button'
     text: 'Saved'
 
 # Control must flip back to 'Save'.
 - assertVisible:
-    id: 'curated-detail-save'
+    id: 'save-curated-button'
     text: 'Save'
 
 # (Backend assertion — run out-of-band:)

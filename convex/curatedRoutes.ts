@@ -342,6 +342,7 @@ const routeDetailArgsValidator = v.object({
 })
 
 const routeDetailReturnValidator = v.object({
+  _id: v.id('curated_routes'),
   routeId: v.string(),
   name: v.string(),
   state: v.string(),
@@ -376,6 +377,7 @@ function buildRouteDetail(route: Doc<'curated_routes'>) {
   const headline = route.summary && route.summary.trim().length > 0 ? route.summary : route.name
 
   return {
+    _id: route._id,
     routeId: route.routeId,
     name: route.name,
     state: normalizeState(route.state),

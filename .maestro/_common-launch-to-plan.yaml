@@ -1,0 +1,62 @@
+appId: com.hackerpug.laneshadow
+---
+
+# _common-launch-to-plan.yaml — Shared launch helper for Maestro flows that need
+# to reach the plan view (home map + curated cards) after launching the app.
+#
+# The CALLER owns launchApp (clearState). This helper handles Expo dev-client
+# screens, E2E test-login auth, and waits for the plan tab to be fully mounted
+# (chat-input + curated cards visible).
+#
+# Pattern mirrors rux-007-card-tap-loading-state.yaml post-launch steps.
+# Referenced by curated-route-detail.yaml.
+
+# Dev-client: may show DEVELOPMENT SERVERS — dismiss it if present.
+- runFlow:
+    when:
+      visible: { text: "DEVELOPMENT SERVERS" }
+    commands:
+      - tapOn:
+          text: ".*localhost:8081.*"
+
+# Wait for the JS bundle + sign-in screen. Dev client shows a first-run popup.
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|.*developer menu.*|Reload|Go home|Toggle performance monitor|Toggle element inspector|Open JS debugger|Close"
+    timeout: 300000
+- runFlow:
+    when:
+      visible: { text: ".*developer menu.*" }
+    commands:
+      - tapOn: { text: "Continue" }
+# The Expo dev-client panel can stay open after the intro; close it deterministically.
+- runFlow:
+    when:
+      visible: { text: "Close" }
+    commands:
+      - tapOn: { text: "Close" }
+
+# Wait for sign-in form.
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email"
+    timeout: 300000
+
+# Sign in via E2E test-login button (uses CLERK_TEST_EMAIL / CLERK_TEST_PASSWORD env vars).
+- runFlow:
+    when:
+      visible: { id: "e2e-test-login-button" }
+    commands:
+      - tapOn: { id: "e2e-test-login-button" }
+
+# Wait for signed-in home (map mode with curated cards).
+- extendedWaitUntil:
+    visible:
+      id: "chat-input"
+    timeout: 120000
+
+# Wait for discovery suggestion cards to appear.
+- extendedWaitUntil:
+    visible:
+      id: "chat-input-suggestion-chips"
+    timeout: 30000

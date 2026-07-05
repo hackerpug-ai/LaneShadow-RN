@@ -380,13 +380,14 @@ export const getSavedRoutesList = query({
       v.object({
         savedRouteId: v.string(),
         name: v.string(),
-        startLabel: v.string(),
-        endLabel: v.string(),
+        startLabel: v.optional(v.string()),
+        endLabel: v.optional(v.string()),
         createdAt: v.number(),
         updatedAt: v.number(),
-        preview: routePreviewValidator,
+        preview: v.optional(routePreviewValidator),
         capabilities: savedRouteCapabilitiesValidator,
-        routeIndex: routeIndexValidator,
+        routeIndex: v.optional(routeIndexValidator),
+        curatedRouteRef: v.optional(v.string()),
       }),
     ),
   }),
@@ -412,18 +413,29 @@ export const getSavedRoutesList = query({
 
     return {
       routes: results
-        .filter((item) => isPlannedSavedRoute(item))
-        .map(({ savedRouteId, savedRoute }) => ({
-          savedRouteId: `${savedRouteId}`,
-          name: savedRoute.name,
-          startLabel: savedRoute.planInput.start?.label ?? '',
-          endLabel: savedRoute.planInput.end?.label ?? '',
-          createdAt: savedRoute.createdAt,
-          updatedAt: savedRoute.updatedAt,
-          preview: computePreview(savedRoute.routeSnapshot),
-          capabilities: defaultCapabilities,
-          routeIndex: savedRoute.routeIndex,
-        })),
+        .map(({ savedRouteId, savedRoute }) => {
+          if (isPlannedSavedRoute({ savedRouteId, savedRoute } as SavedRouteWithId)) {
+            return {
+              savedRouteId: `${savedRouteId}`,
+              name: savedRoute.name,
+              startLabel: savedRoute.planInput?.start?.label ?? '',
+              endLabel: savedRoute.planInput?.end?.label ?? '',
+              createdAt: savedRoute.createdAt,
+              updatedAt: savedRoute.updatedAt,
+              preview: computePreview(savedRoute.routeSnapshot),
+              capabilities: defaultCapabilities,
+              routeIndex: savedRoute.routeIndex,
+            }
+          }
+          return {
+            savedRouteId: `${savedRouteId}`,
+            name: savedRoute.name,
+            createdAt: savedRoute.createdAt,
+            updatedAt: savedRoute.updatedAt,
+            capabilities: defaultCapabilities,
+            curatedRouteRef: savedRoute.curatedRouteRef ? `${savedRoute.curatedRouteRef}` : undefined,
+          }
+        }),
     }
   },
 })
@@ -431,12 +443,13 @@ export const getSavedRoutesList = query({
 export const savedRouteDetailViewValidator = v.object({
   savedRouteId: v.string(),
   name: v.string(),
-  planInput: planInputValidator,
-  routeSnapshot: routeSnapshotValidator,
-  routeIndex: routeIndexValidator,
-  snapshotMeta: snapshotMetaValidator,
+  planInput: v.optional(planInputValidator),
+  routeSnapshot: v.optional(routeSnapshotValidator),
+  routeIndex: v.optional(routeIndexValidator),
+  snapshotMeta: v.optional(snapshotMetaValidator),
   routeProvenance: v.optional(routeProvenanceValidator),
   capabilities: savedRouteCapabilitiesValidator,
+  curatedRouteRef: v.optional(v.string()),
 })
 
 export const getSavedRouteDetail = query({
@@ -452,7 +465,19 @@ export const getSavedRouteDetail = query({
       return null
     }
 
-    // DATA-003: this planned-route detail view requires the full planned payload.
+    // Curated bookmark: return lean shape with curatedRouteRef so the reopen
+    // path can redirect to the curated detail screen. The planned fields are
+    // absent — the frontend checks curatedRouteRef before touching them.
+    if (savedRoute.curatedRouteRef) {
+      return {
+        savedRouteId: `${savedRouteId}`,
+        name: savedRoute.name,
+        capabilities: defaultCapabilities,
+        curatedRouteRef: `${savedRoute.curatedRouteRef}`,
+      }
+    }
+
+    // Planned route detail: requires the full planned payload.
     // Curated bookmarks (curatedRouteRef-only) are rendered by a separate surface
     // (SAVE-001); until then they resolve to null here.
     if (
