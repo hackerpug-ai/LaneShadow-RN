@@ -484,6 +484,17 @@ const HomeMapScreen = () => {
   // doFit) plots the route directly, with NO chat round-trip.
   const createCuratedPlan = useMutation(api.db.routePlans.createCuratedRoutePlan)
 
+  // DTL-001: shared push target for opening the curated-route detail screen.
+  // BOTH entry points — the curated chat card tap (AC-1) AND the curated map
+  // pin tap (AC-3) — call this single helper so they push the identical route
+  // with identical semantics (`router.push`, never a Link href string).
+  const goToCuratedRoute = useCallback(
+    (routeId: string) => {
+      router.push(`/(app)/curated-route/${routeId}`)
+    },
+    [router],
+  )
+
   const handleSelectCuratedRoute = useCallback(
     async (routeId: string) => {
       const route = curatedDiscoveryRoutes?.find((r: any) => r.id === routeId)
@@ -1581,6 +1592,23 @@ const HomeMapScreen = () => {
                   testID="route-tag"
                 />
               )}
+
+              {/* DTL-001 AC-3: curated discovery map pins — tapping one pushes
+                  the SAME curated-route detail target as the chat card (AC-1)
+                  via the shared `goToCuratedRoute` helper. Rendered from the
+                  already-fetched curated discovery routes (centroid lat/lng).
+                  DESIGN-003 owns the polished pin look; this is the tap wiring. */}
+              {(curatedDiscoveryRoutes ?? []).map((route, i) => (
+                <SearchResultMarker
+                  key={`curated-map-pin-${route.id}`}
+                  id={route.id}
+                  coordinate={{ latitude: route.lat, longitude: route.lng }}
+                  index={i + 1}
+                  name={route.name}
+                  onPress={goToCuratedRoute}
+                  testID={`curated-map-pin-${route.id}`}
+                />
+              ))}
             </MapboxMapView>
           </Animated.View>
         )}
@@ -1747,6 +1775,57 @@ const HomeMapScreen = () => {
           </View>
         ) : null}
 
+        {/* DTL-001 AC-1: curated chat cards — tapping one pushes the SAME
+            curated-route detail target as the map pin (AC-3) via the shared
+            `goToCuratedRoute` helper. Shown in the cold-open discovery state
+            (map mode, curated routes loaded, no active route yet) so the
+            rider can open a curated detail straight from the plan view.
+            DESIGN-002 owns the final card styling; this is the tap wiring. */}
+        {!chatMode &&
+          !isLoading &&
+          !isEmpty &&
+          !hasDisplayedRoute &&
+          (curatedDiscoveryRoutes ?? []).length > 0 && (
+            <View
+              style={[
+                styles.curatedCards,
+                {
+                  bottom: insets.bottom + 96,
+                  paddingHorizontal: semantic.space.sm,
+                  gap: semantic.space.sm,
+                },
+              ]}
+              pointerEvents="box-none"
+            >
+              {(curatedDiscoveryRoutes ?? []).slice(0, 5).map((route) => (
+                <Pressable
+                  key={`curated-chat-card-${route.id}`}
+                  testID={`curated-chat-card-${route.id}`}
+                  onPress={() => goToCuratedRoute(route.id)}
+                  hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Open curated route ${route.name}`}
+                  style={[
+                    styles.curatedCard,
+                    {
+                      backgroundColor: semantic.color.surfaceVariant.default,
+                      borderRadius: semantic.radius.lg,
+                      paddingHorizontal: semantic.space.md,
+                      paddingVertical: semantic.space.sm,
+                    },
+                  ]}
+                >
+                  <Text
+                    numberOfLines={1}
+                    style={[semantic.type.body.sm, { color: semantic.color.onSurface.default }]}
+                  >
+                    {route.name}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+
         {/* Chat input - always visible at bottom */}
         <ChatInput
           onSend={handleSendMessage}
@@ -1861,6 +1940,17 @@ const styles = StyleSheet.create({
   weatherPills: {
     position: 'absolute',
     zIndex: 26,
+  },
+  curatedCards: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    zIndex: 25,
+  },
+  curatedCard: {
+    alignSelf: 'flex-start',
   },
   chatLayer: {
     zIndex: 10,

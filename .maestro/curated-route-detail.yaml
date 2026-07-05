@@ -1,0 +1,77 @@
+# DTL-001: Curated route detail — card tap, no-polyline, pin tap (AC-1/2/3)
+#
+# E2E (real iOS simulator + live Convex dev). Runs in PHASE 3.5 when a
+# simulator is available; not executable in the implementer's env.
+#
+# Coverage:
+#   AC-1  tap curated chat card WITH geometry  → detail opens, name + polyline
+#   AC-2  curated route with NO polyline        → no crash, name renders
+#   AC-3  tap curated MAP PIN                   → same detail route opens
+#
+# Fixtures (seeded against live Convex dev via public_api):
+#   - Cherohala Skyway  (routeId with routePolyline present)
+#   - Blue Ridge Overlook (routeId with routePolyline = null)
+#
+# Prerequisite: the plan tab is mounted with curated discovery routes visible.
+
+appId: ${MAESTRO_APP_ID}
+---
+# ─── AC-1: chat card with geometry → detail + polyline ──────────────────────
+- launchApp:
+    clearState: true
+
+# Ensure we land on the plan tab.
+- runFlow: ../.maestro/_common-launch-to-plan.yaml
+  # (common helper waits for the home map + chat input to mount)
+
+# Wait for a curated chat card backed by a geometry route to be visible,
+# then tap it. The card root carries testID `curated-chat-card-{routeId}`.
+- assertVisible:
+    id: 'curated-chat-card-cherohala-skyway'
+    optional: false
+- tapOn:
+    id: 'curated-chat-card-cherohala-skyway'
+
+# THEN: current route path is the curated-route detail.
+- assertVisible:
+    id: 'curated-route-detail-name'
+    text: 'Cherohala Skyway'
+# AND: the map polyline layer rendered (child count >= 1).
+- assertVisible:
+    id: 'curated-route-detail-map'
+- assertVisible:
+    id: 'curated-route-detail-polyline'
+
+# ─── AC-2: no-polyline route deep-link → no crash, name renders ─────────────
+- launchApp:
+    clearState: true
+# Deep-link straight to a curated route whose routePolyline is null.
+- runScript:
+    when:
+      true: ${true}
+    commands:
+      - openURL: ${APP_SCHEME}:///curated-route/blue-ridge-overlook
+# THEN: the screen opens without crashing (no red error box) and the name
+# renders — the map renderer is guarded against null geometry.
+- assertVisible:
+    id: 'curated-route-detail-name'
+    text: 'Blue Ridge Overlook'
+
+# ─── AC-3: map pin tap → same detail route as the card ──────────────────────
+- launchApp:
+    clearState: true
+- runFlow: ../.maestro/_common-launch-to-plan.yaml
+
+# A curated map pin is rendered on the plan tab carrying testID
+# `curated-map-pin-{routeId}`. Tap it.
+- assertVisible:
+    id: 'curated-map-pin-cherohala-skyway'
+- tapOn:
+    id: 'curated-map-pin-cherohala-skyway'
+
+# THEN: same detail target as the chat card (AC-1).
+- assertVisible:
+    id: 'curated-route-detail-name'
+    text: 'Cherohala Skyway'
+- assertVisible:
+    id: 'curated-route-detail-map'
