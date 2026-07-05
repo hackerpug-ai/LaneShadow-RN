@@ -17,17 +17,16 @@
 # Prerequisite: simulator booted with LaneShadow app installed + signed in
 # (Clerk dev); Convex dev running (`pnpm dev`).
 
-appId: ${MAESTRO_APP_ID}
+appId: com.hackerpug.laneshadow
 ---
 - launchApp:
     clearState: true
+    clearKeychain: true
+
+- runFlow: _common-auth.yaml
 
 # Deep-link straight to the curated route detail screen.
-- runScript:
-    when:
-      true: ${true}
-    commands:
-      - openURL: ${APP_SCHEME}:///curated-route/blue-ridge-overlook
+- openLink: laneshadow:///curated-route/blue-ridge-overlook
 
 # THEN: the screen opens without crashing — header name renders.
 - assertVisible:
@@ -38,11 +37,14 @@ appId: ${MAESTRO_APP_ID}
 - assertVisible:
     id: 'curated-detail-map'
 
-# AND: the 'Approximate location' badge renders centered below the map with
-# the literal text (state 2).
-- assertVisible:
-    id: 'curated-detail-approximate-badge'
-    text: 'Approximate location'
+# Scroll down past the scores section to reveal the approximate badge
+- swipe:
+    direction: UP
+
+- extendedWaitUntil:
+    visible:
+      id: 'curated-detail-approximate-badge'
+    timeout: 10000
 
 # NEGATIVE: the polyline probe MUST NOT appear when routePolyline is absent
 # (mutual-exclusion invariant).

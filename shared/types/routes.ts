@@ -43,13 +43,14 @@ export type PlanInitView = {
 export type SavedRouteListItemView = {
   savedRouteId: string
   name: string
-  startLabel: string
-  endLabel: string
+  startLabel?: string
+  endLabel?: string
   createdAt: number
   updatedAt: number
-  preview: RoutePreview
+  preview?: RoutePreview
   capabilities: SavedRouteCapabilities
-  routeIndex: RouteIndex
+  routeIndex?: RouteIndex
+  curatedRouteRef?: string
 }
 
 export type SavedRoutesListView = {
@@ -59,12 +60,13 @@ export type SavedRoutesListView = {
 export type SavedRouteDetailView = {
   savedRouteId: string
   name: string
-  planInput: PlanInput
-  routeSnapshot: RouteSnapshot
-  routeIndex: RouteIndex
-  snapshotMeta: SnapshotMeta
+  planInput?: PlanInput
+  routeSnapshot?: RouteSnapshot
+  routeIndex?: RouteIndex
+  snapshotMeta?: SnapshotMeta
   routeProvenance?: RouteProvenance
   capabilities: SavedRouteCapabilities
+  curatedRouteRef?: string
 }
 
 export type PlannedRouteOptionView = {

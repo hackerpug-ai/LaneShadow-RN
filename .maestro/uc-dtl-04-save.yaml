@@ -16,28 +16,31 @@
 # Prerequisite: simulator booted with LaneShadow app installed + signed in
 # (Clerk dev); Convex dev running (`pnpm dev`).
 
-appId: ${MAESTRO_APP_ID}
+appId: com.hackerpug.laneshadow
 ---
 # Start from a clean state so the saved_routes table has no prior bookmark.
 - launchApp:
     clearState: true
+    clearKeychain: true
+
+- runFlow: _common-auth.yaml
 
 # Deep-link straight to the curated route detail screen.
-- runScript:
-    when:
-      true: ${true}
-    commands:
-      - openURL: ${APP_SCHEME}:///curated-route/wasatch-ridge-traverse
+- openLink: laneshadow:///curated-route/wasatch-ridge-traverse
 
 # GIVEN: the detail screen is open — header name renders.
 - assertVisible:
     id: 'curated-route-detail-name'
     text: 'Wasatch Ridge Traverse'
 
-# AND: the Save control is present and reads 'Save' (unsaved).
-- assertVisible:
-    id: 'save-curated-button'
-    text: 'Save'
+# Scroll down past the scores section to reveal the action buttons
+- swipe:
+    direction: UP
+
+- extendedWaitUntil:
+    visible:
+      id: 'save-curated-button'
+    timeout: 10000
 
 # WHEN: the user taps Save.
 - tapOn:

@@ -15,17 +15,16 @@
 # Prerequisite: simulator booted with LaneShadow app installed + signed in
 # (Clerk dev); Convex dev running (`pnpm dev`).
 
-appId: ${MAESTRO_APP_ID}
+appId: com.hackerpug.laneshadow
 ---
 - launchApp:
     clearState: true
+    clearKeychain: true
+
+- runFlow: _common-auth.yaml
 
 # Deep-link straight to the curated route detail screen.
-- runScript:
-    when:
-      true: ${true}
-    commands:
-      - openURL: ${APP_SCHEME}:///curated-route/wasatch-ridge-traverse
+- openLink: laneshadow:///curated-route/wasatch-ridge-traverse
 
 # THEN: the screen opens without crashing — header name renders.
 - assertVisible:
