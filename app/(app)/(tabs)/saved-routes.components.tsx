@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native'
 import { Swipeable } from 'react-native-gesture-handler'
 import { Text } from 'react-native-paper'
 import { SubpageLayout } from '../../../components/layouts/subpage-layout'
+import { Badge } from '../../../components/ui/badge'
 import type { DateRangePickerProps } from '../../../components/ui/date-range-picker'
 import { DateRangePicker } from '../../../components/ui/date-range-picker'
 import { IconSymbol } from '../../../components/ui/icon-symbol'
@@ -221,6 +222,136 @@ export const SwipeableRouteCard = ({
 }
 
 // ---------------------------------------------------------------------------
+// SAVE-001: Curated-route lean preview
+// ---------------------------------------------------------------------------
+// A curated saved_routes row carries `curatedRouteRef` + name + centroid +
+// composite score + archetype, but NO legs / distance / duration. This card
+// renders that lean preview WITHOUT touching the planned-only fields, so a
+// curated row never crashes SavedRouteCard (no synthesized legs, no
+// 'undefined' distance).
+// ---------------------------------------------------------------------------
+
+export type CuratedSavedRouteItemView = {
+  savedRouteId: string
+  name: string
+  /** Convex `_id` of the bookmarked curated_routes document. */
+  curatedRouteRef: string
+  /** Human-readable centroid label (e.g. "Wasatch Range, UT"). */
+  centroidLabel?: string
+  /** Normalized 0–1 composite score. */
+  compositeScore?: number
+  /** UI archetype label (e.g. "Scenic", "Technical"). */
+  archetype?: string
+  createdAt?: number
+}
+
+/**
+ * Discriminate a curated-shape saved row from a planned-shape one.
+ *
+ * A curated row has `curatedRouteRef` and NO `routeIndex` (planned rows always
+ * carry routeIndex). This guard lets the Saved list renderItem branch safely
+ * before touching planned-only fields (preview.distanceMeters, routeIndex...).
+ */
+export const isCuratedSavedItem = (item: unknown): item is CuratedSavedRouteItemView => {
+  if (!item || typeof item !== 'object') return false
+  const row = item as { curatedRouteRef?: unknown; routeIndex?: unknown }
+  return Boolean(row.curatedRouteRef) && !row.routeIndex
+}
+
+type CuratedSavedRouteCardProps = {
+  name: string
+  centroidLabel?: string
+  compositeScore?: number
+  archetype?: string
+  dateSaved?: string
+  onPress?: () => void
+  testID?: string
+}
+
+/**
+ * Lean curated-route card: name + centroid + score + archetype badge.
+ * Reuses SavedRouteCard's visual language (card surface, hairline border,
+ * title/body typography) but never reads legs/planInput.
+ */
+export const CuratedSavedRouteCard = ({
+  name,
+  centroidLabel,
+  compositeScore,
+  archetype,
+  dateSaved,
+  onPress,
+  testID = 'curated-saved-route-card',
+}: CuratedSavedRouteCardProps) => {
+  const { semantic } = useSemanticTheme()
+
+  return (
+    <Pressable
+      testID={testID}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`View ${name}`}
+      style={({ pressed }) => [
+        styles.curatedCard,
+        {
+          backgroundColor: semantic.color.card.default,
+          borderColor: semantic.color.border.default,
+          borderRadius: semantic.radius.lg,
+          padding: semantic.space.md,
+          opacity: pressed ? 0.8 : 1,
+        },
+      ]}
+    >
+      <View style={[styles.curatedContent, { gap: semantic.space.md }]}>
+        <View style={[styles.curatedIcon, { backgroundColor: semantic.color.primary.default }]}>
+          <IconSymbol name="map-marker-star" size={24} color={semantic.color.onSecondary.default} />
+        </View>
+
+        <View style={styles.curatedText}>
+          <Text
+            numberOfLines={2}
+            style={[semantic.type.title.sm, { color: semantic.color.onSurface.default }]}
+          >
+            {name}
+          </Text>
+
+          {centroidLabel ? (
+            <Text
+              numberOfLines={1}
+              style={[semantic.type.body.sm, { color: semantic.color.onSurface.subtle }]}
+            >
+              {centroidLabel}
+            </Text>
+          ) : null}
+
+          <View style={[styles.curatedMetaRow, { gap: semantic.space.sm }]}>
+            {archetype ? (
+              <Badge variant="secondary" testID="curated-saved-archetype">
+                {archetype}
+              </Badge>
+            ) : null}
+
+            {compositeScore !== undefined ? (
+              <Text
+                style={[semantic.type.body.sm, { color: semantic.color.onSurface.muted }]}
+                testID="curated-saved-score"
+              >
+                {Math.round(compositeScore * 100)}
+              </Text>
+            ) : null}
+
+            {dateSaved ? (
+              <Text style={[semantic.type.body.sm, { color: semantic.color.onSurface.muted }]}>
+                {dateSaved}
+              </Text>
+            ) : null}
+          </View>
+        </View>
+      </View>
+    </Pressable>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Styles
 // ---------------------------------------------------------------------------
 
@@ -248,5 +379,28 @@ const styles = StyleSheet.create({
   swipeDeleteAction: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  curatedCard: {
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  curatedContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  curatedIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  curatedText: {
+    flex: 1,
+    gap: 4,
+  },
+  curatedMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
   },
 })

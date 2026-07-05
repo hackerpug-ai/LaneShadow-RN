@@ -6,7 +6,7 @@
  */
 
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from 'react-native-paper'
@@ -30,6 +30,40 @@ import { useRouteActions } from './use-route-actions'
 
 const Z_INDEX_HEADER_ACTIONS = 30
 
+// ---------------------------------------------------------------------------
+// SAVE-001: reopen-path discriminator
+// ---------------------------------------------------------------------------
+// A saved_routes row is EITHER a planned save (planInput + routeSnapshot +
+// routeIndex) OR a curated bookmark (curatedRouteRef). The planned detail
+// below reads data.routeSnapshot.legs / data.planInput — accessing those on a
+// curated row would throw. This helper lets the screen branch BEFORE touching
+// any planned-only field: a curated row redirects to the curated detail screen
+// (which dereferences via getCuratedRouteDetail), avoiding the legs/PlanInput
+// error entirely.
+//
+// `curatedRouteRef` is optional on the detail view today (the DATA-003 planned
+// read-path returns null for curated rows); the narrow cast below is forward-
+// compatible with the curated read-path extension.
+type SavedRouteDetailMaybeCurated = {
+  curatedRouteRef?: string
+  planInput?: unknown
+}
+
+export type SavedRouteReopenTarget =
+  | { kind: 'curated'; routeId: string }
+  | { kind: 'planned' }
+  | { kind: 'none' }
+
+export const getSavedRouteReopenTarget = (
+  data: SavedRouteDetailMaybeCurated | null | undefined,
+): SavedRouteReopenTarget => {
+  if (!data) return { kind: 'none' }
+  if (typeof data.curatedRouteRef === 'string' && data.curatedRouteRef.length > 0) {
+    return { kind: 'curated', routeId: data.curatedRouteRef }
+  }
+  return { kind: 'planned' }
+}
+
 const SavedRouteDetailScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>()
   const router = useRouter()
@@ -41,8 +75,21 @@ const SavedRouteDetailScreen = () => {
 
   const actions = useRouteActions(id ?? null)
 
+  // SAVE-001: reopen path — a curated bookmark (curatedRouteRef present) must
+  // NOT enter the planned path below (it reads data.routeSnapshot.legs /
+  // data.planInput, which are absent for curated rows). Redirect to the
+  // curated detail screen, which dereferences via getCuratedRouteDetail.
+  const reopenTarget = getSavedRouteReopenTarget(data as SavedRouteDetailMaybeCurated | null)
+  const isCuratedBookmark = reopenTarget.kind === 'curated'
+  useEffect(() => {
+    if (reopenTarget.kind === 'curated') {
+      router.replace(`/(app)/curated-route/${reopenTarget.routeId}`)
+    }
+  }, [reopenTarget, router])
+
   const polylines = useMemo(() => {
-    if (!data) return []
+    // Guard: do NOT touch data.routeSnapshot for a curated row (absent → throw).
+    if (!data || isCuratedBookmark) return []
     return buildRoutePolylines({
       route: {
         overviewGeometry: data.routeSnapshot.overviewGeometry,
@@ -56,12 +103,30 @@ const SavedRouteDetailScreen = () => {
       showTemperatureOverlay: selectedOverlay === 'temperature',
       semantic,
     })
-  }, [data, semantic, selectedOverlay])
+  }, [data, isCuratedBookmark, semantic, selectedOverlay])
 
   if (isLoading) {
     return (
       <SafeAreaView
         testID="route-detail-loading"
+        style={[styles.safe, { backgroundColor: semantic.color.background.default }]}
+      >
+        <ActivityIndicator
+          size="large"
+          color={semantic.color.primary.default}
+          style={styles.loader}
+        />
+      </SafeAreaView>
+    )
+  }
+
+  // SAVE-001: curated bookmark — show a loader while the redirect fires.
+  // CRITICAL: this branch runs BEFORE the planned path so data.planInput /
+  // data.routeSnapshot are never accessed for a curated row.
+  if (isCuratedBookmark) {
+    return (
+      <SafeAreaView
+        testID="route-detail-curated-redirect"
         style={[styles.safe, { backgroundColor: semantic.color.background.default }]}
       >
         <ActivityIndicator

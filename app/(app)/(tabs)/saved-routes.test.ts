@@ -149,6 +149,16 @@ vi.mock('./saved-routes.components', () => {
     FilteredEmptyState: 'FilteredEmptyState',
     SwipeableRouteCard: ({ children }: { children: unknown }) =>
       React.createElement('SwipeableRouteCard', null, children),
+    // SAVE-001: curated-row tolerance — stub the discriminator + lean card so the
+    // existing planned-row tests keep exercising SavedRouteCard unchanged.
+    CuratedSavedRouteCard: 'CuratedSavedRouteCard',
+    isCuratedSavedItem: (item: unknown) =>
+      Boolean(
+        item &&
+          typeof item === 'object' &&
+          (item as { curatedRouteRef?: unknown }).curatedRouteRef &&
+          !(item as { routeIndex?: unknown }).routeIndex,
+      ),
   }
 })
 vi.mock('../../../components/layouts/subpage-layout', () => {
