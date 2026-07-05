@@ -4,119 +4,147 @@
   "batch_id": "retry-1",
   "harness": "opencode",
   "created_at": "2026-07-05T00:55:53Z",
-  "reconciled_at": "2026-07-05T01:51:51Z",
+  "reconciled_at": "2026-07-05T23:20:00Z",
+  "driven_at": "2026-07-05T20:25:00Z",
   "max_concurrent": 2,
   "sprint_goal": {
-    "gate": "From a curated route discovered on the route plan view (Sprint 01) — tapping its card or its map pin — an honest, complete curated-route detail opens; the rider can save it, find it in Saved, reopen without error, and hand off to Apple/Google Maps (web fallback).",
+    "gate": "From a curated route discovered on the route plan view (Sprint 01) \u2014 tapping its card or its map pin \u2014 an honest, complete curated-route detail opens; the rider can save it, find it in Saved, reopen without error, and hand off to Apple/Google Maps (web fallback).",
     "condition_text": "All 9 tasks completed AND human testing gate PASS AND E2E PASS",
-    "contingencies": ["tasks-per-AC complete", "human tests verified by E2E"]
+    "contingencies": [
+      "tasks-per-AC complete",
+      "human tests verified by E2E"
+    ]
   },
   "tasks": [
     {
       "id": "DATA-006",
       "title": "getCuratedRouteDetail public query (lean fields + 0-1 scores + routePolyline + centroid; NO enrichment; Clerk-gated)",
-      "status": "ready",
+      "status": "completed",
       "assignee": "convex-implementer",
+      "reviewer": "convex-reviewer",
+      "verdict": "APPROVED",
+      "commit_sha": "996a132c43bd2405b2d9ea9e82b1afa7818e993c",
+      "merge_sha": "f8e8ef6d116f16d0a71df8733d3e2a1415562d20",
       "depends_on": [],
-      "blocks": ["DTL-001"],
+      "blocks": [
+        "DTL-001"
+      ],
       "tdd_mode": "red_first",
-      "notes": "Unblocked 2026-07-05T01:51:51Z: convex/_generated was restored locally, convex/_generated/ai/guidelines.md was installed/read, auth.config.ts is the current Convex auth surface, and pnpm type-check passes."
+      "completed_at": "2026-07-05T20:25:00Z",
+      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
     },
     {
       "id": "DATA-003",
       "title": "Add optional curatedRouteRef to saved_routes (additive; XOR-validate)",
-      "status": "ready",
+      "status": "completed",
       "assignee": "convex-implementer",
       "depends_on": [],
-      "blocks": ["SAVE-001"],
+      "blocks": [
+        "SAVE-001"
+      ],
       "tdd_mode": "red_first",
-      "notes": "Unblocked 2026-07-05T01:51:51Z: same cleared Convex generated/guidelines/typecheck blockers as DATA-006."
+      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
     },
     {
       "id": "DTL-001",
       "title": "Create app/(app)/curated-route/[id].tsx route + useCuratedRouteDetail hook, wire plan-view tap",
-      "status": "blocked",
+      "status": "completed",
       "assignee": "react-native-ui-implementer",
-      "depends_on": ["DATA-006"],
-      "blocks": ["DESIGN-002", "SAVE-001"],
+      "reviewer": "react-native-ui-reviewer",
+      "verdict": "APPROVED",
+      "commit_sha": "cb7135069b1998ca5885c3a8b0fde1f7dd68ee0e",
+      "merge_sha": "815b6ae8ce65b5a7ef332d739aec188b7eede049",
+      "depends_on": [
+        "DATA-006"
+      ],
+      "blocks": [
+        "DESIGN-002",
+        "SAVE-001"
+      ],
       "tdd_mode": "red_first",
-      "blocker": {
-        "classification": "dependency_missing",
-        "reason": "Depends on DATA-006 (getCuratedRouteDetail query), which is ready but not completed yet."
-      }
+      "completed_at": "2026-07-05T20:50:00Z",
+      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
     },
     {
       "id": "DESIGN-001",
       "title": "Build ScoreDimensionBar primitive in components/ui/ (labeled % bar, copper fill; composite /100 headline)",
-      "status": "ready",
+      "status": "completed",
       "assignee": "react-native-ui-implementer",
       "depends_on": [],
-      "blocks": ["DESIGN-002"],
+      "blocks": [
+        "DESIGN-002"
+      ],
       "tdd_mode": "red_first",
-      "notes": "Independent non-Convex; pure-display primitive. WRITE-ALLOWED: components/ui/score-dimension-bar.tsx (NEW) + tests."
+      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
     },
     {
       "id": "DESIGN-002",
       "title": "Build lean curated-route detail screen body (six sections)",
-      "status": "blocked",
+      "status": "completed",
       "assignee": "react-native-ui-implementer",
-      "depends_on": ["DESIGN-001", "DTL-001"],
+      "depends_on": [
+        "DESIGN-001"
+      ],
       "blocks": [],
       "tdd_mode": "red_first",
-      "blocker": {
-        "classification": "dependency_missing",
-        "reason": "Depends on DESIGN-001 + DTL-001 (blocked)."
-      }
+      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
     },
     {
       "id": "DESIGN-003",
       "title": "Geometry graceful degradation: polyline / centroid + Approximate location badge",
-      "status": "blocked",
+      "status": "completed",
       "assignee": "react-native-ui-implementer",
-      "depends_on": ["DESIGN-002"],
+      "depends_on": [
+        "DESIGN-002"
+      ],
       "blocks": [],
       "tdd_mode": "red_first",
-      "blocker": {
-        "classification": "dependency_missing",
-        "reason": "Co-develops with DESIGN-002 (blocked)."
-      }
+      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
     },
     {
       "id": "DESIGN-004",
       "title": "Detail actions UX: Save (loading->Saved) + Ride It affordances",
-      "status": "blocked",
+      "status": "completed",
       "assignee": "react-native-ui-implementer",
-      "depends_on": ["SAVE-001", "SAVE-002"],
+      "depends_on": [
+        "SAVE-001",
+        "SAVE-002"
+      ],
       "blocks": [],
       "tdd_mode": "red_first",
-      "blocker": {
-        "classification": "dependency_missing",
-        "reason": "Depends on SAVE-001 (blocked) + SAVE-002."
-      }
+      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
     },
     {
       "id": "SAVE-001",
       "title": "Save curated route via curatedRouteRef (useSaveCuratedRoute); Saved-screen tolerance",
-      "status": "blocked",
+      "status": "completed",
       "assignee": "react-native-ui-implementer",
-      "depends_on": ["DTL-001", "DATA-003"],
-      "blocks": ["DESIGN-004"],
+      "depends_on": [
+        "DATA-003"
+      ],
+      "blocks": [
+        "DESIGN-004"
+      ],
       "tdd_mode": "red_first",
-      "blocker": {
-        "classification": "dependency_missing",
-        "reason": "Depends on DTL-001 and DATA-003; DATA-003 is ready but neither dependency is completed yet."
-      }
+      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
     },
     {
       "id": "SAVE-002",
       "title": "Ride-It maps deep-link util lib/maps-deeplink.ts (Apple/Google via expo-linking; web fallback)",
-      "status": "ready",
+      "status": "completed",
       "assignee": "react-native-ui-implementer",
       "depends_on": [],
-      "blocks": ["DESIGN-004"],
+      "blocks": [
+        "DESIGN-004"
+      ],
       "tdd_mode": "red_first",
-      "notes": "Independent non-Convex; expo-linking ~8.0.12 already installed. WRITE-ALLOWED: lib/maps-deeplink.ts (NEW) + test."
+      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
     }
   ],
-  "id_counter": 9
+  "id_counter": 9,
+  "goal_state": {
+    "met": false,
+    "verdict": "BLOCKED_E2E_REQUIRES_SIMULATOR",
+    "sentinel": "[goal:blocked]"
+  }
 }
