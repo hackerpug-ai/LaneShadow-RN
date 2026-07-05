@@ -209,7 +209,8 @@ export async function getProtomapsPresignedUrl(): Promise<string> {
       const key = baseUrl.replace(`${r2Endpoint}/${r2Bucket}/`, '')
 
       const command = new GetObjectCommand({ Bucket: r2Bucket, Key: key })
-      const presignedUrl = await getSignedUrl(client, command, { expiresIn: 3600 })
+      // pnpm can surface duplicate Smithy private types across AWS SDK packages.
+      const presignedUrl = await getSignedUrl(client as any, command, { expiresIn: 3600 })
 
       return presignedUrl
     } catch (error) {

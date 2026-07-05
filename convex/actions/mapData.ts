@@ -117,7 +117,8 @@ export const getPresignedUrl = internalAction({
       Key: PMTILES_KEY,
     })
 
-    const url = await getSignedUrl(client, command, {
+    // pnpm can surface duplicate Smithy private types across AWS SDK packages.
+    const url = await getSignedUrl(client as any, command, {
       expiresIn: PRESIGNED_URL_EXPIRY_SECONDS,
     })
 
