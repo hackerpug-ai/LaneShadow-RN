@@ -48,6 +48,8 @@ const mapboxPropsLog: Array<{
 vi.mock('convex/react', () => ({
   useQuery: (...args: unknown[]) => mockUseQuery(...args),
   useAction: () => mockGetCurrentWeather,
+  // DESIGN-004: useSaveCuratedRoute calls useMutation — include a no-op stub.
+  useMutation: () => vi.fn(),
 }))
 
 vi.mock('expo-router', () => ({
@@ -85,6 +87,17 @@ vi.mock('../../../components/map', () => ({
 
 vi.mock('../../../components/map/map-header-overlay', () => ({
   MapHeaderOverlay: () => null,
+}))
+
+// DESIGN-004: the screen now imports SAVE-001 hooks + SAVE-002 deeplink.
+// Mock both so the DESIGN-003 assertions (geometry degradation) are unaffected.
+vi.mock('../../../hooks/use-save-curated-route', () => ({
+  useSaveCuratedRoute: () => ({ save: vi.fn(), isLoading: false }),
+  useIsCuratedRouteSaved: () => ({ isSaved: false }),
+}))
+
+vi.mock('../../../lib/maps-deeplink', () => ({
+  openRouteInMaps: vi.fn(),
 }))
 
 // Button — mock as a leaf text node (parity with the DESIGN-002 suite).

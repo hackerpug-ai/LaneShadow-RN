@@ -30,7 +30,7 @@
 
 import { useAction } from 'convex/react'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -53,7 +53,9 @@ import {
   type CuratedRouteDetail,
   useCuratedRouteDetail,
 } from '../../../hooks/use-curated-route-detail'
+import { useIsCuratedRouteSaved, useSaveCuratedRoute } from '../../../hooks/use-save-curated-route'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
+import { openRouteInMaps } from '../../../lib/maps-deeplink'
 import { decodePolylineGeometry } from '../../../shared/lib/polyline'
 
 // ─── Weather action result shape (mirrors convex/actions/weather.ts returns) ─
@@ -89,6 +91,21 @@ const titleCaseArchetype = (archetype: string): string =>
 /** A summary is "present" only when it's a non-blank string. */
 const hasSummary = (summary: string | null | undefined): boolean =>
   Boolean(summary && summary.trim().length > 0)
+
+// ─── DESIGN-004: Save status state machine ───────────────────────────────────
+//
+// Explicit four-state machine for the Save button:
+//   idle    — not saved, tappable 'Save' label.
+//   loading — ActivityIndicator replaces the label (dimensions stable); onPress
+//             disabled to prevent double-save.
+//   saved   — checkmark + 'Saved' + Badge variant='success' IN PLACE; NO
+//             navigation away (stays on the same route path).
+//   error   — save failed; restores the tappable 'Save' label (never stuck
+//             loading). Tapping retries.
+//
+// Pre-populated from useIsCuratedRouteSaved: if the route is already bookmarked
+// the button starts in `saved`. onError / null-result → `error` (renders 'Save').
+type SaveStatus = 'idle' | 'loading' | 'saved' | 'error'
 
 // ─── Body (the six sections) ─────────────────────────────────────────────────
 
@@ -198,6 +215,64 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
     if (coords.length === 0) return
     mapRef.current?.fitToCoordinates(coords)
   }, [hasPolyline, polylines])
+
+  // ─── DESIGN-004: Save + Ride It actions wiring ──────────────────────────
+  //
+  // Hooks are called unconditionally (BEFORE the isLoading/!detail early
+  // returns) to respect rules-of-hooks. The identifiers pass `detail?.*`
+  // (optional chaining) so they are safe when detail is still loading.
+  //
+  // IDENTIFIER RECONCILIATION (SAVE-001 follow-up):
+  //   useSaveCuratedRoute({curatedRouteId}) expects the Convex `_id`
+  //   (`Id<'curated_routes'>`). DATA-006's getCuratedRouteDetail returns
+  //   `routeId` (the string slug) but NOT `_id`. We wire `detail.routeId`
+  //   (the only identifier available); the live save needs `_id` resolution
+  //   — a Convex read-path change outside this task's WRITE scope.
+  //   The wiring is correct; the `_id` source is the gap.
+  const { isSaved: isAlreadySaved } = useIsCuratedRouteSaved({
+    curatedRouteId: detail?.routeId ?? null,
+  })
+  const { save } = useSaveCuratedRoute({
+    curatedRouteId: detail?.routeId ?? '',
+    name: detail?.name ?? '',
+  })
+
+  // Status state machine. Initialized to 'idle'; the effect below syncs to
+  // 'saved' when useIsCuratedRouteSaved reports the route is already bookmarked
+  // (e.g. user previously saved, or deep-linked to an already-saved route).
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
+  useEffect(() => {
+    if (isAlreadySaved) {
+      setSaveStatus((prev) => (prev === 'idle' || prev === 'error' ? 'saved' : prev))
+    }
+  }, [isAlreadySaved])
+
+  // Save handler: idle/error → loading → saved (success) | error (failure).
+  // Guarded against double-press (loading/saved are no-ops). The SAVE-001 hook
+  // catches ConvexErrors internally and returns null on failure — we treat
+  // null as the error path (restores tappable 'Save', never stuck loading).
+  const handleSave = useCallback(async () => {
+    if (saveStatus === 'loading' || saveStatus === 'saved') return
+    setSaveStatus('loading')
+    try {
+      const result = await save()
+      setSaveStatus(result ? 'saved' : 'error')
+    } catch {
+      setSaveStatus('error')
+    }
+  }, [saveStatus, save])
+
+  // Ride It handler: hand off to SAVE-002's openRouteInMaps with the centroid +
+  // name. Never hardcodes a maps URL. Null-safe guard mirrors the deeplink
+  // util's own AC-4 (graceful no-op on null centroid).
+  const handleRideIt = useCallback(() => {
+    if (!detail) return
+    void openRouteInMaps({
+      lat: detail.centroidLat,
+      lng: detail.centroidLng,
+      name: detail.name,
+    })
+  }, [detail])
 
   // Loading → shared skeleton.
   if (isLoading) {
@@ -346,23 +421,61 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
             )}
           </View>
 
-          {/* 5. Actions — Save + Ride It (RENDERED here, WIRED by DESIGN-004) */}
+          {/* 5. Actions — Save + Ride It (WIRED by DESIGN-004)
+           *
+           * Save button: variant='default' (filled copper primary).
+           *   idle    → 'Save' label, tappable.
+           *   loading → ActivityIndicator replaces label (dimensions stable);
+           *             onPress disabled (prevents double-save).
+           *   saved   → '✓ Saved' + Badge variant='success' IN PLACE; NO
+           *             navigation away (stays on this route path).
+           *   error   → restores tappable 'Save' (never stuck loading).
+           *
+           * Ride It button: variant='outline' (border.default border,
+           *   onSurface.default text, transparent fill) — visually distinct
+           *   from Save's filled primary. onPress → openRouteInMaps (SAVE-002).
+           *
+           * Both buttons flex:1 in a gap-md row. testIDs match the
+           * REQUIREMENT-CONTRACT v1 + the uc-dtl-04 maestro flows. */}
           <View
             testID="curated-detail-actions"
             style={[styles.actionsRow, { gap: semantic.space.md }]}
           >
             <Button
-              variant="outline"
-              onPress={() => {}}
-              testID="curated-detail-save"
+              variant="default"
+              onPress={handleSave}
+              disabled={saveStatus === 'loading' || saveStatus === 'saved'}
+              testID="save-curated-button"
+              accessibilityLabel={
+                saveStatus === 'saved' ? 'Saved' : saveStatus === 'loading' ? 'Saving' : 'Save'
+              }
               style={styles.actionButton}
             >
-              Save
+              {saveStatus === 'loading' ? (
+                <View testID="save-curated-loading" style={styles.saveLoadingWrap}>
+                  <ActivityIndicator size="small" color={semantic.color.onPrimary.default} />
+                </View>
+              ) : saveStatus === 'saved' ? (
+                <View style={[styles.savedContent, { gap: semantic.space.xs }]}>
+                  <Text
+                    testID="save-curated-saved-label"
+                    style={{ color: semantic.color.onPrimary.default }}
+                  >
+                    ✓ Saved
+                  </Text>
+                  <Badge variant="success" testID="save-curated-saved-badge">
+                    Saved
+                  </Badge>
+                </View>
+              ) : (
+                'Save'
+              )}
             </Button>
             <Button
-              variant="default"
-              onPress={() => {}}
-              testID="curated-detail-ride"
+              variant="outline"
+              onPress={handleRideIt}
+              testID="ride-it-button"
+              accessibilityLabel="Ride It — open in maps"
               style={styles.actionButton}
             >
               Ride It
@@ -476,6 +589,18 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
+  },
+  // DESIGN-004: loading indicator wrapper — centered to keep button dimensions
+  // stable (no layout shift when the label is replaced by the spinner).
+  saveLoadingWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // DESIGN-004: saved-state inline content — checkmark + 'Saved' + success
+  // Badge in a gap-xs row.
+  savedContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   centered: {
     flex: 1,
