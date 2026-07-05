@@ -1,0 +1,93 @@
+{
+  "run_id": "laneshadow-mvp-sprint-02-route-detail-20260705T005553Z",
+  "workspace": "7A389054-03AE-4092-A2C0-F9DD2918CECE",
+  "workspace_ref": "workspace:5",
+  "implement_skill": "kb-run-sprint",
+  "cycle": "implement:review:plan:qa",
+  "max_cycles": 3,
+  "cycle_count": 0,
+  "audit_path": "/Users/inference1/Projects/LaneShadow-RN/.spec/orchestrate/laneshadow-mvp-sprint-02-route-detail-20260705T005553Z-audit.jsonl",
+  "targets": [
+    "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/mvp/tasks/sprint-02-route-detail-close-the-loop"
+  ],
+  "stage_models": {
+    "run": "opencode:zai-coding-plan/glm-5.2@high",
+    "review": "codex:glm-5.2@xhigh",
+    "plan": "codex:glm-5.2@xhigh",
+    "qa": "opencode:zai-coding-plan/glm-5.2@high"
+  },
+  "surfaces": [
+    {
+      "surface_ref": "surface:6",
+      "surface_id": "6ACBE0A4-0518-47A4-903B-DF7D81472AED",
+      "origin": "adopted",
+      "spawner": null,
+      "driver": "orch-self",
+      "role": "orch",
+      "sprint": "sprint-02-route-detail-close-the-loop",
+      "cwd": "/Users/inference1/Projects/LaneShadow-RN",
+      "harness": "codex",
+      "model": "unknown",
+      "provider": "openai",
+      "session_id": "",
+      "commands_or_skills": [
+        "kb-orchestrate"
+      ],
+      "base_prompt_excerpt": "unknown",
+      "base_prompt_sha256": "",
+      "goal": {
+        "text": "conduct LaneShadow Sprint 02 route detail orchestration",
+        "verification": {
+          "kind": "none",
+          "signal": "",
+          "status": "derived"
+        }
+      },
+      "active": false,
+      "status": "observing",
+      "cycle": 0,
+      "state_label": "ORCH cyc0/3",
+      "last_verdict_artifact": "",
+      "last_observed_ts": 1783213027,
+      "nudge_count": 0
+    },
+    {
+      "surface_ref": "surface:24",
+      "surface_id": "0C2A07D2-0BC6-435E-BDA4-C8575C6D6B55",
+      "origin": "adopted",
+      "spawner": null,
+      "driver": "orch",
+      "role": "adopted",
+      "sprint": "workspace",
+      "cwd": "/Users/inference1/Projects/LaneShadow-RN",
+      "harness": "unknown",
+      "model": "unknown",
+      "provider": "unknown",
+      "session_id": "",
+      "commands_or_skills": [],
+      "base_prompt_excerpt": "unknown",
+      "base_prompt_sha256": "",
+      "goal": {
+        "text": "~/Projects/LaneShadow-RN",
+        "verification": {
+          "kind": "none",
+          "signal": "",
+          "status": "needs-human"
+        }
+      },
+      "active": false,
+      "status": "observing",
+      "cycle": 0,
+      "state_label": "needs-human-signal",
+      "last_verdict_artifact": "",
+      "last_observed_ts": 1783213027,
+      "nudge_count": 0
+    }
+  ],
+  "last_observed_ts": 1783214600,
+  "blocked": {
+    "reason": "run-stage-noncompliant-stub-risk-and-convex-auth-blocker",
+    "blocked_at": 1783214600,
+    "details": "Run surface created local convex/_generated stubs and pursued dependency repair; Convex auth/codegen unavailable, DATA-006 not complete."
+  }
+}

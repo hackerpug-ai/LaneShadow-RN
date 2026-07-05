@@ -1,0 +1,131 @@
+{
+  "run_id": "laneshadow-mvp-sprint-02-route-detail-resume-20260705T020648Z",
+  "workspace": "7A389054-03AE-4092-A2C0-F9DD2918CECE",
+  "self_surface": "surface:6",
+  "self_surface_id": "6ACBE0A4-0518-47A4-903B-DF7D81472AED",
+  "focused_surface": "surface:10",
+  "ts": 1783217251,
+  "repo": "/Users/inference1/Projects/LaneShadow-RN",
+  "target": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/mvp/tasks/sprint-02-route-detail-close-the-loop",
+  "cycle": "implement:review:plan:qa",
+  "max_cycles": 3,
+  "stages": {
+    "run": {
+      "harness": "opencode",
+      "model": "zai-coding-plan/glm-5.2"
+    },
+    "review": {
+      "harness": "codex",
+      "model": "glm-5.2@xhigh"
+    },
+    "plan": {
+      "harness": "codex",
+      "model": "glm-5.2@xhigh"
+    },
+    "qa": {
+      "harness": "opencode",
+      "model": "zai-coding-plan/glm-5.2"
+    }
+  },
+  "mirror": "/Users/inference1/Projects/LaneShadow-RN/.spec/orchestrate/laneshadow-mvp-sprint-02-route-detail-resume-20260705T020648Z.json",
+  "audit": "/Users/inference1/Projects/LaneShadow-RN/.spec/orchestrate/laneshadow-mvp-sprint-02-route-detail-resume-20260705T020648Z-audit.jsonl",
+  "surfaces": [
+    {
+      "surface_ref": "surface:6",
+      "surface_id": "6ACBE0A4-0518-47A4-903B-DF7D81472AED",
+      "title": "🎛️ ORCH s02 · starting · glm-5.2",
+      "tty": "ttys010",
+      "pid": "24008",
+      "harness": "codex",
+      "model": "unknown",
+      "provider": "openai",
+      "session_id": "",
+      "commands_or_skills": [],
+      "base_prompt_excerpt": "unknown",
+      "base_prompt_sha256": "",
+      "active": false,
+      "focused": true,
+      "is_self": true,
+      "driver": "orch-self",
+      "origin": "adopted",
+      "goal": {
+        "text": "🎛️ ORCH s02 · starting · glm-5.2",
+        "verification": {
+          "kind": "none",
+          "signal": "",
+          "status": "needs-human"
+        }
+      },
+      "status": "observed"
+    },
+    {
+      "surface_ref": "surface:24",
+      "surface_id": "0C2A07D2-0BC6-435E-BDA4-C8575C6D6B55",
+      "title": "~/Projects/LaneShadow-RN",
+      "tty": "ttys024",
+      "pid": "46448",
+      "harness": "unknown",
+      "model": "unknown",
+      "provider": "unknown",
+      "session_id": "",
+      "commands_or_skills": [],
+      "base_prompt_excerpt": "unknown",
+      "base_prompt_sha256": "",
+      "active": false,
+      "focused": false,
+      "is_self": false,
+      "driver": "orch",
+      "origin": "adopted",
+      "goal": {
+        "text": "~/Projects/LaneShadow-RN",
+        "verification": {
+          "kind": "none",
+          "signal": "",
+          "status": "needs-human"
+        }
+      },
+      "status": "needs-human",
+      "nudge_count": 0
+    },
+    {
+      "surface_ref": "surface:39",
+      "surface_id": "453CB18B-0010-409F-9E42-03750FE720BE",
+      "origin": "spawned",
+      "spawner": "spawn-stage.sh",
+      "driver": "orch",
+      "role": "run",
+      "sprint": "sprint-02-route-detail-close-the-loop",
+      "sprint_path": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/mvp/tasks/sprint-02-route-detail-close-the-loop",
+      "cwd": "/Users/inference1/Projects/LaneShadow-RN",
+      "harness": "opencode",
+      "model": "glm-5.2",
+      "provider": "zai",
+      "session_id": "ses_0cff89923ffeIRH7MmllXyT0ft",
+      "commands_or_skills": [
+        "/kb-run-sprint"
+      ],
+      "base_prompt_excerpt": "Run /kb-run-sprint until GATE-GOAL: ACHIEVED",
+      "base_prompt_sha256": "unknown",
+      "goal": {
+        "text": "Run /kb-run-sprint /Users/inference1/Projects/LaneShadow-RN/.spec/prds/mvp/tasks/sprint-02-route-detail-close-the-loop until GATE-GOAL: ACHIEVED",
+        "verification": {
+          "kind": "sentinel_grep",
+          "signal": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/mvp/tasks/sprint-02-route-detail-close-the-loop/sprint-goal-state.json:goal:complete",
+          "status": "derived"
+        }
+      },
+      "active": true,
+      "status": "running",
+      "cycle": 0,
+      "state_label": "running",
+      "last_verdict_artifact": null,
+      "last_observed_ts": 1783217335,
+      "nudge_count": 0,
+      "watch_glob": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/mvp/tasks/sprint-02-route-detail-close-the-loop/sprint-goal-state.json",
+      "verdict_kind": "grep",
+      "verdict_grep": "goal:complete",
+      "blocked_grep": "goal:blocked",
+      "baseline_count": 0
+    }
+  ]
+}
