@@ -1,0 +1,4 @@
+
+> laneshadow@1.0.0 type-check /Users/inference1/Projects/LaneShadow-RN
+> tsc --noEmit -p convex/tsconfig.json && tsc --noEmit -p tsconfig.json
+

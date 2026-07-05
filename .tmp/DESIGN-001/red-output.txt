@@ -1,0 +1,51 @@
+
+ RUN  v3.2.4 /Users/inference1/Projects/LaneShadow-RN
+
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  components/ui/__tests__/score-dimension-bar.integration.test.tsx [ components/ui/__tests__/score-dimension-bar.integration.test.tsx ]
+Error: Failed to resolve import "../score-dimension-bar" from "components/ui/__tests__/score-dimension-bar.integration.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/inference1/Projects/LaneShadow-RN/components/ui/__tests__/score-dimension-bar.integration.test.tsx:25:0
+  5  |  const __vi_import_1__ = await import("@testing-library/react-native");
+  6  |  const __vi_import_2__ = await import("react-native-paper");
+  7  |  const __vi_import_3__ = await import("../score-dimension-bar");
+     |                                       ^
+  8  |  
+  9  |  
+ ❯ TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/config.js:28999:43
+ ❯ TransformPluginContext.error node_modules/vite/dist/node/chunks/config.js:28996:14
+ ❯ normalizeUrl node_modules/vite/dist/node/chunks/config.js:27119:18
+ ❯ node_modules/vite/dist/node/chunks/config.js:27177:32
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/config.js:27145:4
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/config.js:28797:14
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/config.js:22670:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  components/ui/__tests__/score-dimension-bar.unit.test.ts [ components/ui/__tests__/score-dimension-bar.unit.test.ts ]
+Error: Failed to resolve import "../score-dimension-bar" from "components/ui/__tests__/score-dimension-bar.unit.test.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/inference1/Projects/LaneShadow-RN/components/ui/__tests__/score-dimension-bar.unit.test.ts:17:46
+  1  |  import { describe, expect, it } from "vitest";
+  2  |  import { OMIT_SENTINEL, scoreToPercent } from "../score-dimension-bar";
+     |                                                 ^
+  3  |  describe("scoreToPercent (AC-2)", () => {
+  4  |    it("returns 0 for score 0", () => {
+ ❯ TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/config.js:28999:43
+ ❯ TransformPluginContext.error node_modules/vite/dist/node/chunks/config.js:28996:14
+ ❯ normalizeUrl node_modules/vite/dist/node/chunks/config.js:27119:18
+ ❯ node_modules/vite/dist/node/chunks/config.js:27177:32
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/config.js:27145:4
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/config.js:28797:14
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/config.js:22670:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  no tests
+   Start at  21:24:19
+   Duration  673ms (transform 23ms, setup 110ms, collect 0ms, tests 0ms, environment 371ms, prepare 35ms)
+

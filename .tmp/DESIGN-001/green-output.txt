@@ -1,0 +1,11 @@
+
+ RUN  v3.2.4 /Users/inference1/Projects/LaneShadow-RN
+
+ ✓ components/ui/__tests__/score-dimension-bar.integration.test.tsx (22 tests) 23ms
+ ✓ components/ui/__tests__/score-dimension-bar.unit.test.ts (7 tests) 0ms
+
+ Test Files  2 passed (2)
+      Tests  29 passed (29)
+   Start at  21:25:28
+   Duration  562ms (transform 47ms, setup 94ms, collect 38ms, tests 23ms, environment 239ms, prepare 28ms)
+

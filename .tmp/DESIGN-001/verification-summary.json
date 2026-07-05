@@ -1,0 +1,124 @@
+{
+  "task_id": "DESIGN-001",
+  "tdd_mode": "red_first",
+  "verification_policy": {
+    "requires_tests": true,
+    "requires_red_evidence": true,
+    "requires_seeded_evidence": true
+  },
+  "base_sha": "a4128455b194b633874922798cb501ed0d9d157a",
+  "commit_sha": "<to-be-filled-after-commit>",
+  "files_staged": [
+    "components/ui/score-dimension-bar.tsx",
+    "components/ui/__tests__/score-dimension-bar.unit.test.ts",
+    "components/ui/__tests__/score-dimension-bar.integration.test.tsx"
+  ],
+  "requirement_results": [
+    {
+      "id": "AC-1",
+      "primary": true,
+      "tier": "integration",
+      "description": "GIVEN a real curated_routes payload shape (compositeScore 0.81, 5 dimensions 0-1) passed as props WHEN ScoreDimensionBarSection renders THEN each bar fill == Math.round(score*100)% and headline == '81/100'.",
+      "test_file": "components/ui/__tests__/score-dimension-bar.integration.test.tsx",
+      "test_count": 22,
+      "exit_code": 0,
+      "evidence_file": ".tmp/DESIGN-001/ac-1-output.txt",
+      "key_assertions_verified": [
+        "headline text == '81/100' for compositeScore 0.81",
+        "scenic bar fill width == '74%' (score 0.74)",
+        "curvature bar fill width == '62%' (score 0.62)",
+        "technical bar fill width == '55%' (score 0.55)",
+        "traffic bar fill width == '30%' (score 0.30)",
+        "remoteness bar fill width == '88%' (score 0.88)",
+        "fill backgroundColor == '#EE7C2B' (copper / semantic.color.primary.default)",
+        "track backgroundColor == '#F2EFED' (semantic.color.secondary.default — inset-substitute; surface.inset token absent)",
+        "fill borderRadius == 9999 (semantic.radius.full / pill)",
+        "row minHeight == 44 (semantic.control.minHeight)",
+        "label minWidth == 80",
+        "section renders null when ALL scores AND compositeScore are null/undefined",
+        "section renders available rows when only SOME dimensions null (partial nullity handled)"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "primary": false,
+      "tier": "unit",
+      "unit_test_justified": "Pure closed-form integer-rounding function — no network, no DB, no render, no side effects. Integration harness adds no signal at the boundaries.",
+      "description": "GIVEN scoreToPercent WHEN invoked at boundaries THEN 0->0, 0.5->50, 0.745->75, 1->100, null->OMIT_SENTINEL.",
+      "test_file": "components/ui/__tests__/score-dimension-bar.unit.test.ts",
+      "test_count": 7,
+      "exit_code": 0,
+      "evidence_file": ".tmp/DESIGN-001/ac-2-output.txt",
+      "key_assertions_verified": [
+        "scoreToPercent(0) === 0",
+        "scoreToPercent(0.5) === 50",
+        "scoreToPercent(0.745) === 75 (Math.round, not floor or ceil)",
+        "scoreToPercent(1) === 100",
+        "scoreToPercent(null) === OMIT_SENTINEL (null)",
+        "scoreToPercent(undefined) === OMIT_SENTINEL (null)",
+        "scoreToPercent(0.0064) === 1 (verifies Math.round semantics vs truncation)"
+      ]
+    },
+    {
+      "id": "TC-1",
+      "maps_to_ac": "AC-1",
+      "exit_code": 0,
+      "evidence_file": ".tmp/DESIGN-001/ac-1-output.txt"
+    },
+    {
+      "id": "TC-2",
+      "maps_to_ac": "AC-2",
+      "exit_code": 0,
+      "evidence_file": ".tmp/DESIGN-001/ac-2-output.txt"
+    }
+  ],
+  "verification_gates": {
+    "typecheck": { "exit_code": 0, "evidence_file": ".tmp/DESIGN-001/typecheck-output.txt" },
+    "lint_biome": { "exit_code": 0, "evidence_file": ".tmp/DESIGN-001/lint-output.txt" },
+    "red_evidence": {
+      "captured": true,
+      "evidence_file": ".tmp/DESIGN-001/red-output.txt",
+      "summary": "Both test suites failed to load with 'Failed to resolve import ../score-dimension-bar' — true RED because the component did not exist yet."
+    },
+    "seeded_evidence_note": "AC-1 is a pure-presentational component test driven entirely by props (no Convex). The 'seed' is the canonical getCuratedRouteDetail payload shape {compositeScore:0.81, dimensions:[{key:'curvature',label:'Curvature',score:0.62},{key:'scenic',label:'Scenic',score:0.74},{key:'technical',label:'Technical',score:0.55},{key:'traffic',label:'Traffic',score:0.30},{key:'remoteness',label:'Remoteness',score:0.88}]} passed as props. The component never imports Convex, so no live-dev requirement applies; the task contract explicitly states this is the one task with NO env caveat."
+  },
+  "token_assumptions": [
+    {
+      "contract_token": "surface.inset (track)",
+      "resolved_to": "semantic.color.secondary.default (#F2EFED light / #362A1F dark)",
+      "reason": "Token ABSENT in tokens/semantic/semantic.tokens.json. components/ui/progress.tsx (sibling primitive) uses secondary.default as its track — Rule of 2 satisfied."
+    },
+    {
+      "contract_token": "content.primary",
+      "resolved_to": "semantic.color.onSurface.default",
+      "reason": "content.* family ABSENT; canonical substitute."
+    },
+    {
+      "contract_token": "content.secondary",
+      "resolved_to": "semantic.color.onSurface.subtle",
+      "reason": "content.* family ABSENT; canonical substitute."
+    },
+    {
+      "contract_token": "spacing.3 (~8dp)",
+      "resolved_to": "semantic.space.sm (8)",
+      "reason": "Numeric scale match."
+    },
+    {
+      "contract_token": "spacing.4 (~12dp)",
+      "resolved_to": "semantic.space.md (12)",
+      "reason": "Numeric scale match."
+    }
+  ],
+  "constraints_honored": [
+    "Pure presentational: props in, JSX out. NO useQuery / Convex hooks.",
+    "NO Map, NO navigation.",
+    "Fill width ALWAYS derived from Math.round(score*100)% — never hard-coded.",
+    "Headline format EXACTLY 'NN/100' (e.g. '81/100').",
+    "Accepts ordered `dimensions` array prop — no hard-coded score-key switch.",
+    "testID per row: score-bar-{key}; headline: score-composite-headline; fill: score-bar-{key}-fill; track: score-bar-{key}-track.",
+    "Row minHeight 44 (future tap affordance — no reflow).",
+    "Display-only (no onPress).",
+    "Static — no animation (Sprint 02).",
+    "Null-omission: section returns null when compositeScore AND every dimension score are null/undefined; individual null dimensions are filtered from the rendered rows."
+  ]
+}
