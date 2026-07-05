@@ -19,8 +19,11 @@ import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { showSuccessNotification } from '../../../lib/notifier-helpers'
 import type { SavedRouteListItemView } from '../../../shared/types/routes'
 import {
+  CuratedSavedRouteCard,
+  type CuratedSavedRouteItemView,
   FilteredEmptyState,
   FilterHeader,
+  isCuratedSavedItem,
   LoadingState,
   SwipeableRouteCard,
 } from './saved-routes.components'
@@ -152,24 +155,47 @@ const SavedRoutesScreen = () => {
   }, [])
 
   const renderItem = useCallback(
-    ({ item, index }: { item: SavedRouteListItemView; index: number }) => (
-      <SwipeableRouteCard onDelete={() => handleSwipeDelete(item)} onSwipeOpen={handleSwipeOpen}>
-        <SavedRouteCard
-          name={item.name}
-          path={
-            item.startLabel && item.endLabel
-              ? `${item.startLabel} → ${item.endLabel}`
-              : item.startLabel || item.endLabel
-          }
-          dateSaved={formatDate(item.createdAt)}
-          distance={formatDistance(item.preview.distanceMeters)}
-          duration={formatDuration(item.preview.durationSeconds)}
-          bounds={item.preview.bounds}
-          thumbnailRotation={THUMBNAIL_ROTATIONS[index % THUMBNAIL_ROTATIONS.length]}
-          onPress={() => handlePress(item.savedRouteId)}
-        />
-      </SwipeableRouteCard>
-    ),
+    ({ item, index }: { item: SavedRouteListItemView; index: number }) => {
+      // SAVE-001: tolerate curated rows (curatedRouteRef present, no legs/preview).
+      // Branch BEFORE touching planned-only fields (item.preview.distanceMeters,
+      // item.routeIndex) so a curated row renders a lean preview instead of crashing.
+      if (isCuratedSavedItem(item)) {
+        const curated = item as unknown as CuratedSavedRouteItemView
+        return (
+          <SwipeableRouteCard
+            onDelete={() => handleSwipeDelete(item)}
+            onSwipeOpen={handleSwipeOpen}
+          >
+            <CuratedSavedRouteCard
+              name={curated.name}
+              centroidLabel={curated.centroidLabel}
+              compositeScore={curated.compositeScore}
+              archetype={curated.archetype}
+              dateSaved={curated.createdAt ? formatDate(curated.createdAt) : undefined}
+              onPress={() => handlePress(curated.savedRouteId)}
+            />
+          </SwipeableRouteCard>
+        )
+      }
+      return (
+        <SwipeableRouteCard onDelete={() => handleSwipeDelete(item)} onSwipeOpen={handleSwipeOpen}>
+          <SavedRouteCard
+            name={item.name}
+            path={
+              item.startLabel && item.endLabel
+                ? `${item.startLabel} → ${item.endLabel}`
+                : item.startLabel || item.endLabel
+            }
+            dateSaved={formatDate(item.createdAt)}
+            distance={formatDistance(item.preview.distanceMeters)}
+            duration={formatDuration(item.preview.durationSeconds)}
+            bounds={item.preview.bounds}
+            thumbnailRotation={THUMBNAIL_ROTATIONS[index % THUMBNAIL_ROTATIONS.length]}
+            onPress={() => handlePress(item.savedRouteId)}
+          />
+        </SwipeableRouteCard>
+      )
+    },
     [handlePress, handleSwipeDelete, handleSwipeOpen],
   )
 

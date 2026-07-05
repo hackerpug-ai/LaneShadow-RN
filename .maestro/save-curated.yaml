@@ -1,0 +1,91 @@
+# SAVE-001: Save curated route via curatedRouteRef — Maestro e2e flow (AC-1..4)
+#
+# Runs in PHASE 3.5 against a real iOS simulator + live Convex dev (authenticated).
+# Covers the four acceptance criteria end-to-end:
+#   AC-1: tap Save → saved_routes row written with curatedRouteRef (planInput absent),
+#         recordRouteFeedback('save') fires, control reads 'Saved'.
+#   AC-2: Saved screen renders the curated row (lean preview, no crash, no legs).
+#   AC-3: tap the saved curated row → reopens via getCuratedRouteDetail (no legs error).
+#   AC-4: tap Unsave → control reads 'Save', saved_routes row removed.
+#
+# Prerequisites:
+#   - Simulator booted with the LaneShadow app installed + signed in (Clerk dev).
+#   - Convex dev running (`pnpm dev`) so mutations/queries hit live backend.
+#   - A seeded curated route exists (e.g. "Wasatch Ridge Loop") reachable from the
+#     plan/discovery tab. Fixtures `auth_curated_unsaved` / `auth_curated_saved` /
+#     `convex_curated_bookmark` are seeded via public_api before this flow runs.
+
+appId: host.exp.Exponent  # swap for the production bundle id when not on Expo Go
+---
+# ─── AC-1: Save a curated route ───────────────────────────────────────────────
+# Fixture start: auth_curated_unsaved (signed-in user, curated route detail open,
+# not yet in saved_routes).
+
+# Sanity: the Save control is present and reads 'Save' (unsaved).
+- assertVisible:
+    id: 'curated-detail-save'
+    text: 'Save'
+
+# Tap Save.
+- tapOn:
+    id: 'curated-detail-save'
+
+# Control must flip to 'Saved'.
+- assertVisible:
+    id: 'curated-detail-save'
+    text: 'Saved'
+
+# (Backend assertion — run out-of-band via `npx convex run` between steps:)
+#   - saved_routes row count for owner incremented by exactly 1
+#   - the new row has curatedRouteRef == <curated id>
+#   - planInput / routeSnapshot / routeIndex are undefined (XOR satisfied)
+#   - route_feedback has a new 'save' row for this routeId
+
+# ─── AC-2: Saved screen renders the curated row ──────────────────────────────
+# Navigate to the Saved tab (via the drawer — tab bar is hidden).
+- tapOn:
+    id: 'menu-layout-open-drawer'   # hamburger / menu affordance
+- tapOn:
+    text: 'Saved'
+
+# The Saved list is visible.
+- assertVisible:
+    id: 'saved-routes-list'
+
+# The curated route name literal renders (lean preview — name + centroid + score
+# + archetype badge). No 'undefined' legs / distance text.
+- assertVisible: 'Wasatch Ridge Loop'
+
+# Negative: no synthesized legs text appears (curated rows have no distance/duration).
+- assertNotVisible: 'undefined'
+
+# ─── AC-3: Reopen the saved curated row ───────────────────────────────────────
+- tapOn: 'Wasatch Ridge Loop'
+
+# The reopen path branches on curatedRouteRef → redirects to the curated detail
+# screen, which dereferences via getCuratedRouteDetail. The header shows the name.
+- assertVisible:
+    id: 'curated-route-detail-name'
+    text: 'Wasatch Ridge Loop'
+
+# Negative: no legs/PlanInput error / crash fallback.
+- assertNotVisible:
+    id: 'route-detail-not-found'
+- assertNotVisible:
+    id: 'curated-route-detail-fallback'
+
+# ─── AC-4: Unsave ────────────────────────────────────────────────────────────
+# Fixture alt-start for a clean unsave: auth_curated_saved (already-saved curated
+# bookmark, 1 row). From the curated detail screen, the Save control now reads
+# 'Saved'; tapping it unsaves.
+- tapOn:
+    id: 'curated-detail-save'
+    text: 'Saved'
+
+# Control must flip back to 'Save'.
+- assertVisible:
+    id: 'curated-detail-save'
+    text: 'Save'
+
+# (Backend assertion — run out-of-band:)
+#   - saved_routes row count for this curated id == 0 after unsave
