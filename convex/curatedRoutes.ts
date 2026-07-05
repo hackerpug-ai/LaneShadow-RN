@@ -5,7 +5,8 @@
  * state, and archetype filtering over the 5,654-row curated catalog.
  */
 
-import { v } from 'convex/values'
+import { ConvexError, v } from 'convex/values'
+import type { Doc } from './_generated/dataModel'
 import { internalQuery, query } from './_generated/server'
 import { geospatial } from './geospatialIndex'
 import { requireIdentity } from './guards'
@@ -326,5 +327,104 @@ export const listCuratedRouteStates = query({
         routeCount: record.routeCount,
       }))
       .sort((a, b) => a.name.localeCompare(b.name))
+  },
+})
+
+// ─── DATA-006: getCuratedRouteDetail ─────────────────────────────────────────
+// Clerk-gated public detail query for a single curated route by routeId.
+// Returns a LEAN detail payload: normalized 0–1 scores, an optional encoded
+// polyline (`string | null`), computed bounds, a centroid (for the separate
+// weather action), and a summary/name-derived headline. Reads NO enrichment
+// (curated_route_enrichments is empty — no photos/elevation/description).
+
+const routeDetailArgsValidator = v.object({
+  routeId: v.string(),
+})
+
+const routeDetailReturnValidator = v.object({
+  routeId: v.string(),
+  name: v.string(),
+  state: v.string(),
+  primaryArchetype: v.string(),
+  centroidLat: v.number(),
+  centroidLng: v.number(),
+  compositeScore: v.number(),
+  curvatureScore: v.optional(v.number()),
+  scenicScore: v.optional(v.number()),
+  technicalScore: v.optional(v.number()),
+  trafficScore: v.optional(v.number()),
+  remotenessScore: v.optional(v.number()),
+  lengthMiles: v.optional(v.number()),
+  summary: v.optional(v.string()),
+  // routePolyline: the stored encoded string, or null for the ~45% of routes lacking geometry.
+  routePolyline: v.union(v.string(), v.null()),
+  bounds: v.object({
+    north: v.number(),
+    south: v.number(),
+    east: v.number(),
+    west: v.number(),
+  }),
+  // Headline derives from a non-empty summary, falling back to the route name.
+  // oneLiner is 0% populated in the catalog, so it is NEVER used as the headline.
+  headline: v.string(),
+  sourceLabel: v.optional(v.string()),
+  sourceUrl: v.optional(v.string()),
+  geometrySource: v.optional(v.string()),
+})
+
+function buildRouteDetail(route: Doc<'curated_routes'>) {
+  const headline = route.summary && route.summary.trim().length > 0 ? route.summary : route.name
+
+  return {
+    routeId: route.routeId,
+    name: route.name,
+    state: normalizeState(route.state),
+    primaryArchetype: dbArchetypeToUi(route.primaryArchetype as DbArchetype),
+    centroidLat: route.centroidLat,
+    centroidLng: route.centroidLng,
+    compositeScore: norm(route.compositeScore),
+    curvatureScore: route.curvatureScore !== undefined ? norm(route.curvatureScore) : undefined,
+    scenicScore: route.scenicScore !== undefined ? norm(route.scenicScore) : undefined,
+    technicalScore: route.technicalScore !== undefined ? norm(route.technicalScore) : undefined,
+    trafficScore: route.trafficScore !== undefined ? norm(route.trafficScore) : undefined,
+    remotenessScore: route.remotenessScore !== undefined ? norm(route.remotenessScore) : undefined,
+    lengthMiles: clampLength(route.lengthMiles),
+    summary: route.summary,
+    routePolyline: route.routePolyline ?? null,
+    bounds: {
+      north: route.boundsNeLat,
+      south: route.boundsSwLat,
+      east: route.boundsNeLng,
+      west: route.boundsSwLng,
+    },
+    headline,
+    sourceLabel: route.sourceLabel,
+    sourceUrl: route.sourceUrl,
+    geometrySource: route.geometrySource,
+  }
+}
+
+export const getCuratedRouteDetail = query({
+  args: routeDetailArgsValidator,
+  returns: routeDetailReturnValidator,
+  handler: async (ctx, args) => {
+    // Clerk gate — MUST run before any DB read (AC-5: unauthenticated → UNAUTHENTICATED).
+    await requireIdentity(ctx)
+
+    // Resolve via the by_routeId index (caller never needs the internal _id).
+    // NEVER reads curated_route_enrichments (empty table) or curated_route_geometry.
+    const route = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.eq('routeId', args.routeId))
+      .unique()
+
+    if (!route) {
+      throw new ConvexError({
+        code: 'NOT_FOUND',
+        message: `Curated route not found: ${args.routeId}`,
+      })
+    }
+
+    return buildRouteDetail(route)
   },
 })
