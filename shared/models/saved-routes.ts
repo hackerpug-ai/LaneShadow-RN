@@ -378,11 +378,17 @@ export const savedRouteValidator = v.object({
     v.literal(VISIBILITY.PUBLIC),
   ),
   name: v.string(),
-  planInput: planInputValidator,
-  routeSnapshot: routeSnapshotValidator,
-  routeIndex: routeIndexValidator,
+  // DATA-003: plan-payload fields are optional so a saved_routes row may hold
+  // EITHER a planned-route save (planInput + routeSnapshot + routeIndex) OR a
+  // curated-route bookmark (curatedRouteRef). The XOR is enforced at write time
+  // in the save mutation. Existing planned rows keep working unchanged.
+  planInput: v.optional(planInputValidator),
+  routeSnapshot: v.optional(routeSnapshotValidator),
+  routeIndex: v.optional(routeIndexValidator),
+  // DATA-003: reference to a curated_routes document for bookmarked curated routes.
+  curatedRouteRef: v.optional(v.id('curated_routes')),
   routeFingerprint: v.optional(v.string()),
-  snapshotMeta: snapshotMetaValidator,
+  snapshotMeta: v.optional(snapshotMetaValidator),
   routeProvenance: v.optional(routeProvenanceValidator),
   createdAt: v.number(),
   updatedAt: v.number(),

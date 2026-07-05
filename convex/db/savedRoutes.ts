@@ -16,6 +16,7 @@ import type { SavedRouteDetailView, SavedRoutesListView } from '../../shared/typ
 import { internal } from '../_generated/api'
 import type { Doc, Id } from '../_generated/dataModel'
 import { internalMutation, internalQuery, mutation, query } from '../_generated/server'
+import { ERROR_CODES } from '../errors'
 import { requireIdentity } from '../guards'
 import { applyDateFilter, applySearchFilter } from './savedRoutes.utils'
 
@@ -24,6 +25,28 @@ type SavedRouteDoc = Doc<'saved_routes'>
 const isOwnedByViewer = (doc: SavedRouteDoc, clerkUserId: string): boolean => {
   return doc.ownerType === OWNER_TYPE.USER && doc.ownerId === clerkUserId
 }
+
+/**
+ * DATA-003: type guard narrowing a SavedRoute to one that carries the full
+ * planned payload (planInput + routeSnapshot + routeIndex). Curated bookmarks
+ * (curatedRouteRef-only) are a separate shape rendered by a different surface
+ * (SAVE-001), so the planned-route list/detail views operate only on planned rows.
+ *
+ * The guard takes the listByOwner element shape so narrowing propagates through
+ * `.filter()` into the subsequent `.map()` callback.
+ */
+type SavedRouteWithId = { savedRouteId: Id<'saved_routes'>; savedRoute: SavedRoute }
+
+const isPlannedSavedRoute = (
+  item: SavedRouteWithId,
+): item is SavedRouteWithId & {
+  savedRoute: SavedRoute & {
+    planInput: NonNullable<SavedRoute['planInput']>
+    routeSnapshot: NonNullable<SavedRoute['routeSnapshot']>
+    routeIndex: NonNullable<SavedRoute['routeIndex']>
+  }
+} =>
+  Boolean(item.savedRoute.planInput && item.savedRoute.routeSnapshot && item.savedRoute.routeIndex)
 
 // ---------------------------------------------------------------------------
 // Exported pure helpers (also used in tests)
@@ -145,14 +168,30 @@ export const insertHandler = async (
   ctx: InsertCtx,
   args: {
     name: string
-    planInput: SavedRoute['planInput']
-    routeSnapshot: SavedRoute['routeSnapshot']
-    routeIndex: SavedRoute['routeIndex']
-    snapshotMeta: SavedRoute['snapshotMeta']
+    planInput?: SavedRoute['planInput']
+    routeSnapshot?: SavedRoute['routeSnapshot']
+    routeIndex?: SavedRoute['routeIndex']
+    snapshotMeta?: SavedRoute['snapshotMeta']
     routeProvenance?: SavedRoute['routeProvenance']
+    curatedRouteRef?: SavedRoute['curatedRouteRef']
   },
   clerkUserId: string,
 ): Promise<{ savedRouteId: Id<'saved_routes'> }> => {
+  // DATA-003: XOR validation — a saved_routes row must hold exactly one of:
+  //   (a) a curated-route bookmark (curatedRouteRef), OR
+  //   (b) a planned-route payload (planInput + routeSnapshot + routeIndex).
+  // `hasCurated === hasPlanned` is true when BOTH are set or NEITHER is set;
+  // both are illegal states and must be rejected before any write.
+  const hasCurated = !!args.curatedRouteRef
+  const hasPlanned = !!(args.planInput && args.routeSnapshot && args.routeIndex)
+  if (hasCurated === hasPlanned) {
+    throw new ConvexError({
+      code: ERROR_CODES.VALIDATION_ERROR,
+      message:
+        'saved_routes requires exactly one of curatedRouteRef OR (planInput + routeSnapshot + routeIndex)',
+    })
+  }
+
   const trimmed = args.name.trim()
   if (trimmed.length === 0) {
     throw new ConvexError('Route name cannot be empty')
@@ -172,7 +211,9 @@ export const insertHandler = async (
     planInput: args.planInput,
     routeSnapshot: args.routeSnapshot,
     routeIndex: args.routeIndex,
-    routeFingerprint: args.routeIndex.routeFingerprint,
+    curatedRouteRef: args.curatedRouteRef,
+    // routeFingerprint is only meaningful for planned saves (derived from routeIndex).
+    routeFingerprint: args.routeIndex?.routeFingerprint,
     snapshotMeta: args.snapshotMeta,
     routeProvenance: args.routeProvenance,
     createdAt: now,
@@ -195,18 +236,19 @@ const defaultCapabilities = {
   canDelete: true,
 }
 
-const computePreview = (savedRoute: SavedRoute) => {
-  const distanceMeters = savedRoute.routeSnapshot.legs.reduce(
-    (total, leg) => total + leg.distanceMeters,
-    0,
-  )
-  const durationSeconds = savedRoute.routeSnapshot.legs.reduce(
-    (total, leg) => total + leg.durationSeconds,
-    0,
-  )
+const computePreview = (routeSnapshot: SavedRoute['routeSnapshot']) => {
+  if (!routeSnapshot) {
+    return {
+      bounds: { north: 0, south: 0, east: 0, west: 0 },
+      distanceMeters: 0,
+      durationSeconds: 0,
+    }
+  }
+  const distanceMeters = routeSnapshot.legs.reduce((total, leg) => total + leg.distanceMeters, 0)
+  const durationSeconds = routeSnapshot.legs.reduce((total, leg) => total + leg.durationSeconds, 0)
 
   return {
-    bounds: savedRoute.routeSnapshot.bounds,
+    bounds: routeSnapshot.bounds,
     distanceMeters,
     durationSeconds,
   }
@@ -272,11 +314,12 @@ export const listByOwner = internalQuery({
 export const insert = internalMutation({
   args: {
     name: v.string(),
-    planInput: planInputValidator,
-    routeSnapshot: routeSnapshotValidator,
-    routeIndex: routeIndexValidator,
-    snapshotMeta: snapshotMetaValidator,
+    planInput: v.optional(planInputValidator),
+    routeSnapshot: v.optional(routeSnapshotValidator),
+    routeIndex: v.optional(routeIndexValidator),
+    snapshotMeta: v.optional(snapshotMetaValidator),
     routeProvenance: v.optional(routeProvenanceValidator),
+    curatedRouteRef: v.optional(v.id('curated_routes')),
   },
   returns: v.object({ savedRouteId: v.id('saved_routes') }),
   handler: async (ctx, args) => {
@@ -368,17 +411,19 @@ export const getSavedRoutesList = query({
     })
 
     return {
-      routes: results.map(({ savedRouteId, savedRoute }) => ({
-        savedRouteId: `${savedRouteId}`,
-        name: savedRoute.name,
-        startLabel: savedRoute.planInput.start?.label ?? '',
-        endLabel: savedRoute.planInput.end?.label ?? '',
-        createdAt: savedRoute.createdAt,
-        updatedAt: savedRoute.updatedAt,
-        preview: computePreview(savedRoute),
-        capabilities: defaultCapabilities,
-        routeIndex: savedRoute.routeIndex,
-      })),
+      routes: results
+        .filter((item) => isPlannedSavedRoute(item))
+        .map(({ savedRouteId, savedRoute }) => ({
+          savedRouteId: `${savedRouteId}`,
+          name: savedRoute.name,
+          startLabel: savedRoute.planInput.start?.label ?? '',
+          endLabel: savedRoute.planInput.end?.label ?? '',
+          createdAt: savedRoute.createdAt,
+          updatedAt: savedRoute.updatedAt,
+          preview: computePreview(savedRoute.routeSnapshot),
+          capabilities: defaultCapabilities,
+          routeIndex: savedRoute.routeIndex,
+        })),
     }
   },
 })
@@ -407,6 +452,18 @@ export const getSavedRouteDetail = query({
       return null
     }
 
+    // DATA-003: this planned-route detail view requires the full planned payload.
+    // Curated bookmarks (curatedRouteRef-only) are rendered by a separate surface
+    // (SAVE-001); until then they resolve to null here.
+    if (
+      !savedRoute.planInput ||
+      !savedRoute.routeSnapshot ||
+      !savedRoute.routeIndex ||
+      !savedRoute.snapshotMeta
+    ) {
+      return null
+    }
+
     return {
       savedRouteId: `${savedRouteId}`,
       name: savedRoute.name,
@@ -423,11 +480,14 @@ export const getSavedRouteDetail = query({
 export const saveRoute = mutation({
   args: {
     name: v.string(),
-    planInput: planInputValidator,
-    routeSnapshot: routeSnapshotValidator,
-    routeIndex: routeIndexValidator,
-    snapshotMeta: snapshotMetaValidator,
+    planInput: v.optional(planInputValidator),
+    routeSnapshot: v.optional(routeSnapshotValidator),
+    routeIndex: v.optional(routeIndexValidator),
+    snapshotMeta: v.optional(snapshotMetaValidator),
     routeProvenance: v.optional(routeProvenanceValidator),
+    // DATA-003: curated-route bookmark target. XOR-validated against the planned
+    // payload inside insertHandler (exactly one of the two shapes must be present).
+    curatedRouteRef: v.optional(v.id('curated_routes')),
   },
   returns: v.object({ savedRouteId: v.string() }),
   handler: async (
