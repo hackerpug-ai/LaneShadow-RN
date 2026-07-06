@@ -30,7 +30,7 @@ Re-anchor LaneShadow on its strategic hero — **Discovery** — delivered as th
 |---|-----------|--------|------|-------|--------------|--------|
 | 1 | — | [Sprint 01: Discovery on the Route Plan View](#sprint-01-discovery-on-the-route-plan-view) | App opens to the route plan view (no dedicated Discover screen, filter-bar, sort-toggle, state-picker, or "Plan a ride" drawer entry); with no route on the map, curated-route suggestion cards over the input plot a route directly on tap; chatting "twisties near Asheville" returns curated routes as cards and plots the latest. | 18 | — | In Progress |
 | 2 | — | [Sprint 02: Route Detail + Close the Loop](#sprint-02-route-detail--close-the-loop) | Tapping a curated route on the plan view opens honest detail (headline, score bars, geometry-or-centroid, conditions) → save → reopen → Ride-It opens maps with a web fallback. | 9 | Sprint 01 | In Progress |
-| 3 | — | [Sprint 03: On-Device D9 Capstone](#sprint-03-on-device-d9-capstone) | The founder completes the full discover-to-ride arc on the route plan view on real iOS **and** real Android against live Convex, with recorded evidence. | 1 | Sprint 01, 02 | Planned |
+| 3 | — | [Sprint 03: On-Device D9 Capstone](#sprint-03-on-device-d9-capstone) | The founder completes the full discover-to-ride arc on the route plan view on real iOS **and** real Android against live Convex, with recorded evidence. | 1 | Sprint 01, 02 | In Progress |
 
 The `Milestone` cell links to the GitHub Milestone whose title is `sprint-{NN}`. For these locally-planned sprints not yet pushed to GitHub, the cell is `—`.
 
@@ -196,7 +196,7 @@ The `Milestone` cell links to the GitHub Milestone whose title is `sprint-{NN}`.
 
 **Sequence:** 3
 **Timeline:** Phase 3
-**Status:** Planned
+**Status:** In Progress
 **Proposed by:** react-native-ui-planner
 **Milestone:** — (`sprint-03`)
 
@@ -219,6 +219,10 @@ The `Milestone` cell links to the GitHub Milestone whose title is `sprint-{NN}`.
 | ID | Title | Agent | Estimate |
 |----|-------|-------|----------|
 | DISC-007 | D9 on-device capstone: verify the full discover-to-ride arc on the **route plan view** on real iOS **and** real Android against live Convex; surface and fix platform-specific issues; record per-platform evidence; founder dogfood | react-native-ui-implementer | 240 min |
+
+**Next Sprint Tasks:** Expanded by /kb-sprint-tasks-plan (2026-07-06) → [`tasks/sprint-03-on-device-d9-capstone/`](./tasks/sprint-03-on-device-d9-capstone/SPRINT.md) — 1 task file + SPRINT.md. Specialist authorship: DISC-007 proposed by `react-native-ui-implementer` standing in as RN planning specialist (the nominal `react-native-ui-planner` is non-responsive in this harness). Run with `/kb-run-sprint tasks/sprint-03-on-device-d9-capstone`.
+
+- DISC-007-d9-on-device-capstone-verify-full-discover-to-ride-arc.md
 
 **Next Sprint Tasks:** *(populated JIT when sprint becomes active by kb-sprint-tasks-plan)*
 
