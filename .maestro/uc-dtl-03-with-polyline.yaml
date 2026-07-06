@@ -27,6 +27,13 @@ appId: com.hackerpug.laneshadow
 - openLink: laneshadow:///curated-route/wasatch-ridge-traverse
 
 # THEN: the screen opens without crashing — header name renders.
+# (extendedWaitUntil gives the Convex query time to resolve on cold data.)
+- extendedWaitUntil:
+    visible:
+      id: 'curated-route-detail-name'
+      text: 'Wasatch Ridge Traverse'
+    timeout: 30000
+
 - assertVisible:
     id: 'curated-route-detail-name'
     text: 'Wasatch Ridge Traverse'

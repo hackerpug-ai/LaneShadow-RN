@@ -320,20 +320,32 @@ export const seedE2ETestRoutes = mutation({
       },
     ]
 
-    const existing = await ctx.db.query('curated_routes')
-      .withIndex('by_routeId', q =>
-        q.eq('routeId', 'wasatch-ridge-traverse')
-      )
+    const existing = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.eq('routeId', 'wasatch-ridge-traverse'))
       .collect()
-    if (existing.length > 0) {
-      return { created: 0, message: 'E2E test routes already exist' }
+
+    // Check which routes are missing — upsert individually to avoid gaps.
+    const existingRouteIds = new Set<string>()
+    for (const r of ['wasatch-ridge-traverse', 'blue-ridge-overlook', 'cherohala-skyway']) {
+      const found = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', r))
+        .first()
+      if (found) existingRouteIds.add(r)
     }
 
     const ids: string[] = []
+    let created = 0
     for (const route of routes) {
+      if (existingRouteIds.has(route.routeId)) continue
       const id = await ctx.db.insert('curated_routes', route as any)
       ids.push(id)
+      created++
     }
-    return { created: ids.length, ids }
+    if (created === 0 && existing.length > 0) {
+      return { created: 0, message: 'E2E test routes already exist' }
+    }
+    return { created, ids }
   },
 })

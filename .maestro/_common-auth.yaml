@@ -1,14 +1,24 @@
 appId: com.hackerpug.laneshadow
 ---
 
-# _common-auth.yaml — Shared auth helper (mirrors rux-007 pattern).
+# _common-auth.yaml — Shared auth helper (cold OR warm, idempotent).
 #
-# CALLER owns launchApp (clearState: true, clearKeychain: true).
+# CALLER owns launchApp. Handles:
+#   - Dev-server picker (tap localhost:8081 to connect)
+#   - Dev menu popup (dismiss)
+#   - Login screen (tap E2E test button)
+#   - Already-authenticated warm start (skip login, go to home)
+#
+# End state: chat-input visible (authenticated, on plan tab).
 
+# Step 1: Wait for ANY app surface — dev server picker, login, or home.
+# The dev client may auto-connect (skip picker) on warm launches.
 - extendedWaitUntil:
     visible:
-      text: "DEVELOPMENT SERVERS|Lane Shadow"
-    timeout: 60000
+      text: "DEVELOPMENT SERVERS|Login with Email|Plan|Saved|chat|laneshadow|Where|Route"
+    timeout: 180000
+
+# Step 2: Tap dev server if the picker is showing.
 - runFlow:
     when:
       visible: { text: "DEVELOPMENT SERVERS" }
@@ -16,10 +26,7 @@ appId: com.hackerpug.laneshadow
       - tapOn:
           text: ".*localhost:8081.*"
 
-- extendedWaitUntil:
-    visible:
-      text: "Login with Email|.*developer menu.*|Reload|Go home|Toggle performance monitor|Toggle element inspector|Open JS debugger|Close"
-    timeout: 240000
+# Step 3: Dismiss dev menu popup if it appeared.
 - runFlow:
     when:
       visible: { text: ".*developer menu.*" }
@@ -31,18 +38,15 @@ appId: com.hackerpug.laneshadow
     commands:
       - tapOn: { text: "Close" }
 
-- extendedWaitUntil:
-    visible:
-      text: "Login with Email"
-    timeout: 300000
-
+# Step 4: If login screen is visible, authenticate via E2E button.
 - runFlow:
     when:
-      visible: { id: "e2e-test-login-button" }
+      visible: { text: "Login with Email" }
     commands:
       - tapOn: { id: "e2e-test-login-button" }
 
+# Step 5: Ensure we reach the authenticated home (chat-input).
 - extendedWaitUntil:
     visible:
       id: "chat-input"
-    timeout: 120000
+    timeout: 180000
