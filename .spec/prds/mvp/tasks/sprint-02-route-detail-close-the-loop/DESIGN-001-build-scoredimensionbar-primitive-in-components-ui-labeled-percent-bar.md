@@ -8,7 +8,7 @@
 
 ## Outcome
 
-A pure-display `ScoreDimensionBar` primitive + `CompositeScoreHeadline` renders five correctly-proportioned copper bars (e.g. scenic 0.74 → 74% fill) with labels and JetBrains-Mono percentages, topped by a composite "NN/100" headline — driven entirely by props sourced from getCuratedRouteDetail.
+A pure-display `ScoreDimensionBar` primitive + `CompositeScoreHeadline` renders five correctly-proportioned copper bars (e.g. scenic 0.90 → 74% fill) with labels and JetBrains-Mono percentages, topped by a composite "NN/100" headline — driven entirely by props sourced from getCuratedRouteDetail.
 
 ## Specification
 
@@ -29,7 +29,7 @@ Create `components/ui/score-dimension-bar.tsx` — a pure presentational primiti
 - **flow_ref:** `.spec/scenarios/UC-DTL-02/`
 - **GIVEN** a live dev curated_routes row (compositeScore 0.85, scores {curvature:0.62, scenic:0.74, technical:0.55, traffic:0.30, remoteness:0.88})
 - **WHEN** the section renders with the real getCuratedRouteDetail payload as props
-- **THEN** headline text == '81/100'; scenic bar fill == 74% of track; remoteness == 75%; curvature == 60%; technical == 45%; traffic == 30%
+- **THEN** headline text == '85/100'; scenic bar fill == 74% of track; remoteness == 75%; curvature == 60%; technical == 45%; traffic == 30%
 - **Test tier:** `integration` · **Service:** real iOS simulator + live Convex dev
 - **Verify:** `pnpm test react-native/__tests__/score-dimension-bar.test.tsx`
 - **Scenario** (start `convex_score_row`): must observe headline == '85/100', scenic == 90%, remoteness == 75%, curvature == 60%, technical == 45%, traffic == 30%; must NOT observe hard-coded '74%' / hex literal / Convex hook imported; would fail if Convex mocked / table empty / fill hard-coded / score passed as 0–100.
@@ -99,7 +99,7 @@ Create `components/ui/score-dimension-bar.tsx` — a pure presentational primiti
   "tdd_mode": "red_first",
   "verification_policy": { "requires_tests": true, "requires_red_evidence": true, "requires_seeded_evidence": true },
   "fixtures": {
-    "convex_score_row": { "description": "live Convex dev curated_routes row with real 0-1 scores", "seed_method": "public_api", "records": ["compositeScore 0.85 scenic 0.74 remoteness 0.88 traffic 0.30 curvature 0.62 technical 0.55"] }
+    "convex_score_row": { "description": "live Convex dev curated_routes row with real 0-1 scores", "seed_method": "public_api", "records": ["compositeScore 0.85 scenic 0.90 remoteness 0.75 traffic 0.30 curvature 0.60 technical 0.45"] }
   },
   "requirements": [
     { "id": "AC-1", "type": "acceptance_criterion", "primary": true, "description": "GIVEN a real curated_routes row with 0-1 scores WHEN ScoreDimensionBarSection renders with the live payload THEN each bar fill == Math.round(score*100)% and headline == '85/100'.", "verify": "pnpm test react-native/__tests__/score-dimension-bar.test.tsx", "maps_to_ac": null },

@@ -41,7 +41,7 @@ Add a public Clerk-gated query `getCuratedRouteDetail` in `convex/curatedRoutes.
 
 ### AC-2: route WITHOUT routePolyline returns null polyline + valid centroid + bounds
 - **GIVEN** a seeded row (routeId 'blue-ridge-overlook', routePolyline null, centroidLat 35.6, centroidLng -82.5)
-- **WHEN** an authenticated client calls `getCuratedRouteDetail({ routeId: 'curated-002' })`
+- **WHEN** an authenticated client calls `getCuratedRouteDetail({ routeId: 'blue-ridge-overlook' })`
 - **THEN** response.routePolyline == null, centroidLat == 35.6, centroidLng == -82.5
 - **Test tier:** `integration` · **Service:** live Convex dev
 - **Verify:** `pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts`
@@ -53,7 +53,7 @@ Add a public Clerk-gated query `getCuratedRouteDetail` in `convex/curatedRoutes.
 - **THEN** response.curvatureScore == 0.60, scenicScore == 0.90, compositeScore == 0.85 (never 92 / 0–100)
 - **Test tier:** `integration` · **Service:** live Convex dev
 - **Verify:** `pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts`
-- **Scenario** (start `convex_score_row`): must observe `curvatureScore == 0.92`, `scenicScore == 0.81`, `compositeScore == 0.88`; must NOT observe `curvatureScore == 60` / empty signature; would fail if headline falls back to oneLiner or 0–100 escapes.
+- **Scenario** (start `convex_score_row`): must observe `curvatureScore == 0.60`, `scenicScore == 0.90`, `compositeScore == 0.85`; must NOT observe `curvatureScore == 60` / empty signature; would fail if headline falls back to oneLiner or 0–100 escapes.
 
 ### AC-4: detail returns NO enrichment fields
 - **GIVEN** an empty curated_route_enrichments table
@@ -87,7 +87,8 @@ Add a public Clerk-gated query `getCuratedRouteDetail` in `convex/curatedRoutes.
 | TC-2 | getCuratedRouteDetail returns routePolyline:null + valid centroid/bounds when geometry absent. | AC-2 | same |
 | TC-3 | Scores are 0–1 and the headline derives from summary/name. | AC-3 | same |
 | TC-4 | Response excludes enrichment fields. | AC-4 | same |
-| TC-5 | An unauthenticated call is rejected UNAUTHENTICATED. | AC-5 | same |
+| TC-5 | Response includes `_id` distinct from routeId. | AC-5 | same |
+| TC-6 | An unauthenticated call is rejected UNAUTHENTICATED. | AC-6 | same |
 
 ## Reading List
 
@@ -141,7 +142,7 @@ Add a public Clerk-gated query `getCuratedRouteDetail` in `convex/curatedRoutes.
   "fixtures": {
     "convex_polyline_route": { "description": "live Convex dev curated_routes row WITH routePolyline + scores + summary", "seed_method": "public_api", "records": ["curated_routes row routePolyline non-null compositeScore 0.85"] },
     "convex_no_polyline_route": { "description": "live Convex dev curated_routes row routePolyline=null centroid present", "seed_method": "public_api", "records": ["routePolyline null centroidLat/Lng set bounds set"] },
-    "convex_score_row": { "description": "live Convex dev curated_routes row with real 0-1 scores", "seed_method": "public_api", "records": ["compositeScore 0.88 curvature 0.92 scenic 0.81"] },
+    "convex_score_row": { "description": "live Convex dev curated_routes row with real 0-1 scores", "seed_method": "public_api", "records": ["compositeScore 0.85 curvature 0.60 scenic 0.90"] },
     "convex_bad_id": { "description": "a curated-route id absent from live Convex dev", "seed_method": "public_api", "records": ["unknown curated id"] }
   },
   "requirements": [
@@ -149,12 +150,14 @@ Add a public Clerk-gated query `getCuratedRouteDetail` in `convex/curatedRoutes.
     { "id": "AC-2", "type": "acceptance_criterion", "primary": false, "description": "GIVEN a seeded route WITHOUT routePolyline WHEN queried THEN routePolyline is null and a valid centroid/bounds are returned.", "verify": "pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts", "maps_to_ac": null },
     { "id": "AC-3", "type": "acceptance_criterion", "primary": false, "description": "GIVEN a seeded route with summary/name + 0-1 scores WHEN queried THEN the headline derives from summary/name and scores stay on the 0-1 scale.", "verify": "pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts", "maps_to_ac": null },
     { "id": "AC-4", "type": "acceptance_criterion", "primary": false, "description": "GIVEN an empty curated_route_enrichments table WHEN queried THEN no enrichment fields appear in the response.", "verify": "pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts", "maps_to_ac": null },
-    { "id": "AC-5", "type": "acceptance_criterion", "primary": false, "description": "GIVEN an unauthenticated client WHEN getCuratedRouteDetail is called THEN requireIdentity rejects with UNAUTHENTICATED.", "verify": "pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts", "maps_to_ac": null },
+    { "id": "AC-5", "type": "acceptance_criterion", "primary": false, "description": "GIVEN a real curated_routes row WHEN queried THEN response._id is defined and distinct from routeId.", "verify": "pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts", "maps_to_ac": null },
+    { "id": "AC-6", "type": "acceptance_criterion", "primary": false, "description": "GIVEN an unauthenticated client WHEN getCuratedRouteDetail is called THEN requireIdentity rejects with UNAUTHENTICATED.", "verify": "pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts", "maps_to_ac": null },
     { "id": "TC-1", "type": "test_criterion", "description": "routePolyline string returned when present.", "verify": "pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts", "maps_to_ac": "AC-1" },
     { "id": "TC-2", "type": "test_criterion", "description": "null polyline fallback + centroid/bounds.", "verify": "pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts", "maps_to_ac": "AC-2" },
     { "id": "TC-3", "type": "test_criterion", "description": "0-1 score normalization + headline derivation.", "verify": "pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts", "maps_to_ac": "AC-3" },
     { "id": "TC-4", "type": "test_criterion", "description": "enrichment fields absent.", "verify": "pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts", "maps_to_ac": "AC-4" },
-    { "id": "TC-5", "type": "test_criterion", "description": "unauthenticated rejection.", "verify": "pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts", "maps_to_ac": "AC-5" }
+    { "id": "TC-5", "type": "test_criterion", "description": "_id field present and distinct from routeId.", "verify": "pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts", "maps_to_ac": "AC-5" },
+    { "id": "TC-6", "type": "test_criterion", "description": "unauthenticated rejection.", "verify": "pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts", "maps_to_ac": "AC-6" }
   ]
 }
 -->

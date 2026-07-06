@@ -29,7 +29,7 @@ NEW `lib/maps-deeplink.ts` exporting `openRouteInMaps({lat,lng,name})`. iOS → 
 - **flow_ref:** `.spec/scenarios/UC-SAVE-02/ios`
 - **GIVEN** the app on a real iOS simulator, centroid {40.6,-111.6}, name 'Wasatch Ridge Traverse'
 - **WHEN** Ride-It invokes `openRouteInMaps`
-- **THEN** Linking.openURL call count == 1; opened URL contains 'maps.apple.com'; contains 'll=40.6,-111.6'; contains 'q=Wasatch%20Ridge%20Loop'
+- **THEN** Linking.openURL call count == 1; opened URL contains 'maps.apple.com'; contains 'll=40.6,-111.6'; contains 'q=Wasatch%20Ridge%20Traverse'
 - **Test tier:** `e2e` · **Service:** real iOS simulator + live Convex dev
 - **Verify:** `pnpm test lib/maps-deeplink.e2e.test.ts`
 - **Scenario** (start `ios_sim`): must observe openURL count == 1, host 'maps.apple.com', ll + q params; must NOT observe maps.google.com as PRIMARY / crash; would fail if expo-linking mocked / Linking disconnected / empty centroid.

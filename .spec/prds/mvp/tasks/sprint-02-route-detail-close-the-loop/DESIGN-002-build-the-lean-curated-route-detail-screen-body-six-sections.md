@@ -32,7 +32,7 @@ Render a non-scrolling ~40% map at top (curated-detail-map), then a ScrollView b
 - **THEN** header contains 'Wasatch Ridge Traverse'; header Badge shows the UI-mapped archetype label (e.g. 'Scenic Byway'); composite headline == '85/100'; ScoreDimensionBar count == 5; polyline layer present (map children ≥ 1); conditions section shows a real temperature value from getCurrentWeather (not 'conditions unavailable'); 'Save' label == 'Save'; 'Ride It' label == 'Ride It'
 - **Test tier:** `e2e` · **Service:** real iOS simulator + live Convex dev
 - **Verify:** `pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx`
-- **Scenario** (start `convex_polyline_route`): must observe the literal name, headline '81/100', 5 bars, polyline, both buttons; must NOT observe 'No description yet' / 'conditions unavailable' / 'Approximate location'; would fail if Convex mocked / Map stubbed / score section hard-coded / actions omitted.
+- **Scenario** (start `convex_polyline_route`): must observe the literal name, headline '85/100', 5 bars, polyline, both buttons; must NOT observe 'No description yet' / 'conditions unavailable' / 'Approximate location'; would fail if Convex mocked / Map stubbed / score section hard-coded / actions omitted.
 
 ### AC-2: route with NO summary → italic muted 'No description yet' placeholder
 - **GIVEN** a dev row whose getCuratedRouteDetail returns summary=null or empty string
@@ -53,7 +53,7 @@ Render a non-scrolling ~40% map at top (curated-detail-map), then a ScrollView b
 ### AC-4: getCurrentWeather failure → 'conditions unavailable' without blocking other sections
 - **GIVEN** getCurrentWeather throws/returns error for the centroid
 - **WHEN** navigated
-- **THEN** conditions text == 'conditions unavailable'; header still contains 'Wasatch Ridge Traverse'; headline still == '81/100'; 'Save' label still == 'Save'
+- **THEN** conditions text == 'conditions unavailable'; header still contains 'Wasatch Ridge Traverse'; headline still == '85/100'; 'Save' label still == 'Save'
 - **Test tier:** `e2e` · **Service:** real iOS simulator + live Convex dev
 - **Verify:** `pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx`
 - **Scenario** (start `convex_polyline_route`, forced weather failure): must observe literal 'conditions unavailable' + other sections intact; must NOT observe full-screen error / blank; would fail if weather failure unmounts the screen or weather mocked to always succeed.

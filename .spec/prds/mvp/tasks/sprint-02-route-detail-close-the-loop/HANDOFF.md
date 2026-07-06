@@ -71,7 +71,7 @@ All 4 follow-ups from `sprint-goal-state.json` `followups_required_before_gate_r
 | FU-1 | DONE | `convex/db/savedRoutes.ts`, `shared/types/routes.ts` | `getSavedRoutesList` + `getSavedRouteDetail` now return curated rows (`curatedRouteRef` + lean preview). SAVE-001 AC-2/AC-3 live + gate step 6. |
 | FU-2 | DONE | `convex/curatedRoutes.ts`, `app/(app)/curated-route/[id].tsx` | `getCuratedRouteDetail` + `buildRouteDetail` return `_id: Id<'curated_routes'>` alongside `routeId`. Frontend save path uses `detail._id`. DESIGN-004 AC-1 live save + gate step 5. |
 | FU-3 | DONE | `.maestro/_common-launch-to-plan.yaml` (new), `.maestro/_common-auth.yaml` (new) | Maestro launch helper (mirrors rux-007 pattern). Without it, NO sprint-authored flow could execute. |
-| FU-4 | DONE | `.maestro/save-curated.yaml` | 5× `curated-detail-save` → `save-curated-button` (DESIGN-004 contract testID). |
+| FU-4 | DONE | `.maestro/save-curated.yaml` | 5× legacy testID → `save-curated-button` (DESIGN-004 contract testID). |
 
 Plus incidental Maestro infra fixes (required for flows to parse at all):
 - Replaced `runScript`/`commands` blocks with `openLink` in 5 deep-link flows — nested `commands` caused `Config Field Required: file` parsing errors in Maestro 2.5.1.

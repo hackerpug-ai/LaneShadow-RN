@@ -84,4 +84,7 @@ All detail-screen testIDs use the `curated-detail-*` prefix for section roots an
   - `convex_long_content`: no seed row has a long summary. Implementer should mock a long summary in the integration test or add a temporary row via mutation.
   - `convex_null_centroid`: no seed row has both null polyline AND null centroid. All 3 seeds have centroids. Create ad-hoc in test setup.
   - `convex_no_summary`: maps to `blue-ridge-overlook` (summary is empty string `''`, treated as falsy by the component — tests the placeholder path).
+  - `convex_bad_id`: no seed row — implementer passes an arbitrary unknown routeId string (e.g. 'nonexistent-route-xyz').
+  - `convex_existing_planned_save`: not a `curated_routes` fixture; a pre-existing `saved_routes` migration target with full planned payload. Implementer depends on whatever planned rows exist in dev.
+  - `convex_curated_bookmark`: not a `curated_routes` fixture; a `saved_routes` row written at test time via the save mutation with `curatedRouteRef` pointing at `wasatch-ridge-traverse`.
 - The seed file `convex/seedGeospatialTest.ts` (function `seedE2ETestRoutes`) is the WRITE-OWNED artifact for all fixture data. (RH-013)
