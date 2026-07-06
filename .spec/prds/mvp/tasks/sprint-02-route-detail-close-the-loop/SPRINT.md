@@ -10,7 +10,7 @@ status: Execution
 
 **Sequence:** 2
 **Timeline:** Phase 2
-**Status:** Planned
+**Status:** Execution
 **Proposed by:** convex-planner + react-native-ui-planner + frontend-designer
 
 > Generated JIT from [ROADMAP.md](../../ROADMAP.md) by /kb-sprint-tasks-plan (2026-07-02). Re-pointed for v3.0.0: detail is reached by tapping a curated route **on the plan view** (its chat card or its map pin), not from a dead Discover screen. The query/save/deep-link contracts are otherwise unchanged. All of this is net-new (the curated detail route, its hooks, `getCuratedRouteDetail`, and `curatedRouteRef` are not yet built).

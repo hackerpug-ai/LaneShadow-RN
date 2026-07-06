@@ -12,7 +12,7 @@ The curated-route detail shell (DTL-001) becomes a lean detail screen: top ~40% 
 
 ## Specification
 
-Render six sections in order: header (name + archetype Badge), summary (or italic muted "No description yet" when absent), score bars (ScoreDimensionBar + composite headline), map (DESIGN-003 geometry), conditions (basic weather via existing getCurrentWeather action on centroid, or "conditions unavailable"), actions row (Save + Ride It buttons — rendered here, wired by DESIGN-004). ~40% map top (non-scrolling) + scrollable body. Actions row inside the ScrollView (scrolls with body, NOT pinned).
+Render a non-scrolling ~40% map at top (curated-detail-map), then a ScrollView body with FIVE sections in order: header (name + archetype Badge), summary (or italic content.secondary "No description yet" when absent), score bars (ScoreDimensionBar + composite headline), conditions (basic weather via getCurrentWeather on centroid, or "conditions unavailable"), actions row (Save + Ride It — rendered here, wired by DESIGN-004). Actions row inside the ScrollView (scrolls with body, NOT pinned).
 
 ## Critical Constraints
 
@@ -27,15 +27,15 @@ Render six sections in order: header (name + archetype Badge), summary (or itali
 ### AC-1: all six sections render for a route WITH geometry + summary + live weather
 *(PRIMARY)*
 - **flow_ref:** `.spec/scenarios/UC-DTL-01/`
-- **GIVEN** a dev row 'Wasatch Ridge Traverse' (routePolyline present, summary present, compositeScore 0.81, getCurrentWeather succeeds)
+- **GIVEN** a dev row 'Wasatch Ridge Traverse' (routePolyline present, summary present, compositeScore 0.85, getCurrentWeather succeeds)
 - **WHEN** the reviewer navigates to /curated-route/<id>
-- **THEN** header contains 'Wasatch Ridge Traverse'; header Badge shows the UI-mapped archetype label (e.g. 'Scenic Byway'); composite headline == '81/100'; ScoreDimensionBar count == 5; polyline layer present (map children ≥ 1); conditions section shows a real temperature value from getCurrentWeather (not 'conditions unavailable'); 'Save' label == 'Save'; 'Ride It' label == 'Ride It'
+- **THEN** header contains 'Wasatch Ridge Traverse'; header Badge shows the UI-mapped archetype label (e.g. 'Scenic Byway'); composite headline == '85/100'; ScoreDimensionBar count == 5; polyline layer present (map children ≥ 1); conditions section shows a real temperature value from getCurrentWeather (not 'conditions unavailable'); 'Save' label == 'Save'; 'Ride It' label == 'Ride It'
 - **Test tier:** `e2e` · **Service:** real iOS simulator + live Convex dev
 - **Verify:** `pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx`
 - **Scenario** (start `convex_polyline_route`): must observe the literal name, headline '81/100', 5 bars, polyline, both buttons; must NOT observe 'No description yet' / 'conditions unavailable' / 'Approximate location'; would fail if Convex mocked / Map stubbed / score section hard-coded / actions omitted.
 
 ### AC-2: route with NO summary → italic muted 'No description yet' placeholder
-- **GIVEN** a dev row whose getCuratedRouteDetail returns summary=null
+- **GIVEN** a dev row whose getCuratedRouteDetail returns summary=null or empty string
 - **WHEN** navigated to
 - **THEN** summary section text == 'No description yet' in italic content.secondary style *(enrichment supersedes PRD UC-DTL-01 AC5's onSurface.muted — same visual result, content.secondary is the token to use)*
 - **Test tier:** `e2e` · **Service:** real iOS simulator + live Convex dev
@@ -63,7 +63,7 @@ Render six sections in order: header (name + archetype Badge), summary (or itali
 - **WHEN** navigated to
 - **THEN** the conditions section renders a non-empty temperature/wind value (not 'conditions unavailable', not blank)
 - **Test tier:** `e2e` · **Service:** real iOS simulator + live Convex dev
-- **Verify:** `pnpm test react-native/__tests__/curated-route-detail.six-section.integration.test.tsx`
+- **Verify:** `pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx`
 - **Scenario** (start `convex_polyline_route`): must observe conditions section non-empty with a real numeric temperature; would fail if weather call skipped or conditions section always shows fallback.
 
 ### AC-6: short-content route → Save/Ride It visible WITHOUT scrolling
@@ -71,7 +71,7 @@ Render six sections in order: header (name + archetype Badge), summary (or itali
 - **WHEN** the detail opens
 - **THEN** both 'Save' and 'Ride It' buttons' y-coordinates are within the viewport (no scroll required)
 - **Test tier:** `e2e` · **Service:** real iOS simulator + live Convex dev
-- **Verify:** `pnpm test react-native/__tests__/curated-route-detail.six-section.integration.test.tsx`
+- **Verify:** `pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx`
 - **Scenario** (start `convex_polyline_route`): must observe both buttons visible without scrolling on a short page; would fail if buttons are below the fold on short content.
 
 ## Test Criteria
@@ -82,6 +82,8 @@ Render six sections in order: header (name + archetype Badge), summary (or itali
 | TC-2 | E2e asserts literal 'No description yet' for a summary=null row. | AC-2 | same |
 | TC-3 | E2e scrolls a long-content route and asserts Save/Ride It reachable (not pinned). | AC-3 | same |
 | TC-4 | E2e forces a weather failure and asserts 'conditions unavailable' + other sections intact. | AC-4 | same |
+| TC-5 | E2e asserts conditions section shows a real temperature value on weather success. | AC-5 | same |
+| TC-6 | E2e asserts Save/Ride It visible without scrolling on a short-content route. | AC-6 | same |
 
 ## Reading List
 
@@ -121,7 +123,7 @@ Render six sections in order: header (name + archetype Badge), summary (or itali
 ## Dependencies
 
 - Depends on: DTL-001, DESIGN-001
-- Blocks: DESIGN-004, SAVE-001
+- Blocks: DESIGN-003, DESIGN-004, SAVE-001
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
@@ -131,7 +133,7 @@ Render six sections in order: header (name + archetype Badge), summary (or itali
   "tdd_mode": "red_first",
   "verification_policy": { "requires_tests": true, "requires_red_evidence": true, "requires_seeded_evidence": true },
   "fixtures": {
-    "convex_polyline_route": { "description": "live Convex dev curated_routes row WITH routePolyline + scores + summary (name 'Wasatch Ridge Traverse', compositeScore 0.81)", "seed_method": "public_api", "records": ["routePolyline non-null compositeScore 0.81 summary present"] },
+    "convex_polyline_route": { "description": "live Convex dev curated_routes row WITH routePolyline + scores + summary (name 'Wasatch Ridge Traverse', compositeScore 0.85)", "seed_method": "public_api", "records": ["routePolyline non-null compositeScore 0.85 summary present"] },
     "convex_no_summary": { "description": "live Convex dev curated_routes row with summary=null", "seed_method": "public_api", "records": ["summary null/empty"] },
     "convex_long_content": { "description": "live Convex dev curated_routes row with long summary pushing actions below fold", "seed_method": "public_api", "records": ["long summary + conditions"] }
   },
@@ -140,10 +142,14 @@ Render six sections in order: header (name + archetype Badge), summary (or itali
     { "id": "AC-2", "type": "acceptance_criterion", "primary": false, "description": "GIVEN summary=null WHEN opened THEN the italic muted 'No description yet' placeholder renders (not a blank gap).", "verify": "pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx", "maps_to_ac": null },
     { "id": "AC-3", "type": "acceptance_criterion", "primary": false, "description": "GIVEN a long-content route WHEN scrolled THEN Save/Ride It are reachable at scroll-end (not pinned).", "verify": "pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx", "maps_to_ac": null },
     { "id": "AC-4", "type": "acceptance_criterion", "primary": false, "description": "GIVEN a getCurrentWeather failure WHEN opened THEN 'conditions unavailable' renders while the other five sections stay intact.", "verify": "pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx", "maps_to_ac": null },
+    { "id": "AC-5", "type": "acceptance_criterion", "primary": false, "description": "GIVEN getCurrentWeather succeeds WHEN opened THEN conditions section shows a real temperature value.", "verify": "pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx", "maps_to_ac": null },
+    { "id": "AC-6", "type": "acceptance_criterion", "primary": false, "description": "GIVEN a short-content route on 375pt device WHEN opened THEN Save/Ride It visible without scrolling.", "verify": "pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx", "maps_to_ac": null },
     { "id": "TC-1", "type": "test_criterion", "description": "six-section render for a real row.", "verify": "pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx", "maps_to_ac": "AC-1" },
     { "id": "TC-2", "type": "test_criterion", "description": "'No description yet' placeholder.", "verify": "pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx", "maps_to_ac": "AC-2" },
     { "id": "TC-3", "type": "test_criterion", "description": "Save/Ride It scroll with body (not pinned).", "verify": "pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx", "maps_to_ac": "AC-3" },
-    { "id": "TC-4", "type": "test_criterion", "description": "'conditions unavailable' non-blocking.", "verify": "pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx", "maps_to_ac": "AC-4" }
+    { "id": "TC-4", "type": "test_criterion", "description": "'conditions unavailable' non-blocking.", "verify": "pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx", "maps_to_ac": "AC-4" },
+    { "id": "TC-5", "type": "test_criterion", "description": "Weather success renders real temperature.", "verify": "pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx", "maps_to_ac": "AC-5" },
+    { "id": "TC-6", "type": "test_criterion", "description": "Short-content route: buttons visible without scrolling.", "verify": "pnpm test app/(app)/curated-route/[id].six-section.integration.test.tsx", "maps_to_ac": "AC-6" }
   ]
 }
 -->

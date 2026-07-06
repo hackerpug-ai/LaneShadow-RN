@@ -29,31 +29,31 @@ Add a public Clerk-gated query `getCuratedRouteDetail` in `convex/curatedRoutes.
 ### AC-1: route WITH routePolyline returns the encoded polyline string
 *(PRIMARY)*
 - **flow_ref:** `.spec/scenarios/UC-DATA-06/`
-- **GIVEN** a seeded curated_routes row (routeId 'curated-001', routePolyline 'encodedPolylineABC123', centroidLat 39.5, centroidLng -105.1, compositeScore 0.85)
-- **WHEN** an authenticated client calls `getCuratedRouteDetail({ routeId: 'curated-001' })`
-- **THEN** the response returns routePolyline == 'encodedPolylineABC123', compositeScore == 0.85, centroidLat == 39.5, centroidLng == -105.1
+- **GIVEN** a seeded curated_routes row (routeId 'wasatch-ridge-traverse', routePolyline 'encoded_polyline_placeholder', centroidLat 40.6, centroidLng -111.6, compositeScore 0.85)
+- **WHEN** an authenticated client calls `getCuratedRouteDetail({ routeId: 'wasatch-ridge-traverse' })`
+- **THEN** the response returns routePolyline == 'encoded_polyline_placeholder', compositeScore == 0.85, centroidLat == 40.6, centroidLng == -111.6, _id is defined
 - **Test tier:** `integration` · **Service:** live Convex dev (api.curatedRoutes.getCuratedRouteDetail)
 - **Verify:** `pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts`
 - **Scenario** (start `convex_polyline_route`):
-  - must observe: `response.routePolyline == 'encodedPolylineABC123'`; `response.compositeScore == 0.85`; `response.centroidLat == 39.5`
+  - must observe: `response.routePolyline == 'encoded_polyline_placeholder'`; `response.compositeScore == 0.85`; `response.centroidLat == 40.6`
   - must NOT observe: `response.routePolyline == null`; missing routeId; empty/start signature
   - negative control (would fail if): query disconnected returns []; routePolyline validator rejects string; requireIdentity throws unauthenticated
 
 ### AC-2: route WITHOUT routePolyline returns null polyline + valid centroid + bounds
-- **GIVEN** a seeded row (routeId 'curated-002', routePolyline null, centroidLat 34.1, bounds {north:34.2, south:34.0, east:-118.0, west:-118.4})
+- **GIVEN** a seeded row (routeId 'blue-ridge-overlook', routePolyline null, centroidLat 35.6, centroidLng -82.5)
 - **WHEN** an authenticated client calls `getCuratedRouteDetail({ routeId: 'curated-002' })`
-- **THEN** response.routePolyline == null, centroidLat == 34.1, bounds.north == 34.2, bounds.south == 34.0
+- **THEN** response.routePolyline == null, centroidLat == 35.6, centroidLng == -82.5
 - **Test tier:** `integration` · **Service:** live Convex dev
 - **Verify:** `pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts`
-- **Scenario** (start `convex_no_polyline_route`): must observe `response.routePolyline == null`, `centroidLat == 34.1`, `bounds.north == 34.2`; must NOT observe undefined polyline / NaN centroid / empty signature; would fail if polyline returned undefined instead of null.
+- **Scenario** (start `convex_no_polyline_route`): must observe `response.routePolyline == null`, `centroidLat == 35.6`, `bounds.north == 34.2`; must NOT observe undefined polyline / NaN centroid / empty signature; would fail if polyline returned undefined instead of null.
 
 ### AC-3: headline derives from summary/name and scores are 0–1
-- **GIVEN** a seeded row (oneLiner '', summary 'A scenic mountain loop', curvatureScore 0.92, scenicScore 0.81, compositeScore 0.88)
+- **GIVEN** a seeded row (oneLiner '', summary 'A stunning traverse through the Wasatch Range with epic views.', curvatureScore 0.60, scenicScore 0.90, compositeScore 0.85)
 - **WHEN** queried
-- **THEN** response.curvatureScore == 0.92, scenicScore == 0.81, compositeScore == 0.88 (never 92 / 0–100)
+- **THEN** response.curvatureScore == 0.60, scenicScore == 0.90, compositeScore == 0.85 (never 92 / 0–100)
 - **Test tier:** `integration` · **Service:** live Convex dev
 - **Verify:** `pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts`
-- **Scenario** (start `convex_score_row`): must observe `curvatureScore == 0.92`, `scenicScore == 0.81`, `compositeScore == 0.88`; must NOT observe `curvatureScore == 92` / empty signature; would fail if headline falls back to oneLiner or 0–100 escapes.
+- **Scenario** (start `convex_score_row`): must observe `curvatureScore == 0.92`, `scenicScore == 0.81`, `compositeScore == 0.88`; must NOT observe `curvatureScore == 60` / empty signature; would fail if headline falls back to oneLiner or 0–100 escapes.
 
 ### AC-4: detail returns NO enrichment fields
 - **GIVEN** an empty curated_route_enrichments table
@@ -63,7 +63,15 @@ Add a public Clerk-gated query `getCuratedRouteDetail` in `convex/curatedRoutes.
 - **Verify:** `pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts`
 - **Scenario** (start `convex_polyline_route`): must observe ≥10 lean keys and 0 enrichment keys; must NOT observe `elevationGainM` / `photos`; would fail if query joins curated_route_enrichments.
 
-### AC-5: unauthenticated request is rejected
+### AC-5: response includes `_id` for downstream save contract
+- **GIVEN** a real curated_routes row (routeId 'wasatch-ridge-traverse')
+- **WHEN** queried
+- **THEN** response.`_id` is defined, typeof string, and `response._id !== response.routeId` (the _id is the internal document id, not the public slug)
+- **Test tier:** `integration` · **Service:** live Convex dev
+- **Verify:** `pnpm test convex/__tests__/getCuratedRouteDetail.integration.test.ts`
+- **Scenario** (start `convex_polyline_route`): must observe `_id` defined and distinct from `routeId`; would fail if _id omitted from response.
+
+### AC-6: unauthenticated request is rejected
 - **GIVEN** a live dev deployment and a request with no Clerk identity
 - **WHEN** `getCuratedRouteDetail` is called without authentication
 - **THEN** error.code == 'UNAUTHENTICATED' (HTTP 401) before any DB read
@@ -100,7 +108,7 @@ Add a public Clerk-gated query `getCuratedRouteDetail` in `convex/curatedRoutes.
 - ref: `.spec/prds/mvp/04-uc-data.md`#uc-data-06 · `.spec/scenarios/UC-DATA-06/`
 - pattern: export `query({ args:{routeId: v.string()}, returns: detailReturnValidator, handler })` — await requireIdentity, fetch via by_routeId, map through a detail builder based on buildRouteCard adding bounds + routePolyline (`route.routePolyline ?? null`) + sourceLabel/sourceUrl + summary logic + geometrySource.
 - pattern_source: `convex/curatedRoutes.ts:buildRouteCard`
-- anti_pattern: do NOT use `ctx.db.get(id)` (caller shouldn't need the internal _id); do NOT read curated_route_enrichments/geometry.
+- anti_pattern: do NOT use `ctx.db.get(id)` — callers address routes by the public routeId string in, not the internal _id; the response still MUST include _id for downstream write contracts; do NOT read curated_route_enrichments/geometry.
 
 ## Verification Gates
 

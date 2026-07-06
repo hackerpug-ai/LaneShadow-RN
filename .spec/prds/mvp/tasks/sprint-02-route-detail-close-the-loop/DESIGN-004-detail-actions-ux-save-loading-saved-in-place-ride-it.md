@@ -106,8 +106,8 @@ Modify the actions row of `app/(app)/curated-route/[id].tsx` (rendered by DESIGN
   "tdd_mode": "red_first",
   "verification_policy": { "requires_tests": true, "requires_red_evidence": true, "requires_seeded_evidence": true },
   "fixtures": {
-    "auth_curated_unsaved": { "description": "authenticated user + curated route 'Wasatch Ridge Loop' not yet saved", "seed_method": "ui_flow", "records": ["signed-in user curated route detail open not in saved_routes"] },
-    "convex_polyline_route": { "description": "live Convex dev curated_routes row with centroid {40.6,-111.6} + name", "seed_method": "public_api", "records": ["centroid 40.6,-111.6 name 'Wasatch Ridge Loop'"] },
+    "auth_curated_unsaved": { "description": "authenticated user + curated route 'Wasatch Ridge Traverse' not yet saved", "seed_method": "ui_flow", "records": ["signed-in user curated route detail open not in saved_routes"] },
+    "convex_polyline_route": { "description": "live Convex dev curated_routes row with centroid {40.6,-111.6} + name", "seed_method": "public_api", "records": ["centroid 40.6,-111.6 name 'Wasatch Ridge Traverse'"] },
     "mutation_failure": { "description": "Convex save mutation rejects", "seed_method": "ui_flow", "records": ["save mutation onError path"] }
   },
   "requirements": [

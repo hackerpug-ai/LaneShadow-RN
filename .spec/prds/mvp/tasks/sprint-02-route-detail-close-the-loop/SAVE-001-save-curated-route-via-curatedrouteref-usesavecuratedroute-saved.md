@@ -36,7 +36,7 @@ NEW `hooks/use-save-curated-route.ts` — `useSaveCuratedRoute({curatedRouteId, 
 ### AC-2: Saved screen renders curated row without legs
 - **GIVEN** a saved_routes row with curatedRouteRef + no legs
 - **WHEN** the user opens Saved
-- **THEN** card text == 'Wasatch Ridge Loop'; Saved list count ≥ 1 (no crash, no 'undefined' legs)
+- **THEN** card text == 'Wasatch Ridge Traverse'; Saved list count ≥ 1 (no crash, no 'undefined' legs)
 - **Test tier:** `e2e` · **Service:** real iOS simulator + live Convex dev
 - **Verify:** `maestro test .maestro/save-curated.yaml`
 - **Scenario** (start `convex_curated_bookmark`): must observe card name literal, list count ≥ 1; must NOT observe crash / 'undefined' legs / planInput-derived legs; would fail if SavedRouteCard requires legs.
@@ -44,7 +44,7 @@ NEW `hooks/use-save-curated-route.ts` — `useSaveCuratedRoute({curatedRouteId, 
 ### AC-3: reopen saved curated row via getCuratedRouteDetail without legs error
 - **GIVEN** a saved_routes row with curatedRouteRef
 - **WHEN** the user taps the saved curated row
-- **THEN** detail header text == 'Wasatch Ridge Loop'; getCuratedRouteDetail call count == 1 with the curated id (no legs/PlanInput error)
+- **THEN** detail header text == 'Wasatch Ridge Traverse'; getCuratedRouteDetail call count == 1 with the curated id (no legs/PlanInput error)
 - **Test tier:** `e2e` · **Service:** real iOS simulator + live Convex dev
 - **Verify:** `maestro test .maestro/save-curated.yaml`
 - **Scenario** (start `convex_curated_bookmark`): must observe header name literal, getCuratedRouteDetail called; must NOT observe legs/PlanInput error / crash; would fail if reopen path reads planInput.
@@ -77,8 +77,8 @@ NEW `hooks/use-save-curated-route.ts` — `useSaveCuratedRoute({curatedRouteId, 
 
 ## Guardrails
 
-- WRITE-ALLOWED: `hooks/use-save-curated-route.ts (NEW)` · `app/(app)/(tabs)/saved-routes.tsx (MODIFY)` · `app/(app)/(tabs)/saved-routes.components.tsx (MODIFY)` · `app/(app)/saved-route/[id].tsx (MODIFY)` · `.maestro/save-curated.yaml (NEW)`
-- WRITE-PROHIBITED: `convex/**` · `lib/**`
+- WRITE-ALLOWED: `hooks/use-save-curated-route.ts (NEW)` · `app/(app)/(tabs)/saved-routes.tsx (MODIFY)` · `app/(app)/(tabs)/saved-routes.components.tsx (MODIFY)` · `app/(app)/saved-route/[id].tsx (MODIFY)` · `convex/db/savedRoutes.ts (MODIFY — return curated rows when curatedRouteRef is set)` · `.maestro/save-curated.yaml (NEW)`
+- WRITE-PROHIBITED: `lib/**`
 
 ## Design
 
@@ -113,8 +113,8 @@ NEW `hooks/use-save-curated-route.ts` — `useSaveCuratedRoute({curatedRouteId, 
   "tdd_mode": "red_first",
   "verification_policy": { "requires_tests": true, "requires_red_evidence": true, "requires_seeded_evidence": true },
   "fixtures": {
-    "auth_curated_unsaved": { "description": "authenticated user + curated route 'Wasatch Ridge Loop' not yet saved", "seed_method": "ui_flow", "records": ["signed-in user curated route detail open not in saved_routes"] },
-    "convex_curated_bookmark": { "description": "live Convex dev saved_routes row written with curatedRouteRef only", "seed_method": "public_api", "records": ["saved_routes row curatedRouteRef set plan fields absent name 'Wasatch Ridge Loop'"] },
+    "auth_curated_unsaved": { "description": "authenticated user + curated route 'Wasatch Ridge Traverse' not yet saved", "seed_method": "ui_flow", "records": ["signed-in user curated route detail open not in saved_routes"] },
+    "convex_curated_bookmark": { "description": "live Convex dev saved_routes row written with curatedRouteRef only", "seed_method": "public_api", "records": ["saved_routes row curatedRouteRef set plan fields absent name 'Wasatch Ridge Traverse'"] },
     "auth_curated_saved": { "description": "authenticated user with curated route already saved via curatedRouteRef (1 row)", "seed_method": "public_api", "records": ["1 saved_routes row with curatedRouteRef for this user"] }
   },
   "requirements": [

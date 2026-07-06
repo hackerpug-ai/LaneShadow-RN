@@ -27,7 +27,7 @@ NEW `lib/maps-deeplink.ts` exporting `openRouteInMaps({lat,lng,name})`. iOS → 
 ### AC-1: iOS opens Apple Maps with centroid+name
 *(PRIMARY)*
 - **flow_ref:** `.spec/scenarios/UC-SAVE-02/ios`
-- **GIVEN** the app on a real iOS simulator, centroid {40.6,-111.6}, name 'Wasatch Ridge Loop'
+- **GIVEN** the app on a real iOS simulator, centroid {40.6,-111.6}, name 'Wasatch Ridge Traverse'
 - **WHEN** Ride-It invokes `openRouteInMaps`
 - **THEN** Linking.openURL call count == 1; opened URL contains 'maps.apple.com'; contains 'll=40.6,-111.6'; contains 'q=Wasatch%20Ridge%20Loop'
 - **Test tier:** `e2e` · **Service:** real iOS simulator + live Convex dev
@@ -113,7 +113,7 @@ NEW `lib/maps-deeplink.ts` exporting `openRouteInMaps({lat,lng,name})`. iOS → 
   "tdd_mode": "red_first",
   "verification_policy": { "requires_tests": true, "requires_red_evidence": true, "requires_seeded_evidence": true },
   "fixtures": {
-    "ios_sim": { "description": "app on real iOS simulator against live Convex, centroid {40.6,-111.6} name 'Wasatch Ridge Loop'", "seed_method": "ui_flow", "records": ["iOS simulator expo-linking available centroid 40.6,-111.6"] },
+    "ios_sim": { "description": "app on real iOS simulator against live Convex, centroid {40.6,-111.6} name 'Wasatch Ridge Traverse'", "seed_method": "ui_flow", "records": ["iOS simulator expo-linking available centroid 40.6,-111.6"] },
     "android_emu": { "description": "app on real Android emulator against live Convex", "seed_method": "ui_flow", "records": ["Android emulator expo-linking available"] },
     "native_unavailable": { "description": "native maps scheme unavailable (Linking.canOpenURL false)", "seed_method": "ui_flow", "records": ["canOpenURL false for native maps scheme"] },
     "null_centroid_input": { "description": "openRouteInMaps called with null centroid", "seed_method": "ui_flow", "records": ["{lat:null,lng:null,name:'X'}"] }

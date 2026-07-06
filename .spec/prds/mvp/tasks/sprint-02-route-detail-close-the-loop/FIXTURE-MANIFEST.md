@@ -57,7 +57,7 @@ All detail-screen testIDs use the `curated-detail-*` prefix for section roots an
 
 | Element | testID |
 |---------|--------|
-| Detail screen root | `curated-route-detail-screen` |
+| Detail screen root | `curated-detail-screen` |
 | Name text | `curated-route-detail-name` |
 | Polyline probe | `curated-route-detail-polyline` |
 | Loading skeleton | `curated-route-detail-loading` |
@@ -69,9 +69,19 @@ All detail-screen testIDs use the `curated-detail-*` prefix for section roots an
 | Save button | `save-curated-button` |
 | Save success badge | `save-curated-saved-badge` |
 | Ride It button | `ride-it-button` |
+| Header section root | `curated-detail-header` |
+| Summary section root | `curated-detail-summary` |
+| Conditions section root | `curated-detail-conditions` |
+| Polyline probe | `curated-route-detail-polyline` (legacy probe — used by flows) |
+| Loading skeleton | `curated-route-detail-loading` (reserved — renders during query) |
+| Save success badge | `save-curated-saved-badge` (reserved — DESIGN-004 enrichment) |
 
 ## Notes
 
 - `compositeScore` is an INDEPENDENT field on the row, NOT the mean of the 5 dimension scores. Do not recompute it. (RH-021)
 - Fixture names `convex_polyline_route`, `convex_no_polyline_route`, `convex_score_row` etc. in task REQUIREMENT-CONTRACTs are SCENARIO KEYS, not separate seed rows. They all map to the canonical routes above.
+- **Unmapped scenario keys** (no canonical seed row — implementer must produce ad-hoc):
+  - `convex_long_content`: no seed row has a long summary. Implementer should mock a long summary in the integration test or add a temporary row via mutation.
+  - `convex_null_centroid`: no seed row has both null polyline AND null centroid. All 3 seeds have centroids. Create ad-hoc in test setup.
+  - `convex_no_summary`: maps to `blue-ridge-overlook` (summary is empty string `''`, treated as falsy by the component — tests the placeholder path).
 - The seed file `convex/seedGeospatialTest.ts` (function `seedE2ETestRoutes`) is the WRITE-OWNED artifact for all fixture data. (RH-013)
