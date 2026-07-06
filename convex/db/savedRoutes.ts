@@ -450,6 +450,7 @@ export const savedRouteDetailViewValidator = v.object({
   routeProvenance: v.optional(routeProvenanceValidator),
   capabilities: savedRouteCapabilitiesValidator,
   curatedRouteRef: v.optional(v.string()),
+  curatedRouteId: v.optional(v.union(v.string(), v.null())),
 })
 
 export const getSavedRouteDetail = query({
@@ -468,12 +469,16 @@ export const getSavedRouteDetail = query({
     // Curated bookmark: return lean shape with curatedRouteRef so the reopen
     // path can redirect to the curated detail screen. The planned fields are
     // absent — the frontend checks curatedRouteRef before touching them.
+    // ALSO resolve the public routeId from the curated_route table so the
+    // frontend redirect uses the public slug (not the internal _id).
     if (savedRoute.curatedRouteRef) {
+      const curatedRoute = await ctx.db.get(savedRoute.curatedRouteRef)
       return {
         savedRouteId: `${savedRouteId}`,
         name: savedRoute.name,
         capabilities: defaultCapabilities,
         curatedRouteRef: `${savedRoute.curatedRouteRef}`,
+        curatedRouteId: curatedRoute?.routeId ?? null,
       }
     }
 

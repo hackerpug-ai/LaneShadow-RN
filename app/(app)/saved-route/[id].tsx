@@ -46,6 +46,7 @@ const Z_INDEX_HEADER_ACTIONS = 30
 // compatible with the curated read-path extension.
 type SavedRouteDetailMaybeCurated = {
   curatedRouteRef?: string
+  curatedRouteId?: string | null
   planInput?: unknown
 }
 
@@ -58,8 +59,9 @@ export const getSavedRouteReopenTarget = (
   data: SavedRouteDetailMaybeCurated | null | undefined,
 ): SavedRouteReopenTarget => {
   if (!data) return { kind: 'none' }
-  if (typeof data.curatedRouteRef === 'string' && data.curatedRouteRef.length > 0) {
-    return { kind: 'curated', routeId: data.curatedRouteRef }
+  // Use curatedRouteId (public slug) for the redirect, NOT curatedRouteRef (internal _id)
+  if (typeof data.curatedRouteId === 'string' && data.curatedRouteId.length > 0) {
+    return { kind: 'curated', routeId: data.curatedRouteId }
   }
   return { kind: 'planned' }
 }

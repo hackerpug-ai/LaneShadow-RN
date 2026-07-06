@@ -67,6 +67,7 @@ export type SavedRouteDetailView = {
   routeProvenance?: RouteProvenance
   capabilities: SavedRouteCapabilities
   curatedRouteRef?: string
+  curatedRouteId?: string | null
 }
 
 export type PlannedRouteOptionView = {
