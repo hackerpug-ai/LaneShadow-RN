@@ -1,137 +1,85 @@
 {
   "sprint_id": "sprint-02-route-detail-close-the-loop",
   "schema": "kb-run-sprint/gate-results v3.14",
-  "written_at": "2026-07-05T13:50:00Z",
-  "head_sha": "6ddc57d3",
-  "verdict": "BLOCKED_E2E_APP_STARTUP_TIMEOUT",
+  "written_at": "2026-07-06T01:45:00Z",
+  "head_sha": "321cf4c56ffa138ee174560498bea711a0342cc2",
+  "head_branch": "sprint-02/fu1-4-e2e-blocked",
+  "verdict": "fail",
   "met": false,
   "goal_sentinel": "[goal:blocked]",
+  "runner": "orchestrator-direct (opencode + glm-5.2, this session)",
+  "ui_driver": "maestro 2.5.1 (XCUITest/WebDriverAgent — NOT idb)",
+  "simulator": "iPhone 17 (81487B1E-A4D1-45AE-9BCE-D675802BACD1), iOS 26.3, booted",
+  "convex_deployment": "https://quirky-panther-164.convex.cloud (dev, EXPO_PUBLIC_CONVEX_URL)",
+  "flows_total": 6,
+  "flows_passed": 3,
+  "flows_failed": 3,
+  "human_testing_steps_covered": "1 (polyline detail), 2 (no-polyline graceful degradation), 7 (Ride It → Apple Maps)",
+  "human_testing_steps_failing": "1 (auth-gated entry from chat card), 5 (Save → Saved badge), 6 (Saved list → reopen)",
+  "human_testing_steps_uncovered": "3 (weather — jsdom only), 4 (scroll visibility — jsdom only), 8 (Android web fallback — iOS sim can't test)",
 
-  "pre_gate_work": {
-    "FU-1_convex_savedRoutes_curated_rows": {
-      "status": "DONE",
-      "description": "Extended getSavedRoutesList + getSavedRouteDetail in convex/db/savedRoutes.ts to return curated rows (curatedRouteRef + lean preview fields). Updated shared/types/routes.ts SavedRouteListItemView and SavedRouteDetailView types."
-    },
-    "FU-2_convex_getCuratedRouteDetail__id": {
-      "status": "DONE",
-      "description": "Added _id: v.id('curated_routes') to getCuratedRouteDetail return type and buildRouteDetail. Updated frontend curated-route/[id].tsx to use detail?._id instead of detail?.routeId."
-    },
-    "FU-3_maestro__common_launch_to_plan": {
-      "status": "DONE",
-      "description": "Created .maestro/_common-launch-to-plan.yaml helper (mirrors rux-007 pattern). Also created .maestro/_common-auth.yaml standalone auth helper."
-    },
-    "FU-4_maestro_save_curated_testIDs": {
-      "status": "DONE",
-      "description": "Updated .maestro/save-curated.yaml — 5× curated-detail-save → save-curated-button."
-    },
-    "FU-5_simulator_convex_env": {
-      "status": "RESOLVED (pre-existing)",
-      "description": "iPhone 17 booted (UDID 81487B1E-A4D1-45AE-9BCE-D675802BACD1). Convex dev deployment live. E2E creds in .env.local."
-    }
-  },
-
-  "infrastructure_fixes": {
-    "maestro_yaml_parsing": {
-      "status": "FIXED",
-      "description": "Replaced runScript/commands YAML blocks with openLink in all 5 deep-link flows (uc-dtl-03-*, uc-dtl-04-*, curated-route-detail.yaml). runScript nested commands caused Config Field Required: file parsing errors."
-    },
-    "maestro_env_vars": {
-      "status": "FIXED",
-      "description": "Hardcoded appId (com.hackerpug.laneshadow) and APP_SCHEME (laneshadow) — ${VAR} interpolation unreliable in Maestro 2.5.1."
-    },
-    "maestro_auth_helpers": {
-      "status": "FIXED with caveat",
-      "description": "Created _common-auth.yaml and _common-launch-to-plan.yaml helpers with DEVELOPERS SERVERS dev-client handling. Caveat: app cold-start takes 5+ minutes; the 'DEVELOPMENT SERVERS' screen is sometimes bypassed by the Expo deep-link tolocalhost:8081."
-    },
-    "e2e_test_data": {
-      "status": "SEEDED",
-      "description": "Created 3 test curated routes via seedGeospatialTest:seedE2ETestRoutes mutation: wasatch-ridge-traverse (with polyline), blue-ridge-overlook (no polyline), cherohala-skyway (with polyline).",
-      "ids": ["mx7dgffpht4x9zx4mybwhfy8gn89z3wx", "mx7ac80gdhmw866vwqkb2bvba589zbf4", "mx70s85s7pe65z5bt07zng9fgh89yy5n"]
-    },
-    "maestro_scroll_fix": {
-      "status": "APPLIED to uc-dtl-03-without-polyline, uc-dtl-04-save, uc-dtl-04-ride-it",
-      "description": "Added swipe(direction: UP) before asserting on action buttons and approximate badge, because the score-bar section occupies significant scroll space and pushes actions below the fold."
-    },
-    "typecheck": {
-      "status": "PASS (sprint scope)",
-      "description": "Convex type-check passes clean. 2 pre-existing Expo Router type errors unrelated to sprint changes."
-    }
-  },
-
-  "flow_results": [
+  "flows": [
     {
-      "flow": ".maestro/uc-dtl-03-with-polyline.yaml",
-      "assertions_total": 6,
-      "assertions_passed": 6,
-      "verdict": "PASS",
-      "evidence": "All 6 assertions pass against booted iPhone 17 simulator + live Convex dev: name renders, map section present, polyline probe visible, approximate-badge NOT visible, 'Approximate location' text NOT visible.",
-      "details": "Covers DESIGN-003 AC-1 + AC-5 (WITH polyline → render + no badge). This is the ONLY flow that ran end-to-end successfully."
+      "id": "curated-route-detail",
+      "file": ".maestro/curated-route-detail.yaml",
+      "result": "FAILED",
+      "duration_s": 310,
+      "failure": "Assertion is false: \"Login with Email\" is visible",
+      "step_gates": ["AC-1 (DTL-001)", "step 1 (chat card → detail + polyline)"],
+      "likely_root_cause": "Flow uses `clearState: true` on launchApp (line 21) which clears the Clerk auth session. The plan-view chat cards never render because the app shows the Login screen. The `_common-auth.yaml` helper exists but is NOT invoked by `curated-route-detail.yaml` — only `_common-launch-to-plan.yaml` is run, and that helper assumes an already-authed session.",
+      "fix": "Either (a) remove `clearState: true` from the launchApp step, OR (b) insert a `runFlow: ../.maestro/_common-auth.yaml` step BEFORE `_common-launch-to-plan.yaml` to drive the E2E test-login button. Option (b) is more robust."
     },
     {
-      "flow": ".maestro/uc-dtl-03-without-polyline.yaml",
-      "assertions_run": 2,
-      "assertions_passed": 2,
-      "verdict": "BLOCKED_APP_STARTUP",
-      "evidence": "Name + map assertions pass when app loads. approximate-badge assertion never reached — app cold-start takes 5+ minutes; the flow times out during _common-auth.yaml before reaching the detail screen.",
-      "block_reason": "Simulator cold-start: app takes >300s to show first screen after clearState+clearKeychain. Subsequent launches warm but each Maestro flow clears state."
+      "id": "uc-dtl-03-with-polyline",
+      "file": ".maestro/uc-dtl-03-with-polyline.yaml",
+      "result": "PASSED",
+      "duration_s": 14,
+      "step_gates": ["AC-1 (DESIGN-003)", "step 1 (polyline visible)"]
     },
     {
-      "flow": ".maestro/uc-dtl-04-save.yaml",
-      "assertions_run": 1,
-      "assertions_passed": 1,
-      "verdict": "BLOCKED_APP_STARTUP",
-      "evidence": "Name assertion passes when app loads. Save button never reached — same cold-start timeout as above.",
-      "block_reason": "Same simulator cold-start issue. Scroll fix applied (swipe UP added before save assertion) but unverified due to timeout."
+      "id": "uc-dtl-03-without-polyline",
+      "file": ".maestro/uc-dtl-03-without-polyline.yaml",
+      "result": "PASSED",
+      "duration_s": 17,
+      "step_gates": ["AC-2/3 (DESIGN-003)", "step 2 (centroid + Approximate location badge)"]
     },
     {
-      "flow": ".maestro/uc-dtl-04-ride-it.yaml",
-      "assertions_run": 1,
-      "assertions_passed": 1,
-      "verdict": "BLOCKED_APP_STARTUP",
-      "evidence": "Name assertion passes when app loads. Ride It button never reached — same cold-start timeout.",
-      "block_reason": "Same simulator cold-start issue."
+      "id": "uc-dtl-04-save",
+      "file": ".maestro/uc-dtl-04-save.yaml",
+      "result": "FAILED",
+      "duration_s": 32,
+      "failure": "Assertion is false: id: save-curated-saved-badge is visible",
+      "step_gates": ["AC-1 (DESIGN-004)", "step 5 (Save → loading → Saved in place)"],
+      "likely_root_cause": "The Save button was tapped but the `save-curated-saved-badge` never appeared. Two candidates: (1) the save mutation failed silently — FU-2's `_id` return is in `buildRouteDetail` (convex/curatedRoutes.ts:345) but the live Convex dev deployment may be serving a stale function schema; verify by querying `getCuratedRoutes` and inspecting the `_id` field. (2) The Badge component renders but the testID assertion timing is too tight (Maestro waits ~30s by default; the save mutation + state update may take longer against a cold Convex connection). The testID itself is correct — confirmed at `app/(app)/curated-route/[id].tsx:466`.",
+      "fix": "First verify `_id` is actually returned by the live deployment (npx convex codegen + check the generated types, or query the API directly). If `_id` is present, increase the Maestro `extendedWaitUntil`/`extendedTimeout` for the saved-badge assertion."
     },
     {
-      "flow": ".maestro/curated-route-detail.yaml",
-      "assertions_run": 0,
-      "verdict": "NOT_RUN",
-      "evidence": "Complex multi-scenario flow (AC-1 card tap + AC-2 no-polyline deep-link + AC-3 pin tap). Requires _common-launch-to-plan.yaml which also times out on cold-start.",
-      "block_reason": "Multi-scenario flow with multiple launchApp calls — each triggers cold-start delay."
+      "id": "uc-dtl-04-ride-it",
+      "file": ".maestro/uc-dtl-04-ride-it.yaml",
+      "result": "PASSED",
+      "duration_s": 18,
+      "step_gates": ["AC-2 (DESIGN-004)", "step 7 (Ride It → Apple Maps deep link)"]
     },
     {
-      "flow": ".maestro/save-curated.yaml",
-      "assertions_run": 0,
-      "verdict": "NOT_RUN",
-      "evidence": "Integration flow spanning save→list→reopen→unsave across multiple screens. Requires pre-existing auth + save state.",
-      "block_reason": "Flow is NOT standalone — depends on a prior save action from uc-dtl-04-save. Designed as a journey-level test that validates the full save/reopen/unsave cycle. Also blocked by cold-start."
+      "id": "save-curated",
+      "file": ".maestro/save-curated.yaml",
+      "result": "FAILED",
+      "duration_s": 17,
+      "failure": "Assertion is false: \"Save\", id: save-curated-button is visible",
+      "step_gates": ["AC-1/2 (SAVE-001)", "step 6 (Saved list → reopen detail)"],
+      "likely_root_cause": "Same auth-gating as `curated-route-detail`: this flow probably also lands on the Login screen instead of a saved-route detail screen, so `save-curated-button` (which only renders on the curated-route detail page at `[id].tsx:448`) is never visible. The flow needs the same `_common-auth.yaml` invocation + navigation to a curated route detail before asserting the save button.",
+      "fix": "Insert auth + navigation prereqs (runFlow `_common-auth.yaml` → `_common-launch-to-plan.yaml` → tap a curated card → assert on save-curated-button)."
     }
   ],
 
-  "human_testing_steps_coverage": [
-    { "n": 1, "status": "E2E_PASS", "flow": "uc-dtl-03-with-polyline.yaml", "notes": "Polyline-present route detail verified end-to-end." },
-    { "n": 2, "status": "E2E_BLOCKED_STARTUP", "flow": "uc-dtl-03-without-polyline.yaml", "notes": "Logic verified in jsdom; live E2E blocked by app cold-start." },
-    { "n": 3, "status": "LOGIC_ONLY_JSDOM", "notes": "Weather conditions failure path verified via integration tests." },
-    { "n": 4, "status": "LOGIC_ONLY_JSDOM", "notes": "Scroll placement verified via integration tests." },
-    { "n": 5, "status": "E2E_BLOCKED_STARTUP", "flow": "uc-dtl-04-save.yaml", "notes": "Save logic verified in jsdom; scroll fix applied but unverified on-device." },
-    { "n": 6, "status": "LOGIC_ONLY_JSDOM", "notes": "Saved list + reopen verified via jsdom. Live E2E requires FU-1 read-path change + save-curated.yaml flow." },
-    { "n": 7, "status": "E2E_BLOCKED_STARTUP", "flow": "uc-dtl-04-ride-it.yaml", "notes": "Ride It deeplink args verified via jsdom; live E2E blocked by cold-start." },
-    { "n": 8, "status": "LOGIC_ONLY_JSDOM", "notes": "Web fallback verified via jsdom test for SAVE-002 AC-3." }
+  "infrastructure_confirmed_working": [
+    "App installs + launches on iPhone 17 sim (com.hackerpug.laneshadow)",
+    "Metro bundler serving JS (port 8081 packager-status:running)",
+    "Convex dev deployment live (FU-1 + FU-2 changes pushed during this run)",
+    "Maestro 2.5.1 drives the sim via XCUITest/WebDriverAgent (idb NOT required)",
+    "E2E test-login button + chat-input rendered (verified via discovery-smoke passing earlier)",
+    "App's polyline + graceful-degradation + maps-deep-link paths all work end-to-end"
   ],
 
-  "blocker_analysis": {
-    "primary_blocker": "Simulator app cold-start latency",
-    "details": "After clearState:true + clearKeychain:true, the Expo dev-client + JS bundle takes >300 seconds to render the first screen (DEVELOPMENT SERVERS or Login). Subsequent warm launches are fast but each Maestro flow clears state. This makes batch E2E verification (6 flows × 5 min = 30+ min) impractical in a single session.",
-    "mitigation": "Run flows sequentially with a long per-flow timeout (≥10 min each) in a dedicated CI session, OR remove clearKeychain:true and prime auth once then run all flows reusing auth state (requires flows to NOT clear keychain).",
-    "secondary_issues": [
-      "Action buttons scroll off screen below the score-bars section — scroll fix applied but unverified on-device",
-      "save-curated.yaml is a multi-screen journey flow, not a standalone verification — requires a parent flow to prime the save state first"
-    ]
-  },
-
-  "files_changed": {
-    "convex": ["curatedRoutes.ts", "db/savedRoutes.ts", "seedGeospatialTest.ts"],
-    "shared": ["types/routes.ts"],
-    "frontend": ["app/(app)/curated-route/[id].tsx"],
-    "maestro": ["_common-auth.yaml (NEW)", "_common-launch-to-plan.yaml (NEW)", "curated-route-detail.yaml", "save-curated.yaml", "uc-dtl-03-with-polyline.yaml", "uc-dtl-03-without-polyline.yaml", "uc-dtl-04-ride-it.yaml", "uc-dtl-04-save.yaml"]
-  }
+  "verdict_summary": "The gate is RUNNABLE. 3 of 6 sprint-authored flows pass cleanly (covering human testing steps 1, 2, 7). The 3 failures cluster around two fixable root causes: (a) auth-gated flows don't invoke the `_common-auth.yaml` helper, so they land on the Login screen; (b) the save-path badge assertion may be racing the save mutation or missing a stale `_id`. Both are flow-level fixes — no app code changes implicated. Sprint 02 is NOT verified-done (3 failing flows)."
 }
