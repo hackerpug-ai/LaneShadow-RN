@@ -220,11 +220,9 @@ The `Milestone` cell links to the GitHub Milestone whose title is `sprint-{NN}`.
 |----|-------|-------|----------|
 | DISC-007 | D9 on-device capstone: verify the full discover-to-ride arc on the **route plan view** on real iOS **and** real Android against live Convex; surface and fix platform-specific issues; record per-platform evidence; founder dogfood | react-native-ui-implementer | 240 min |
 
-**Next Sprint Tasks:** Expanded by /kb-sprint-tasks-plan (2026-07-06) → [`tasks/sprint-03-on-device-d9-capstone/`](./tasks/sprint-03-on-device-d9-capstone/SPRINT.md) — 1 task file + SPRINT.md. Specialist authorship: DISC-007 proposed by `react-native-ui-implementer` standing in as RN planning specialist (the nominal `react-native-ui-planner` is non-responsive in this harness). Run with `/kb-run-sprint tasks/sprint-03-on-device-d9-capstone`.
+**Next Sprint Tasks:** Expanded by /kb-sprint-tasks-plan (2026-07-06) → [`tasks/sprint-03-on-device-d9-capstone/`](./tasks/sprint-03-on-device-d9-capstone/SPRINT.md) — 1 task file + SPRINT.md. Specialist authorship: DISC-007 proposed by `react-native-ui-implementer` standing in as RN planning specialist (the nominal `react-native-ui-planner` is non-responsive in this harness). DISC-007 is `tdd_mode: skipped` under the capstone-verification rationale (no new code; the RED phase IS the gate run itself); every behavioral AC passes the fakeability floor (`validate_scenario.py`, 0 CRITICAL/HIGH). Run with `/kb-run-sprint tasks/sprint-03-on-device-d9-capstone`.
 
 - DISC-007-d9-on-device-capstone-verify-full-discover-to-ride-arc.md
-
-**Next Sprint Tasks:** *(populated JIT when sprint becomes active by kb-sprint-tasks-plan)*
 
 #### Dependencies
 
