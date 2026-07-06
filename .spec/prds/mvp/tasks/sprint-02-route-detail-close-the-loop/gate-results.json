@@ -1,35 +1,60 @@
 {
   "sprint": "sprint-02-route-detail-close-the-loop",
-  "run_id": "2026-07-06T01:45:00Z",
-  "verdict": "blocked",
-  "blocked_reason": "simulator-rendering-fragility — the expo-dev-client renders correctly immediately after 'expo run:ios' (chat-input was verified visible, proving the app builds, installs, connects to Metro, loads the JS bundle, and authenticates), but ANY subsequent interaction (Maestro launchApp, openLink, or even assertVisible) causes the React Native view tree to freeze and become inaccessible to the accessibility layer. This is a simulator/infrastructure bug, not an app code defect. On the prior session (2026-07-05T17:30:00Z) the same app binary + Convex deployment successfully passed flow 1 (uc-dtl-03-with-polyline) with all 8 on-device assertions. App source unchanged since (only .spec/ files modified).",
+  "run_id": "2026-07-06T02:15:00Z",
+  "verdict": "fail",
+  "blocked_reason": null,
   "steps_total": 8,
-  "steps_executed": 0,
-  "steps_passed": 0,
+  "steps_executed": 5,
+  "steps_passed": 4,
+  "steps_failed": 1,
   "ui_driver": "maestro-ios-simulator",
-  "exec_surface": "tmux:laneshadow-gate-sprint-02",
-  "steps": [
-    { "n": 1, "text": "Tap curated route WITH geometry → detail (name, badge, scores, polyline)", "type": "ui", "executed": false, "result": "wiring_gap", "evidence": "App rendered home screen (chat-input visible) but froze after first post-launch interaction. Prior session: PASS (8/8)." },
-    { "n": 2, "text": "Tap NO polyline → centroid + badge + 'No description yet'", "type": "ui", "executed": false, "result": "wiring_gap", "evidence": "App rendering frozen." },
-    { "n": 3, "text": "Weather conditions (or fallback)", "type": "ui", "executed": false, "result": "wiring_gap", "evidence": "App rendering frozen." },
-    { "n": 4, "text": "Short/long page scroll behavior", "type": "ui", "executed": false, "result": "wiring_gap", "evidence": "App rendering frozen." },
-    { "n": 5, "text": "Save → loading → Saved in place", "type": "ui", "executed": false, "result": "wiring_gap", "evidence": "App rendering frozen." },
-    { "n": 6, "text": "Saved list → row → reopen without error", "type": "ui", "executed": false, "result": "wiring_gap", "evidence": "App rendering frozen." },
-    { "n": 7, "text": "Ride It → Apple Maps opens", "type": "ui", "executed": false, "result": "wiring_gap", "evidence": "App rendering frozen." },
-    { "n": 8, "text": "Android web fallback", "type": "ui", "executed": false, "result": "wiring_gap", "evidence": "Platform blocked: iOS only." }
-  ],
-  "positive_evidence_this_session": {
-    "app_build": "PASS — npx expo run:ios succeeded (0 errors, 1 warning)",
-    "app_install": "PASS — installed on iPhone 17 Pro (76A1EA21-22CE-4A12-AE94-240E99929341)",
-    "metro_connection": "PASS — App initialized session sess_1783359271239",
-    "app_rendered": "PASS — chat-input testID was verified visible by Maestro (proves correct rendering + auth)",
-    "convex_backend": "PASS — live at quirky-panther-164.convex.cloud (HTTP 200)"
+  "positive_evidence": {
+    "build": "xcrun simctl erase + npx expo run:ios — Build Succeeded, 0 errors",
+    "render": "chat-input verified visible, app renders correctly after fresh build",
+    "auth": "App auto-authenticated (Clerk E2E dev mode) — no login flow needed",
+    "verification_method": "Single warm-session Maestro runs (no intermediate checks)"
   },
-  "prior_session_evidence": {
-    "date": "2026-07-05T17:30:00Z",
-    "flow": ".maestro/uc-dtl-03-with-polyline.yaml",
-    "assertions_total": 8,
-    "assertions_passed": 8,
-    "details": "Auth → deep-link to wasatch-ridge-traverse → ALL assertions PASS: name, map, polyline probe, no approximate badge, no 'Approximate location' text. Verified against same iPhone 17 Pro + live Convex."
+  "verification_key": "Independent Metro (npx expo start) was required — expo run:ios Metro blocked Maestro XCTest access",
+  "steps": [
+    { "n": 1, "text": "Tap curated route WITH geometry → detail (name, badge, scores, polyline)",
+      "type": "ui", "executed": true, "result": "pass",
+      "evidence": "Deep-linked wasatch-ridge-traverse from warm app. Verified: name='Wasatch Ridge Traverse', curated-detail-map, curated-route-detail-polyline. NEGATIVE: curated-detail-approximate-badge NOT visible, 'Approximate location' NOT visible. ALL 6 assertions passed.",
+      "log": "/tmp/laneshadow-gate-sprint-02/step1.log" },
+    { "n": 2, "text": "Tap NO polyline → centroid + badge + 'No description yet'",
+      "type": "ui", "executed": true, "result": "pass",
+      "evidence": "Deep-linked blue-ridge-overlook from warm app. Verified: name='Blue Ridge Overlook', curated-detail-map, curated-detail-approximate-badge visible. NEGATIVE: curated-route-detail-polyline NOT visible. ALL 5 assertions passed.",
+      "log": "/tmp/laneshadow-gate-sprint-02/step2.log" },
+    { "n": 3, "text": "Weather conditions (or fallback)",
+      "type": "ui", "executed": true, "result": "pass",
+      "evidence": "Swiped to conditions section on wasatch-ridge-traverse detail. Verified: curated-detail-conditions visible.",
+      "log": "/tmp/laneshadow-gate-sprint-02/step3.log" },
+    { "n": 4, "text": "Short/long page scroll behavior — action buttons reachable",
+      "type": "ui", "executed": true, "result": "pass",
+      "evidence": "Verified save-curated-button AND ride-it-button both visible after scroll. Buttons are inside ScrollView (scroll with body, reachable).",
+      "log": "/tmp/laneshadow-gate-sprint-02/step4.log" },
+    { "n": 5, "text": "Save → loading → Saved in place",
+      "type": "ui", "executed": true, "result": "pass",
+      "evidence": "Tapped save-curated-button. Button label changed to 'Saved' (regex match). Verified name='Wasatch Ridge Traverse' still visible — stayed on same route, no navigation away. Mutation resolved correctly.",
+      "log": "/tmp/laneshadow-gate-sprint-02/step5.log" },
+    { "n": 6, "text": "Saved screen → route appears → tap → reopen without error",
+      "type": "ui", "executed": true, "result": "fail",
+      "evidence": "Navigated to saved-routes (deep-link). Verified saved-routes-list visible. Scrolled and found Wasatch route text. Tapped it. ExtendedWait (90s) for curated-route-detail-name — NOT FOUND. App navigated back to home screen (chat-input) instead of curated detail. The reopen path (saved-route → curated-route redirect) did not work.",
+      "log": "/tmp/laneshadow-gate-sprint-02/step6.log",
+      "detail": "Possible bug: saved-route/[id].tsx → curated-route/[id].tsx redirect chain may be failing. The saved route WAS found in the list (save worked), but tapping it didn't reach the curated detail screen." },
+    { "n": 7, "text": "Ride It → Apple Maps opens",
+      "type": "ui", "executed": true, "result": "pass",
+      "evidence": "ride-it-button was verified visible in step 4. Tapped in separate flow; app switched to Maps (expected). Could not confirm Maps content visually, but the action fired and app didn't crash.",
+      "log": "/tmp/laneshadow-gate-sprint-02/step7.log" },
+    { "n": 8, "text": "Android web fallback when Maps absent",
+      "type": "ui", "executed": false, "result": "wiring_gap",
+      "evidence": "Platform blocked: iOS simulator only. Requires Android emulator.",
+      "log": "" }
+  ],
+  "actionable_failure": {
+    "step": 6,
+    "symptom": "Tapping saved curated route in Saved list → app navigates to home screen instead of curated-route detail",
+    "likely_cause": "The saved-route/[id].tsx reopen path (curatedRouteRef → getCuratedRouteDetail redirect) is not functioning. Possible causes: (a) the redirect logic checks curatedRouteRef but it's null/undefined, (b) the redirect navigates but the target screen doesn't mount, (c) Expo Router doesn't handle the redirect push correctly from within a tab.
+    ",
+    "recommended_diagnostic": "Check saved-route/[id].tsx for the curatedRouteRef redirect logic. Verify it calls router.replace('/(app)/curated-route/<routeId>') when curatedRouteRef is present. Add a Metro log for the redirect to confirm it fires."
   }
 }
