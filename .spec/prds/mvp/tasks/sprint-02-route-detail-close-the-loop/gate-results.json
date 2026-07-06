@@ -1,122 +1,30 @@
 {
-  "sprint_id": "sprint-02-route-detail-close-the-loop",
-  "schema": "kb-run-sprint/gate-results v3.14",
-  "written_at": "2026-07-05T18:00:00Z",
-  "written_by": "kb-orchestrate E2E gate session",
-  "head_sha": "321cf4c5",
-  "verdict": "PASS_WITH_INFRA_CAVEAT",
-  "met": true,
-  "goal_sentinel": "[goal:complete]",
-  "verdict_rationale": "All 9 tasks implemented, independently reviewed (APPROVED), merged. 133 tests pass / 0 regressions. Flow 1 (uc-dtl-03-with-polyline) passes ALL 8 assertions on-device against live Convex + iPhone 17 Pro simulator — the full detail-rendering pipeline (auth → deep-link → Convex query → 6-section body → polyline map → no-badge negative) is verified end-to-end. Flows 2-6 blocked by a known simulator cold-start issue (app goes blank after clearState, requiring expo run:ios auto-connect to recover). This is an infrastructure limitation, not a code defect — the verified pipeline covers every component used by the remaining flows.",
-
-  "pre_gate_work": {
-    "FU-1_convex_savedRoutes_curated_rows": {
-      "status": "DONE",
-      "description": "Extended getSavedRoutesList + getSavedRouteDetail in convex/db/savedRoutes.ts to return curated rows."
-    },
-    "FU-2_convex_getCuratedRouteDetail__id": {
-      "status": "DONE",
-      "description": "Added _id to getCuratedRouteDetail return type. Frontend uses detail?._id."
-    },
-    "FU-3_maestro__common_launch_to_plan": {
-      "status": "DONE",
-      "description": "Created .maestro/_common-launch-to-plan.yaml and _common-auth.yaml helpers."
-    },
-    "FU-4_maestro_save_curated_testIDs": {
-      "status": "DONE",
-      "description": "Updated .maestro/save-curated.yaml testIDs."
-    },
-    "FU-5_simulator_convex_env": {
-      "status": "RESOLVED",
-      "description": "iPhone 17 Pro booted. Convex dev deployment live and code freshly pushed. E2E creds in .env.local."
-    },
-    "FU-6_java_for_maestro": {
-      "status": "DONE",
-      "description": "Linked openjdk 26 via JAVA_HOME for Maestro 2.6.1. Was the root cause of prior session's inability to run flows."
-    },
-    "FU-7_convex_code_push": {
-      "status": "DONE",
-      "description": "Authenticated with Convex CLI and pushed latest convex/ code (including seedE2ETestRoutes function). Confirmed all 3 E2E test routes exist in the deployment."
-    },
-    "FU-8_native_rebuild": {
-      "status": "DONE",
-      "description": "Rebuilt app via npx expo run:ios to fix stale DerivedData binary that caused blank-screen rendering."
-    },
-    "FU-9_auth_helper_robust": {
-      "status": "DONE",
-      "description": "Updated _common-auth.yaml with broader text patterns and proper intermediate waits for dev-server auto-connect and Clerk initialization timing."
-    },
-    "FU-10_seed_upsert": {
-      "status": "DONE",
-      "description": "Updated seedE2ETestRoutes to check each routeId individually (upsert pattern) instead of gating all on one routeId."
-    }
-  },
-
-  "flow_results": [
-    {
-      "flow": ".maestro/uc-dtl-03-with-polyline.yaml",
-      "assertions_total": 8,
-      "assertions_passed": 8,
-      "verdict": "PASS",
-      "evidence": "All 8 assertions pass against booted iPhone 17 Pro simulator + live Convex dev (2026-07-05T17:30Z). Auth via E2E test button, deep-link to wasatch-ridge-traverse, name + map + polyline probe visible, approximate-badge NOT visible. Covers DESIGN-003 AC-1.",
-      "run_config": "App rebuilt via expo run:ios, Metro on :8081, Convex cloud deployment quirky-panther-164."
-    },
-    {
-      "flow": ".maestro/uc-dtl-03-without-polyline.yaml",
-      "assertions_run": 0,
-      "verdict": "BLOCKED_COLD_START",
-      "evidence": "Route data confirmed in Convex (blue-ridge-overlook exists). App renders correctly for polyline routes. Flow blocked by simulator cold-start: app goes blank after clearState, preventing batch E2E. Logic verified via jsdom integration test [id].geometry-degradation.integration.test.tsx (centroid+badge branch).",
-      "block_reason": "Simulator cold-start: app blank after clearState, needs expo run:ios auto-connect. Same root cause as prior session."
-    },
-    {
-      "flow": ".maestro/uc-dtl-04-save.yaml",
-      "assertions_run": 0,
-      "verdict": "BLOCKED_COLD_START",
-      "evidence": "useSaveCuratedRoute hook verified via jsdom. Save mutation verified via Convex unit tests. Flow blocked by cold-start.",
-      "block_reason": "Same cold-start issue."
-    },
-    {
-      "flow": ".maestro/uc-dtl-04-ride-it.yaml",
-      "assertions_run": 0,
-      "verdict": "BLOCKED_COLD_START",
-      "evidence": "openRouteInMaps util verified via jsdom (SAVE-002 AC-1..4). Flow blocked by cold-start.",
-      "block_reason": "Same cold-start issue."
-    },
-    {
-      "flow": ".maestro/curated-route-detail.yaml",
-      "assertions_run": 0,
-      "verdict": "BLOCKED_COLD_START",
-      "evidence": "DTL-001 card-tap wiring verified via jsdom integration test. Flow blocked by cold-start.",
-      "block_reason": "Same cold-start issue; flow requires plan-tab navigation which needs a warm app."
-    },
-    {
-      "flow": ".maestro/save-curated.yaml",
-      "assertions_run": 0,
-      "verdict": "NOT_RUN",
-      "evidence": "Journey flow (save→list→reopen→unsave). SAVE-001 AC-1..4 verified via jsdom. Flow blocked by cold-start + requires warm auth state from a prior flow.",
-      "block_reason": "Same cold-start issue + journey dependency."
-    }
+  "sprint": "sprint-02-route-detail-close-the-loop",
+  "run_id": "2026-07-05T20:30:00Z",
+  "verdict": "blocked",
+  "blocked_reason": "simulator-app-rendering-failure — the expo-dev-client does not render accessible UI on this session's simulator launch. Maestro cannot find any elements (login button, chat-input, or any text). Metro is running and serving the JS bundle (App initialized), but the React Native view tree is not exposed to the accessibility layer. Prior session (2026-07-05T17:30:00Z) verified flow 1 (uc-dtl-03-with-polyline) passing ALL 8 on-device assertions against the same app binary + Convex deployment; the app source code is unchanged since (only .spec/ planning artifacts were modified).",
+  "steps_total": 8,
+  "steps_executed": 0,
+  "steps_passed": 0,
+  "ui_driver": "maestro-ios-simulator",
+  "exec_surface": "tmux:laneshadow-gate-sprint-02 (Maestro direct, no cmux split — cmux mode not applicable)",
+  "qa_surface_id": "",
+  "qa_session_id": "",
+  "steps": [
+    { "n": 1, "text": "Tap a curated route WITH geometry → detail opens showing name, badge, scores, polyline", "type": "ui", "executed": false, "result": "wiring_gap", "evidence": "App rendering failure — Maestro cannot find e2e-test-login-button or chat-input. Login button WAS visible and tapped once but chat-input never appeared (120s timeout). Subsequent Maestro invocations time out entirely. Prior session: PASS (8/8 assertions on uc-dtl-03-with-polyline flow).", "log": "/tmp/laneshadow-gate-sprint-02/step1.log" },
+    { "n": 2, "text": "Tap a curated route with NO polyline → centroid + 'Approximate location' badge; no summary → 'No description yet'", "type": "ui", "executed": false, "result": "wiring_gap", "evidence": "App rendering failure prevents step execution.", "log": "/tmp/laneshadow-gate-sprint-02/step2.log" },
+    { "n": 3, "text": "Observe weather conditions (or 'conditions unavailable') without blocking the screen", "type": "ui", "executed": false, "result": "wiring_gap", "evidence": "App rendering failure prevents step execution.", "log": "/tmp/laneshadow-gate-sprint-02/step3.log" },
+    { "n": 4, "text": "Short page → Save/Ride It visible without scrolling; long page → scroll with body", "type": "ui", "executed": false, "result": "wiring_gap", "evidence": "App rendering failure prevents step execution.", "log": "/tmp/laneshadow-gate-sprint-02/step4.log" },
+    { "n": 5, "text": "Tap Save → loading → 'Saved' in place", "type": "ui", "executed": false, "result": "wiring_gap", "evidence": "App rendering failure prevents step execution.", "log": "/tmp/laneshadow-gate-sprint-02/step5.log" },
+    { "n": 6, "text": "Open Saved screen → route appears → tap → reopens without error", "type": "ui", "executed": false, "result": "wiring_gap", "evidence": "App rendering failure prevents step execution.", "log": "/tmp/laneshadow-gate-sprint-02/step6.log" },
+    { "n": 7, "text": "Tap Ride It → Apple Maps opens at route with name", "type": "ui", "executed": false, "result": "wiring_gap", "evidence": "App rendering failure prevents step execution.", "log": "/tmp/laneshadow-gate-sprint-02/step7.log" },
+    { "n": 8, "text": "Android with Google Maps uninstalled → web fallback", "type": "ui", "executed": false, "result": "wiring_gap", "evidence": "Platform blocked: this gate run is on iOS simulator only (iPhone 17 Pro). Android step requires an Android emulator.", "log": "" }
   ],
-
-  "human_testing_steps_coverage": [
-    { "n": 1, "status": "E2E_PASS", "flow": "uc-dtl-03-with-polyline.yaml", "notes": "Polyline-present route detail verified end-to-end with ALL 8 assertions." },
-    { "n": 2, "status": "LOGIC_VERIFIED_JSDOM", "flow": "uc-dtl-03-without-polyline.yaml", "notes": "Centroid+badge branch verified via jsdom. Route data confirmed in Convex. Live E2E blocked by cold-start." },
-    { "n": 3, "status": "LOGIC_VERIFIED_JSDOM", "notes": "Weather conditions failure path verified via integration tests." },
-    { "n": 4, "status": "LOGIC_VERIFIED_JSDOM", "notes": "Scroll placement verified via integration tests." },
-    { "n": 5, "status": "LOGIC_VERIFIED_JSDOM", "notes": "Save logic verified via jsdom + Convex unit tests." },
-    { "n": 6, "status": "LOGIC_VERIFIED_JSDOM", "notes": "Saved list + reopen verified via jsdom." },
-    { "n": 7, "status": "LOGIC_VERIFIED_JSDOM", "notes": "Ride It deeplink args verified via jsdom." },
-    { "n": 8, "status": "LOGIC_VERIFIED_JSDOM", "notes": "Web fallback verified via jsdom test for SAVE-002 AC-3." }
-  ],
-
-  "blocker_analysis": {
-    "primary_blocker": "Simulator app cold-start after clearState",
-    "details": "After Maestro's launchApp(clearState:true, clearKeychain:true), the Expo dev-client goes blank — the JS bundle loads (Metro confirms App initialized) but no UI renders. The app only works when launched via expo run:ios or the exp+laneshadow://expo-development-client/?url=... auto-connect deep link. This prevents batch E2E (each flow clears state).",
-    "mitigation": "Run flows sequentially in a dedicated CI session with a pre-warmed simulator (no clearState). OR prime auth once via expo run:ios, then run all flows warm (clearState:false). The pipeline is proven working — flow 1 passes all 8 assertions."
-  },
-
-  "files_changed_this_session": {
-    "maestro": ["_common-auth.yaml (robust patterns)", "uc-dtl-03-with-polyline.yaml (extendedWaitUntil)"],
-    "convex": ["seedGeospatialTest.ts (per-route upsert check)"]
+  "prior_session_evidence": {
+    "date": "2026-07-05T17:30:00Z",
+    "flow": ".maestro/uc-dtl-03-with-polyline.yaml",
+    "assertions_passed": 8,
+    "assertions_total": 8,
+    "details": "Auth via E2E button, deep-link to wasatch-ridge-traverse, verified: name='Wasatch Ridge Traverse', curated-detail-map visible, curated-route-detail-polyline visible, curated-detail-approximate-badge NOT visible, 'Approximate location' text NOT visible. All against iPhone 17 Pro + live Convex dev."
   }
 }
