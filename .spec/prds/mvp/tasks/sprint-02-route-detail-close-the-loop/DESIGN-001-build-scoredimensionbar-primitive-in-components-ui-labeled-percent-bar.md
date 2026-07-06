@@ -31,7 +31,7 @@ Create `components/ui/score-dimension-bar.tsx` — a pure presentational primiti
 - **WHEN** the section renders with the real getCuratedRouteDetail payload as props
 - **THEN** headline text == '81/100'; scenic bar fill == 74% of track; remoteness == 88%; curvature == 62%; technical == 55%; traffic == 30%
 - **Test tier:** `integration` · **Service:** real iOS simulator + live Convex dev
-- **Verify:** `pnpm test <component-test>`
+- **Verify:** `pnpm test react-native/__tests__/score-dimension-bar.test.tsx`
 - **Scenario** (start `convex_score_row`): must observe headline == '81/100', scenic == 74%, remoteness == 88%, curvature == 62%, technical == 55%, traffic == 30%; must NOT observe hard-coded '74%' / hex literal / Convex hook imported; would fail if Convex mocked / table empty / fill hard-coded / score passed as 0–100.
 
 ### AC-2: pure scoreToPercent transform (UNIT — pure arithmetic, zero I/O)
@@ -40,15 +40,15 @@ Create `components/ui/score-dimension-bar.tsx` — a pure presentational primiti
 - **WHEN** invoked with 0, 0.5, 0.745, 1, null
 - **THEN** scoreToPercent(0) == 0; (0.5) == 50; (0.745) == 75; (1) == 100; null → omit sentinel
 - **Test tier:** `unit` · **Service:** vitest pure-function runner
-- **Verify:** `pnpm test <unit-test>`
+- **Verify:** `pnpm test react-native/__tests__/score-dimension-bar.test.tsx`
 - **Scenario** (start `convex_score_row`): must observe the exact boundary outputs; must NOT observe floating-point like 74.5 / throw on null; would fail if multiplies by 10 / forgets to round / ceiling's.
 
 ## Test Criteria
 
 | ID | Statement | Maps to | Verify |
 |----|-----------|---------|--------|
-| TC-1 | Integration: seeds a real row (composite 0.81) and asserts each bar fill == Math.round(score*100)% and headline == '81/100'. | AC-1 | `pnpm test <component-test>` |
-| TC-2 | Unit: scoreToPercent boundary outputs for 0, 0.5, 0.745, 1, null. | AC-2 | `pnpm test <unit-test>` |
+| TC-1 | Integration: seeds a real row (composite 0.81) and asserts each bar fill == Math.round(score*100)% and headline == '81/100'. | AC-1 | `pnpm test react-native/__tests__/score-dimension-bar.test.tsx` |
+| TC-2 | Unit: scoreToPercent boundary outputs for 0, 0.5, 0.745, 1, null. | AC-2 | `pnpm test react-native/__tests__/score-dimension-bar.test.tsx` |
 
 ## Reading List
 
@@ -77,8 +77,8 @@ Create `components/ui/score-dimension-bar.tsx` — a pure presentational primiti
 | Gate | Command |
 |------|---------|
 | TypeCheck | `pnpm type-check` |
-| Integration | `pnpm test <component-test>` |
-| Unit | `pnpm test <unit-test>` |
+| Integration | `pnpm test react-native/__tests__/score-dimension-bar.test.tsx` |
+| Unit | `pnpm test react-native/__tests__/score-dimension-bar.test.tsx` |
 | Biome | `pnpm exec biome check components/ui/score-dimension-bar.tsx` |
 
 ## Coding Standards
@@ -102,10 +102,10 @@ Create `components/ui/score-dimension-bar.tsx` — a pure presentational primiti
     "convex_score_row": { "description": "live Convex dev curated_routes row with real 0-1 scores", "seed_method": "public_api", "records": ["compositeScore 0.81 scenic 0.74 remoteness 0.88 traffic 0.30 curvature 0.62 technical 0.55"] }
   },
   "requirements": [
-    { "id": "AC-1", "type": "acceptance_criterion", "primary": true, "description": "GIVEN a real curated_routes row with 0-1 scores WHEN ScoreDimensionBarSection renders with the live payload THEN each bar fill == Math.round(score*100)% and headline == '81/100'.", "verify": "pnpm test <component-test>", "maps_to_ac": null },
-    { "id": "AC-2", "type": "acceptance_criterion", "primary": false, "description": "GIVEN the scoreToPercent helper WHEN invoked at boundaries THEN 0->0, 0.5->50, 0.745->75, 1->100, null->omit (UNIT_TEST_JUSTIFIED: pure arithmetic, zero I/O).", "verify": "pnpm test <unit-test>", "maps_to_ac": null },
-    { "id": "TC-1", "type": "test_criterion", "description": "integration: bar widths + headline track the live score.", "verify": "pnpm test <component-test>", "maps_to_ac": "AC-1" },
-    { "id": "TC-2", "type": "test_criterion", "description": "unit: scoreToPercent boundary outputs.", "verify": "pnpm test <unit-test>", "maps_to_ac": "AC-2" }
+    { "id": "AC-1", "type": "acceptance_criterion", "primary": true, "description": "GIVEN a real curated_routes row with 0-1 scores WHEN ScoreDimensionBarSection renders with the live payload THEN each bar fill == Math.round(score*100)% and headline == '81/100'.", "verify": "pnpm test react-native/__tests__/score-dimension-bar.test.tsx", "maps_to_ac": null },
+    { "id": "AC-2", "type": "acceptance_criterion", "primary": false, "description": "GIVEN the scoreToPercent helper WHEN invoked at boundaries THEN 0->0, 0.5->50, 0.745->75, 1->100, null->omit (UNIT_TEST_JUSTIFIED: pure arithmetic, zero I/O).", "verify": "pnpm test react-native/__tests__/score-dimension-bar.test.tsx", "maps_to_ac": null },
+    { "id": "TC-1", "type": "test_criterion", "description": "integration: bar widths + headline track the live score.", "verify": "pnpm test react-native/__tests__/score-dimension-bar.test.tsx", "maps_to_ac": "AC-1" },
+    { "id": "TC-2", "type": "test_criterion", "description": "unit: scoreToPercent boundary outputs.", "verify": "pnpm test react-native/__tests__/score-dimension-bar.test.tsx", "maps_to_ac": "AC-2" }
   ]
 }
 -->

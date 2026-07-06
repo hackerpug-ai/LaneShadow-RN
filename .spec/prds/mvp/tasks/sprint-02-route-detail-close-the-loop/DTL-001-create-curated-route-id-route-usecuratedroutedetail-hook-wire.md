@@ -56,7 +56,7 @@ Create `app/(app)/curated-route/[id].tsx` (mirror of `app/(app)/saved-route/[id]
 - **WHEN** the user navigates to '/(app)/curated-route/{bad-id}'
 - **THEN** `curated-route-detail-fallback` text == 'Route not found' with no uncaught error
 - **Test tier:** `integration` · **Service:** vitest against live Convex dev
-- **Verify:** `pnpm test <integration-test>`
+- **Verify:** `pnpm test app/(app)/curated-route/[id].integration.test.tsx`
 - **Scenario** (start `convex_bad_id`): must observe fallback text == 'Route not found'; must NOT observe blank screen / uncaught exception; would fail if query error uncaught to error boundary.
 
 ## Test Criteria
@@ -66,7 +66,7 @@ Create `app/(app)/curated-route/[id].tsx` (mirror of `app/(app)/saved-route/[id]
 | TC-1 | Tapping a curated chat card with geometry navigates to the detail route and renders the literal name + polyline. | AC-1 | `maestro test .maestro/curated-route-detail.yaml` |
 | TC-2 | Opening a no-polyline curated route does not crash and renders the literal name. | AC-2 | same |
 | TC-3 | Tapping the map pin navigates to the same detail route as the chat card. | AC-3 | same |
-| TC-4 | A null/throwing query renders the literal 'Route not found' fallback with no uncaught error. | AC-4 | `pnpm test <integration-test>` |
+| TC-4 | A null/throwing query renders the literal 'Route not found' fallback with no uncaught error. | AC-4 | `pnpm test app/(app)/curated-route/[id].integration.test.tsx` |
 
 ## Reading List
 
@@ -124,11 +124,11 @@ Create `app/(app)/curated-route/[id].tsx` (mirror of `app/(app)/saved-route/[id]
     { "id": "AC-1", "type": "acceptance_criterion", "primary": true, "description": "GIVEN the plan tab shows a curated chat card backed by a route with geometry WHEN the user taps it THEN the app navigates to '/(app)/curated-route/{id}' and renders the literal name + polyline.", "verify": "maestro test .maestro/curated-route-detail.yaml", "maps_to_ac": null },
     { "id": "AC-2", "type": "acceptance_criterion", "primary": false, "description": "GIVEN a curated route with no polyline WHEN the user opens its detail THEN no crash and the literal name renders.", "verify": "maestro test .maestro/curated-route-detail.yaml", "maps_to_ac": null },
     { "id": "AC-3", "type": "acceptance_criterion", "primary": false, "description": "GIVEN a curated map pin is visible WHEN the user taps it THEN the app navigates to '/(app)/curated-route/{id}' (same as the card).", "verify": "maestro test .maestro/curated-route-detail.yaml", "maps_to_ac": null },
-    { "id": "AC-4", "type": "acceptance_criterion", "primary": false, "description": "GIVEN getCuratedRouteDetail returns null/throws WHEN the user opens the detail THEN a graceful 'Route not found' fallback renders with no uncaught error.", "verify": "pnpm test <integration-test>", "maps_to_ac": null },
+    { "id": "AC-4", "type": "acceptance_criterion", "primary": false, "description": "GIVEN getCuratedRouteDetail returns null/throws WHEN the user opens the detail THEN a graceful 'Route not found' fallback renders with no uncaught error.", "verify": "pnpm test app/(app)/curated-route/[id].integration.test.tsx", "maps_to_ac": null },
     { "id": "TC-1", "type": "test_criterion", "description": "card tap with geometry navigates + renders name + polyline.", "verify": "maestro test .maestro/curated-route-detail.yaml", "maps_to_ac": "AC-1" },
     { "id": "TC-2", "type": "test_criterion", "description": "no-polyline route opens without crash + renders name.", "verify": "maestro test .maestro/curated-route-detail.yaml", "maps_to_ac": "AC-2" },
     { "id": "TC-3", "type": "test_criterion", "description": "pin tap navigates to the same detail route as the card.", "verify": "maestro test .maestro/curated-route-detail.yaml", "maps_to_ac": "AC-3" },
-    { "id": "TC-4", "type": "test_criterion", "description": "null/throwing query renders the 'Route not found' fallback.", "verify": "pnpm test <integration-test>", "maps_to_ac": "AC-4" }
+    { "id": "TC-4", "type": "test_criterion", "description": "null/throwing query renders the 'Route not found' fallback.", "verify": "pnpm test app/(app)/curated-route/[id].integration.test.tsx", "maps_to_ac": "AC-4" }
   ]
 }
 -->

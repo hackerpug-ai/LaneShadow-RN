@@ -48,7 +48,7 @@ Implement the geometry branch in the map section of `app/(app)/curated-route/[id
 - **WHEN** navigated
 - **THEN** header name text length ≥ 1 (non-empty); rendered non-map section count ≥ 1 (no white/blank screen, no exception)
 - **Test tier:** `integration` · **Service:** real iOS simulator + live Convex dev
-- **Verify:** `pnpm test <integration-test>`
+- **Verify:** `pnpm test app/(app)/curated-route/[id].integration.test.tsx`
 - **Scenario** (start `convex_null_centroid`): must observe header name length ≥ 1, non-map section count ≥ 1; must NOT observe white/blank / unhandled exception; would fail if uncaught TypeError on null centroid.
 
 ## Test Criteria
@@ -57,7 +57,7 @@ Implement the geometry branch in the map section of `app/(app)/curated-route/[id
 |----|-----------|---------|--------|
 | TC-1 | E2e WITH polyline: polyline layer renders, 'Approximate location' absent. | AC-1 | `maestro test .maestro/uc-dtl-03-with-polyline.yaml` |
 | TC-2 | E2e WITHOUT polyline: single centroid marker + literal badge + zoom 11, no crash. | AC-2 | `maestro test .maestro/uc-dtl-03-without-polyline.yaml` |
-| TC-3 | Integration null-centroid: graceful, no crash. | AC-3 | `pnpm test <integration-test>` |
+| TC-3 | Integration null-centroid: graceful, no crash. | AC-3 | `pnpm test app/(app)/curated-route/[id].integration.test.tsx` |
 
 ## Reading List
 
@@ -85,7 +85,7 @@ Implement the geometry branch in the map section of `app/(app)/curated-route/[id
 |------|---------|
 | TypeCheck | `pnpm type-check` |
 | E2E | `maestro test .maestro/uc-dtl-03-with-polyline.yaml` AND `maestro test .maestro/uc-dtl-03-without-polyline.yaml` |
-| Integration | `pnpm test <integration null-centroid>` |
+| Integration | `pnpm test app/(app)/curated-route/[id].geometry-degradation.integration.test.tsx` |
 | Biome | `pnpm exec biome check 'app/(app)/curated-route/[id].tsx'` |
 
 ## Coding Standards
@@ -93,9 +93,8 @@ Implement the geometry branch in the map section of `app/(app)/curated-route/[id
 - Semantic tokens only; testIDs on map container + badge; StyleSheet.create; handle all three states.
 
 ## Dependencies
-
-- Depends on: DTL-001
-- Blocks: (none — co-develops with DESIGN-002 map section)
+- Depends on: DTL-001, DESIGN-002
+- Blocks: (none)
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
@@ -112,10 +111,10 @@ Implement the geometry branch in the map section of `app/(app)/curated-route/[id
   "requirements": [
     { "id": "AC-1", "type": "acceptance_criterion", "primary": true, "description": "GIVEN a route WITH routePolyline WHEN opened THEN the polyline renders and the 'Approximate location' badge is absent.", "verify": "maestro test .maestro/uc-dtl-03-with-polyline.yaml", "maps_to_ac": null },
     { "id": "AC-2", "type": "acceptance_criterion", "primary": false, "description": "GIVEN a route WITHOUT routePolyline WHEN opened THEN a single centroid marker + literal 'Approximate location' badge render at zoom 11.", "verify": "maestro test .maestro/uc-dtl-03-without-polyline.yaml", "maps_to_ac": null },
-    { "id": "AC-3", "type": "acceptance_criterion", "primary": false, "description": "GIVEN a route with neither polyline nor centroid WHEN opened THEN the screen degrades gracefully (no crash).", "verify": "pnpm test <integration-test>", "maps_to_ac": null },
+    { "id": "AC-3", "type": "acceptance_criterion", "primary": false, "description": "GIVEN a route with neither polyline nor centroid WHEN opened THEN the screen degrades gracefully (no crash).", "verify": "pnpm test app/(app)/curated-route/[id].integration.test.tsx", "maps_to_ac": null },
     { "id": "TC-1", "type": "test_criterion", "description": "WITH polyline: polyline + no badge.", "verify": "maestro test .maestro/uc-dtl-03-with-polyline.yaml", "maps_to_ac": "AC-1" },
     { "id": "TC-2", "type": "test_criterion", "description": "WITHOUT polyline: marker + badge + zoom 11.", "verify": "maestro test .maestro/uc-dtl-03-without-polyline.yaml", "maps_to_ac": "AC-2" },
-    { "id": "TC-3", "type": "test_criterion", "description": "null centroid: graceful no-crash.", "verify": "pnpm test <integration-test>", "maps_to_ac": "AC-3" }
+    { "id": "TC-3", "type": "test_criterion", "description": "null centroid: graceful no-crash.", "verify": "pnpm test app/(app)/curated-route/[id].integration.test.tsx", "maps_to_ac": "AC-3" }
   ]
 }
 -->

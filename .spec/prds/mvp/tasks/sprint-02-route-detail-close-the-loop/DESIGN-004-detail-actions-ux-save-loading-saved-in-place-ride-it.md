@@ -49,7 +49,7 @@ Modify the actions row of `app/(app)/curated-route/[id].tsx` (rendered by DESIGN
 - **WHEN** Save is tapped
 - **THEN** button label == 'Save' restored (not loading); Linking.openURL call count == 0 during the failed save
 - **Test tier:** `integration` · **Service:** real iOS simulator + live Convex dev
-- **Verify:** `pnpm test <integration save-failure>`
+- **Verify:** `pnpm test app/(app)/curated-route/[id].actions.integration.test.tsx`
 - **Scenario** (start `mutation_failure`): must observe label 'Save' restored, openURL count == 0; must NOT observe perpetual ActivityIndicator / 'Saved' false-positive; would fail if mutation error swallowed / no onError.
 
 ## Test Criteria
@@ -58,7 +58,7 @@ Modify the actions row of `app/(app)/curated-route/[id].tsx` (rendered by DESIGN
 |----|-----------|---------|--------|
 | TC-1 | E2e Save: loading → literal 'Saved' in place, same screen. | AC-1 | `maestro test .maestro/uc-dtl-04-save.yaml` |
 | TC-2 | E2e Ride It: openRouteInMaps invoked with centroid+name; Apple Maps on iOS. | AC-2 | `maestro test .maestro/uc-dtl-04-ride-it.yaml` |
-| TC-3 | Integration Save failure: button returns to 'Save'. | AC-3 | `pnpm test <integration save-failure>` |
+| TC-3 | Integration Save failure: button returns to 'Save'. | AC-3 | `pnpm test app/(app)/curated-route/[id].actions.integration.test.tsx` |
 
 ## Reading List
 
@@ -86,7 +86,7 @@ Modify the actions row of `app/(app)/curated-route/[id].tsx` (rendered by DESIGN
 |------|---------|
 | TypeCheck | `pnpm type-check` |
 | E2E | `maestro test .maestro/uc-dtl-04-save.yaml` AND `maestro test .maestro/uc-dtl-04-ride-it.yaml` |
-| Integration | `pnpm test <integration save-failure>` |
+| Integration | `pnpm test app/(app)/curated-route/[id].actions.integration.test.tsx` |
 | Biome | `pnpm exec biome check 'app/(app)/curated-route/[id].tsx'` |
 
 ## Coding Standards
@@ -113,10 +113,10 @@ Modify the actions row of `app/(app)/curated-route/[id].tsx` (rendered by DESIGN
   "requirements": [
     { "id": "AC-1", "type": "acceptance_criterion", "primary": true, "description": "GIVEN auth + unsaved curated route WHEN the user taps Save THEN loading then literal 'Saved' in place, no navigation away.", "verify": "maestro test .maestro/uc-dtl-04-save.yaml", "maps_to_ac": null },
     { "id": "AC-2", "type": "acceptance_criterion", "primary": false, "description": "GIVEN a curated route with centroid+name WHEN the user taps Ride It THEN openRouteInMaps opens Apple/Google Maps at the centroid with the name.", "verify": "maestro test .maestro/uc-dtl-04-ride-it.yaml", "maps_to_ac": null },
-    { "id": "AC-3", "type": "acceptance_criterion", "primary": false, "description": "GIVEN the save mutation rejects WHEN Save is tapped THEN the button returns to the tappable 'Save' state (not stuck loading).", "verify": "pnpm test <integration save-failure>", "maps_to_ac": null },
+    { "id": "AC-3", "type": "acceptance_criterion", "primary": false, "description": "GIVEN the save mutation rejects WHEN Save is tapped THEN the button returns to the tappable 'Save' state (not stuck loading).", "verify": "pnpm test app/(app)/curated-route/[id].actions.integration.test.tsx", "maps_to_ac": null },
     { "id": "TC-1", "type": "test_criterion", "description": "Save loading->'Saved' in place.", "verify": "maestro test .maestro/uc-dtl-04-save.yaml", "maps_to_ac": "AC-1" },
     { "id": "TC-2", "type": "test_criterion", "description": "Ride It opens maps with centroid+name.", "verify": "maestro test .maestro/uc-dtl-04-ride-it.yaml", "maps_to_ac": "AC-2" },
-    { "id": "TC-3", "type": "test_criterion", "description": "Save failure restores 'Save'.", "verify": "pnpm test <integration save-failure>", "maps_to_ac": "AC-3" }
+    { "id": "TC-3", "type": "test_criterion", "description": "Save failure restores 'Save'.", "verify": "pnpm test app/(app)/curated-route/[id].actions.integration.test.tsx", "maps_to_ac": "AC-3" }
   ]
 }
 -->

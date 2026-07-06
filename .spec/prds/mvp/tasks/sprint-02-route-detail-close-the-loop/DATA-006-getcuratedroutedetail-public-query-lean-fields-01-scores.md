@@ -13,7 +13,7 @@ An authenticated client can call `curatedRoutes:getCuratedRouteDetail({ routeId 
 
 ## Specification
 
-Add a public Clerk-gated query `getCuratedRouteDetail` in `convex/curatedRoutes.ts` returning a fully-specified lean detail object for a single curated route by routeId: normalized 0–1 scores, optional encoded polyline (`v.union(v.string(), v.null())`), computed bounds, and a centroid for weather lookup. Reads NO enrichment (curated_route_enrichments is empty). Reuses the archetype UI↔DB map (UC-DATA-02), state-normalize + length-clamp read-path transforms (UC-DATA-04) already present in buildRouteCard. Weather is a SEPARATE client action call (getCurrentWeather on centroid) — this query exposes the centroid, does NOT block on or call weather.
+Add a public Clerk-gated query `getCuratedRouteDetail` in `convex/curatedRoutes.ts` returning a fully-specified lean detail object for a single curated route by routeId: normalized 0–1 scores, optional encoded polyline (`v.union(v.string(), v.null())`), computed bounds, and a centroid for weather lookup. **MUST also return `_id: v.id('curated_routes')`** (the internal document id) alongside `routeId` so the client can pass it to the save mutation's `curatedRouteRef` field (DATA-003/SAVE-001 contract). Reads NO enrichment (curated_route_enrichments is empty). Reuses the archetype UI↔DB map (UC-DATA-02), state-normalize + length-clamp read-path transforms (UC-DATA-04) already present in buildRouteCard. Weather is a SEPARATE client action call (getCurrentWeather on centroid) — this query exposes the centroid, does NOT block on or call weather.
 
 ## Critical Constraints
 
@@ -21,6 +21,7 @@ Add a public Clerk-gated query `getCuratedRouteDetail` in `convex/curatedRoutes.
 - MUST resolve the route via the `by_routeId` index (`ctx.db.query('curated_routes').withIndex('by_routeId', q => q.eq('routeId', args.routeId)).unique()`).
 - `routePolyline` validator MUST be `v.union(v.string(), v.null())`; null for the ~45% lacking geometry.
 - MUST return scores on the 0–1 scale (never 0–100); derive the headline from summary or name (oneLiner is 0% populated).
+- MUST return `_id: v.id('curated_routes')` in the response — SAVE-001's save mutation requires the internal `_id` (not the public `routeId` string) as `curatedRouteRef`.
 - NEVER read `curated_route_enrichments` (table is empty; no photos/history/elevation). NEVER mock `ctx.db` in tests.
 
 ## Acceptance Criteria

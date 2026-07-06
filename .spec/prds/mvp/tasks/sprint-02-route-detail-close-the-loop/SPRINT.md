@@ -3,7 +3,7 @@ sprint: 2
 title: Route Detail + Close the Loop
 sequence: 2
 timeline: Phase 2
-status: Planned
+status: Execution
 ---
 
 # Sprint 2: Route Detail + Close the Loop
@@ -88,6 +88,22 @@ From a curated route discovered on the route plan view (Sprint 01) — tapping i
 
 ---
 
+## Post-Run Follow-Ups (FU-1..FU-10)
+
+Discovered during execution and remediated. Documented here so future re-runs don't re-hit them.
+
+| ID | Finding (red-hat ref) | Resolution |
+|----|----------------------|------------|
+| FU-1 | SAVE-001 AC-2/AC-3 depend on `getSavedRoutesList`/`getSavedRouteDetail` returning curated rows — no task owned this (RH-012) | Extended `convex/db/savedRoutes.ts` to return curated rows when `curatedRouteRef` is set |
+| FU-2 | DATA-006 return contract omitted `_id` — SAVE-001 needs it for `curatedRouteRef` (RH-003) | Added `_id: v.id('curated_routes')` to `getCuratedRouteDetail` return |
+| FU-3 | Tasks assert `maestro test` but no task owned the launch/auth helper (RH-011) | Created `.maestro/_common-auth.yaml` + `.maestro/_common-launch-to-plan.yaml` |
+| FU-4 | testIDs in e2e criteria diverged from task contracts (RH-001) | Reconciled: `save-curated-button` / `ride-it-button` are canonical |
+| FU-5..10 | Simulator cold-start, Java for Maestro, Convex code push, native rebuild, seed upsert | See `gate-results.json` pre_gate_work |
+
+**Canonical fixture source:** `convex/seedGeospatialTest.ts` (`seedE2ETestRoutes`) — see [FIXTURE-MANIFEST.md](./FIXTURE-MANIFEST.md) for the authoritative row specs (RH-002/004/005/013/018).
+
+---
+
 ## Blocks
 
 - Sprint 03 (On-Device D9 Capstone) — stitches the backend gates + plan-view discovery + detail + save into the one end-to-end arc
@@ -95,7 +111,7 @@ From a curated route discovered on the route plan view (Sprint 01) — tapping i
 ## Dependencies
 
 - Dependent on: Sprint 01 (`getCuratedRouteDetail` reuses the archetype-map + state/length transforms; `SAVE-001` consumes the `curatedRouteRef` field; the detail is reached by tapping a curated route on the plan view)
-- **Intra-sprint ordering:** `DATA-006` + `DATA-003` precede the client hooks/mutations; `DTL-001` (route + hook + tap-wiring) precedes `DESIGN-002` (body) and `SAVE-001`; `DESIGN-001` (ScoreDimensionBar) precedes `DESIGN-002`; `DESIGN-003` co-develops with the body's map section; `DESIGN-004` consumes `SAVE-001` + `SAVE-002`.
+- **Intra-sprint ordering:** `DATA-006` + `DATA-003` precede the client hooks/mutations; `DTL-001` (route + hook + tap-wiring) precedes `DESIGN-002` (body) and `SAVE-001`; `DESIGN-001` (ScoreDimensionBar) precedes `DESIGN-002`; `DESIGN-003` MUST follow `DESIGN-002` (it modifies the map section DESIGN-002 places — serial, not parallel); `SAVE-001` follows `DATA-003` + `DATA-006` + `DESIGN-002`; `DESIGN-004` consumes `SAVE-001` + `SAVE-002`.
 
 ## Task Detail Files
 
