@@ -1,25 +1,55 @@
 ---
 sprint: 2
 title: Route Detail + Close the Loop — Orchestration Handoff
-status: BLOCKED_E2E_APP_STARTUP_TIMEOUT
+status: GATE_RUNNABLE_3_OF_6_PASS
 written_at: 2026-07-05T18:50:00Z
+updated_at: 2026-07-06T01:50:00Z
 run_id: laneshadow-sprint-02-deepseek-kimi-20260705T182140Z
+branch_sha_latest: 2ca9b509
 ---
 
 # Sprint 02 — Orchestration Handoff
 
-## TL;DR
+## STATE UPDATE (2026-07-06T01:50:00Z) — gate re-run, app startup confirmed fine
 
-Sprint 02 is **NOT verified-done**. The 9 original tasks remain APPROVED + merged to main (task-level done, carried over from the prior run). This orchestration cycle (`laneshadow-sprint-02-deepseek-kimi-20260705T182140Z`) landed the 4 follow-up fixes (FU-1..FU-4) required to make the Maestro e2e gate runnable, plus incidental Maestro infra fixes — then hit a new blocker: the RN app would not start in the booted iPhone 17 simulator within timeout, so the 8-step human testing gate never executed.
+The original handoff below reported `BLOCKED_E2E_APP_STARTUP_TIMEOUT`. **That was a transient.** A direct re-run of the Maestro gate against the booted iPhone 17 sim + live Convex dev produced real signal:
+
+- **App installs + launches fine** (com.hackerpug.laneshadow, PID-stable, no crash)
+- **Metro is serving** (`packager-status:running` on :8081)
+- **Maestro 2.5.1 drives the sim via XCUITest/WebDriverAgent** (idb is NOT required — the absence of idb was a red herring)
+- **3 of 6 sprint-authored flows PASS**: `uc-dtl-03-with-polyline`, `uc-dtl-03-without-polyline`, `uc-dtl-04-ride-it` (covers human testing steps 1, 2, 7)
+- **3 of 6 FAIL with specific, fixable causes**:
+  - `curated-route-detail` (5m10s timeout) — flow uses `clearState: true` which clears Clerk auth; doesn't invoke `_common-auth.yaml` so lands on Login screen. **Fix:** insert `runFlow: ../.maestro/_common-auth.yaml` before `_common-launch-to-plan.yaml`, OR drop `clearState: true`.
+  - `save-curated` (17s) — same auth-gating; `save-curated-button` only renders on the curated-route detail page which needs auth to reach. **Fix:** same auth-wiring.
+  - `uc-dtl-04-save` (32s) — `save-curated-saved-badge` not visible after Save tap (testID confirmed at `app/(app)/curated-route/[id].tsx:466`). **Fix:** verify FU-2 `_id` is actually being returned by the live deployment + loosen assertion timing.
+
+**This is a flow-level fix loop, NOT app-code work.** Sprint 02 still NOT verified-done — but the gap is small and specific. See `gate-results.json` on the branch (`2ca9b509`) for full per-flow detail.
+
+**Fastest next loop on any device:**
+```bash
+git fetch origin && git checkout sprint-02/fu1-4-e2e-blocked   # branch SHA 2ca9b509
+cat .spec/prds/mvp/tasks/sprint-02-route-detail-close-the-loop/gate-results.json
+# Edit the 3 failing flows (auth wiring in curated-route-detail.yaml + save-curated.yaml;
+# investigate _id + timing in uc-dtl-04-save.yaml), then:
+maestro test .maestro/curated-route-detail.yaml .maestro/uc-dtl-03-*.yaml .maestro/uc-dtl-04-*.yaml .maestro/save-curated.yaml
+# On 6/6 pass → update sprint-goal-state.json met=true + [goal:complete] → merge to main.
+```
+
+---
+
+## ORIGINAL TL;DR (2026-07-05T18:50:00Z)
+
+Sprint 02 is **NOT verified-done**. The 9 original tasks remain APPROVED + merged to main (task-level done, carried over from the prior run). This orchestration cycle (`laneshadow-sprint-02-deepseek-kimi-20260705T182140Z`) landed the 4 follow-up fixes (FU-1..FU-4) required to make the Maestro e2e gate runnable, plus incidental Maestro infra fixes — then hit a reported blocker (later disproven — see STATE UPDATE above): the RN app would not start in the booted iPhone 17 simulator within timeout, so the 8-step human testing gate never executed.
 
 **Per the human operator's strict bar — "I don't want you to mark anything complete unless the functionality is verified" — the sprint remains NOT-met.** No fake green. The blocker is real and is documented below with the next concrete unblock step.
 
 ## Branch to use
 
 **Work branch:** `sprint-02/fu1-4-e2e-blocked` (local + `origin/sprint-02/fu1-4-e2e-blocked`)
-**Branch SHA:** `321cf4c56ffa138ee174560498bea711a0342cc2`
+**Branch SHA (latest, with real gate results):** `2ca9b509` — "sprint-02: real Maestro gate results — 3/6 pass, 3 fixable failures"
+**Branch SHA (initial FU-1..FU-4 commit):** `321cf4c56ffa138ee174560498bea711a0342cc2`
 **Based off:** `6ddc57d3109fe8961fad6cf5108e4785798404d8` on `origin/main` (was HEAD of main at orchestration start)
-**Diff vs base:** 15 files changed, +505 / −153
+**Diff vs base:** 16 files changed, ~+570 / −260 (FU-1..FU-4 code + Maestro infra + 2 state-files)
 **PR URL:** https://github.com/hackerpug-ai/LaneShadow-RN/pull/new/sprint-02/fu1-4-e2e-blocked
 **Remote:** `origin` → `git@github.com:hackerpug-ai/LaneShadow-RN.git`
 
