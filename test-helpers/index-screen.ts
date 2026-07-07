@@ -49,6 +49,7 @@ const handles = vi.hoisted(() => ({
   mockSetDisplayedRoutePlanId: vi.fn(),
   mockRegisterFitHandler: vi.fn(),
   mockRequestFitToRouteWithReset: vi.fn(),
+  mockRouterPush: vi.fn(),
 }))
 
 vi.mock('convex/react', () => ({
@@ -57,7 +58,7 @@ vi.mock('convex/react', () => ({
 }))
 
 vi.mock('expo-router', () => ({
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useRouter: () => ({ push: handles.mockRouterPush, replace: vi.fn() }),
   useSegments: () => ['app', 'tabs', 'index'],
   useLocalSearchParams: () => ({}),
 }))

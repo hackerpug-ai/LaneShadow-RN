@@ -44,6 +44,7 @@ import {
 import SavedRouteDetailScreen from '../[id]'
 
 const mockBack = vi.fn()
+const mockPush = vi.fn()
 const mockSaveRouteMutation = vi.fn()
 
 const mockHookReturn: {
@@ -60,6 +61,7 @@ vi.mock('react-native', () => ({
     OS: 'ios',
     select: (values: Record<string, unknown>) => values.ios ?? values.default,
   },
+  Pressable: 'Pressable',
   StyleSheet: { create: (s: Record<string, unknown>) => s },
   TextInput: 'TextInput',
   TurboModuleRegistry: {
@@ -82,7 +84,7 @@ vi.mock('react-native-safe-area-context', () => ({
 }))
 vi.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ id: 'test-route-id' }),
-  useRouter: () => ({ back: mockBack }),
+  useRouter: () => ({ back: mockBack, push: mockPush }),
 }))
 vi.mock('../../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({
@@ -613,9 +615,8 @@ describe('AC4: Route not found', () => {
     const root = tree!.root
 
     // MapHeaderOverlay should have a leftAction with the back testID
-    const header = root.findByProps({ testID: 'route-detail-header' })
+    const header = root.findByProps({ testID: 'route-detail-not-found-back' })
     expect(header).toBeDefined()
-    expect(header.props.leftAction.icon).toBe('arrow-left')
   })
 })
 
@@ -626,6 +627,7 @@ describe('AC4: Route not found', () => {
 describe('AC5: Back navigation', () => {
   beforeEach(() => {
     mockBack.mockClear()
+    mockPush.mockClear()
   })
 
   afterEach(() => {
@@ -633,7 +635,7 @@ describe('AC5: Back navigation', () => {
     mockHookReturn.isLoading = true
   })
 
-  it('should wire back button onPress to router.back() in not-found state', () => {
+  it('should wire back button onPress to router.push(backTo) in not-found state', () => {
     mockHookReturn.data = null
     mockHookReturn.isLoading = false
 
@@ -643,14 +645,14 @@ describe('AC5: Back navigation', () => {
     })
     const root = tree!.root
 
-    // Find the header and invoke leftAction.onPress
-    const header = root.findByProps({ testID: 'route-detail-header' })
-    header.props.leftAction.onPress()
+    // SubpageLayout renders the back button with testID `${testID}-back`
+    const backButton = root.findByProps({ testID: 'route-detail-not-found-back' })
+    backButton.props.onPress()
 
-    expect(mockBack).toHaveBeenCalledTimes(1)
+    expect(mockPush).toHaveBeenCalledWith('/(app)/(tabs)')
   })
 
-  it('should wire back button onPress to router.back() in detail state', () => {
+  it('should wire back button onPress to router.push(backTo) in detail state', () => {
     mockHookReturn.data = makeSavedRouteDetail()
     mockHookReturn.isLoading = false
 
@@ -660,11 +662,10 @@ describe('AC5: Back navigation', () => {
     })
     const root = tree!.root
 
-    // Find the header and invoke leftAction.onPress
-    const header = root.findByProps({ testID: 'route-detail-header' })
-    header.props.leftAction.onPress()
+    const backButton = root.findByProps({ testID: 'route-detail-screen-back' })
+    backButton.props.onPress()
 
-    expect(mockBack).toHaveBeenCalledTimes(1)
+    expect(mockPush).toHaveBeenCalledWith('/(app)/(tabs)')
   })
 })
 

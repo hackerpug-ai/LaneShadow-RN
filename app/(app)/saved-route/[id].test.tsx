@@ -65,7 +65,6 @@ vi.mock('../../../contexts/theme-preference', () => ({
 }))
 
 vi.mock('react-native-safe-area-context', () => ({
-  SafeAreaView: 'SafeAreaView',
   useSafeAreaInsets: () => ({ top: 0, bottom: 0 }),
 }))
 
@@ -93,8 +92,8 @@ vi.mock('./use-route-actions', () => ({
 vi.mock('../../../components/map', () => ({
   MapboxMapView: 'MapboxMapView',
 }))
-vi.mock('../../../components/map/map-header-overlay', () => ({
-  MapHeaderOverlay: 'MapHeaderOverlay',
+vi.mock('../../../components/layouts/subpage-layout', () => ({
+  SubpageLayout: 'SubpageLayout',
 }))
 vi.mock('../../../components/map/overlay-toggle', () => ({
   OverlayToggle: 'OverlayToggle',

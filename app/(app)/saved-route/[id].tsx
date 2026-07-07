@@ -3,6 +3,10 @@
  *
  * Full-screen view of a saved route with map, stats, and route highlights.
  * Accessed via navigation from saved routes list.
+ *
+ * Header uses `SubpageLayout size="compact"` (finite 44pt bar with back button,
+ * route name as the title, and rename + delete icon actions on the right).
+ * Below the header, the map (top, non-scrolling) and the info ScrollView.
  */
 
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -10,12 +14,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from 'react-native-paper'
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MapboxMapView } from '../../../components/map'
-import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
+import { SubpageLayout } from '../../../components/layouts/subpage-layout'
 import { OverlayToggle } from '../../../components/map/overlay-toggle'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
-import { Button } from '../../../components/ui/button'
 import { DeleteRouteDialog } from '../../../components/ui/delete-route-dialog'
 import { IconSymbol } from '../../../components/ui/icon-symbol'
 import { RenameRouteDialog } from '../../../components/ui/rename-route-dialog'
@@ -27,8 +29,6 @@ import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import type { RouteOverlays } from '../../../shared/models/saved-routes'
 import { formatDistance, formatDuration, formatSavedDate } from '../saved-route.utils/utils'
 import { useRouteActions } from './use-route-actions'
-
-const Z_INDEX_HEADER_ACTIONS = 30
 
 // ---------------------------------------------------------------------------
 // SAVE-001: reopen-path discriminator
@@ -71,7 +71,6 @@ const SavedRouteDetailScreen = () => {
   const router = useRouter()
   const { semantic } = useSemanticTheme()
   const { isDark } = useThemePreference()
-  const insets = useSafeAreaInsets()
   const { data, isLoading } = useSavedRouteDetail(id ?? null)
   const [selectedOverlay, setSelectedOverlay] = useState<'wind' | 'rain' | 'temperature' | ''>('')
 
@@ -109,16 +108,15 @@ const SavedRouteDetailScreen = () => {
 
   if (isLoading) {
     return (
-      <SafeAreaView
-        testID="route-detail-loading"
-        style={[styles.safe, { backgroundColor: semantic.color.background.default }]}
-      >
-        <ActivityIndicator
-          size="large"
-          color={semantic.color.primary.default}
-          style={styles.loader}
-        />
-      </SafeAreaView>
+      <SubpageLayout title="Route Detail" size="compact" testID="route-detail-loading">
+        <View style={styles.centered}>
+          <ActivityIndicator
+            size="large"
+            color={semantic.color.primary.default}
+            style={styles.loader}
+          />
+        </View>
+      </SubpageLayout>
     )
   }
 
@@ -127,34 +125,25 @@ const SavedRouteDetailScreen = () => {
   // data.routeSnapshot are never accessed for a curated row.
   if (isCuratedBookmark) {
     return (
-      <SafeAreaView
+      <SubpageLayout
+        title="Route Detail"
+        size="compact"
         testID="route-detail-curated-redirect"
-        style={[styles.safe, { backgroundColor: semantic.color.background.default }]}
       >
-        <ActivityIndicator
-          size="large"
-          color={semantic.color.primary.default}
-          style={styles.loader}
-        />
-      </SafeAreaView>
+        <View style={styles.centered}>
+          <ActivityIndicator
+            size="large"
+            color={semantic.color.primary.default}
+            style={styles.loader}
+          />
+        </View>
+      </SubpageLayout>
     )
   }
 
   if (!data) {
     return (
-      <SafeAreaView
-        testID="route-detail-not-found"
-        style={[styles.safe, { backgroundColor: semantic.color.background.default }]}
-      >
-        <MapHeaderOverlay
-          title="Route Detail"
-          leftAction={{
-            icon: 'arrow-left',
-            onPress: () => router.back(),
-            testID: 'route-detail-back',
-          }}
-          testID="route-detail-header"
-        />
+      <SubpageLayout title="Route Detail" size="compact" testID="route-detail-not-found">
         <View style={styles.centered}>
           <IconSymbol
             name="map-marker-question"
@@ -179,7 +168,7 @@ const SavedRouteDetailScreen = () => {
             This route may have been deleted.
           </Text>
         </View>
-      </SafeAreaView>
+      </SubpageLayout>
     )
   }
 
@@ -196,10 +185,24 @@ const SavedRouteDetailScreen = () => {
   const routeProvenance = data.routeProvenance
 
   return (
-    <SafeAreaView
+    <SubpageLayout
+      title={data.name}
+      size="compact"
+      rightActions={[
+        {
+          icon: 'pencil',
+          onPress: actions.openRenameDialog,
+          testID: 'route-detail-rename',
+          accessibilityLabel: 'Rename route',
+        },
+        {
+          icon: 'trash-can-outline',
+          onPress: actions.openDeleteDialog,
+          testID: 'route-detail-delete',
+          accessibilityLabel: 'Delete route',
+        },
+      ]}
       testID="route-detail-screen"
-      style={[styles.safe, { backgroundColor: semantic.color.background.default }]}
-      edges={['top']}
     >
       <View style={styles.root}>
         {/* Map section */}
@@ -215,43 +218,6 @@ const SavedRouteDetailScreen = () => {
               onValueChange={setSelectedOverlay}
             />
           ) : null}
-          <MapHeaderOverlay
-            title={data.name}
-            leftAction={{
-              icon: 'arrow-left',
-              onPress: () => router.back(),
-              testID: 'route-detail-back',
-            }}
-            testID="route-detail-header"
-          />
-          {/* Action buttons - absolutely positioned at top-right of map */}
-          <View
-            style={[
-              styles.headerActions,
-              {
-                top: insets.top,
-                right: semantic.space.lg,
-                gap: semantic.space.xs,
-              },
-            ]}
-          >
-            <Button
-              icon="pencil"
-              size="icon"
-              variant="glass"
-              onPress={actions.openRenameDialog}
-              testID="route-detail-rename"
-              accessibilityLabel="Rename route"
-            />
-            <Button
-              icon="trash-can-outline"
-              size="icon"
-              variant="glass"
-              onPress={actions.openDeleteDialog}
-              testID="route-detail-delete"
-              accessibilityLabel="Delete route"
-            />
-          </View>
         </View>
 
         {/* Info section */}
@@ -395,7 +361,7 @@ const SavedRouteDetailScreen = () => {
         onDismiss={actions.closeDeleteDialog}
         testID="route-detail-delete-dialog"
       />
-    </SafeAreaView>
+    </SubpageLayout>
   )
 }
 
@@ -429,20 +395,11 @@ const SectionHeader = ({ label, semantic }: SectionHeaderProps) => (
 // ---------------------------------------------------------------------------
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
   root: {
     flex: 1,
   },
   mapSection: {
     flex: 0.5,
-  },
-  headerActions: {
-    position: 'absolute',
-    top: 0,
-    flexDirection: 'row',
-    zIndex: Z_INDEX_HEADER_ACTIONS,
   },
   infoSection: {
     flex: 0.5,

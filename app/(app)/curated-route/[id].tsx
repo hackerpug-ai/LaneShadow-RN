@@ -1,7 +1,9 @@
 /**
  * Curated Route Detail Screen (DESIGN-002 — six-section lean body).
  *
- * Full-screen view of a single curated route. Six sections top→bottom:
+ * Full-screen view of a single curated route. Header uses `SubpageLayout`
+ * (compact size — finite 44pt bar with back button + "Route Detail" title).
+ * Below the header, six body sections top→bottom:
  *   1. header      — name (title.lg) + archetype Badge (variant=secondary)
  *   2. summary     — body.md content.secondary, or italic "No description yet"
  *   3. scores      — DESIGN-001 ScoreDimensionBarSection (composite + 5 bars)
@@ -29,18 +31,17 @@
  */
 
 import { useAction } from 'convex/react'
-import { useLocalSearchParams, useRouter } from 'expo-router'
+import { useLocalSearchParams } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { ErrorBoundary } from '../../../components/logging/error-boundary'
 import {
   MapboxMapView,
   type MapboxMapViewHandle,
   type MapboxPolyline,
 } from '../../../components/map'
-import { MapHeaderOverlay } from '../../../components/map/map-header-overlay'
+import { SubpageLayout } from '../../../components/layouts/subpage-layout'
 import { Badge } from '../../../components/ui/badge'
 import { Button } from '../../../components/ui/button'
 import {
@@ -515,29 +516,14 @@ const CuratedRouteFallback = ({ semantic }: FallbackProps) => (
 
 const CuratedRouteDetailScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>()
-  const router = useRouter()
   const { semantic } = useSemanticTheme()
 
-  const headerAction = useMemo(
-    () => ({
-      icon: 'arrow-left' as const,
-      onPress: () => router.back(),
-      testID: 'curated-route-detail-back',
-    }),
-    [router],
-  )
-
   return (
-    <SafeAreaView
+    <SubpageLayout
+      title="Route Detail"
+      size="compact"
       testID="curated-route-detail-screen"
-      style={[styles.safe, { backgroundColor: semantic.color.background.default }]}
-      edges={['top']}
     >
-      <MapHeaderOverlay
-        title="Route Detail"
-        leftAction={headerAction}
-        testID="curated-route-detail-header"
-      />
       {/* ErrorBoundary: a throwing getCuratedRouteDetail (DATA-006 NOT_FOUND)
           renders the SAME fallback as the explicit null-check — no uncaught
           error reaches the top-level boundary. NOTE: this boundary does NOT
@@ -546,7 +532,7 @@ const CuratedRouteDetailScreen = () => {
       <ErrorBoundary fallback={<CuratedRouteFallback semantic={semantic} />}>
         <PolylineGuardedBody id={id ?? ''} />
       </ErrorBoundary>
-    </SafeAreaView>
+    </SubpageLayout>
   )
 }
 

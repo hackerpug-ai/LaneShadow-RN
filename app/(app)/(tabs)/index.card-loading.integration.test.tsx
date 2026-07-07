@@ -1,27 +1,21 @@
 /**
- * REDHAT-FIX-003 / RUX-007 Integration Tests: Curated card tap loading + no chat message
+ * REDHAT-FIX-003 / DTL-001 Integration Tests: Discovery pill tap navigates to detail + no chat message
  *
  * Scenario-backed integration tests that render the REAL plan-view screen
- * (index.tsx) with the REAL handleSelectCuratedRoute wiring. Only the native
- * map boundary (rnmapbox / MapboxMapView), Convex/network hooks, and unrelated
+ * (index.tsx) with the REAL goToCuratedRoute wiring. Only the native map
+ * boundary (rnmapbox / MapboxMapView), Convex/network hooks, and unrelated
  * UI are mocked.
- *
- * The `createCuratedPlan` Convex mutation is driven by a CONTROLLABLE promise
- * so the test can observe the indicator WHILE pending and AFTER resolve.
- * MapPlanningIndicator is stubbed as a conditional adapter that renders its
- * testID only when `visible` — mirroring the production
- * `if (!visible) return null` contract.
  *
  * ChatInput is stubbed as a faithful adapter that renders the discovery pills
  * index.tsx passes via `suggestions` and invokes the real `onSelectRoute`
  * prop — the same contract the production ChatInput honours. This exercises
- * the index.tsx → handleSelectCuratedRoute → createCuratedPlan wiring (NOT the
+ * the index.tsx → goToCuratedRoute → router.push wiring (NOT the
  * handleSendMessage / sendPlanningMessage chat-send path).
  *
- * AC-2 (cardTapShowsThenHidesMapPlanningIndicator + cardTapDoesNotAppendChatMessage):
- *   - map-planning-indicator present while createCuratedPlan pending, absent after resolve
+ * AC-2 (pillTapNavigatesToCuratedDetail + pillTapDoesNotAppendChatMessage):
+ *   - tapping a discovery-suggestion-pill pushes /(app)/curated-route/{id}
  *   - transcript message count delta === 0 (sendPlanningMessage NOT invoked;
- *     createCuratedPlan IS invoked — the curated path, not the chat path)
+ *     router.push IS invoked — the curated detail path, not the chat path)
  */
 
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react-native'
@@ -39,12 +33,12 @@ import { MOCK_SEMANTIC } from '../../../test-helpers/mock-semantic'
 
 const {
   mockUseQuery,
-  mockUseMutation,
   mockUseActiveSessionRoute,
   mockUseRideFlow,
   mockFitToCoordinates,
   mockSetCameraPosition,
   mockMapRef,
+  mockRouterPush,
 } = setupHomeScreenMocks()
 
 // ---------------------------------------------------------------------------
@@ -75,18 +69,6 @@ vi.mock('../../../hooks/use-semantic-theme', () => ({
 // Scenario-specific component adapters
 // ---------------------------------------------------------------------------
 
-// MapPlanningIndicator: conditional adapter — renders testID only when visible
-// (mirrors production `if (!visible) return null`).
-vi.mock('../../../components/map/map-planning-indicator', () => {
-  const { createElement } = require('react')
-  return {
-    MapPlanningIndicator: (props: any) =>
-      props.visible
-        ? createElement('View', { testID: props.testID ?? 'map-planning-indicator' })
-        : null,
-  }
-})
-
 vi.mock('../../../components/map/route-tag', () => ({ RouteTag: () => null }))
 vi.mock('../../../components/sheets/route-details-sheet', () => ({
   RouteDetailsSheet: () => null,
@@ -98,7 +80,7 @@ vi.mock('../../../components/ui/save-favorite-sheet', () => ({
 // ChatInput: faithful adapter — renders the discovery pills index.tsx passes
 // via `suggestions` and invokes the real `onSelectRoute(routeId)` prop on
 // press (the production contract). This exercises the index.tsx →
-// handleSelectCuratedRoute wiring under test.
+// goToCuratedRoute wiring under test.
 vi.mock('../../../components/chat', () => {
   const { createElement } = require('react')
   const { TouchableOpacity, View, Text } = require('react-native')
@@ -140,18 +122,6 @@ vi.mock('../../../components/ui/chat-transcript', () => {
 const mockFlowDispatch = vi.fn()
 
 // ---------------------------------------------------------------------------
-// Controllable createCuratedPlan mutation
-// ---------------------------------------------------------------------------
-
-let resolveCreateCuratedPlan: (value: { routePlanId: string }) => void = () => {}
-const mockCreateCuratedPlan = vi.fn(
-  () =>
-    new Promise<{ routePlanId: string }>((resolve) => {
-      resolveCreateCuratedPlan = resolve
-    }),
-)
-
-// ---------------------------------------------------------------------------
 // Fixtures — a curated discovery route (centroid-style single point)
 // ---------------------------------------------------------------------------
 
@@ -169,7 +139,7 @@ const CURATED_ROUTE = {
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('RUX-007: Curated card tap shows/hides indicator + no chat message', () => {
+describe('DTL-001: Discovery pill tap navigates to detail + no chat message', () => {
   let HomeMapScreen: any
 
   afterEach(() => {
@@ -179,14 +149,13 @@ describe('RUX-007: Curated card tap shows/hides indicator + no chat message', ()
   beforeEach(async () => {
     vi.clearAllMocks()
     mockSendPlanningMessage.mockClear()
-    mockCreateCuratedPlan.mockClear()
-    resolveCreateCuratedPlan = () => {}
+    mockRouterPush.mockClear()
     mockFitToCoordinates.mockClear()
     mockSetCameraPosition.mockClear()
     mockMapRef.current.fitToCoordinates = mockFitToCoordinates
     mockMapRef.current.setCameraPosition = mockSetCameraPosition
 
-    // No agent-active route so MapPlanningIndicator's `!hasAgentRoute` term stays true.
+    // No agent-active route so discovery pills render.
     mockUseActiveSessionRoute.mockReturnValue({
       activeOption: null,
       routePlan: null,
@@ -205,72 +174,47 @@ describe('RUX-007: Curated card tap shows/hides indicator + no chat message', ()
     })
 
     mockUseQuery.mockReturnValue([])
-    mockUseMutation.mockReturnValue(mockCreateCuratedPlan)
 
     const mod = await import('./index')
     HomeMapScreen = mod.default
   })
 
   // ─────────────────────────────────────────────────────────────────────────
-  // AC-2a: indicator shown while createCuratedPlan pending, hidden after resolve
+  // AC-2a: tapping a discovery pill pushes the curated-route detail page
   // ─────────────────────────────────────────────────────────────────────────
-  it('cardTapShowsThenHidesMapPlanningIndicator', async () => {
-    const { queryByTestId, findByTestId } = render(createElement(HomeMapScreen))
+  it('pillTapNavigatesToCuratedDetail', async () => {
+    const { findByTestId } = render(createElement(HomeMapScreen))
 
     // The discovery pill renders from the curated route index.tsx resolved.
     const pill = await findByTestId(`discovery-suggestion-pill-${CURATED_ROUTE.id}`)
 
-    // Before tap: no planning indicator.
-    expect(queryByTestId('map-planning-indicator')).toBeNull()
-
-    // Tap the curated discovery pill → handleSelectCuratedRoute →
-    // setMapPlanningVisible(true) (chatMode is false) → mutation pending.
+    // Tap the curated discovery pill → goToCuratedRoute → router.push.
     fireEvent.press(pill)
 
-    // WHILE pending: the indicator is shown.
+    // THEN: router.push was called with the curated-route detail path.
     await waitFor(() => {
-      expect(queryByTestId('map-planning-indicator')).not.toBeNull()
+      expect(mockRouterPush).toHaveBeenCalledTimes(1)
+      expect(mockRouterPush).toHaveBeenCalledWith(`/(app)/curated-route/${CURATED_ROUTE.id}`)
     })
-
-    // Resolve the curated-plan mutation → finally block clears the indicator.
-    resolveCreateCuratedPlan({ routePlanId: 'plan-curated-1' })
-
-    // AFTER resolve: the indicator is gone (finally clears it explicitly).
-    await waitFor(() => {
-      expect(queryByTestId('map-planning-indicator')).toBeNull()
-    })
-
-    // And the curated-plan mutation was actually invoked (not a no-op).
-    expect(mockCreateCuratedPlan).toHaveBeenCalledTimes(1)
   })
 
   // ─────────────────────────────────────────────────────────────────────────
-  // AC-2b: tapping a curated card does NOT append a chat transcript message
+  // AC-2b: tapping a curated pill does NOT append a chat transcript message
   // ─────────────────────────────────────────────────────────────────────────
-  it('cardTapDoesNotAppendChatMessage', async () => {
+  it('pillTapDoesNotAppendChatMessage', async () => {
     const { findByTestId } = render(createElement(HomeMapScreen))
 
     const pill = await findByTestId(`discovery-suggestion-pill-${CURATED_ROUTE.id}`)
 
-    // Tap the curated discovery pill (the direct-plot path).
+    // Tap the curated discovery pill (the detail-navigation path).
     fireEvent.press(pill)
 
-    // Allow the async handleSelectCuratedRoute to run + the mutation to enqueue.
-    resolveCreateCuratedPlan({ routePlanId: 'plan-curated-1' })
+    // Allow the navigation to settle.
     await waitFor(() => {
-      expect(mockCreateCuratedPlan).toHaveBeenCalledTimes(1)
+      expect(mockRouterPush).toHaveBeenCalledTimes(1)
     })
 
     // THEN: the chat-send path was NOT taken — no transcript message appended.
-    // sendPlanningMessage is the production mechanism that writes a
-    // session_messages row; the curated path uses createCuratedPlan instead.
     expect(mockSendPlanningMessage).not.toHaveBeenCalled()
-
-    // Belt-and-braces: the curated mutation carried the real curated payload
-    // (routeId + centroid + archetype + score), proving the curated branch —
-    // not a chat-message round-trip — executed.
-    const callArgs = mockCreateCuratedPlan.mock.calls[0][0] as Record<string, unknown>
-    expect(callArgs.routeId).toBe(CURATED_ROUTE.id)
-    expect(callArgs.compositeScore).toBe(CURATED_ROUTE.score)
   })
 })

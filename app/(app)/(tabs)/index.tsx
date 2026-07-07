@@ -1,5 +1,5 @@
 import polyline from '@mapbox/polyline'
-import { useMutation, useQuery } from 'convex/react'
+import { useQuery } from 'convex/react'
 import { useLocalSearchParams, useRouter, useSegments } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Keyboard, Pressable, StyleSheet, Text, View } from 'react-native'
@@ -312,11 +312,8 @@ const HomeMapScreen = () => {
   // per newly resolved plan (not on every re-render).
   const lastFittedPlanIdRef = useRef<string | null>(null)
 
-  // Handle selecting a curated route from suggestion pills — plot directly, no chat round-trip
-  const [selectedCuratedRouteId, setSelectedCuratedRouteId] = useState<string | null>(null)
-
   // Determine if there's an active route for chat input logic
-  const hasActiveRoute = !!agentActiveOption || !!selectedCuratedRouteId
+  const hasActiveRoute = !!agentActiveOption
 
   // RUX-001: Deduplicate routes for the carousel
   const distinctRoutes = useMemo(() => {
@@ -476,13 +473,7 @@ const HomeMapScreen = () => {
     setSelectedRouteId,
     setDisplayedRoutePlanId,
     registerFitHandler,
-    requestFitToRouteWithReset,
   } = useSelectedRoute()
-
-  // DISC-016: create a completed curated route_plan on tap so the standard
-  // machinery (displayedRoutePlanId -> useActiveSessionRoute -> RoutePolyline ->
-  // doFit) plots the route directly, with NO chat round-trip.
-  const createCuratedPlan = useMutation(api.db.routePlans.createCuratedRoutePlan)
 
   // DTL-001: shared push target for opening the curated-route detail screen.
   // BOTH entry points — the curated chat card tap (AC-1) AND the curated map
@@ -493,49 +484,6 @@ const HomeMapScreen = () => {
       router.push(`/(app)/curated-route/${routeId}`)
     },
     [router],
-  )
-
-  const handleSelectCuratedRoute = useCallback(
-    async (routeId: string) => {
-      const route = curatedDiscoveryRoutes?.find((r: any) => r.id === routeId)
-      if (!route) return
-      // RUX-007: Show the map planning indicator while the mutation is pending,
-      // mirroring the regular-search path (handleSendMessage calls setMapPlanningVisible(true))
-      if (!chatMode) {
-        setMapPlanningVisible(true)
-      }
-      // DISC-016: plot DIRECTLY through the standard route machinery. The
-      // mutation creates a COMPLETED route_plan from curated catalog data,
-      // including side-table geometry when the route has been backfilled.
-      try {
-        const { routePlanId } = await createCuratedPlan({
-          routeId: route.id,
-          name: route.name,
-          centroidLat: route.lat,
-          centroidLng: route.lng,
-          archetype: route.archetype,
-          compositeScore: route.score,
-          distanceMi: route.distanceMi ?? 0,
-        })
-        setSelectedCuratedRouteId(routeId)
-        setSelectedRouteId(`curated-${route.id}`)
-        setDisplayedRoutePlanId(routePlanId)
-        requestFitToRouteWithReset()
-      } finally {
-        // Clear the indicator once the mutation resolves (or rejects).
-        // The isPlanning-keyed auto-dismiss effect (343-344) won't fire here
-        // because this isn't a streaming session_messages update; we clear explicitly.
-        setMapPlanningVisible(false)
-      }
-    },
-    [
-      chatMode,
-      curatedDiscoveryRoutes,
-      createCuratedPlan,
-      setSelectedRouteId,
-      setDisplayedRoutePlanId,
-      requestFitToRouteWithReset,
-    ],
   )
 
   // Cancel handler that routes to the appropriate cancel function
@@ -673,7 +621,6 @@ const HomeMapScreen = () => {
     flowDispatch({ type: 'NEW_SESSION' })
     setSelectedRouteId(null)
     setDisplayedRoutePlanId(null)
-    setSelectedCuratedRouteId(null)
     lastFittedPlanIdRef.current = null
     resetSession()
     clearSearchResults()
@@ -1295,7 +1242,6 @@ const HomeMapScreen = () => {
     setSearchStop(null)
     setSelectedRouteId(null)
     setDisplayedRoutePlanId(null)
-    setSelectedCuratedRouteId(null)
     lastFittedPlanIdRef.current = null
     resetSession()
     flowDispatch({ type: 'NEW_SESSION' })
@@ -1775,57 +1721,6 @@ const HomeMapScreen = () => {
           </View>
         ) : null}
 
-        {/* DTL-001 AC-1: curated chat cards — tapping one pushes the SAME
-            curated-route detail target as the map pin (AC-3) via the shared
-            `goToCuratedRoute` helper. Shown in the cold-open discovery state
-            (map mode, curated routes loaded, no active route yet) so the
-            rider can open a curated detail straight from the plan view.
-            DESIGN-002 owns the final card styling; this is the tap wiring. */}
-        {!chatMode &&
-          !isLoading &&
-          !isEmpty &&
-          !hasDisplayedRoute &&
-          (curatedDiscoveryRoutes ?? []).length > 0 && (
-            <View
-              style={[
-                styles.curatedCards,
-                {
-                  bottom: insets.bottom + 96,
-                  paddingHorizontal: semantic.space.sm,
-                  gap: semantic.space.sm,
-                },
-              ]}
-              pointerEvents="box-none"
-            >
-              {(curatedDiscoveryRoutes ?? []).slice(0, 5).map((route) => (
-                <Pressable
-                  key={`curated-chat-card-${route.id}`}
-                  testID={`curated-chat-card-${route.id}`}
-                  onPress={() => goToCuratedRoute(route.id)}
-                  hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Open curated route ${route.name}`}
-                  style={[
-                    styles.curatedCard,
-                    {
-                      backgroundColor: semantic.color.surfaceVariant.default,
-                      borderRadius: semantic.radius.lg,
-                      paddingHorizontal: semantic.space.md,
-                      paddingVertical: semantic.space.sm,
-                    },
-                  ]}
-                >
-                  <Text
-                    numberOfLines={1}
-                    style={[semantic.type.body.sm, { color: semantic.color.onSurface.default }]}
-                  >
-                    {route.name}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-          )}
-
         {/* Chat input - always visible at bottom */}
         <ChatInput
           onSend={handleSendMessage}
@@ -1850,7 +1745,7 @@ const HomeMapScreen = () => {
           hasMessages={transcriptMessages.length > 0}
           hasActiveRoute={hasDisplayedRoute}
           dispatch={(action: { type: string }) => flowDispatch(action as RideFlowAction)}
-          onSelectRoute={handleSelectCuratedRoute}
+          onSelectRoute={goToCuratedRoute}
         />
 
         <PlanRideSheet
@@ -1940,17 +1835,6 @@ const styles = StyleSheet.create({
   weatherPills: {
     position: 'absolute',
     zIndex: 26,
-  },
-  curatedCards: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    zIndex: 25,
-  },
-  curatedCard: {
-    alignSelf: 'flex-start',
   },
   chatLayer: {
     zIndex: 10,

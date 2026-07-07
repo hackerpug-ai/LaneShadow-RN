@@ -1,25 +1,23 @@
 /**
- * REDHAT-FIX-003 / DISC-016 Integration Tests: Discovery tap plots route, camera fits, typed send
+ * REDHAT-FIX-003 / DTL-001 Integration Tests: Discovery tap navigates to detail, camera fits, typed send
  *
  * Scenario-backed integration tests that render the REAL plan-view screen
- * (index.tsx) with the REAL handleSelectCuratedRoute, doFit, and
+ * (index.tsx) with the REAL goToCuratedRoute, doFit, and
  * handleSendMessage wiring. Only the native map boundary (rnmapbox /
  * MapboxMapView), Convex/network hooks, and unrelated UI are mocked.
  *
- * The discovery pill tap path (handleSelectCuratedRoute → createCuratedPlan →
- * convex resolves → useActiveSessionRoute → RoutePolyline/doFit) is driven
- * end-to-end: the test taps the real `discovery-suggestion-pill-{routeId}`,
- * lets the mocked mutation resolve, then simulates Convex resolving the new
- * route_plan by updating useActiveSessionRoute — exactly the production
- * resolution order.
+ * The discovery pill tap path (goToCuratedRoute → router.push the
+ * curated-route detail screen) is driven end-to-end: the test taps the real
+ * `discovery-suggestion-pill-{routeId}`, then asserts router.push was called
+ * with the detail-page path — exactly the production navigation order.
  *
  * ChatInput is a faithful adapter: it renders the discovery pills index.tsx
  * passes via `suggestions` (invoking the real `onSelectRoute`), plus a text
  * input + send button that invoke the real `onSend` — the production
  * ChatInput contract.
  *
- * AC-3 (tapPlotsRouteWithoutChatMessage + cameraFitsTappedRouteIncludingCentroid + typedMessageStillSends):
- *   - tapping discovery-suggestion-pill renders home-route-polyline segments with no chat message
+ * AC-3 (tapNavigatesToCuratedDetail + cameraFitsTappedRouteIncludingCentroid + typedMessageStillSends):
+ *   - tapping discovery-suggestion-pill pushes /curated-route/{id} with no chat message
  *   - centroid route → setCameraPosition zoom 12; multi-point → fitToCoordinates coords.length > 1
  *   - typed send → sendPlanningMessage invoked once with the typed text
  */
@@ -39,7 +37,6 @@ import { MOCK_SEMANTIC } from '../../../test-helpers/mock-semantic'
 
 const {
   mockUseQuery,
-  mockUseMutation,
   mockUseActiveSessionRoute,
   mockUseRideFlow,
   mockFitToCoordinates,
@@ -47,6 +44,7 @@ const {
   mockMapRef,
   mockSetSelectedRouteId,
   mockSetDisplayedRoutePlanId,
+  mockRouterPush,
 } = setupHomeScreenMocks()
 
 // ---------------------------------------------------------------------------
@@ -142,18 +140,6 @@ vi.mock('../../../components/ui/chat-transcript', () => ({ ChatTranscript: () =>
 const mockFlowDispatch = vi.fn()
 
 // ---------------------------------------------------------------------------
-// Controllable createCuratedPlan mutation
-// ---------------------------------------------------------------------------
-
-let resolveCreateCuratedPlan: (value: { routePlanId: string }) => void = () => {}
-const mockCreateCuratedPlan = vi.fn(
-  () =>
-    new Promise<{ routePlanId: string }>((resolve) => {
-      resolveCreateCuratedPlan = resolve
-    }),
-)
-
-// ---------------------------------------------------------------------------
 // Fixtures
 // ---------------------------------------------------------------------------
 
@@ -233,7 +219,7 @@ const buildCompletedPlan = (option: any, planId: string) => ({
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('DISC-016: Discovery tap plots route, camera fits, typed send', () => {
+describe('DTL-001: Discovery tap navigates to detail, camera fits, typed send', () => {
   let HomeMapScreen: any
 
   afterEach(() => {
@@ -243,8 +229,7 @@ describe('DISC-016: Discovery tap plots route, camera fits, typed send', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     mockSendPlanningMessage.mockClear()
-    mockCreateCuratedPlan.mockClear()
-    resolveCreateCuratedPlan = () => {}
+    mockRouterPush.mockClear()
     mockFitToCoordinates.mockClear()
     mockSetCameraPosition.mockClear()
     mockMapRef.current.fitToCoordinates = mockFitToCoordinates
@@ -265,53 +250,32 @@ describe('DISC-016: Discovery tap plots route, camera fits, typed send', () => {
       dispatch: mockFlowDispatch,
     })
     mockUseQuery.mockReturnValue([])
-    mockUseMutation.mockReturnValue(mockCreateCuratedPlan)
 
     const mod = await import('./index')
     HomeMapScreen = mod.default
   })
 
   // ─────────────────────────────────────────────────────────────────────────
-  // AC-3a: tapping a discovery pill plots the route WITHOUT a chat message
+  // AC-3a: tapping a discovery pill navigates to the curated-route detail page
   // ─────────────────────────────────────────────────────────────────────────
-  it('tapPlotsRouteWithoutChatMessage', async () => {
+  it('tapNavigatesToCuratedDetail', async () => {
     // Start with no active route; the discovery pill is rendered from
     // useCuratedDiscovery.
-    const { findByTestId, queryAllByTestId, queryByTestId, rerender } = render(
-      createElement(HomeMapScreen),
-    )
+    const { findByTestId } = render(createElement(HomeMapScreen))
 
     const pill = await findByTestId(`discovery-suggestion-pill-${CURATED_ROUTE.id}`)
 
-    // Tap → handleSelectCuratedRoute → createCuratedPlan resolves.
+    // Tap → goToCuratedRoute → router.push the detail page.
     fireEvent.press(pill)
-    resolveCreateCuratedPlan({ routePlanId: 'plan-curated-1' })
 
-    // Wait for the curated-plan mutation to fire (proves the curated path ran).
+    // THEN: router.push was called with the curated-route detail path.
     await waitFor(() => {
-      expect(mockCreateCuratedPlan).toHaveBeenCalledTimes(1)
-    })
-
-    // Simulate Convex resolving the new route_plan: useActiveSessionRoute now
-    // returns the curated option (multi-point geometry so the polyline plots).
-    const multiPointOption = buildCuratedActiveOption(multiPointPolyline, 1)
-    mockUseActiveSessionRoute.mockReturnValue({
-      activeOption: multiPointOption,
-      routePlan: buildCompletedPlan(multiPointOption, 'plan-curated-1'),
-      newestRoutePlanId: 'plan-curated-1',
-    })
-    rerender(createElement(HomeMapScreen))
-
-    // THEN: the route's polyline segments render on the map.
-    await waitFor(() => {
-      expect(queryAllByTestId(/home-route-polyline--segment-/).length).toBeGreaterThanOrEqual(1)
-      expect(queryByTestId('route-line-on-map-marker')).toBeTruthy()
+      expect(mockRouterPush).toHaveBeenCalledTimes(1)
+      expect(mockRouterPush).toHaveBeenCalledWith(`/(app)/curated-route/${CURATED_ROUTE.id}`)
     })
 
     // AND: no chat message was appended — the chat-send path was NOT taken.
-    // (createCuratedPlan was; that is the direct-plot path, not the chat path.)
     expect(mockSendPlanningMessage).not.toHaveBeenCalled()
-    expect(mockCreateCuratedPlan).toHaveBeenCalledTimes(1)
   })
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -411,8 +375,5 @@ describe('DISC-016: Discovery tap plots route, camera fits, typed send', () => {
     // (In production this appends a session_messages row → transcript N+1.)
     expect(mockSendPlanningMessage).toHaveBeenCalledTimes(1)
     expect(mockSendPlanningMessage.mock.calls[0][0]).toBe('twisties near Asheville')
-
-    // AND: the curated direct-plot path was NOT taken by the typed send.
-    expect(mockCreateCuratedPlan).not.toHaveBeenCalled()
   })
 })
