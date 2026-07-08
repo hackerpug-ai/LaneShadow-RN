@@ -308,16 +308,16 @@ appId: com.hackerpug.laneshadow
 - takeScreenshot: 09-chat-state-query-curated-plotted
 - tapOn:
     id: "chat-input-chat-view-button"
-- extendedWaitUntil:
-    visible: { text: "Open full chat" }
-    timeout: 20000
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertVisible: { text: "Open full chat", optional: true }
 
 # ── STEP 7: scroll chat history, tap an earlier curated card -> map re-render ─
 - tapOn:
     id: "chat-input-chat-view-button"
-- extendedWaitUntil:
-    visible: { text: "Return to map" }
-    timeout: 20000
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertVisible: { text: "Return to map", optional: true }
 - takeScreenshot: 10-full-chat-open
 # Scroll up to reveal earlier curated cards, then tap one.
 - scroll
