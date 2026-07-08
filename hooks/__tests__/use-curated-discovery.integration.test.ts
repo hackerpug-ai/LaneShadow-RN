@@ -5,7 +5,9 @@
  * - AC-1 (PRIMARY): Hook returns correct row shape with all fields populated
  * - AC-2: Loading ≠ Empty (isLoading true while undefined, isEmpty true only when [])
  * - AC-3: Center derivation from current location
- * - AC-4: Located nearest ordering; unlocated nearest waits/skips instead of global fallback
+ * - AC-4: Located nearest ordering; unlocated nearest waits while location
+ *   is loading, then falls back to 'best' (DISC-007 STEP 2 fix) so the user
+ *   still sees curated suggestion pills when location fails on cold boot
  * - AC-5: 0–1 score passthrough (never rescaled to 0-100)
  *
  * Test Data:
@@ -462,9 +464,9 @@ describe('useCuratedDiscovery', () => {
     })
   })
 
-  describe('AC-4: Nearest-first when located, unlocated nearest skips', () => {
-    it('ordersNearestThenSkipsWhenUnlocated', async () => {
-      // Test 1: Located query (sort:nearest with center)
+  describe('AC-4: Nearest-first when located, unlocated nearest falls back to best', () => {
+    it('ordersNearestWhenLocatedThenFallsBackToBestWhenLocationFails', async () => {
+      // Test 1: Located query (sort:nearest with center) — nearest-first ordering
       mockUseQuery.mockReturnValue(mockCuratedRoutesNearestOrdered)
 
       const { result: locatedResult } = renderHook(() =>
@@ -489,27 +491,48 @@ describe('useCuratedDiscovery', () => {
         }
       }
 
-      // Test 2: Unlocated query (sort:nearest, no center) -> skip instead of global best
+      // Test 2: Location FAILED (loading false, location null) with sort:nearest
+      // → hook MUST fall back to sort:best and return routes (DISC-007 STEP 2 fix).
+      // The PRD intent is "curated suggestion cards over the chat input" — not
+      // specifically "nearest". On cold-boot simulators location can fail/timeout
+      // even with permission granted; degrading to 'best' keeps pills on screen.
       mockUseQuery.mockReturnValue(mockCuratedRoutesBestOrdered)
       mockUseCurrentLocation.mockReturnValue({
         location: null,
         loading: false,
-        error: null,
+        error: 'Location unavailable',
       })
 
-      const { result: unlocatedResult } = renderHook(() =>
+      const { result: fallbackResult } = renderHook(() =>
         useCuratedDiscovery({
-          sort: 'nearest', // Requested nearest, but will degrade to best
+          sort: 'nearest', // requested nearest, but location failed → falls back to best
+          limit: 5,
         }),
       )
 
-      expect(mockUseQuery.mock.calls[mockUseQuery.mock.calls.length - 1]?.[1]).toBe('skip')
-      expect(unlocatedResult.current.routes).toEqual([])
-      expect(unlocatedResult.current.isLoading).toBe(false)
-      expect(unlocatedResult.current.isEmpty).toBe(true)
+      await waitFor(() => {
+        expect(fallbackResult.current.routes).toBeDefined()
+      })
+
+      // The query MUST have been issued with sort: 'best' (NOT skipped).
+      const fallbackCallArgs = mockUseQuery.mock.calls[mockUseQuery.mock.calls.length - 1]
+      expect(fallbackCallArgs[1]).not.toBe('skip')
+      expect(fallbackCallArgs[1]).toHaveProperty('sort', 'best')
+      // No center should be sent when falling back to best.
+      expect(fallbackCallArgs[1]).not.toHaveProperty('center')
+
+      // The user sees curated suggestion pills, NOT an empty grid.
+      expect(fallbackResult.current.routes).toBeDefined()
+      expect(fallbackResult.current.routes!.length).toBeGreaterThan(0)
+      expect(fallbackResult.current.isLoading).toBe(false)
+      expect(fallbackResult.current.isEmpty).toBe(false)
     })
 
     it('keeps nearest discovery loading while waiting for current location', async () => {
+      // While location is still loading, the query stays skipped and the hook
+      // reports loading — do NOT flash empty before location resolves, and do
+      // NOT prematurely fall back to best either. Only fall back AFTER both
+      // retry windows close (loading === false && location === null).
       mockUseCurrentLocation.mockReturnValue({
         location: null,
         loading: true,
@@ -527,6 +550,33 @@ describe('useCuratedDiscovery', () => {
       expect(result.current.routes).toBeUndefined()
       expect(result.current.isLoading).toBe(true)
       expect(result.current.isEmpty).toBe(false)
+    })
+
+    it('usesNearestWithCenterWhenLocationResolvesSuccessfully', async () => {
+      // After location resolves (loading false, location present), sort:nearest
+      // MUST use the resolved center — NOT fall back to best. This guards against
+      // the fix accidentally degrading every located nearest query to best.
+      mockUseCurrentLocation.mockReturnValue({
+        location: mockCurrentLocation,
+        loading: false,
+        error: null,
+      })
+      mockUseQuery.mockReturnValue(mockCuratedRoutesNearestOrdered)
+
+      const { result } = renderHook(() =>
+        useCuratedDiscovery({
+          sort: 'nearest',
+          limit: 5,
+        }),
+      )
+
+      await waitFor(() => {
+        expect(result.current.routes).toBeDefined()
+      })
+
+      const callArgs = mockUseQuery.mock.calls[mockUseQuery.mock.calls.length - 1]
+      expect(callArgs[1]).toHaveProperty('sort', 'nearest')
+      expect(callArgs[1]).toHaveProperty('center', mockCurrentLocation)
     })
 
     it('should order by distance ascending when sort=nearest with center', async () => {

@@ -57,7 +57,19 @@ export function useCuratedDiscovery(
 
   const derivedCenter =
     params.center ?? (location ? { lat: location.lat, lng: location.lng } : undefined)
-  const nearestNeedsCenter = params.sort === 'nearest' && !derivedCenter
+
+  // Graceful degradation (DISC-007 STEP 2 fix): if the caller asked for
+  // 'nearest' but location is unavailable AFTER both retry windows have
+  // closed (loading false, no fix), fall back to 'best' so the user still
+  // sees curated suggestion pills — the PRD intent is "curated-route
+  // suggestion cards over the chat input", not specifically "nearest".
+  // While location is still loading, keep the query skipped (loading state)
+  // so the UI shows a loading affordance rather than flashing empty.
+  const locationFailed = !locationLoading && !derivedCenter
+  const effectiveSort: 'best' | 'nearest' =
+    params.sort === 'nearest' && locationFailed ? 'best' : (params.sort ?? 'best')
+
+  const nearestNeedsCenter = effectiveSort === 'nearest' && !derivedCenter
   const waitingForNearestCenter = nearestNeedsCenter && locationLoading
 
   const queryArgs = useMemo(() => {
@@ -67,11 +79,11 @@ export function useCuratedDiscovery(
 
     if (params.bbox) args.bbox = params.bbox
     if (params.state) args.state = params.state
-    if (derivedCenter && params.sort === 'nearest') args.center = derivedCenter
+    if (derivedCenter && effectiveSort === 'nearest') args.center = derivedCenter
     if (params.archetypes && params.archetypes.length > 0) args.archetypes = params.archetypes
-    args.sort = params.sort ?? 'best'
+    args.sort = effectiveSort
     args.limit =
-      params.sort === 'nearest'
+      effectiveSort === 'nearest'
         ? Math.min(Math.max(requestedLimit * 4, requestedLimit), 200)
         : requestedLimit
 
@@ -80,7 +92,7 @@ export function useCuratedDiscovery(
     params.bbox,
     params.state,
     params.archetypes,
-    params.sort,
+    effectiveSort,
     requestedLimit,
     derivedCenter,
     nearestNeedsCenter,
