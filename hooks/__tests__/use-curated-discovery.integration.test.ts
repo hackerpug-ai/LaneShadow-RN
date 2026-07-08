@@ -579,6 +579,58 @@ describe('useCuratedDiscovery', () => {
       expect(callArgs[1]).toHaveProperty('center', mockCurrentLocation)
     })
 
+    it('overFetchesOnBestFallbackSoGeometryFilterHasHeadroom', async () => {
+      // DISC-007 STEP 2 fix (part 2): when sort='nearest' falls back to
+      // sort='best' due to location failure, the query limit MUST over-fetch
+      // (4x) so the client-side geometryStatus === 'generated' filter has a
+      // pool to draw from. Convex Mode 4 (sort='best', no archetypes) reads
+      // only `effectiveLimit` rows from by_composite_score — if the top-N
+      // by score lack generated geometry, the filter kills them all → empty.
+      // Over-fetching on fallback gives the filter headroom to find the 19
+      // generated routes in the 5,654-route catalog. Explicit sort='best'
+      // callers are unchanged (no over-fetch overhead for them).
+      mockUseCurrentLocation.mockReturnValue({
+        location: null,
+        loading: false,
+        error: 'Location unavailable',
+      })
+      mockUseQuery.mockReturnValue(mockCuratedRoutesBestOrdered)
+
+      renderHook(() =>
+        useCuratedDiscovery({
+          sort: 'nearest', // requested nearest, falls back to best
+          limit: 5,
+        }),
+      )
+
+      await waitFor(() => {
+        expect(mockUseQuery).toHaveBeenCalled()
+      })
+
+      const fallbackCallArgs = mockUseQuery.mock.calls[mockUseQuery.mock.calls.length - 1]
+      // sort fell back to best...
+      expect(fallbackCallArgs[1]).toHaveProperty('sort', 'best')
+      // ...but limit over-fetches: 5 * 4 = 20 (NOT just 5)
+      expect(fallbackCallArgs[1]).toHaveProperty('limit', 20)
+
+      // Guard: explicit sort='best' (no fallback) does NOT over-fetch.
+      mockUseQuery.mockClear()
+      renderHook(() =>
+        useCuratedDiscovery({
+          sort: 'best',
+          limit: 5,
+        }),
+      )
+
+      await waitFor(() => {
+        expect(mockUseQuery).toHaveBeenCalled()
+      })
+
+      const explicitBestArgs = mockUseQuery.mock.calls[mockUseQuery.mock.calls.length - 1]
+      expect(explicitBestArgs[1]).toHaveProperty('sort', 'best')
+      expect(explicitBestArgs[1]).toHaveProperty('limit', 5) // NOT over-fetched
+    })
+
     it('should order by distance ascending when sort=nearest with center', async () => {
       mockUseQuery.mockReturnValue(mockCuratedRoutesNearestOrdered)
 

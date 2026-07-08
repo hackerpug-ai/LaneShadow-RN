@@ -66,8 +66,8 @@ export function useCuratedDiscovery(
   // While location is still loading, keep the query skipped (loading state)
   // so the UI shows a loading affordance rather than flashing empty.
   const locationFailed = !locationLoading && !derivedCenter
-  const effectiveSort: 'best' | 'nearest' =
-    params.sort === 'nearest' && locationFailed ? 'best' : (params.sort ?? 'best')
+  const fellBackToBest = params.sort === 'nearest' && locationFailed
+  const effectiveSort: 'best' | 'nearest' = fellBackToBest ? 'best' : (params.sort ?? 'best')
 
   const nearestNeedsCenter = effectiveSort === 'nearest' && !derivedCenter
   const waitingForNearestCenter = nearestNeedsCenter && locationLoading
@@ -82,8 +82,18 @@ export function useCuratedDiscovery(
     if (derivedCenter && effectiveSort === 'nearest') args.center = derivedCenter
     if (params.archetypes && params.archetypes.length > 0) args.archetypes = params.archetypes
     args.sort = effectiveSort
+    // Over-fetch headroom for the client-side geometryStatus filter.
+    // The 'nearest' mode over-fetches 4x because the geo index returns
+    // rows that may lack generated geometry. The 'best' mode (Mode 4 in
+    // convex/curatedRoutes.ts) reads only `effectiveLimit` rows from the
+    // by_composite_score index — if none of those have geometryStatus ===
+    // 'generated', the client filter kills them all → empty pills. When we
+    // FALL BACK from nearest to best, apply the same 4x over-fetch so the
+    // geometry filter has a pool to draw from (bounded to Convex's 200 cap).
+    // An explicit sort='best' call is unchanged (callers that don't use
+    // nearest don't expect over-fetch overhead).
     args.limit =
-      effectiveSort === 'nearest'
+      effectiveSort === 'nearest' || fellBackToBest
         ? Math.min(Math.max(requestedLimit * 4, requestedLimit), 200)
         : requestedLimit
 
@@ -93,6 +103,7 @@ export function useCuratedDiscovery(
     params.state,
     params.archetypes,
     effectiveSort,
+    fellBackToBest,
     requestedLimit,
     derivedCenter,
     nearestNeedsCenter,
