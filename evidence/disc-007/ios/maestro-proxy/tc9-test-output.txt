@@ -1,0 +1,2965 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN
+> vitest
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN
+
+ ✓ shared/lib/disc-016-curated-tap.test.ts (3 tests) 1ms
+ ❯ convex/actions/agent/enrichment/__tests__/runEnrichmentJob.test.ts (6 tests | 2 failed) 2506ms
+   × runEnrichmentJob > AC-1: Status updates to running when job starts > should update enrichment status to running when job starts 1319ms
+     → expected 'Route 1' to contain 'km Route'
+   ✓ runEnrichmentJob > AC-2: Job exits immediately when already cancelled > should return early if enrichment is already cancelled 0ms
+   ✓ runEnrichmentJob > AC-2: Job exits immediately when already cancelled > should return early if enrichment is not found 0ms
+   × runEnrichmentJob > AC-3: Enrichment results saved when job completes > should save enrichment results with proper structure 1186ms
+     → expected 'Route 1' to contain 'Scenic'
+   ✓ runEnrichmentJob > AC-4: Error saved and status failed when exception thrown > should mark enrichment as failed when route plan is not found 0ms
+   ✓ runEnrichmentJob > AC-4: Error saved and status failed when exception thrown > should handle unexpected errors and save error message 0ms
+ ❯ convex/__tests__/listCuratedRoutes.integration.test.ts (15 tests | 2 failed) 1314ms
+   ✓ AC-2: Clerk gate (requireIdentity) > logic verification (mocked ctx) > unauthenticatedCallIsRejected 1ms
+   ✓ AC-2: Clerk gate (requireIdentity) > logic verification (mocked ctx) > gate is the first statement — no DB or geospatial access on reject 0ms
+   ✓ AC-2: Clerk gate (requireIdentity) > logic verification (mocked ctx) > authenticated identity proceeds past the gate (default mode returns rows) 1ms
+   ✓ AC-2: Clerk gate (requireIdentity) > code inspection (curatedRoutes.ts source) > requireIdentity is the first statement of the handler 0ms
+   ✓ AC-2: Clerk gate (requireIdentity) > live deployment gate (npx convex run — admin auth has no Clerk identity) > unauthenticatedCallIsRejected_onLiveDev  1307ms
+   ✓ AC-1: all four browse modes > mode1_bbox_returnsInBoxRoutesRankedByCompositeScoreDescWith0to1Scores 1ms
+   × AC-1: all four browse modes > mode2_nearest_populatesDistanceMiAndSortsAscending 2ms
+     → expected [ { routeId: 'near', …(15) }, …(1) ] to have a length of 3 but got 2
+   ✓ AC-1: all four browse modes > mode2_nearest_throwsWhenNoCenterProvided 0ms
+   ✓ AC-1: all four browse modes > mode3_state_probesBothDirtyAndCleanVariantsViaByStateIndex 1ms
+   ✓ AC-1: all four browse modes > mode4_archetypesOnly_fallsThroughToByCompositeScoreAndFiltersByUiEnum 0ms
+   ✓ AC-1: all four browse modes > mode4_defaultBest_usesByCompositeScoreIndexAndReturnsTopRows 0ms
+   ✓ AC-1: all four browse modes > scoreNormalization_preserves0to1AndCoercesDirty0to100Defensively 0ms
+   ✓ AC-1: all four browse modes > lengthClamp_drops710430MiJunkAndNegativeLengths 0ms
+   ✓ AC-1: all four browse modes > limitCap_capsAtMathMinLimit50_200 0ms
+   × AC-1: all four browse modes > allFourModesReturnCorrectRankedCappedResults 1ms
+     → expected [ 'near-close' ] to deeply equal [ 'near-close', 'near-far' ]
+stdout | convex/__tests__/geospatialSeed.integration.test.ts > DATA-001: Geospatial points seeded from curated_routes centroids
+Convex dev server might already be running or failed to start
+
+stdout | convex/__tests__/geospatialSeed.integration.test.ts > DATA-001: Geospatial points seeded from curated_routes centroids > AC-1: Seeding populates ~5,654 idempotent geospatial points > seedsApproxRouteCountAndReRunIsIdempotent
+Running command: npx convex run geospatialValidation:debugGeospatialData '{}' --production
+
+stdout | convex/__tests__/geospatialSeed.integration.test.ts > DATA-001: Geospatial points seeded from curated_routes centroids > AC-2: nearest + rectangle return real routes with filterKeys/sortKey under 500ms > nearestAndRectangleReturnRealRoutesUnderBudget
+Running command: npx convex run geospatialValidation:validateNearestNeighbor '{}' --production
+
+ ❯ convex/__tests__/geospatialSeed.integration.test.ts (2 tests | 2 failed) 770ms
+   × DATA-001: Geospatial points seeded from curated_routes centroids > AC-1: Seeding populates ~5,654 idempotent geospatial points > seedsApproxRouteCountAndReRunIsIdempotent 306ms
+     → Command failed: npx convex run geospatialValidation:debugGeospatialData '{}' --production
+npm warn Unknown env config "node-linker". This will stop working in the next major version of npm.
+npm warn Unknown env config "approve-builds-lefthook". This will stop working in the next major version of npm.
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+error: unknown option '--production'
+
+Usage: convex run [options] <functionName> [args]
+
+Run a function (query, mutation, or action) on your deployment
+
+Arguments:
+  functionName            identifier of the function to run, like `listMessages`
+                          or `dir/file:myFunction`
+  args                    JSON-formatted arguments object to pass to the
+                          function.
+
+Options:
+  -w, --watch             Watch a query, printing its result if the underlying
+                          data changes. Given function must be a query.
+  --push                  Push code to deployment before running the function.
+  --identity <identity>   JSON-formatted UserIdentity object, e.g. '{ name:
+                          "John", address: "0x123" }'
+  --typecheck <mode>      Whether to check TypeScript files with `tsc --noEmit`.
+                          (choices: "enable", "try", "disable", default: "try")
+  --typecheck-components  Check TypeScript files within component
+                          implementations with `tsc --noEmit`. (default: false)
+  --codegen <mode>        Regenerate code in `convex/_generated/` (choices:
+                          "enable", "disable", default: "enable")
+  --component <path>      Path to the component in the component tree defined in
+                          convex.config.ts.
+  --prod                  Run the function on this project's default production
+                          deployment.
+  -h, --help              display help for command
+
+   × DATA-001: Geospatial points seeded from curated_routes centroids > AC-2: nearest + rectangle return real routes with filterKeys/sortKey under 500ms > nearestAndRectangleReturnRealRoutesUnderBudget 300ms
+     → Command failed: npx convex run geospatialValidation:validateNearestNeighbor '{}' --production
+npm warn Unknown env config "node-linker". This will stop working in the next major version of npm.
+npm warn Unknown env config "approve-builds-lefthook". This will stop working in the next major version of npm.
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+error: unknown option '--production'
+
+Usage: convex run [options] <functionName> [args]
+
+Run a function (query, mutation, or action) on your deployment
+
+Arguments:
+  functionName            identifier of the function to run, like `listMessages`
+                          or `dir/file:myFunction`
+  args                    JSON-formatted arguments object to pass to the
+                          function.
+
+Options:
+  -w, --watch             Watch a query, printing its result if the underlying
+                          data changes. Given function must be a query.
+  --push                  Push code to deployment before running the function.
+  --identity <identity>   JSON-formatted UserIdentity object, e.g. '{ name:
+                          "John", address: "0x123" }'
+  --typecheck <mode>      Whether to check TypeScript files with `tsc --noEmit`.
+                          (choices: "enable", "try", "disable", default: "try")
+  --typecheck-components  Check TypeScript files within component
+                          implementations with `tsc --noEmit`. (default: false)
+  --codegen <mode>        Regenerate code in `convex/_generated/` (choices:
+                          "enable", "disable", default: "enable")
+  --component <path>      Path to the component in the component tree defined in
+                          convex.config.ts.
+  --prod                  Run the function on this project's default production
+                          deployment.
+  -h, --help              display help for command
+
+ ❯ convex/actions/agent/__tests__/planningIntegration.test.ts (22 tests | 10 failed) 165ms
+   × summarizeToolResult > maps geocode with label to Geocoded message 3ms
+     → expected 'Looking up Santa Cruz' to be 'Geocoded Santa Cruz, CA' // Object.is equality
+   × summarizeToolResult > maps geocode with no results to default message 0ms
+     → expected 'Looking up location' to be 'geocode complete' // Object.is equality
+   × summarizeToolResult > maps createRouteSketch with label to Sketched message 0ms
+     → expected 'Designing route: Skyline Blvd → Hwy 9…' to be 'Sketched: Skyline Blvd → Hwy 9 → SC' // Object.is equality
+   × summarizeToolResult > maps compileSketch with options to Compiled segments message 0ms
+     → expected 'Found the best roads' to be 'Compiled 4 segments' // Object.is equality
+   × summarizeToolResult > maps planRoute to planned route message 0ms
+     → expected 'Mapping out your ride' to be 'Planned route' // Object.is equality
+   × summarizeToolResult > maps searchNearby with results to Found N nearby places 0ms
+     → expected 'Found 2 places nearby' to be 'Found 2 nearby places' // Object.is equality
+   × summarizeToolResult > maps webSearch to Searched the web 0ms
+     → expected 'Checked the latest info' to be 'Searched the web' // Object.is equality
+   × summarizeToolResult > maps routing_agent with summary to that summary 0ms
+     → expected 'Your route is ready' to be 'Route to Santa Cruz ready' // Object.is equality
+   × summarizeToolResult > maps routing_agent with no summary to Route ready 0ms
+     → expected 'Your route is ready' to be 'Route ready' // Object.is equality
+   ✓ summarizeToolResult > maps search_agent with summary to that summary 0ms
+   ✓ summarizeToolResult > maps enrichment_agent with summary to that summary 0ms
+   × summarizeToolResult > maps unknown tool to toolName complete 0ms
+     → expected 'Working on it...' to be 'someUnknownTool complete' // Object.is equality
+   ✓ PlanningEventEmitter wiring — ExecuteContext has planning callbacks > ExecuteContext type includes onSubToolPending 148ms
+   ✓ PlanningEventEmitter wiring — ExecuteContext has planning callbacks > ExecuteContext type includes onSubToolComplete 0ms
+   ✓ PlanningEventEmitter wiring — ExecuteContext has planning callbacks > ExecuteContext type includes onSubAgentComplete 0ms
+   ✓ sendMessage PlanningEventEmitter integration > buildAgentCallbacks works (merged buildCardCallbacks + buildStreamingContext) 12ms
+   ✓ PlanningEventEmitter explicit phase writes > writes explicit phase patches for routing tool and agent events 0ms
+   ✓ orchestrator executeOrchestratorTool — planning callback forwarding > determineAvailableTools returns routing_agent and search_agent when no routes 0ms
+   ✓ orchestrator executeOrchestratorTool — planning callback forwarding > determineAvailableTools includes enrichment_agent when routes exist 0ms
+   ✓ lazy planning row initialization > no planning row for conversational reply 0ms
+   ✓ lazy planning row initialization > planning row created on tool call 0ms
+   ✓ lazy planning row initialization > lazy init handles error before first tool 0ms
+ ✓ app/(app)/(tabs)/index.route-tap.integration.test.tsx (3 tests) 353ms
+ ❯ convex/actions/agent/tools/__tests__/compileSketch.test.ts (12 tests | 3 failed) 105ms
+   ✓ compileSketch > returns provider response with expected fields 1ms
+   ✓ compileSketch > is deterministic for the provider 0ms
+   ✓ compileSegments > AC-1: compileSegments returns ok status for all segments when all anchorPoints have lat/lng 0ms
+   ✓ compileSegments > AC-2: compileSegments returns failed status for invalid segment while other segments succeed 0ms
+   ✓ compileSegments > AC-3: compileSegments executes all segment API calls in parallel via Promise.allSettled 102ms
+   ✓ compileSegments > AC-4: compileSegments rejects sketches with more than 10 segments before making API calls 1ms
+   × stitchSegments > AC-1: produces ProviderRouteResponse with correct leg count when all segments succeed 1ms
+     → expected 'POLY_A?p@XLY_B?pAXLY_C?' to be 'POLY_APOLY_BPOLY_C' // Object.is equality
+   × stitchSegments > AC-2: excludes failed segments and renumbers legs sequentially when partial failure occurs 0ms
+     → expected 'POLY_A?p@XLY_C?' to be 'POLY_APOLY_C' // Object.is equality
+   × stitchSegments > AC-3: stitched route passes through normalizeRoute without errors 0ms
+     → expected 'POLY_A?p@XLY_B?pAXLY_C?' to be 'POLY_APOLY_BPOLY_C' // Object.is equality
+   ✓ stitchSegments > AC-4: throws error when all segments have failed status 0ms
+   ✓ AC-2: Planning graph receives favorites > should accept favorites parameter in compileSketch options 0ms
+   ✓ AC-5: Distant favorites ignored > should filter favorites by distance threshold 0ms
+ ❯ convex/__tests__/schema.curation.test.ts (3 tests | 3 failed) 37ms
+   × curation schema registration > AC-1: curated_routes table > curated_routes table is registered with required indexes 37ms
+     → (0 , defineTable)(...).index(...).index(...).index(...).index(...).index(...).index(...).index(...).vectorIndex is not a function
+   × curation schema registration > AC-2: curated_route_enrichments table > curated_route_enrichments table is registered with by_routeId index 0ms
+     → (0 , defineTable)(...).index(...).index(...).index(...).index(...).index(...).index(...).index(...).vectorIndex is not a function
+   × curation schema registration > AC-3: route_feedback table > route_feedback table is registered with required indexes 0ms
+     → (0 , defineTable)(...).index(...).index(...).index(...).index(...).index(...).index(...).index(...).vectorIndex is not a function
+ ❯ components/ui/__tests__/save-favorite-sheet.test.tsx (30 tests | 29 failed) 25ms
+   × SaveFavoriteSheet > AC1: Sheet renders with title and name input > renders the sheet when visible=true 4ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC1: Sheet renders with title and name input > displays "Save as Favorite" title 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC1: Sheet renders with title and name input > renders name input field 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC1: Sheet renders with title and name input > renders Save button 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   ✓ SaveFavoriteSheet > AC1: Sheet renders with title and name input > does not render when visible=false 0ms
+   × SaveFavoriteSheet > AC2: Save calls mutation and closes sheet on success > calls mutation with correct args when user enters name and taps Save 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC2: Save calls mutation and closes sheet on success > closes sheet on successful save 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC2: Save calls mutation and closes sheet on success > trims whitespace from name before saving 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC2: Save calls mutation and closes sheet on success > shows loading state while saving 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Validation error shown for empty name > shows validation error when name is empty 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Validation error shown for empty name > shows validation error when name is only whitespace 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Validation error shown for empty name > does not call mutation when name is empty 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Validation error shown for empty name > does not close sheet when validation fails 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Validation error shown for empty name > shows validation error when name exceeds 100 characters 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Validation error shown for empty name > clears validation error when user starts typing 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC2: onSuccess callback > calls onSuccess after successful save 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC2: onSuccess callback > calls onSuccess before onClose 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Cancel button behavior > calls onCancel callback when Cancel button pressed 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Cancel button behavior > calls onClose after onCancel 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Cancel button behavior > disables Cancel button while saving 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC5: Character count display > shows character count 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC5: Character count display > updates character count as user types 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC4: Error handling when mutation fails > displays error message when mutation throws 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC4: Error handling when mutation fails > keeps sheet open when mutation fails 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC4: Error handling when mutation fails > reenables Save button after mutation fails 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC4: Error handling when mutation fails > clears error message when user starts typing again 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > Additional behaviors > resets form when sheet opens 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > Additional behaviors > requires at least 1 character (min validation) 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > Additional behaviors > enforces max 100 character limit 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > Additional behaviors > does not call mutation without route data 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts (59 tests | 38 failed) 19ms
+   ✓ buildSystemPrompt > includes device location and instructs the agent not to ask for origin when currentLocation is set 1ms
+   × buildSystemPrompt > omits device location and prompts to ask when currentLocation is undefined and no lastKnownLocation 2ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'ask where they are starting from'
+   ✓ buildSystemPrompt > uses lastKnownLocation fallback when currentLocation is undefined but session has lastKnownLocation 0ms
+   × buildSystemPrompt > includes route summary block when buildInSessionRouteBlock returns content 1ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'Routes already planned this session:'
+   ✓ buildSystemPrompt > has no extra blank lines when buildInSessionRouteBlock returns empty string 0ms
+   × buildSystemPrompt > llm-first prompt: instructs LLM to author a route sketch for all requests 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'createRouteSketch'
+   × buildSystemPrompt > avoid guidance: instructs LLM to route around avoidances in the sketch, not via avoidRoads API 0ms
+     → expected 'you are a motorcycle ride planning as…' to match /avoid.*sketch|route around.*sketch|sk…/
+   × buildSystemPrompt > fallback guidance: instructs LLM to fall back to planRoute when uncertain 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'planRoute'
+   × buildSystemPrompt > planRoute available: preserves planRoute as an available tool in the prompt 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'planRoute'
+   × buildSystemPrompt > llm-first prompt: includes viaNames guidance for intermediate landmarks 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'viaNames'
+   × buildSystemPrompt > llm-first prompt: includes segment retry hint 0ms
+     → expected 'you are a motorcycle ride planning as…' to match /fail|didn.t work|revise/
+   ✓ extractRouteAttachments > returns attachment with the Convex routePlanId when planRoute persisted a route_plans row 0ms
+   ✓ extractRouteAttachments > returns empty array when planRoute result has no routePlanId 0ms
+   ✓ extractRouteAttachments > returns empty array when toolName is not planRoute 0ms
+   ✓ extractRouteAttachments > returns empty array when planRoute result type is chat not routes 0ms
+   ✓ extractRouteAttachments > returns empty array for an empty input array 0ms
+   ✓ extractRouteAttachments > returns multiple attachments when multiple planRoute results are present 0ms
+   ✓ executeRidePlanningAgent > returns text response with no attachments for a single-turn chat 1ms
+   × executeRidePlanningAgent > calls planRoute tool then returns text with route attachment 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   ✓ executeRidePlanningAgent > forwards real planRoute pipeline progress as sub-tool planning events 1ms
+   ✓ executeRidePlanningAgent > passes sub-tool planning callbacks through the orchestrator into routing_agent 0ms
+   × executeRidePlanningAgent > passes planningSessionId to createForAgentInternal when planRoute tool runs 0ms
+     → Cannot read properties of undefined (reading '0')
+   ✓ executeRidePlanningAgent > does not call orchestrator and returns upsell message when usage limit is reached 0ms
+   × executeRidePlanningAgent > executes geocode then planRoute then text (multi-step) 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > caps the loop at MAX_STEPS (10) if stream keeps returning toolUse 0ms
+     → expected "spy" to be called 10 times, but got 20 times
+   ✓ executeRidePlanningAgent > throws when API key is missing 0ms
+   ✓ executeRidePlanningAgent > fires onThinkingDelta for each thinking_delta event from the stream 0ms
+   ✓ executeRidePlanningAgent > fires onToolPending for each toolcall_start event from the stream 0ms
+   × executeRidePlanningAgent > fires onStepStart once per loop iteration with (step, MAX_STEPS) 0ms
+     → expected 1st "spy" call to have been called with [ +0, 10 ]
+   ✓ executeRidePlanningAgent > fires onAgentTurn once per assistant turn that has tool calls 0ms
+   × executeRidePlanningAgent > fires onToolResultPiMessage after each tool result with correct toolCallId and ToolResultMessage 0ms
+     → expected '{"type":"error","message":"Unknown or…' to contain 'weather'
+   ✓ executeRidePlanningAgent > back-compat: runs normally with no callbacks provided (no crashes, tools execute) 0ms
+   × executeRidePlanningAgent > LoopDetector intercepts 3rd identical tool call — tool NOT executed, error result injected 0ms
+     → expected false to be true // Object.is equality
+   ✓ executeRidePlanningAgent > LoopDetector does NOT fire for calls with different args (no false positives) 0ms
+   × executeRidePlanningAgent > BudgetTracker throws after cumulative cost exceeds limit — loop aborts with AGENT_BUDGET_EXCEEDED 1ms
+     → promise resolved "{ response: 'Hello', …(2) }" instead of rejecting
+   ✓ executeRidePlanningAgent > BudgetTracker does NOT throw when cumulative cost is under limit (normal operation) 0ms
+   × executeRidePlanningAgent > US-320: two concurrent geocode calls both execute (parallel safe) 0ms
+     → expected [] to have a length of 2 but got +0
+   × executeRidePlanningAgent > US-320: geocode (safe) and planRoute (unsafe) in same turn — geocode runs parallel-safe, planRoute sequential 0ms
+     → expected "spy" to be called at least once
+   ✓ executeRidePlanningAgent > US-320: result ordering is preserved regardless of parallel execution order 0ms
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > per-segment dispatch: dispatches to compileSegments when sketch has segments 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > segment error feedback: returns structured failed/succeeded arrays when a segment fails 0ms
+     → expected 'Unknown orchestrator tool: compileSke…' to contain '1 of 3'
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > single-shot fallback: uses single-shot compilation when sketch has no segments 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > all segments failed: returns error with all in failed[], empty succeeded[], revise_failed_segments guidance 0ms
+     → expected 'Unknown orchestrator tool: compileSke…' to contain '3 of 3'
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > partial geometry: includes partial stitched route info in error hint when some segments succeed 0ms
+     → expected 'Unknown orchestrator tool: compileSke…' to contain '1 of 3'
+   × executeRidePlanningAgent > segment retry loop (US-025) > skip succeeded: only compiles segment 2 on retry when segments 0,1,3 are unchanged and already succeeded 0ms
+     → expected "spy" to be called 2 times, but got 0 times
+   × executeRidePlanningAgent > segment retry loop (US-025) > merge cached: revised segment 2 success merges with cached 0,1,3 for fully stitched 4-segment route 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > segment retry loop (US-025) > attempt count: error hint includes attemptsRemaining decremented per retry 0ms
+     → "undefined" is not valid JSON
+   × executeRidePlanningAgent > segment retry loop (US-025) > max retries: returns partial route with user message after 3 failed attempts on same session 0ms
+     → expected [ 'routes', 'chat' ] to include 'error'
+   × executeRidePlanningAgent > US-310: ToolResultMessage pushed to context contains summarized planRoute result (no geometry), while toolResultsTracker holds full result 0ms
+     → expected 'error' to be 'routes' // Object.is equality
+   × executeRidePlanningAgent > tool registration > all 7 new tools appear in the agent context passed to stream 0ms
+     → expected [ 'routing_agent', …(2) ] to include 'lookupRoad'
+   × executeRidePlanningAgent > grounding before sketch > system prompt instructs LLM to call lookupRoad before sketch for scenic requests 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'lookupRoad'
+   × executeRidePlanningAgent > grounding before sketch > lookupRoad tool executes and returns road match data when called 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > curvature in rationale > system prompt instructs LLM to cite curvature scores in route rationale 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'getCurvature'
+   × executeRidePlanningAgent > curvature in rationale > getCurvature tool executes and returns score data when called 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > skip grounding > system prompt documents when to skip grounding tools (direct A-to-B, named roads, retries) 0ms
+     → expected 'you are a motorcycle ride planning as…' to match /skip.*grounding|when to skip/
+   × executeRidePlanningAgent > post-compile enrichment > system prompt instructs LLM to call getElevation and getRouteWeather after compileSketch 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'getElevation'
+   × executeRidePlanningAgent > post-compile enrichment > getElevation tool executes and returns elevation profile when called 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > post-compile enrichment > getRouteWeather tool executes and returns weather summary when called 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > post-compile enrichment > searchAlongRoute tool executes and returns nearby places when called 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+ ❯ convex/actions/agent/providers/__tests__/protomapsProvider.test.ts (24 tests | 2 failed) 17ms
+   ✓ Protomaps Provider > getProtomapsUrl > returns PROTOMAPS_US_URL when set 2ms
+   ✓ Protomaps Provider > getProtomapsUrl > returns fallback URL when PROTOMAPS_US_URL is not set 0ms
+   × Protomaps Provider > getProtomapsUrl > warns but returns URL when PROTOMAPS_US_URL is not a .pmtiles file 1ms
+     → expected "spy" to be called at least once
+   × Protomaps Provider > getProtomapsUrl > warns but returns URL when PROTOMAPS_US_URL is invalid 0ms
+     → expected "spy" to be called at least once
+   ✓ Protomaps Provider > getProtomapsPresignedUrl > returns direct URL when not using R2 0ms
+   ✓ Protomaps Provider > getProtomapsPresignedUrl > returns direct URL when R2 URL but missing some credentials 9ms
+   ✓ Protomaps Provider > getProtomapsPresignedUrl > returns fallback sample URL when no environment variables are set 0ms
+   ✓ Protomaps Provider > provider initialization > should initialize PMTiles connection 0ms
+   ✓ Protomaps Provider > provider initialization > should auto-initialize on first query 0ms
+   ✓ Protomaps Provider > queryNodesInBbox > should return scenic POIs within bbox 0ms
+   ✓ Protomaps Provider > queryNodesInBbox > should filter by type (viewpoint, peak, pass) 0ms
+   ✓ Protomaps Provider > queryNodesInBbox > should handle empty results 0ms
+   ✓ Protomaps Provider > queryNodesInBbox > should handle network errors 0ms
+   ✓ Protomaps Provider > queryNodesInBbox > should handle empty tiles gracefully 0ms
+   ✓ Protomaps Provider > queryWaysInBbox > should return roads within bbox 0ms
+   ✓ Protomaps Provider > queryWaysInBbox > should filter by highway class 0ms
+   ✓ Protomaps Provider > queryWaysInBbox > should include surface metadata 0ms
+   ✓ Protomaps Provider > queryWaysInBbox > should handle empty results 0ms
+   ✓ Protomaps Provider > queryWaysInBbox > should handle tiles with no matching layers 0ms
+   ✓ Protomaps Provider > queryWaysByName > should find roads by exact name match 0ms
+   ✓ Protomaps Provider > queryWaysByName > should handle partial matches (case insensitive) 0ms
+   ✓ Protomaps Provider > queryWaysByName > should handle no results 0ms
+   ✓ Protomaps Provider > tilePixelToLonLat behavior (via provider integration) > should convert tile pixel coordinates to geographic coordinates 0ms
+   ✓ Protomaps Provider > tilePixelToLonLat behavior (via provider integration) > should handle different extents (4096 vs 8192) 0ms
+ ❯ convex/__tests__/places-autocomplete.test.ts (6 tests | 2 failed) 16ms
+   ✓ places autocomplete contract > returns exactly three place suggestions when Mapbox returns five suggestions 7ms
+   ✓ places autocomplete contract > returns an empty list and skips fetch for trimmed one-character queries 2ms
+   ✓ places autocomplete contract > forwards query, session token, limit, country, language, and proximity to Mapbox suggest 2ms
+   ✓ places autocomplete contract > returns selected place coordinates using Mapbox coordinate order [lng, lat] 3ms
+   × places autocomplete contract > throws typed Convex errors without leaking tokens on suggest and retrieve failures 2ms
+     → expected ConvexError: {"code":"GEOCODE_UPSTREAM_ER… { …(2) } to be an instance of ConvexError
+   × places autocomplete contract > throws typed Convex errors for malformed Search Box payloads 1ms
+     → expected ConvexError: {"code":"GEOCODE_UPSTREAM_ER… { data: { …(2) } } to be an instance of ConvexError
+ ✓ tests/offline/offline-ui.test.tsx (11 tests) 25ms
+ ❯ convex/actions/__tests__/protomapsProvider.test.ts (6 tests | 1 failed) 11ms
+   ✓ protomapsProvider > getProtomapsPresignedUrl > AC-1: presigned URL failures emit structured monitoring logs 8ms
+   ✓ protomapsProvider > getProtomapsPresignedUrl > AC-2: production environment throws error on R2 failure (not silent fallback) 1ms
+   × protomapsProvider > getProtomapsUrl > AC-3: URL validation checks for .pmtiles extension 0ms
+     → expected "spy" to be called at least once
+   ✓ protomapsProvider > queryNodesInBbox > AC-4: uses ProtomapsError for better error discrimination 0ms
+   ✓ protomapsProvider > queryWaysInBbox > AC-5: uses ProtomapsError for better error discrimination 0ms
+   ✓ protomapsProvider > queryWaysByName > AC-6: uses ProtomapsError for better error discrimination 0ms
+ ❯ app/(app)/(tabs)/index.card-loading.integration.test.tsx (2 tests | 1 failed) 16ms
+   ✓ DTL-001: Discovery pill tap navigates to detail + no chat message > pillTapNavigatesToCuratedDetail 15ms
+   × DTL-001: Discovery pill tap navigates to detail + no chat message > pillTapDoesNotAppendChatMessage 1ms
+     → Can't access .root on unmounted test renderer
+ ❯ convex/db/savedRoutes.test.ts (5 tests | 1 failed) 9ms
+   × getRouteIndexFingerprint query (AC-1) > should export getRouteIndexFingerprint query 9ms
+     → expected 'object' to be 'function' // Object.is equality
+   ✓ getRouteIndexFingerprint query (AC-1) > should be a public query (not internal) 0ms
+   ✓ schema composite index (AC-5) > should define by_ownerType_ownerId_routeFingerprint index on saved_routes 0ms
+   ✓ schema composite index (AC-5) > handler should use withIndex with composite index for efficient lookup 0ms
+   ✓ returns validator (AC-6) > should use explicit v.object returns validator 0ms
+ ❯ app/(app)/(tabs)/index.route-tag.integration.test.tsx (3 tests | 3 failed) 8ms
+   × RUX-004: On-route tag label/distance, tap→details, paging > tagShowsLabelAndDistance 8ms
+     → Can't access .root on unmounted test renderer
+   × RUX-004: On-route tag label/distance, tap→details, paging > tagTapOpensDetails 1ms
+     → Can't access .root on unmounted test renderer
+   × RUX-004: On-route tag label/distance, tap→details, paging > tagFollowsPaging 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/ui/__tests__/favorite-exclusion-alert.test.tsx (20 tests | 20 failed) 6ms
+   × FavoriteExclusionAlert > AC1: Message appears when favorites are excluded > should display message when some favorites are excluded 1ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC1: Message appears when favorites are excluded > should not display message when no favorites are excluded 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC1: Message appears when favorites are excluded > should not display message when excludedFavorites is undefined 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC2: Message lists names of excluded favorites > should show one favorite name 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC2: Message lists names of excluded favorites > should show two favorite names 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC2: Message lists names of excluded favorites > should show three favorite names 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC2: Message lists names of excluded favorites > should truncate list with more than 3 favorites 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC2: Message lists names of excluded favorites > should handle favorites without names gracefully 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC3: No message when all favorites are included > should not display message when excludedFavorites array is empty 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC4: No message when includeFavorites toggle is OFF > should not display message when includeFavorites is false 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC5: Message dismisses on tap > should call onDismiss when dismiss button is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC5: Message dismisses on tap > should call onDismiss when alert container is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC6: Message auto-dismisses after 10 seconds > should auto-dismiss after 10 seconds 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC6: Message auto-dismisses after 10 seconds > should not auto-dismiss if manually dismissed before timeout 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC7: Full message content is announced by screen reader > should have accessibilityLabel with full message content 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC7: Full message content is announced by screen reader > should have accessible role of alert 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC8: Message does not duplicate for same exclusions > should respect sessionAware tracking and not re-render for same exclusions 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > AC8: Message does not duplicate for same exclusions > should show message again for different session key 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > Edge cases > should handle all favorites excluded 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteExclusionAlert > Edge cases > should handle 10+ excluded favorites with proper truncation 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/waypoints/__tests__/waypoint-card.test.tsx (24 tests | 24 failed) 5ms
+   × WaypointCard > AC1: Render with waypoint data > should display the waypoint name 1ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC1: Render with waypoint data > should display the waypoint description 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC1: Render with waypoint data > should display the order number 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC1: Render with waypoint data > should display kind badge for on-route waypoint 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC1: Render with waypoint data > should display status badge 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC2: Drag handle for on-route waypoints > should show drag handle for on-route waypoint when onReorder provided 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC2: Drag handle for on-route waypoints > should not show drag handle when onReorder not provided 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC2: Drag handle for on-route waypoints > should not show drag handle for off-route waypoints 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC3: Deviation cost for off-route waypoints > should display deviation distance and time for off-route waypoint 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC3: Deviation cost for off-route waypoints > should not display deviation info for on-route waypoint 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC3: Deviation cost for off-route waypoints > should not display deviation info when detourInfo is undefined 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC4: Approval actions for ready waypoints > should show approve/reject buttons for ready status 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC4: Approval actions for ready waypoints > should show approve/reject buttons for pending status 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC4: Approval actions for ready waypoints > should not show approve/reject buttons for approved status 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC4: Approval actions for ready waypoints > should not show approve/reject buttons when onApprove not provided 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC5: Approve action > should call onApprove with waypoint ID when approve button pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC6: Reject action > should call onReject with waypoint ID when reject button pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC6: Reject action > should disable reject button for approved waypoint 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC7: Visual feedback for rejected waypoints > should apply danger border styling for rejected status 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC7: Visual feedback for rejected waypoints > should use default border for non-rejected waypoints 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC8: Semantic theme usage > should use semantic radius for card border radius 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC8: Semantic theme usage > should use semantic spacing for card padding 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC8: Semantic theme usage > should use semantic color for card background 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointCard > AC8: Semantic theme usage > should use semantic waypoint colors for kind badges 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ convex/__tests__/weather.test.ts (6 tests | 1 failed) 8ms
+   ✓ weather contract > returns the mobile weather DTO including uppercase dayOfWeek 5ms
+   ✓ weather contract > retries one transient 503 from Open-Meteo and then succeeds 1ms
+   ✓ weather contract > does not retry a non-transient 400 from Open-Meteo 1ms
+   ✓ weather contract > does not retry a 429 because only transient 5xx failures are retryable 1ms
+   ✓ weather contract > throws UNAUTHENTICATED before calling the provider 0ms
+   × weather contract > keeps the native weather action contracts aligned with the documented public endpoint 1ms
+     → ENOENT: no such file or directory, open '/Users/justinrich/Projects/ios/LaneShadow/Services/ConvexClient+LaneShadow.swift'
+ ❯ app/(app)/(tabs)/index.finished-route-fit.integration.test.tsx (2 tests | 2 failed) 5ms
+   × RUX-008: Finished-Route Auto-Plot + Camera-Fit > AC-2: finishedMultiPointRouteAutoPlotsAndFitsWholeRoute > finishedMultiPointRouteAutoPlotsAndFitsWholeRoute 5ms
+     → Can't access .root on unmounted test renderer
+   × RUX-008: Finished-Route Auto-Plot + Camera-Fit > AC-3: centroidRouteFramesOnceAndDoesNotReYank > centroidRouteFramesOnceAndDoesNotReYank 1ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/chat/routing-card.test.tsx (19 tests | 19 failed) 5ms
+   × RoutingCard > AC1: pending state > renders the pending card when useQuery returns undefined (loading) 1ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > AC1: pending state > renders the pending card when routePlan.status is "pending" 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > AC1: pending state > shows "Preparing route…" text in pending state 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > AC2: running state with phase pills > renders the running card when status is "running" 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > AC2: running state with phase pills > renders all four phase pills 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > AC2: running state with phase pills > shows statusMessage below the pills 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > AC2: running state with phase pills > shows fallback status text when statusMessage is absent 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > AC2: running state with phase pills > renders without crashing when phase is undefined 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > AC3: completed state with route cards > renders the completed card when status is "completed" 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > AC3: completed state with route cards > renders a RouteAttachmentCard for each route option 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > AC3: completed state with route cards > deduplicates identical route variants before rendering chat cards 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > AC3: completed state with route cards > falls back to pending when status is completed but result is missing 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > AC4: failed state > renders the failed card when status is "failed" 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > AC4: failed state > shows the errorMessage when provided 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > AC4: failed state > shows fallback "Planning failed." when errorMessage is absent 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > AC5: cancelled state > renders the cancelled card when status is "cancelled" 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > AC5: cancelled state > shows "Cancelled" text 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > container > renders the outer routing-card testID wrapper 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutingCard > container > does not crash when attachments array is empty 0ms
+     → expected [Function] to not throw an error but 'Error: Can\'t access .root on unmount…' was thrown
+ ❯ components/ui/__tests__/delete-route-dialog.test.tsx (14 tests | 14 failed) 5ms
+   × DeleteRouteDialog > AC1: renders title, message, and buttons > renders the dialog when visible is true 1ms
+     → Can't access .root on unmounted test renderer
+   × DeleteRouteDialog > AC1: renders title, message, and buttons > does not render when visible is false 1ms
+     → Can't access .root on unmounted test renderer
+   × DeleteRouteDialog > AC1: renders title, message, and buttons > renders the title "Delete Route" 0ms
+     → Can't access .root on unmounted test renderer
+   × DeleteRouteDialog > AC1: renders title, message, and buttons > renders the confirmation message containing the routeName 0ms
+     → Can't access .root on unmounted test renderer
+   × DeleteRouteDialog > AC1: renders title, message, and buttons > renders the undo messaging 0ms
+     → Can't access .root on unmounted test renderer
+   × DeleteRouteDialog > AC1: renders title, message, and buttons > renders the Cancel button 0ms
+     → Can't access .root on unmounted test renderer
+   × DeleteRouteDialog > AC1: renders title, message, and buttons > renders the Delete button 0ms
+     → Can't access .root on unmounted test renderer
+   × DeleteRouteDialog > AC1: renders title, message, and buttons > uses custom testID prefix when provided 0ms
+     → Can't access .root on unmounted test renderer
+   × DeleteRouteDialog > AC2: Cancel button fires onDismiss > calls onDismiss when Cancel is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × DeleteRouteDialog > AC2: Cancel button fires onDismiss > does not call onConfirm when Cancel is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × DeleteRouteDialog > AC3: Delete button fires onConfirm > calls onConfirm when Delete is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × DeleteRouteDialog > AC3: Delete button fires onConfirm > does not call onDismiss when Delete is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × DeleteRouteDialog > AC4: Delete button uses destructive color token > Delete button text uses semantic.color.danger.default 0ms
+     → Can't access .root on unmounted test renderer
+   × DeleteRouteDialog > AC4: Delete button uses destructive color token > Cancel button does not use destructive color 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/chat/typing-indicator.test.tsx (11 tests | 11 failed) 3ms
+   × TypingIndicator > renders 3 dots > should render exactly 3 dot elements 1ms
+     → Can't access .root on unmounted test renderer
+   × TypingIndicator > renders 3 dots > should render the container element 0ms
+     → Can't access .root on unmounted test renderer
+   × TypingIndicator > size prop > should apply sm size by default 0ms
+     → Can't access .root on unmounted test renderer
+   × TypingIndicator > size prop > should apply sm size when size="sm" 0ms
+     → Can't access .root on unmounted test renderer
+   × TypingIndicator > size prop > should apply md size when size="md" 0ms
+     → Can't access .root on unmounted test renderer
+   × TypingIndicator > size prop > should use correct gap for sm size 0ms
+     → Can't access .root on unmounted test renderer
+   × TypingIndicator > size prop > should use correct gap for md size 0ms
+     → Can't access .root on unmounted test renderer
+   × TypingIndicator > color prop > should use default semantic color when no color is provided 0ms
+     → Can't access .root on unmounted test renderer
+   × TypingIndicator > color prop > should use provided color override 0ms
+     → Can't access .root on unmounted test renderer
+   × TypingIndicator > accessibility > should have accessibilityLabel "Assistant is typing" 0ms
+     → Can't access .root on unmounted test renderer
+   × TypingIndicator > accessibility > should have accessibilityRole "progressbar" 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ app/(app)/curated-route/[id].geometry-degradation.integration.test.tsx (3 tests | 3 failed) 27ms
+   × DESIGN-003: geometry graceful degradation > polylinePresentRendersPolylineAndHidesApproximateBadge 27ms
+     → Can't access .root on unmounted test renderer
+   × DESIGN-003: geometry graceful degradation > noPolylineRendersSingleCentroidMarkerAndApproximateBadge 0ms
+     → Can't access .root on unmounted test renderer
+   × DESIGN-003: geometry graceful degradation > nullCentroidGracefulNoCrash 0ms
+     → expected [Function] to not throw an error but 'Error: Can\'t access .root on unmount…' was thrown
+ ❯ components/ui/__tests__/date-range-picker.test.tsx (12 tests | 12 failed) 3ms
+   × DateRangePicker > AC1: renders all preset chips > renders "All time" chip 1ms
+     → Can't access .root on unmounted test renderer
+   × DateRangePicker > AC1: renders all preset chips > renders "Last week" chip 0ms
+     → Can't access .root on unmounted test renderer
+   × DateRangePicker > AC1: renders all preset chips > renders "Last month" chip 0ms
+     → Can't access .root on unmounted test renderer
+   × DateRangePicker > AC1: renders all preset chips > renders "Last 3 months" chip 0ms
+     → Can't access .root on unmounted test renderer
+   × DateRangePicker > AC1: renders all preset chips > renders with custom testID 0ms
+     → Can't access .root on unmounted test renderer
+   × DateRangePicker > AC1: renders all preset chips > "All time" chip is initially active (primary background color) 0ms
+     → Can't access .root on unmounted test renderer
+   × DateRangePicker > AC2: tapping "Last week" emits correct date range > calls onDateRangeChange with afterDate when "Last week" is tapped 0ms
+     → Can't access .root on unmounted test renderer
+   × DateRangePicker > AC2: tapping "Last week" emits correct date range > "Last week" chip becomes active after being tapped 0ms
+     → Can't access .root on unmounted test renderer
+   × DateRangePicker > AC3: tapping "All time" clears the filter > fires { afterDate: undefined, beforeDate: undefined } when "All time" is tapped after a preset 0ms
+     → Can't access .root on unmounted test renderer
+   × DateRangePicker > AC3: tapping "All time" clears the filter > "All time" chip is active after being tapped 0ms
+     → Can't access .root on unmounted test renderer
+   × DateRangePicker > AC4: tapping same preset twice deselects back to "All time" > fires { afterDate: undefined, beforeDate: undefined } when selected preset is tapped again 0ms
+     → Can't access .root on unmounted test renderer
+   × DateRangePicker > AC4: tapping same preset twice deselects back to "All time" > "All time" chip becomes active again after deselect 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/ui/empty-state.test.tsx (15 tests | 15 failed) 4ms
+   × EmptyState > AC1: renders icon, headline, body, and CTA > renders the icon wrapper 1ms
+     → Can't access .root on unmounted test renderer
+   × EmptyState > AC1: renders icon, headline, body, and CTA > renders the icon with size 64 1ms
+     → Can't access .root on unmounted test renderer
+   × EmptyState > AC1: renders icon, headline, body, and CTA > renders the icon with the muted onSurface color 0ms
+     → Can't access .root on unmounted test renderer
+   × EmptyState > AC1: renders icon, headline, body, and CTA > renders the headline text 0ms
+     → Can't access .root on unmounted test renderer
+   × EmptyState > AC1: renders icon, headline, body, and CTA > renders the body text 0ms
+     → Can't access .root on unmounted test renderer
+   × EmptyState > AC1: renders icon, headline, body, and CTA > renders the CTA button with ctaLabel text 0ms
+     → Can't access .root on unmounted test renderer
+   × EmptyState > AC1: renders icon, headline, body, and CTA > renders with default testID empty-state when none provided 0ms
+     → Can't access .root on unmounted test renderer
+   × EmptyState > AC1: renders icon, headline, body, and CTA > renders with custom testID when provided 0ms
+     → Can't access .root on unmounted test renderer
+   × EmptyState > AC2: CTA button invokes onCtaPress > calls onCtaPress when CTA button is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × EmptyState > AC3: uses semantic theme tokens for dark mode > headline text uses semantic.color.onSurface.default 0ms
+     → Can't access .root on unmounted test renderer
+   × EmptyState > AC3: uses semantic theme tokens for dark mode > body text uses semantic.color.onSurface.subtle 0ms
+     → Can't access .root on unmounted test renderer
+   × EmptyState > AC3: uses semantic theme tokens for dark mode > icon color uses semantic.color.onSurface.muted 0ms
+     → Can't access .root on unmounted test renderer
+   × EmptyState > AC4: CTA hidden when onCtaPress is not provided > renders without crashing when onCtaPress is omitted 0ms
+     → Can't access .root on unmounted test renderer
+   × EmptyState > AC4: CTA hidden when onCtaPress is not provided > does not render the CTA button when onCtaPress is undefined 0ms
+     → Can't access .root on unmounted test renderer
+   × EmptyState > AC4: CTA hidden when onCtaPress is not provided > does not render the CTA button when neither ctaLabel nor onCtaPress provided 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/waypoints/__tests__/waypoint-list.test.tsx (17 tests | 17 failed) 5ms
+   × WaypointList > AC1: renders glassmorphic container with header > renders with glassmorphic container styling 1ms
+     → Can't access .root on unmounted test renderer
+   × WaypointList > AC1: renders glassmorphic container with header > applies semi-transparent background with border 1ms
+     → Can't access .root on unmounted test renderer
+   × WaypointList > AC2: progressive disclosure collapse/expand > is expanded by default 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointList > AC2: progressive disclosure collapse/expand > starts collapsed when initiallyCollapsed is true 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointList > AC2: progressive disclosure collapse/expand > toggles collapse state on header press 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointList > AC3: drag affordance with onReorder callback > shows drag handle when onReorder callback is provided 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointList > AC3: drag affordance with onReorder callback > hides drag handle when onReorder callback is not provided 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointList > AC4: pending indicator in header > displays waypoint count 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointList > AC4: pending indicator in header > shows pending indicator when waypoints need approval 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointList > AC4: pending indicator in header > hides pending indicator when all waypoints are approved 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointList > AC5: uses semantic theme tokens for styling > uses semantic color tokens for background 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointList > AC6: loading state > shows loading state while fetching waypoints 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointList > AC7: empty state > shows empty state when no waypoints exist 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointList > AC8: accessibility labels and hints > has accessibility label on container 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointList > AC8: accessibility labels and hints > includes pending approvals in accessibility hint 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointList > AC8: accessibility labels and hints > header has correct accessibility role and label 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointList > AC8: accessibility labels and hints > header accessibility label changes when collapsed 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ hooks/use-save-curated-route.test.ts (8 tests | 8 failed) 9ms
+   × SAVE-001 / AC-1: useSaveCuratedRoute > save() calls saveRoute with {curatedRouteRef, name} and NO plan payload (XOR) 4ms
+     → saveRoute mutation must be acquired: expected undefined to be defined
+   × SAVE-001 / AC-1: useSaveCuratedRoute > save() fires recordRouteFeedback({routeId, action:"save"}) AFTER the save 1ms
+     → Cannot read properties of null (reading 'save')
+   × SAVE-001 / AC-1: useSaveCuratedRoute > returns isLoading=true while save is in flight, false after 1ms
+     → Cannot read properties of null (reading 'save')
+   × SAVE-001 / AC-4: useUnsaveCuratedRoute > unsave() invokes the saved_routes removal mutation with the savedRouteId 1ms
+     → removal mutation must be acquired: expected undefined to be defined
+   × SAVE-001: useIsCuratedRouteSaved — detection logic > returns isSaved=false while the list is loading (undefined) 1ms
+     → Cannot read properties of null (reading 'isSaved')
+   × SAVE-001: useIsCuratedRouteSaved — detection logic > returns isSaved=false when curatedRouteId is absent 1ms
+     → Cannot read properties of null (reading 'isSaved')
+   × SAVE-001: useIsCuratedRouteSaved — detection logic > detects a matching curated row and exposes its savedRouteId 0ms
+     → Cannot read properties of null (reading 'isSaved')
+   × SAVE-001: useIsCuratedRouteSaved — detection logic > returns isSaved=false when no curated row matches 0ms
+     → Cannot read properties of null (reading 'isSaved')
+ ❯ components/ui/__tests__/route-search-bar.test.tsx (17 tests | 17 failed) 8ms
+   × RouteSearchBar > AC1: renders with icon and placeholder > renders the container with default testID 1ms
+     → Can't access .root on unmounted test renderer
+   × RouteSearchBar > AC1: renders with icon and placeholder > renders with a custom testID when provided 1ms
+     → Can't access .root on unmounted test renderer
+   × RouteSearchBar > AC1: renders with icon and placeholder > renders the text input 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteSearchBar > AC1: renders with icon and placeholder > input has the correct placeholder text 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteSearchBar > AC1: renders with icon and placeholder > renders the search icon 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteSearchBar > AC1: renders with icon and placeholder > clear button is hidden when input is empty 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteSearchBar > AC2: fires onSearch after 300ms debounce > does not call onSearch before 300ms 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteSearchBar > AC2: fires onSearch after 300ms debounce > calls onSearch with the typed value after 300ms 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteSearchBar > AC3: debounces rapid typing to a single call > fires onSearch only once when multiple keystrokes happen within 300ms 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteSearchBar > AC4: clear button resets and fires onSearch immediately > shows the clear button after text is entered 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteSearchBar > AC4: clear button resets and fires onSearch immediately > calls onSearch("") immediately when clear is pressed (no debounce) 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteSearchBar > AC4: clear button resets and fires onSearch immediately > hides clear button after pressing it 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteSearchBar > AC4: clear button resets and fires onSearch immediately > cancels the pending debounce when clear is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteSearchBar > AC5: uses semantic theme tokens for visual properties > container background uses semantic.color.surfaceVariant.default 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteSearchBar > AC5: uses semantic theme tokens for visual properties > container borderRadius uses semantic.radius.lg 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteSearchBar > AC5: uses semantic theme tokens for visual properties > text input color uses semantic.color.onSurface.default 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteSearchBar > AC5: uses semantic theme tokens for visual properties > placeholder color uses semantic.color.onSurface.subtle 1ms
+     → Can't access .root on unmounted test renderer
+ ❯ convex/actions/agent/__tests__/planRide.favorites.test.ts (12 tests | 1 failed) 7ms
+   ✓ planRide action - Favorites Integration > AC-5: Fetch user favorites via favoriteRoads.listByOwner when toggle enabled > should call favoriteRoads.list when includeFavorites is true 0ms
+   ✓ planRide action - Favorites Integration > AC-5: Fetch user favorites via favoriteRoads.listByOwner when toggle enabled > should NOT call favoriteRoads.list when includeFavorites is false 0ms
+   ✓ planRide action - Favorites Integration > AC-5: Fetch user favorites via favoriteRoads.listByOwner when toggle enabled > should NOT call favoriteRoads.list when includeFavorites is not provided 0ms
+   ✓ planRide action - Favorites Integration > AC-8: Pass nearby favorites to planning graph > should pass favorites to orchestrator in correct format 0ms
+   ✓ planRide action - Favorites Integration > AC-9: Return route with includedFavorites count > should return includedFavorites in response 6ms
+   ✓ planRide action - Favorites Integration > AC-10: Return excludedFavorites list with names > should return excludedFavorites with reasons 0ms
+   ✓ planRide action - Favorites Integration > AC-10: Return excludedFavorites list with names > should provide clear reason codes 0ms
+   ✓ planRide action - Favorites Integration > AC-11: Plan route normally without favorites when toggle is OFF > should not include favorites metadata when includeFavorites is false 0ms
+   × planRide action - Favorites Integration > AC-12: Graceful degradation when favorites fetch fails > should log warning and continue when favorites fetch fails 0ms
+     → expected "spy" to be called with arguments: [ …(2) ][90m
+
+Number of calls: [1m0[22m
+[39m
+   ✓ planRide action - Favorites Integration > AC-12: Graceful degradation when favorites fetch fails > should not throw error when favorites fetch fails 0ms
+   ✓ planRide action - Favorites Integration > buildOptionsFromResults with favorites > should aggregate includedFavorites from all route options 0ms
+   ✓ planRide action - Favorites Integration > buildOptionsFromResults with favorites > should handle results without favorites metadata 0ms
+ ❯ components/ui/__tests__/favorite-road-card.test.tsx (13 tests | 13 failed) 4ms
+   × FavoriteRoadCard > AC1: Render with favorite road data > should display the favorite road name 1ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteRoadCard > AC1: Render with favorite road data > should display the mini map preview 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteRoadCard > AC1: Render with favorite road data > should render thumbnail with correct size (80x80) 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteRoadCard > AC2: Mini map uses bounds for positioning > should render RouteThumbnail with bounds prop 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteRoadCard > AC2: Mini map uses bounds for positioning > should handle different bounds values 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteRoadCard > AC3: Delete button triggers callback > should show delete button 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteRoadCard > AC3: Delete button triggers callback > should have accessibility label for delete button 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteRoadCard > AC3: Delete button triggers callback > should call onDelete with ID when delete button is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteRoadCard > AC3: Delete button triggers callback > should not call onDelete when not provided 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteRoadCard > AC4: Card press triggers callback > should call onPress with ID when card is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteRoadCard > AC4: Card press triggers callback > should not call onPress when not provided 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteRoadCard > AC4: Card press triggers callback > should not trigger onPress when delete button is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × FavoriteRoadCard > AC4: Card press triggers callback > should have correct accessibility label 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ app/(app)/curated-route/[id].actions.integration.test.tsx (3 tests | 3 failed) 4ms
+   × DESIGN-004: Save + Ride It actions wiring > tapSaveShowsLoadingThenSavedInPlaceNoNavigation 4ms
+     → Can't access .root on unmounted test renderer
+   × DESIGN-004: Save + Ride It actions wiring > tapRideItCallsOpenRouteInMapsWithCentroidAndName 0ms
+     → Can't access .root on unmounted test renderer
+   × DESIGN-004: Save + Ride It actions wiring > saveFailureRestoresTappableSaveLabel 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/ui/__tests__/rename-route-dialog.test.tsx (15 tests | 15 failed) 4ms
+   × RenameRouteDialog > AC1: pre-populated input, Save disabled when name unchanged > renders the dialog when visible=true 1ms
+     → Can't access .root on unmounted test renderer
+   × RenameRouteDialog > AC1: pre-populated input, Save disabled when name unchanged > TextInput shows the currentName value 0ms
+     → Can't access .root on unmounted test renderer
+   × RenameRouteDialog > AC1: pre-populated input, Save disabled when name unchanged > Save button is disabled when input equals currentName 0ms
+     → Can't access .root on unmounted test renderer
+   × RenameRouteDialog > AC1: pre-populated input, Save disabled when name unchanged > does not render the dialog when visible=false 0ms
+     → Can't access .root on unmounted test renderer
+   × RenameRouteDialog > AC1: pre-populated input, Save disabled when name unchanged > renders with custom testID 0ms
+     → Can't access .root on unmounted test renderer
+   × RenameRouteDialog > AC2: Save enabled when name changes > Save button becomes enabled after text change 0ms
+     → Can't access .root on unmounted test renderer
+   × RenameRouteDialog > AC2: Save enabled when name changes > Save remains disabled when user types only whitespace 0ms
+     → Can't access .root on unmounted test renderer
+   × RenameRouteDialog > AC2: Save enabled when name changes > Save remains disabled when trimmed input equals currentName 0ms
+     → Can't access .root on unmounted test renderer
+   × RenameRouteDialog > AC3: Save button fires onRename with trimmed value > calls onRename with the new trimmed name when Save is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × RenameRouteDialog > AC3: Save button fires onRename with trimmed value > trims whitespace before calling onRename 0ms
+     → Can't access .root on unmounted test renderer
+   × RenameRouteDialog > AC4: Save disabled when input is empty > Save button is disabled when input is cleared 0ms
+     → Can't access .root on unmounted test renderer
+   × RenameRouteDialog > AC4: Save disabled when input is empty > onRename is not called when Save is pressed while disabled 0ms
+     → Can't access .root on unmounted test renderer
+   × RenameRouteDialog > AC5: Cancel fires onDismiss without calling onRename > calls onDismiss when Cancel is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × RenameRouteDialog > AC5: Cancel fires onDismiss without calling onRename > does not call onRename when Cancel is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × RenameRouteDialog > state reset when currentName prop changes > resets internal name when currentName prop changes 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/chat/route-attachment-card.test.tsx (16 tests | 16 failed) 4ms
+   × RouteAttachmentCard - Mini-map Integration (US-061) > AC1: Render mini-map when map data exists > should render RouteMiniMap component when overviewGeometry and bounds are present 1ms
+     → Can't access .root on unmounted test renderer
+   × RouteAttachmentCard - Mini-map Integration (US-061) > AC1: Render mini-map when map data exists > should render mini-map above the route label 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteAttachmentCard - Mini-map Integration (US-061) > AC1: Render mini-map when map data exists > should render mini-map above stats 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteAttachmentCard - Mini-map Integration (US-061) > AC2: Graceful fallback without map data > should not render mini-map when overviewGeometry is empty 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteAttachmentCard - Mini-map Integration (US-061) > AC2: Graceful fallback without map data > should still render route label without map data 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteAttachmentCard - Mini-map Integration (US-061) > AC2: Graceful fallback without map data > should still render stats without map data 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteAttachmentCard - Mini-map Integration (US-061) > Compact route path spacing > keeps curated fallback labels inline instead of spreading the arrow across the card 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteAttachmentCard - Mini-map Integration (US-061) > AC3: Tap interaction with mini-map > should call onSelect when tapping card with mini-map 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteAttachmentCard - Mini-map Integration (US-061) > AC3: Tap interaction with mini-map > should call onViewOnMap when tapping card in full variant 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteAttachmentCard - Mini-map Integration (US-061) > AC4: Selected state with mini-map > should still render mini-map when card is selected 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteAttachmentCard - Mini-map Integration (US-061) > AC4: Selected state with mini-map > should show selected border style when selected 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteAttachmentCard - Mini-map Integration (US-061) > AC5: Unselected state with mini-map > should still render mini-map when card is not selected 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteAttachmentCard - Mini-map Integration (US-061) > AC5: Unselected state with mini-map > should show default border style when not selected 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteAttachmentCard - Mini-map Integration (US-061) > AC6: Multiple route options with separate mini-maps > should render separate mini-map for each route card 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteAttachmentCard - Mini-map Integration (US-061) > AC7: Accessibility with mini-map > should include route info in accessibilityLabel when mini-map is present 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteAttachmentCard - Mini-map Integration (US-061) > AC7: Accessibility with mini-map > should be accessible as a button 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ convex/actions/agent/providers/__tests__/routingProvider.test.ts (17 tests | 3 failed) 4ms
+   ✓ routing provider > google provider calls Routes API with key and parses response 1ms
+   ✓ routing provider > google provider returns durationSeconds=0 when duration is malformed 0ms
+   ✓ routing provider > google provider throws on non-ok responses and includes status/body 0ms
+   ✓ routing provider > google provider throws when required fields are missing 0ms
+   ✓ routing provider > google provider is deterministic when upstream payload is deterministic 0ms
+   ✓ routing provider > uses DRIVE travel mode 0ms
+   ✓ routeSegment > AC-1: routeSegment routes a single segment using fromName/toName matched to anchorPoints 0ms
+   ✓ routeSegment > AC-1: routeSegment uses origin/destination coords from matched anchorPoints 0ms
+   × routeSegment > AC-2: routeSegment throws when anchorPoint for fromName is missing lat/lng 1ms
+     → expected [Function] to throw error matching /anchorPoint/ but got 'Could not geocode "Unknown Start". Tr…'
+   ✓ routeSegment > AC-1: routeSegment matches anchorPoints case-insensitively and trims whitespace 0ms
+   ✓ resolveViaWaypoints > AC-1: resolves a single viaName to its matching anchorPoint coordinates 0ms
+   ✓ resolveViaWaypoints > AC-2: multiple viaNames are resolved in order matching the viaNames array 0ms
+   × resolveViaWaypoints > AC-3: unresolvable viaName is skipped and does not throw 0ms
+     → expected "spy" to be called with arguments: [ StringContaining "NONEXISTENT" ][90m
+
+Number of calls: [1m0[22m
+[39m
+   ✓ resolveViaWaypoints > AC-4: no viaNames returns empty array (origin→destination only in request) 0ms
+   × resolveViaWaypoints > AC-5: more than 3 viaNames uses only first 3 and warns about the rest 0ms
+     → expected "spy" to be called with arguments: [ StringContaining "Delta Landmark" ][90m
+
+Number of calls: [1m0[22m
+[39m
+   ✓ resolveViaWaypoints > AC-1 integration: Google Maps request body includes viaName as intermediate waypoint 0ms
+   ✓ resolveViaWaypoints > AC-4 integration: no viaNames means no intermediates in Google Maps request 0ms
+ ❯ hooks/use-active-session-route.test.ts (10 tests | 10 failed) 5ms
+   × useActiveSessionRoute > loading state > returns loading result (undefined routePlan) while sessions list is loading 1ms
+     → Cannot read properties of null (reading 'routePlan')
+   × useActiveSessionRoute > loading state > returns loading result while messages query is loading 1ms
+     → Cannot read properties of null (reading 'routePlan')
+   × useActiveSessionRoute > empty/no-session state > returns undefined routePlan when messages list is empty 1ms
+     → Cannot read properties of null (reading 'routePlan')
+   × useActiveSessionRoute > empty/no-session state > returns null routePlan when no routing_card message exists 0ms
+     → Cannot read properties of null (reading 'routePlan')
+   × useActiveSessionRoute > active option selection > returns activeOption = options[0] when no selectedRouteId is set 0ms
+     → Cannot read properties of null (reading 'activeOption')
+   × useActiveSessionRoute > active option selection > returns the matching option when selectedRouteId matches an option 1ms
+     → Cannot read properties of null (reading 'activeOption')
+   × useActiveSessionRoute > active option selection > falls back to options[0] when selectedRouteId does not match any option 1ms
+     → Cannot read properties of null (reading 'activeOption')
+   × useActiveSessionRoute > latest routing_card selection > picks the newest routing_card when multiple exist 0ms
+     → Cannot read properties of null (reading 'activeOption')
+   × useActiveSessionRoute > selectedRouteId from context > respects selectedRouteId from context for option selection 0ms
+     → Cannot read properties of null (reading 'activeOption')
+   × useActiveSessionRoute > explicit sessionId prop > skips listSessions query when sessionId is provided 0ms
+     → Cannot read properties of null (reading 'activeOption')
+ ❯ components/chat/cards/curated-route-card.integration.test.tsx (3 tests | 3 failed) 4ms
+   × DISC-020: Curated card score %, re-render→map, centroid fallback > curatedCardShowsScoreAsPercentOnZeroToOneScale 1ms
+     → Can't access .root on unmounted test renderer
+   × DISC-020: Curated card score %, re-render→map, centroid fallback > earlierCuratedCardReRendersAndReturnsToMap 0ms
+     → Can't access .root on unmounted test renderer
+   × DISC-020: Curated card score %, re-render→map, centroid fallback > centroidOnlyCuratedPlotsViaFallback 3ms
+     → Can't access .root on unmounted test renderer
+ ❯ app/(app)/(tabs)/index.discovery.integration.test.tsx (4 tests | 4 failed) 5ms
+   × DTL-001: Discovery tap navigates to detail, camera fits, typed send > tapNavigatesToCuratedDetail 4ms
+     → Can't access .root on unmounted test renderer
+   × DTL-001: Discovery tap navigates to detail, camera fits, typed send > cameraFitsTappedRouteIncludingCentroid 1ms
+     → Can't access .root on unmounted test renderer
+   × DTL-001: Discovery tap navigates to detail, camera fits, typed send > clearRouteRecentersOnCurrentLocation 0ms
+     → Can't access .root on unmounted test renderer
+   × DTL-001: Discovery tap navigates to detail, camera fits, typed send > typedMessageStillSends 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/sheets/__tests__/plan-ride-sheet.test.tsx (11 tests | 11 failed) 3ms
+   × PlanRideSheet - Include favorites toggle > AC1: Toggle displays in plan-ride-sheet > renders the favorites chip when visible=true 1ms
+     → Can't access .root on unmounted test renderer
+   × PlanRideSheet - Include favorites toggle > AC1: Toggle displays in plan-ride-sheet > displays "Favorites" text in the chip 0ms
+     → Can't access .root on unmounted test renderer
+   × PlanRideSheet - Include favorites toggle > AC1: Toggle displays in plan-ride-sheet > positions favorites chip after tolls chip 0ms
+     → Can't access .root on unmounted test renderer
+   × PlanRideSheet - Include favorites toggle > AC1: Toggle displays in plan-ride-sheet > does not render when visible=false 0ms
+     → Can't access .root on unmounted test renderer
+   × PlanRideSheet - Include favorites toggle > AC2: Toggle state controls value > calls onToggleIncludeFavorites when chip is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × PlanRideSheet - Include favorites toggle > AC2: Toggle state controls value > toggles from false to true 0ms
+     → Can't access .root on unmounted test renderer
+   × PlanRideSheet - Include favorites toggle > AC2: Toggle state controls value > toggles from true to false 0ms
+     → Can't access .root on unmounted test renderer
+   × PlanRideSheet - Include favorites toggle > AC3: Toggle disabled when no favorites > renders favorites chip when hasFavorites=false 0ms
+     → Can't access .root on unmounted test renderer
+   × PlanRideSheet - Include favorites toggle > AC3: Toggle disabled when no favorites > applies disabled opacity when hasFavorites=false 0ms
+     → Can't access .root on unmounted test renderer
+   × PlanRideSheet - Include favorites toggle > AC3: Toggle disabled when no favorites > still calls callback when pressed even when disabled 0ms
+     → Can't access .root on unmounted test renderer
+   × PlanRideSheet - Include favorites toggle > AC3: Toggle disabled when no favorites > shows normal opacity when hasFavorites=true 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/sheets/route-details-sheet.integration.test.tsx (11 tests | 11 failed) 3ms
+   × RouteDetailsSheet Integration — RUX-005 > AC-1: actionsReachableAtInitialSnap > renders the Save action button with correct testID 1ms
+     → Can't access .root on unmounted test renderer
+   × RouteDetailsSheet Integration — RUX-005 > AC-1: actionsReachableAtInitialSnap > renders the Ride It action button with correct testID 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteDetailsSheet Integration — RUX-005 > AC-1: actionsReachableAtInitialSnap > pins the action footer outside the scroll view (not nested inside) 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteDetailsSheet Integration — RUX-005 > AC-1: actionsReachableAtInitialSnap > uses Button size="lg" for action buttons (≥44pt tap target) 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteDetailsSheet Integration — RUX-005 > AC-2: expandsAndFooterStaysPinned > configures multi-stop snap points (≥2 stops including ≥85%) 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteDetailsSheet Integration — RUX-005 > AC-2: expandsAndFooterStaysPinned > uses wrapChildren={false} so footer is pinned (absolute positioned) 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteDetailsSheet Integration — RUX-005 > AC-2: expandsAndFooterStaysPinned > the action footer remains present with both Save and Ride buttons 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteDetailsSheet Integration — RUX-005 > AC-2: expandsAndFooterStaysPinned > renders the scroll body with long content for scrolling 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteDetailsSheet Integration — RUX-005 > AC-3: footerClearsSafeArea > footer paddingBottom accounts for insets.bottom on a notched device 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteDetailsSheet Integration — RUX-005 > AC-3: footerClearsSafeArea > footer paddingBottom includes semantic spacing plus insets.bottom 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteDetailsSheet Integration — RUX-005 > AC-3: footerClearsSafeArea > footer has non-zero paddingBottom even with zero insets.bottom 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ convex/actions/agent/tools/__tests__/enrichRoute.test.ts (11 tests | 2 failed) 4ms
+   × enrichRoute > pi-ai integration > returns enriched labels from pi-ai tool call 1ms
+     → expected { …(3) } to deeply equal { …(4) }
+   × enrichRoute > pi-ai integration > returns fallback labels when complete() rejects 1ms
+     → expected { label: 'Route 1', …(3) } to deeply equal { label: 'Route 1', …(3) }
+   ✓ enrichRoute > pi-ai integration > returns fallback labels when OPENAI_API_KEY missing 0ms
+   ✓ enrichRoute > pi-ai integration > returns fallback labels when model skips the tool call 0ms
+   ✓ enrichRoute > prompt construction > includes waypoint names in the user message 0ms
+   ✓ enrichRoute > prompt construction > includes distance and duration stats 0ms
+   ✓ enrichRoute > tool schema > registers emit_enrichments as the only tool 0ms
+   ✓ enrichRoute > AI_MODEL integration > forwards AI_MODEL to getModel() 0ms
+   ✓ enrichRoute > leg labeling > generates leg labels when legContext is provided 0ms
+   ✓ enrichRoute > leg labeling > returns empty legLabels array when no legContext provided 0ms
+   ✓ enrichRoute > leg labeling > AI never generates "waypoint" in leg labels 0ms
+ ❯ convex/actions/agent/tools/__tests__/lookupRoad.test.ts (5 tests | 1 failed) 3ms
+   ✓ lookupRoad > AC-1: returns exists=true with highway class, surface, and geometry for a matched road 1ms
+   ✓ lookupRoad > AC-2: returns exists=false with name suggestions on miss, using broader regex fallback 0ms
+   ✓ lookupRoad > AC-3: returns unverified status without throwing on Overpass timeout 0ms
+   ✓ lookupRoad > AC-4: returns max 5 ways sorted by highway class priority 0ms
+   × lookupRoad > AC-5: records Protomaps fallback events with tool name, reason, and bbox 1ms
+     → expected "spy" to be called 1 times, but got 0 times
+ ❯ convex/actions/agent/lib/__tests__/models.test.ts (4 tests | 4 failed) 2ms
+   × agent model registry > AC-1: getAgentModel high > getAgentModel high calls getModel with mapped provider and model 1ms
+     → expected "spy" to be called with arguments: [ 'cerebras', 'zai-glm-4.7' ][90m
+
+Received: 
+
+[1m  1st spy call:
+
+[22m[2m  [[22m
+[32m-   "cerebras",[90m
+[32m-   "zai-glm-4.7",[90m
+[31m+   "openai",[90m
+[31m+   "gpt-4.1",[90m
+[2m  ][22m
+[39m[90m
+
+Number of calls: [1m1[22m
+[39m
+   × agent model registry > AC-2: getAgentModel low > getAgentModel low calls getModel with mapped provider and model 0ms
+     → expected "spy" to be called with arguments: [ 'cerebras', …(1) ][90m
+
+Received: 
+
+[1m  1st spy call:
+
+[22m[2m  [[22m
+[32m-   "cerebras",[90m
+[32m-   "qwen-3-235b-a22b-instruct-2507",[90m
+[31m+   "openai",[90m
+[31m+   "gpt-4o-mini",[90m
+[2m  ][22m
+[39m[90m
+
+Number of calls: [1m1[22m
+[39m
+   × agent model registry > AC-3: getAgentModelInfo > getAgentModelInfo returns provider and model tuple without calling getModel 0ms
+     → expected { Object (provider, model) } to deeply equal { provider: 'cerebras', …(1) }
+   × agent model registry > AC-3: getAgentModelInfo > getAgentModelInfo works for low intelligence level 0ms
+     → expected { provider: 'openai', …(1) } to deeply equal { provider: 'cerebras', …(1) }
+ ❯ app/(app)/curated-route/[id].fallback.integration.test.tsx (2 tests | 2 failed) 4ms
+   × DTL-001 AC-4: curated-route detail fallback > nullDataRendersFallback: query resolves null → Route not found 3ms
+     → Can't access .root on unmounted test renderer
+   × DTL-001 AC-4: curated-route detail fallback > throwingQueryRendersFallback: query throws → ErrorBoundary → Route not found 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ convex/__tests__/places.test.ts (4 tests | 1 failed) 2ms
+   ✓ places contract > exports the documented public reverseGeocode action and returns the mobile DTO 1ms
+   ✓ places contract > retries one transient 503 from Mapbox and then succeeds 0ms
+   ✓ places contract > does not retry a non-transient 400 from Mapbox 0ms
+   × places contract > keeps the reverse geocode public endpoint aligned with the native clients 0ms
+     → ENOENT: no such file or directory, open '/Users/justinrich/Projects/ios/LaneShadow/Services/ConvexClient+LaneShadow.swift'
+ ❯ convex/__tests__/favorites.test.ts (3 tests | 1 failed) 3ms
+   ✓ favorites contract > returns only the authenticated rider favorites in the mobile pin DTO shape 3ms
+   ✓ favorites contract > throws UNAUTHENTICATED for an unauthenticated caller 0ms
+   × favorites contract > keeps the favorite location contract aligned with the native clients 0ms
+     → ENOENT: no such file or directory, open '/Users/justinrich/Projects/ios/LaneShadow/Services/ConvexClient+LaneShadow.swift'
+ ❯ components/settings/__tests__/favorite-roads-section.test.tsx (5 tests | 5 failed) 2ms
+   × SavedRoutesSection > should satisfy AC1: renders section with header when loading 1ms
+     → Can't access .root on unmounted test renderer
+   × SavedRoutesSection > should satisfy AC2: renders saved route cards when user has routes 0ms
+     → Can't access .root on unmounted test renderer
+   × SavedRoutesSection > should satisfy AC3: renders empty state when user has no saved routes 0ms
+     → Can't access .root on unmounted test renderer
+   × SavedRoutesSection > should satisfy AC4: calls softDelete mutation when delete button pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × SavedRoutesSection > should order routes by createdAt descending (newest first) 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ app/(app)/(tabs)/index.footer-visibility.integration.test.tsx (3 tests | 3 failed) 2ms
+   × Footer Visibility Integration Tests > renders the full-chat button as a distinct footer control from send 1ms
+     → Can't access .root on unmounted test renderer
+   × Footer Visibility Integration Tests > hides curated suggestion cards while a route is active 0ms
+     → Can't access .root on unmounted test renderer
+   × Footer Visibility Integration Tests > shows curated suggestion cards when no route is active 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ convex/actions/__tests__/mapData.test.ts (4 tests | 2 failed) 2ms
+   × Map Data Actions > checkFreshnessWithAlert > AC-1: stale data triggers protomaps.error log 1ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × Map Data Actions > checkFreshnessWithAlert > AC-2: missing data triggers protomaps.error log 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   ✓ Map Data Actions > checkFreshnessWithAlert > AC-3: fresh data logs nothing (normal operation) 0ms
+   ✓ Map Data Actions > SRC-001 curated route contract widening > AC-4: scenic byways provenance survives contracts 0ms
+ ❯ app/(app)/saved-route/__tests__/[id].test.ts (34 tests | 16 failed) 2ms
+   ✓ AC1: Route detail screen data rendering > should compute total distance from legs 0ms
+   ✓ AC1: Route detail screen data rendering > should compute total duration from legs 0ms
+   ✓ AC1: Route detail screen data rendering > should count legs correctly 0ms
+   ✓ AC1: Route detail screen data rendering > should have route name accessible from data 0ms
+   ✓ AC1: Route detail screen data rendering > should expose annotations for highlights section 0ms
+   × AC1: Route detail screen data rendering > AC-5: scenic byways detail renders provenance without new flow 0ms
+     → Can't access .root on unmounted test renderer
+   × AC1: Route detail screen data rendering > AC-4: Rider Magazine provenance stays in the existing detail card 0ms
+     → Can't access .root on unmounted test renderer
+   × AC1: Route detail screen data rendering > AC-5: Rider Magazine partial editorial data omits empty provenance rows cleanly 0ms
+     → Can't access .root on unmounted test renderer
+   × AC1: Route detail screen data rendering > AC-4: real save payload preserves Rider provenance into the saved-route contract 0ms
+     → Can't access .root on unmounted test renderer
+   ✓ AC1: Route detail screen data rendering > should format saved date from snapshotMeta.savedAt 0ms
+   × AC2: Loading state behavior > should render loading indicator when data is undefined and isLoading is true 0ms
+     → Can't access .root on unmounted test renderer
+   ✓ AC3: Partial weather data - wind only > should derive wind summary from overlay data 0ms
+   ✓ AC3: Partial weather data - wind only > should show rain as unavailable when no rain overlay exists 0ms
+   ✓ AC3: Partial weather data - wind only > should show temperature as unavailable when no temp overlay exists 0ms
+   ✓ AC3: Partial weather data - wind only > should handle all three badges correctly for wind-only route 0ms
+   ✓ AC3: Partial weather data - wind only > should derive worst wind level across multiple segments 0ms
+   ✓ AC3: Partial weather data - wind only > should return unavailable for empty wind overlay 0ms
+   × AC4: Route not found > should render not-found state when data is null and isLoading is false 0ms
+     → Can't access .root on unmounted test renderer
+   × AC4: Route not found > should render back button in not-found state for navigation 0ms
+     → Can't access .root on unmounted test renderer
+   × AC5: Back navigation > should wire back button onPress to router.push(backTo) in not-found state 0ms
+     → Can't access .root on unmounted test renderer
+   × AC5: Back navigation > should wire back button onPress to router.push(backTo) in detail state 0ms
+     → Can't access .root on unmounted test renderer
+   ✓ formatDistance > should format meters to miles 0ms
+   ✓ formatDistance > should show raw meters for very short distances 0ms
+   ✓ formatDuration > should format minutes only for less than one hour 0ms
+   ✓ formatDuration > should format hours and minutes 0ms
+   ✓ formatSavedDate > should format timestamp to readable date 0ms
+   × US-016 AC1: OverlayToggle renders with availability when route has overlay data > should render OverlayToggle when route has wind and rain data 0ms
+     → Can't access .root on unmounted test renderer
+   × US-016 AC1: OverlayToggle renders with availability when route has overlay data > should pass onValueChange callback to OverlayToggle 0ms
+     → Can't access .root on unmounted test renderer
+   × US-016 AC1: OverlayToggle renders with availability when route has overlay data > should call buildRoutePolylines with showRainOverlay:true when rain overlay is selected 0ms
+     → Can't access .root on unmounted test renderer
+   × US-016 AC1: OverlayToggle renders with availability when route has overlay data > should default to no overlay selected (empty string) 0ms
+     → Can't access .root on unmounted test renderer
+   × US-016 AC2: Rain toggle disabled when no rain data > should show rain as unavailable when route has wind but no rain 0ms
+     → Can't access .root on unmounted test renderer
+   × US-016 AC3: Deselecting overlay reverts polyline to default > should allow deselecting overlay by calling onValueChange with empty string 0ms
+     → Can't access .root on unmounted test renderer
+   × US-016 AC4: OverlayToggle hidden when no overlay data > should not render OverlayToggle when route has no overlay data 0ms
+     → Can't access .root on unmounted test renderer
+   ✓ US-016 AC4: OverlayToggle hidden when no overlay data > should not crash when rendering with no overlay data 0ms
+ ❯ convex/actions/agent/__tests__/provider-migration.test.ts (11 tests | 1 failed) 2ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-1: Env exports removed > should not export AI_PROVIDER from env.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-1: Env exports removed > should not export AI_MODEL from env.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-1: Env exports removed > should document CEREBRAS_API_KEY in .env.example 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-2: High-reasoning agents use getAgentModel(high) > should use getAgentModel in orchestrator.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-2: High-reasoning agents use getAgentModel(high) > should use getAgentModel in generateTripPlan.ts 0ms
+   × Provider Migration (AI-002+AI-003) > AC-3: Low-reasoning agents use getAgentModel(low) > should use getAgentModel in routingAgent.ts 1ms
+     → expected '\'use node\'\n\nimport { type Tool, t…' to contain 'from \'../lib/models\''
+   ✓ Provider Migration (AI-002+AI-003) > AC-3: Low-reasoning agents use getAgentModel(low) > should use getAgentModel in searchAgent.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-3: Low-reasoning agents use getAgentModel(low) > should use getAgentModel in enrichmentAgent.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-3: Low-reasoning agents use getAgentModel(low) > should use getAgentModel in enrichRoute.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-4: sendMessage uses getAgentModelInfo for metadata > should use getAgentModelInfo in sendMessage.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-5: No hardcoded provider strings remain > should not have hardcoded claude model names in agents 0ms
+ ❯ components/ui/route-leg-timeline.test.tsx (24 tests | 24 failed) 2ms
+   × RouteLegTimeline > AC1: 3-leg route renders all leg content > renders the timeline container 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC1: 3-leg route renders all leg content > renders all 3 leg items 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC1: 3-leg route renders all leg content > renders distance for each leg 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC1: 3-leg route renders all leg content > renders duration for each leg 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC1: 3-leg route renders all leg content > renders wind badge for each leg 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC1: 3-leg route renders all leg content > renders rain badge for each leg 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC1: 3-leg route renders all leg content > shows planInput start label as first leg start label 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC1: 3-leg route renders all leg content > shows planInput end label below last leg 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC1: 3-leg route renders all leg content > renders gradient connectors (LinearGradient) for each leg 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC1: 3-leg route renders all leg content > renders start dot for first leg 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC1: 3-leg route renders all leg content > renders end dot on last leg 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC2: 1-leg route renders correctly > renders the timeline 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC2: 1-leg route renders correctly > renders exactly one leg item 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC2: 1-leg route renders correctly > shows start label from planInput 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC2: 1-leg route renders correctly > shows end label from planInput on single leg 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC2: 1-leg route renders correctly > renders end dot on the only leg (isLast) 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC2: 1-leg route renders correctly > does NOT render waypoint dot (no intermediate stop) 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC3: fallback label for legs with no label > uses "Start" when planInput.start has no label and it is the first leg 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC3: fallback label for legs with no label > uses "Destination" when last leg end has no label 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC3: fallback label for legs with no label > uses leg-based label for intermediate stops without labels 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC3: fallback label for legs with no label > NEVER shows "Waypoint" in any label 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC4: empty legs → renders nothing > returns null for empty legs array (no crash) 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteLegTimeline > AC4: empty legs → renders nothing > does not throw when legs is empty 0ms
+     → expected [Function] to not throw an error but 'Error: Can\'t access .root on unmount…' was thrown
+   × RouteLegTimeline > no overlays provided > renders without overlays (graceful fallback) 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ app/(app)/(tabs)/index.footer-minimal.test.tsx (1 test | 1 failed) 1ms
+   × Footer minimal harness > renders the footer chat controls without collection-time harness errors 1ms
+     → Can't access .root on unmounted test renderer
+ ❯ app/(app)/(tabs)/index.suggestions.integration.test.tsx (1 test | 1 failed) 1ms
+   × DISC-017: Discovery slot behavior > shows an empty curated-routes message instead of generic idle prompts 1ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/map/__tests__/route-polyline.test.tsx (18 tests | 18 failed) 2ms
+   × RoutePolyline Component > Rendering (AC1) > renders_mapbox_line_layer_for_each_polyline 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Rendering (AC1) > should use custom testID when provided 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Rendering (AC1) > should render polylines without IDs using fallback index 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Visual Feedback (AC1 highlight) > should highlight selected segment via prop 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Visual Feedback (AC1 highlight) > should use semantic spacing for stroke widths 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Segment Selection Callback (AC2) > tap_select_fires_callback_with_geometry 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Segment Selection Callback (AC2) > should provide correct segment data structure 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Segment Selection Callback (AC2) > should encode geometry as polyline string 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Overlay Segment Selection (AC3) > should trigger callback for wind overlay segment 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Overlay Segment Selection (AC3) > should trigger callback for rain overlay segment 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Coordinate Conversion (AC4) > coordinates_converted_from_google_to_mapbox_format 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Segment Type Parsing > should parse overview segment type 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Segment Type Parsing > should parse leg segment type with index 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Segment Type Parsing > should parse wind overlay segment type 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Segment Type Parsing > should parse rain overlay segment type 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Segment Type Parsing > should parse temperature overlay segment type 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Bounds Calculation > should calculate correct bounds for segment coordinates 0ms
+     → Can't access .root on unmounted test renderer
+   × RoutePolyline Component > Edge Cases > should skip polylines with fewer than 2 coordinates 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/ui/__tests__/score-dimension-bar.integration.test.tsx (22 tests | 22 failed) 2ms
+   × ScoreDimensionBarSection (AC-1) > headline > renders composite headline as "81/100" for compositeScore 0.81 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > headline > omits the headline when compositeScore is null 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > bar fill widths track Math.round(score*100)% > renders curvature bar fill width === 0.62 (score 62%) 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > bar fill widths track Math.round(score*100)% > renders scenic bar fill width === 0.74 (score 74%) 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > bar fill widths track Math.round(score*100)% > renders technical bar fill width === 0.55 (score 55%) 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > bar fill widths track Math.round(score*100)% > renders traffic bar fill width === 0.3 (score 30%) 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > bar fill widths track Math.round(score*100)% > renders remoteness bar fill width === 0.88 (score 88%) 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > bar rows expose stable testIDs and labels > renders one row per dimension with testID score-bar-{key} 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > bar rows expose stable testIDs and labels > renders curvature row with label "Curvature" and percent "62%" 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > bar rows expose stable testIDs and labels > renders scenic row with label "Scenic" and percent "74%" 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > bar rows expose stable testIDs and labels > renders technical row with label "Technical" and percent "55%" 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > bar rows expose stable testIDs and labels > renders traffic row with label "Traffic" and percent "30%" 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > bar rows expose stable testIDs and labels > renders remoteness row with label "Remoteness" and percent "88%" 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > token compliance — fill uses copper, track uses inset-substitute > uses semantic.color.primary.default (#EE7C2B) for the fill 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > token compliance — fill uses copper, track uses inset-substitute > uses the inset-substitute token (secondary.default) for the track 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > token compliance — fill uses copper, track uses inset-substitute > uses semantic.radius.full (9999) for the fill (pill) 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > graceful null-omission (renders nothing when all scores null) > returns null when compositeScore is null AND every dimension score is null 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > graceful null-omission (renders nothing when all scores null) > returns null when compositeScore is undefined AND every dimension score is undefined 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > graceful null-omission (renders nothing when all scores null) > still renders available rows when only SOME dimensions are null (does not collapse entire section) 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > ScoreDimensionBar (single row, exported) > renders the row at the contracted testID by default 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > ScoreDimensionBar (single row, exported) > renders the row minHeight 44 (future tap affordance — no reflow) 0ms
+     → Can't access .root on unmounted test renderer
+   × ScoreDimensionBarSection (AC-1) > ScoreDimensionBar (single row, exported) > label has minWidth 80 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/map/overlay-toggle.test.tsx (16 tests | 16 failed) 2ms
+   × overlay-toggle > switch to rain > should satisfy AC1: switches to rain overlay when rain toggle is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   × overlay-toggle > switch to rain > should select rain overlay when no overlay is currently selected 0ms
+     → Can't access .root on unmounted test renderer
+   × overlay-toggle > disabled toggle > should satisfy AC2: shows rain toggle as disabled when rain data is unavailable 0ms
+     → Can't access .root on unmounted test renderer
+   × overlay-toggle > disabled toggle > should show visual indication for disabled toggle 0ms
+     → Can't access .root on unmounted test renderer
+   × overlay-toggle > disabled toggle > should handle all overlays unavailable 0ms
+     → Can't access .root on unmounted test renderer
+   × overlay-toggle > single selection > should satisfy AC3: deselects temperature when wind is selected 0ms
+     → Can't access .root on unmounted test renderer
+   × overlay-toggle > single selection > should deselect wind when rain is selected 0ms
+     → Can't access .root on unmounted test renderer
+   × overlay-toggle > single selection > should allow deselection by selecting the same overlay 0ms
+     → Can't access .root on unmounted test renderer
+   × overlay-toggle > hidden when no route > should satisfy AC4: component renders when route is selected 0ms
+     → Can't access .root on unmounted test renderer
+   × overlay-toggle > hidden when no route > should render with empty value when no overlay is selected 0ms
+     → Can't access .root on unmounted test renderer
+   × overlay-toggle > edge cases > should handle multi-tap race condition 0ms
+     → Can't access .root on unmounted test renderer
+   × overlay-toggle > edge cases > should handle partial overlay availability 0ms
+     → Can't access .root on unmounted test renderer
+   × overlay-toggle > edge cases > should switch between overlays correctly 0ms
+     → Can't access .root on unmounted test renderer
+   × overlay-toggle > accessibility > should have proper accessibility labels 0ms
+     → Can't access .root on unmounted test renderer
+   × overlay-toggle > accessibility > should have proper accessibility roles 0ms
+     → Can't access .root on unmounted test renderer
+   × overlay-toggle > accessibility > should indicate selected state in accessibility 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ hooks/use-route-comparison.test.ts (6 tests | 6 failed) 1ms
+   × useRouteComparison > should return empty polylines for idle state 0ms
+     → Cannot read properties of null (reading 'polylines')
+   × useRouteComparison > should return polylines for route results state 0ms
+     → Cannot read properties of null (reading 'polylines')
+   × useRouteComparison > should provide selectRoute function 0ms
+     → Cannot read properties of null (reading 'selectRoute')
+   × useRouteComparison > RUX-002: should return exactly ONE polyline for the selected route only 0ms
+     → Cannot read properties of null (reading 'polylines')
+   × useRouteComparison > RUX-002: should return no polylines when selectedRouteId does not match any option 0ms
+     → Cannot read properties of null (reading 'polylines')
+   × useRouteComparison > DATA-011-C4: should produce 3 polylines (one per segment) when overviewSegments is present 0ms
+     → Cannot read properties of null (reading 'polylines')
+ ❯ convex/__tests__/geospatialIndex.test.ts (6 tests | 2 failed) 1ms
+   ✓ AC-1: @convex-dev/geospatial installed and importable > geospatialIndex.ts file exists 0ms
+   × AC-1: @convex-dev/geospatial installed and importable > geospatialIndex.ts imports from @convex-dev/geospatial 1ms
+     → expected '// @convex-dev/geospatial version: 0.…' to contain 'import { GeospatialIndex } from "@con…'
+   ✓ AC-1: @convex-dev/geospatial installed and importable > package.json includes @convex-dev/geospatial dependency 0ms
+   ✓ AC-2: GeospatialIndex defined on curated_routes with location field > geospatialIndex.ts exports GeospatialIndex instance 0ms
+   × AC-2: GeospatialIndex defined on curated_routes with location field > schema.ts includes location field in curated_routes 0ms
+     → ENOENT: no such file or directory, open '/Users/justinrich/Projects/LaneShadow-RN/convex/models/curated-routes.ts'
+   ✓ AC-2: GeospatialIndex defined on curated_routes with location field > generated API includes geospatial component 0ms
+ ❯ components/planning/weather-strip.test.tsx (11 tests | 11 failed) 1ms
+   × weather-strip > worst condition rain > should satisfy AC1: highlights heavy rain badge when rain is worst condition 0ms
+     → Can't access .root on unmounted test renderer
+   × weather-strip > multiple warnings > should satisfy AC2: shows single worst condition with additional warnings indicator 0ms
+     → Can't access .root on unmounted test renderer
+   × weather-strip > multiple warnings > should show wind as worst when wind is high but rain is none 0ms
+     → Can't access .root on unmounted test renderer
+   × weather-strip > expand strip > should satisfy AC3: expands to show all badges when tapped 0ms
+     → Can't access .root on unmounted test renderer
+   × weather-strip > expand strip > should collapse back to compact mode when tapped again 0ms
+     → Can't access .root on unmounted test renderer
+   × weather-strip > good conditions > should satisfy AC4: shows good conditions badge when all weather is favorable 0ms
+     → Can't access .root on unmounted test renderer
+   × weather-strip > temperature as worst condition > should show hot temperature badge when temperature is worst condition 0ms
+     → Can't access .root on unmounted test renderer
+   × weather-strip > temperature as worst condition > should show cold temperature badge when cold is worst condition 0ms
+     → Can't access .root on unmounted test renderer
+   × weather-strip > priority order > should prioritize rain over wind when severity is equal 0ms
+     → Can't access .root on unmounted test renderer
+   × weather-strip > priority order > should prioritize wind over temperature when severity is equal 0ms
+     → Can't access .root on unmounted test renderer
+   × weather-strip > edge cases > should handle empty overlays gracefully 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/ui/route-thumbnail.test.tsx (15 tests | 15 failed) 1ms
+   × RouteThumbnail > AC1: valid geometry rendering > should render at default 96x96 size 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteThumbnail > AC1: valid geometry rendering > should use LinearGradient instead of CSS linear-gradient 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteThumbnail > AC1: valid geometry rendering > should render a route line view 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteThumbnail > AC1: valid geometry rendering > should derive rotation from bounds when provided 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteThumbnail > AC1: valid geometry rendering > should use semantic primary color for route line border 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteThumbnail > AC2: no geometry props (backward compatible) > should render without any props 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteThumbnail > AC2: no geometry props (backward compatible) > should use LinearGradient even without bounds 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteThumbnail > AC2: no geometry props (backward compatible) > should render default decorative route line 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteThumbnail > AC2: no geometry props (backward compatible) > should use default rotation when no bounds provided 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteThumbnail > AC3: very small area bounds > should render without crashing for tiny bounds 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteThumbnail > AC3: very small area bounds > should still show a visible route line for tiny bounds 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteThumbnail > AC4: malformed geometry fallback > should handle undefined bounds gracefully 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteThumbnail > AC4: malformed geometry fallback > should handle bounds with zero span 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteThumbnail > AC4: malformed geometry fallback > should handle inverted bounds (south > north) 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteThumbnail > custom sizing > should accept custom width and height 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ app/(app)/(tabs)/saved-routes.test.ts (19 tests | 6 failed) 1ms
+   ✓ getSortedRoutes > should sort routes newest first by createdAt 0ms
+   ✓ getSortedRoutes > should return empty array when given empty array 0ms
+   ✓ getSortedRoutes > should not mutate the original array 0ms
+   ✓ SKELETON_COUNT > should define exactly 3 skeleton placeholders 0ms
+   × AC-3: Empty state rendering > should pass empty data and ListEmptyComponent to FlatList when routes is empty 0ms
+     → Can't access .root on unmounted test renderer
+   × AC-4: Card tap navigates with savedRouteId > should call router.push with correct path when card is pressed 0ms
+     → Can't access .root on unmounted test renderer
+   ✓ formatDistance > should format meters to miles with 1 decimal 0ms
+   ✓ formatDistance > should format short distances 0ms
+   ✓ formatDistance > should format zero distance 0ms
+   ✓ formatDuration > should format seconds to minutes for short durations 0ms
+   ✓ formatDuration > should format seconds to hours and minutes 0ms
+   ✓ formatDuration > should format exact hours 0ms
+   ✓ formatDuration > should format zero duration 0ms
+   ✓ THUMBNAIL_ROTATIONS > should have 5 rotation values 0ms
+   ✓ THUMBNAIL_ROTATIONS > should cycle per index with modulo 0ms
+   × US-018: Scroll position preservation > AC-1/AC-2: FlatList stays mounted when data is loaded (no conditional unmount) 0ms
+     → Can't access .root on unmounted test renderer
+   × US-018: Scroll position preservation > AC-3: maintainVisibleContentPosition is set for data changes during navigation 0ms
+     → Can't access .root on unmounted test renderer
+   × US-018: Scroll position preservation > AC-3: FlatList uses stable keyExtractor so existing items are not re-mounted on data change 0ms
+     → Can't access .root on unmounted test renderer
+   × US-018: Scroll position preservation > AC-4: Component does not force scroll-to-top on re-render (no scrollToOffset call) 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/planning/__tests__/route-option-card.test.tsx (10 tests | 10 failed) 1ms
+   × RouteOptionCard favorite indicator (US-048) > should satisfy AC1: shows favorite indicator when favorites included and includeFavorites is true 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteOptionCard favorite indicator (US-048) > should satisfy AC2: shows "0 favorites" badge with muted styling when count is zero 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteOptionCard favorite indicator (US-048) > should satisfy AC3: does not show indicator when includeFavorites is false 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteOptionCard favorite indicator (US-048) > should satisfy AC4: shows singular "1 favorite" for count of 1 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteOptionCard favorite indicator (US-048) > should satisfy AC4: shows plural "2 favorites" for count > 1 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteOptionCard favorite indicator (US-048) > should satisfy AC5: tapping badge expands to show favorite names 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteOptionCard favorite indicator (US-048) > should satisfy AC6: accessibility labels are announced for favorite count 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteOptionCard favorite indicator (US-048) > should satisfy AC6: accessibility labels announce plural for multiple favorites 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteOptionCard favorite indicator (US-048) > should satisfy AC6: accessibility labels announce zero favorites 0ms
+     → Can't access .root on unmounted test renderer
+   × RouteOptionCard favorite indicator (US-048) > should handle undefined favorites gracefully 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/map/__tests__/search-result-marker.test.tsx (10 tests | 10 failed) 1ms
+   × SearchResultMarker > AC-3: renders numbered circle marker at converted coordinates > renders_numbered_circle_marker_at_converted_coordinates 0ms
+     → Can't access .root on unmounted test renderer
+   × SearchResultMarker > AC-3: renders numbered circle marker at converted coordinates > displays the correct index number 0ms
+     → Can't access .root on unmounted test renderer
+   × SearchResultMarker > AC-3: renders numbered circle marker at converted coordinates > uses custom testID when provided 0ms
+     → Can't access .root on unmounted test renderer
+   × SearchResultMarker > AC-4: selected state applies info color fill > selected_state_applies_info_color_fill 0ms
+     → Can't access .root on unmounted test renderer
+   × SearchResultMarker > AC-4: selected state applies info color fill > default state uses hollow circle with dashed border 0ms
+     → Can't access .root on unmounted test renderer
+   × SearchResultMarker > AC-4: selected state applies info color fill > selected state inverts text color to onPrimary 0ms
+     → Can't access .root on unmounted test renderer
+   × SearchResultMarker > AC-4: selected state applies info color fill > default state uses info color for text 0ms
+     → Can't access .root on unmounted test renderer
+   × SearchResultMarker > AC-4: selected state applies info color fill > selected state applies scale transform 0ms
+     → Can't access .root on unmounted test renderer
+   × SearchResultMarker > Press interaction > fires onPress with marker id 0ms
+     → Can't access .root on unmounted test renderer
+   × SearchResultMarker > Press interaction > does not attach onPress handler when no callback provided 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/map/__tests__/weather-overlay.test.tsx (10 tests | 10 failed) 1ms
+   × CLR-020: WeatherOverlay > AC-001: ShapeSource configuration > renders null when no overlays provided 0ms
+     → Can't access .root on unmounted test renderer
+   × CLR-020: WeatherOverlay > AC-001: ShapeSource configuration > renders ShapeSource elements when wind overlay present 0ms
+     → Can't access .root on unmounted test renderer
+   × CLR-020: WeatherOverlay > AC-002: Wind level colors > renders wind segments for low/moderate/high 0ms
+     → Can't access .root on unmounted test renderer
+   × CLR-020: WeatherOverlay > AC-003: Rain intensity colors > renders rain segments 0ms
+     → Can't access .root on unmounted test renderer
+   × CLR-020: WeatherOverlay > AC-003: Rain intensity colors > renders heavy rain with opacity 0ms
+     → Can't access .root on unmounted test renderer
+   × CLR-020: WeatherOverlay > AC-004: Temperature colors > renders temperature segments 0ms
+     → Can't access .root on unmounted test renderer
+   × CLR-020: WeatherOverlay > AC-005: Layer ordering > renders all three layers when all overlays present 0ms
+     → Can't access .root on unmounted test renderer
+   × CLR-020: WeatherOverlay > AC-005: Layer ordering > supports toggling individual layers off 0ms
+     → Can't access .root on unmounted test renderer
+   × CLR-020: WeatherOverlay > AC-006: Missing data handling > renders null when overlays object has no data 0ms
+     → Can't access .root on unmounted test renderer
+   × CLR-020: WeatherOverlay > AC-006: Missing data handling > renders available layers only when partial data 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ convex/actions/agent/__tests__/budgetTracker.test.ts (17 tests | 3 failed) 1ms
+   ✓ BudgetTracker > accumulation > sums usage.cost.total across multiple add() calls 0ms
+   ✓ BudgetTracker > no throw below limit > does not throw when a single add() stays under the limit 0ms
+   ✓ BudgetTracker > throw at limit > throws ConvexError with AGENT_BUDGET_EXCEEDED when cumulative reaches the limit 0ms
+   ✓ BudgetTracker > throw at limit > thrown error carries the expected code, cumulativeUSD, and limitUSD 0ms
+   ✓ BudgetTracker > throw at limit > throws exactly on the crossing call, not a cycle later 0ms
+   ✓ BudgetTracker > getCumulative and getRemainingBudget > getCumulative returns the running total after adds 0ms
+   ✓ BudgetTracker > getCumulative and getRemainingBudget > getRemainingBudget returns limitUSD minus cumulative 0ms
+   ✓ BudgetTracker > getCumulative and getRemainingBudget > getRemainingBudget can be negative after limit is crossed 0ms
+   ✓ BudgetTracker > custom limit > respects a custom $0.001 limit and throws on a tiny cost 0ms
+   ✓ BudgetTracker > custom limit > does not throw when cost is exactly below the custom limit 0ms
+   ✓ BudgetTracker > log mode > does not throw when limit exceeded in log mode 0ms
+   × BudgetTracker > log mode > calls console.warn when limit exceeded in log mode 0ms
+     → expected "spy" to be called at least once
+   × BudgetTracker > log mode > includes agentLabel in log output when provided 0ms
+     → the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+   ✓ BudgetTracker > log mode > still accumulates cumulative cost in log mode even after limit exceeded 0ms
+   ✓ BudgetTracker > gate mode (backwards compatible) > throws ConvexError in gate mode (same as no-option constructor) 0ms
+   ✓ BudgetTracker > agentLabel parameter > accepts optional agentLabel parameter without throwing (gate mode, under limit) 0ms
+   × BudgetTracker > agentLabel parameter > log message includes cost and cumulative when agentLabel provided 0ms
+     → the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+ ❯ components/map/__tests__/deviation-polyline.test.tsx (8 tests | 8 failed) 1ms
+   × DeviationPolyline Component > Rendering (AC1, AC3) > renders_segments_with_type_based_colors 0ms
+     → Can't access .root on unmounted test renderer
+   × DeviationPolyline Component > Rendering (AC1, AC3) > should use custom testID when provided 0ms
+     → Can't access .root on unmounted test renderer
+   × DeviationPolyline Component > Rendering (AC1, AC3) > should use default testID when not provided 0ms
+     → Can't access .root on unmounted test renderer
+   × DeviationPolyline Component > Active State (AC5) > should increase stroke width when active 0ms
+     → Can't access .root on unmounted test renderer
+   × DeviationPolyline Component > Active State (AC5) > should use base stroke width when inactive 0ms
+     → Can't access .root on unmounted test renderer
+   × DeviationPolyline Component > Coordinate Conversion > should convert coordinates to Mapbox [lng, lat] format 0ms
+     → Can't access .root on unmounted test renderer
+   × DeviationPolyline Component > Edge Cases > should skip segments with fewer than 2 coordinates 0ms
+     → Can't access .root on unmounted test renderer
+   × DeviationPolyline Component > Edge Cases > should render nothing when segments array is empty 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/planning/segment-detail-view.test.tsx (6 tests | 6 failed) 1ms
+   × segment-detail-view > expand segments > should satisfy AC1: expand and show all 5 legs with weather indicators 0ms
+     → Can't access .root on unmounted test renderer
+   × segment-detail-view > warning highlight > should satisfy AC2: show warning highlight and rain badge for heavy rain leg 0ms
+     → Can't access .root on unmounted test renderer
+   × segment-detail-view > collapse animation > should satisfy AC3: collapse when header tapped again 0ms
+     → Can't access .root on unmounted test renderer
+   × segment-detail-view > single segment > should satisfy AC4: show single segment without collapse controls 0ms
+     → Can't access .root on unmounted test renderer
+   × segment-detail-view > edge cases > should handle empty legs array gracefully 0ms
+     → Can't access .root on unmounted test renderer
+   × segment-detail-view > edge cases > should handle missing overlays gracefully 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ convex/__tests__/env.test.ts (5 tests | 1 failed) 1ms
+   ✓ PROTOMAPS_US_URL validation > validateProtomapsUrl > returns undefined when URL is not provided 0ms
+   ✓ PROTOMAPS_US_URL validation > validateProtomapsUrl > returns the URL when valid pmtiles URL 0ms
+   ✓ PROTOMAPS_US_URL validation > validateProtomapsUrl > throws error for invalid URL format 0ms
+   × PROTOMAPS_US_URL validation > validateProtomapsUrl > returns non-pmtiles URL and warns 0ms
+     → expected "spy" to be called with arguments: [ Array(1) ][90m
+
+Number of calls: [1m0[22m
+[39m
+   ✓ PROTOMAPS_US_URL validation > env module > exports PROTOMAPS_US_URL (optional, can be undefined) 0ms
+ ❯ app/(app)/saved-route/[id].test.tsx (6 tests | 4 failed) 1ms
+   × SAVE-001 / AC-3: reopen pure helper — getSavedRouteReopenTarget > returns curated target when curatedRouteRef is present 0ms
+     → expected { kind: 'planned' } to deeply equal { kind: 'curated', …(1) }
+   ✓ SAVE-001 / AC-3: reopen pure helper — getSavedRouteReopenTarget > returns planned target when planInput is present (no curatedRouteRef) 0ms
+   ✓ SAVE-001 / AC-3: reopen pure helper — getSavedRouteReopenTarget > returns none target for null/empty data 0ms
+   × SAVE-001 / AC-3: saved-route/[id] redirects curated rows > redirects to /(app)/curated-route/{routeId} when the saved row has curatedRouteRef 0ms
+     → expected "spy" to be called with arguments: [ Array(1) ][90m
+
+Number of calls: [1m0[22m
+[39m
+   × SAVE-001 / AC-3: saved-route/[id] redirects curated rows > does NOT render the planned-path map/legs for a curated row (no planInput read) 0ms
+     → Can't access .root on unmounted test renderer
+   × SAVE-001 / AC-3: saved-route/[id] redirects curated rows > keeps the planned path for a planned saved row (no redirect) 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ convex/__tests__/seedGeospatialTest.test.ts (6 tests | 2 failed) 1ms
+   ✓ AC-3: 100 seed routes inserted with valid coordinates > seedGeospatialTest.ts file exists 0ms
+   ✓ AC-3: 100 seed routes inserted with valid coordinates > seedRoutes mutation is exported 0ms
+   ✓ AC-3: 100 seed routes inserted with valid coordinates > countSeeded query is exported 0ms
+   × AC-3: 100 seed routes inserted with valid coordinates > TEST_ROUTES array contains exactly 100 routes 0ms
+     → expected +0 to be 100 // Object.is equality
+   ✓ AC-7: Seeded routes span at least 5 distinct US states > countStates query is exported 0ms
+   × AC-7: Seeded routes span at least 5 distinct US states > TEST_ROUTES spans at least 5 distinct US states 0ms
+     → expected 0 to be greater than or equal to 5
+ ❯ components/chat/chat-input.test.tsx (1 test | 1 failed) 1ms
+   × ChatInput suggestion pills > renders curated route icon inline with the route text 1ms
+     → Can't access .root on unmounted test renderer
+ ❯ components/map/__tests__/waypoint-marker.test.tsx (7 tests | 7 failed) 1ms
+   × WaypointMarker > AC-1: renders MarkerView at converted coordinates > renders_marker_view_at_converted_coordinates 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointMarker > AC-1: renders MarkerView at converted coordinates > applies kind-based color for on_route 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointMarker > AC-1: renders MarkerView at converted coordinates > applies kind-based color for off_route 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointMarker > AC-1: renders MarkerView at converted coordinates > applies kind-based color for mixed 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointMarker > AC-1: renders MarkerView at converted coordinates > uses custom testID when provided 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointMarker > AC-2: press fires haptic and callback > press_fires_haptic_and_callback 0ms
+     → Can't access .root on unmounted test renderer
+   × WaypointMarker > AC-2: press fires haptic and callback > does not attach onPress handler when no callback provided 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ contexts/selected-route.test.tsx (4 tests | 4 failed) 1ms
+   × SelectedRouteProvider > renders children without throwing 0ms
+     → Can't access .root on unmounted test renderer
+   × SelectedRouteProvider > provides null selectedRouteId by default 0ms
+     → Can't access .root on unmounted test renderer
+   × SelectedRouteProvider > updates selectedRouteId when setSelectedRouteId is called 0ms
+     → Can't access .root on unmounted test renderer
+   × SelectedRouteProvider > useSelectedRoute does not crash when used without provider (uses default value) 0ms
+     → expected [Function] to not throw an error but 'Error: Can\'t access .root on unmount…' was thrown
+ ❯ app/(app)/(tabs)/saved-routes.components.test.tsx (6 tests | 3 failed) 1ms
+   × SAVE-001 / AC-2: CuratedSavedRouteCard > renders the curated route name without crashing (no legs required) 0ms
+     → Can't access .root on unmounted test renderer
+   × SAVE-001 / AC-2: CuratedSavedRouteCard > renders the archetype + score (lean preview) without legs/distance 0ms
+     → Can't access .root on unmounted test renderer
+   × SAVE-001 / AC-2: CuratedSavedRouteCard > invokes onPress when pressed 0ms
+     → Can't access .root on unmounted test renderer
+   ✓ SAVE-001 / AC-2: isCuratedSavedItem discriminator > returns true for a curated-shape row (curatedRouteRef present, no routeIndex) 0ms
+   ✓ SAVE-001 / AC-2: isCuratedSavedItem discriminator > returns false for a planned-shape row (routeIndex present) 0ms
+   ✓ SAVE-001 / AC-2: isCuratedSavedItem discriminator > returns false for null/undefined 0ms
+ ❯ components/map/__tests__/map-loading-state.test.tsx (3 tests | 3 failed) 0ms
+   × MapLoadingState > renders a map-specific loading canvas instead of a generic spinner 0ms
+     → Can't access .root on unmounted test renderer
+   × MapLoadingState > uses the light map palette 0ms
+     → Can't access .root on unmounted test renderer
+   × MapLoadingState > uses the dark map palette 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ convex/__fixtures__/auth-error-taxonomy.test.ts (1 test | 1 failed) 0ms
+   × auth-error-taxonomy fixture > AC-7: fixture JSON is valid and covers every ERROR_CODES entry with mobile_mapping_target 0ms
+     → Code VALIDATION_ERROR missing from fixture: expected false to be true // Object.is equality
+ ❯ components/map/mapbox-map-view.test.tsx (2 tests | 2 failed) 0ms
+   × MapboxMapView > renders an app-resolved current-location fallback marker until Mapbox reports user location 0ms
+     → Can't access .root on unmounted test renderer
+   × MapboxMapView > does not render the fallback marker when user location display is disabled 0ms
+     → Can't access .root on unmounted test renderer
+stdout | scripts/design-review/__tests__/annotations-injection.test.ts
+Testing annotations injection in visual-eval.ts...
+Test 1: Checking if annotations file is loaded...
+✅ Annotations loading function exists
+Test 2: Checking if annotations are read from file...
+✅ Annotations are read from file
+Test 3: Checking if annotations are injected into user content...
+✅ Annotations are injected into user content
+Test 4: Checking if annotations components are included...
+✅ Annotations components are referenced
+Test 5: Checking if screen/state/theme context is included...
+✅ Screen/state/theme context is included
+✅ All annotations injection tests passed
+
+stdout | scripts/design-review/__tests__/build-manifest-screen-filter.test.ts
+Testing buildManifest screen filtering...
+✅ Manifest written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-manifest-filter-GVIEpa/manifest.json
+
+stdout | scripts/design-review/__tests__/build-manifest.test.ts
+Testing buildManifest function...
+✅ buildManifest function imported successfully
+✅ Test suite passed
+
+stdout | scripts/design-review/__tests__/calibrate-holdout.test.ts
+✅ Held-out drift test passed
+   Held-out evaluation logic exists
+   Drift calculation implemented
+   5pp threshold enforced
+   Lock aborted when drift exceeds threshold
+
+stdout | scripts/design-review/__tests__/calibrate-lock-refusal.test.ts
+✅ Lock refusal test passed
+   Lock refusal logic exists in calibrate.ts
+   85% threshold is enforced
+   Process exits non-zero when threshold not met
+
+stdout | scripts/design-review/__tests__/code-search-hint.test.ts
+🧪 Testing code_search_hint resolution...
+
+🔍 Severity threshold: low (include low and above)
+✅ JSON report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1783483746378/report.json
+✅ HTML report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1783483746378/report.html
+
+stdout | scripts/design-review/__tests__/code-search-hint.test.ts
+📊 code_search_hint values:
+
+Test 1: Mapped selectors resolve to symbol names
+  ✅ .mol-form-field → LSFormField
+  ✅ .mol-brand-badge → LSBrandBadge
+
+Test 2: Unmapped selectors fall back to selector string
+  ✅ .unmapped-component → .unmapped-component (fallback)
+
+Test 3: Warning logged for unmapped component
+  ⚠️  Warning not detected (may be logged elsewhere)
+
+✅ ALL TESTS PASSED: code_search_hint resolution works correctly
+
+stdout | scripts/design-review/__tests__/export-from-xcresult.test.ts
+Testing attachment name parsing...
+✅ Attachment name parsing works correctly
+✅ Theme resolution works correctly
+✅ Test suite passed
+
+stdout | scripts/design-review/__tests__/image-order.test.ts
+Testing image order in visual-eval.ts...
+Test 1: Checking image order in code...
+✅ Reference image variable assigned before captured image (ref at line 112, capt at line 113)
+Test 2: Checking for image order documentation...
+✅ Image order is documented in code
+Test 3: Verifying API call structure...
+✅ API call uses correct image order (reference before captured)
+✅ All image order tests passed
+
+stdout | scripts/design-review/__tests__/issue-shape.test.ts
+🧪 Testing issue shape with all article §5 fields...
+
+🔍 Severity threshold: low (include low and above)
+✅ JSON report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1783483746411/report.json
+✅ HTML report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1783483746411/report.html
+
+stdout | scripts/design-review/__tests__/issue-shape.test.ts
+📊 Report contains 4 issues
+
+✅ auth-screen.email-entry..mol-form-field.spacing-0 — all fields present
+✅ auth-screen.email-entry..mol-brand-badge.color-1 — all fields present
+✅ auth-screen.email-entry..atom-phase-dot.typography-2 — all fields present
+✅ auth-screen.password-entry..mol-submit-button.color-0 — all fields present
+
+✅ TEST PASSED: All issues have required article §5 fields
+
+Required fields verified:
+  ✓ issue_id
+  ✓ screen
+  ✓ state
+  ✓ theme
+  ✓ component
+  ✓ issue_type
+  ✓ severity
+  ✓ confidence
+  ✓ observed
+  ✓ expected
+  ✓ location
+  ✓ location.bounding_box
+  ✓ location.bounding_box.x
+  ✓ location.bounding_box.y
+  ✓ location.bounding_box.width
+  ✓ location.bounding_box.height
+  ✓ fix_hint
+  ✓ design_token
+  ✓ code_search_hint
+
+stdout | scripts/design-review/__tests__/locked-prompt-preference.test.ts
+✅ Locked prompt preference test passed
+   Locked prompt path referenced in calibrate.ts
+   Prompt locking logic exists
+   visual-eval.ts checks for locked prompt
+
+stdout | scripts/design-review/__tests__/merge-report.test.ts
+Testing mergeReport function...
+✅ mergeReport function imported successfully
+
+📋 Test: report.json contains summary block
+🔍 Severity threshold: med (include med and above)
+✅ JSON report written to .design-review/report.json
+✅ HTML report written to .design-review/report.html
+
+stdout | scripts/design-review/__tests__/merge-report.test.ts
+✅ report.json contains summary block
+
+stdout | scripts/design-review/__tests__/missing-pairing.test.ts
+Testing missing-pairing error handling...
+
+stdout | scripts/design-review/__tests__/missing-pairing.test.ts
+Calling buildManifest with missing pair...
+✅ Manifest written to .design-review/manifest.json
+
+stdout | scripts/design-review/__tests__/output-filename.test.ts
+Testing output filename generation in visual-eval.ts...
+Test 1: Checking if output path uses entry id...
+✅ Output filename uses entry.id
+Test 2: Checking output directory structure...
+✅ Output directory is .design-review/evals/visual
+Test 3: Checking if output file is written...
+✅ Output file is written with writeFileSync
+Test 4: Verifying complete output path pattern...
+✅ Output path pattern is correct
+Test 5: Checking OUTPUT_DIR constant...
+✅ OUTPUT_DIR constant is defined
+✅ All output filename tests passed
+
+stdout | scripts/design-review/__tests__/parse-attachment-name.test.ts
+Testing parseAttachmentName...
+✅ Test 1 passed: Valid attachment name parsed correctly
+✅ Test 2 passed: Another valid attachment name parsed correctly
+✅ Test 3 passed: Invalid format rejected correctly
+✅ Test 4 passed: Invalid format with too many parts rejected correctly
+
+✅ All parseAttachmentName tests passed
+
+stdout | scripts/design-review/__tests__/precision-formula.test.ts
+✓ computes precision = TP/(TP+FP) correctly for mixed predictions
+✓ computes precision = 1.0 when FP=0 (perfect predictions)
+✓ computes precision = 0 when TP=0 (no correct predictions)
+✓ computes precision = 1.0 when TP=0, FP=0 (no predictions at all)
+
+=== Test Summary ===
+Passed: 4/4
+Failed: 0/4
+
+stdout | scripts/design-review/__tests__/prompt-loading.test.ts
+Testing prompt file loading...
+✅ Prompt file exists at scripts/design-review/prompts/visual-eval.md
+✅ Prompt file contains required design review sections
+✅ Prompt file is not empty
+✅ Prompt file mentions JSON output format
+✅ All prompt loading tests passed
+
+stdout | scripts/design-review/__tests__/recall-formula.test.ts
+✓ computes recall = TP/(TP+FN) correctly for mixed predictions
+✓ computes recall = 1.0 when FN=0 (perfect recall)
+✓ computes recall = 0 when TP=0 (no correct predictions)
+✓ computes recall = 1.0 when TP=0, FN=0 (no ground truth issues)
+
+=== Test Summary ===
+Passed: 4/4
+Failed: 0/4
+
+stdout | scripts/design-review/__tests__/render-references.test.ts
+Checking for reference PNGs...
+Found 1 PNG files
+
+stdout | scripts/design-review/__tests__/report-html.test.ts
+🧪 Testing HTML report structure...
+
+🔍 Severity threshold: low (include low and above)
+✅ JSON report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1783483746502/report.json
+✅ HTML report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1783483746502/report.html
+
+stdout | scripts/design-review/__tests__/report-html.test.ts
+HTML Structure Checks:
+  DOCTYPE: ✅
+  <html> tag: ✅
+  <head>: ✅
+  <body>: ✅
+  Title: ✅
+
+Self-Contained Checks:
+  Inline styles: ✅
+  Inline scripts: ✅
+
+Summary Dashboard:
+  Summary section: ✅
+
+Severity Styling:
+  High severity class: ✅
+  Med severity class: ✅
+  Low severity class: ✅
+
+Interactive Features:
+  Collapsible entries: ✅
+
+Article §5 Fields Display:
+  issue_id: ✅
+  fix_hint: ✅
+  design_token: ✅
+  code_search_hint: ✅
+  location: ✅
+
+✅ TEST PASSED: HTML report structure is valid and complete
+
+stdout | scripts/design-review/__tests__/run-cleanup.test.ts
+Testing stale design-review cleanup helper...
+
+stdout | scripts/design-review/__tests__/run-dry.test.ts
+✅ clearDesignReviewOutputs removes stale captures and reports
+
+stdout | scripts/design-review/__tests__/run-dry.test.ts
+Testing --dry-run flag functionality...
+
+stdout | scripts/design-review/__tests__/run-dry.test.ts
+✅ runDesignReview accepts dryRun parameter
+✅ Test suite passed
+
+stdout | scripts/design-review/__tests__/run-no-key-fallback.test.ts
+Testing no-key design-review fallback...
+
+stdout | main (/Users/justinrich/Projects/LaneShadow-RN/scripts/design-review/__tests__/run-no-key-fallback.test.ts:60:13)
+✅ Fallback eval output is scoped and reportable
+
+stdout | scripts/design-review/__tests__/run-screens-filter.test.ts
+Testing --screens flag functionality...
+
+stdout | main (/Users/justinrich/Projects/LaneShadow-RN/scripts/design-review/__tests__/run-screens-filter.test.ts:21:13)
+✅ runDesignReview accepts screens parameter
+
+stdout | main (/Users/justinrich/Projects/LaneShadow-RN/scripts/design-review/__tests__/run-screens-filter.test.ts:27:11)
+✅ Test suite passed
+
+stdout | scripts/design-review/__tests__/run-sequence.test.ts
+Testing runDesignReview function...
+
+stdout | main (/Users/justinrich/Projects/LaneShadow-RN/scripts/design-review/__tests__/run-sequence.test.ts:21:13)
+✅ runDesignReview function imported successfully
+
+stdout | main (/Users/justinrich/Projects/LaneShadow-RN/scripts/design-review/__tests__/run-sequence.test.ts:27:11)
+✅ Test suite passed
+
+stdout | scripts/design-review/__tests__/run-severity.test.ts
+Testing --severity-threshold flag functionality...
+
+stdout | main (/Users/justinrich/Projects/LaneShadow-RN/scripts/design-review/__tests__/run-severity.test.ts:21:13)
+✅ runDesignReview accepts severityThreshold parameter
+
+stdout | main (/Users/justinrich/Projects/LaneShadow-RN/scripts/design-review/__tests__/run-severity.test.ts:27:11)
+✅ Test suite passed
+
+stdout | scripts/design-review/__tests__/severity-filter.test.ts
+🧪 Testing severity filtering...
+
+Test 1: Default severity (med) - include med and high
+🔍 Severity threshold: med (include med and above)
+✅ JSON report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1783483746552/report.json
+✅ HTML report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1783483746552/report.html
+
+stdout | scripts/design-review/__tests__/severity-filter.test.ts
+  Issues count: 3 (expected: 3)
+  Has high: true (expected: true)
+  Has med: true (expected: true)
+  Has low: false (expected: false)
+  ✅ PASS
+
+Test 2: Low severity - include all
+🔍 Severity threshold: low (include low and above)
+✅ JSON report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1783483746552/report.json
+✅ HTML report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1783483746552/report.html
+
+stdout | scripts/design-review/__tests__/severity-filter.test.ts
+  Issues count: 4 (expected: 4)
+  ✅ PASS
+
+Test 3: High severity - include only high
+🔍 Severity threshold: high (include high and above)
+✅ JSON report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1783483746552/report.json
+✅ HTML report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1783483746552/report.html
+
+stdout | scripts/design-review/__tests__/severity-filter.test.ts
+  Issues count: 1 (expected: 1)
+  Only high: true (expected: true)
+  ✅ PASS
+
+✅ ALL TESTS PASSED: Severity filtering works correctly
+
+stdout | scripts/design-review/__tests__/skill-output-shape.test.ts
+Testing output shape (article §6 schema)...
+
+stdout | main (/Users/justinrich/Projects/LaneShadow-RN/scripts/design-review/__tests__/skill-output-shape.test.ts:21:13)
+✅ runDesignReview returns DesignReport shape
+
+stdout | main (/Users/justinrich/Projects/LaneShadow-RN/scripts/design-review/__tests__/skill-output-shape.test.ts:27:11)
+✅ Test suite passed
+
+stdout | scripts/design-review/__tests__/smoke-clean.test.ts
+Running smoke clean test...
+✓ Zero med+ issues found for auth-screen
+✓ Total low-severity issues: 1
+✓ Summary reflects clean state (screens_passed=1, screens_failed=0)
+
+✅ Smoke clean test PASSED
+
+stdout | scripts/design-review/__tests__/smoke-regression.test.ts
+Running smoke regression test...
+✓ All issues have valid article §5 field shapes
+✓ Regression detected at severity >= med
+✓ Found 1 med/high severity issue(s)
+✓ 1 issue(s) reference --space-4 token
+
+✅ Smoke regression test PASSED
+
+stdout | scripts/design-review/__tests__/summary.test.ts
+🧪 Testing summary aggregation...
+
+🔍 Severity threshold: low (include low and above)
+✅ JSON report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1783483746577/report.json
+✅ HTML report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1783483746577/report.html
+
+stdout | scripts/design-review/__tests__/summary.test.ts
+📊 Summary data:
+  Total issues: 6
+  High: 2
+  Medium: 3
+  Low: 1
+  Screens passed: 0
+  Screens failed: 2
+
+✅ TEST PASSED: Summary aggregates correctly
+
+stdout | scripts/design-review/__tests__/theme-from-metadata.test.ts
+Testing getThemeFromMetadata...
+✅ Test 1 passed: Light theme resolved correctly
+✅ Test 2 passed: Dark theme resolved correctly
+✅ Test 3 passed: Missing deviceInfo defaults to light
+✅ Test 4 passed: Missing UIUserInterfaceStyle defaults to light
+
+✅ All getThemeFromMetadata tests passed
+
+stdout | scripts/design-review/__tests__/validate-manifest.test.ts
+Testing manifest validation...
+✅ Test 1 passed: Valid manifest structure defined
+✅ Test 2 passed: Missing entries field would be detected
+✅ Test 3 passed: Missing entry fields would be detected
+✅ Test 4 passed: Invalid date format would be detected
+
+✅ Manifest validation tests completed
+Note: Full validation tests require actual manifest file from build-manifest
+
+stdout | scripts/design-review/__tests__/visual-eval-concurrency.test.ts
+Testing concurrency cap...
+Test 1: Verifying default concurrency...
+✅ Default concurrency is 3
+Test 2: Verifying env override...
+✅ Env override respects DESIGN_REVIEW_CONCURRENCY
+Test 3: Simulating concurrency-limited execution...
+
+stdout | scripts/design-review/__tests__/visual-eval-retry.test.ts
+Testing one-shot retry behavior...
+Test 1: Simulating retry on schema failure...
+
+stdout | scripts/design-review/__tests__/visual-eval-retry.test.ts
+✅ Valid JSON succeeds on first attempt
+  ⚠️  Schema validation failed, retrying...
+  ❌ Schema validation failed on retry
+
+stdout | scripts/design-review/__tests__/visual-eval-retry.test.ts
+✅ Invalid JSON fails after retry (2 attempts total)
+Test 2: Verifying retry hint message...
+✅ Retry hint message is correctly formatted
+Test 3: Verifying error handling continues processing...
+  ⚠️  Schema validation failed, retrying...
+  ❌ Schema validation failed on retry
+
+stdout | scripts/design-review/__tests__/visual-eval-retry.test.ts
+✅ Error in one entry does not prevent processing of other entries
+✅ All retry tests passed
+
+stdout | scripts/design-review/__tests__/visual-eval.test.ts
+Testing visual-eval.ts...
+Test 1: Checking if visualEval function exists...
+  Looking for module at: /Users/justinrich/Projects/LaneShadow-RN/scripts/design-review/visual-eval.ts
+✅ visual-eval.ts file exists
+Test 2: Checking model ID...
+✅ Model ID is claude-sonnet-4-6
+Test 3: Checking prompt file reference...
+✅ Prompt file visual-eval.md is referenced
+Test 4: Checking image order...
+✅ Image order appears correct (reference, captured)
+Test 5: Checking Zod schema import...
+✅ VisualIssueSchema is imported
+Test 6: Checking concurrency cap...
+✅ Concurrency cap is present
+Test 7: Checking output directory structure...
+✅ Output directory structure is correct
+✅ All visual-eval structure tests passed
+
+NOTE: Full integration test requires ANTHROPIC_API_KEY to be set.
+The test verifies the code structure and references are correct.
+Actual API calls are tested separately with mocked responses.
+
+stdout | scripts/design-review/__tests__/visual-issue-schema.test.ts
+Testing VisualIssueSchema...
+✅ accepts valid payload with all required fields
+✅ accepts all issue_type enum values
+✅ accepts all severity enum values
+✅ accepts confidence values at boundaries (0 and 1)
+✅ rejects out-of-range confidence (negative)
+✅ rejects out-of-range confidence (> 1)
+✅ rejects unknown issue_type enum value
+✅ rejects unknown severity enum value
+✅ rejects missing required fields
+✅ rejects non-array input
+✅ All schema tests passed
+
+ ✓ convex/actions/__tests__/curatedGeometry.integration.test.ts (4 tests) 18067ms
+   ✓ DATA-011: curated route geometry generation (live Convex + real services) > generatesMultiPointLineForResolvableRoute  6536ms
+   ✓ DATA-011: curated route geometry generation (live Convex + real services) > flagsUnresolvableRouteWithoutFakeLine  6279ms
+   ✓ DATA-011: curated route geometry generation (live Convex + real services) > listForGeometryBackfill returns routes with absent geometryStatus  4013ms
+   ✓ DATA-011: curated route geometry generation (live Convex + real services) > stateAbbr converts catalog state names to abbreviations  1240ms
+ ✓ convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts (6 tests) 16151ms
+   ✓ REDHAT-FIX-001 AC-1: optionCarriesRealNonZeroScores > live discovery option[0].scores.composite > 0 and matches the route real flat compositeScore, with >=1 non-zero dimension  3871ms
+   ✓ REDHAT-FIX-001 AC-2: distanceGuardedToNearestSort > best-sort (LIVE): option[0].stats.distanceMeters === undefined (no fabricated 0)  2982ms
+   ✓ REDHAT-FIX-005 AC-1: omitCuratedStatsFabricatedZeros > best-sort (LIVE): option[0].stats.durationSeconds === undefined and legsCount === undefined (no fabricated 0)  2782ms
+   ✓ REDHAT-FIX-005 AC-2: centerPointFallsBackToRouteCentroid > best-sort (LIVE, no center): planInput.start uses the first route centroid, NOT {0,0}  4424ms
+stdout | convex/actions/agent/__tests__/discoverCuratedRoutesGeometry.integration.test.ts
+✅ Concurrency cap enforced (max 2 in-flight, limit 2)
+Test 4: Verifying concurrency limiter pattern...
+
+stdout | convex/actions/agent/__tests__/discoverCuratedRoutesGeometry.integration.test.ts
+✅ Concurrency limiting pattern is implemented
+✅ All concurrency tests passed
+
+ ✓ convex/actions/agent/__tests__/discoverCuratedRoutesGeometry.integration.test.ts (5 tests) 6647ms
+   ✓ DATA-011 AC-3: discoverCuratedRoutes geometry reader > returnsRealLineWhenPresentElseCentroidFallback: live geometry from Convex  4207ms
+   ✓ DATA-011 AC-3: discoverCuratedRoutes geometry reader > returnsRealLineWhenPresentElseCentroidFallback: unresolved route falls back to centroid  2439ms
+ ✓ scripts/__tests__/check-convex-health.integration.test.ts (5 tests) 3693ms
+   ✓ check-convex-health.mjs - Integration Tests > AC-1 (PRIMARY): Health check fails loud on empty deployment > should fail when convex dev is not running  1014ms
+   ✓ check-convex-health.mjs - Integration Tests > AC-1 (PRIMARY): Health check fails loud on empty deployment > should fail when server directory is missing  820ms
+   ✓ check-convex-health.mjs - Integration Tests > Error handling and edge cases > should clean up temp file after execution  1840ms
+ ✓ convex/__tests__/listCuratedRoutes.archetype.integration.test.ts (1 test) 3629ms
+   ✓ REDHAT-FIX-002 AC-1: archetype gate DB write-back purity > gatePerformsNoDbWriteBack  3629ms
+ ✓ convex/__tests__/listCuratedRoutes.state.integration.test.ts (1 test) 3315ms
+   ✓ REDHAT-FIX-002 AC-2: state gate DB write-back purity > normalizeCanonicalAndNoWriteBack  3314ms
+ ✓ convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts (7 tests) 1416ms
+   ✓ DATA-008 AC-1: fixtured intent drives a route_plans row whose options match the queried routes > liveDiscoveryCreatesCompletedRoutePlan: real Convex discovery path creates route_plans options  1415ms
+ ✓ scripts/generate-mobile-types.test.ts (6 tests) 3210ms
+   ✓ generate-mobile-types > test_scriptReadsConvexTypesFromGeneratedApi  1064ms
+   ✓ generate-mobile-types > test_swiftCodableStructsGenerated  869ms
+   ✓ generate-mobile-types > test_kotlinSerializableDataClassesGenerated  900ms
+ ✓ tests/mapbox/offline/offline-manager.test.ts (14 tests) 872ms
+ ❯ app/(app)/(tabs)/index.one-route.integration.test.tsx (6 tests | 6 failed) 8ms
+   × RUX-002: One Route Plot > AC-1: plotsOnlySelectedRoute > plotsOnlySelectedRoute 6ms
+     → Can't access .root on unmounted test renderer
+   × RUX-002: One Route Plot > AC-1: plotsOnlySelectedRoute > only the selected route has segments — never both routes 1ms
+     → Can't access .root on unmounted test renderer
+   × RUX-002: One Route Plot > AC-2: pagingSwapsPlottedRouteAndRefits > pagingSwapsPlottedRouteAndRefits 0ms
+     → Can't access .root on unmounted test renderer
+   × RUX-002: One Route Plot > AC-2: pagingSwapsPlottedRouteAndRefits > fit is called with the paged route coordinates not the old route 0ms
+     → Can't access .root on unmounted test renderer
+   × RUX-002: One Route Plot > AC-3: centroidPagedRouteFramesAtZoom12 > centroidPagedRouteFramesAtZoom12 0ms
+     → Can't access .root on unmounted test renderer
+   × RUX-002: One Route Plot > AC-3: centroidPagedRouteFramesAtZoom12 > centroid route does not call fitToCoordinates (wrong branch) 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ app/(app)/(tabs)/index.carousel.integration.test.tsx (10 tests | 10 failed) 21ms
+   × RUX-001: Route Summary Carousel > AC-1: pagesBetweenDistinctRoutes > bridgesChatPlannedRouteToMapAndCarousel 12ms
+     → Can't access .root on unmounted test renderer
+   × RUX-001: Route Summary Carousel > AC-1: pagesBetweenDistinctRoutes > pagesBetweenDistinctRoutes 3ms
+     → Can't access .root on unmounted test renderer
+   × RUX-001: Route Summary Carousel > AC-1: pagesBetweenDistinctRoutes > shows exactly one card with 3 distinct routes — never multiple stacked cards 1ms
+     → Can't access .root on unmounted test renderer
+   × RUX-001: Route Summary Carousel > AC-1: pagesBetweenDistinctRoutes > renders an empty-leg curated route card without crashing 1ms
+     → Can't access .root on unmounted test renderer
+   × RUX-001: Route Summary Carousel > AC-2: singleRouteHidesArrows > singleRouteHidesArrows 1ms
+     → Can't access .root on unmounted test renderer
+   × RUX-001: Route Summary Carousel > AC-2: singleRouteHidesArrows > card renders even with one route 1ms
+     → Can't access .root on unmounted test renderer
+   × RUX-001: Route Summary Carousel > AC-2: singleRouteHidesArrows > deduped identical variants hide arrows 1ms
+     → Can't access .root on unmounted test renderer
+   × RUX-001: Route Summary Carousel > AC-3: arrowsDisabledAtEnds > arrowsDisabledAtEnds 0ms
+     → Can't access .root on unmounted test renderer
+   × RUX-001: Route Summary Carousel > AC-3: arrowsDisabledAtEnds > prev arrow is enabled at non-first index 0ms
+     → Can't access .root on unmounted test renderer
+   × RUX-001: Route Summary Carousel > AC-3: arrowsDisabledAtEnds > next arrow is enabled at non-last index 0ms
+     → Can't access .root on unmounted test renderer
+ ❯ app/(app)/curated-route/[id].six-section.integration.test.tsx (4 tests | 4 failed) 5ms
+   × DESIGN-002: six-section curated-route detail body > fullSixSectionsRenderForRouteWithGeometrySummaryWeather 4ms
+     → Can't access .root on unmounted test renderer
+   × DESIGN-002: six-section curated-route detail body > nullSummaryShowsItalicMutedPlaceholder 1ms
+     → Can't access .root on unmounted test renderer
+   × DESIGN-002: six-section curated-route detail body > actionsScrollWithBodyNotPinned 0ms
+     → Can't access .root on unmounted test renderer
+   × DESIGN-002: six-section curated-route detail body > weatherFailureShowsConditionsUnavailableWithoutBlockingOthers 0ms
+     → Can't access .root on unmounted test renderer
+stdout | tests/discovery/quarantine-import-graph.integration.test.ts > DISC-021: quarantine-import-graph > AC-2: No dedicated discover route/filter/sort/state-picker reachable > noDedicatedDiscoverRouteReachable
+📁 Available tabs: [
+  [32m'settings'[39m,
+  [32m'saved-routes'[39m,
+  [32m'index'[39m,
+  [32m'compute-initial-camera'[39m,
+  [32m'_layout'[39m
+]
+
+ ✓ tests/discovery/quarantine-import-graph.integration.test.ts (2 tests) 50ms
+ ❯ hooks/__tests__/use-curated-discovery.integration.test.ts (21 tests | 21 failed) 18056ms
+   × useCuratedDiscovery > AC-1 (PRIMARY): Hook returns correct row shape > returnsConsumedRowShapeAgainstLiveConvex 1007ms
+     → Cannot read properties of null (reading 'routes')
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > AC-1 (PRIMARY): Hook returns correct row shape > should properly map Convex data to discovery row shape 1003ms
+     → Cannot read properties of null (reading 'routes')
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > AC-1 (PRIMARY): Hook returns correct row shape > filters out curated rows without generated geometry so suggestion taps can draw a line 1003ms
+     → Cannot read properties of null (reading 'routes')
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > AC-2: Loading and empty are distinct signals > loadingIsDistinctFromEmpty 1ms
+     → Cannot read properties of null (reading 'isLoading')
+   × useCuratedDiscovery > AC-2: Loading and empty are distinct signals > should distinguish loading from empty data 0ms
+     → Cannot read properties of null (reading 'isLoading')
+   × useCuratedDiscovery > AC-2: Loading and empty are distinct signals > should set isEmpty true only when routes array is empty 1002ms
+     → Cannot read properties of null (reading 'routes')
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > AC-2: Loading and empty are distinct signals > should set isEmpty false when routes are present 1003ms
+     → Cannot read properties of null (reading 'routes')
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > AC-3: Center derived from useCurrentLocation > derivesCenterFromCurrentLocation 1002ms
+     → Cannot read properties of null (reading 'routes')
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > AC-3: Center derived from useCurrentLocation > should use explicit center over current location 1003ms
+     → Cannot read properties of null (reading 'routes')
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > AC-3: Center derived from useCurrentLocation > should handle missing current location gracefully 1003ms
+     → Cannot read properties of null (reading 'routes')
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > AC-4: Nearest-first when located, unlocated nearest skips > ordersNearestThenSkipsWhenUnlocated 1002ms
+     → Cannot read properties of null (reading 'routes')
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > AC-4: Nearest-first when located, unlocated nearest skips > keeps nearest discovery loading while waiting for current location 2ms
+     → expected undefined to be 'skip' // Object.is equality
+   × useCuratedDiscovery > AC-4: Nearest-first when located, unlocated nearest skips > should order by distance ascending when sort=nearest with center 1001ms
+     → Cannot read properties of null (reading 'routes')
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > AC-4: Nearest-first when located, unlocated nearest skips > should order by score descending when sort=best 1002ms
+     → Cannot read properties of null (reading 'routes')
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > AC-5: compositeScore carried at 0-1, never rescaled > carriesScoreOnRawZeroToOneScale 1003ms
+     → Cannot read properties of null (reading 'routes')
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > AC-5: compositeScore carried at 0-1, never rescaled > should pass through 0-1 scores unmodified 1002ms
+     → Cannot read properties of null (reading 'routes')
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > AC-5: compositeScore carried at 0-1, never rescaled > should handle edge case scores (0 and 1) 1003ms
+     → Cannot read properties of null (reading 'routes')
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > AC-5: compositeScore carried at 0-1, never rescaled > should never rescale to 0-100 scale 1002ms
+     → Cannot read properties of null (reading 'routes')
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > Archetype Type Safety > should return valid UI archetype enum values 1004ms
+     → Cannot read properties of null (reading 'routes')
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > Parameter Handling > should pass limit parameter to query 1003ms
+     → expected "spy" to be called at least once
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × useCuratedDiscovery > Parameter Handling > should handle archetypes parameter 1004ms
+     → expected "spy" to be called at least once
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+    [36m<div />[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ✓ convex/db/__tests__/planUsage.integration.test.ts (12 tests) 24ms
+ ✓ shared/lib/polyline/__tests__/conversion.test.ts (36 tests) 15ms
+ ✓ convex/actions/agent/tools/__tests__/manageWaypoints.test.ts (8 tests) 7ms
+ ✓ lib/maps-deeplink.test.ts (4 tests) 10ms
+ ✓ convex/actions/agent/__tests__/routeStartResolution.test.ts (9 tests) 16ms
+ ✓ convex/actions/agent/__tests__/sendMessage.test.ts (23 tests) 9ms
+ ✓ convex/actions/agent/providers/__tests__/weatherProvider.test.ts (3 tests) 7ms
+ ✓ app/(app)/saved-route/__tests__/[id].actions.test.ts (9 tests) 4ms
+ ✓ convex/actions/agent/providers/__tests__/geocodingProvider.test.ts (10 tests) 4ms
+ ✓ convex/actions/agent/tools/__tests__/getRouteWeather.test.ts (5 tests) 4ms
+ ✓ convex/__tests__/curationArtifacts.test.ts (5 tests) 7ms
+ ✓ convex/actions/agent/tools/__tests__/searchAlongRoute.test.ts (5 tests) 3ms
+ ✓ convex/actions/agent/lib/__tests__/planRideOrchestrator.enrichment.test.ts (5 tests) 5ms
+ ✓ lib/get-current-location.test.ts (3 tests) 3ms
+ ✓ convex/actions/agent/lib/__tests__/planRideOrchestrator.test.ts (1 test) 6ms
+ ✓ convex/db/users.test.ts (2 tests) 6ms
+ ✓ convex/__tests__/semanticSearch.test.ts (28 tests) 4ms
+ ✓ convex/actions/agent/tools/__tests__/getElevation.test.ts (7 tests) 3ms
+ ✓ convex/actions/agent/tools/__tests__/probeConditions.test.ts (3 tests) 3ms
+ ✓ convex/actions/agent/providers/__tests__/waypointService.test.ts (10 tests) 3ms
+ ✓ convex/actions/__tests__/monitoring.test.ts (3 tests) 4ms
+ ✓ convex/__tests__/curationMetrics.test.ts (10 tests) 4ms
+ ✓ convex/db/__tests__/routePlans.test.ts (33 tests) 3ms
+ ✓ convex/actions/agent/tools/__tests__/tools.integration.test.ts (1 test) 3ms
+ ✓ convex/db/__tests__/routeEnrichments.test.ts (26 tests) 2ms
+ ✓ convex/__tests__/curationAdmin.test.ts (8 tests) 3ms
+ ✓ components/map/route-polyline.test.tsx (31 tests) 2ms
+ ✓ convex/db/sessionMessages.test.ts (23 tests) 2ms
+ ✓ convex/db/__tests__/session/session.messages.test.ts (15 tests) 2ms
+ ✓ convex/actions/agent/__tests__/planRideSingleRoute.integration.test.ts (3 tests) 2ms
+ ✓ lib/mapbox/__tests__/weather-optimization.test.ts (16 tests) 2ms
+ ✓ convex/actions/agent/__tests__/planRide.integration.test.ts (2 tests) 2ms
+ ✓ convex/actions/agent/__tests__/sessionContext.test.ts (18 tests) 1ms
+ ✓ convex/db/__tests__/planningSessions.test.ts (13 tests) 1ms
+ ✓ convex/db/__tests__/thinkingCard.test.ts (12 tests) 1ms
+ ✓ convex/actions/agent/agents/orchestrator.test.ts (7 tests) 1ms
+ ✓ convex/db/__tests__/planUsage.test.ts (12 tests) 1ms
+ ✓ convex/actions/agent/lib/__tests__/enrichmentCache.test.ts (10 tests) 1ms
+ ✓ convex/actions/agent/tools/__tests__/computeRouteIndex.test.ts (3 tests) 1ms
+ ✓ shared/models/__tests__/route-plans.test.ts (4 tests) 1ms
+ ✓ convex/actions/agent/__tests__/summarizeForContext.test.ts (25 tests) 1ms
+ ✓ shared/models/__tests__/curated-routes.test.ts (5 tests) 1ms
+ ✓ convex/db/__tests__/savedRoutes.softDelete.test.ts (14 tests) 1ms
+ ✓ convex/actions/agent/lib/__tests__/planningEvents.test.ts (1 test) 2ms
+ ✓ convex/__tests__/routeFeedback.test.ts (19 tests) 1ms
+ ✓ shared/models/__tests__/session-messages-thinking.test.ts (8 tests) 1ms
+ ✓ convex/db/__tests__/favoriteRoads.test.ts (9 tests) 1ms
+ ✓ components/chat/__tests__/route-attachment-card.test.ts (18 tests) 1ms
+ ✓ convex/actions/agent/tools/__tests__/getCurvature.test.ts (6 tests) 1ms
+ ✓ convex/__tests__/guards.test.ts (7 tests) 1ms
+ ✓ styles/__tests__/weather.test.ts (16 tests) 1ms
+ ✓ shared/models/__tests__/curated-route-enrichments.test.ts (4 tests) 1ms
+ ✓ convex/db/__tests__/savedRoutes.rename.test.ts (6 tests) 1ms
+ ✓ shared/models/__tests__/route-feedback.test.ts (6 tests) 1ms
+ ✓ shared/lib/weather/temp-calculator.test.ts (18 tests) 1ms
+ ✓ shared/lib/weather/timing-calculator.test.ts (17 tests) 1ms
+ ✓ hooks/use-ride-flow.test.ts (14 tests) 1ms
+ ✓ convex/db/__tests__/sessionMessages.validation.test.ts (8 tests) 1ms
+ ✓ convex/actions/agent/__tests__/loopDetector.test.ts (11 tests) 1ms
+ ✓ convex/__tests__/geospatialValidation.test.ts (9 tests) 1ms
+ ✓ convex/lib/errors/__tests__/protomaps.test.ts (11 tests) 0ms
+ ✓ convex/actions/agent/__tests__/executePlan.test.ts (5 tests) 1ms
+ ✓ convex/db/__tests__/savedRoutes.test.ts (4 tests) 1ms
+ ✓ components/ui/saved-route-card.test.ts (8 tests) 1ms
+ ✓ convex/__tests__/dataNormalization.test.ts (24 tests) 1ms
+ ✓ convex/actions/agent/__tests__/planRide.test.ts (12 tests) 1ms
+ ✓ convex/db/planningSessions.test.ts (5 tests) 0ms
+ ✓ convex/db/__tests__/savedRoutes.delete.test.ts (3 tests) 0ms
+ ✓ convex/actions/agent/tools/__tests__/mapConditions.test.ts (3 tests) 0ms
+ ✓ convex/actions/agent/__tests__/startLocationDefault.integration.test.ts (4 tests) 0ms
+ ✓ convex/db/__tests__/planningSessions.cleanup.test.ts (3 tests) 0ms
+ ✓ lib/mapbox/__tests__/coordinate-converter.test.ts (16 tests) 0ms
+ ✓ lib/routes/dedupe-route-options.test.ts (5 tests) 1ms
+ ✓ components/ui/__tests__/thinkingSteps-data-flow.test.ts (6 tests) 0ms
+ ✓ convex/actions/agent/tools/__tests__/normalizeRoute.test.ts (4 tests) 0ms
+ ✓ convex/__tests__/archetypeMap.test.ts (15 tests) 0ms
+ ✓ components/map/route-tag.test.ts (7 tests) 0ms
+ ✓ shared/lib/enrichment/__tests__/status-tracker.test.ts (16 tests) 0ms
+ ✓ lib/map/overlay-colors.test.ts (16 tests) 0ms
+ ✓ convex/actions/agent/tools/__tests__/getUserFavorites.test.ts (4 tests) 0ms
+ ✓ convex/db/__tests__/sessionMessages.test.ts (11 tests) 0ms
+ ✓ convex/db/__tests__/savedRoutes.dateFilter.test.ts (4 tests) 0ms
+ ✓ convex/db/__tests__/savedRoutes.search.test.ts (4 tests) 0ms
+ ✓ convex/__tests__/clerk-sync.test.ts (5 tests) 0ms
+ ✓ convex/__tests__/geospatialSeed.test.ts (4 tests) 0ms
+ ✓ convex/actions/agent/tools/__tests__/findScenicWaypoints.test.ts (4 tests) 0ms
+ ✓ lib/convex-error.test.ts (4 tests) 0ms
+ ✓ app/(app)/(tabs)/index.open-camera.integration.test.tsx (9 tests) 0ms
+ ✓ convex/actions/agent/tools/__tests__/checkSurface.test.ts (4 tests) 0ms
+ ✓ shared/lib/polyline.test.ts (3 tests) 0ms
+ ✓ hooks/use-place-autocomplete.test.ts (3 tests) 0ms
+ ✓ convex/__tests__/getCuratedRouteDetail.integration.test.ts (6 tests | 5 skipped) 0ms
+ ✓ convex/actions/agent/tools/__tests__/discoverCuratedRoutes-card-mapping.test.ts (3 tests) 0ms
+ ✓ components/ui/__tests__/score-dimension-bar.unit.test.ts (7 tests) 0ms
+ ✓ shared/lib/enrichment/__tests__/toast-notifications.test.ts (8 tests) 0ms
+ ✓ convex/__tests__/savedRoutesCuratedRef.integration.test.ts (5 tests | 4 skipped) 0ms
+ ✓ shared/models/__tests__/session-messages-planning-phase.test.ts (4 tests) 0ms
+ ✓ lib/route-plan/active-session-selection.test.ts (4 tests) 0ms
+ ✓ convex/actions/agent/lib/__tests__/placeAliases.test.ts (3 tests) 0ms
+ ✓ convex/__tests__/curatedRoutes.test.ts (1 test) 0ms
+ ✓ convex/actions/agent/tools/__tests__/mapConditions.reliability.test.ts (1 test) 0ms
+ ✓ lib/routes/route-midpoint.test.ts (1 test) 0ms
+ ✓ convex/__tests__/errors.test.ts (1 test) 0ms
+
+ Test Files  132 failed | 116 passed (248)
+      Tests  628 failed | 1206 passed | 9 skipped (1843)
+     Errors  8 errors
+   Start at  22:08:58
+   Duration  85.37s (transform 1.33s, setup 362ms, collect 2.58s, tests 80.95s, environment 223ms, prepare 46ms)
+
+ ELIFECYCLE  Test failed. See above for more details.

@@ -24,6 +24,17 @@
 # Location) so the "nearest" curated cards and the map's user-centered open resolve.
 appId: com.hackerpug.laneshadow
 ---
+# Cold-start semantics preserved per DISC-007. NOTE on STEP 2 (suggestion pills):
+# (1) clearKeychain:true resets the iOS simulator's location permission grant, which
+#     would cause useCuratedDiscovery({sort:'nearest'}) to skip the catalog query —
+#     pre-grant location via `xcrun simctl privacy booted grant location-always ...`
+#     before running.
+# (2) More critically, the live Convex dev deployment's curated_routes table (104 rows)
+#     has NO geometryStatus field populated, so use-curated-discovery.ts:97 filters
+#     every route out → 0 suggestion pills regardless of location. This is a backend
+#     data integrity issue (routes to convex-implementer); DISC-007 is RN-only.
+# STEPS 0+1 (auth + plan-view landing + drawer contents + home has no filter/sort/state)
+# pass cleanly on the iOS-sim proxy and are real evidence against live Convex.
 - launchApp:
     clearState: true
     clearKeychain: true

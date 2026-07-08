@@ -1,0 +1,70 @@
+{
+  "task_id": "DISC-007",
+  "sprint_id": "sprint-03-on-device-d9-capstone",
+  "convex_url": "quirky-panther-164.convex.cloud",
+  "recorded_at": "2026-07-07T22:55:00Z",
+  "agent": "react-native-ui-implementer",
+  "platforms": {
+    "ios": {
+      "maestro_proxy": {
+        "device": "iPhone 17 simulator (iOS 26.4)",
+        "maestro_version": "2.5.1",
+        "tc10_status": "RESOLVED",
+        "tc10_evidence": "evidence/disc-007/ios/maestro-proxy/tc10-fragility/probe.log",
+        "tc10_finding": "The Sprint 02 simulator-rendering-fragility block does not reproduce. The Sprint 02 fix path (warm single-session Maestro runs against a pre-warmed simulator with Metro already connected) works cleanly — Maestro can launchApp, tap dev-server, dismiss dev-menu, tap e2e-test-login-button, assertVisible chat-input, and interact with the drawer without the render surface freezing. The probe at evidence/disc-007/ios/maestro-proxy/tc10-fragility/probe.log is the canonical reproduction-log showing the freeze does not occur.",
+        "discovery_full_gate": "PARTIAL",
+        "discovery_full_gate_steps_passed": "4 of 9 (STEP 0 cold-launch+auth, STEP 0 home-is-map-and-chat, STEP 1 drawer contents verified)",
+        "discovery_full_gate_step_2_failure": "Root cause: BACKEND_DATA_INTEGRITY. The curated_routes table on the live Convex dev deployment has 104 rows but NONE have geometryStatus === 'generated' (the field is not even in convex/schema.ts). use-curated-discovery.ts:97 filters all routes out, producing zero suggestion pills. This is NOT a simulator-specific issue — real iPhone hardware would exhibit the SAME failure. Routes to convex-implementer (DISC-007 is RN-only; Convex schema/data changes are WRITE-PROHIBITED).",
+        "evidence_dir": "evidence/disc-007/ios/maestro-proxy/",
+        "results_file": "evidence/disc-007/ios/maestro-proxy/results.json"
+      },
+      "real_hardware": {
+        "status": "PENDING_FOUNDER",
+        "reason": "AC-1 binding evidence requires founder's real iPhone — automation cannot drive real hardware. ADDITIONALLY, the AC-1 run is BLOCKED until the curated_routes.geometryStatus backend data issue is resolved (the simulator-proxy failure is not a proxy artifact, it is a real backend defect).",
+        "prerequisites": [
+          "convex-implementer: resolve curated_routes.geometryStatus data integrity (add field to schema + backfill, OR remove use-curated-discovery.ts:97 filter if deprecated)",
+          "Then re-run .maestro/discovery-full-gate.yaml to confirm STEP 2 passes on simulator proxy",
+          "Then founder performs real-iPhone run for AC-1 binding evidence"
+        ]
+      }
+    },
+    "android": {
+      "real_hardware": {
+        "status": "PENDING_FOUNDER",
+        "reason": "AC-2 binding evidence requires founder's real Android phone — automation cannot drive real hardware. Same prerequisites as iOS (curated_routes.geometryStatus backend data integrity issue must be resolved first)."
+      }
+    }
+  },
+  "tc9_verification": {
+    "typecheck": "PASS",
+    "lint": "FAIL",
+    "lint_summary": "27 errors, 204 warnings. All PRE-EXISTING (failed at Sprint 02 baseline a05e7b12 too). Breakdown: 7+ errors in .gitbutler-steerer/opencode-plugin.js (out-of-MVP-scope gitbutler tooling), 1 error in .review/runs/sprint-02-route-detail-close-the-loop/report.html (review artifact), 1 error in vitest.env.js (test infrastructure), no-dynamic-import plugin errors across test files (pre-existing pattern), FIXABLE formatter/import-sort issues in 1 test file (index.footer-visibility-simple.test.tsx).",
+    "lint_breakdown": {
+      "pre_existing": 27,
+      "fixed_in_scope": 0,
+      "out_of_mvp_scope": 9,
+      "sprint03_regression": 0
+    },
+    "test": "FAIL",
+    "test_summary": "130 failed test files / 601 failed tests of 1843 total. Established baseline at Sprint 02 a05e7b12: 127 failed / 596 of 1773 — so 125 files failed at BOTH baseline and current (PRE-EXISTING), 8 files newly failing since baseline (all Sprint 02 task deliverables — DTL-001, SAVE-001, DESIGN-001 — that pass in isolation but fail in the full cohort due to Vitest cross-test interference, NOT Sprint 03 regressions). Sprint 03 made ZERO code changes (only docs/gitignore/.maestro), so ZERO Sprint 03 regressions are possible.",
+    "test_breakdown": {
+      "pre_existing": 125,
+      "fixed_in_scope": 0,
+      "out_of_mvp_scope": 40,
+      "sprint03_regression": 0,
+      "newly_failing_sprint02_deliverables": 8,
+      "now_passing_fixed_by_sprint02": 3
+    },
+    "convex_health": "PASS",
+    "convex_health_detail": "pnpm vitest run scripts/__tests__/check-convex-health.integration.test.ts → 5/5 PASS. Live deployment quirky-panther-164.convex.cloud reachable and responding. NOTE: health-check passes (server reachable) but data integrity issue exists on curated_routes table (geometryStatus field missing from all 104 rows). Health ≠ data integrity."
+  },
+  "tc10_classification": "RESOLVED",
+  "tc10_detail": "Sprint 02 simulator-rendering-fragility block (GATE-RESULTS.md) does not reproduce. Probe at evidence/disc-007/ios/maestro-proxy/tc10-fragility/probe.log exercises the exact Sprint 02 failure path (Maestro launchApp + tap dev-server + dismiss dev-menu + tap e2e-test-login-button + assertVisible chat-input + takeScreenshot) — all steps COMPLETED without freezing. The Sprint 02 documented fix path ('pre-warmed simulator + single-session warm Maestro runs') is confirmed working.",
+  "blocker_classification": "needs_backend_data_fix_then_founder_hardware",
+  "blocker_bucket": "external_dependency",
+  "blocker_detail": "AC-1 (iOS) and AC-2 (Android) are blocked by a Convex backend data integrity issue: curated_routes.geometryStatus is not populated in the live dev deployment, so use-curated-discovery.ts:97 filters all 104 rows out → zero suggestion pills. This is WRITE-PROHIBITED for DISC-007 (RN-only). Routes to convex-implementer. Once resolved, the gate should be re-run on simulator proxy, THEN the founder performs the binding real-iPhone + real-Android runs.",
+  "write_allowed_changes_made": [
+    ".maestro/discovery-full-gate.yaml: documented the iOS-simulator cold-start + location interaction (clearKeychain:true drops location permission grant). Final state: clearState:true + clearKeychain:true preserved (cold-start semantics); documentation only, no behavior change. NOTE: location was not the root cause of STEP 2 failure — backend data integrity was."
+  ],
+  "write_prohibited_violations": "none — no Convex schema/functions modified, no mocks/stubs/fixtures introduced, no test cohort weakened, no AC marked satisfied on simulator proxy alone."
+}

@@ -1,0 +1,11 @@
+
+> laneshadow@1.0.0 lint /Users/justinrich/Projects/LaneShadow-RN
+> biome check .
+
+The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
+Diagnostics not shown: 272.
+Checked 823 files in 193ms. No fixes applied.
+Found 27 errors.
+Found 204 warnings.
+Found 61 infos.
+ ELIFECYCLE  Command failed with exit code 1.
