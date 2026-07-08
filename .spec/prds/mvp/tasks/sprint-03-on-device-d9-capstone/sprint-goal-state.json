@@ -1,15 +1,15 @@
 {
   "sprint_id": "sprint-03-on-device-d9-capstone",
   "schema": "kb-run-sprint/sprint-goal-state v3.19",
-  "written_at": "2026-07-08T07:00:00Z",
-  "head_sha": "7d8ce4fa",
+  "written_at": "2026-07-08T08:00:00Z",
+  "head_sha": "HEAD",
   "head_branch": "main",
   "baseline_sha": "cd62a84e",
   "goal": "The founder completes the entire discover-to-ride journey on the route plan view on a real iPhone AND a real Android phone against live Convex, with recorded per-platform evidence and no mocks.",
   "met": false,
-  "verdict": "BLOCKED_ANDROID_AND_HARDWARE",
+  "verdict": "BLOCKED_ANDROID_FABRIC_CRASH_AND_HARDWARE",
   "goal_sentinel": "[goal:blocked]",
-  "block_reason": "iOS simulator proxy FULLY PASSES the discover-to-ride arc (all 9 Maestro steps, run-11, commit 7d8ce4fa). STEP 3 rendering bug FIXED (handleSuggestionPillTap → createCuratedRoutePlan → displayedRoutePlanId → route-on-map-marker renders). Two blockers remain: (1) Android emulator booted but app not installed — needs pnpm android build; (2) real-hardware gate (AC-1/AC-2/AC-6/AC-7/AC-8) remains non-droppable per [15.95] — founder's real iPhone + real Android required.",
+  "block_reason": "iOS simulator proxy FULLY PASSES (9/9 Maestro steps, run-11). Android emulator app builds + installs + connects to Metro + auth succeeds, but CRASHES rendering the plan view with a React Native Fabric mounting bug: IllegalStateException 'The specified child already has a parent' at ReactClippingViewManager.addView. This is a framework-level issue (New Architecture Fabric + likely react-native-svg GroupView incompatibility), NOT a LaneShadow code bug. Additionally: real-hardware gate (AC-1/AC-2/AC-6/AC-7/AC-8) remains non-droppable per [15.95].",
 
   "tasks_state": {
     "total": 1,
