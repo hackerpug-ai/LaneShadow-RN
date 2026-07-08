@@ -1,0 +1,59 @@
+Running on iPhone 17 - iOS 26.4 - 9051A0C2-CCB5-4D0F-AAAC-F03F74719352
+ > Flow discovery-full-gate
+Launch app "com.hackerpug.laneshadow" with clear state and clear keychain... COMPLETED
+Assert that "DEVELOPMENT SERVERS|Lane Shadow" is visible... COMPLETED
+Run flow when "DEVELOPMENT SERVERS" is visible...
+  Tap on ".*localhost:8081.*"... COMPLETED
+Run flow when "DEVELOPMENT SERVERS" is visible... COMPLETED
+Assert that "Login with Email|.*developer menu.*|Reload|Go home|Toggle performance monitor|Toggle element inspector|Open JS debugger|Close" is visible... COMPLETED
+Run flow when ".*developer menu.*" is visible...
+  Tap on "Continue"... COMPLETED
+Run flow when ".*developer menu.*" is visible... COMPLETED
+Run flow when "Close" is visible...
+  Tap on "Close"... COMPLETED
+Run flow when "Close" is visible... COMPLETED
+Run flow when "Reload" is visible...
+Run flow when "Reload" is visible... SKIPPED
+Run flow when "Go home|Toggle performance monitor" is visible...
+Run flow when "Go home|Toggle performance monitor" is visible... SKIPPED
+Assert that "Login with Email" is visible... COMPLETED
+Take screenshot 01-launch... COMPLETED
+Run flow when id: e2e-test-login-button is visible...
+  Tap on id: e2e-test-login-button... COMPLETED
+Run flow when id: e2e-test-login-button is visible... COMPLETED
+Assert that id: chat-input is visible... COMPLETED
+Assert that id: route-on-map-marker is not visible... COMPLETED
+Assert that id: route-line-on-map-marker is not visible... COMPLETED
+Assert that "Discover" is not visible... COMPLETED
+Take screenshot 02-home-map-and-chat... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Tap on id: map-header-left-button... COMPLETED
+Assert that id: drawer-nav-settings is visible... COMPLETED
+Assert that id: drawer-nav-saved is visible... COMPLETED
+Assert that "Plan a ride" is not visible... COMPLETED
+Assert that "Discover" is not visible... COMPLETED
+Take screenshot 03-drawer-only-settings-saved... COMPLETED
+Tap on point (90%,50%)... COMPLETED
+Assert that id: chat-input is visible... COMPLETED
+Assert that "Filter" is not visible... COMPLETED
+Assert that "Sort" is not visible... COMPLETED
+Assert that "State" is not visible... COMPLETED
+Take screenshot 04-home-no-filter-sort-state... COMPLETED
+Assert that id: discovery-suggestion-pill-.* is visible... COMPLETED
+Take screenshot 05-suggestion-cards-copper-road-icon... COMPLETED
+Tap on id: discovery-suggestion-pill-.*... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Assert that id: route-on-map-marker is visible... FAILED
+
+Assertion is false: id: route-on-map-marker is visible
+
+Assertion 'id: route-on-map-marker is visible' failed. Check the UI hierarchy in debug artifacts to verify the element state and properties.
+
+Possible causes:
+- Element selector may be incorrect - check if there are similar elements with slightly different names/properties.
+- Element may be temporarily unavailable due to loading state
+- This could be a real regression that needs to be addressed
+
+==== Debug output (logs & screenshots) ====
+
+/Users/justinrich/.maestro/tests/2026-07-08_014550

@@ -1,6 +1,6 @@
 {
   "task_id": "DISC-007",
-  "run_id": "2026-07-08T05:55:00Z",
+  "run_id": "2026-07-08T06:15:00Z",
   "device": "iPhone 17 simulator (iOS 26.4)",
   "convex_url": "https://quirky-panther-164.convex.cloud",
   "metro_url": "http://localhost:8081",
@@ -14,7 +14,8 @@
     "discovery-full-gate-run-4-loc-granted.log (run 4, location-always permission pre-granted via simctl)",
     "discovery-full-gate-run-5-nearest-fallback.log (run 5, REMEDIATION CYCLE 1: sort='nearest'->'best' fallback fix commit a31883b9)",
     "discovery-full-gate-run-6-overfetch-fallback.log (run 6, REMEDIATION CYCLE 1: over-fetch on best-fallback fix commit 3274dc5e)",
-    "discovery-full-gate-run-7-relaxed-filter.log (run 7, REMEDIATION CYCLE 2: filter relaxation + nearest-empty->best fallback. STEP 2 PASSED for the first time. Gate advanced to STEP 3.)"
+    "discovery-full-gate-run-7-relaxed-filter.log (run 7, REMEDIATION CYCLE 2: filter relaxation + nearest-empty->best fallback. STEP 2 PASSED for the first time. Gate advanced to STEP 3.)",
+    "discovery-full-gate-run-8-post-backfill.log (run 8, POST-BACKFILL commit 50d2a4e6: Cherohala Skyway geometryStatus='generated' + geometry data verified in curated_route_geometry side table. STEP 2 still PASSES. STEP 3 STILL FAILS — geometry data exists but route-on-map-marker does not render. Hypothesis 'missing geometry' DISPROVED.)"
   ],
   "tc10_status": "RESOLVED",
   "tc10_evidence": "tc10-fragility/probe.log — Maestro launched the app, connected to Metro, waited for chat-input, took screenshot; no render-surface freeze.",
@@ -40,6 +41,42 @@
     "typecheck_after_fix": "PASS",
     "step_2_status_after_fix": "PASS",
     "step_3_status_after_fix": "FAIL (route-on-map-marker not visible after tapping a suggestion pill — the tapped route may lack geometry polyline for map plotting; AC-4 graceful degradation says '1 polyline OR 1 centroid pin' but STEP 3 asserts route-on-map-marker)"
+  },
+  "remediation_cycle_3": {
+    "trigger": "Backend geometry backfill commit 50d2a4e6 — Cherohala Skyway (routeId: motorcycleroads:cherohala-skyway) now has geometryStatus='generated' in curated_routes table.",
+    "convex_repl_verification": {
+      "cherohala_skyway_route_doc": {
+        "name": "Cherohala Skyway",
+        "routeId": "motorcycleroads:cherohala-skyway",
+        "compositeScore": 0.85,
+        "geometryStatus": "generated",
+        "hasRouteGeometryField": false
+      },
+      "cherohala_skyway_geometry_doc": {
+        "table": "curated_route_geometry",
+        "routeId": "motorcycleroads:cherohala-skyway",
+        "encoding": "google_encoded_polyline",
+        "format": "polyline",
+        "precision": 5,
+        "value": "oyyvE~}maO{@_@SAMFMPKZo@WxBiJZkBNmBByAKoM@kUMQMY",
+        "docExists": true
+      },
+      "geometry_status_counts": "103 generated, 897 unresolved (out of 1000 scanned)"
+    },
+    "code_path_verified": {
+      "createCuratedRoutePlan_mutation": "convex/db/routePlans.ts:477 — fetches geometry from curated_route_geometry side table by routeId (line 506-509)",
+      "buildCuratedPlanMap": "convex/db/routePlans.ts:431-456 — decodes polyline from geometry.value via polyline.decode(geometry.value, precision), returns overviewGeometry with bounds",
+      "suggestion_pill_onPress": "components/chat/chat-input.tsx:131-132 — calls onSelectRoute(routeId) for curated routes"
+    },
+    "step_2_status": "PASS (still passing — suggestion pills visible)",
+    "step_3_status": "STILL_FAIL — route-on-map-marker not visible after tapping suggestion pill. GEOMETRY DATA EXISTS but route does not render on map.",
+    "run_7_hypothesis_disproved": "Run-7 hypothesized 'the tapped route (Cherohala Skyway with geometryStatus=ABSENT) lacks a generated geometry polyline'. Run-8 DISPROVES this: Cherohala Skyway now has geometryStatus='generated' AND the geometry doc exists in the side table with a valid encoded polyline. The failure is NOT in the data.",
+    "suspected_remaining_causes": [
+      "The routeId passed from the suggestion pill may not match 'motorcycleroads:cherohala-skyway' (the geometry table key) — possible _id vs routeId mismatch",
+      "The createCuratedRoutePlan mutation may fail silently — clearKeychain:true may invalidate the Clerk session, causing requireIdentity() to throw",
+      "The map component may not render route-on-map-marker even when the route plan is created — possible client-side rendering issue",
+      "No runtime errors captured in Metro console/error buffer — but Maestro cold-start (clearState+clearKeychain) may have reset the CDP session, losing error capture"
+    ]
   },
   "step_results": [
     {
@@ -72,8 +109,10 @@
     {
       "step": "STEP-3-tap-suggestion-route-plots",
       "status": "FAIL",
-      "evidence": "Tapped discovery-suggestion-pill-.* successfully (pill was tappable). route-on-map-marker did NOT appear within 30s. Suspected cause: the tapped route (e.g. Cherohala Skyway with geometryStatus=ABSENT) lacks a generated geometry polyline — the map plotting code may require a polyline to render route-on-map-marker. AC-4 graceful degradation ('1 polyline OR 1 centroid pin') is for the detail view, not necessarily the home map plot. This is a STEP 3 issue, not a regression.",
-      "evidence_screenshots": ["evidence/disc-007/ios/maestro-proxy/screenshots/run7-step3-failure-route-not-plotted.png"]
+      "evidence": "Run-8 (post-backfill): Tapped discovery-suggestion-pill-.* successfully. route-on-map-marker did NOT appear within 30s. CONVEX REPL VERIFIED: Cherohala Skyway has geometryStatus='generated' AND a geometry doc exists in curated_route_geometry side table (routeId=motorcycleroads:cherohala-skyway, encoding=google_encoded_polyline, value=encoded polyline string). The createCuratedPlan mutation code (routePlans.ts:506-509) fetches this geometry and buildCuratedPlanMap (routePlans.ts:431-456) decodes it. The data is correct; the failure is in the client-side rendering or mutation execution path. No Metro console errors captured (CDP session may have been reset by clearState+clearKeychain).",
+      "evidence_screenshots": ["evidence/disc-007/ios/maestro-proxy/screenshots/run7-step3-failure-route-not-plotted.png", "evidence/disc-007/ios/maestro-proxy/screenshots/run8-step3-failure-route-not-plotted.png"],
+      "runs_failed": "run-7, run-8",
+      "run_7_hypothesis_disproved": "Run-7 suspected ABSENT geometry was the cause. Run-8 confirms geometry EXISTS but route still doesn't plot."
     },
     {
       "step": "STEP-4-onwards",
@@ -87,17 +126,24 @@
     "Real Convex dev deployment reachable (quirky-panther-164.convex.cloud)",
     "Plan-view-as-landing seam verified (DISC-002)",
     "Drawer contents verified (only Settings/Saved)",
-    "STEP 2 PASSED: curated suggestion pills visible over chat input (run 7)",
-    "Direct Convex REPL verification: top-3 by composite_score are Cherohala Skyway (gs=ABSENT), Wasatch Ridge Traverse (gs=ABSENT), Test Route TX-20 (gs=ABSENT) — all pass the relaxed filter",
-    "Direct Convex REPL verification: Utah routes near SLC — most have gs='unresolved' (correctly filtered); none within 20mi of SLC (nearest-empty->best fallback correctly triggered)"
+    "STEP 2 PASSED: curated suggestion pills visible over chat input (runs 7 + 8)",
+    "Direct Convex REPL verification (run 8): Cherohala Skyway route doc has geometryStatus='generated', compositeScore=0.85, routeId='motorcycleroads:cherohala-skyway'",
+    "Direct Convex REPL verification (run 8): Geometry doc EXISTS in curated_route_geometry side table — encoding='google_encoded_polyline', precision=5, value=encoded polyline string",
+    "Direct Convex REPL verification (run 8): geometry_status_counts = 103 generated, 897 unresolved (out of 1000 scanned)",
+    "Code path verified (run 8): createCuratedRoutePlan mutation fetches geometry from side table (routePlans.ts:506-509), buildCuratedPlanMap decodes polyline (routePlans.ts:431-456)",
+    "Run-7 hypothesis 'missing geometry' DISPROVED by run-8: geometry data exists but route-on-map-marker still doesn't render"
   ],
   "limitations": [
     "Maestro proxy is closest-available for AC-1 — binding evidence is founder's real iPhone run",
-    "STEP 3 failure (route-on-map-marker) needs investigation: the ABSENT-geometry routes may lack the polyline needed for map plotting",
+    "STEP 3 failure (route-on-map-marker) persists despite geometry data existing in the database — failure is in client-side rendering or mutation execution, not in the data",
+    "No Metro console errors captured — Maestro cold-start (clearState+clearKeychain) likely reset the CDP session, losing error capture during the test run",
     "iOS 26.4 simulator, not a physical device"
   ],
   "next_actions_required": [
-    "Investigate STEP 3: does tapping a Cherohala Skyway pill (geometryStatus=ABSENT) plot the route on the map? If the plotting code requires a geometry polyline, the ABSENT routes won't plot — this may require either (a) generating geometry for the top-N routes, or (b) updating the plot code to handle centroid-only routes.",
+    "Investigate STEP 3 client-side: Add console.log/error handling in the suggestion pill onPress handler and createCuratedRoutePlan mutation call to capture any errors during the Maestro run",
+    "Verify routeId matching: confirm the routeId passed from the suggestion pill (from use-curated-discovery hook) matches 'motorcycleroads:cherohala-skyway' (the geometry table key)",
+    "Verify auth persistence: clearKeychain:true may invalidate the Clerk session — check if requireIdentity() throws in createCuratedRoutePlan after clearKeychain",
+    "Verify map rendering: check if route-on-map-marker testID is set by the map component when a route plan is active — may need to run the app manually and tap a pill to observe",
     "founder: perform real-iPhone run now that STEP 2 passes on simulator proxy"
   ]
 }
