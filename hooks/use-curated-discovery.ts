@@ -1,5 +1,5 @@
 import { useQuery } from 'convex/react'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { api } from '../convex/_generated/api'
 import { useCurrentLocation } from './use-current-location'
 
@@ -66,7 +66,21 @@ export function useCuratedDiscovery(
   // While location is still loading, keep the query skipped (loading state)
   // so the UI shows a loading affordance rather than flashing empty.
   const locationFailed = !locationLoading && !derivedCenter
-  const fellBackToBest = params.sort === 'nearest' && locationFailed
+  const fellBackToBestFromLocation = params.sort === 'nearest' && locationFailed
+
+  // DISC-007 STEP 2 final fix (remediation cycle 2): ALSO fall back to
+  // 'best' when the nearest query returns EMPTY. The server's Mode 2
+  // (nearest) applies a 20-mile distance cap (MAX_NEAREST_CURATED_ROUTE_
+  // DISTANCE_MI in convex/curatedRoutes.ts:125). Many simulated/test
+  // locations (e.g. SLC 40.76,-111.89) have ZERO curated routes within
+  // 20mi. Without this fallback, the user sees "No nearby routes" instead
+  // of the curated suggestion pills the PRD requires. Falling back to
+  // 'best' surfaces the catalog's top-quality routes (Cherohala Skyway,
+  // Wasatch Ridge Traverse, etc.) — which is exactly what the capstone
+  // ACs expect to observe.
+  const [fellBackToBestFromEmptyNearest, setFellBackToBestFromEmptyNearest] = useState(false)
+
+  const fellBackToBest = fellBackToBestFromLocation || fellBackToBestFromEmptyNearest
   const effectiveSort: 'best' | 'nearest' = fellBackToBest ? 'best' : (params.sort ?? 'best')
 
   const nearestNeedsCenter = effectiveSort === 'nearest' && !derivedCenter
@@ -116,26 +130,70 @@ export function useCuratedDiscovery(
     if (nearestNeedsCenter) return []
     if (data === undefined) return undefined
 
-    return data
-      .filter((route) => route.geometryStatus === 'generated')
-      .slice(0, requestedLimit)
-      .map((route) => {
-        // Validate archetype to ensure it's a valid UI enum (hardening against backend changes)
-        const validatedArchetype: DiscoveryArchetype = isValidArchetype(route.primaryArchetype)
-          ? route.primaryArchetype
-          : 'scenic'
+    return (
+      data
+        // DISC-007 STEP 2 final fix: the catalog's top-quality routes
+        // (Cherohala Skyway, Wasatch Ridge Traverse, etc. — the exact routes
+        // the capstone ACs expect to see) have geometryStatus === undefined
+        // because they predate the Sprint 02 geometry-backfill feature (see
+        // convex/curatedGeometry.ts:162 comment). A strict `=== 'generated'`
+        // filter excluded them all, leaving zero suggestion pills.
+        //
+        // Relaxed semantics (matches PRD intent + AC-4 graceful degradation):
+        //   ✅ SHOW 'generated'  — backfill completed, has polyline
+        //   ✅ SHOW absent/null  — original catalog routes (polyline OR centroid
+        //                          pin per AC-4)
+        //   ❌ HIDE 'unresolved' — backfill pending, may not have geometry yet
+        //   ❌ HIDE 'failed'     — backfill tried and failed, known-bad
+        .filter(
+          (route) => route.geometryStatus !== 'unresolved' && route.geometryStatus !== 'failed',
+        )
+        .slice(0, requestedLimit)
+        .map((route) => {
+          // Validate archetype to ensure it's a valid UI enum (hardening against backend changes)
+          const validatedArchetype: DiscoveryArchetype = isValidArchetype(route.primaryArchetype)
+            ? route.primaryArchetype
+            : 'scenic'
 
-        return {
-          id: route.routeId,
-          name: route.name,
-          lat: route.centroidLat,
-          lng: route.centroidLng,
-          archetype: validatedArchetype,
-          score: route.compositeScore,
-          distanceMi: route.distanceMi,
-        }
-      })
+          return {
+            id: route.routeId,
+            name: route.name,
+            lat: route.centroidLat,
+            lng: route.centroidLng,
+            archetype: validatedArchetype,
+            score: route.compositeScore,
+            distanceMi: route.distanceMi,
+          }
+        })
+    )
   }, [data, nearestNeedsCenter, requestedLimit, waitingForNearestCenter])
+
+  // Detect when the nearest query returns 0 passable routes and trigger
+  // the best-fallback. Checks `routes` (the final filtered result) so it
+  // also catches the case where the server returned rows within 20mi but
+  // ALL were filtered out by geometryStatus (e.g. all 'unresolved').
+  // Guards: only fires once (state latches), only for explicit sort='nearest'
+  // callers, and only when not already fallen back from location failure.
+  useEffect(() => {
+    if (
+      params.sort === 'nearest' &&
+      !fellBackToBestFromLocation &&
+      !fellBackToBestFromEmptyNearest &&
+      !waitingForNearestCenter &&
+      !nearestNeedsCenter &&
+      routes !== undefined &&
+      routes.length === 0
+    ) {
+      setFellBackToBestFromEmptyNearest(true)
+    }
+  }, [
+    routes,
+    params.sort,
+    fellBackToBestFromLocation,
+    fellBackToBestFromEmptyNearest,
+    waitingForNearestCenter,
+    nearestNeedsCenter,
+  ])
 
   return {
     routes,

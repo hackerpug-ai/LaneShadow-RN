@@ -302,6 +302,96 @@ describe('useCuratedDiscovery', () => {
 
       expect(result.current.routes?.map((route) => route.id)).toEqual(['generated-route'])
     })
+
+    it('showsRoutesWithAbsentGeometryStatus', async () => {
+      // DISC-007 STEP 2 final fix (remediation cycle 2): the catalog's
+      // top-quality routes (Cherohala Skyway, Wasatch Ridge Traverse, etc. —
+      // exactly the routes the capstone ACs expect to see) have
+      // geometryStatus === undefined because they predate the Sprint 02
+      // geometry-backfill feature (see convex/curatedGeometry.ts:162 comment).
+      // A strict `=== 'generated'` filter excluded them, leaving zero
+      // suggestion pills. The relaxed filter allows absent/null geometryStatus
+      // (graceful degradation per AC-4: "1 polyline OR 1 centroid pin") while
+      // still hiding known-bad states (unresolved/failed).
+      const cherohala = createMockRoute({
+        routeId: 'cherohala-skyway',
+        name: 'Cherohala Skyway',
+        geometryStatus: undefined,
+      })
+      const wasatch = createMockRoute({
+        routeId: 'wasatch-ridge',
+        name: 'Wasatch Ridge Traverse',
+      })
+      // Simulate the field being LITERALLY ABSENT (not just undefined) — this
+      // is the real Convex shape for pre-backfill rows.
+      delete (wasatch as any).geometryStatus
+      mockUseQuery.mockReturnValue([
+        cherohala,
+        wasatch,
+        createMockRoute({
+          routeId: 'generated-route',
+          name: 'Generated Route',
+          geometryStatus: 'generated',
+        }),
+      ])
+
+      const { result } = renderHook(() =>
+        useCuratedDiscovery({
+          sort: 'nearest',
+          center: { lat: 37.7749, lng: -122.4194 },
+          limit: 5,
+        }),
+      )
+
+      await waitFor(() => {
+        expect(result.current.routes).toBeDefined()
+      })
+
+      // All three pass through: undefined, absent, and generated.
+      expect(result.current.routes?.map((route) => route.id)).toEqual([
+        'cherohala-skyway',
+        'wasatch-ridge',
+        'generated-route',
+      ])
+    })
+
+    it('hidesUnresolvedAndFailedRoutes', async () => {
+      // DISC-007 STEP 2 final fix (remediation cycle 2): known-bad geometry
+      // states are still hidden. 'unresolved' = backfill pending (may not have
+      // geometry yet); 'failed' = backfill tried and failed (known-bad).
+      mockUseQuery.mockReturnValue([
+        createMockRoute({
+          routeId: 'unresolved-route',
+          name: 'Unresolved Route',
+          geometryStatus: 'unresolved',
+        }),
+        createMockRoute({
+          routeId: 'failed-route',
+          name: 'Failed Route',
+          geometryStatus: 'failed',
+        }),
+        createMockRoute({
+          routeId: 'good-route',
+          name: 'Good Route',
+          geometryStatus: 'generated',
+        }),
+      ])
+
+      const { result } = renderHook(() =>
+        useCuratedDiscovery({
+          sort: 'nearest',
+          center: { lat: 37.7749, lng: -122.4194 },
+          limit: 5,
+        }),
+      )
+
+      await waitFor(() => {
+        expect(result.current.routes).toBeDefined()
+      })
+
+      // Only the generated route passes; unresolved + failed are filtered out.
+      expect(result.current.routes?.map((route) => route.id)).toEqual(['good-route'])
+    })
   })
 
   describe('AC-2: Loading and empty are distinct signals', () => {
@@ -652,6 +742,53 @@ describe('useCuratedDiscovery', () => {
       for (let i = 0; i < distances.length - 1; i++) {
         expect(distances[i]).toBeLessThanOrEqual(distances[i + 1])
       }
+    })
+
+    it('fallsBackToBestWhenNearestReturnsEmpty', async () => {
+      // DISC-007 STEP 2 final fix (remediation cycle 2): when location
+      // RESOLVES but the nearest query returns 0 passable routes (because
+      // no curated routes exist within the server's 20-mile distance cap —
+      // MAX_NEAREST_CURATED_ROUTE_DISTANCE_MI in convex/curatedRoutes.ts),
+      // the hook MUST fall back to sort='best' so the user sees curated
+      // suggestion pills instead of "No nearby routes". This matches the
+      // PRD intent: "curated-route suggestion cards over the chat input".
+      mockUseCurrentLocation.mockReturnValue({
+        location: mockCurrentLocation, // Location RESOLVED (Asheville)
+        loading: false,
+        error: null,
+      })
+
+      // First query (nearest): returns EMPTY (no routes within 20mi)
+      // Second query (best fallback): returns top-by-score routes
+      let callCount = 0
+      mockUseQuery.mockImplementation(() => {
+        callCount++
+        if (callCount === 1) return [] // nearest returns empty
+        return mockCuratedRoutesBestOrdered // best returns routes
+      })
+
+      const { result } = renderHook(() =>
+        useCuratedDiscovery({
+          sort: 'nearest',
+          limit: 5,
+        }),
+      )
+
+      // Wait for the fallback to trigger and the best query to resolve
+      await waitFor(() => {
+        expect(result.current.routes?.length).toBeGreaterThan(0)
+      })
+
+      // The fallback query MUST have been issued with sort: 'best'
+      const lastCallArgs = mockUseQuery.mock.calls[mockUseQuery.mock.calls.length - 1]
+      expect(lastCallArgs[1]).toHaveProperty('sort', 'best')
+      // Over-fetch applied (4x = 20)
+      expect(lastCallArgs[1]).toHaveProperty('limit', 20)
+
+      // User sees curated suggestion pills, NOT empty
+      expect(result.current.routes).toBeDefined()
+      expect(result.current.routes!.length).toBeGreaterThan(0)
+      expect(result.current.isEmpty).toBe(false)
     })
 
     it('should order by score descending when sort=best', async () => {

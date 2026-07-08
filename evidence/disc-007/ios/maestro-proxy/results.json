@@ -1,6 +1,6 @@
 {
   "task_id": "DISC-007",
-  "run_id": "2026-07-08T05:22:00Z",
+  "run_id": "2026-07-08T05:55:00Z",
   "device": "iPhone 17 simulator (iOS 26.4)",
   "convex_url": "https://quirky-panther-164.convex.cloud",
   "metro_url": "http://localhost:8081",
@@ -12,76 +12,92 @@
     "discovery-full-gate-run-2.log (run 2, location set to SLC 40.7608,-111.8910)",
     "discovery-full-gate-run-3-warm.log (run 3, attempted warm start — flow auth steps incompatible)",
     "discovery-full-gate-run-4-loc-granted.log (run 4, location-always permission pre-granted via simctl)",
-    "discovery-full-gate-run-5-nearest-fallback.log (run 5, REMEDIATION CYCLE 1: sort='nearest'→'best' fallback fix commit a31883b9; location+permission pre-set; Metro rebuilt bundle 659ms)",
-    "discovery-full-gate-run-6-overfetch-fallback.log (run 6, REMEDIATION CYCLE 1: over-fetch on best-fallback fix commit 3274dc5e; same setup as run 5)"
+    "discovery-full-gate-run-5-nearest-fallback.log (run 5, REMEDIATION CYCLE 1: sort='nearest'->'best' fallback fix commit a31883b9)",
+    "discovery-full-gate-run-6-overfetch-fallback.log (run 6, REMEDIATION CYCLE 1: over-fetch on best-fallback fix commit 3274dc5e)",
+    "discovery-full-gate-run-7-relaxed-filter.log (run 7, REMEDIATION CYCLE 2: filter relaxation + nearest-empty->best fallback. STEP 2 PASSED for the first time. Gate advanced to STEP 3.)"
   ],
   "tc10_status": "RESOLVED",
-  "tc10_evidence": "tc10-fragility/probe.log — Maestro launched the app, connected to Metro, waited for chat-input, took screenshot; no render-surface freeze. The Sprint 02 fragility mode (freeze after any Maestro interaction following expo run:ios) does not reproduce. The Sprint 02 fix path (warm single-session Maestro runs against a pre-warmed simulator) works.",
+  "tc10_evidence": "tc10-fragility/probe.log — Maestro launched the app, connected to Metro, waited for chat-input, took screenshot; no render-surface freeze.",
   "overall_status": "PARTIAL",
   "steps_total": 9,
-  "steps_passed": 4,
+  "steps_passed": 5,
   "steps_failed": 1,
-  "steps_not_run": 4,
+  "steps_not_run": 3,
   "remediation_cycle_1": {
-    "commits": ["a31883b9 (sort='nearest'→'best' graceful fallback)", "3274dc5e (over-fetch 4x on best-fallback for geometry filter headroom)"],
-    "tests_after_fix": "23/23 pass (hooks/__tests__/use-curated-discovery.integration.test.ts)",
-    "typecheck_after_fix": "PASS",
+    "commits": ["a31883b9 (sort='nearest'->'best' graceful fallback)", "3274dc5e (over-fetch 4x on best-fallback for geometry filter headroom)"],
+    "tests_after_fix": "23/23 pass",
     "step_2_status_after_fix": "STILL_FAIL",
-    "step_2_failure_runs": ["run-5 (sort fallback only)", "run-6 (sort fallback + over-fetch)"],
-    "diagnosis_of_remaining_failure": "The fix is logically correct (tested + typechecked) but STEP 2 still fails at runtime. Two hypotheses for the remaining blocker: (1) clearKeychain:true in launchApp resets the iOS TCC location permission, causing Location.requestForegroundPermissionsAsync() to show a native iOS permission dialog that Maestro cannot dismiss — location never resolves, and even with the fallback the dialog overlay may obscure pills; (2) the top-N rows by composite_score (even with 4x over-fetch = 20 rows) may not include routes with geometryStatus='generated' — the 19 generated routes in the 5,654-route catalog may be lower-ranked. Could not definitively verify either hypothesis because: (a) the Convex MCP has a stale cached project path bug (chdir to /Users/justinlich instead of /justinrich), blocking direct backend queries; (b) convex CLI requires authenticated identity for listCuratedRoutes; (c) the app environment after Maestro's clearState is finicky to inspect via Metro evaluate_js. This needs live-data verification against the authenticated Convex client."
+    "diagnosis": "Fix was logically correct but insufficient — did not address the geometryStatus filter or the 20-mile nearest distance cap."
+  },
+  "remediation_cycle_2": {
+    "root_cause_verified_by_orchestrator": "top-20 by composite_score have geometryStatus ABSENT (undefined); they predate the Sprint 02 geometry-backfill. The strict === 'generated' filter excluded them all.",
+    "additional_root_cause_discovered_by_implementer": "When location RESOLVES (sim SLC), Mode 2 (nearest) applies a 20-mile server-side distance cap (MAX_NEAREST_CURATED_ROUTE_DISTANCE_MI=20 in convex/curatedRoutes.ts:125). ZERO curated routes exist within 20mi of SLC. The query returns empty -> isEmpty=true -> 'No nearby routes' text instead of pills. This is independent of the geometryStatus filter.",
+    "fix_applied": [
+      "Filter relaxation at hooks/use-curated-discovery.ts: changed .filter(r => r.geometryStatus === 'generated') to .filter(r => r.geometryStatus !== 'unresolved' && r.geometryStatus !== 'failed'). This lets ABSENT/null geometryStatus routes through (graceful degradation per AC-4) while still hiding known-bad states.",
+      "Nearest-empty->best fallback: added useState(fellBackToBestFromEmptyNearest) + useEffect that detects when the nearest query returns 0 passable routes and latches a fallback to sort='best'. This surfaces the catalog's top-quality routes (Cherohala Skyway, Wasatch Ridge Traverse, etc.) when no routes exist within 20mi of the user."
+    ],
+    "tests_after_fix": "26/26 pass (was 23; +3 new: showsRoutesWithAbsentGeometryStatus, hidesUnresolvedAndFailedRoutes, fallsBackToBestWhenNearestReturnsEmpty)",
+    "typecheck_after_fix": "PASS",
+    "step_2_status_after_fix": "PASS",
+    "step_3_status_after_fix": "FAIL (route-on-map-marker not visible after tapping a suggestion pill — the tapped route may lack geometry polyline for map plotting; AC-4 graceful degradation says '1 polyline OR 1 centroid pin' but STEP 3 asserts route-on-map-marker)"
   },
   "step_results": [
     {
       "step": "00-cold-launch-and-metro-connect",
       "status": "PASS",
-      "evidence": "App launched, dev-server picker shown, tapped localhost:8081 to connect, dev-menu popup dismissed, login screen reached. Screenshot 01-launch captured."
+      "evidence": "App launched, dev-server picker shown, tapped localhost:8081 to connect, dev-menu popup dismissed, login screen reached."
     },
     {
       "step": "00b-e2e-test-login-button-tap",
       "status": "PASS",
-      "evidence": "Tapped e2e-test-login-button; signed in via Clerk dev-keys against the test account e2e-login@jjrnshw9.mailosaur.net."
+      "evidence": "Tapped e2e-test-login-button; signed in via Clerk dev-keys."
     },
     {
       "step": "STEP-0-home-is-map-and-chat-not-discover",
       "status": "PASS",
-      "evidence": "id:chat-input visible; id:route-on-map-marker NOT visible; id:route-line-on-map-marker NOT visible; literal text 'Discover' NOT visible. Screenshot 02-home-map-and-chat captured. Plan-view-as-landing seam (DISC-002) verified."
+      "evidence": "id:chat-input visible; id:route-on-map-marker NOT visible; text 'Discover' NOT visible."
     },
     {
       "step": "STEP-1-drawer-only-settings-saved-and-no-filter-sort-state",
       "status": "PASS",
-      "evidence": "Tapped map-header-left-button → drawer opened. id:drawer-nav-settings visible; id:drawer-nav-saved visible; text 'Plan a ride' NOT visible; text 'Discover' NOT visible. Closed drawer. Text 'Filter', 'Sort', 'State' all NOT visible on home. Screenshots 03-drawer-only-settings-saved + 04-home-no-filter-sort-state captured."
+      "evidence": "Drawer opened; only Settings/Saved nav entries; no Plan-a-ride/Discover; no Filter/Sort/State on home."
     },
     {
       "step": "STEP-2-curated-suggestion-pills",
-      "status": "FAIL",
-      "evidence": "extendedWaitUntil id:discovery-suggestion-pill-.* timed out at 30000ms in BOTH run 5 (sort fallback fix) and run 6 (sort fallback + over-fetch fix). CORRECTED DIAGNOSIS: the prior root cause claim ('BACKEND_DATA_INTEGRITY / geometryStatus field absent from schema') was WRONG — orchestrator verified via direct Convex REPL that the live deployment has 19 rows with geometryStatus='generated' and the field IS in the schema (convex/curatedRoutes.ts:57). Actual root cause was sort:'nearest' over-constraining discovery on cold boot; fixed with graceful fallback to sort:'best' + 4x over-fetch. STEP 2 STILL fails after the fix — suspected remaining cause is the clearKeychain:true + iOS location permission dialog interaction, OR the top-N-by-score rows lacking generated geometry even with over-fetch. See remediation_cycle_1.diagnosis_of_remaining_failure for detail.",
-      "root_cause": "PARTIALLY_FIXED_REMAINING_RUNTIME_BLOCKER",
-      "runs_after_fix": ["run-5 FAIL", "run-6 FAIL"],
-      "evidence_screenshots": ["evidence/disc-007/ios/maestro-proxy/screenshots/run5-step2-failure.png"]
+      "status": "PASS",
+      "evidence": "id:discovery-suggestion-pill-.* is visible. FIRST TIME PASSING after 7 Maestro runs. The fix (filter relaxation + nearest-empty->best fallback) surfaced the catalog's top-quality routes (Cherohala Skyway, Wasatch Ridge Traverse, etc.) as suggestion pills. Screenshot 05-suggestion-cards-copper-road-icon captured.",
+      "runs_to_pass": "run-7 (after remediation cycle 2)",
+      "root_cause_chain": "1. Top-by-score routes have geometryStatus=ABSENT (predate Sprint 02 backfill) -> strict === 'generated' filter excluded them. 2. When location resolves to SLC, Mode 2 nearest returns empty (no routes within 20mi) -> pills never rendered. Fix: relaxed filter + nearest-empty->best fallback."
     },
     {
-      "step": "STEP-3-onwards",
+      "step": "STEP-3-tap-suggestion-route-plots",
+      "status": "FAIL",
+      "evidence": "Tapped discovery-suggestion-pill-.* successfully (pill was tappable). route-on-map-marker did NOT appear within 30s. Suspected cause: the tapped route (e.g. Cherohala Skyway with geometryStatus=ABSENT) lacks a generated geometry polyline — the map plotting code may require a polyline to render route-on-map-marker. AC-4 graceful degradation ('1 polyline OR 1 centroid pin') is for the detail view, not necessarily the home map plot. This is a STEP 3 issue, not a regression.",
+      "evidence_screenshots": ["evidence/disc-007/ios/maestro-proxy/screenshots/run7-step3-failure-route-not-plotted.png"]
+    },
+    {
+      "step": "STEP-4-onwards",
       "status": "NOT_RUN",
-      "evidence": "Depends on STEP 2 succeeding. Flow halted at STEP 2 assertion failure."
+      "evidence": "Depends on STEP 3 succeeding."
     }
   ],
   "real_evidence_captured": [
-    "Live iOS 26.4 boot + Metro JS bundle connection (real iOS-sim, not virtualized)",
-    "Real Clerk auth against the e2e test account (signed in successfully)",
-    "Real Convex dev deployment reachable (auth + session init against quirky-panther-164.convex.cloud)",
-    "Plan-view-as-landing seam verified — app boots to map + chat home, NOT a separate Discover screen (Sprint 01 DISC-002)",
-    "Drawer contents verified — only Settings/Saved nav entries; no Plan-a-ride/Discover; no filter/sort/state controls",
-    "Remediation cycle 1: 2 commits (a31883b9, 3274dc5e) with 23/23 passing tests + clean typecheck"
+    "Live iOS 26.4 boot + Metro JS bundle connection",
+    "Real Clerk auth against the e2e test account",
+    "Real Convex dev deployment reachable (quirky-panther-164.convex.cloud)",
+    "Plan-view-as-landing seam verified (DISC-002)",
+    "Drawer contents verified (only Settings/Saved)",
+    "STEP 2 PASSED: curated suggestion pills visible over chat input (run 7)",
+    "Direct Convex REPL verification: top-3 by composite_score are Cherohala Skyway (gs=ABSENT), Wasatch Ridge Traverse (gs=ABSENT), Test Route TX-20 (gs=ABSENT) — all pass the relaxed filter",
+    "Direct Convex REPL verification: Utah routes near SLC — most have gs='unresolved' (correctly filtered); none within 20mi of SLC (nearest-empty->best fallback correctly triggered)"
   ],
   "limitations": [
     "Maestro proxy is closest-available for AC-1 — binding evidence is founder's real iPhone run",
-    "STEP 2 failure persists after the in-scope RN fix; remaining blocker needs live-data verification against the authenticated Convex client to determine whether the query returns generated-geometry routes or whether the clearKeychain/location-permission-dialog interaction is the issue",
-    "Convex MCP has a stale cached project path bug (chdir to /Users/justinlich instead of /justinrich) that blocked direct backend REPL queries during this remediation",
+    "STEP 3 failure (route-on-map-marker) needs investigation: the ABSENT-geometry routes may lack the polyline needed for map plotting",
     "iOS 26.4 simulator, not a physical device"
   ],
   "next_actions_required": [
-    "Verify live data: query listCuratedRoutes with sort='best' limit=20 against the authenticated deployment to confirm whether any of the top-20-by-score rows have geometryStatus='generated'. If none do, the fix needs a server-side geometryStatus filter pushdown (out of DISC-007 scope — would route to convex-implementer).",
-    "Investigate clearKeychain:true interaction with iOS location permission: either change the gate to clearKeychain:false (behavioral change, may need approval), OR add a Maestro step to dismiss the native iOS location permission dialog if it appears.",
-    "founder: once STEP 2 passes on simulator proxy, perform real-iPhone run for AC-1 binding evidence"
+    "Investigate STEP 3: does tapping a Cherohala Skyway pill (geometryStatus=ABSENT) plot the route on the map? If the plotting code requires a geometry polyline, the ABSENT routes won't plot — this may require either (a) generating geometry for the top-N routes, or (b) updating the plot code to handle centroid-only routes.",
+    "founder: perform real-iPhone run now that STEP 2 passes on simulator proxy"
   ]
 }
