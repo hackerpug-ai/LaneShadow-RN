@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "capture": {
+    "method": "maestro",
+    "appId": "com.hackerpug.laneshadow",
+    "simulator": "auto"
+  },
+  "auth": {
+    "method": "clerk-test-email",
+    "persona": "e2e-lead+clerk_test@example.com",
+    "code": "424242",
+    "signinFlow": ".maestro/_common-auth.yaml",
+    "signinTestId": "chat-input"
+  },
+  "theme": {
+    "method": "system",
+    "modes": ["light", "dark"]
+  },
+  "routes": {
+    "autoDiscover": false,
+    "list": [
+      "curated-route-detail-polyline",
+      "curated-route-detail-no-polyline",
+      "curated-route-detail-saved-state",
+      "curated-route-detail-no-description",
+      "saved-route-with-curated"
+    ]
+  },
+  "viewports": {
+    "mobile": { "width": 393, "height": 852 }
+  }
+}

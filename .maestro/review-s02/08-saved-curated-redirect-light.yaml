@@ -1,0 +1,50 @@
+# saved-route detail (curated bookmark → redirect to curated-route)
+# Proves the saved-route/[id].tsx loading + curated-redirect + the standardized
+# SubpageLayout size="compact" header are wired correctly.
+appId: com.hackerpug.laneshadow
+---
+
+- launchApp:
+    clearState: false
+    clearKeychain: false
+
+- runFlow: ../_common-auth.yaml
+
+# Save a curated route first so there's a saved bookmark
+- openLink: laneshadow:///curated-route/wasatch-ridge-traverse
+- extendedWaitUntil:
+    visible:
+      id: 'curated-route-detail-name'
+      text: 'Wasatch Ridge Traverse'
+    timeout: 30000
+- swipe:
+    direction: UP
+    duration: 400
+- extendedWaitUntil:
+    visible:
+      id: 'save-curated-button'
+    timeout: 10000
+- tapOn:
+    id: 'save-curated-button'
+- extendedWaitUntil:
+    visible:
+      id: 'save-curated-saved-badge'
+    timeout: 15000
+
+# Now deep-link to saved-route with the curated bookmark's id
+# (This will redirect to the curated-route detail — the saved-route view
+# itself only shows briefly during the redirect.)
+- openLink: laneshadow:///saved-route/wasatch-ridge-traverse
+
+# The redirect goes to curated-route/wasatch-ridge-traverse — capture the
+# final state to prove the saved-route code path is wired.
+- extendedWaitUntil:
+    visible:
+      id: 'curated-route-detail-name'
+      text: 'Wasatch Ridge Traverse'
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: 'curated-detail-map'
+    timeout: 10000
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/saved-curated-redirect.png

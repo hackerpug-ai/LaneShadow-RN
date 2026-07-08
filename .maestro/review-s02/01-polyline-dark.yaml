@@ -1,0 +1,38 @@
+# Dark mode: polyline route detail (Wasatch Ridge Traverse)
+appId: com.hackerpug.laneshadow
+---
+
+- launchApp:
+    clearState: false
+    clearKeychain: false
+
+- runFlow: ../_common-auth.yaml
+
+- openLink: laneshadow:///curated-route/wasatch-ridge-traverse
+
+- extendedWaitUntil:
+    visible:
+      id: 'curated-route-detail-name'
+      text: 'Wasatch Ridge Traverse'
+    timeout: 30000
+
+- extendedWaitUntil:
+    visible:
+      id: 'curated-detail-map'
+    timeout: 15000
+- extendedWaitUntil:
+    visible:
+      id: 'curated-detail-scroll'
+    timeout: 5000
+
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/polyline-01-top.png
+
+- swipe:
+    direction: UP
+    duration: 400
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/polyline-02-scores.png
+
+- swipe:
+    direction: UP
+    duration: 400
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/polyline-03-actions.png

@@ -1,0 +1,50 @@
+{
+  "run_id": "sprint-03-capstone-20260707T201641Z",
+  "sprint": ".spec/prds/mvp/tasks/sprint-03-on-device-d9-capstone",
+  "implement_skill": "kb-run-sprint",
+  "cycle": "implement:review:plan:qa",
+  "project": "/Users/inference1/Projects/LaneShadow-RN",
+  "workspace": "7A389054-03AE-4092-A2C0-F9DD2918CECE",
+  "orchestrator_surface_id": "1A827393-4178-4F19-9B04-305F3BE2E5C4",
+  "stages": {
+    "run": {
+      "surface_id": "81D6A80A-9327-4499-A874-A3ADF41F1584",
+      "surface_ref": "surface:203",
+      "origin": "spawned",
+      "spawner": "spawn-stage.sh",
+      "driver": "orch",
+      "role": "run",
+      "sprint": ".spec/prds/mvp/tasks/sprint-03-on-device-d9-capstone",
+      "cwd": "/Users/inference1/Projects/LaneShadow-RN",
+      "harness": "opencode",
+      "model": "zai-coding-plan/glm-5.2",
+      "provider": "zai-coding-plan",
+      "status": "running",
+      "cycle": 0,
+      "state_label": "armed",
+      "nudge_count": 0,
+      "watch_glob": ".spec/prds/mvp/tasks/sprint-03-on-device-d9-capstone/sprint-goal-state.json",
+      "verdict_kind": "grep",
+      "verdict_grep": "goal:complete",
+      "blocked_grep": "goal:blocked",
+      "baseline_count": 0,
+      "reaped": false,
+      "last_observed_ts": 1783456057
+    }
+  },
+  "adopted": [],
+  "run_meta": {
+    "max_cycles": 3,
+    "tick_seconds": 30,
+    "stall_window_seconds": 600,
+    "run_model_harness": "opencode",
+    "run_model_id": "inference-cluster/implementer",
+    "review_model_harness": "opencode",
+    "review_model_id": "inference-cluster/orchestrator",
+    "plan_model_harness": "opencode",
+    "plan_model_id": "deepseek/deepseek-v4-pro",
+    "qa_model_harness": "opencode",
+    "qa_model_id": "inference-cluster/orchestrator",
+    "actual_model": "zai-coding-plan/glm-5.2 (inference-cluster/implementer unavailable for opencode harness)"
+  }
+}

@@ -1,0 +1,55 @@
+# Screenshot capture flow: Saved screen list with curated route included
+# Captures the Saved list UI (UC-SAVE-01 — save + reopen without error).
+
+appId: com.hackerpug.laneshadow
+---
+
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+- runFlow: ../_common-auth.yaml
+
+# Save a curated route first so it appears in the saved list
+- openLink: laneshadow:///curated-route/wasatch-ridge-traverse
+- extendedWaitUntil:
+    visible:
+      id: 'curated-route-detail-name'
+      text: 'Wasatch Ridge Traverse'
+    timeout: 30000
+- swipe:
+    direction: UP
+    duration: 400
+- wait: 600
+- extendedWaitUntil:
+    visible:
+      id: 'save-curated-button'
+    timeout: 10000
+- tapOn:
+    id: 'save-curated-button'
+- extendedWaitUntil:
+    visible:
+      id: 'save-curated-saved-badge'
+    timeout: 15000
+
+# Navigate to the Saved tab
+- openLink: laneshadow:///saved-routes
+
+- extendedWaitUntil:
+    visible:
+      id: 'saved-routes-list'
+    timeout: 15000
+- wait: 800
+
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/01-saved-list.png
+
+# Reopen the saved curated route to verify no error
+- tapOn:
+    id: 'saved-routes-list'
+- wait: 800
+- extendedWaitUntil:
+    visible:
+      id: 'curated-route-detail-name'
+    timeout: 30000
+- wait: 600
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/02-reopen.png

@@ -1,0 +1,84 @@
+{
+  "sprint": "sprint-02-route-detail-close-the-loop",
+  "init_at": "2026-07-06T23:22:00Z",
+  "tasks": [
+    {
+      "id": "F-HEADER",
+      "status": "verified",
+      "owner": "react-native-ui-implementer",
+      "title": "Route detail header WAY TOO BIG — standardize to finite SubpageLayout compact (APPLIED TO BOTH DETAIL VIEWS)",
+      "user_feedback": "route detail view header WAY TOO BIG, should be the same standard size as other details views (standardize)... should be finite size on top, create apprpriate layout wrapper",
+      "fix_summary": "Added `size: 'compact'` to SubpageLayout (also added `rightActions` array for multiple icons). Migrated BOTH detail views to <SubpageLayout size=\"compact\">: app/(app)/curated-route/[id].tsx (no right actions) and app/(app)/saved-route/[id].tsx (rename + delete via rightActions array). Replaced floating MapHeaderOverlay (~200pt+ extending into status bar) with a finite 44pt solid bar + titleLarge. Map + body now live below the header instead of under it.",
+      "before": "captures/light/polyline-01-top.before.png · captures/dark/polyline-01-top.before.png · captures/light/save-01-idle.before.png",
+      "after": "captures/light/after/polyline-01-top.png · captures/dark/after/polyline-01-top.png · captures/light/after/save-01-idle.png · captures/light/after/saved-list.png (standard mode backward compat)",
+      "files_changed": [
+        "components/layouts/subpage-layout.tsx (added size prop + rightActions array; extracted renderHeader/renderNavRow/renderRightActions/renderTitleRow helpers; compact branch uses solid View + titleLarge inline)",
+        "app/(app)/curated-route/[id].tsx (replaced MapHeaderOverlay + SafeAreaView with SubpageLayout size=\"compact\"; removed unused useRouter/SafeAreaView/MapHeaderOverlay imports)",
+        "app/(app)/saved-route/[id].tsx (replaced all 4 MapHeaderOverlay + SafeAreaView branches with SubpageLayout size=\"compact\"; main view title={data.name} + rightActions=[rename,delete]; removed unused useSafeAreaInsets/SafeAreaView/MapHeaderOverlay/Button/headerActions style/Z_INDEX_HEADER_ACTIONS)",
+        "app/(app)/saved-route/__tests__/[id].test.ts (added Pressable to react-native mock; updated back-button testID assertions from route-detail-header to route-detail-{not-found,screen}-back; updated mockBack to mockPush)",
+        "app/(app)/saved-route/[id].test.tsx (replaced MapHeaderOverlay mock with SubpageLayout stub; removed SafeAreaView from safe-area mock)"
+      ],
+      "out_of_scope": "app/(app)/(tabs)/index.tsx — the home/plan map screen is full-bleed and intentionally uses the floating glass-morphic MapHeaderOverlay per components/CLAUDE.md convention. Not changed.",
+      "verification": {
+        "typecheck": "pnpm type-check → 0 errors",
+        "tests": "pnpm test app/(app)/curated-route → 12/12 pass · pnpm test app/(app)/saved-route/__tests__/[id].test.ts → 34/34 pass · 3 pre-existing failures in [id].test.tsx (FU-2 stale tests) exist on main before this change, not caused by it",
+        "captures": "9 fresh screenshots: 3 light polyline + 2 light no-polyline + 1 light save + 3 dark polyline + 1 light saved-list (backward-compat). Header height reduced from ~200pt to ~100pt on all detail views."
+      }
+    },
+    {
+      "id": "F1",
+      "status": "open",
+      "owner": "react-native-ui-implementer",
+      "title": "Map tiles do not paint on cold load for polyline routes"
+    },
+    {
+      "id": "F2",
+      "status": "open",
+      "owner": "react-native-ui-implementer",
+      "title": "No copper polyline on Cherohala deep-link (tiles render, polyline missing)"
+    },
+    {
+      "id": "F3",
+      "status": "open",
+      "owner": "react-native-ui-implementer",
+      "title": "Geometry-degradation invariant violated on Cherohala"
+    },
+    {
+      "id": "F4",
+      "status": "open",
+      "owner": "react-native-ui-implementer",
+      "title": "Centroid marker is default blue puck on polyline branches (copper pin required by DESIGN-003)"
+    },
+    {
+      "id": "F5",
+      "status": "open",
+      "owner": "react-native-ui-implementer",
+      "title": "Pull-to-refresh uses system blue — theme to copper"
+    },
+    {
+      "id": "F6",
+      "status": "open",
+      "owner": "react-native-ui-implementer + convex-implementer",
+      "title": "Save action never resolves to 'Saved' — identifier reconciliation regression"
+    },
+    {
+      "id": "F7",
+      "status": "open",
+      "owner": "reviewer",
+      "title": "Dark-theme coverage gap on 4 surfaces"
+    },
+    {
+      "id": "F8",
+      "status": "open",
+      "owner": "planner",
+      "title": "Reconcile DESIGN-001 AC-1 self-contradiction (74% vs 90%)"
+    }
+  ],
+  "summary": {
+    "open": 7,
+    "doing": 0,
+    "done": 0,
+    "verified": 1,
+    "deferred": 0
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "sprint": "sprint-02-route-detail-close-the-loop",
+  "captured_at": "2026-07-06T23:20:00Z",
+  "capture_backend": "maestro-ios-simulator",
+  "device": "iPhone 17 Pro (iOS 26.5)",
+  "app_id": "com.hackerpug.laneshadow",
+  "viewport": { "width": 393, "height": 852 },
+  "themes": ["light", "dark"],
+  "surfaces": [
+    {
+      "id": "curated-detail-polyline-top",
+      "kind": "view",
+      "name": "Curated Route Detail (With Polyline) — top",
+      "state": "loaded",
+      "test_ids_seen": [
+        "curated-route-detail-name",
+        "curated-detail-map",
+        "curated-route-detail-polyline",
+        "curated-detail-scroll"
+      ],
+      "fixture_route": "wasatch-ridge-traverse",
+      "shots": {
+        "light": "captures/light/polyline-01-top.png",
+        "dark": "captures/dark/polyline-01-top.png"
+      },
+      "status": "ok",
+      "notes": "Header + map + name + archetype + summary + composite visible. Map tiles do not render on cold load — see finding F1."
+    },
+    {
+      "id": "curated-detail-polyline-scores",
+      "kind": "view",
+      "name": "Curated Route Detail — scores section",
+      "state": "scrolled",
+      "test_ids_seen": ["curated-detail-scores", "curated-route-detail-name"],
+      "shots": {
+        "light": "captures/light/polyline-02-scores.png",
+        "dark": "captures/dark/polyline-02-scores.png"
+      },
+      "status": "ok"
+    },
+    {
+      "id": "curated-detail-polyline-actions",
+      "kind": "view",
+      "name": "Curated Route Detail — actions (Save / Ride It)",
+      "state": "scrolled",
+      "test_ids_seen": [
+        "curated-detail-actions",
+        "save-curated-button",
+        "ride-it-button",
+        "curated-detail-conditions"
+      ],
+      "shots": {
+        "light": "captures/light/polyline-03-actions.png",
+        "dark": "captures/dark/polyline-03-actions.png"
+      },
+      "status": "ok"
+    },
+    {
+      "id": "curated-detail-no-polyline-top",
+      "kind": "view",
+      "name": "Curated Route Detail (No Polyline) — top + centroid marker + badge",
+      "state": "loaded",
+      "test_ids_seen": [
+        "curated-route-detail-name",
+        "curated-detail-map",
+        "curated-detail-approximate-badge",
+        "curated-detail-summary-empty"
+      ],
+      "fixture_route": "blue-ridge-overlook",
+      "shots": {
+        "light": "captures/light/no-polyline-01-top.png",
+        "dark": "captures/dark/no-polyline-01-top.png"
+      },
+      "status": "ok",
+      "notes": "Map renders with real tiles (Billy Graham Fwy, Tunnel Rd labels visible). Copper centroid marker centered. 'No description yet' italic muted present. Archetype 'Scenic' badge correct."
+    },
+    {
+      "id": "curated-detail-no-polyline-scrolled",
+      "kind": "view",
+      "name": "Curated Route Detail (No Polyline) — scrolled to reveal badge + scores + actions",
+      "state": "scrolled",
+      "test_ids_seen": [
+        "curated-detail-approximate-badge",
+        "curated-detail-scores",
+        "save-curated-button",
+        "ride-it-button"
+      ],
+      "shots": {
+        "light": "captures/light/no-polyline-02-badge.png",
+        "dark": "captures/dark/no-polyline-02-badge.png"
+      },
+      "status": "ok"
+    },
+    {
+      "id": "curated-detail-save-idle",
+      "kind": "view",
+      "name": "Curated Route Detail — Save button (idle state)",
+      "state": "idle",
+      "test_ids_seen": ["save-curated-button", "ride-it-button"],
+      "shots": {
+        "light": "captures/light/save-01-idle.png"
+      },
+      "status": "ok",
+      "notes": "Save (copper filled) + Ride It (outlined) buttons visible at bottom of scroll body, not pinned to viewport — matches AC-3."
+    },
+    {
+      "id": "plan-home",
+      "kind": "view",
+      "name": "Plan / Discovery Home — pre-card-tap state",
+      "state": "loaded",
+      "test_ids_seen": ["chat-input", "chat-input-suggestion-chips"],
+      "shots": {
+        "light": "captures/light/plan-01-home.png"
+      },
+      "status": "ok",
+      "notes": "Brand identity strong: copper route polylines, copper target/compass marker, copper wrench, copper 'Drawing the map' pill."
+    },
+    {
+      "id": "plan-suggestions",
+      "kind": "view",
+      "name": "Plan / Discovery Home — refresh state",
+      "state": "loading",
+      "shots": {
+        "light": "captures/light/plan-02-suggestions.png"
+      },
+      "status": "ok",
+      "notes": "Pull-to-refresh 'Refreshing...' banner visible at top — system blue, not themed to copper. See finding F5."
+    },
+    {
+      "id": "plan-card-tap-detail",
+      "kind": "view",
+      "name": "Curated Route Detail (deep-link from plan)",
+      "state": "loaded",
+      "fixture_route": "cherohala-skyway",
+      "test_ids_seen": [
+        "curated-route-detail-name",
+        "curated-detail-map",
+        "curated-detail-summary"
+      ],
+      "shots": {
+        "light": "captures/light/plan-03-detail.png"
+      },
+      "status": "ok",
+      "notes": "Map tiles render (Atlantic / SE US visible). Centroid blue dot present. No copper polyline visible — same F1 issue. 'Technical' archetype + summary + 90/100 + all 5 bars present."
+    }
+  ],
+  "distinctness": {
+    "all_unique_hashes": true,
+    "duplicate_groups": []
+  }
+}

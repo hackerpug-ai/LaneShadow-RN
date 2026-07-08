@@ -1,0 +1,56 @@
+# From plan view: launch → home → tap curated card → detail
+appId: com.hackerpug.laneshadow
+---
+
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+- runFlow: ../_common-auth.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: 'chat-input'
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: 'chat-input-suggestion-chips'
+    timeout: 10000
+    optional: true
+
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/plan-01-home.png
+
+# Tap a suggestion chip if visible (it will trigger a discovery flow that surfaces curated cards)
+- runFlow:
+    when:
+      visible: { id: 'chat-input-suggestion-chips' }
+    commands:
+      - takeScreenshot: ${MAESTRO_OUTPUT_DIR}/plan-02-suggestions.png
+
+# Try tapping any visible curated chat card with a known id
+- runFlow:
+    when:
+      visible: { id: 'curated-chat-card-cherohala-skyway' }
+    commands:
+      - tapOn: { id: 'curated-chat-card-cherohala-skyway' }
+      - extendedWaitUntil:
+          visible: { id: 'curated-route-detail-name' }
+          timeout: 30000
+      - extendedWaitUntil:
+          visible: { id: 'curated-detail-map' }
+          timeout: 10000
+      - takeScreenshot: ${MAESTRO_OUTPUT_DIR}/plan-03-detail.png
+
+# Fallback: deep-link directly
+- runFlow:
+    when:
+      notVisible: { id: 'curated-route-detail-name' }
+    commands:
+      - openLink: laneshadow:///curated-route/cherohala-skyway
+      - extendedWaitUntil:
+          visible: { id: 'curated-route-detail-name' }
+          timeout: 30000
+      - extendedWaitUntil:
+          visible: { id: 'curated-detail-map' }
+          timeout: 10000
+      - takeScreenshot: ${MAESTRO_OUTPUT_DIR}/plan-03-detail.png

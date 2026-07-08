@@ -1,0 +1,34 @@
+# Screenshot capture flow: curated route detail WITHOUT polyline (centroid + badge)
+# Captures the geometry graceful-degradation path.
+
+appId: com.hackerpug.laneshadow
+---
+
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+- runFlow: ../_common-auth.yaml
+
+- openLink: laneshadow:///curated-route/blue-ridge-overlook
+
+- extendedWaitUntil:
+    visible:
+      id: 'curated-route-detail-name'
+      text: 'Blue Ridge Overlook'
+    timeout: 30000
+
+- extendedWaitUntil:
+    visible:
+      id: 'curated-detail-map'
+    timeout: 15000
+
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/01-top.png
+
+# Scroll to reveal approximate badge
+- swipe:
+    direction: UP
+    duration: 400
+- wait: 600
+
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/02-badge.png

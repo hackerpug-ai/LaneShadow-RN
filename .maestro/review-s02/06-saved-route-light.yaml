@@ -1,0 +1,48 @@
+# Screenshot capture flow: saved route detail (planned, no curated redirect)
+# Reaches app/(app)/saved-route/[id] via deep-link to a PLANNED saved row.
+# We use the curated-route deep-link + a 2s delay so the curated bookmark
+# doesn't fire — the user must tap into a PLANNED saved route. Easiest:
+# (1) sign in, (2) deep-link to the saved-routes list, (3) tap a non-curated entry.
+# For now we just open the saved-routes list and capture that.
+appId: com.hackerpug.laneshadow
+---
+
+- launchApp:
+    clearState: false
+    clearKeychain: false
+
+- runFlow: ../_common-auth.yaml
+
+# Navigate to the saved-routes list (we don't have a non-curated seed here, so
+# we capture the saved-routes list + any visible saved route entry).
+- openLink: laneshadow:///saved-routes
+
+- extendedWaitUntil:
+    visible:
+      id: 'saved-routes-list'
+    timeout: 15000
+- extendedWaitUntil:
+    visible:
+      text: "Wasatch.*|Blue Ridge.*|Cherohala.*"
+    timeout: 8000
+    optional: true
+
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/saved-list.png
+
+# Try to tap the first saved entry (if any)
+- runFlow:
+    when:
+      visible: { text: "Wasatch.*" }
+    commands:
+      - tapOn: { text: "Wasatch.*" }
+      - extendedWaitUntil:
+          visible: { id: 'route-detail-screen' }
+          timeout: 30000
+      - extendedWaitUntil:
+          visible: { id: 'route-detail-scroll' }
+          timeout: 10000
+      - takeScreenshot: ${MAESTRO_OUTPUT_DIR}/saved-detail-top.png
+      - swipe:
+          direction: UP
+          duration: 400
+      - takeScreenshot: ${MAESTRO_OUTPUT_DIR}/saved-detail-scrolled.png

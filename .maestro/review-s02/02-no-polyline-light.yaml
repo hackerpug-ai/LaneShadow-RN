@@ -1,0 +1,41 @@
+# Curated route detail WITHOUT polyline (Blue Ridge Overlook) — centroid + badge
+appId: com.hackerpug.laneshadow
+---
+
+- launchApp:
+    clearState: false
+    clearKeychain: false
+
+- runFlow: ../_common-auth.yaml
+
+- openLink: laneshadow:///curated-route/blue-ridge-overlook
+
+- extendedWaitUntil:
+    visible:
+      id: 'curated-route-detail-name'
+      text: 'Blue Ridge Overlook'
+    timeout: 30000
+
+- extendedWaitUntil:
+    visible:
+      id: 'curated-detail-map'
+    timeout: 15000
+
+- extendedWaitUntil:
+    visible:
+      id: 'curated-detail-scroll'
+    timeout: 5000
+
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/no-polyline-01-top.png
+
+# Scroll to reveal approximate badge
+- swipe:
+    direction: UP
+    duration: 400
+- extendedWaitUntil:
+    visible:
+      id: 'curated-detail-approximate-badge'
+    timeout: 8000
+    optional: true
+
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/no-polyline-02-badge.png

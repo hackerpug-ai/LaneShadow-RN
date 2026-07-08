@@ -1,0 +1,28 @@
+# Dark mode: no-polyline (Blue Ridge Overlook)
+appId: com.hackerpug.laneshadow
+---
+
+- launchApp:
+    clearState: false
+    clearKeychain: false
+
+- runFlow: ../_common-auth.yaml
+
+- openLink: laneshadow:///curated-route/blue-ridge-overlook
+
+- extendedWaitUntil:
+    visible:
+      id: 'curated-route-detail-name'
+      text: 'Blue Ridge Overlook'
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: 'curated-detail-map'
+    timeout: 15000
+
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/no-polyline-01-top.png
+
+- swipe:
+    direction: UP
+    duration: 400
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/no-polyline-02-badge.png

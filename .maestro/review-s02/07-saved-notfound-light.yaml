@@ -1,0 +1,25 @@
+# saved-route not-found state (deep-link to a non-existent id)
+# Proves SubpageLayout size="compact" with title="Route Detail" renders the
+# finite 44pt header in the saved-route view's not-found branch.
+appId: com.hackerpug.laneshadow
+---
+
+- launchApp:
+    clearState: false
+    clearKeychain: false
+
+- runFlow: ../_common-auth.yaml
+
+- openLink: laneshadow:///saved-route/nonexistent-id-xyz
+
+# Wait for the not-found state to render
+- extendedWaitUntil:
+    visible:
+      id: 'route-detail-not-found'
+    timeout: 15000
+- extendedWaitUntil:
+    visible:
+      text: 'Route not found'
+    timeout: 10000
+
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/saved-notfound.png

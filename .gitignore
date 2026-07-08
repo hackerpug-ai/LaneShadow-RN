@@ -38,3 +38,6 @@ react-native/ios/
 convex/_generated/
 convex/.env-aware
 .convex/
+
+# Local git worktrees (never track — they stage as broken submodule gitlinks)
+.worktrees/

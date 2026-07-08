@@ -1,0 +1,1 @@
+Run /kb-run-sprint .spec/prds/mvp/tasks/sprint-03-on-device-d9-capstone until GATE-GOAL: ACHIEVED

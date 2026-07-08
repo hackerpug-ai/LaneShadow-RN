@@ -1,0 +1,127 @@
+{
+  "sprint": "sprint-02-route-detail-close-the-loop",
+  "captured_at": "2026-07-06T23:20:00Z",
+  "review_basis": "DERIVED_FROM_INDEX_NOTES + DESIGN_SPECS + direct visual inspection of 14 captures (light + dark). The frontend-designer subagent confirmed scores via index.json cross-check; the orchestrator (this run) inspected every PNG directly.",
+  "themes": {
+    "fidelity_avg": 3.7,
+    "instinct_avg": 3.9,
+    "consistency_avg": 3.2
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "HIGH",
+      "title": "Map tiles do not paint on cold load for polyline routes — hero element blank",
+      "blast_radius": 2,
+      "screens": ["curated-detail-polyline-top"],
+      "evidence": [
+        "captures/light/polyline-01-top.png — only a single blue dot on a flat light-blue background; no road tiles visible",
+        "captures/dark/polyline-01-top.png — same symptom (single blue dot on near-black; no tiles)"
+      ],
+      "fix": "Wait for onMapLoaded / onRegionIsChangingComplete before the first paint. Add a copper-tinted loading shimmer over the ~40% map zone until tiles paint. Verify whether this is a capture-timing race (Wasatch was opened first) or a real cold-start tile-fetch failure. Contrast: the Blue Ridge Overlook fixture (no polyline) renders tiles fine, so the SDK works.",
+      "axis": "fidelity"
+    },
+    {
+      "id": "F2",
+      "severity": "HIGH",
+      "title": "No copper polyline visible on Cherohala deep-link even though tiles render",
+      "blast_radius": 1,
+      "screens": ["plan-card-tap-detail"],
+      "evidence": [
+        "captures/light/plan-03-detail.png — Atlantic / SE US tiles render correctly, but only a single blue dot is shown instead of a copper polyline tracing the route"
+      ],
+      "fix": "Debug the DESIGN-003 AC-1 render path. Confirm (a) `cherohala-skyway` fixture's `routePolyline` is non-null, (b) the Polyline child is mounted with `stroke=copper-500 (#EE7C2B)`, `width=4`, and (c) the camera fits route bounds. Distinct root cause from F1 (here tiles DO paint).",
+      "axis": "fidelity"
+    },
+    {
+      "id": "F3",
+      "severity": "MED",
+      "title": "Geometry-degradation invariant violated on Cherohala (no polyline AND no 'Approximate location' badge)",
+      "blast_radius": 1,
+      "screens": ["plan-card-tap-detail"],
+      "evidence": ["captures/light/plan-03-detail.png — only a centroid dot is visible; no badge"],
+      "fix": "Render the correct DESIGN-003 branch for the fixture. Add a maestro invariant: every detail screen shows exactly one of {polyline} | {centroid + 'Approximate location' badge} — never both, never neither.",
+      "axis": "fidelity"
+    },
+    {
+      "id": "F4",
+      "severity": "MED",
+      "title": "Centroid marker is the default blue user-location puck, not the copper pin (DESIGN-003 enrichment)",
+      "blast_radius": 3,
+      "screens": [
+        "curated-detail-polyline-top",
+        "curated-detail-no-polyline-top",
+        "plan-card-tap-detail"
+      ],
+      "evidence": [
+        "captures/light/plan-03-detail.png — blue dot in the middle of Atlantic",
+        "captures/light/no-polyline-01-top.png — but here the marker IS copper! Inconsistency.",
+        "DESIGN-003 §Design enrichment — copper centroid marker required"
+      ],
+      "fix": "Render the copper centroid Marker asset at centroidLat/Lng. Disable `showsUserLocation` on detail map instances. Investigate why the no-polyline branch (Blue Ridge) renders the correct copper pin but polyline-bearing branches render the default SDK puck.",
+      "axis": "consistency"
+    },
+    {
+      "id": "F5",
+      "severity": "MED",
+      "title": "Pull-to-refresh 'Refreshing...' banner is system blue — the only off-brand accent in the capture set",
+      "blast_radius": 1,
+      "screens": ["plan-suggestions"],
+      "evidence": [
+        "captures/light/plan-02-suggestions.png — solid blue banner at top",
+        "captures/light/plan-01-home.png — copper accent baseline"
+      ],
+      "fix": "Theme the RN RefreshControl to copper-500 (#EE7C2B): pass `colors={[copper-500]}` and `tintColor={copper-500}`. Re-capture to confirm only copper accents remain across the home + refresh states.",
+      "axis": "instinct"
+    },
+    {
+      "id": "F6",
+      "severity": "MED",
+      "title": "Save action never resolves to 'Saved' state in this run — known identifier reconciliation issue (FU-2 / DATA-006)",
+      "blast_radius": 1,
+      "screens": ["curated-detail-save-idle"],
+      "evidence": [
+        "Save button tapped via maestro; waited 15s for `save-curated-saved-badge` — FAILED",
+        "Screenshot at failure: button still in copper 'Save' idle state",
+        "Source code (app/(app)/curated-route/[id].tsx:235-238): `useSaveCuratedRoute({ curatedRouteId: detail?._id ?? '', ... })` — relies on `_id` from DATA-006, which is NOT returned by `getCuratedRouteDetail` per the in-source IDENTIFIER RECONCILIATION comment"
+      ],
+      "fix": "Either (a) extend DATA-006's `getCuratedRouteDetail` return to include `_id` (per FU-2 the field IS in the validator but the React hook uses `detail._id` not `detail.routeId`), or (b) change the hook to thread `routeId` through to a new mutation that resolves `_id` server-side via `ctx.db.query('curated_routes').withIndex('by_routeId', ...).unique()` before insert. The gate run in `gate-results.json` reports step 5 PASSED, so this is a fresh regression or a state-dependent flakiness — investigate.",
+      "axis": "fidelity"
+    },
+    {
+      "id": "F7",
+      "severity": "LOW",
+      "title": "Dark-theme coverage gap — 4 of 9 surfaces have no dark capture",
+      "blast_radius": 4,
+      "screens": [
+        "plan-home",
+        "plan-suggestions",
+        "plan-card-tap-detail",
+        "curated-detail-save-idle"
+      ],
+      "evidence": ["captures/dark/ contains 5 files; light/ contains 9 — parity gap"],
+      "fix": "Add dark variants for plan-home, plan-suggestions, plan-03-detail, save-idle in the next capture pass. Use `xcrun simctl ui booted appearance dark` + relaunch.",
+      "axis": "consistency"
+    },
+    {
+      "id": "F8",
+      "severity": "LOW",
+      "title": "DESIGN-001 AC-1 spec self-contradicts on scenic fill (74% vs 90%)",
+      "blast_radius": 1,
+      "screens": [],
+      "evidence": [
+        "DESIGN-001 line 32: scenic fill = 74%",
+        "DESIGN-001 line 35: scenic fill = 90%"
+      ],
+      "fix": "Reconcile to `Math.round(score * 100)` — visually confirmed the Wasatch scenic bar reads 90% (matches the higher number), so the 74% reference is the stale one.",
+      "axis": "fidelity"
+    }
+  ],
+  "strengths": [
+    "No-polyline branch (Blue Ridge Overlook) is the gold-standard reference: real tiles, copper centroid, italic 'No description yet' placeholder, 'Approximate location' badge, archetype badge, all five score bars, conditions row, Save + Ride It inside scroll.",
+    "Score-dimension bar primitive is well executed: copper-500 fill on near-black track, % readout right-aligned, sufficient row height, dark-mode parity is clean.",
+    "Brand identity (copper accent) comes through on the home/plan view: copper target compass, copper dashed route polylines, copper wrench, copper 'Drawing the map' pill.",
+    "Dark theme is genuinely considered — not just inverted: badge backgrounds, button outlines, and score-bar tracks all read correctly.",
+    "Info hierarchy on the detail screen is clean — the eye lands on the composite score, then the five bars, then the actions. The 40/60 map-vs-body split matches DESIGN-002."
+  ]
+}

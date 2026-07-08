@@ -1,0 +1,40 @@
+# Smoke test: launch app, handle universal-link "Open in Ruthwell?" dialog
+# (deep links to laneshadow:// are registered to BOTH Ruthwell and LaneShadow,
+# so iOS asks the user to pick an app the first time. We tap "Open" to commit
+# to LaneShadow for the session.)
+appId: com.hackerpug.laneshadow
+---
+
+- launchApp:
+    clearState: false
+    clearKeychain: false
+
+# Wait for any of: dev-server picker, login, home, or the universal-link dialog
+- extendedWaitUntil:
+    visible:
+      text: "DEVELOPMENT SERVERS|Login with Email|chat-input|Open in \u201c"
+    timeout: 60000
+
+# If the universal-link dialog is showing, pick LaneShadow ("Open")
+- runFlow:
+    when:
+      visible: { text: "Open in \u201c" }
+    commands:
+      - tapOn: { text: "Open" }
+
+# Wait for app to fully load (chat-input or login)
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|chat-input"
+    timeout: 120000
+
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/smoke-home.png
+
+- runFlow: ../_common-auth.yaml
+
+- extendedWaitUntil:
+    visible:
+      id: 'chat-input'
+    timeout: 120000
+
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/smoke-authed.png

@@ -1,0 +1,64 @@
+# Saved screen + reopen flow
+appId: com.hackerpug.laneshadow
+---
+
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+- runFlow: ../_common-auth.yaml
+
+# Save a curated route first
+- openLink: laneshadow:///curated-route/wasatch-ridge-traverse
+- extendedWaitUntil:
+    visible:
+      id: 'curated-route-detail-name'
+      text: 'Wasatch Ridge Traverse'
+    timeout: 30000
+- swipe:
+    direction: UP
+    duration: 400
+- extendedWaitUntil:
+    visible:
+      id: 'save-curated-button'
+    timeout: 8000
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: 'save-curated-button'
+    timeout: 8000
+- tapOn:
+    id: 'save-curated-button'
+- extendedWaitUntil:
+    visible:
+      id: 'save-curated-saved-badge'
+    timeout: 15000
+
+# Navigate to the Saved screen
+- openLink: laneshadow:///saved-routes
+
+- extendedWaitUntil:
+    visible:
+      id: 'saved-routes-list'
+    timeout: 15000
+- extendedWaitUntil:
+    visible:
+      text: "Wasatch.*"
+    timeout: 8000
+    optional: true
+
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/saved-01-list.png
+
+# Reopen the saved curated route
+- tapOn:
+    text: "Wasatch.*"
+- extendedWaitUntil:
+    visible:
+      id: 'curated-route-detail-name'
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: 'curated-detail-map'
+    timeout: 10000
+
+- takeScreenshot: ${MAESTRO_OUTPUT_DIR}/saved-02-reopen.png

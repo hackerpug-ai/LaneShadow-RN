@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sprint 2 — Route Detail — UI/UX Review</title>
+<style>
+  :root {
+    --copper-500: #EE7C2B;
+    --copper-100: #F8DCC5;
+    --ink-900: #1A1A1A;
+    --ink-700: #444;
+    --ink-500: #777;
+    --ink-300: #BBB;
+    --bg: #FAFAF7;
+    --surface: #FFFFFF;
+    --border: #E5E1D8;
+    --high: #C0392B;
+    --med: #D87E2C;
+    --low: #888;
+    --good: #2E7D32;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    color: var(--ink-900);
+    background: var(--bg);
+    margin: 0; padding: 32px;
+  }
+  .container { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 28px; margin: 0 0 6px; letter-spacing: -0.01em; }
+  h2 { font-size: 19px; margin: 32px 0 12px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  h3 { font-size: 15px; margin: 18px 0 8px; }
+  p, li { color: var(--ink-700); }
+  code { font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: #F2EFE8; padding: 1px 5px; border-radius: 3px; }
+  .meta { color: var(--ink-500); font-size: 13px; margin-bottom: 24px; }
+  .scorecard {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0 24px;
+  }
+  .scorecard .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .scorecard .card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-500); }
+  .scorecard .card .value { font-size: 26px; font-weight: 600; margin-top: 4px; }
+  .scorecard .card .value small { font-size: 14px; color: var(--ink-500); font-weight: 400; }
+  .severity {
+    display: inline-block; padding: 1px 8px; border-radius: 3px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    color: white; vertical-align: middle;
+  }
+  .severity.HIGH { background: var(--high); }
+  .severity.MED  { background: var(--med); }
+  .severity.LOW  { background: var(--low); }
+  .finding {
+    background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--med);
+    border-radius: 6px; padding: 14px 18px; margin: 12px 0;
+  }
+  .finding.HIGH { border-left-color: var(--high); }
+  .finding.LOW  { border-left-color: var(--low); }
+  .finding .title { font-size: 15px; font-weight: 600; color: var(--ink-900); }
+  .finding .meta  { font-size: 12px; color: var(--ink-500); margin-top: 2px; }
+  .finding p { margin: 8px 0 0; }
+  .finding .fix { margin-top: 8px; font-size: 14px; color: var(--ink-700); }
+  .finding .fix strong { color: var(--ink-900); }
+  .finding ul { margin: 6px 0; padding-left: 22px; }
+  .shot-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 8px 0 16px;
+  }
+  .shot {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 8px;
+  }
+  .shot img { width: 100%; height: auto; border-radius: 4px; display: block; }
+  .shot .label { font-size: 12px; color: var(--ink-500); margin-top: 6px; text-align: center; }
+  .pair {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 8px 0 18px;
+  }
+  .theme-tag {
+    display: inline-block; padding: 1px 6px; border-radius: 3px;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+    background: #E5E1D8; color: var(--ink-700); margin-right: 4px;
+  }
+  .theme-tag.dark { background: #2A2A2A; color: #DDD; }
+  .theme-tag.light { background: #F0EDE5; color: #555; }
+  .summary-banner {
+    background: linear-gradient(135deg, var(--copper-100), #FFF);
+    border: 1px solid var(--copper-500); border-radius: 8px; padding: 14px 18px; margin: 0 0 24px;
+  }
+  .summary-banner .stat { font-size: 22px; font-weight: 700; color: var(--copper-500); }
+  .summary-banner .sub  { color: var(--ink-700); margin-top: 4px; }
+  .strength { color: var(--good); }
+  .theme-block {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px; margin: 16px 0;
+  }
+  .theme-block h3 { margin-top: 0; }
+  .theme-block .affects { font-size: 12px; color: var(--ink-500); }
+  a { color: var(--copper-500); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>Sprint 2 — Route Detail + Close the Loop</h1>
+  <div class="meta">
+    Visual review · Maestro 2.6.1 on iPhone 17 Pro (iOS 26.5) · real Convex dev · light + dark ·
+    14 captures · 2026-07-06
+  </div>
+
+  <div class="summary-banner">
+    <div class="stat">1 finding fixed → applied to BOTH detail views · 7 remaining · 1 verified</div>
+    <div class="sub">Fidelity 3.7 → 4.1 / 5 · Instinct 3.9 / 5 · Consistency 3.2 → 3.6 / 5. Header standardized to finite SubpageLayout compact in <b>both</b> <code>app/(app)/curated-route/[id].tsx</code> AND <code>app/(app)/saved-route/[id].tsx</code> (see F-HEADER below).</div>
+  </div>
+
+  <h2>Polish — Fixed this run</h2>
+
+  <div class="finding" style="border-left-color: var(--good); background: #F0F8F1;">
+    <span class="severity" style="background: var(--good);">FIXED</span>
+    &nbsp;<span class="title">F-HEADER — Route detail header WAY TOO BIG (applied to both detail views)</span>
+    <p><strong>User feedback:</strong> "route detail view header WAY TOO BIG, should be the same standard size as other details views (standardize)... should be finite size on top, create apprpriate layout wrapper".</p>
+    <p><strong>Fix:</strong> added <code>size: 'compact'</code> to <code>SubpageLayout</code> (also added <code>rightActions</code> array to support multiple icons). Both detail views migrated to <code>&lt;SubpageLayout size="compact"&gt;</code>:
+    <ul>
+      <li><code>app/(app)/curated-route/[id].tsx</code> — title="Route Detail", no right actions, 5 branches (loading skeleton / error fallback / detail / etc.) replaced <code>MapHeaderOverlay</code> + <code>SafeAreaView</code>.</li>
+      <li><code>app/(app)/saved-route/[id].tsx</code> — title=<code>data.name</code>, <code>rightActions</code>=[rename, delete] (moved from absolute-positioned map overlay), 4 branches migrated. Removed unused <code>useSafeAreaInsets</code> / <code>SafeAreaView</code> / <code>Button</code> / <code>MapHeaderOverlay</code> / <code>headerActions</code> style / <code>Z_INDEX_HEADER_ACTIONS</code> constant.</li>
+    </ul>
+    </p>
+    <p><strong>Out of scope (left as MapHeaderOverlay):</strong> <code>app/(app)/(tabs)/index.tsx</code> — the home/plan map screen is full-bleed and intentionally uses the floating glass-morphic header per <code>components/CLAUDE.md</code> convention.</p>
+    <p><strong>Files changed:</strong> <code>components/layouts/subpage-layout.tsx</code> (added <code>size</code> prop + <code>rightActions</code> array; extracted <code>renderHeader/renderNavRow/renderRightActions/renderTitleRow</code>), <code>app/(app)/curated-route/[id].tsx</code>, <code>app/(app)/saved-route/[id].tsx</code>, test mocks for <code>app/(app)/saved-route/__tests__/[id].test.ts</code> + <code>app/(app)/saved-route/[id].test.tsx</code>.</p>
+    <p><strong>Verified:</strong> <code>pnpm type-check</code> → 0 errors · <code>pnpm test app/(app)/saved-route/__tests__/[id].test.ts</code> → 34/34 pass · <code>pnpm test app/(app)/curated-route</code> → 12/12 pass.</p>
+  </div>
+
+  <h3>F-HEADER — Curated detail Before / After</h3>
+  <div class="pair">
+    <div class="shot" style="border:2px solid var(--high);">
+      <img src="captures/light/polyline-01-top.before.png" alt="Before — light polyline top" />
+      <div class="label"><span class="theme-tag light">light</span>BEFORE — floating glass overlay, ~200pt+ extending into status bar</div>
+    </div>
+    <div class="shot" style="border:2px solid var(--good);">
+      <img src="captures/light/after/polyline-01-top.png" alt="After — light polyline top" />
+      <div class="label"><span class="theme-tag light">light</span>AFTER — finite 44pt bar, <code>titleLarge</code> inline with back</div>
+    </div>
+  </div>
+  <div class="pair">
+    <div class="shot" style="border:2px solid var(--high);">
+      <img src="captures/dark/polyline-01-top.before.png" alt="Before — dark polyline top" />
+      <div class="label"><span class="theme-tag dark">dark</span>BEFORE</div>
+    </div>
+    <div class="shot" style="border:2px solid var(--good);">
+      <img src="captures/dark/after/polyline-01-top.png" alt="After — dark polyline top" />
+      <div class="label"><span class="theme-tag dark">dark</span>AFTER</div>
+    </div>
+  </div>
+  <div class="pair">
+    <div class="shot" style="border:2px solid var(--high);">
+      <img src="captures/light/save-01-idle.before.png" alt="Before — light save idle" />
+      <div class="label"><span class="theme-tag light">light</span>BEFORE — Save/Ride It scrolled past fold</div>
+    </div>
+    <div class="shot" style="border:2px solid var(--good);">
+      <img src="captures/light/after/save-01-idle.png" alt="After — light save idle" />
+      <div class="label"><span class="theme-tag light">light</span>AFTER — Save/Ride It visible at fold with map + body</div>
+    </div>
+  </div>
+
+  <h3>F-HEADER — Saved detail code-level fix (visual proof: same <code>SubpageLayout</code> as curated)</h3>
+  <p>The <code>app/(app)/saved-route/[id].tsx</code> header was fixed in the same pass. The view uses the EXACT same <code>SubpageLayout size="compact"</code> component as curated-route — so the visual proof from the curated captures above applies identically. The "Saved Routes" list below shows <code>SubpageLayout size="standard"</code> (default) still rendering correctly for non-detail subpages — proving the <code>size</code> prop is backward compatible.</p>
+  <div class="pair">
+    <div class="shot">
+      <img src="captures/light/after/saved-list.png" alt="Saved Routes list — proves SubpageLayout standard mode unchanged" />
+      <div class="label"><span class="theme-tag light">light</span>Saved Routes list (SubpageLayout standard mode — backward compat)</div>
+    </div>
+    <div class="shot" style="background:#F0EDE5;color:#777;display:flex;align-items:center;justify-content:center;aspect-ratio:9/19.5;font-size:12px;">saved-route/[id] main view uses<br/>the same SubpageLayout<br/>compact component as the<br/>curated captures above<br/>(visual proof = same code)</div>
+  </div>
+  <p>Implementation note: the saved-route main view has two right-side actions (rename + delete) that were previously absolutely-positioned over the map. They now live in the header's <code>rightActions</code> array — same finite header height, same 44pt nav row, but with two icons on the right instead of one.</p>
+
+  <h2>Scorecard</h2>
+  <div class="scorecard">
+    <div class="card"><div class="label">Fidelity</div><div class="value">3.7 <small>/ 5</small></div></div>
+    <div class="card"><div class="label">Instinct</div><div class="value">3.9 <small>/ 5</small></div></div>
+    <div class="card"><div class="label">Consistency</div><div class="value">3.2 <small>/ 5</small></div></div>
+    <div class="card"><div class="label">Findings</div><div class="value">8</div></div>
+  </div>
+
+  <h2>Systemic Themes</h2>
+
+  <div class="theme-block">
+    <h3>Theme 1 — Map lifecycle & geometry branch <span class="severity HIGH">HIGH</span></h3>
+    <div class="affects">Affects F1, F2, F3, F4 · Blast radius: 3 of 9 surfaces</div>
+    <p>The curated route detail is supposed to lead with a map, but on every polyline-bearing route the map either (a) fails to paint tiles on cold load, (b) renders tiles but omits the copper polyline, or (c) renders the wrong centroid marker (the default SDK user-location puck instead of the DESIGN-003 copper pin). The only branch that renders correctly is the no-polyline branch (Blue Ridge Overlook) — and it is the gold standard of the run.</p>
+    <p><strong>Single fix vector:</strong> the geometry branch in <code>app/(app)/curated-route/[id].tsx</code> needs lifecycle hardening (wait for <code>onMapLoaded</code>), explicit polyline child render, and a copper Marker asset (not the SDK puck). The DESIGN-003 AC-1 path is the one that needs attention — AC-2 (no-polyline) is already correct.</p>
+  </div>
+
+  <div class="theme-block">
+    <h3>Theme 2 — Brand consistency: copper is the dominant accent but two surfaces leak <span class="severity MED">MED</span></h3>
+    <div class="affects">Affects F5 · Blast radius: 1 of 9 surfaces</div>
+    <p>The home / plan view establishes copper as the brand accent system: copper target compass, copper route polylines, copper wrench, copper "Drawing the map" pill. Then a single off-brand element slips in: the pull-to-refresh banner is system blue. The score bars, archetype badges, action buttons, and most markers are all on-brand — but that one banner is visually loud enough to read as a different product on first glance.</p>
+    <p><strong>Single fix vector:</strong> theme the RN RefreshControl to <code>colors={[copper-500(#EE7C2B)]}</code> + <code>tintColor={copper-500}</code>.</p>
+  </div>
+
+  <div class="theme-block">
+    <h3>Theme 3 — Save flow: known identifier reconciliation regression <span class="severity MED">MED</span></h3>
+    <div class="affects">Affects F6 · Blast radius: 1 of 9 surfaces</div>
+    <p>Tapping the Save button in this run did not transition to the "Saved" state — the button remained in the copper "Save" idle state after the tap and 15s wait. The <code>app/(app)/curated-route/[id].tsx:235-238</code> hook signature threads <code>detail._id</code> (which DATA-006 does NOT return), with a <code>?? ''</code> fallback. Per the in-source <code>IDENTIFIER RECONCILIATION</code> comment, the live save needs <code>_id</code> resolution that the read path doesn't expose. The gate run reports step 5 PASSED — so this is a fresh regression or state-dependent flakiness. Either DATA-006 should return <code>_id</code> (per FU-2 the validator includes it but the React hook uses it inconsistently), or the mutation should resolve <code>_id</code> server-side from <code>routeId</code>.</p>
+    <p><strong>Single fix vector:</strong> same as FU-2 / FU-3 in SPRINT.md — fix the read path or resolve server-side.</p>
+  </div>
+
+  <h2>Per-Unit Findings</h2>
+
+  <h3>curated-detail-polyline-top <small>(Wasatch Ridge Traverse)</small> · fidelity 2 / instinct 3 / consistency 2</h3>
+  <div class="pair">
+    <div class="shot"><img src="captures/light/polyline-01-top.png" alt="Wasatch polyline top — light" /><div class="label"><span class="theme-tag light">light</span>polyline-01-top</div></div>
+    <div class="shot"><img src="captures/dark/polyline-01-top.png" alt="Wasatch polyline top — dark" /><div class="label"><span class="theme-tag dark">dark</span>polyline-01-top</div></div>
+  </div>
+  <div class="finding HIGH"><span class="severity HIGH">F1</span> &nbsp;<span class="title">Map tiles don't paint on cold load; hero element blank</span>
+    <p>Both light and dark show a single blue dot on a flat background. The Wasatch was opened FIRST in the capture sequence, while the Blue Ridge Overlook (opened later) rendered tiles correctly — suggests a capture-timing race more than a real cold-start failure.</p>
+    <div class="fix"><strong>Fix:</strong> wait for <code>onMapLoaded</code> / <code>onRegionIsChangingComplete</code> before first paint; add a copper-tinted loading shimmer over the ~40% map zone until tiles paint.</div>
+  </div>
+  <div class="finding"><span class="severity MED">F4</span> &nbsp;<span class="title">Centroid marker is the default blue user-location puck, not the copper pin</span>
+    <div class="fix"><strong>Fix:</strong> render the copper centroid Marker asset; disable <code>showsUserLocation</code> on this map instance.</div>
+  </div>
+
+  <h3>curated-detail-polyline-scores · fidelity 4 / instinct 4 / consistency 4</h3>
+  <div class="pair">
+    <div class="shot"><img src="captures/light/polyline-02-scores.png" alt="Wasatch polyline scores — light" /><div class="label"><span class="theme-tag light">light</span>polyline-02-scores</div></div>
+    <div class="shot"><img src="captures/dark/polyline-02-scores.png" alt="Wasatch polyline scores — dark" /><div class="label"><span class="theme-tag dark">dark</span>polyline-02-scores</div></div>
+  </div>
+  <p>Score bars read correctly: copper-500 fill on near-black track, % readout right-aligned, sufficient row height, dark-mode parity clean.</p>
+
+  <h3>curated-detail-polyline-actions · fidelity 4 / instinct 4 / consistency 4</h3>
+  <div class="pair">
+    <div class="shot"><img src="captures/light/polyline-03-actions.png" alt="Wasatch polyline actions — light" /><div class="label"><span class="theme-tag light">light</span>polyline-03-actions</div></div>
+    <div class="shot"><img src="captures/dark/polyline-03-actions.png" alt="Wasatch polyline actions — dark" /><div class="label"><span class="theme-tag dark">dark</span>polyline-03-actions</div></div>
+  </div>
+  <p>Save (copper filled primary) + Ride It (outline). Visual distinction clear, 44pt min height satisfied, both inside scroll body (not pinned — AC-3 satisfied). The saved success state was not captured — see F6.</p>
+
+  <h3>curated-detail-no-polyline-top <small>(Blue Ridge Overlook — gold standard)</small> · fidelity 5 / instinct 5 / consistency 4</h3>
+  <div class="pair">
+    <div class="shot"><img src="captures/light/no-polyline-01-top.png" alt="Blue Ridge no-polyline top — light" /><div class="label"><span class="theme-tag light">light</span>no-polyline-01-top</div></div>
+    <div class="shot"><img src="captures/dark/no-polyline-01-top.png" alt="Blue Ridge no-polyline top — dark" /><div class="label"><span class="theme-tag dark">dark</span>no-polyline-01-top</div></div>
+  </div>
+  <p class="strength">The strongest screen in the run.</p> Real tiles (Billy Graham Fwy, Tunnel Rd labels), copper centroid pin, italic "No description yet" muted, "Scenic" archetype badge, 72/100, all 5 score bars, "Approximate location" outline badge in lower-left. <strong>Use as the visual target when fixing Theme 1.</strong>
+
+  <h3>curated-detail-no-polyline-scrolled · fidelity 4 / instinct 4 / consistency 4</h3>
+  <div class="pair">
+    <div class="shot"><img src="captures/light/no-polyline-02-badge.png" alt="Blue Ridge scrolled — light" /><div class="label"><span class="theme-tag light">light</span>no-polyline-02-badge</div></div>
+    <div class="shot"><img src="captures/dark/no-polyline-02-badge.png" alt="Blue Ridge scrolled — dark" /><div class="label"><span class="theme-tag dark">dark</span>no-polyline-02-badge</div></div>
+  </div>
+  <p>"Approximate location" badge + scores + Save + Ride It all reachable after scroll. Badge is outline variant per DESIGN-003 (semantically correct — "approximate", not "highlighted").</p>
+
+  <h3>curated-detail-save-idle · fidelity 4 / instinct 5 / consistency 3</h3>
+  <div class="pair">
+    <div class="shot"><img src="captures/light/save-01-idle.png" alt="Save idle — light" /><div class="label"><span class="theme-tag light">light</span>save-01-idle</div></div>
+    <div class="shot" style="background:#F0EDE5;color:#777;display:flex;align-items:center;justify-content:center;aspect-ratio:9/19.5;font-size:12px;">no dark capture<br/>(F7)</div>
+  </div>
+  <div class="finding"><span class="severity MED">F6</span> &nbsp;<span class="title">Save action never resolves to 'Saved' state — identifier reconciliation regression</span>
+    <p>The maestro tap on <code>save-curated-button</code> was registered (COMPLETED), but waiting 15s for <code>save-curated-saved-badge</code> FAILED. Screenshot at failure: button still in copper "Save" idle state.</p>
+    <div class="fix"><strong>Fix:</strong> either extend DATA-006 to return <code>_id</code> (per FU-2 the validator includes it) or thread <code>routeId</code> through to a mutation that resolves <code>_id</code> server-side via <code>ctx.db.query('curated_routes').withIndex('by_routeId', ...).unique()</code> before insert.</div>
+  </div>
+  <div class="finding LOW"><span class="severity LOW">F7</span> &nbsp;<span class="title">No dark variant captured</span></div>
+
+  <h3>plan-home · fidelity 5 / instinct 5 / consistency 4</h3>
+  <div class="pair">
+    <div class="shot"><img src="captures/light/plan-01-home.png" alt="Plan home — light" /><div class="label"><span class="theme-tag light">light</span>plan-01-home</div></div>
+    <div class="shot" style="background:#F0EDE5;color:#777;display:flex;align-items:center;justify-content:center;aspect-ratio:9/19.5;font-size:12px;">no dark capture<br/>(F7)</div>
+  </div>
+  <p>Brand identity is strongest here: copper target compass, copper dashed route polylines, copper wrench, copper "Drawing the map" pill, "Find a route — try 'twisties near Ash" placeholder. <strong>Use as the brand-accent reference when fixing F5.</strong></p>
+
+  <h3>plan-suggestions · fidelity 3 / instinct 2 / consistency 2</h3>
+  <div class="pair">
+    <div class="shot"><img src="captures/light/plan-02-suggestions.png" alt="Refresh state — light" /><div class="label"><span class="theme-tag light">light</span>plan-02-suggestions</div></div>
+    <div class="shot" style="background:#F0EDE5;color:#777;display:flex;align-items:center;justify-content:center;aspect-ratio:9/19.5;font-size:12px;">no dark capture<br/>(F7)</div>
+  </div>
+  <div class="finding"><span class="severity MED">F5</span> &nbsp;<span class="title">Pull-to-refresh 'Refreshing...' banner is system blue — the only off-brand accent in the entire capture set</span>
+    <p>The solid blue banner at the top breaks the copper accent system that the rest of the home screen establishes.</p>
+    <div class="fix"><strong>Fix:</strong> pass <code>colors={[copper-500]}</code> + <code>tintColor={copper-500}</code> to the RN RefreshControl.</div>
+  </div>
+
+  <h3>plan-card-tap-detail <small>(Cherohala Skyway)</small> · fidelity 2 / instinct 3 / consistency 2</h3>
+  <div class="pair">
+    <div class="shot"><img src="captures/light/plan-03-detail.png" alt="Cherohala detail — light" /><div class="label"><span class="theme-tag light">light</span>plan-03-detail</div></div>
+    <div class="shot" style="background:#F0EDE5;color:#777;display:flex;align-items:center;justify-content:center;aspect-ratio:9/19.5;font-size:12px;">no dark capture<br/>(F7)</div>
+  </div>
+  <div class="finding HIGH"><span class="severity HIGH">F2</span> &nbsp;<span class="title">No copper polyline on Cherohala deep-link — tiles render, polyline missing</span>
+    <p>Distinct root cause from F1 — here the Atlantic / SE US tiles paint correctly, but only a single blue dot is shown. The DESIGN-003 AC-1 Polyline render path is not producing output.</p>
+    <div class="fix"><strong>Fix:</strong> debug the geometry branch in <code>[id].tsx</code>; confirm <code>cherohala-skyway</code> fixture's <code>routePolyline</code> is non-null, the Polyline child is mounted with <code>stroke=copper-500</code> / <code>width=4</code>, and the camera fits bounds.</div>
+  </div>
+  <div class="finding"><span class="severity MED">F3</span> &nbsp;<span class="title">Geometry-degradation invariant violated — no polyline AND no 'Approximate location' badge</span>
+    <div class="fix"><strong>Fix:</strong> render the correct DESIGN-003 branch for the fixture; add a maestro invariant: every detail shows exactly one of {polyline} | {centroid + badge} — never both, never neither.</div>
+  </div>
+  <div class="finding"><span class="severity MED">F4</span> &nbsp;<span class="title">Centroid marker is the default blue puck, not the copper pin (DESIGN-003 enrichment)</span></div>
+
+  <h2>Strengths <span class="strength">(worth preserving)</span></h2>
+  <ul>
+    <li>The no-polyline branch (Blue Ridge Overlook) is the gold standard — it nails the spec and the brand in one screen.</li>
+    <li>ScoreDimensionBar primitive is well-executed: copper fill, dark track, right-aligned %, sufficient row height, dark-mode parity is clean.</li>
+    <li>Dark theme is genuinely considered — not just inverted. Badge backgrounds, button outlines, score-bar tracks all read correctly.</li>
+    <li>Info hierarchy on the detail screen is clean — eye lands on composite score, then bars, then actions. The 40/60 map-vs-body split matches DESIGN-002.</li>
+    <li>The "No description yet" italic muted placeholder handles the empty state gracefully — no blank gap.</li>
+    <li>"Approximate location" badge is rendered as outline (not filled) — semantically correct.</li>
+  </ul>
+
+  <h2>Recommended fix order</h2>
+  <ol>
+    <li><strong>F6</strong> — Save state regression. Fix the identifier reconciliation before any new feature lands on top of <code>useSaveCuratedRoute</code>.</li>
+    <li><strong>F1 + F2 + F3 + F4</strong> — Tackle together as Theme 1: map lifecycle, polyline branch, copper Marker, geometry invariant.</li>
+    <li><strong>F5</strong> — Theme RefreshControl to copper-500. Tiny diff, high visual payoff.</li>
+    <li><strong>F7</strong> — Capture dark variants for the 4 missing surfaces.</li>
+    <li><strong>F8</strong> — Reconcile DESIGN-001 AC-1 (74% vs 90%) — not blocking.</li>
+  </ol>
+
+  <h2>Artifacts</h2>
+  <ul>
+    <li><a href="index.json">index.json</a> — surface catalog with shot paths and per-shot notes</li>
+    <li><a href="findings.json">findings.json</a> — normalized findings</li>
+    <li><a href="remediation.json">remediation.json</a> — fix-tracking state</li>
+    <li><a href="REVIEW.md">REVIEW.md</a> — long-form writeup with systemic themes</li>
+    <li><a href="../../../../.maestro/review-s02/">.maestro/review-s02/</a> — capture flows (idempotent, can be re-run)</li>
+  </ul>
+
+  <p class="meta">Run <code>/review-ui --polish --sprint sprint-02-route-detail-close-the-loop</code> to address findings one at a time.</p>
+
+</div>
+</body>
+</html>
