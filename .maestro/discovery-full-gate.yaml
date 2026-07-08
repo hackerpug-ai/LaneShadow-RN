@@ -29,10 +29,21 @@ appId: com.hackerpug.laneshadow
 #     would cause useCuratedDiscovery({sort:'nearest'}) to skip the catalog query —
 #     pre-grant location via `xcrun simctl privacy booted grant location-always ...`
 #     before running.
-# (2) More critically, the live Convex dev deployment's curated_routes table (104 rows)
-#     has NO geometryStatus field populated, so use-curated-discovery.ts:97 filters
-#     every route out → 0 suggestion pills regardless of location. This is a backend
-#     data integrity issue (routes to convex-implementer); DISC-007 is RN-only.
+# (2) CORRECTED DIAGNOSIS (remediation cycle 1): The prior claim "curated_routes
+#     table has NO geometryStatus field populated" was WRONG. Orchestrator verified
+#     via direct Convex REPL: the live deployment has 200+ rows; 19 have
+#     geometryStatus='generated'; the field IS in the schema (convex/curatedRoutes.ts:57).
+#     The actual STEP 2 root cause was sort:'nearest' over-constraining discovery on
+#     cold boot (location failure → derivedCenter undefined → query skipped → empty).
+#     Fixed in hooks/use-curated-discovery.ts: graceful fallback to sort:'best' when
+#     location fails after both retry windows, PLUS over-fetch (4x) on fallback so the
+#     client-side geometryStatus filter has headroom (Convex Mode 4 reads only
+#     effectiveLimit rows from by_composite_score).
+# REMAINING: STEP 2 still fails after the fix (runs 5+6). Suspected remaining cause is
+# the clearKeychain:true interaction with the iOS location permission dialog (native
+# system UI that Maestro cannot dismiss), OR the top-N-by-score rows lacking generated
+# geometry even with over-fetch. Needs live-data verification against the authenticated
+# Convex client to confirm which routes the query actually returns.
 # STEPS 0+1 (auth + plan-view landing + drawer contents + home has no filter/sort/state)
 # pass cleanly on the iOS-sim proxy and are real evidence against live Convex.
 - launchApp:
