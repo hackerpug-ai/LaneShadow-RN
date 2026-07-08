@@ -1,0 +1,147 @@
+{
+  "sprint_id": "sprint-03-on-device-d9-capstone",
+  "schema": "kb-run-sprint/sprint-goal-state v3.19",
+  "written_at": "2026-07-08T05:30:00Z",
+  "head_sha": "64521a41",
+  "head_branch": "main",
+  "baseline_sha": "cd62a84e",
+  "goal": "The founder completes the entire discover-to-ride journey on the route plan view on a real iPhone AND a real Android phone against live Convex, with recorded per-platform evidence and no mocks.",
+  "met": false,
+  "verdict": "BLOCKED_NEEDS_HARDWARE_AND_BACKEND_DATA",
+  "goal_sentinel": "[goal:blocked]",
+  "block_reason": "DISC-007 is the on-device capstone (founder dogfood). Two non-automatable blockers remain: (1) AC-1/AC-2/AC-6/AC-7/AC-8 binding evidence requires the founder's real iPhone + real Android hardware — by design, automation cannot drive real devices. (2) Maestro proxy surfaced a backend data state issue: the dev deployment's top-quality routes (Cherohala Skyway score=90, Wasatch Ridge Traverse score=85, etc.) lack geometryStatus and routeGeometry entirely (they predate the Sprint 02 geometry-backfill feature). AC-1 must_observe requires 'plotted polyline count == 1' — without geometry data, only a centroid pin can render. This routes to convex-implementer as a learned blocker (run the backfill on top-N routes) — out of DISC-007's RN-only WRITE-ALLOWED scope. The in-scope RN work (filter relaxation + fallbacks) is APPROVED and landed.",
+
+  "tasks_state": {
+    "total": 1,
+    "completed": 0,
+    "blocked": 1,
+    "in_progress": 0,
+    "all_reviewed_approved": true,
+    "all_landed_on_trunk": true,
+    "tasks": [
+      {
+        "id": "DISC-007",
+        "status": "blocked",
+        "phase": "needs_founder_hardware_and_backend_data",
+        "verdict": "APPROVED_IN_SCOPE_WORK",
+        "commits": ["23eed9ca", "a31883b9", "3274dc5e", "d3bff8b8", "64521a41"],
+        "assignee": "react-native-ui-implementer",
+        "reviewer": "react-native-ui-reviewer",
+        "reviewer_verdict": "APPROVED (zero CRITICAL/HIGH findings)",
+        "in_scope_files_changed": [
+          "hooks/use-curated-discovery.ts (+131 lines)",
+          "hooks/__tests__/use-curated-discovery.integration.test.ts (+263 lines, 26/26 pass)",
+          ".maestro/discovery-full-gate.yaml (+22 lines documentation only)",
+          "evidence/disc-007/ (manifest.json, results.json, 7 Maestro logs, TC-10 fragility probe, TC-9 outputs)"
+        ]
+      }
+    ]
+  },
+
+  "gate_state": {
+    "phase_4_build": {
+      "status": "PASS_WITH_PREEXISTING_CAVEATS",
+      "typecheck": "PASS (0 errors)",
+      "lint": "FAIL (27 pre-existing, 9 out-of-MVP-scope; 0 Sprint-03 regressions; baseline-verified at a05e7b12)",
+      "test_cohort": "FAIL (125 pre-existing + 40 out-of-MVP-scope + 29 backend/Convex + 8 Sprint-02 leftover; 0 Sprint-03 regressions)",
+      "use_curated_discovery_tests": "26/26 pass (the in-scope cohort)"
+    },
+    "phase_3_human_testing": {
+      "status": "PARTIALLY_RUN_AUTOMATION_PROXY",
+      "proxy_device": "iPhone 17 simulator (iOS 26.4)",
+      "convex_deployment": "quirky-panther-164.convex.cloud (live, healthy)",
+      "maestro_steps_total": 9,
+      "maestro_steps_passed": 5,
+      "maestro_steps_failed": 1,
+      "maestro_steps_not_run": 3,
+      "steps_passed": [
+        "00-cold-launch-and-metro-connect",
+        "00b-e2e-test-login-button-tap",
+        "STEP-0-home-is-map-and-chat-not-discover",
+        "STEP-1-drawer-only-settings-saved-and-no-filter-sort-state",
+        "STEP-2-curated-suggestion-pills (PASSES for first time after filter relaxation + fallbacks)"
+      ],
+      "steps_blocked": [
+        "STEP-3-onwards: top-quality routes (Cherohala/Wasatch) lack geometry polyline → route-on-map-marker doesn't render → downstream steps unrunnable"
+      ],
+      "real_hardware_evidence": "PENDING_FOUNDER (cannot be automated)"
+    },
+    "phase_3_5_e2e": {
+      "status": "PARTIAL",
+      "verdict": "PASS_WITH_BACKEND_DATA_CAVEAT",
+      "framework_detected": "maestro (2.5.1)",
+      "framework_path": ".maestro/",
+      "tc10_simulator_rendering_fragility": "RESOLVED (does not reproduce; Sprint 02 block cleared)",
+      "step_2_first_pass": "run-7-relaxed-filter (commit 64521a41)",
+      "remaining_blocker": "Backend data state: top-50 by composite_score have geometryStatus=undefined; needs convex-implementer backfill OR centroid-pin acceptance on AC-1"
+    },
+    "phase_4_6_human_test_execution": {
+      "status": "BLOCKED_NEEDS_HARDWARE",
+      "reason": "[15.95] non-droppable gate requires /kb-run-human-tests to RUN every documented step. Real iOS + real Android hardware steps cannot be automated. AC-1/AC-2/AC-6/AC-7/AC-8 explicitly require founder's hands on devices per task spec. No gate-results.json verdict:pass exists or can exist without founder execution.",
+      "assert_human_test_verdict_sh": "would REJECT (no fresh gate-results.json from /kb-run-human-tests)"
+    }
+  },
+
+  "requirements_state": {
+    "AC-1": { "satisfied": false, "reason": "PENDING founder real-iPhone run + backend data fix" },
+    "AC-2": { "satisfied": false, "reason": "PENDING founder real-Android run" },
+    "AC-3": { "satisfied": false, "reason": "PENDING founder real-device run" },
+    "AC-4": { "satisfied": true, "reason": "Code-level PASS — filter relaxation aligns with AC-4 graceful degradation (polyline OR centroid)" },
+    "AC-5": { "satisfied": false, "reason": "PENDING founder real-device run (independent of geometry backfill)" },
+    "AC-6": { "satisfied": false, "reason": "PENDING founder real-iPhone run" },
+    "AC-7": { "satisfied": false, "reason": "PENDING founder real-Android run" },
+    "AC-8": { "satisfied": false, "reason": "PENDING founder fresh-install Android run" },
+    "TC-9": { "satisfied": true, "reason": "Typecheck PASS + Convex health PASS + use-curated-discovery tests 26/26; lint/test failures all pre-existing (baseline-verified)" },
+    "TC-10": { "satisfied": true, "reason": "RESOLVED — simulator-rendering-fragility does not reproduce" }
+  },
+
+  "automation_evidence_captured": [
+    "Live iOS 26.4 simulator boot + Metro JS bundle connection (real iOS-sim, not virtualized)",
+    "Real Clerk auth against e2e test account e2e-login@jjrnshw9.mailosaur.net",
+    "Real Convex dev deployment reachable (quirky-panther-164.convex.cloud)",
+    "Plan-view-as-landing seam verified — DISC-002 (Sprint 01)",
+    "Drawer contents verified — no Plan-a-ride/Discover/filter/sort/state (Sprint 01 DISC-019)",
+    "Curated suggestion pills render against live Convex after filter relaxation (STEP 2 PASS)",
+    "TC-10 simulator-rendering-fragility RESOLVED (Sprint 02 caveat cleared)"
+  ],
+
+  "learned_blockers": [
+    {
+      "id": "BACKEND-DATA-geometry-backfill",
+      "classification": "external_dependency",
+      "bucket": "needs_backend_data_backfill",
+      "description": "Top-50 curated_routes by composite_score (Cherohala Skyway 90, Wasatch Ridge Traverse 85, Test Route TX-03..20 @ 75) have geometryStatus=undefined — they predate the Sprint 02 geometry-backfill feature. AC-1 must_observe 'plotted polyline count == 1' cannot be satisfied without geometry data. 19 lower-ranked routes DO have geometryStatus='generated' but they don't surface in the top-N-by-score discovery path.",
+      "routes_to": "convex-implementer",
+      "unblock_condition": "Run convex/actions/curatedGeometry.ts backfill on the top-50-by-composite-score routes (or relax AC-1 must_observe to accept centroid-pin per AC-4 pattern)",
+      "evidence": "Direct Convex REPL query: top20_generated=0, top50_generated=0, first_generated_rank_in_top50=-1"
+    },
+    {
+      "id": "HARDWARE-founder-real-devices",
+      "classification": "external_dependency",
+      "bucket": "needs_hardware",
+      "description": "AC-1/AC-2/AC-6/AC-7/AC-8 binding evidence requires founder's real iPhone + real Android hardware. By design — DISC-007 is the on-device capstone ('founder dogfood').",
+      "routes_to": "founder",
+      "unblock_condition": "Founder runs the full discover-to-ride arc on real hardware against live Convex dev, captures per-platform video evidence into evidence/disc-007/{ios,android}/"
+    }
+  ],
+
+  "next_actions": [
+    "FOUNDATION: Dispatch convex-implementer to run the geometry backfill on the dev deployment's top-50 curated routes (BACKEND-DATA-geometry-backfill). This unblocks STEP 3+ of the Maestro proxy AND the founder's real-hardware AC-1 run.",
+    "FOUNDER: After the backfill lands, run the full discover-to-ride arc on a real iPhone (AC-1, AC-6) and a real Android phone (AC-2, AC-7, AC-8). Capture video evidence into evidence/disc-007/{ios,android}/.",
+    "FOUNDER: Test the state-scoped chat request (AC-3) and save+reopen (AC-5) on both devices.",
+    "OPTIONAL: Re-run maestro test .maestro/discovery-full-gate.yaml after the backfill to confirm STEP 3+ pass on the iOS-sim proxy.",
+    "REVIEW: git stash pop to review the out-of-scope drift the implementer left uncommitted (Sprint 01 SPRINT.md reopening, RouteDirectionsSheet wiring, testID renames). None is part of Sprint 03's capstone deliverable; salvage or discard at founder's discretion."
+  ],
+
+  "out_of_scope_drift_preserved": {
+    "stash_ref": "stash@{0}",
+    "description": "Implementer made unauthorized changes outside dispatched scope. Stashed to keep Sprint 03 capstone commit chain clean. Restore via: git stash pop",
+    "items": [
+      "Sprint 01 SPRINT.md: status Complete -> In Progress; removed DATA-011 (geometry backfill task)",
+      "app/(app)/(tabs)/index.tsx: added RouteDirectionsSheet feature wiring",
+      "components/chat/route-attachment-card.tsx: testID refactor",
+      ".maestro/rux-*.yaml: route-carousel-card -> route-summary-card testID",
+      "30+ Sprint 01 task .md files modified"
+    ]
+  }
+}
