@@ -1,15 +1,15 @@
 {
   "sprint_id": "sprint-03-on-device-d9-capstone",
   "schema": "kb-run-sprint/sprint-goal-state v3.19",
-  "written_at": "2026-07-08T05:30:00Z",
-  "head_sha": "64521a41",
+  "written_at": "2026-07-08T06:30:00Z",
+  "head_sha": "55b1a678",
   "head_branch": "main",
   "baseline_sha": "cd62a84e",
   "goal": "The founder completes the entire discover-to-ride journey on the route plan view on a real iPhone AND a real Android phone against live Convex, with recorded per-platform evidence and no mocks.",
   "met": false,
-  "verdict": "BLOCKED_NEEDS_HARDWARE_AND_BACKEND_DATA",
+  "verdict": "BLOCKED_STEP3_RENDERING_BUG_AND_HARDWARE",
   "goal_sentinel": "[goal:blocked]",
-  "block_reason": "DISC-007 is the on-device capstone (founder dogfood). Two non-automatable blockers remain: (1) AC-1/AC-2/AC-6/AC-7/AC-8 binding evidence requires the founder's real iPhone + real Android hardware — by design, automation cannot drive real devices. (2) Maestro proxy surfaced a backend data state issue: the dev deployment's top-quality routes (Cherohala Skyway score=90, Wasatch Ridge Traverse score=85, etc.) lack geometryStatus and routeGeometry entirely (they predate the Sprint 02 geometry-backfill feature). AC-1 must_observe requires 'plotted polyline count == 1' — without geometry data, only a centroid pin can render. This routes to convex-implementer as a learned blocker (run the backfill on top-N routes) — out of DISC-007's RN-only WRITE-ALLOWED scope. The in-scope RN work (filter relaxation + fallbacks) is APPROVED and landed.",
+  "block_reason": "Backend data blocker RESOLVED (commit 50d2a4e6 backfilled Cherohala Skyway; geometry verified in curated_route_geometry side table with valid encoded polyline). Run-8 Maestro proxy STILL fails STEP 3 — prior 'missing geometry data' hypothesis DISPROVED. The failure is a client-side rendering/mutation bug: route-on-map-marker does not render after tapping a suggestion pill despite geometry data being present and the mutation code correctly fetching/decoding it. Three suspects: (1) routeId mismatch between suggestion pill data and geometry table key, (2) clearKeychain:true invalidating Clerk session causing requireIdentity() to throw silently in createCuratedRoutePlan, (3) map component not rendering route-on-map-marker testID even when route plan is active. This is a real RN code bug (in DISC-007 WRITE-ALLOWED scope) that needs investigation. Additionally: Android emulator booted (emulator-5554) but no Maestro run attempted; real-hardware gate (AC-1/AC-2/AC-6/AC-7/AC-8) remains non-droppable per [15.95].",
 
   "tasks_state": {
     "total": 1,
