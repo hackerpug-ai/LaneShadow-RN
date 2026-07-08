@@ -1,5 +1,5 @@
 import polyline from '@mapbox/polyline'
-import { useQuery } from 'convex/react'
+import { useMutation, useQuery } from 'convex/react'
 import { useLocalSearchParams, useRouter, useSegments } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Keyboard, Pressable, StyleSheet, Text, View } from 'react-native'
@@ -308,6 +308,10 @@ const HomeMapScreen = () => {
     newestRoutePlanId,
   } = useActiveSessionRoute(activeChatSessionId)
 
+  // DISC-007: Mutation to create a curated route plan when a suggestion pill is tapped.
+  // This plots the route on the map (via agentActiveOption) instead of navigating away.
+  const createCuratedRoutePlan = useMutation(api.db.routePlans.createCuratedRoutePlan)
+
   // Track the last plan id we animated the camera to, so we only fit once
   // per newly resolved plan (not on every re-render).
   const lastFittedPlanIdRef = useRef<string | null>(null)
@@ -469,11 +473,7 @@ const HomeMapScreen = () => {
     [chatMode, sendPlanningMessage, currentLocation],
   )
 
-  const {
-    setSelectedRouteId,
-    setDisplayedRoutePlanId,
-    registerFitHandler,
-  } = useSelectedRoute()
+  const { setSelectedRouteId, setDisplayedRoutePlanId, registerFitHandler } = useSelectedRoute()
 
   // DTL-001: shared push target for opening the curated-route detail screen.
   // BOTH entry points — the curated chat card tap (AC-1) AND the curated map
@@ -484,6 +484,32 @@ const HomeMapScreen = () => {
       router.push(`/(app)/curated-route/${routeId}`)
     },
     [router],
+  )
+
+  // DISC-007: Suggestion pill tap → plot route on map (NOT navigate to detail).
+  // Calls createCuratedRoutePlan to create a route_plan with geometry, then sets
+  // it as the displayed plan so useActiveSessionRoute fetches it and populates
+  // agentActiveOption → hasDisplayedRoute → route-on-map-marker renders.
+  const handleSuggestionPillTap = useCallback(
+    async (routeId: string) => {
+      const route = (curatedDiscoveryRoutes ?? []).find((r) => r.id === routeId)
+      if (!route) return
+      try {
+        const result = await createCuratedRoutePlan({
+          routeId: route.id,
+          name: route.name,
+          centroidLat: route.lat,
+          centroidLng: route.lng,
+          archetype: route.archetype,
+          compositeScore: route.score,
+          distanceMi: route.distanceMi ?? 0,
+        })
+        setDisplayedRoutePlanId(result.routePlanId)
+      } catch (e) {
+        console.error('[DISC-007] createCuratedRoutePlan failed:', e)
+      }
+    },
+    [curatedDiscoveryRoutes, createCuratedRoutePlan, setDisplayedRoutePlanId],
   )
 
   // Cancel handler that routes to the appropriate cancel function
@@ -1745,7 +1771,7 @@ const HomeMapScreen = () => {
           hasMessages={transcriptMessages.length > 0}
           hasActiveRoute={hasDisplayedRoute}
           dispatch={(action: { type: string }) => flowDispatch(action as RideFlowAction)}
-          onSelectRoute={goToCuratedRoute}
+          onSelectRoute={handleSuggestionPillTap}
         />
 
         <PlanRideSheet
