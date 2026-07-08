@@ -141,40 +141,47 @@ async function searchNominatim(query: string): Promise<NonNullable<NominatimResu
     `https://nominatim.openstreetmap.org/search?` +
     `q=${encodeURIComponent(query)}&format=json&limit=8&addressdetails=0`
 
-  // Nominatim usage policy: ≤1 req/s, identify with User-Agent
-  await new Promise((r) => setTimeout(r, 1100))
-
-  let res: Response
-  try {
-    res = await fetch(url, {
-      headers: {
-        'User-Agent': 'LaneShadow/1.0 (curated route geometry; justin@formulist.ai)',
-        'Accept-Language': 'en',
-      },
-    })
-  } catch {
-    return [] // network error
+  // Nominatim usage policy: ≤1 req/s, identify with User-Agent.
+  // Retry with backoff on 429/503 (transient rate-limiting). Previously a 429-empty
+  // response was treated as "no result" and the route was permanently stamped
+  // 'unresolved' — the root cause of ~91% of the catalog lacking geometry (verified
+  // 2026-07-08; see .spec/prds/catalog-geometry-recovery/00-overview.md).
+  const headers = {
+    'User-Agent': 'LaneShadow/1.0 (curated route geometry; justin@formulist.ai)',
+    'Accept-Language': 'en',
   }
-  if (!res.ok) return []
+  for (let attempt = 0; attempt < 3; attempt++) {
+    await new Promise((r) => setTimeout(r, attempt === 0 ? 1100 : 4000 * attempt))
 
-  const data = (await res.json()) as Array<{
-    lat: string
-    lon: string
-    boundingbox?: [string, string, string, string] // [south, north, west, east]
-  }>
-
-  if (!data.length) return []
-
-  return data.map((r) => {
-    const bb = r.boundingbox
-    return {
-      lat: parseFloat(r.lat),
-      lng: parseFloat(r.lon),
-      boundingbox: bb
-        ? [parseFloat(bb[0]), parseFloat(bb[1]), parseFloat(bb[2]), parseFloat(bb[3])]
-        : undefined,
+    let res: Response
+    try {
+      res = await fetch(url, { headers })
+    } catch {
+      continue // network error → retry
     }
-  })
+    if (res.status === 429 || res.status === 503) continue // rate-limited → backoff + retry
+    if (!res.ok) return []
+
+    const data = (await res.json()) as Array<{
+      lat: string
+      lon: string
+      boundingbox?: [string, string, string, string] // [south, north, west, east]
+    }>
+
+    if (!data.length) return []
+
+    return data.map((r) => {
+      const bb = r.boundingbox
+      return {
+        lat: parseFloat(r.lat),
+        lng: parseFloat(r.lon),
+        boundingbox: bb
+          ? [parseFloat(bb[0]), parseFloat(bb[1]), parseFloat(bb[2]), parseFloat(bb[3])]
+          : undefined,
+      }
+    })
+  }
+  return [] // exhausted retries
 }
 
 // ---------------------------------------------------------------------------
@@ -242,6 +249,66 @@ async function routeViaGoogleRoutes(
 type GeocodeRouteResult = { value: string; coordCount: number }
 
 /**
+ * Tier-2 endpoint parser: extract [start, end] place tokens from route names that
+ * encode their endpoints. Validated 2026-07-08 (resolves 75% of the OD/highway-ref
+ * stratum that full-string geocoding misses at 0%):
+ *   "US 9W : Fort Montgomery - Rockleigh"               -> ["Fort Montgomery", "Rockleigh"]
+ *   "Loop Wilkes-Barre : Nanticoke - Forkston - Pittston" -> ["Nanticoke", "Pittston"]
+ *   "Hwy 246 - Roswell to Capitan"                      -> ["Roswell", "Capitan"]
+ *   "Naples to Key West"                                -> ["Naples", "Key West"]
+ * Returns null for clean single names ("Cherohala Skyway") — those have no endpoint
+ * structure and go through the name-geocode → bounding-box path.
+ */
+function parseRouteEndpoints(name: string): [string, string] | null {
+  let s = name
+  // Drop trailing/inline parenthetical cruft: "(USA_TTC 1)", "(KY)".
+  s = s.replace(/\s*\([^)]*\)\s*/g, ' ').trim()
+  // Drop a leading "<ref or label> :" prefix — take the part after the last " : ".
+  const colonParts = s.split(/\s+:\s+/)
+  if (colonParts.length >= 2) s = colonParts[colonParts.length - 1]
+  // Drop a leading highway-ref token when there was no colon
+  //   ("Hwy 246 - Roswell to Capitan" -> "Roswell to Capitan").
+  s = s.replace(/^(?:US|SR|Hwy|CA|VA|WV|NC|CT|Route|Rt)\s*\w+\s*[-–—]\s*/i, '')
+  // Split on " - " / " – " / " — " / " to ".
+  const parts = s
+    .split(/\s+[-–—]\s+|\s+to\s+/i)
+    .map((t) => t.trim())
+    .filter((t) => t.length > 1)
+  if (parts.length < 2) return null
+  // First + last token bound the road (for 3+ town chains, the ends are the route ends).
+  return [parts[0], parts[parts.length - 1]]
+}
+
+/**
+ * Tier-2: geocode a single place token (an endpoint town/junction) via Nominatim,
+ * preferring the candidate nearest the catalog center to disambiguate same-name towns.
+ * No distance cap — endpoints legitimately sit far from a long route's centroid; the
+ * downstream Google-Routes step + the QA suspect_far check catch garbage.
+ */
+async function geocodePlace(
+  token: string,
+  state: string,
+  center: CatalogCenter,
+): Promise<{ lat: number; lng: number } | null> {
+  const abbr = stateAbbr(state)
+  const stateText = abbr ?? state.replace(/-/g, ' ')
+  // Prefer the state-scoped query; fall back to the bare token.
+  for (const query of [`${token}, ${stateText}`, token]) {
+    let best: { lat: number; lng: number } | null = null
+    let bestD = Number.POSITIVE_INFINITY
+    for (const c of await searchNominatim(query)) {
+      const d = haversineMi(center.lat, center.lng, c.lat, c.lng)
+      if (d < bestD) {
+        best = { lat: c.lat, lng: c.lng }
+        bestD = d
+      }
+    }
+    if (best) return best
+  }
+  return null
+}
+
+/**
  * Generate geometry for a curated route:
  *   1. Geocode "{name}, {state}" via Nominatim → get bounding box
  *   2. Derive start/end from bounding box (or catalog bounds fallback)
@@ -259,7 +326,28 @@ async function geocodeRouteGeometry(
   bounds: Bounds,
   center: CatalogCenter,
 ): Promise<GeocodeRouteResult | null> {
-  // Step 1: Geocode "{name}, {state}" via Nominatim
+  // Tier 2 (validated 2026-07-08 — resolves 75% of OD/highway-ref names that full-string
+  // geocoding misses): if the name encodes endpoints ("US 9W : Fort Montgomery - Rockleigh",
+  // "Naples to Key West"), geocode the two endpoint places separately and route between
+  // them. The endpoint towns resolve individually even though the full string does not.
+  const endpoints = parseRouteEndpoints(name)
+  if (endpoints) {
+    const [aTok, bTok] = endpoints
+    const a = await geocodePlace(aTok, state, center)
+    const b = await geocodePlace(bTok, state, center)
+    if (a && b) {
+      const route = await routeViaGoogleRoutes(a.lat, a.lng, b.lat, b.lng)
+      if (route) {
+        const decoded = polyline.decode(route.encodedPolyline, 5) as [number, number][]
+        if (decoded.length > 1) {
+          return { value: route.encodedPolyline, coordCount: decoded.length }
+        }
+      }
+    }
+    // endpoint-parsing didn't yield a usable route — fall through to name-geocode
+  }
+
+  // Tier 1 / existing path: Geocode "{name}, {state}" via Nominatim → bounding box
   const geo = await geocodeViaNominatim(name, state, highwayNumber, center)
 
   // CRITICAL (Supreme Rule: no fake line): If Nominatim returns null (no result),

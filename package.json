@@ -43,6 +43,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@mapbox/polyline": "^1.2.1",
     "@mapbox/vector-tile": "^2.0.4",
+    "@mariozechner/pi-ai": "^0.73.1",
     "@osmix/pbf": "^0.0.9",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/datetimepicker": "8.4.4",
