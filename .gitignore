@@ -41,3 +41,12 @@ convex/.env-aware
 
 # Local git worktrees (never track — they stage as broken submodule gitlinks)
 .worktrees/
+
+# Sprint capstone evidence scratch (gate artifacts live under evidence/, NOT repo root)
+/*.png
+/*.jpg
+/*.jpeg
+/report.xml
+/evidence/**/*.log
+/evidence/**/*.tmp
+/.kb-run-sprint/
