@@ -1,0 +1,289 @@
+# Sprint-03 D9 capstone — Android emulator variant of discovery-full-gate.
+# Mirrors the iOS flow but skips the iOS dev-client server picker (Android
+# Expo dev-client auto-connects to Metro via 10.0.2.2:8081).
+# Run: maestro test --device emulator-5554 .maestro/discovery-full-gate-android.yaml
+appId: com.hackerpug.laneshadow
+---
+- launchApp:
+    clearState: true
+
+# Android Expo DevLauncher shows a server picker — tap the Metro server URL.
+- extendedWaitUntil:
+    visible:
+      text: "DEVELOPMENT SERVERS|Login with Email"
+    timeout: 60000
+- runFlow:
+    when:
+      visible: { text: "DEVELOPMENT SERVERS" }
+    commands:
+      - tapOn:
+          text: ".*10.0.2.2:8081.*"
+
+# Wait for the JS bundle to load. The dev-client shows a developer menu popup
+# on first connect — dismiss it with "Continue", then tap "Reload" to reload
+# the JS bundle and close the full dev menu.
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|Continue|developer menu"
+    timeout: 300000
+- runFlow:
+    when:
+      visible: { text: "Continue" }
+    commands:
+      - tapOn: { text: "Continue" }
+# The full dev menu may appear after Continue — tap Reload to reload JS.
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|Reload"
+    timeout: 30000
+- runFlow:
+    when:
+      visible: { text: "Reload" }
+    commands:
+      - tapOn: { text: "Reload" }
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email"
+    timeout: 300000
+- takeScreenshot: 01-launch
+
+# ── SIGN-IN via the hidden E2E test-login button ──
+- runFlow:
+    when:
+      visible: { id: "e2e-test-login-button" }
+    commands:
+      - tapOn: { id: "e2e-test-login-button" }
+
+# ── STEP 0: signed-in home is full-screen map + chat, NOT a Discover screen ──
+- extendedWaitUntil:
+    visible:
+      id: "chat-input"
+    timeout: 120000
+- assertNotVisible:
+    id: "route-on-map-marker"
+- assertNotVisible:
+    id: "route-line-on-map-marker"
+- assertNotVisible: { text: "Discover" }
+- takeScreenshot: 02-home-map-and-chat
+
+# ── STEP 1: drawer has only standard nav entries ──
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: "map-header-left-button"
+- extendedWaitUntil:
+    visible: { id: "drawer-nav-settings" }
+    timeout: 10000
+- assertVisible: { id: "drawer-nav-saved" }
+- assertNotVisible: { text: "Plan a ride" }
+- assertNotVisible: { text: "Discover" }
+- takeScreenshot: 03-drawer-only-settings-saved
+- tapOn:
+    point: "90%,50%"
+- extendedWaitUntil:
+    visible: { id: "chat-input" }
+    timeout: 10000
+- assertNotVisible: { text: "Filter" }
+- assertNotVisible: { text: "Sort" }
+- assertNotVisible: { text: "State" }
+- takeScreenshot: 04-home-no-filter-sort-state
+
+# ── STEP 2: curated suggestion cards over the input ──
+- extendedWaitUntil:
+    visible:
+      id: "discovery-suggestion-pill-.*"
+    timeout: 30000
+- takeScreenshot: 05-suggestion-cards-copper-road-icon
+
+# ── STEP 3: tap suggestion -> route plots on map ──
+- tapOn:
+    id: "discovery-suggestion-pill-.*"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: "route-on-map-marker"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: "route-line-on-map-marker"
+    timeout: 30000
+- takeScreenshot: 06-suggestion-tapped-route-plotted
+- assertNotVisible:
+    id: "discovery-suggestion-pill-.*"
+    optional: true
+# DISC-016: suggestion pills plot directly (no chat round-trip).
+- extendedWaitUntil:
+    visible:
+      id: "chat-input-chat-view-button"
+    timeout: 10000
+- tapOn:
+    id: "chat-input-chat-view-button"
+- extendedWaitUntil:
+    visible: { text: "Return to map" }
+    timeout: 20000
+- assertVisible:
+    id: "curated-route-card-.*"
+    optional: true
+- tapOn:
+    id: "chat-input-chat-view-button"
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertVisible: { text: "Open full chat", optional: true }
+
+# ── STEP 4: clear/dismiss the route -> curated suggestion cards return ──
+- tapOn:
+    id: "control-clear"
+- extendedWaitUntil:
+    visible:
+      id: "discovery-suggestion-pill-.*"
+    timeout: 30000
+- takeScreenshot: 07-cards-return-after-clear
+
+# ── STEP 5: "twisties near Asheville" -> curated card(s) + plot + real score ──
+- tapOn:
+    id: "chat-input-text-field"
+- inputText: "twisties near Asheville NC"
+- extendedWaitUntil:
+    visible:
+      text: "twisties near Asheville NC"
+    timeout: 10000
+- assertVisible:
+    id: "chat-input-send-button"
+    enabled: true
+- tapOn:
+    id: "chat-input-send-button"
+- extendedWaitUntil:
+    visible:
+      id: "route-on-map-marker"
+    timeout: 120000
+- extendedWaitUntil:
+    visible:
+      id: "route-line-on-map-marker"
+    timeout: 30000
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: "chat-input-chat-view-button"
+    timeout: 10000
+- runFlow:
+    when:
+      visible: { text: "Open full chat" }
+    commands:
+      - tapOn:
+          id: "chat-input-chat-view-button"
+- extendedWaitUntil:
+    visible: { text: "Return to map" }
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "curated-route-card-.*"
+    timeout: 45000
+- assertNotVisible: { text: "0/100" }
+- takeScreenshot: 08-chat-twisties-curated-card-score
+
+# ── STEP 6: "scenic roads in North Carolina" -> state curated routes + plot ──
+- runFlow:
+    when:
+      visible: { text: "Open full chat" }
+    commands:
+      - tapOn:
+          id: "chat-input-chat-view-button"
+      - extendedWaitUntil:
+          visible: { text: "Return to map" }
+          timeout: 20000
+- tapOn:
+    id: "chat-input-text-field"
+- inputText: "scenic roads in North Carolina"
+- extendedWaitUntil:
+    visible:
+      text: "scenic roads in North Carolina"
+    timeout: 10000
+- assertVisible:
+    id: "chat-input-send-button"
+    enabled: true
+- tapOn:
+    id: "chat-input-send-button"
+- extendedWaitUntil:
+    visible:
+      id: "route-on-map-marker"
+    timeout: 120000
+- extendedWaitUntil:
+    visible:
+      id: "route-line-on-map-marker"
+    timeout: 30000
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: "chat-input-chat-view-button"
+    timeout: 10000
+- runFlow:
+    when:
+      visible: { text: "Open full chat" }
+    commands:
+      - tapOn:
+          id: "chat-input-chat-view-button"
+- extendedWaitUntil:
+    visible: { text: "Return to map" }
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "curated-route-card-.*"
+    timeout: 120000
+- takeScreenshot: 09-chat-state-query-curated-plotted
+- tapOn:
+    id: "chat-input-chat-view-button"
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertVisible: { text: "Open full chat", optional: true }
+
+# ── STEP 7: scroll chat history, tap an earlier curated card -> map re-render ─
+- tapOn:
+    id: "chat-input-chat-view-button"
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertVisible: { text: "Return to map", optional: true }
+- takeScreenshot: 10-full-chat-open
+- scroll
+- extendedWaitUntil:
+    visible:
+      id: "routing-card-route-.*"
+    timeout: 20000
+- tapOn:
+    id: "routing-card-route-.*"
+- runFlow:
+    when:
+      visible: { text: "Return to map" }
+    commands:
+      - tapOn:
+          id: "chat-input-chat-view-button"
+- extendedWaitUntil:
+    visible: { text: "Open full chat" }
+    timeout: 45000
+- extendedWaitUntil:
+    visible:
+      id: "route-on-map-marker"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: "route-line-on-map-marker"
+    timeout: 30000
+- takeScreenshot: 11-earlier-card-returns-to-map
+
+# ── STEP 8: footer button distinct from send -> full chat; close -> map ──
+- assertVisible: { id: "chat-input-chat-view-button" }
+- assertVisible: { id: "chat-input-send-button" }
+- tapOn:
+    id: "chat-input-chat-view-button"
+- extendedWaitUntil:
+    visible: { text: "Return to map" }
+    timeout: 20000
+- takeScreenshot: 12-footer-opens-full-chat
+- tapOn:
+    id: "chat-input-chat-view-button"
+- extendedWaitUntil:
+    visible: { text: "Open full chat" }
+    timeout: 20000
+- takeScreenshot: 13-close-returns-to-map
