@@ -167,8 +167,17 @@ export const listForGeometryBackfill = internalQuery({
     // `q.eq(q.field('geometryStatus'), null)` reliably matches absent optional fields.
     // The working pattern is to exclude all known values with q.neq, which leaves only
     // unprocessed (absent) rows.
+    //
+    // ORDERING: Scan via the `by_composite_score` index (desc) so the backfill always
+    // processes the HIGHEST-SCORED unprocessed routes first. This makes `--top=N` and
+    // `--sample=N` honor "top-N by composite_score" semantics. The `.filter()`
+    // post-reads and prunes the processed rows (generated/unresolved/failed); the index
+    // only controls scan direction. Same index+filter+paginate pattern as
+    // `listAllRoutesForReset` below.
     const page = await ctx.db
       .query('curated_routes')
+      .withIndex('by_composite_score')
+      .order('desc')
       .filter((q) =>
         q.and(
           q.neq(q.field('geometryStatus'), 'generated'),

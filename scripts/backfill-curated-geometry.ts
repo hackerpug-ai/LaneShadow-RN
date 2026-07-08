@@ -14,11 +14,15 @@
  *                 for human review (the sample-validate gate).
  *   --all         Full backfill of all unprocessed routes (only after sample approval).
  *   --cursor=X    Resume a prior run from the given continueCursor.
+ *   --top=N       Process the top-N unprocessed routes by composite_score (NO reset).
+ *                 Use to backfill the highest-scored routes that lack geometry without
+ *                 disturbing already-processed rows. Honors the by_composite_score index.
  *
  * Resumable: skips rows already generated (geometryStatus='generated').
  * Rate-limited: the backfill action handles Nominatim rate-limiting internally (≤1 req/s).
  *
  * Usage:
+ *   pnpm tsx scripts/backfill-curated-geometry.ts --top=50
  *   pnpm tsx scripts/backfill-curated-geometry.ts --sample=25
  *   pnpm tsx scripts/backfill-curated-geometry.ts --all
  *   pnpm tsx scripts/backfill-curated-geometry.ts --cursor="<continueCursor>"
@@ -36,14 +40,22 @@ function parseArgs(argv: string[]): {
   sample: number | null
   all: boolean
   cursor: string | null
+  top: number | null
 } {
   let sample: number | null = null
   let all = false
   let cursor: string | null = null
+  let top: number | null = null
 
   for (const arg of argv.slice(2)) {
     if (arg === '--all') {
       all = true
+    } else if (arg.startsWith('--top=')) {
+      top = parseInt(arg.split('=')[1], 10)
+      if (Number.isNaN(top) || top < 1) {
+        process.stderr.write(`Invalid --top value: ${arg}\n`)
+        process.exit(1)
+      }
     } else if (arg.startsWith('--sample=')) {
       sample = parseInt(arg.split('=')[1], 10)
       if (Number.isNaN(sample) || sample < 1) {
@@ -57,12 +69,18 @@ function parseArgs(argv: string[]): {
 DATA-011: Backfill curated route geometry
 
 Usage:
+  pnpm tsx scripts/backfill-curated-geometry.ts --top=50
   pnpm tsx scripts/backfill-curated-geometry.ts --sample=25
   pnpm tsx scripts/backfill-curated-geometry.ts --all
   pnpm tsx scripts/backfill-curated-geometry.ts --cursor="<continueCursor>"
 
 Modes:
-  --sample=N   Process N routes, write a fidelity report to .tmp/DATA-011/sample-report.json
+  --top=N       Process the top-N unprocessed routes by composite_score (NO reset).
+                Use this to backfill the highest-scored routes that lack geometry
+                without disturbing already-processed rows. Requires the
+                by_composite_score index on listForGeometryBackfill.
+  --sample=N    Reset N already-processed routes, then process N unprocessed routes,
+                writing a fidelity report to .tmp/DATA-011/sample-report.json.
   --all         Full backfill of all unprocessed routes
   --cursor=X    Resume from a prior run's continueCursor
 
@@ -72,7 +90,7 @@ The sample report must be reviewed by a human before running --all.
     }
   }
 
-  return { sample, all, cursor }
+  return { sample, all, cursor, top }
 }
 
 // ---------------------------------------------------------------------------
@@ -254,9 +272,45 @@ async function runFullBackfill(): Promise<void> {
 // ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
-  const { sample, all, cursor } = parseArgs(process.argv)
+  const { sample, all, cursor, top } = parseArgs(process.argv)
 
-  if (sample !== null) {
+  if (top !== null) {
+    // --top=N: Process the top-N unprocessed routes by composite_score, WITHOUT the
+    // destructive resetSampleRoutes step. This is the mode for backfilling specific
+    // high-value routes (e.g. Cherohala Skyway, Wasatch Ridge Traverse) that lack
+    // geometry, without disturbing already-processed rows. Requires the
+    // by_composite_score index on listForGeometryBackfill (added alongside this mode).
+    process.stdout.write(`Running top-${top} backfill (by composite_score, no reset)...\n`)
+    const report = runBackfill(top, null)
+
+    process.stdout.write(`\nTop-${top} results:\n`)
+    process.stdout.write(`  Processed:  ${report.processed}\n`)
+    process.stdout.write(`  Generated:  ${report.generated}\n`)
+    process.stdout.write(`  Unresolved: ${report.unresolved}\n`)
+    process.stdout.write(`  Failed:     ${report.failed}\n`)
+    process.stdout.write(`  Resolve rate: ${(report.resolveRate * 100).toFixed(1)}%\n`)
+    process.stdout.write(`  Continue cursor: ${report.continueCursor ?? '(none)'}\n`)
+    process.stdout.write(`  Is done: ${report.isDone}\n`)
+
+    // Print a per-route summary so the operator can see Cherohala/Wasatch/etc. results
+    process.stdout.write(`\nPer-route:\n`)
+    for (const r of report.perRoute) {
+      const status = r.status as string
+      const coords = r.coordCount != null ? ` (${r.coordCount} coords)` : ''
+      const err = r.error != null ? ` [error: ${r.error}]` : ''
+      process.stdout.write(`  ${r.routeId} | ${r.name} | ${r.state} | ${status}${coords}${err}\n`)
+    }
+
+    // Also write a fidelity-style report (same shape as --sample) for auditability
+    const sampleReport = buildSampleReport(report)
+    const outDir = path.resolve(process.cwd(), '.tmp', 'DATA-011')
+    const outPath = writeSampleReport(sampleReport, outDir)
+    process.stdout.write(`\nReport written to: ${outPath}\n`)
+
+    if (report.continueCursor && !report.isDone) {
+      process.stdout.write(`\nTo continue: --cursor="${report.continueCursor}"\n`)
+    }
+  } else if (sample !== null) {
     // DATA-011 sample-gate: reclaim already-processed routes so the sample
     // has exactly `sample` rows to process. The reset helper only touches rows
     // with a geometryStatus set (generated/unresolved/failed); unprocessed
@@ -315,7 +369,9 @@ async function main(): Promise<void> {
       process.stdout.write(`Continue with: --cursor="${report.continueCursor}"\n`)
     }
   } else {
-    process.stderr.write('No mode specified. Use --sample=25 or --all. Run --help for usage.\n')
+    process.stderr.write(
+      'No mode specified. Use --top=50, --sample=25, or --all. Run --help for usage.\n',
+    )
     process.exit(1)
   }
 }
