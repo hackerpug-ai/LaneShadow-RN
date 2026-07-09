@@ -30,8 +30,9 @@ Two related plan-view contracts (UC-DISC-11 AC3/AC4 + UC-DISC-09 AC4) need verif
 - **GIVEN** the plan view in map mode
 - **WHEN** the rider presses chat-input-chat-view-button
 - **THEN** the full chat transcript opens (chatMode true) and the button is a separate element from chat-input-send-button with a distinct icon
-- **Test tier:** `integration` · **Service:** @testing-library/react-native rendering the real screen
-- **Verify:** `pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx` → `fullChatButtonDistinctFromSendOpensChat`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/discovery-full-gate.yaml` (step 8: footer full-chat button + suggestion visibility)
+- **Supplementary verify:** `pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx` → `fullChatButtonDistinctFromSendOpensChat` (vitest @testing-library/react-native mocked wiring)
 - **Scenario** (start `plan_view_map_mode`):
   - must observe: getByTestId('chat-input-chat-view-button') !== getByTestId('chat-input-send-button') (two distinct node references); both testIDs 'chat-input-chat-view-button' and 'chat-input-send-button' resolve (queryByTestId each !== null); after press: queryByTestId('chat-dismiss-keyboard-pressable') !== null (transcript node mounted, chatMode === true)
   - must NOT observe: getByTestId('chat-input-chat-view-button') === getByTestId('chat-input-send-button') (a single combined button); after press: queryByTestId('chat-dismiss-keyboard-pressable') === null (transcript still hidden); neither footer button rendered (empty footer / 0 buttons)
@@ -41,8 +42,9 @@ Two related plan-view contracts (UC-DISC-11 AC3/AC4 + UC-DISC-09 AC4) need verif
 - **GIVEN** the plan view with an active route plotted (hasActiveRoute true via agentActiveOption)
 - **WHEN** the discovery slot renders
 - **THEN** no curated suggestion cards are shown
-- **Test tier:** `integration` · **Service:** live Convex dev via @testing-library/react-native
-- **Verify:** `pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx` → `cardsHiddenWhenRouteActive`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/discovery-full-gate.yaml` (step 3: suggestion cards hidden when route active)
+- **Supplementary verify:** `pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx` → `cardsHiddenWhenRouteActive` (vitest @testing-library/react-native mocked wiring)
 - **Scenario** (start `plan_view_route_active`):
   - must observe: queryAllByTestId(/^discovery-suggestion-pill-/).length === 0 (zero curated pills while a route is on the map); queryByTestId('home-route-polyline') !== null (route IS shown)
   - must NOT observe: queryAllByTestId(/^discovery-suggestion-pill-/).length >= 1 (any pill visible while hasActiveRoute); queryByTestId('home-route-polyline') === null (route unexpectedly absent); an empty map with 0 route polylines while a route should be shown
@@ -52,8 +54,9 @@ Two related plan-view contracts (UC-DISC-11 AC3/AC4 + UC-DISC-09 AC4) need verif
 - **GIVEN** the plan view with an active route then cleared (clearAll / new session)
 - **WHEN** the rider clears the route
 - **THEN** hasActiveRoute flips to false and the curated suggestion cards reappear
-- **Test tier:** `integration` · **Service:** live Convex dev via @testing-library/react-native
-- **Verify:** `pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx` → `cardsReturnAfterRouteCleared`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/discovery-full-gate.yaml` (step 8: suggestion cards return after clearing)
+- **Supplementary verify:** `pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx` → `cardsReturnAfterRouteCleared` (vitest @testing-library/react-native mocked wiring)
 - **Scenario** (start `plan_view_route_active`):
   - must observe: queryAllByTestId(/^discovery-suggestion-pill-/).length >= 1 (curated pills returned after clear); queryByTestId('home-route-polyline') === null (route gone after clear)
   - must NOT observe: queryAllByTestId(/^discovery-suggestion-pill-/).length === 0 (zero pills after clearing — cards stuck hidden); queryByTestId('home-route-polyline') !== null (a stale polyline persisting after clear)
@@ -63,9 +66,9 @@ Two related plan-view contracts (UC-DISC-11 AC3/AC4 + UC-DISC-09 AC4) need verif
 
 | ID | Statement | Maps to | Verify |
 |----|-----------|---------|--------|
-| TC-1 | chat-input-chat-view-button and chat-input-send-button are distinct nodes; pressing the former opens the transcript. | AC-1 | `pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx -t fullChatButtonDistinctFromSendOpensChat` |
-| TC-2 | With agentActiveOption non-null, zero discovery-suggestion-pill rows render. | AC-2 | `pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx -t cardsHiddenWhenRouteActive` |
-| TC-3 | After clear, hasActiveRoute false and >=1 curated pill returns. | AC-3 | `pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx -t cardsReturnAfterRouteCleared` |
+| TC-1 | chat-input-chat-view-button and chat-input-send-button are distinct nodes; pressing the former opens the transcript. | AC-1 | `maestro test .maestro/discovery-full-gate.yaml` (step 8) + `pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx -t fullChatButtonDistinctFromSendOpensChat` |
+| TC-2 | With agentActiveOption non-null, zero discovery-suggestion-pill rows render. | AC-2 | `maestro test .maestro/discovery-full-gate.yaml` (step 3) + `pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx -t cardsHiddenWhenRouteActive` |
+| TC-3 | After clear, hasActiveRoute false and >=1 curated pill returns. | AC-3 | `maestro test .maestro/discovery-full-gate.yaml` (step 8) + `pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx -t cardsReturnAfterRouteCleared` |
 
 ## Reading List
 
@@ -91,7 +94,7 @@ Two related plan-view contracts (UC-DISC-11 AC3/AC4 + UC-DISC-09 AC4) need verif
 
 | Gate | Command |
 |------|---------|
-| test | `pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx` |
+| test | `maestro test .maestro/discovery-full-gate.yaml` |
 | typecheck | `pnpm type-check` |
 | lint | `pnpm exec biome check 'app/(app)/(tabs)/index.tsx' components/chat/chat-input.tsx 'app/(app)/(tabs)/index.footer-visibility.integration.test.tsx'` |
 | scope | `git diff --name-only ⊆ scope.write_allowed` |
@@ -136,12 +139,13 @@ Two related plan-view contracts (UC-DISC-11 AC3/AC4 + UC-DISC-09 AC4) need verif
       "id": "AC-1",
       "type": "acceptance_criterion",
       "description": "GIVEN the plan view in map mode WHEN the rider presses chat-input-chat-view-button THEN the full chat transcript opens (chatMode true) and the button is a separate element from chat-input-send-button with a distinct icon",
-      "verify": "pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx` \u2192 `fullChatButtonDistinctFromSendOpensChat",
+      "verify": ".maestro/discovery-full-gate.yaml",
+      "supplementary_verify": "pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx` → `fullChatButtonDistinctFromSendOpensChat",
       "scenario": {
         "start_ref": "plan_view_map_mode",
         "tier": "visible",
-        "test_tier": "integration",
-        "verification_service": "@testing-library/react-native rendering the real screen",
+        "test_tier": "PRIMARY",
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": {
           "would_fail_if": [
             "would fail if chat-input-chat-view-button and chat-input-send-button resolve to the same node (buttons merged)",
@@ -185,12 +189,13 @@ Two related plan-view contracts (UC-DISC-11 AC3/AC4 + UC-DISC-09 AC4) need verif
       "id": "AC-2",
       "type": "acceptance_criterion",
       "description": "GIVEN the plan view with an active route plotted (hasActiveRoute true via agentActiveOption) WHEN the discovery slot renders THEN no curated suggestion cards are shown",
-      "verify": "pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx` \u2192 `cardsHiddenWhenRouteActive",
+      "verify": ".maestro/discovery-full-gate.yaml",
+      "supplementary_verify": "pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx` → `cardsHiddenWhenRouteActive",
       "scenario": {
         "start_ref": "plan_view_route_active",
         "tier": "visible",
-        "test_tier": "integration",
-        "verification_service": "live Convex dev via @testing-library/react-native",
+        "test_tier": "PRIMARY",
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": {
           "would_fail_if": [
             "would fail if visibility is keyed to 'session has messages' instead of hasActiveRoute (cards persist while a route is shown)",
@@ -231,12 +236,13 @@ Two related plan-view contracts (UC-DISC-11 AC3/AC4 + UC-DISC-09 AC4) need verif
       "id": "AC-3",
       "type": "acceptance_criterion",
       "description": "GIVEN the plan view with an active route then cleared (clearAll / new session) WHEN the rider clears the route THEN hasActiveRoute flips to false and the curated suggestion cards reappear",
-      "verify": "pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx` \u2192 `cardsReturnAfterRouteCleared",
+      "verify": ".maestro/discovery-full-gate.yaml",
+      "supplementary_verify": "pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx` → `cardsReturnAfterRouteCleared",
       "scenario": {
         "start_ref": "plan_view_route_active",
         "tier": "visible",
-        "test_tier": "integration",
-        "verification_service": "live Convex dev via @testing-library/react-native",
+        "test_tier": "PRIMARY",
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": {
           "would_fail_if": [
             "would fail if clearing does not null agentActiveOption (hasActiveRoute stuck true, cards stay hidden)",
@@ -266,7 +272,7 @@ Two related plan-view contracts (UC-DISC-11 AC3/AC4 + UC-DISC-09 AC4) need verif
                 "queryByTestId('home-route-polyline') === null (route gone after clear)"
               ],
               "must_not_observe": [
-                "queryAllByTestId(/^discovery-suggestion-pill-/).length === 0 (zero pills after clearing \u2014 cards stuck hidden)",
+                "queryAllByTestId(/^discovery-suggestion-pill-/).length === 0 (zero pills after clearing — cards stuck hidden)",
                 "queryByTestId('home-route-polyline') !== null (a stale polyline persisting after clear)"
               ]
             }
@@ -279,21 +285,21 @@ Two related plan-view contracts (UC-DISC-11 AC3/AC4 + UC-DISC-09 AC4) need verif
       "type": "test_criterion",
       "description": "chat-input-chat-view-button and chat-input-send-button are distinct nodes; pressing the former opens the transcript.",
       "maps_to_ac": "AC-1",
-      "verify": "pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx -t fullChatButtonDistinctFromSendOpensChat"
+      "verify": "maestro test .maestro/discovery-full-gate.yaml + pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx -t fullChatButtonDistinctFromSendOpensChat"
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "With agentActiveOption non-null, zero discovery-suggestion-pill rows render.",
       "maps_to_ac": "AC-2",
-      "verify": "pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx -t cardsHiddenWhenRouteActive"
+      "verify": "maestro test .maestro/discovery-full-gate.yaml + pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx -t cardsHiddenWhenRouteActive"
     },
     {
       "id": "TC-3",
       "type": "test_criterion",
       "description": "After clear, hasActiveRoute false and >=1 curated pill returns.",
       "maps_to_ac": "AC-3",
-      "verify": "pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx -t cardsReturnAfterRouteCleared"
+      "verify": "maestro test .maestro/discovery-full-gate.yaml + pnpm test app/(app)/(tabs)/index.footer-visibility.integration.test.tsx -t cardsReturnAfterRouteCleared"
     }
   ]
 }

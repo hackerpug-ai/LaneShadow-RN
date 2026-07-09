@@ -91,15 +91,16 @@ appId: com.hackerpug.laneshadow
     timeout: 120000
 
 # ── AC-1 Verification: route-tag is visible with label + distance ──
-# The route-tag testID is stable; the label carries the route archetype + distance.
-- assertVisible: { id: "route-tag" }
-- assertVisible: { id: "route-tag-label-.*" }
+# The route-tag testID is route-specific; verify the route-specific tag is present
+# and that no bare "route-tag" (without routeId) exists
+- assertVisible: { id: "route-tag-.+" }
+- assertNotVisible: { id: "^route-tag$" }
 
 # Screenshot: Verify route-tag is visible on the map with label + distance
 - takeScreenshot: 01-route-tag-visible-with-label-distance
 
 # ── AC-2: Tap the route-tag and verify RouteDetailsSheet opens (not SaveRouteSheet) ──
-- tapOn: { id: "route-tag" }
+- tapOn: { id: "route-tag-.+" }
 
 # Wait a moment for the details sheet to appear (delay similar to RUX-003 pattern)
 - waitForAnimationToEnd:
@@ -138,7 +139,13 @@ appId: com.hackerpug.laneshadow
       - waitForAnimationToEnd:
           timeout: 1000
 
-      # Verify tag still visible (now on second route)
+      # Verify exactly ONE route-tag remains (now on second route)
+      # Use assertNotVisible for bare "route-tag" to ensure no stale generic tag
+      - assertNotVisible: { id: "^route-tag$" }
+      # Verify a route-specific tag exists for the new route
+      - assertVisible: { id: "route-tag-.+" }
+
+      # Verify carousel container is still visible
       - assertVisible: { id: "route-carousel-container" }
 
       # Screenshot: Verify tag followed to new route (label updated)
@@ -149,8 +156,9 @@ appId: com.hackerpug.laneshadow
       - waitForAnimationToEnd:
           timeout: 1000
 
-      # Verify tag on first route again
-      - assertVisible: { id: "route-carousel-container" }
+      # Verify exactly ONE route-tag on first route again
+      - assertNotVisible: { id: "^route-tag$" }
+      - assertVisible: { id: "route-tag-.+" }
 
       # Screenshot: Final state with tag back on first route
       - takeScreenshot: 04-route-tag-back-on-first-route-after-paging-prev

@@ -29,20 +29,22 @@ Chat-driven curated discovery (DATA-008/008b) produces a routing_card whose opti
 - **flow_ref:** `HF-DISC-10-CORE` · `.spec/scenarios/UC-DISC-10/core-chat-nl-discovery-card-map-loop.scenario.md` *(bound 2026-06-23 by /kb-e2e-retrofit --apply)*
 - **GIVEN** a routing_card completed with a curated option carrying a real 0–1 compositeScore (post-DATA-008b) and a mileage
 - **WHEN** CompletedCard renders the curated option
-- **THEN** a CuratedRouteCard shows the road name, its mileage, and the composite as a percentage (Math.round(score*100)) or bars — never a raw 0–1 decimal, never 0–100, never 0% for a non-zero route — and it is visually distinct from a RouteAttachmentCard
-- **Test tier:** `integration` · **Service:** live Convex dev (curated routing_card via discoverCuratedRoutes/listCuratedRoutes) via @testing-library/react-native
-- **Verify:** `pnpm test components/chat/cards/curated-route-card.integration.test.tsx` → `curatedCardShowsScoreAsPercentOnZeroToOneScale`
+- **THEN** a CuratedRouteCard shows the road name, its mileage, and the composite as a percentage (Math.round(score*100)) or bars — never a raw 0–1 decimal, never a raw 0–100 integer, never 0% for a non-zero route — and it is visually distinct from a RouteAttachmentCard; the curated card renders the `route-attachment-card` testID
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/discovery-full-gate.yaml` (chat-driven curated cards render with correct % score)
+- **Supplementary verify:** `pnpm test components/chat/cards/curated-route-card.integration.test.tsx` → `curatedCardShowsScoreAsPercentOnZeroToOneScale` (vitest @testing-library/react-native mocked wiring)
 - **Scenario** (start `curated_routing_card_real_scores`):
-  - must observe: getByText('82%') !== null (composite rendered as Math.round(0.82*100)=82, e.g. '82%' or '82/100'), OR a score bar with fillWidth === '82%'; getByText(option.name) !== null where option.name is the real catalog road name literal (e.g. 'Tail of the Dragon'), length > 0; a mileage value matching /. \d+mi/ (e.g. '. 14mi'); the curated card uses the road-variant icon / composite badge testID (e.g. getByTestId('curated-route-card-score-badge') !== null), distinct from a start->end planned layout
-  - must NOT observe: getByText('0%') !== null for a non-zero route; all score bars at fillWidth '0%'; queryByText('0.82') !== null (raw decimal shown); a start->end planned-trip card layout for the curated option
+  - must observe: getByText('82%') !== null (composite rendered as Math.round(0.82*100)=82, e.g. '82%' ONLY, never '82/100'); OR a score bar with fillWidth === '82%'; getByTestId('route-attachment-card') !== null (curated option renders with route-attachment-card testID); getByText(option.name) !== null where option.name is the real catalog road name literal (e.g. 'Tail of the Dragon'), length > 0; a mileage value matching /. \d+mi/ (e.g. '. 14mi'); the curated card uses the road-variant icon / composite badge testID (e.g. getByTestId('curated-route-card-score-badge') !== null), distinct from a start->end planned layout
+  - must NOT observe: getByText('82/100') !== null (raw 0–100 integer is NOT accepted); getByText('0.82') !== null (raw 0–1 decimal shown); getByText('0%') !== null for a non-zero route; all score bars at fillWidth '0%'; queryByText('82/100') !== null (raw 0–100 integer); a start->end planned-trip card layout for the curated option
   - negative control (would fail if): would fail if DATA-008b is not applied so the tool reads the wrong field and composite renders a static 0 / 0%; would fail if the score is rendered as the raw 0.82 decimal (no *100 percentage); would fail if the card falls back to the planned RouteAttachmentCard layout (curated branch disconnected)
 
 ### AC-2: Selecting an earlier card re-renders on the map and returns to map view
 - **GIVEN** a transcript containing an earlier curated routing_card in chat mode
 - **WHEN** the rider presses that curated card
 - **THEN** setSelectedRouteId + setDisplayedRoutePlanId fire and chatMode flips to false (map view) with that route plotted
-- **Test tier:** `integration` · **Service:** live Convex dev via @testing-library/react-native
-- **Verify:** `pnpm test components/chat/cards/curated-route-card.integration.test.tsx` → `earlierCuratedCardReRendersAndReturnsToMap`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/discovery-full-gate.yaml` (earlier curated card tap returns to map view)
+- **Supplementary verify:** `pnpm test components/chat/cards/curated-route-card.integration.test.tsx` → `earlierCuratedCardReRendersAndReturnsToMap` (vitest @testing-library/react-native mocked wiring)
 - **Scenario** (start `curated_routing_card_real_scores`):
   - must observe: setDisplayedRoutePlanId called once with the card's routePlanId (=== the surfaced routing_card.routePlanId, a non-empty id string); setSelectedRouteId called once with the curated option id (=== the curated option.id); chatMode === false after press (returned to map view)
   - must NOT observe: chatMode === true after press (still in chat mode); setDisplayedRoutePlanId call count === 0 (no selection propagated); setSelectedRouteId call count === 0
@@ -52,8 +54,9 @@ Chat-driven curated discovery (DATA-008/008b) produces a routing_card whose opti
 - **GIVEN** a curated option whose geometry is a single centroid point (no overview polyline)
 - **WHEN** it is selected and doFit runs
 - **THEN** the map centers on the centroid via setCameraPosition zoom 12 (single-point fallback) — no crash, route represented on the map
-- **Test tier:** `integration` · **Service:** live Convex dev + MapboxMapViewHandle via @testing-library/react-native
-- **Verify:** `pnpm test components/chat/cards/curated-route-card.integration.test.tsx` → `centroidOnlyCuratedPlotsViaFallback`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/discovery-full-gate.yaml` (centroid-only curated route plots via fallback)
+- **Supplementary verify:** `pnpm test components/chat/cards/curated-route-card.integration.test.tsx` → `centroidOnlyCuratedPlotsViaFallback` (vitest @testing-library/react-native mocked wiring)
 - **Scenario** (start `curated_routing_card_centroid_only`):
   - must observe: setCameraPosition called with the centroid coordinates (latitude/longitude) and zoom === 12; setCameraPosition.mock.calls.length === 1
   - must NOT observe: fitToCoordinates called with empty coords ([]); setCameraPosition call count === 0 (no camera move); an exception thrown for the single-point geometry
@@ -63,9 +66,9 @@ Chat-driven curated discovery (DATA-008/008b) produces a routing_card whose opti
 
 | ID | Statement | Maps to | Verify |
 |----|-----------|---------|--------|
-| TC-1 | Curated card renders composite as Math.round(score*100) %/bars (0–1), with name + mileage, distinct from planned card; never 0% for a non-zero route. | AC-1 | `pnpm test components/chat/cards/curated-route-card.integration.test.tsx -t curatedCardShowsScoreAsPercentOnZeroToOneScale` |
-| TC-2 | Pressing an earlier curated card calls setSelectedRouteId + setDisplayedRoutePlanId and flips chatMode false. | AC-2 | `pnpm test components/chat/cards/curated-route-card.integration.test.tsx -t earlierCuratedCardReRendersAndReturnsToMap` |
-| TC-3 | Centroid-only curated option → doFit single-point branch (setCameraPosition zoom 12), no crash. | AC-3 | `pnpm test components/chat/cards/curated-route-card.integration.test.tsx -t centroidOnlyCuratedPlotsViaFallback` |
+| TC-1 | Curated card renders composite as Math.round(score*100) %/bars (0–1), with name + mileage, distinct from planned card; never 0% for a non-zero route; renders route-attachment-card testID. | AC-1 | `maestro test .maestro/discovery-full-gate.yaml` + `pnpm test components/chat/cards/curated-route-card.integration.test.tsx -t curatedCardShowsScoreAsPercentOnZeroToOneScale` |
+| TC-2 | Pressing an earlier curated card calls setSelectedRouteId + setDisplayedRoutePlanId and flips chatMode false. | AC-2 | `maestro test .maestro/discovery-full-gate.yaml` + `pnpm test components/chat/cards/curated-route-card.integration.test.tsx -t earlierCuratedCardReRendersAndReturnsToMap` |
+| TC-3 | Centroid-only curated option → doFit single-point branch (setCameraPosition zoom 12), no crash. | AC-3 | `maestro test .maestro/discovery-full-gate.yaml` + `pnpm test components/chat/cards/curated-route-card.integration.test.tsx -t centroidOnlyCuratedPlotsViaFallback` |
 
 ## Reading List
 
@@ -91,7 +94,7 @@ Chat-driven curated discovery (DATA-008/008b) produces a routing_card whose opti
 
 | Gate | Command |
 |------|---------|
-| test | `pnpm test components/chat/cards/curated-route-card.integration.test.tsx` |
+| test | `maestro test .maestro/discovery-full-gate.yaml` |
 | typecheck | `pnpm type-check` |
 | lint | `pnpm exec biome check components/chat/cards/curated-route-card.tsx components/chat/routing-card.tsx 'app/(app)/(tabs)/index.tsx' components/chat/cards/curated-route-card.integration.test.tsx` |
 | scope | `git diff --name-only ⊆ scope.write_allowed` |
@@ -115,7 +118,7 @@ Chat-driven curated discovery (DATA-008/008b) produces a routing_card whose opti
 {
   "fixtures": {
     "curated_routing_card_real_scores": {
-      "description": "a completed routing_card from the real discovery tool (post-DATA-008b) with curated options carrying real 0\u20131 compositeScore (~0.82) + per-dimension scores + mileage, surfaced against live Convex",
+      "description": "a completed routing_card from the real discovery tool (post-DATA-008b) with curated options carrying real 0–1 compositeScore (~0.82) + per-dimension scores + mileage, surfaced against live Convex",
       "seed_method": "migration_fixture",
       "records": [
         "routing_card option with scores.composite ~0.82",
@@ -135,13 +138,14 @@ Chat-driven curated discovery (DATA-008/008b) produces a routing_card whose opti
     {
       "id": "AC-1",
       "type": "acceptance_criterion",
-      "description": "GIVEN a routing_card completed with a curated option carrying a real 0\u20131 compositeScore (post-DATA-008b) and a mileage WHEN CompletedCard renders the curated option THEN a CuratedRouteCard shows the road name, its mileage, and the composite as a percentage (Math.round(score*100)) or bars \u2014 never a raw 0\u20131 decimal, never 0\u2013100, never 0% for a non-zero route \u2014 and it is visually distinct from a RouteAttachmentCard",
-      "verify": "pnpm test components/chat/cards/curated-route-card.integration.test.tsx` \u2192 `curatedCardShowsScoreAsPercentOnZeroToOneScale",
+      "description": "GIVEN a routing_card completed with a curated option carrying a real 0–1 compositeScore (post-DATA-008b) and a mileage WHEN CompletedCard renders the curated option THEN a CuratedRouteCard shows the road name, its mileage, and the composite as a percentage (Math.round(score*100)) or bars — never a raw 0–1 decimal, never a raw 0–100 integer, never 0% for a non-zero route — and it is visually distinct from a RouteAttachmentCard; the curated card renders the route-attachment-card testID",
+      "verify": ".maestro/discovery-full-gate.yaml",
+      "supplementary_verify": "pnpm test components/chat/cards/curated-route-card.integration.test.tsx` → `curatedCardShowsScoreAsPercentOnZeroToOneScale",
       "scenario": {
         "start_ref": "curated_routing_card_real_scores",
         "tier": "visible",
-        "test_tier": "integration",
-        "verification_service": "live Convex dev (curated routing_card via discoverCuratedRoutes/listCuratedRoutes) via @testing-library/react-native",
+        "test_tier": "PRIMARY",
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": {
           "would_fail_if": [
             "would fail if DATA-008b is not applied so the tool reads the wrong field and composite renders a static 0 / 0%",
@@ -166,15 +170,19 @@ Chat-driven curated discovery (DATA-008/008b) produces a routing_card whose opti
             },
             "end_state": {
               "must_observe": [
-                "getByText('82%') !== null (composite rendered as Math.round(0.82*100)=82, e.g. '82%' or '82/100'), OR a score bar with fillWidth === '82%'",
+                "getByText('82%') !== null (composite rendered as Math.round(0.82*100)=82, e.g. '82%' ONLY)",
+                "OR a score bar with fillWidth === '82%'",
+                "getByTestId('route-attachment-card') !== null (curated option renders with route-attachment-card testID)",
                 "getByText(option.name) !== null where option.name is the real catalog road name literal (e.g. 'Tail of the Dragon'), length > 0",
                 "a mileage value matching /. \\d+mi/ (e.g. '. 14mi')",
                 "the curated card uses the road-variant icon / composite badge testID (e.g. getByTestId('curated-route-card-score-badge') !== null), distinct from a start->end planned layout"
               ],
               "must_not_observe": [
+                "getByText('82/100') !== null (raw 0–100 integer is NOT accepted)",
+                "getByText('0.82') !== null (raw 0–1 decimal shown)",
                 "getByText('0%') !== null for a non-zero route",
                 "all score bars at fillWidth '0%'",
-                "queryByText('0.82') !== null (raw decimal shown)",
+                "queryByText('82/100') !== null (raw 0–100 integer)",
                 "a start->end planned-trip card layout for the curated option"
               ]
             }
@@ -186,12 +194,13 @@ Chat-driven curated discovery (DATA-008/008b) produces a routing_card whose opti
       "id": "AC-2",
       "type": "acceptance_criterion",
       "description": "GIVEN a transcript containing an earlier curated routing_card in chat mode WHEN the rider presses that curated card THEN setSelectedRouteId + setDisplayedRoutePlanId fire and chatMode flips to false (map view) with that route plotted",
-      "verify": "pnpm test components/chat/cards/curated-route-card.integration.test.tsx` \u2192 `earlierCuratedCardReRendersAndReturnsToMap",
+      "verify": ".maestro/discovery-full-gate.yaml",
+      "supplementary_verify": "pnpm test components/chat/cards/curated-route-card.integration.test.tsx` → `earlierCuratedCardReRendersAndReturnsToMap",
       "scenario": {
         "start_ref": "curated_routing_card_real_scores",
         "tier": "visible",
-        "test_tier": "integration",
-        "verification_service": "live Convex dev via @testing-library/react-native",
+        "test_tier": "PRIMARY",
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": {
           "would_fail_if": [
             "would fail if onViewOnMap is missing on the curated branch (a no-op) so chatMode stays true after press",
@@ -233,13 +242,14 @@ Chat-driven curated discovery (DATA-008/008b) produces a routing_card whose opti
     {
       "id": "AC-3",
       "type": "acceptance_criterion",
-      "description": "GIVEN a curated option whose geometry is a single centroid point (no overview polyline) WHEN it is selected and doFit runs THEN the map centers on the centroid via setCameraPosition zoom 12 (single-point fallback) \u2014 no crash, route represented on the map",
-      "verify": "pnpm test components/chat/cards/curated-route-card.integration.test.tsx` \u2192 `centroidOnlyCuratedPlotsViaFallback",
+      "description": "GIVEN a curated option whose geometry is a single centroid point (no overview polyline) WHEN it is selected and doFit runs THEN the map centers on the centroid via setCameraPosition zoom 12 (single-point fallback) — no crash, route represented on the map",
+      "verify": ".maestro/discovery-full-gate.yaml",
+      "supplementary_verify": "pnpm test components/chat/cards/curated-route-card.integration.test.tsx` → `centroidOnlyCuratedPlotsViaFallback",
       "scenario": {
         "start_ref": "curated_routing_card_centroid_only",
         "tier": "visible",
-        "test_tier": "integration",
-        "verification_service": "live Convex dev + MapboxMapViewHandle via @testing-library/react-native",
+        "test_tier": "PRIMARY",
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": {
           "would_fail_if": [
             "would fail if a centroid-only option crashes doFit (single-point branch missing)",
@@ -279,23 +289,23 @@ Chat-driven curated discovery (DATA-008/008b) produces a routing_card whose opti
     {
       "id": "TC-1",
       "type": "test_criterion",
-      "description": "Curated card renders composite as Math.round(score*100) %/bars (0\u20131), with name + mileage, distinct from planned card; never 0% for a non-zero route.",
+      "description": "Curated card renders composite as Math.round(score*100) %/bars (0–1), with name + mileage, distinct from planned card; never 0% for a non-zero route; renders route-attachment-card testID.",
       "maps_to_ac": "AC-1",
-      "verify": "pnpm test components/chat/cards/curated-route-card.integration.test.tsx -t curatedCardShowsScoreAsPercentOnZeroToOneScale"
+      "verify": "maestro test .maestro/discovery-full-gate.yaml + pnpm test components/chat/cards/curated-route-card.integration.test.tsx -t curatedCardShowsScoreAsPercentOnZeroToOneScale"
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "Pressing an earlier curated card calls setSelectedRouteId + setDisplayedRoutePlanId and flips chatMode false.",
       "maps_to_ac": "AC-2",
-      "verify": "pnpm test components/chat/cards/curated-route-card.integration.test.tsx -t earlierCuratedCardReRendersAndReturnsToMap"
+      "verify": "maestro test .maestro/discovery-full-gate.yaml + pnpm test components/chat/cards/curated-route-card.integration.test.tsx -t earlierCuratedCardReRendersAndReturnsToMap"
     },
     {
       "id": "TC-3",
       "type": "test_criterion",
-      "description": "Centroid-only curated option \u2192 doFit single-point branch (setCameraPosition zoom 12), no crash.",
+      "description": "Centroid-only curated option → doFit single-point branch (setCameraPosition zoom 12), no crash.",
       "maps_to_ac": "AC-3",
-      "verify": "pnpm test components/chat/cards/curated-route-card.integration.test.tsx -t centroidOnlyCuratedPlotsViaFallback"
+      "verify": "maestro test .maestro/discovery-full-gate.yaml + pnpm test components/chat/cards/curated-route-card.integration.test.tsx -t centroidOnlyCuratedPlotsViaFallback"
     }
   ]
 }

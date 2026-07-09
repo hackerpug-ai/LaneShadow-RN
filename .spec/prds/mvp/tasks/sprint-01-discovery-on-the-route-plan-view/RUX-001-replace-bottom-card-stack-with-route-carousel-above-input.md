@@ -29,23 +29,26 @@ The "floating buttons that tell me nothing" bottom stack is gone. A single route
 - **GIVEN** the plan view in ROUTE_RESULTS with `flowState.routeOptions.options` containing ≥2 genuinely-distinct routes (e.g. 'Efficient' 64mi and 'Scenic Coastal' 78mi) against live Convex
 - **WHEN** the rider presses `route-carousel-next-arrow`
 - **THEN** exactly one route-summary card is shown, its label/distance update to the next distinct route, and `flowState.selectedRouteId === that route's routeOptionId`
-- **Test tier:** `integration` · **Service:** live Convex dev (route_plans) via @testing-library/react-native
-- **Verify:** `pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t pagesBetweenDistinctRoutes`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/rux-001-route-carousel-paging.yaml`
+- **Supplementary verify:** `pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx` → `pagesBetweenDistinctRoutes` (vitest @testing-library/react-native mocked wiring)
 - **Scenario** (start `plan_view_two_distinct_routes`): must observe one card showing the second route's label/distance + `selectedRouteId` updated; must NOT observe `>1` card, a static first-route card, or a vanished card; negative control: old stack, static card, disconnected selection, empty placeholder.
 
 ### AC-2: Single distinct route hides the carousel arrows
 - **GIVEN** options that collapse (after dedupe) to exactly ONE distinct route
 - **WHEN** the route-summary slot renders
 - **THEN** the card shows WITHOUT prev/next arrows (`route-carousel-prev-arrow` and `route-carousel-next-arrow` both absent)
-- **Test tier:** `integration` · **Service:** live Convex dev via @testing-library/react-native
-- **Verify:** `pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t singleRouteHidesArrows`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/rux-001-route-carousel-paging.yaml`
+- **Supplementary verify:** `pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx` → `singleRouteHidesArrows` (vitest @testing-library/react-native mocked wiring)
 
 ### AC-3: Prev arrow disabled at first route, next disabled at last
 - **GIVEN** ≥3 distinct routes, paged to the FIRST route
 - **WHEN** the carousel renders at the first index, then is paged to the last
 - **THEN** at the first index the prev arrow is `accessibilityState.disabled === true`, at the last index the next arrow is disabled, and a disabled press is a no-op on `selectedRouteId`
-- **Test tier:** `integration` · **Service:** live Convex dev via @testing-library/react-native
-- **Verify:** `pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t arrowsDisabledAtEnds`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/rux-001-route-carousel-paging.yaml`
+- **Supplementary verify:** `pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx` → `arrowsDisabledAtEnds` (vitest @testing-library/react-native mocked wiring)
 
 ### AC-4: Dedupe reducer collapses identical efficiency variants (unit)
 - **GIVEN** an options array where two entries share label+distance+overviewGeometry (a backend efficiency-variant duplicate) and a third differs, plus one with undefined geometry
@@ -59,9 +62,9 @@ The "floating buttons that tell me nothing" bottom stack is gone. A single route
 
 | ID | Statement | Maps to | Verify |
 |----|-----------|---------|--------|
-| TC-1 | Exactly one `route-summary-card` renders; pressing next advances the label/distance and updates `selectedRouteId`. | AC-1 | `pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t pagesBetweenDistinctRoutes` |
-| TC-2 | A single distinct route renders the card with no prev/next arrows. | AC-2 | `pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t singleRouteHidesArrows` |
-| TC-3 | Prev disabled at first index, next disabled at last; disabled press is a no-op on `selectedRouteId`. | AC-3 | `pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t arrowsDisabledAtEnds` |
+| TC-1 | Exactly one `route-summary-card` renders; pressing next advances the label/distance and updates `selectedRouteId`. | AC-1 | `maestro test .maestro/rux-001-route-carousel-paging.yaml` + `pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t pagesBetweenDistinctRoutes` |
+| TC-2 | A single distinct route renders the card with no prev/next arrows. | AC-2 | `maestro test .maestro/rux-001-route-carousel-paging.yaml` + `pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t singleRouteHidesArrows` |
+| TC-3 | Prev disabled at first index, next disabled at last; disabled press is a no-op on `selectedRouteId`. | AC-3 | `maestro test .maestro/rux-001-route-carousel-paging.yaml` + `pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t arrowsDisabledAtEnds` |
 | TC-4 | `deduplicateRouteOptions` collapses identical efficiency variants, preserves order, and guards undefined geometry. | AC-4 | `pnpm test lib/routes/dedupe-route-options.test.ts -t collapsesIdenticalVariants` |
 
 ## Reading List
@@ -88,7 +91,7 @@ The "floating buttons that tell me nothing" bottom stack is gone. A single route
 
 | Gate | Command |
 |------|---------|
-| test | `pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx && pnpm test lib/routes/dedupe-route-options.test.ts` |
+| test | `maestro test .maestro/rux-001-route-carousel-paging.yaml` |
 | typecheck | `pnpm type-check` |
 | lint | `pnpm exec biome check 'app/(app)/(tabs)/index.tsx' 'components/map/route-summary-carousel.tsx' 'lib/routes/dedupe-route-options.ts'` |
 | scope | `git diff --name-only ⊆ scope.write_allowed` |
@@ -144,10 +147,11 @@ DESIGN-S01-005 is the matching visual spec; if it has not landed, implement to t
       "type": "acceptance_criterion",
       "primary": true,
       "description": "GIVEN the plan view in ROUTE_RESULTS with >=2 distinct routes WHEN the rider presses route-carousel-next-arrow THEN exactly one route-summary card shows the next distinct route and selectedRouteId updates to that routeOptionId",
-      "verify": "pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t pagesBetweenDistinctRoutes",
+      "verify": ".maestro/rux-001-route-carousel-paging.yaml",
+      "supplementary_verify": "pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t pagesBetweenDistinctRoutes",
       "scenario": {
-        "start_ref": "plan_view_two_distinct_routes", "tier": "visible", "test_tier": "integration",
-        "verification_service": "live Convex dev (route_plans) via @testing-library/react-native",
+        "start_ref": "plan_view_two_distinct_routes", "tier": "visible", "test_tier": "PRIMARY",
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": { "would_fail_if": [
           "the old vertical ScrollView stack still renders >1 RouteAttachmentCard simultaneously (queryAllByTestId('route-summary-card').length > 1)",
           "pressing next does not change the displayed label/distance (static card / disconnected from paging state)",
@@ -182,10 +186,11 @@ DESIGN-S01-005 is the matching visual spec; if it has not landed, implement to t
       "id": "AC-2",
       "type": "acceptance_criterion",
       "description": "GIVEN options that dedupe to one distinct route WHEN the slot renders THEN the card shows without any prev/next arrows",
-      "verify": "pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t singleRouteHidesArrows",
+      "verify": ".maestro/rux-001-route-carousel-paging.yaml",
+      "supplementary_verify": "pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t singleRouteHidesArrows",
       "scenario": {
-        "start_ref": "plan_view_one_distinct_route", "tier": "visible", "test_tier": "integration", "primary": false,
-        "verification_service": "live Convex dev via @testing-library/react-native",
+        "start_ref": "plan_view_one_distinct_route", "tier": "visible", "test_tier": "PRIMARY", "primary": false,
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": { "would_fail_if": [
           "arrows render even with one distinct route (static always-on arrows)",
           "duplicate efficiency variants are NOT collapsed, so the dedupe reports >1 and arrows show for what is really one route",
@@ -216,10 +221,11 @@ DESIGN-S01-005 is the matching visual spec; if it has not landed, implement to t
       "id": "AC-3",
       "type": "acceptance_criterion",
       "description": "GIVEN >=3 distinct routes WHEN paged to first then last THEN prev disabled at first index and next disabled at last index; disabled press is a no-op",
-      "verify": "pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t arrowsDisabledAtEnds",
+      "verify": ".maestro/rux-001-route-carousel-paging.yaml",
+      "supplementary_verify": "pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t arrowsDisabledAtEnds",
       "scenario": {
-        "start_ref": "plan_view_three_distinct_routes", "tier": "visible", "test_tier": "integration", "primary": false,
-        "verification_service": "live Convex dev via @testing-library/react-native",
+        "start_ref": "plan_view_three_distinct_routes", "tier": "visible", "test_tier": "PRIMARY", "primary": false,
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": { "would_fail_if": [
           "pressing prev at index 0 wraps to the last route or advances state (no clamp)",
           "the prev arrow is enabled at the first index / next arrow enabled at the last index",
@@ -284,9 +290,9 @@ DESIGN-S01-005 is the matching visual spec; if it has not landed, implement to t
         } ]
       }
     },
-    { "id": "TC-1", "type": "test_criterion", "description": "Exactly one route-summary-card renders; pressing next advances the label/distance and updates selectedRouteId.", "maps_to_ac": "AC-1", "verify": "pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t pagesBetweenDistinctRoutes" },
-    { "id": "TC-2", "type": "test_criterion", "description": "A single distinct route renders the card with no prev/next arrows.", "maps_to_ac": "AC-2", "verify": "pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t singleRouteHidesArrows" },
-    { "id": "TC-3", "type": "test_criterion", "description": "Prev disabled at first index, next disabled at last index; disabled press is a no-op on selectedRouteId.", "maps_to_ac": "AC-3", "verify": "pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t arrowsDisabledAtEnds" },
+    { "id": "TC-1", "type": "test_criterion", "description": "Exactly one route-summary-card renders; pressing next advances the label/distance and updates selectedRouteId.", "maps_to_ac": "AC-1", "verify": "maestro test .maestro/rux-001-route-carousel-paging.yaml + pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t pagesBetweenDistinctRoutes" },
+    { "id": "TC-2", "type": "test_criterion", "description": "A single distinct route renders the card with no prev/next arrows.", "maps_to_ac": "AC-2", "verify": "maestro test .maestro/rux-001-route-carousel-paging.yaml + pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t singleRouteHidesArrows" },
+    { "id": "TC-3", "type": "test_criterion", "description": "Prev disabled at first index, next disabled at last index; disabled press is a no-op on selectedRouteId.", "maps_to_ac": "AC-3", "verify": "maestro test .maestro/rux-001-route-carousel-paging.yaml + pnpm test app/(app)/(tabs)/index.carousel.integration.test.tsx -t arrowsDisabledAtEnds" },
     { "id": "TC-4", "type": "test_criterion", "description": "deduplicateRouteOptions collapses identical efficiency variants, preserves order, guards undefined geometry.", "maps_to_ac": "AC-4", "verify": "pnpm test lib/routes/dedupe-route-options.test.ts -t collapsesIdenticalVariants" }
   ]
 }

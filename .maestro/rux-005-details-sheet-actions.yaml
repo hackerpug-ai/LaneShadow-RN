@@ -20,12 +20,19 @@
 #         WHEN the rider swipe-expands to 90%
 #         THEN the body scrolls to show content AND the Save button remains pinned and visible
 #
+#   AC-4: GIVEN the route-directions-sheet ("Route Overview") is open
+#         WHEN the sheet renders
+#         THEN ALL FOUR buttons are present: route-details-sheet-save-button,
+#              route-details-sheet-ride-button, route-directions-sheet-close-button,
+#              route-directions-sheet-navigate-button
+#
 # Test Procedure:
 # 1. Launch dev client and sign in
 # 2. Plan a route (trigger agent to generate route)
 # 3. Tap polyline to open RouteDetailsSheet
 # 4. Verify Save button is visible (assertVisible)
 # 5. Tap Save button to prove it's reachable (not clipped)
+# 6. Open Route Overview sheet and verify all four buttons are present
 #
 # The assertVisible + tapOn prove the button is NOT clipped off-screen.
 # A clipped button fails both assertions.
@@ -101,7 +108,7 @@ appId: com.hackerpug.laneshadow
 # ── AC-1: Save button is visible and tappable at 60% snap (initial snap) ──
 #
 # Tap the accessible route tag to open RouteDetailsSheet for the selected route.
-- tapOn: { id: "route-tag" }
+- tapOn: { id: "route-tag-.+" }
 
 # Wait for the RouteDetailsSheet to open
 - extendedWaitUntil:
@@ -109,12 +116,24 @@ appId: com.hackerpug.laneshadow
       id: "route-details-sheet"
     timeout: 10000
 
+# ── AC-4: Verify ALL FOUR buttons are present ──
+# CRITICAL: All four action buttons must be visible and assertable
+# This is the DEFINITIVE fix for RF-003/RF-016/RF-019 (reopened twice)
+- assertVisible: { id: "route-details-sheet-save-button" }
+- assertVisible: { id: "route-details-sheet-ride-button" }
+- assertVisible: { id: "route-directions-sheet-close-button" }
+- assertVisible: { id: "route-directions-sheet-navigate-button" }
+
+# Screenshot 1: All four buttons are visible
+- takeScreenshot: rux-005-01-all-four-buttons-visible
+
+# ── AC-1: Save button is visible at 60% snap (initial snap) ──
 # CRITICAL: assertVisible on the Save button proves it is NOT clipped off-screen.
 # If the button is cut off (current bug), this assertion FAILS.
 - assertVisible: { id: "route-details-sheet-save-button" }
 
-# Screenshot 1: Save button is visible at 60% snap
-- takeScreenshot: rux-005-01-save-button-visible-at-60-percent
+# Screenshot 2: Save button is visible at 60% snap
+- takeScreenshot: rux-005-02-save-button-visible-at-60-percent
 
 # ── AC-2 + AC-3: Swipe to expand sheet and verify Save button stays visible ──
 #
@@ -132,8 +151,8 @@ appId: com.hackerpug.laneshadow
 # This proves it's pinned and never pushed off-screen by scrollable content.
 - assertVisible: { id: "route-details-sheet-save-button" }
 
-# Screenshot 2: Save button is still visible after swipe-expand to 90%
-- takeScreenshot: rux-005-02-save-button-visible-at-90-percent
+# Screenshot 3: Save button is still visible after swipe-expand to 90%
+- takeScreenshot: rux-005-03-save-button-visible-at-90-percent
 
 # ── Final proof: Tap the Save button to confirm it's reachable ──
 #
@@ -147,5 +166,26 @@ appId: com.hackerpug.laneshadow
       id: "save-route-sheet"
     timeout: 10000
 
-# Screenshot 3: Save sheet opened successfully from the details sheet
-- takeScreenshot: rux-005-03-save-button-tappable-proof
+# Screenshot 4: Save sheet opened successfully from the details sheet
+- takeScreenshot: rux-005-04-save-button-tappable-proof
+
+# ── AC-4 continued: Verify Ride It button is also tappable ──
+# Close the save sheet and test the Ride It button
+- tapOn: { id: "save-route-sheet-close" }
+- extendedWaitUntil:
+    notVisible:
+      id: "save-route-sheet"
+    timeout: 5000
+
+# Verify we're back to the details sheet
+- assertVisible: { id: "route-details-sheet" }
+
+# Tap the Ride It button
+- tapOn: { id: "route-details-sheet-ride-button" }
+
+# Wait for navigation to start (this may open a directions sheet or trigger navigation)
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Screenshot 5: Ride It button tappable proof
+- takeScreenshot: rux-005-05-ride-button-tappable-proof

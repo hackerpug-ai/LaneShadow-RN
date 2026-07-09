@@ -95,7 +95,7 @@ appId: com.hackerpug.laneshadow
     timeout: 120000
 
 # Verify exactly one route-summary-card is rendered (not a stack)
-- assertVisible: { id: "route-carousel-card" }
+- assertVisible: { id: "route-summary-card" }
 
 # Capture initial route info for comparison
 - takeScreenshot: 01-carousel-first-route-visible
@@ -114,7 +114,7 @@ appId: com.hackerpug.laneshadow
           timeout: 1000
 
       # Verify the card is still visible and content changed
-      - assertVisible: { id: "route-carousel-card" }
+      - assertVisible: { id: "route-summary-card" }
 
       # Screenshot: verify second route is now showing
       - takeScreenshot: 02-carousel-second-route-visible
@@ -129,7 +129,7 @@ appId: com.hackerpug.laneshadow
           timeout: 1000
 
       # Verify we're back to the first route (card still visible)
-      - assertVisible: { id: "route-carousel-card" }
+      - assertVisible: { id: "route-summary-card" }
 
       # Screenshot: back to first route
       - takeScreenshot: 03-carousel-back-to-first-route
@@ -146,7 +146,7 @@ appId: com.hackerpug.laneshadow
 - takeScreenshot: 04-carousel-with-polyline-visible
 
 # ── Verify card tap opens RouteDetailsSheet (not SendMessage) ──
-- tapOn: { id: "route-carousel-card" }
+- tapOn: { id: "route-summary-card" }
 
 # Wait for the RouteDetailsSheet to open
 - extendedWaitUntil:

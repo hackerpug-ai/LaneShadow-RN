@@ -17,6 +17,7 @@
 #  7. Scroll chat history, tap an earlier curated card -> re-renders on map,
 #     drops back to map view
 #  8. Footer button (right of input, distinct from send) -> full chat; close -> map
+#  9. Discovery-invite placeholder is "Plan a ride…" (RF-005 + RF-022)
 #
 # Run: maestro test .maestro/discovery-full-gate.yaml -e EMAIL=... -e PASSWORD=...
 # NOTE: Run the full gate only after all sprint tasks (incl. DISC-021 quarantine)
@@ -150,6 +151,17 @@ appId: com.hackerpug.laneshadow
 - assertNotVisible: { text: "Sort" }
 - assertNotVisible: { text: "State" }
 - takeScreenshot: 04-home-no-filter-sort-state
+
+# ── STEP 9: Discovery-invite placeholder is "Plan a ride…" (RF-005 + RF-022) ─────
+# Verify the chat input placeholder is "Plan a ride…" and NOT the generic prompts
+- assertVisible: { id: "chat-input-text-field" }
+- assertVisible:
+    id: "chat-input-text-field"
+    placeholder: "Plan a ride…"
+# Negative control: verify the old IDLE_SUGGESTIONS prompts are NOT present
+- assertNotVisible: { text: "Plan a scenic ride" }
+- assertNotVisible: { text: "Find coffee nearby" }
+- takeScreenshot: 04a-discovery-invite-placeholder
 
 # ── STEP 2: curated suggestion cards over the input (road name + mileage) ─────
 # Copper-accent + road-icon styling is a visual check — captured by screenshot

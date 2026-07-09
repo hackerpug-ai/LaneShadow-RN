@@ -1,10 +1,10 @@
 # REDHAT-FIX-003: RUX-004/RUX-007/DISC-016/DISC-020: create the four missing RN integration test files
 
-**Sprint:** [SPRINT.md](./SPRINT.md)
-**Type:** FEATURE · **Status:** ⬜ Backlog · **Priority:** P1 · **Effort:** L · **Estimate:** 180 min
-**Agent:** react-native-ui-implementer · **Reviewer:** react-native-ui-reviewer
-**Proposed By:** react-native-ui-planner
-**TDD Mode:** red_first · **RED/GREEN Required:** yes
+**Sprint:** [SPRINT.md](./SPRINT.md)  
+**Type:** FEATURE · **Status:** ⬜ Backlog · **Priority:** P1 · **Effort:** L · **Estimate:** 180 min  
+**Agent:** react-native-ui-implementer · **Reviewer:** react-native-ui-reviewer  
+**Proposed By:** react-native-ui-planner  
+**TDD Mode:** red_first · **RED/GREEN Required:** yes  
 **Agent rationale:** Four RN integration test files specified in the acceptance criteria of RUX-004, RUX-007, DISC-016, and DISC-020 were never created — the red-hat review flagged each as a HIGH finding. react-native-ui-implementer owns the plan-view screen and card components under test and can write the integration tests against the project's vitest harness (jsdom/@testing-library/react-native with Convex+RN mocked per `vitest.config.ts`).
 
 > **Source:** [red-hat-sprint-01-discovery-2026-07-03T00-00-00Z.md](../../../reviews/red-hat-sprint-01-discovery-2026-07-03T00-00-00Z.md) — HIGH findings #5, #6, #7, #8.
@@ -42,7 +42,7 @@ All tests render the real screen/component through `@testing-library/react-nativ
 - **GIVEN** the plan view with a route selected and plotted
 - **WHEN** the map renders, the rider taps the tag, and pages to a second route
 - **THEN** `route-tag` is present with archetype label + distance; tapping opens `route-details-sheet` (not `save-route-sheet`); paging leaves exactly one tag with the second route's label
-- **Test tier:** `integration` · **Service:** @testing-library/react-native (Convex+RN mocked per harness reality)
+- **Test tier:** `integration` · **Service:** supplementary mocked wiring (vitest mocks Convex _generated + @rnmapbox/maps) via @testing-library/react-native
 - **Verify:** `pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx`
 - **Scenario** (start `plan_view_route_selected`):
   - must observe: `queryByTestId('route-tag') !== null` with text matching `/Scenic.*78mi/`; `queryByTestId('route-details-sheet') !== null` after press; `queryByTestId('save-route-sheet') === null` after press; `queryAllByTestId('route-tag').length === 1` after paging
@@ -53,7 +53,7 @@ All tests render the real screen/component through `@testing-library/react-nativ
 - **GIVEN** the plan view in map mode with `createCuratedPlan` pending
 - **WHEN** `handleSelectCuratedRoute` runs and the mutation resolves
 - **THEN** `map-planning-indicator` is present while pending and absent after resolve, and the transcript message count delta `=== 0`
-- **Test tier:** `integration` · **Service:** @testing-library/react-native (jsdom, Convex+RN mocked)
+- **Test tier:** `integration` · **Service:** supplementary mocked wiring (vitest mocks Convex _generated + @rnmapbox/maps) via @testing-library/react-native
 - **Verify:** `pnpm test app/(app)/(tabs)/index.card-loading.integration.test.tsx`
 - **Scenario** (start `map_mode_card_tap_pending`):
   - must observe: `queryByTestId('map-planning-indicator') !== null` while pending (1 shown); `queryByTestId('map-planning-indicator') === null` after resolve; transcript count `=== N` (delta `=== 0`)
@@ -64,7 +64,7 @@ All tests render the real screen/component through `@testing-library/react-nativ
 - **GIVEN** the plan view with curated discovery cards and transcript count N
 - **WHEN** tapping a `discovery-suggestion-pill`, fitting centroid + multi-point routes, and typing+sending a message
 - **THEN** tap renders `home-route-polyline` with count unchanged; centroid→`setCameraPosition` zoom 12; multi-point→`fitToCoordinates` `>1` coord; typed send→count `N+1`
-- **Test tier:** `integration` · **Service:** @testing-library/react-native (Convex+RN mocked, additive camera/fit spies)
+- **Test tier:** `integration` · **Service:** supplementary mocked wiring (vitest mocks Convex _generated + @rnmapbox/maps) via @testing-library/react-native
 - **Verify:** `pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx`
 - **Scenario** (start `plan_view_discovery_cards`):
   - must observe: `queryByTestId('home-route-polyline') !== null` after tap; transcript count `=== N` after tap (delta `=== 0`); `setCameraPosition.mock.calls.length === 1` (zoom 12) for centroid; `fitToCoordinates` `coords.length > 1` for multi-point; transcript count `=== N+1` after send
@@ -75,7 +75,7 @@ All tests render the real screen/component through `@testing-library/react-nativ
 - **GIVEN** a completed curated routing_card with `compositeScore ~0.82`
 - **WHEN** `CompletedCard` renders the curated branch, an earlier card is pressed, and a centroid-only option is selected
 - **THEN** score shown as `82%` (not `0.82`, not `0%`); pressing calls `setSelectedRouteId`+`setDisplayedRoutePlanId` and flips `chatMode false`; centroid→`setCameraPosition` zoom 12
-- **Test tier:** `integration` · **Service:** @testing-library/react-native (Convex+RN mocked)
+- **Test tier:** `integration` · **Service:** supplementary mocked wiring (vitest mocks Convex _generated + @rnmapbox/maps) via @testing-library/react-native
 - **Verify:** `pnpm test components/chat/cards/curated-route-card.integration.test.tsx`
 - **Scenario** (start `curated_routing_card_real_scores`):
   - must observe: `getByText('82%') !== null` (`Math.round(0.82*100) === 82`); `setDisplayedRoutePlanId` called 1 time with `routePlanId`; `chatMode === false` after press; `setCameraPosition.mock.calls.length === 1` with `zoom === 12`
@@ -189,7 +189,7 @@ All tests render the real screen/component through `@testing-library/react-nativ
         "start_ref": "plan_view_route_selected",
         "tier": "visible",
         "test_tier": "integration",
-        "verification_service": "@testing-library/react-native (Convex+RN mocked per harness reality)",
+        "verification_service": "supplementary mocked wiring (vitest mocks Convex _generated + @rnmapbox/maps) via @testing-library/react-native",
         "must_observe": ["queryByTestId('route-tag') !== null", "route-tag text includes 'Scenic' and '78mi'", "after press: queryByTestId('route-details-sheet') !== null", "after press: queryByTestId('save-route-sheet') === null", "after paging: queryAllByTestId('route-tag').length === 1"],
         "must_not_observe": ["route-tag === null on render", "generic/empty label", "'--mi' placeholder", "save-route-sheet !== null after press", "queryAllByTestId('route-tag').length > 1 after paging"],
         "negative_control": { "would_fail_if": ["the tag renders a generic/empty label instead of the real archetype + distance", "no tag renders when a route is selected", "the distance substring is missing from the tag text"] },
@@ -208,7 +208,7 @@ All tests render the real screen/component through `@testing-library/react-nativ
         "start_ref": "map_mode_card_tap_pending",
         "tier": "visible",
         "test_tier": "integration",
-        "verification_service": "@testing-library/react-native (jsdom, Convex+RN mocked)",
+        "verification_service": "supplementary mocked wiring (vitest mocks Convex _generated + @rnmapbox/maps) via @testing-library/react-native",
         "must_observe": ["while pending: queryByTestId('map-planning-indicator') !== null", "after resolve: queryByTestId('map-planning-indicator') === null", "transcript count delta === 0"],
         "must_not_observe": ["indicator === null throughout (0 shown)", "indicator !== null after resolve (stuck)", "transcript count === N+1"],
         "negative_control": { "would_fail_if": ["setMapPlanningVisible call is omitted from the loading path", "the finally clear is removed so indicator sticks", "the card tap path re-introduces a session_messages write"] },
@@ -227,7 +227,7 @@ All tests render the real screen/component through `@testing-library/react-nativ
         "start_ref": "plan_view_discovery_cards",
         "tier": "visible",
         "test_tier": "integration",
-        "verification_service": "@testing-library/react-native (Convex+RN mocked, additive camera/fit spies)",
+        "verification_service": "supplementary mocked wiring (vitest mocks Convex _generated + @rnmapbox/maps) via @testing-library/react-native",
         "must_observe": ["after tap: queryByTestId('home-route-polyline') !== null", "after tap: transcript count === N (unchanged)", "centroid: setCameraPosition.mock.calls.length === 1 with zoom 12", "multi-point: fitToCoordinates called with coords.length > 1", "after send: transcript count === N+1"],
         "must_not_observe": ["transcript count === N+1 from pill tap", "home-route-polyline === null after tap", "setCameraPosition.mock.calls.length === 0", "send count stays N (no-op)"],
         "negative_control": { "would_fail_if": ["the tap still calls handleSendMessage instead of only plotting", "doFit is never invoked for a selected curated route", "the message-send path is accidentally removed"] },
@@ -246,7 +246,7 @@ All tests render the real screen/component through `@testing-library/react-nativ
         "start_ref": "curated_routing_card_real_scores",
         "tier": "visible",
         "test_tier": "integration",
-        "verification_service": "@testing-library/react-native (Convex+RN mocked)",
+        "verification_service": "supplementary mocked wiring (vitest mocks Convex _generated + @rnmapbox/maps) via @testing-library/react-native",
         "must_observe": ["getByText('82%') !== null OR bar fillWidth === '82%'", "getByText(real road name) !== null", "setDisplayedRoutePlanId called once", "chatMode === false after press", "setCameraPosition zoom === 12 for centroid"],
         "must_not_observe": ["getByText('0%') for a non-zero route", "queryByText('0.82') !== null (raw decimal)", "chatMode === true after press", "setCameraPosition.mock.calls.length === 0"],
         "negative_control": { "would_fail_if": ["DATA-008b score normalization not applied (shows 0%)", "raw decimal compositeScore rendered instead of percentage", "curated branch in CompletedCard disconnected (onSelect/onViewOnMap missing)", "doFit lacks centroid fallback"] },

@@ -29,30 +29,33 @@ There is no on-map route tag today. Add a `RouteTag` MarkerView component (label
 - **GIVEN** the plan view with a 'Scenic Coastal' ~78mi route selected and plotted against live Convex
 - **WHEN** the map renders the route
 - **THEN** an on-route tag (`route-tag`) is present whose text includes the route's archetype label and its distance (e.g. `Scenic · 78mi`)
-- **Test tier:** `integration` · **Service:** live Convex dev (route_plans) via @testing-library/react-native
-- **Verify:** `pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagShowsLabelAndDistance`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/rux-004-route-tag.yaml`
+- **Supplementary verify:** `pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx` → `tagShowsLabelAndDistance` (vitest @testing-library/react-native mocked wiring)
 
 ### AC-2: Tapping the tag opens RouteDetailsSheet
 - **GIVEN** the on-route tag is rendered and both sheets are closed
 - **WHEN** the rider taps the `route-tag`
 - **THEN** RouteDetailsSheet opens for the active route (same destination as the polyline tap) and SaveRouteSheet does NOT open
-- **Test tier:** `integration` · **Service:** live Convex dev via @testing-library/react-native
-- **Verify:** `pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagTapOpensDetails`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/rux-004-route-tag.yaml`
+- **Supplementary verify:** `pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx` → `tagTapOpensDetails` (vitest @testing-library/react-native mocked wiring)
 
 ### AC-3: Tag follows the carousel page (edge)
 - **GIVEN** two distinct routes, first selected with its tag rendered
 - **WHEN** the rider pages to the second route
 - **THEN** exactly one tag remains and it now shows the second route's label/distance (the tag moved to the paged route, not duplicated)
-- **Test tier:** `integration` · **Service:** live Convex dev via @testing-library/react-native
-- **Verify:** `pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagFollowsPaging`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/rux-004-route-tag.yaml`
+- **Supplementary verify:** `pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx` → `tagFollowsPaging` (vitest @testing-library/react-native mocked wiring)
 
 ## Test Criteria
 
 | ID | Statement | Maps to | Verify |
 |----|-----------|---------|--------|
-| TC-1 | The `route-tag` renders with the active route's archetype label and distance. | AC-1 | `pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagShowsLabelAndDistance` |
-| TC-2 | Tapping the `route-tag` opens `route-details-sheet` and not `save-route-sheet`. | AC-2 | `pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagTapOpensDetails` |
-| TC-3 | Paging leaves exactly one tag and updates it to the new route's label/distance. | AC-3 | `pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagFollowsPaging` |
+| TC-1 | The `route-tag` renders with the active route's archetype label and distance. | AC-1 | `maestro test .maestro/rux-004-route-tag.yaml` + `pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagShowsLabelAndDistance` |
+| TC-2 | Tapping the `route-tag` opens `route-details-sheet` and not `save-route-sheet`. | AC-2 | `maestro test .maestro/rux-004-route-tag.yaml` + `pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagTapOpensDetails` |
+| TC-3 | Paging leaves exactly one tag and updates it to the new route's label/distance. | AC-3 | `maestro test .maestro/rux-004-route-tag.yaml` + `pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagFollowsPaging` |
 
 ## Reading List
 
@@ -78,7 +81,7 @@ There is no on-map route tag today. Add a `RouteTag` MarkerView component (label
 
 | Gate | Command |
 |------|---------|
-| test | `pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx` |
+| test | `maestro test .maestro/rux-004-route-tag.yaml` |
 | typecheck | `pnpm type-check` |
 | lint | `pnpm exec biome check 'app/(app)/(tabs)/index.tsx' 'components/map/route-tag.tsx'` |
 | scope | `git diff --name-only ⊆ scope.write_allowed` |
@@ -123,10 +126,11 @@ Implements UNIFIED UX TARGET item 7 / DESIGN-S01-006. The tag anchor is the deco
       "type": "acceptance_criterion",
       "primary": true,
       "description": "GIVEN a Scenic Coastal ~78mi route selected/plotted WHEN the map renders THEN an on-route tag shows the archetype label and distance (e.g. 'Scenic · 78mi')",
-      "verify": "pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagShowsLabelAndDistance",
+      "verify": ".maestro/rux-004-route-tag.yaml",
+      "supplementary_verify": "pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagShowsLabelAndDistance",
       "scenario": {
-        "start_ref": "plan_view_scenic_route_selected", "tier": "visible", "test_tier": "integration",
-        "verification_service": "live Convex dev via @testing-library/react-native",
+        "start_ref": "plan_view_scenic_route_selected", "tier": "visible", "test_tier": "PRIMARY",
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": { "would_fail_if": [
           "the tag renders a generic/empty label ('Route' / '') not wired to the active option",
           "no tag renders when a route is plotted (disconnected)",
@@ -157,10 +161,11 @@ Implements UNIFIED UX TARGET item 7 / DESIGN-S01-006. The tag anchor is the deco
       "id": "AC-2",
       "type": "acceptance_criterion",
       "description": "GIVEN the tag rendered with sheets closed WHEN the rider taps it THEN RouteDetailsSheet opens and SaveRouteSheet does not",
-      "verify": "pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagTapOpensDetails",
+      "verify": ".maestro/rux-004-route-tag.yaml",
+      "supplementary_verify": "pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagTapOpensDetails",
       "scenario": {
-        "start_ref": "plan_view_scenic_route_selected", "tier": "visible", "test_tier": "integration", "primary": false,
-        "verification_service": "live Convex dev via @testing-library/react-native",
+        "start_ref": "plan_view_scenic_route_selected", "tier": "visible", "test_tier": "PRIMARY", "primary": false,
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": { "would_fail_if": [
           "tapping the tag opens the SaveRouteSheet instead of details",
           "the tag tap is a no-op (no sheet opens)",
@@ -191,10 +196,11 @@ Implements UNIFIED UX TARGET item 7 / DESIGN-S01-006. The tag anchor is the deco
       "id": "AC-3",
       "type": "acceptance_criterion",
       "description": "GIVEN two routes first selected/tagged WHEN paged to the second THEN exactly one tag remains showing the second route's label/distance",
-      "verify": "pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagFollowsPaging",
+      "verify": ".maestro/rux-004-route-tag.yaml",
+      "supplementary_verify": "pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagFollowsPaging",
       "scenario": {
-        "start_ref": "plan_view_two_distinct_routes_first_selected", "tier": "visible", "test_tier": "integration", "primary": false,
-        "verification_service": "live Convex dev via @testing-library/react-native",
+        "start_ref": "plan_view_two_distinct_routes_first_selected", "tier": "visible", "test_tier": "PRIMARY", "primary": false,
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": { "would_fail_if": [
           "a tag is left behind on the first route (two tags after paging)",
           "the tag text still shows the first route's label after paging (static)",
@@ -221,9 +227,9 @@ Implements UNIFIED UX TARGET item 7 / DESIGN-S01-006. The tag anchor is the deco
         } ]
       }
     },
-    { "id": "TC-1", "type": "test_criterion", "description": "route-tag renders the active route's archetype label and distance.", "maps_to_ac": "AC-1", "verify": "pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagShowsLabelAndDistance" },
-    { "id": "TC-2", "type": "test_criterion", "description": "Tapping route-tag opens route-details-sheet, not save-route-sheet.", "maps_to_ac": "AC-2", "verify": "pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagTapOpensDetails" },
-    { "id": "TC-3", "type": "test_criterion", "description": "Paging leaves one tag updated to the new route.", "maps_to_ac": "AC-3", "verify": "pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagFollowsPaging" }
+    { "id": "TC-1", "type": "test_criterion", "description": "route-tag renders the active route's archetype label and distance.", "maps_to_ac": "AC-1", "verify": "maestro test .maestro/rux-004-route-tag.yaml + pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagShowsLabelAndDistance" },
+    { "id": "TC-2", "type": "test_criterion", "description": "Tapping route-tag opens route-details-sheet, not save-route-sheet.", "maps_to_ac": "AC-2", "verify": "maestro test .maestro/rux-004-route-tag.yaml + pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagTapOpensDetails" },
+    { "id": "TC-3", "type": "test_criterion", "description": "Paging leaves one tag updated to the new route.", "maps_to_ac": "AC-3", "verify": "maestro test .maestro/rux-004-route-tag.yaml + pnpm test app/(app)/(tabs)/index.route-tag.integration.test.tsx -t tagFollowsPaging" }
   ]
 }
 -->

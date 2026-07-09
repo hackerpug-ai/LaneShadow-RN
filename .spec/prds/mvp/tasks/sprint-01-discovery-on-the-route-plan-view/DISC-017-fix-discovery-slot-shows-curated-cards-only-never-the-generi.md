@@ -30,8 +30,9 @@ index.tsx currently passes `suggestions={curatedPills.length > 0 ? curatedPills 
 - **GIVEN** the plan view with no active route and useCuratedDiscovery returning >=1 curated route from live Convex
 - **WHEN** the discovery slot renders
 - **THEN** the slot shows curated cards bearing a real catalog road name and its mileage (e.g. 'Blue Ridge Parkway · 12mi'), and none of the IDLE_SUGGESTIONS strings appear
-- **Test tier:** `integration` · **Service:** live Convex dev (api.curatedRoutes.listCuratedRoutes) via @testing-library/react-native
-- **Verify:** `pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx` → `slotShowsCuratedNamesAndMileage`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/discovery-full-gate.yaml` (steps 2+9: curated cards with real names + mileage; placeholder is "Plan a ride…"; NO IDLE_SUGGESTIONS)
+- **Supplementary verify:** `pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx` → `slotShowsCuratedNamesAndMileage` (vitest @testing-library/react-native mocked wiring)
 - **Scenario** (start `live_catalog_located`):
   - must observe: getAllByTestId(/^discovery-suggestion-pill-/).length >= 1; at least one pill label matches the regex /.+ . \d+mi$/ (a real road name followed by ' . {n}mi', e.g. 'Blue Ridge Parkway . 12mi'); the rendered pill label === a real catalog road name + mileage (matches a name from listCuratedRoutes, not a constant)
   - must NOT observe: getAllByTestId(/^discovery-suggestion-pill-/).length === 0 (no curated pills); queryByText('Plan a scenic ride') !== null; queryByText('Ride to the coast') !== null; queryByText('Find coffee nearby') !== null; queryByText('Avoid highways') !== null
@@ -41,8 +42,9 @@ index.tsx currently passes `suggestions={curatedPills.length > 0 ? curatedPills 
 - **GIVEN** the plan view with useCuratedDiscovery still loading (routes undefined)
 - **WHEN** the discovery slot renders before resolve
 - **THEN** the slot shows no suggestion cards and no IDLE_SUGGESTIONS prompts and no empty copy
-- **Test tier:** `integration` · **Service:** live Convex dev via @testing-library/react-native
-- **Verify:** `pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx` → `slotEmptyWhileLoading`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/discovery-full-gate.yaml` (loading behavior: no prompts while loading)
+- **Supplementary verify:** `pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx` → `slotEmptyWhileLoading` (vitest @testing-library/react-native mocked wiring)
 - **Scenario** (start `live_catalog_loading`):
   - must observe: queryAllByTestId(/^discovery-suggestion-pill-/).length === 0 (zero pills while loading); queryByText(/no nearby routes/i) === null (empty copy not shown yet)
   - must NOT observe: queryByText('Plan a scenic ride') !== null (any IDLE_SUGGESTIONS string); queryByText('Avoid highways') !== null; any discovery-suggestion-pill row present while loading; the empty 'no nearby routes' copy shown while still loading (premature empty state)
@@ -52,8 +54,9 @@ index.tsx currently passes `suggestions={curatedPills.length > 0 ? curatedPills 
 - **GIVEN** the plan view with useCuratedDiscovery resolved to [] (isEmpty)
 - **WHEN** the discovery slot renders
 - **THEN** the slot shows a legible 'no nearby routes' message and none of the IDLE_SUGGESTIONS prompts
-- **Test tier:** `integration` · **Service:** live Convex dev via @testing-library/react-native
-- **Verify:** `pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx` → `slotShowsLegibleEmptyCopyNotPrompts`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/discovery-full-gate.yaml` (empty state: legible message, no IDLE_SUGGESTIONS)
+- **Supplementary verify:** `pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx` → `slotShowsLegibleEmptyCopyNotPrompts` (vitest @testing-library/react-native mocked wiring)
 - **Scenario** (start `live_catalog_empty`):
   - must observe: getByText(/no nearby routes/i) !== null (a legible empty message containing 'no nearby routes', or the ratified DESIGN-S01-003 copy)
   - must NOT observe: any tappable curated pill present (getAllByTestId(/^discovery-suggestion-pill-/).length >= 1); queryByText('Plan a scenic ride') !== null; queryByText('Find coffee nearby') !== null; queryByText('Ride to the coast') !== null; queryByText('Avoid highways') !== null; a blank slot with no feedback message (empty — rider gets nothing)
@@ -63,9 +66,9 @@ index.tsx currently passes `suggestions={curatedPills.length > 0 ? curatedPills 
 
 | ID | Statement | Maps to | Verify |
 |----|-----------|---------|--------|
-| TC-1 | With live curated routes, slot pills carry real road name + 'mi' mileage and no IDLE_SUGGESTIONS strings. | AC-1 | `pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx -t slotShowsCuratedNamesAndMileage` |
-| TC-2 | While loading, slot has zero pills and zero prompts and no empty copy. | AC-2 | `pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx -t slotEmptyWhileLoading` |
-| TC-3 | When empty, slot shows 'no nearby routes' copy and no IDLE_SUGGESTIONS prompts. | AC-3 | `pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx -t slotShowsLegibleEmptyCopyNotPrompts` |
+| TC-1 | With live curated routes, slot pills carry real road name + 'mi' mileage and no IDLE_SUGGESTIONS strings. | AC-1 | `maestro test .maestro/discovery-full-gate.yaml` + `pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx -t slotShowsCuratedNamesAndMileage` |
+| TC-2 | While loading, slot has zero pills and zero prompts and no empty copy. | AC-2 | `maestro test .maestro/discovery-full-gate.yaml` + `pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx -t slotEmptyWhileLoading` |
+| TC-3 | When empty, slot shows 'no nearby routes' copy and no IDLE_SUGGESTIONS prompts. | AC-3 | `maestro test .maestro/discovery-full-gate.yaml` + `pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx -t slotShowsLegibleEmptyCopyNotPrompts` |
 
 ## Reading List
 
@@ -91,7 +94,7 @@ index.tsx currently passes `suggestions={curatedPills.length > 0 ? curatedPills 
 
 | Gate | Command |
 |------|---------|
-| test | `pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx` |
+| test | `maestro test .maestro/discovery-full-gate.yaml` |
 | typecheck | `pnpm type-check` |
 | lint | `pnpm exec biome check 'app/(app)/(tabs)/index.tsx' 'app/(app)/(tabs)/index.suggestions.integration.test.tsx'` |
 | scope | `git diff --name-only ⊆ scope.write_allowed` |
@@ -108,14 +111,14 @@ index.tsx currently passes `suggestions={curatedPills.length > 0 ? curatedPills 
 
 - Depends on: DISC-002 (hook {routes,isLoading,isEmpty})
 - Blocks: DISC-018 (visibility logic builds on a curated-only slot)
-- Parallel: DISC-016 (same file — sequence to avoid conflict)
+- Parallel: DISC-016 (same file — coordinate edits; sequence DISC-016 then DISC-017 if conflict)
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
   "fixtures": {
     "live_catalog_located": {
-      "description": "plan view against live Convex, signed-in, no active route, useCurrentLocation at Asheville \u2192 useCuratedDiscovery returns >=1 route with name + distanceMi",
+      "description": "plan view against live Convex, signed-in, no active route, useCurrentLocation at Asheville → useCuratedDiscovery returns >=1 route with name + distanceMi",
       "seed_method": "migration_fixture",
       "records": [
         "seeded catalog",
@@ -141,13 +144,14 @@ index.tsx currently passes `suggestions={curatedPills.length > 0 ? curatedPills 
     {
       "id": "AC-1",
       "type": "acceptance_criterion",
-      "description": "GIVEN the plan view with no active route and useCuratedDiscovery returning >=1 curated route from live Convex WHEN the discovery slot renders THEN the slot shows curated cards bearing a real catalog road name and its mileage (e.g. 'Blue Ridge Parkway \u00b7 12mi'), and none of the IDLE_SUGGESTIONS strings appear",
-      "verify": "pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx` \u2192 `slotShowsCuratedNamesAndMileage",
+      "description": "GIVEN the plan view with no active route and useCuratedDiscovery returning >=1 curated route from live Convex WHEN the discovery slot renders THEN the slot shows curated cards bearing a real catalog road name and its mileage (e.g. 'Blue Ridge Parkway · 12mi'), and none of the IDLE_SUGGESTIONS strings appear",
+      "verify": ".maestro/discovery-full-gate.yaml",
+      "supplementary_verify": "pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx` → `slotShowsCuratedNamesAndMileage",
       "scenario": {
         "start_ref": "live_catalog_located",
         "tier": "visible",
-        "test_tier": "integration",
-        "verification_service": "live Convex dev (api.curatedRoutes.listCuratedRoutes) via @testing-library/react-native",
+        "test_tier": "PRIMARY",
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": {
           "would_fail_if": [
             "would fail if the slot falls back to the static IDLE_SUGGESTIONS array (generic prompts shown)",
@@ -192,12 +196,13 @@ index.tsx currently passes `suggestions={curatedPills.length > 0 ? curatedPills 
       "id": "AC-2",
       "type": "acceptance_criterion",
       "description": "GIVEN the plan view with useCuratedDiscovery still loading (routes undefined) WHEN the discovery slot renders before resolve THEN the slot shows no suggestion cards and no IDLE_SUGGESTIONS prompts and no empty copy",
-      "verify": "pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx` \u2192 `slotEmptyWhileLoading",
+      "verify": ".maestro/discovery-full-gate.yaml",
+      "supplementary_verify": "pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx` → `slotEmptyWhileLoading",
       "scenario": {
         "start_ref": "live_catalog_loading",
         "tier": "visible",
-        "test_tier": "integration",
-        "verification_service": "live Convex dev via @testing-library/react-native",
+        "test_tier": "PRIMARY",
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": {
           "would_fail_if": [
             "would fail if the loading state falls back to the static IDLE_SUGGESTIONS array (prompts shown while loading)",
@@ -238,16 +243,17 @@ index.tsx currently passes `suggestions={curatedPills.length > 0 ? curatedPills 
       "id": "AC-3",
       "type": "acceptance_criterion",
       "description": "GIVEN the plan view with useCuratedDiscovery resolved to [] (isEmpty) WHEN the discovery slot renders THEN the slot shows a legible 'no nearby routes' message and none of the IDLE_SUGGESTIONS prompts",
-      "verify": "pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx` \u2192 `slotShowsLegibleEmptyCopyNotPrompts",
+      "verify": ".maestro/discovery-full-gate.yaml",
+      "supplementary_verify": "pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx` → `slotShowsLegibleEmptyCopyNotPrompts",
       "scenario": {
         "start_ref": "live_catalog_empty",
         "tier": "visible",
-        "test_tier": "integration",
-        "verification_service": "live Convex dev via @testing-library/react-native",
+        "test_tier": "PRIMARY",
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": {
           "would_fail_if": [
             "would fail if the empty state falls back to the static IDLE_SUGGESTIONS array",
-            "would fail if the empty state renders nothing (slot disconnected \u2014 rider sees no feedback)"
+            "would fail if the empty state renders nothing (slot disconnected — rider sees no feedback)"
           ]
         },
         "evidence": {
@@ -274,7 +280,7 @@ index.tsx currently passes `suggestions={curatedPills.length > 0 ? curatedPills 
                 "queryByText('Find coffee nearby') !== null",
                 "queryByText('Ride to the coast') !== null",
                 "queryByText('Avoid highways') !== null",
-                "a blank slot with no feedback message (empty \u2014 rider gets nothing)"
+                "a blank slot with no feedback message (empty — rider gets nothing)"
               ]
             }
           }
@@ -286,21 +292,21 @@ index.tsx currently passes `suggestions={curatedPills.length > 0 ? curatedPills 
       "type": "test_criterion",
       "description": "With live curated routes, slot pills carry real road name + 'mi' mileage and no IDLE_SUGGESTIONS strings.",
       "maps_to_ac": "AC-1",
-      "verify": "pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx -t slotShowsCuratedNamesAndMileage"
+      "verify": "maestro test .maestro/discovery-full-gate.yaml + pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx -t slotShowsCuratedNamesAndMileage"
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "While loading, slot has zero pills and zero prompts and no empty copy.",
       "maps_to_ac": "AC-2",
-      "verify": "pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx -t slotEmptyWhileLoading"
+      "verify": "maestro test .maestro/discovery-full-gate.yaml + pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx -t slotEmptyWhileLoading"
     },
     {
       "id": "TC-3",
       "type": "test_criterion",
       "description": "When empty, slot shows 'no nearby routes' copy and no IDLE_SUGGESTIONS prompts.",
       "maps_to_ac": "AC-3",
-      "verify": "pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx -t slotShowsLegibleEmptyCopyNotPrompts"
+      "verify": "maestro test .maestro/discovery-full-gate.yaml + pnpm test app/(app)/(tabs)/index.suggestions.integration.test.tsx -t slotShowsLegibleEmptyCopyNotPrompts"
     }
   ]
 }

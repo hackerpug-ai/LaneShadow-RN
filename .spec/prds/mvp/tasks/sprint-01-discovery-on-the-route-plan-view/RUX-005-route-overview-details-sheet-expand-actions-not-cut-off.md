@@ -29,30 +29,45 @@ Opening the Route Details / Route Overview sheet shows the Save (and Ride It) ac
 - **GIVEN** the Route Details sheet open for a route with long rationale/stats content (enough to overflow the initial snap height)
 - **WHEN** the sheet renders at its initial snap point
 - **THEN** the Save action button is present AND within the sheet's visible bounds (not clipped/offset below the snapped height)
-- **Test tier:** `integration` · **Service:** @gorhom/bottom-sheet rendered via @testing-library/react-native (real sheet, layout measured)
-- **Verify:** `pnpm test components/sheets/route-details-sheet.integration.test.tsx -t actionsReachableAtInitialSnap`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/rux-005-details-sheet-actions.yaml`
+- **Supplementary verify:** `pnpm test components/sheets/route-details-sheet.integration.test.tsx` → `actionsReachableAtInitialSnap` (vitest @testing-library/react-native mocked wiring)
 
 ### AC-2: Sheet expands to a larger snap and the body scrolls under a pinned footer
 - **GIVEN** the Route Details sheet open at its initial snap
 - **WHEN** the sheet is expanded to its larger snap point (e.g. 90%)
 - **THEN** the body content scrolls and the action footer remains pinned and fully visible at every snap (multi-stop snap configured)
-- **Test tier:** `integration` · **Service:** @gorhom/bottom-sheet via @testing-library/react-native
-- **Verify:** `pnpm test components/sheets/route-details-sheet.integration.test.tsx -t expandsAndFooterStaysPinned`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/rux-005-details-sheet-actions.yaml`
+- **Supplementary verify:** `pnpm test components/sheets/route-details-sheet.integration.test.tsx` → `expandsAndFooterStaysPinned` (vitest @testing-library/react-native mocked wiring)
 
 ### AC-3: Action footer clears the safe-area bottom inset (edge/device)
 - **GIVEN** a device with a non-zero bottom safe-area inset (home indicator)
 - **WHEN** the sheet renders its action footer
 - **THEN** the footer's bottom padding accounts for `insets.bottom` so the Save/Ride buttons sit fully above the home indicator
-- **Test tier:** `integration` · **Service:** @gorhom/bottom-sheet + SafeAreaProvider mock inset via @testing-library/react-native
-- **Verify:** `pnpm test components/sheets/route-details-sheet.integration.test.tsx -t footerClearsSafeArea`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/rux-005-details-sheet-actions.yaml`
+- **Supplementary verify:** `pnpm test components/sheets/route-details-sheet.integration.test.tsx` → `footerClearsSafeArea` (vitest @testing-library/react-native mocked wiring)
+
+### AC-4: ALL FOUR action buttons are present and tappable (Save / Ride It / Close / Navigate)
+- **GIVEN** the route-details-sheet is open OR the route-directions-sheet ("Route Overview") is open
+- **WHEN** either sheet renders
+- **THEN** ALL FOUR action buttons are present: `route-details-sheet-save-button`, `route-details-sheet-ride-button`, `route-directions-sheet-close-button`, `route-directions-sheet-navigate-button`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/rux-005-details-sheet-actions.yaml`
+- **Scenario** (start `route_details_sheet_open`):
+  - must observe: `getByTestId('route-details-sheet-save-button') !== null`; `getByTestId('route-details-sheet-ride-button') !== null`; `getByTestId('route-directions-sheet-close-button') !== null`; `getByTestId('route-directions-sheet-navigate-button') !== null`; all four buttons are fully visible (assertVisible in Maestro); all four buttons are tappable (tapOn succeeds in Maestro)
+  - must NOT observe: any of the four buttons missing (queryByTestId returns null); any button clipped off-screen (assertVisible fails); any button untappable (tapOn fails)
+  - negative control (would fail if): the Save button is clipped off-screen at the initial 60% snap; the Ride It button is missing; the Close or Navigate buttons are missing from the directions sheet; the sheet doesn't expand to show all buttons
 
 ## Test Criteria
 
 | ID | Statement | Maps to | Verify |
 |----|-----------|---------|--------|
-| TC-1 | With long content, the Save action button is present and within the snapped sheet bounds (pinned footer, not clipped). | AC-1 | `pnpm test components/sheets/route-details-sheet.integration.test.tsx -t actionsReachableAtInitialSnap` |
-| TC-2 | The sheet has ≥2 snap stops (incl. ≥85%) and the action footer stays pinned across snaps while the body scrolls. | AC-2 | `pnpm test components/sheets/route-details-sheet.integration.test.tsx -t expandsAndFooterStaysPinned` |
-| TC-3 | The action footer's bottom padding clears `insets.bottom` on a notched device. | AC-3 | `pnpm test components/sheets/route-details-sheet.integration.test.tsx -t footerClearsSafeArea` |
+| TC-1 | With long content, the Save action button is present and within the snapped sheet bounds (pinned footer, not clipped). | AC-1 | `maestro test .maestro/rux-005-details-sheet-actions.yaml` + `pnpm test components/sheets/route-details-sheet.integration.test.tsx -t actionsReachableAtInitialSnap` |
+| TC-2 | The sheet has ≥2 snap stops (incl. ≥85%) and the action footer stays pinned across snaps while the body scrolls. | AC-2 | `maestro test .maestro/rux-005-details-sheet-actions.yaml` + `pnpm test components/sheets/route-details-sheet.integration.test.tsx -t expandsAndFooterStaysPinned` |
+| TC-3 | The action footer's bottom padding clears `insets.bottom` on a notched device. | AC-3 | `maestro test .maestro/rux-005-details-sheet-actions.yaml` + `pnpm test components/sheets/route-details-sheet.integration.test.tsx -t footerClearsSafeArea` |
+| TC-4 | ALL FOUR buttons are present and tappable: route-details-sheet-save-button, route-details-sheet-ride-button, route-directions-sheet-close-button, route-directions-sheet-navigate-button. | AC-4 | `.maestro/rux-005-details-sheet-actions.yaml` |
 
 ## Reading List
 
@@ -79,7 +94,7 @@ Opening the Route Details / Route Overview sheet shows the Save (and Ride It) ac
 
 | Gate | Command |
 |------|---------|
-| test | `pnpm test components/sheets/route-details-sheet.integration.test.tsx` |
+| test | `maestro test .maestro/rux-005-details-sheet-actions.yaml` |
 | typecheck | `pnpm type-check` |
 | lint | `pnpm exec biome check 'components/sheets/route-details-sheet.tsx' 'components/sheets/route-directions-sheet.tsx'` |
 | scope | `git diff --name-only ⊆ scope.write_allowed` |
@@ -117,6 +132,11 @@ The reported cut-off sheet (Image #2, titled "Route Overview") is `route-directi
       "description": "RouteDetailsSheet rendered inside a SafeAreaProvider with initialMetrics insets.bottom = 34 (notched device) and a route + onSave handler",
       "seed_method": "ui_flow",
       "records": [ "SafeAreaProvider initialMetrics bottom inset 34", "a route with onSave provided" ]
+    },
+    "route_details_sheet_open": {
+      "description": "Route Details sheet OR Route Overview (route-directions-sheet) is open on device, showing action buttons",
+      "seed_method": "ui_flow",
+      "records": [ "route-details-sheet is open with Save/Ride buttons visible", "route-directions-sheet is open with Close/Navigate buttons visible", "all four button testIDs are present" ]
     }
   },
   "requirements": [
@@ -125,10 +145,11 @@ The reported cut-off sheet (Image #2, titled "Route Overview") is `route-directi
       "type": "acceptance_criterion",
       "primary": true,
       "description": "GIVEN the Route Details sheet open with long content WHEN it renders at the initial snap THEN the Save button is present and within the visible snapped bounds (not clipped)",
-      "verify": "pnpm test components/sheets/route-details-sheet.integration.test.tsx -t actionsReachableAtInitialSnap",
+      "verify": ".maestro/rux-005-details-sheet-actions.yaml",
+      "supplementary_verify": "pnpm test components/sheets/route-details-sheet.integration.test.tsx -t actionsReachableAtInitialSnap",
       "scenario": {
-        "start_ref": "details_sheet_long_content", "tier": "visible", "test_tier": "integration",
-        "verification_service": "@gorhom/bottom-sheet via @testing-library/react-native",
+        "start_ref": "details_sheet_long_content", "tier": "visible", "test_tier": "PRIMARY",
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": { "would_fail_if": [
           "the Save button's measured y-offset exceeds the sheet's snapped height (clipped off-screen — the current bug)",
           "the Save button is absent from the tree (footer not rendered)",
@@ -161,10 +182,11 @@ The reported cut-off sheet (Image #2, titled "Route Overview") is `route-directi
       "id": "AC-2",
       "type": "acceptance_criterion",
       "description": "GIVEN the sheet at its initial snap WHEN expanded to a larger snap THEN the body scrolls and the action footer stays pinned/visible (>=2 snap stops configured)",
-      "verify": "pnpm test components/sheets/route-details-sheet.integration.test.tsx -t expandsAndFooterStaysPinned",
+      "verify": ".maestro/rux-005-details-sheet-actions.yaml",
+      "supplementary_verify": "pnpm test components/sheets/route-details-sheet.integration.test.tsx -t expandsAndFooterStaysPinned",
       "scenario": {
-        "start_ref": "details_sheet_long_content", "tier": "visible", "test_tier": "integration", "primary": false,
-        "verification_service": "@gorhom/bottom-sheet via @testing-library/react-native",
+        "start_ref": "details_sheet_long_content", "tier": "visible", "test_tier": "PRIMARY", "primary": false,
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": { "would_fail_if": [
           "the sheet has only a single snap point (cannot expand — preset='half' ['60%'] unchanged)",
           "expanding hides or detaches the action footer",
@@ -195,10 +217,11 @@ The reported cut-off sheet (Image #2, titled "Route Overview") is `route-directi
       "id": "AC-3",
       "type": "acceptance_criterion",
       "description": "GIVEN a non-zero bottom safe-area inset WHEN the footer renders THEN its bottom padding accounts for insets.bottom so the buttons clear the home indicator",
-      "verify": "pnpm test components/sheets/route-details-sheet.integration.test.tsx -t footerClearsSafeArea",
+      "verify": ".maestro/rux-005-details-sheet-actions.yaml",
+      "supplementary_verify": "pnpm test components/sheets/route-details-sheet.integration.test.tsx -t footerClearsSafeArea",
       "scenario": {
-        "start_ref": "details_sheet_notched_device", "tier": "visible", "test_tier": "integration", "primary": false,
-        "verification_service": "@gorhom/bottom-sheet + SafeAreaProvider via @testing-library/react-native",
+        "start_ref": "details_sheet_notched_device", "tier": "visible", "test_tier": "PRIMARY", "primary": false,
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": { "would_fail_if": [
           "the footer uses a hardcoded fixed paddingBottom that ignores insets.bottom (re-cuts on a notched device)",
           "insets.bottom is read but not applied to the footer container",
@@ -223,9 +246,53 @@ The reported cut-off sheet (Image #2, titled "Route Overview") is `route-directi
         } ]
       }
     },
-    { "id": "TC-1", "type": "test_criterion", "description": "Long content: Save button present and within snapped bounds (pinned, not clipped).", "maps_to_ac": "AC-1", "verify": "pnpm test components/sheets/route-details-sheet.integration.test.tsx -t actionsReachableAtInitialSnap" },
-    { "id": "TC-2", "type": "test_criterion", "description": ">=2 snap stops incl. >=85%; footer pinned across snaps while body scrolls.", "maps_to_ac": "AC-2", "verify": "pnpm test components/sheets/route-details-sheet.integration.test.tsx -t expandsAndFooterStaysPinned" },
-    { "id": "TC-3", "type": "test_criterion", "description": "Footer bottom padding clears insets.bottom on a notched device.", "maps_to_ac": "AC-3", "verify": "pnpm test components/sheets/route-details-sheet.integration.test.tsx -t footerClearsSafeArea" }
+    {
+      "id": "AC-4",
+      "type": "acceptance_criterion",
+      "description": "GIVEN the route-details-sheet is open OR the route-directions-sheet (Route Overview) is open WHEN either sheet renders THEN ALL FOUR action buttons are present: route-details-sheet-save-button, route-details-sheet-ride-button, route-directions-sheet-close-button, route-directions-sheet-navigate-button",
+      "verify": ".maestro/rux-005-details-sheet-actions.yaml",
+      "scenario": {
+        "start_ref": "route_details_sheet_open", "tier": "visible", "test_tier": "e2e", "primary": false,
+        "verification_service": "real-device Maestro + live Convex integration",
+        "negative_control": {
+          "would_fail_if": [
+            "the Save button is clipped off-screen at the initial 60% snap",
+            "the Ride It button is missing from route-details-sheet",
+            "the Close or Navigate buttons are missing from route-directions-sheet",
+            "the sheet doesn't expand to show all four buttons",
+            "any button is not tappable (tapOn fails in Maestro)"
+          ]
+        },
+        "evidence": { "artifact_type": "screenshot", "required_capture": true },
+        "cases": [ {
+          "start_ref": "route_details_sheet_open",
+          "action": { "actor": "user", "steps": [
+            "open the Route Details sheet for a planned route",
+            "assertVisible on all four button testIDs",
+            "tapOn each button to prove it's reachable"
+          ] },
+          "end_state": {
+            "must_observe": [
+              "getByTestId('route-details-sheet-save-button') !== null",
+              "getByTestId('route-details-sheet-ride-button') !== null",
+              "getByTestId('route-directions-sheet-close-button') !== null",
+              "getByTestId('route-directions-sheet-navigate-button') !== null",
+              "all four buttons pass assertVisible in Maestro (fully visible on screen)",
+              "all four buttons pass tapOn in Maestro (tappable, not clipped)"
+            ],
+            "must_not_observe": [
+              "any of the four buttons missing (queryByTestId returns null)",
+              "any button clipped off-screen (assertVisible fails)",
+              "any button untappable (tapOn fails)"
+            ]
+          }
+        } ]
+      }
+    },
+    { "id": "TC-1", "type": "test_criterion", "description": "Long content: Save button present and within snapped bounds (pinned, not clipped).", "maps_to_ac": "AC-1", "verify": "maestro test .maestro/rux-005-details-sheet-actions.yaml + pnpm test components/sheets/route-details-sheet.integration.test.tsx -t actionsReachableAtInitialSnap" },
+    { "id": "TC-2", "type": "test_criterion", "description": ">=2 snap stops incl. >=85%; footer pinned across snaps while body scrolls.", "maps_to_ac": "AC-2", "verify": "maestro test .maestro/rux-005-details-sheet-actions.yaml + pnpm test components/sheets/route-details-sheet.integration.test.tsx -t expandsAndFooterStaysPinned" },
+    { "id": "TC-3", "type": "test_criterion", "description": "Footer bottom padding clears insets.bottom on a notched device.", "maps_to_ac": "AC-3", "verify": "maestro test .maestro/rux-005-details-sheet-actions.yaml + pnpm test components/sheets/route-details-sheet.integration.test.tsx -t footerClearsSafeArea" },
+    { "id": "TC-4", "type": "test_criterion", "description": "ALL FOUR buttons are present and tappable: route-details-sheet-save-button, route-details-sheet-ride-button, route-directions-sheet-close-button, route-directions-sheet-navigate-button.", "maps_to_ac": "AC-4", "verify": ".maestro/rux-005-details-sheet-actions.yaml" }
   ]
 }
 -->

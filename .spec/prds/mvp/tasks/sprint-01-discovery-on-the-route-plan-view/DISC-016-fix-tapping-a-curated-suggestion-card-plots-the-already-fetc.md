@@ -30,8 +30,9 @@ Today index.tsx wires the suggestion card to handleSelectCuratedRoute (lines 386
 - **GIVEN** the plan view with no route on the map and curated suggestion cards from useCuratedDiscovery (live Convex), and a current transcript message count N
 - **WHEN** the rider taps discovery-suggestion-pill-{routeId} for a known curated route
 - **THEN** that route's geometry (polyline or centroid marker) renders on the map AND the transcript message count is still N (no message appended)
-- **Test tier:** `integration` · **Service:** live Convex dev (api.curatedRoutes + route_plans) via @testing-library/react-native
-- **Verify:** `pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx` → `tapPlotsRouteWithoutChatMessage`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/discovery-full-gate.yaml` (steps 3-4: tap suggestion → route plots, no chat message)
+- **Supplementary verify:** `pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx` → `tapPlotsRouteWithoutChatMessage` (vitest @testing-library/react-native mocked wiring)
 - **Scenario** (start `plan_view_no_route_with_cards`):
   - must observe: home-route-polyline renders the tapped route's coordinates (a coordinate near the known route's centroidLat/Lng, e.g. lat=~35.59); queryByTestId('home-route-polyline') !== null; transcript message count === N (unchanged)
   - must NOT observe: a new transcript bubble containing 'Show me curated route'; transcript count === N+1; queryByTestId('home-route-polyline') === null (empty map / no polyline after tap); 0 polyline coordinates rendered
@@ -41,8 +42,9 @@ Today index.tsx wires the suggestion card to handleSelectCuratedRoute (lines 386
 - **GIVEN** a tapped curated route that either has multi-point geometry or only a centroid
 - **WHEN** the route is plotted
 - **THEN** doFit frames it — fitToCoordinates for a multi-point polyline, or setCameraPosition zoom 12 centered on the centroid for a single-point route
-- **Test tier:** `integration` · **Service:** live Convex dev + MapboxMapViewHandle via @testing-library/react-native
-- **Verify:** `pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx` → `cameraFitsTappedRouteIncludingCentroid`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/discovery-full-gate.yaml` (step 3: route plots and camera fits)
+- **Supplementary verify:** `pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx` → `cameraFitsTappedRouteIncludingCentroid` (vitest @testing-library/react-native mocked wiring)
 - **Scenario** (start `plan_view_no_route_with_cards`):
   - must observe: setCameraPosition called with coordinates matching the route centroid (latitude/longitude) and zoom === 12; setCameraPosition.mock.calls.length === 1
   - must NOT observe: setCameraPosition call count === 0 (no camera call after tap); fitToCoordinates called with an empty coords array ([])
@@ -52,8 +54,9 @@ Today index.tsx wires the suggestion card to handleSelectCuratedRoute (lines 386
 - **GIVEN** the plan view
 - **WHEN** the rider types and sends a real NL message via the input (not a card)
 - **THEN** handleSendMessage still fires and a transcript message is appended (card-tap rewire did not break the send path)
-- **Test tier:** `integration` · **Service:** live Convex dev via @testing-library/react-native
-- **Verify:** `pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx` → `typedMessageStillSends`
+- **Test tier:** `PRIMARY` · **Service:** real-device Maestro + live Convex dev
+- **Verify:** `.maestro/discovery-full-gate.yaml` (steps 5-8: typed messages send, chat works)
+- **Supplementary verify:** `pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx` → `typedMessageStillSends` (vitest @testing-library/react-native mocked wiring)
 - **Scenario** (start `plan_view_no_route_with_cards`):
   - must observe: transcript count === N+1 after send; a transcript bubble whose text === 'twisties near Asheville'
   - must NOT observe: transcript count === N (unchanged — send is a no-op); queryByText('twisties near Asheville') === null after send; transcript count === 0 after the send (empty — nothing persisted)
@@ -63,9 +66,9 @@ Today index.tsx wires the suggestion card to handleSelectCuratedRoute (lines 386
 
 | ID | Statement | Maps to | Verify |
 |----|-----------|---------|--------|
-| TC-1 | Tapping the pill renders home-route-polyline for the tapped route and appends zero session_messages. | AC-1 | `pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx -t tapPlotsRouteWithoutChatMessage` |
-| TC-2 | Centroid-only tap → setCameraPosition zoom 12; multi-point tap → fitToCoordinates with >1 coord. | AC-2 | `pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx -t cameraFitsTappedRouteIncludingCentroid` |
-| TC-3 | Typed-and-sent NL message still appends a transcript row (send path intact). | AC-3 | `pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx -t typedMessageStillSends` |
+| TC-1 | Tapping the pill renders home-route-polyline for the tapped route and appends zero session_messages. | AC-1 | `maestro test .maestro/discovery-full-gate.yaml` (steps 3-4) + `pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx -t tapPlotsRouteWithoutChatMessage` |
+| TC-2 | Centroid-only tap → setCameraPosition zoom 12; multi-point tap → fitToCoordinates with >1 coord. | AC-2 | `maestro test .maestro/discovery-full-gate.yaml` (step 3) + `pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx -t cameraFitsTappedRouteIncludingCentroid` |
+| TC-3 | Typed-and-sent NL message still appends a transcript row (send path intact). | AC-3 | `maestro test .maestro/discovery-full-gate.yaml` (steps 5-8) + `pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx -t typedMessageStillSends` |
 
 ## Reading List
 
@@ -92,7 +95,7 @@ Today index.tsx wires the suggestion card to handleSelectCuratedRoute (lines 386
 
 | Gate | Command |
 |------|---------|
-| test | `pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx` |
+| test | `maestro test .maestro/discovery-full-gate.yaml` |
 | typecheck | `pnpm type-check` |
 | lint | `pnpm exec biome check 'app/(app)/(tabs)/index.tsx' 'app/(app)/(tabs)/index.discovery.integration.test.tsx'` |
 | scope | `git diff --name-only ⊆ scope.write_allowed` |
@@ -131,15 +134,16 @@ Today index.tsx wires the suggestion card to handleSelectCuratedRoute (lines 386
       "id": "AC-1",
       "type": "acceptance_criterion",
       "description": "GIVEN the plan view with no route on the map and curated suggestion cards from useCuratedDiscovery (live Convex), and a current transcript message count N WHEN the rider taps discovery-suggestion-pill-{routeId} for a known curated route THEN that route's geometry (polyline or centroid marker) renders on the map AND the transcript message count is still N (no message appended)",
-      "verify": "pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx` \u2192 `tapPlotsRouteWithoutChatMessage",
+      "verify": ".maestro/discovery-full-gate.yaml",
+      "supplementary_verify": "pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx` → `tapPlotsRouteWithoutChatMessage",
       "scenario": {
         "start_ref": "plan_view_no_route_with_cards",
         "tier": "visible",
-        "test_tier": "integration",
-        "verification_service": "live Convex dev (api.curatedRoutes + route_plans) via @testing-library/react-native",
+        "test_tier": "PRIMARY",
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": {
           "would_fail_if": [
-            "would fail if the tap still calls handleSendMessage (the stub/old path) \u2014 transcript count goes to N+1",
+            "would fail if the tap still calls handleSendMessage (the stub/old path) — transcript count goes to N+1",
             "would fail if the card path is disconnected from the route machinery so no polyline/centroid renders (empty map)",
             "would fail if a session_messages row is appended on tap"
           ]
@@ -180,13 +184,14 @@ Today index.tsx wires the suggestion card to handleSelectCuratedRoute (lines 386
     {
       "id": "AC-2",
       "type": "acceptance_criterion",
-      "description": "GIVEN a tapped curated route that either has multi-point geometry or only a centroid WHEN the route is plotted THEN doFit frames it \u2014 fitToCoordinates for a multi-point polyline, or setCameraPosition zoom 12 centered on the centroid for a single-point route",
-      "verify": "pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx` \u2192 `cameraFitsTappedRouteIncludingCentroid",
+      "description": "GIVEN a tapped curated route that either has multi-point geometry or only a centroid WHEN the route is plotted THEN doFit frames it — fitToCoordinates for a multi-point polyline, or setCameraPosition zoom 12 centered on the centroid for a single-point route",
+      "verify": ".maestro/discovery-full-gate.yaml",
+      "supplementary_verify": "pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx` → `cameraFitsTappedRouteIncludingCentroid",
       "scenario": {
         "start_ref": "plan_view_no_route_with_cards",
         "tier": "visible",
-        "test_tier": "integration",
-        "verification_service": "live Convex dev + MapboxMapViewHandle via @testing-library/react-native",
+        "test_tier": "PRIMARY",
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": {
           "would_fail_if": [
             "would fail if doFit is never invoked for the tapped route (no-op fit handler)",
@@ -245,12 +250,13 @@ Today index.tsx wires the suggestion card to handleSelectCuratedRoute (lines 386
       "id": "AC-3",
       "type": "acceptance_criterion",
       "description": "GIVEN the plan view WHEN the rider types and sends a real NL message via the input (not a card) THEN handleSendMessage still fires and a transcript message is appended (card-tap rewire did not break the send path)",
-      "verify": "pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx` \u2192 `typedMessageStillSends",
+      "verify": ".maestro/discovery-full-gate.yaml",
+      "supplementary_verify": "pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx` → `typedMessageStillSends",
       "scenario": {
         "start_ref": "plan_view_no_route_with_cards",
         "tier": "visible",
-        "test_tier": "integration",
-        "verification_service": "live Convex dev via @testing-library/react-native",
+        "test_tier": "PRIMARY",
+        "verification_service": "real-device Maestro + live Convex dev",
         "negative_control": {
           "would_fail_if": [
             "would fail if removing the card-send path also removed the input send path (handleSendMessage becomes a no-op for typed messages)"
@@ -278,9 +284,9 @@ Today index.tsx wires the suggestion card to handleSelectCuratedRoute (lines 386
                 "a transcript bubble whose text === 'twisties near Asheville'"
               ],
               "must_not_observe": [
-                "transcript count === N (unchanged \u2014 send is a no-op)",
+                "transcript count === N (unchanged — send is a no-op)",
                 "queryByText('twisties near Asheville') === null after send",
-                "transcript count === 0 after the send (empty \u2014 nothing persisted)"
+                "transcript count === 0 after the send (empty — nothing persisted)"
               ]
             }
           }
@@ -292,21 +298,21 @@ Today index.tsx wires the suggestion card to handleSelectCuratedRoute (lines 386
       "type": "test_criterion",
       "description": "Tapping the pill renders home-route-polyline for the tapped route and appends zero session_messages.",
       "maps_to_ac": "AC-1",
-      "verify": "pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx -t tapPlotsRouteWithoutChatMessage"
+      "verify": "maestro test .maestro/discovery-full-gate.yaml + pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx -t tapPlotsRouteWithoutChatMessage"
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
-      "description": "Centroid-only tap \u2192 setCameraPosition zoom 12; multi-point tap \u2192 fitToCoordinates with >1 coord.",
+      "description": "Centroid-only tap → setCameraPosition zoom 12; multi-point tap → fitToCoordinates with >1 coord.",
       "maps_to_ac": "AC-2",
-      "verify": "pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx -t cameraFitsTappedRouteIncludingCentroid"
+      "verify": "maestro test .maestro/discovery-full-gate.yaml + pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx -t cameraFitsTappedRouteIncludingCentroid"
     },
     {
       "id": "TC-3",
       "type": "test_criterion",
       "description": "Typed-and-sent NL message still appends a transcript row (send path intact).",
       "maps_to_ac": "AC-3",
-      "verify": "pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx -t typedMessageStillSends"
+      "verify": "maestro test .maestro/discovery-full-gate.yaml + pnpm test app/(app)/(tabs)/index.discovery.integration.test.tsx -t typedMessageStillSends"
     }
   ]
 }

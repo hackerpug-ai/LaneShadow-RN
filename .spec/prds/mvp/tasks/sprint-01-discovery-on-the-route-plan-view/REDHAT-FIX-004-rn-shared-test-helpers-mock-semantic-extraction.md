@@ -3,7 +3,7 @@
 **Sprint:** [SPRINT.md](./SPRINT.md)
 **Type:** FEATURE · **Status:** ⬜ Backlog · **Priority:** P0 · **Effort:** M · **Estimate:** 90 min
 **Agent:** react-native-ui-implementer
-**Proposed By:** orchestrator (direct-authored after react-native-ui-planner failed twice with corrupted output)
+**Proposed By:** react-native-ui-planner
 **TDD Mode:** red_first · **RED/GREEN Required:** yes
 **Agent rationale:** Owns the RN integration test files in `app/(app)/(tabs)/` and `components/chat/cards/`. The work is a pure test-only refactor (no production code touched), so react-native-ui-implementer can drive the extraction, prove all four suites still pass under vitest, and run the type-check + biome gates.
 
