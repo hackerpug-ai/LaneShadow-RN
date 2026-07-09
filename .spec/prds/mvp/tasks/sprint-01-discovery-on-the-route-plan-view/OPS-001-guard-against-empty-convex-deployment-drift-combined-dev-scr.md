@@ -85,7 +85,7 @@ scripts/check-convex-health.mjs runs `npx convex function-spec` from server/, pa
 | gate | `pnpm test scripts/__tests__/check-convex-health.integration.test.ts` |
 | gate | `pnpm exec biome check scripts/check-convex-health.mjs` |
 | gate | `pnpm convex:health (manual evidence against live dev — exit 0 + count including listCuratedRoutes)` |
-| gate | `pnpm --dir server run convex:dev -- --once` |
+| gate | `pnpm convex:dev -- --once` |
 
 ## Coding Standards
 

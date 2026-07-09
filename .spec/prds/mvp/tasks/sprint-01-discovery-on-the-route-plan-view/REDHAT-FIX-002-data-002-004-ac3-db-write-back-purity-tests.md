@@ -103,7 +103,7 @@ Both tests run via the existing `npx convex run` live pattern and use an interna
 | test | `pnpm test convex/__tests__/listCuratedRoutes.archetype.integration.test.ts convex/__tests__/listCuratedRoutes.state.integration.test.ts` |
 | typecheck | `pnpm type-check` |
 | lint | `pnpm exec biome check convex/__tests__/listCuratedRoutes.archetype.integration.test.ts convex/__tests__/listCuratedRoutes.state.integration.test.ts` |
-| convex dev | `pnpm --dir server run convex:dev -- --once` |
+| convex dev | `pnpm convex:dev -- --once` |
 | scope | `git diff --name-only ⊆ write_allowed` |
 
 ## Coding Standards

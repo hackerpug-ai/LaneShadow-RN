@@ -83,7 +83,7 @@ tools/discoverCuratedRoutes.ts.runDiscoverCuratedRoutes(ctx,{intent}) maps inten
 | gate | `pnpm type-check` |
 | gate | `pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts` |
 | gate | `pnpm exec biome check convex/actions/agent/tools/discoverCuratedRoutes.ts convex/actions/agent/agents/orchestrator.ts convex/actions/agent/sendMessage.ts` |
-| gate | `pnpm --dir server run convex:dev -- --once` |
+| gate | `pnpm convex:dev -- --once` |
 
 ## Coding Standards
 

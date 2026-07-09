@@ -1,7 +1,7 @@
 # DATA-011: Generate per-route line geometry for curated discovery routes (name-anchored) and persist it to the data model
 
 **Sprint:** [SPRINT.md](./SPRINT.md)
-**Type:** FEATURE · **Status:** ⬜ Backlog · **Priority:** P0 · **Effort:** L · **Estimate:** 300 min · **task_chunks:** 2
+**Type:** FEATURE · **Status:** ✅ Completed in Sprint 01 · **Priority:** P0 · **Effort:** L · **Estimate:** 300 min · **task_chunks:** 2
 **Agent:** convex-implementer · **Reviewer:** convex-reviewer
 **Proposed By:** convex-planner
 **Agent rationale:** The curated catalog has NO route line — `curated_routes` stores only `centroidLat/Lng` + a real bounding box + a GeoJSON Point (`shared/models/curated-routes.ts:58-107`); `discoverCuratedRoutes` therefore ships a single-point polyline (`discoverCuratedRoutes.ts:166`, `encodeCentroidToPolyline` at 192-195) that cannot be drawn as a line. This task generates a real line per route — geocode the route name+state to endpoints (reusing the curation pipeline's Nominatim integration), route between them via the existing Google Routes provider (`routingProvider.ts`), persist the encoded polyline to a NEW optional `curated_routes` geometry field, and have `discoverCuratedRoutes` read it. A per-route internal Convex action does the generate+patch; a thin driver script runs it 1-by-1 with a sample-validate gate before the full backfill.

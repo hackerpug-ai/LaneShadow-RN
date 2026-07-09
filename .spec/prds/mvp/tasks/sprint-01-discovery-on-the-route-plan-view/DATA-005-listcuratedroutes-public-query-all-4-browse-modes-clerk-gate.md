@@ -83,7 +83,7 @@ curatedRoutes.ts.listCuratedRoutes is the Clerk-gated public query powering disc
 | gate | `pnpm type-check` |
 | gate | `pnpm test convex/__tests__/listCuratedRoutes.integration.test.ts` |
 | gate | `pnpm exec biome check convex/curatedRoutes.ts` |
-| gate | `pnpm --dir server run convex:dev -- --once` |
+| gate | `pnpm convex:dev -- --once` |
 | gate | `npx convex run curatedRoutes:listCuratedRoutes '{"state":"North Carolina","limit":200}' (manual evidence against live dev — count > 43, all canonical)` |
 
 ## Coding Standards

@@ -98,7 +98,7 @@ util/dataNormalization.ts defines normalizeState (trim, dash/underscore→space,
 | gate | `pnpm test convex/__tests__/dataNormalization.test.ts` |
 | gate | `pnpm test convex/__tests__/listCuratedRoutes.state.integration.test.ts` |
 | gate | `pnpm exec biome check convex/util/dataNormalization.ts convex/curatedRoutes.ts` |
-| gate | `pnpm --dir server run convex:dev -- --once` |
+| gate | `pnpm convex:dev -- --once` |
 
 ## Coding Standards
 

@@ -123,7 +123,7 @@ Curated discovery options no longer fabricate `durationSeconds`/`legsCount`; bes
 | test | `pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts convex/__tests__/listCuratedRoutes.state.integration.test.ts` |
 | typecheck | `pnpm type-check` |
 | lint | `pnpm exec biome check convex/actions/agent/tools/discoverCuratedRoutes.ts convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts convex/__tests__/listCuratedRoutes.state.integration.test.ts convex/db/routePlans.ts` |
-| convex dev | `pnpm --dir server run convex:dev -- --once` |
+| convex dev | `pnpm convex:dev -- --once` |
 | scope | `git diff --name-only ⊆ write_allowed` |
 
 ## Coding Standards

@@ -98,7 +98,7 @@ util/archetypeMap.ts defines UI_TO_DB (scenic→[scenic_byway,coastal], technica
 | gate | `pnpm test convex/__tests__/archetypeMap.test.ts` |
 | gate | `pnpm test convex/__tests__/listCuratedRoutes.archetype.integration.test.ts` |
 | gate | `pnpm exec biome check convex/util/archetypeMap.ts convex/curatedRoutes.ts` |
-| gate | `pnpm --dir server run convex:dev -- --once` |
+| gate | `pnpm convex:dev -- --once` |
 
 ## Coding Standards
 

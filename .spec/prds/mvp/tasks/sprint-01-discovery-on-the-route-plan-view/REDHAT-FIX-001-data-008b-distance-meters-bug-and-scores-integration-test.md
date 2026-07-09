@@ -92,7 +92,7 @@ Best-sort curated options omit `distanceMeters` (carry `undefined`, not a fabric
 | test | `pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts` |
 | typecheck | `pnpm type-check` |
 | lint | `pnpm exec biome check convex/actions/agent/tools/discoverCuratedRoutes.ts convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts` |
-| convex dev | `pnpm --dir server run convex:dev -- --once` |
+| convex dev | `pnpm convex:dev -- --once` |
 | scope | `git diff --name-only ⊆ write_allowed` |
 
 ## Coding Standards

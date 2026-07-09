@@ -83,7 +83,7 @@ In tools/discoverCuratedRoutes.ts the options.map (lines 133-172) builds each op
 | gate | `pnpm type-check` |
 | gate | `pnpm test convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts` |
 | gate | `pnpm exec biome check convex/actions/agent/tools/discoverCuratedRoutes.ts` |
-| gate | `pnpm --dir server run convex:dev -- --once` |
+| gate | `pnpm convex:dev -- --once` |
 
 ## Coding Standards
 

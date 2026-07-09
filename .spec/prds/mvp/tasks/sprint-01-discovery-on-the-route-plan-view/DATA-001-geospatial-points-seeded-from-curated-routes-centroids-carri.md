@@ -83,7 +83,7 @@ geospatialSeed.ts already defines seedGeospatialBatchInternal (paginated interna
 | gate | `pnpm type-check` |
 | gate | `pnpm test convex/__tests__/geospatialSeed.integration.test.ts` |
 | gate | `pnpm exec biome check convex/geospatialSeed.ts convex/geospatialValidation.ts` |
-| gate | `pnpm --dir server run convex:dev -- --once` |
+| gate | `pnpm convex:dev -- --once` |
 | gate | `npx convex run geospatialValidation:debugGeospatialData '{}' (manual evidence capture against live dev — total_in_index > 5000)` |
 
 ## Coding Standards

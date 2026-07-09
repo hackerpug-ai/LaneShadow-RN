@@ -1,4 +1,4 @@
-# Sprint-01 run status (kb-run-sprint) - COMPLETE 2026-07-03 (REDHAT-FIX round)
+# Sprint-01 run status (kb-run-sprint) - CODE-COMPLETE + SIMULATOR GATE GREEN (2026-07-03); REAL-DEVICE GATE PENDING (Sprint 03 DISC-007)
 
 Primary code closeout landed at `0135972a` (`Merge branch 'jr-branch-1'`). A later full human-gate audit found the aggregate discovery gate was still failing; the final full-gate closeout landed at `a6581765` (`Merge branch 'react-native-ui-implementer'`).
 
@@ -13,7 +13,8 @@ A fresh independent red-hat review (2026-07-03, `convex-reviewer` + `react-nativ
 - All sprint task branches checked during closeout are ancestors of `main`.
 - No unlanded sprint/worktree task commits remain.
 - Red-hat review state is cycle 3 and `converged: true`; fresh cycle-1 findings addressed via REDHAT-FIX-001/002/003.
-- Sprint status metadata is `Complete`.
+- Sprint status metadata is `In Progress` (code-complete + simulator gate green; real-device gate pending per Sprint 03 DISC-007).
+- DATA-011 (curated-route geometry generation, name-anchored) completed and landed during Sprint 01 (task history #917/#920/#960–965). NOTE: FULL catalog geometry RECOVERY (~91% of routes still rendering as centroid dot) continues as separate POST-MVP work under `.spec/prds/catalog-geometry-recovery/` — NOT part of Sprint 01's gate. The Sprint 02 centroid-fallback gate still holds for routes lacking geometry.
 
 ## REDHAT-FIX Verification (2026-07-03)
 
@@ -39,9 +40,10 @@ A fresh independent red-hat review (2026-07-03, `convex-reviewer` + `react-nativ
 - Backend/discovery aggregate:
   - `pnpm test convex/__tests__/listCuratedRoutes.integration.test.ts convex/actions/agent/tools/__tests__/discoverCuratedRoutes.integration.test.ts hooks/__tests__/use-curated-discovery.integration.test.ts app/(app)/(tabs)/index.finished-route-fit.integration.test.tsx`
   - Result: pass. With stale worktrees still present at the time, Vitest also discovered duplicate worktree copies; total observed result was 16 files, 164 tests passed.
-- Backend/live geometry aggregate:
+- Backend/live geometry aggregate (including DATA-011 curated geometry):
   - `pnpm test convex/actions/agent/__tests__/planRideSingleRoute.integration.test.ts convex/actions/agent/__tests__/routeStartResolution.test.ts convex/actions/__tests__/curatedGeometry.integration.test.ts convex/actions/agent/__tests__/discoverCuratedRoutesGeometry.integration.test.ts convex/actions/agent/tools/__tests__/discoverCuratedRoutes-card-mapping.test.ts`
   - Result: pass. With stale worktrees still present at the time, Vitest also discovered duplicate worktree copies; total observed result was 20 files, 144 tests passed.
+  - DATA-011 geometry generation infrastructure + schema shipped; per-route internal action + driver script with sample-validate gate landed.
 - Scoped Biome:
   - `pnpm exec biome check 'app/(app)/(tabs)/index.tsx' 'components/chat/route-attachment-card.tsx' 'app/(app)/(tabs)/index.carousel.integration.test.tsx' '.maestro/rux-002-one-route-plot.yaml'`
   - Result: pass, with the existing informational `no-dynamic-import` plugin message in the carousel test.

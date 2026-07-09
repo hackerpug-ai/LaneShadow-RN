@@ -3,15 +3,17 @@ sprint: 1
 title: Discovery on the Route Plan View
 sequence: 1
 timeline: Phase 1
-status: Complete
+status: In Progress
 ---
 
 # Sprint 1: Discovery on the Route Plan View
 
 **Sequence:** 1
 **Timeline:** Phase 1
-**Status:** Complete
+**Status:** In Progress
 **Proposed by:** react-native-ui-planner + convex-planner + frontend-designer
+
+> **Note:** Sprint 01 product code and simulator testing gate are complete (2026-07-03). The sprint remains "In Progress" because the LOCKED human testing gate requires a REAL device (fulfilled by Sprint 03 DISC-007 capstone). This aligns with ROADMAP.md status.
 
 > Generated JIT from [ROADMAP.md](../../ROADMAP.md) by /kb-sprint-tasks-plan (2026-06-15). Re-homed from the deprecated `sprint-01-live-discovery-home` (archived at `../_archived/`) after PRD v3.0.0 removed the separate discovery view.
 
@@ -105,7 +107,7 @@ A second founder testing pass surfaced 5 items. #4 (carousel/one-at-a-time) is a
 | RUX-007 | Show the existing map loading-state on a discovery card tap (reuse search mechanism) | react-native-ui-implementer | 90 min | R2 #2 |
 | RUX-008 | Auto-plot + camera-fit a finished route to the whole route (reuse `doFit`); bonded to DATA-011 | react-native-ui-implementer | 150 min | R2 #3 |
 | DATA-009 | **(re-scoped)** plan a SINGLE route per OD — remove balanced/efficient variant generation | convex-implementer | 90 min | R2 #5 |
-| DATA-011 | Generate per-route line geometry for curated routes (name-anchored Nominatim→Google Routes), persist to the data model, sample-validate then backfill | convex-implementer | 300 min | R2 #3 |
+| DATA-011 | ✅ Generate per-route line geometry for curated routes (name-anchored Nominatim→Google Routes), persist to the data model, sample-validate then backfill | convex-implementer | 300 min | R2 #3 |
 
 **Coverage of the 5 R2 items:** #1 → RUX-006 · #2 → RUX-007 · #3 → RUX-008 (frontend auto-plot/fit) + DATA-011 (curated line geometry) · #4 → already R1 RUX-001/RUX-002/DESIGN-S01-005 · #5 → DATA-009 (re-scoped).
 
