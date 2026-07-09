@@ -67,7 +67,7 @@ Today `index.tsx:1376-1412` renders a ScrollView stack of compact `RouteAttachme
 | TC-2 | Spec references the disabled/hidden arrow conditions (`distinctRoutes` / `hasActiveRoute`). | AC-2 | `grep -Eq 'distinctRoutes|hasActiveRoute' .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS` |
 | TC-3 | Spec names `surface.glass` and `minTouchTarget` tokens. | AC-3 | `grep -q 'surface.glass' … && grep -q 'minTouchTarget' .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS` |
 | TC-4 | Spec lists all three carousel testIDs (canonical: route-summary-card, route-carousel-prev-arrow, route-carousel-next-arrow). | AC-4 | `grep -q 'route-carousel-next-arrow' … && grep -q 'route-carousel-prev-arrow' … && grep -q 'route-summary-card' .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS` |
-| TC-5 | `.maestro/rux-001` flow exists and passes (real-device proof). | AC-5 | `test -s .maestro/rux-001.yaml && echo PASS` |
+| TC-5 | `.maestro/rux-001` flow exists and passes (real-device proof). | AC-5 | `test -s .maestro/rux-001-route-carousel-paging.yaml && echo PASS` |
 | TC-6 | `pnpm tokens:validate` exits 0 (no token schema regression). | AC-3 | `pnpm tokens:validate` |
 
 ## Reading List
@@ -234,7 +234,7 @@ Modular-design flag: `index.tsx:1376-1412` renders a per-variant compact-card st
       "id": "TC-5",
       "type": "test_criterion",
       "description": ".maestro/rux-001 flow exists and passes (real-device proof)",
-      "verify": "test -s .maestro/rux-001.yaml && echo PASS",
+      "verify": "test -s .maestro/rux-001-route-carousel-paging.yaml && echo PASS",
       "maps_to_ac": "AC-5"
     },
     {

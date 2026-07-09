@@ -66,7 +66,7 @@ A written spec — `.spec/design/sprint-01/route-details-sheet-expand-spec.md` �
 | TC-2 | Spec specifies an expandable `90%` snap stop (not `preset='half'`). | AC-1 | `grep -q "'90%'" .spec/design/sprint-01/route-details-sheet-expand-spec.md && echo PASS` |
 | TC-3 | Spec places actions in a footer padded by `insets.bottom`. | AC-2 | `grep -q 'insets.bottom' .spec/design/sprint-01/route-details-sheet-expand-spec.md && echo PASS` |
 | TC-4 | Spec names all four sheet button testIDs (details: route-details-sheet-save-button, route-details-sheet-ride-button; directions: route-directions-sheet-close-button, route-directions-sheet-navigate-button). | AC-4 | `grep -q 'route-details-sheet-save-button' … && grep -q 'route-details-sheet-ride-button' … && grep -q 'route-directions-sheet-close-button' … && grep -q 'route-directions-sheet-navigate-button' .spec/design/sprint-01/route-details-sheet-expand-spec.md && echo PASS` |
-| TC-5 | `.maestro/rux-005` flow exists and passes (real-device proof). | AC-5 | `test -s .maestro/rux-005.yaml && echo PASS` |
+| TC-5 | `.maestro/rux-005` flow exists and passes (real-device proof). | AC-5 | `test -s .maestro/rux-005-details-sheet-actions.yaml && echo PASS` |
 | TC-6 | `pnpm tokens:validate` exits 0. | AC-4 | `pnpm tokens:validate` |
 
 ## Reading List
@@ -234,7 +234,7 @@ Modular-design flag (Rule of 2): RouteDirectionsSheet already solved sticky-acti
       "id": "TC-5",
       "type": "test_criterion",
       "description": ".maestro/rux-005 flow exists and passes (real-device proof)",
-      "verify": "test -s .maestro/rux-005.yaml && echo PASS",
+      "verify": "test -s .maestro/rux-005-details-sheet-actions.yaml && echo PASS",
       "maps_to_ac": "AC-5"
     },
     {

@@ -66,7 +66,7 @@ There is no on-map route tag today; `components/map/search-result-marker.tsx` is
 | TC-2 | Spec names `MarkerView` and an on-polyline anchor (not a floating button). | AC-1 | `grep -q 'MarkerView' .spec/design/sprint-01/on-route-tag-spec.md && echo PASS` |
 | TC-3 | Spec names `surface.glass`, `primary.default`, and `minTouchTarget` tokens. | AC-3 | `grep -q 'surface.glass' … && grep -q 'primary.default' … && grep -q 'minTouchTarget' .spec/design/sprint-01/on-route-tag-spec.md && echo PASS` |
 | TC-4 | Spec names the route-specific `route-tag-{routeId}` testID pattern (shipped in components/map/route-tag.tsx). | AC-4 | `grep -q 'route-tag-{routeId}' .spec/design/sprint-01/on-route-tag-spec.md && echo PASS` |
-| TC-5 | `.maestro/rux-004` flow exists and passes (real-device proof). | AC-5 | `test -s .maestro/rux-004.yaml && echo PASS` |
+| TC-5 | `.maestro/rux-004` flow exists and passes (real-device proof). | AC-5 | `test -s .maestro/rux-004-route-tag.yaml && echo PASS` |
 | TC-6 | `pnpm tokens:validate` exits 0. | AC-3 | `pnpm tokens:validate` |
 
 ## Reading List
@@ -231,7 +231,7 @@ Modular-design flag: SearchResultMarker is the proven on-map tappable affordance
       "id": "TC-5",
       "type": "test_criterion",
       "description": ".maestro/rux-004 flow exists and passes (real-device proof)",
-      "verify": "test -s .maestro/rux-004.yaml && echo PASS",
+      "verify": "test -s .maestro/rux-004-route-tag.yaml && echo PASS",
       "maps_to_ac": "AC-5"
     },
     {
