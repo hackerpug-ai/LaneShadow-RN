@@ -12,7 +12,7 @@
 #     the route is shown
 #  4. Clear/dismiss the route -> curated suggestion cards return
 #  5. "twisties near Asheville" -> curated card(s) in chat + latest plots on map;
-#     card shows a real composite score (NN/100, never 0/100, never raw 0-1/0-100)
+#     card shows a real composite score as NN% (never 0%, never a raw 0–1 decimal, never a raw 0–100 number)
 #  6. "scenic roads in North Carolina" -> matching North Carolina curated routes plotted
 #  7. Scroll chat history, tap an earlier curated card -> re-renders on map,
 #     drops back to map view
@@ -264,8 +264,11 @@ appId: com.hackerpug.laneshadow
     visible:
       id: "curated-route-card-.*"
     timeout: 45000
-# Real composite score: NN/100 format, never 0/100 (never 0% / raw 0-1 / raw 0-100).
-- assertNotVisible: { text: "0/100" }
+# Real composite score as NN% (never 0%, never a raw 0–1 decimal, never a raw 0–100 number).
+- assertVisible: { text: "[1-9][0-9]?%" }
+- assertNotVisible: { text: "0%" }
+- assertNotVisible: { text: "0\\.[0-9]+" }
+- assertNotVisible: { text: "/100" }
 - takeScreenshot: 08-chat-twisties-curated-card-score
 
 # ── STEP 6: "scenic roads in North Carolina" -> state curated routes + plot ──
