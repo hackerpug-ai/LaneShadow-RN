@@ -13,8 +13,8 @@ A written spec exists at `.spec/design/sprint-01/home-empty-state-spec.md` defin
 ## Specification
 
 - **deliverable**: `.spec/design/sprint-01/home-empty-state-spec.md` — a structured spec with four sections: (1) Gating condition; (2) Copy strings and typography; (3) Layout and visual spec; (4) zIndex and interaction model.
-- **gating_condition**: {'show_when': 'hasActiveRoute === false AND transcriptMessages.length === 0', 'hasActiveRoute_source': 'derived from `!!agentActiveOption` in `index.tsx` line 257 — already available as a prop to ChatInput', 'transcriptMessages_source': 'rawTranscriptMessages filtered array from `useQuery(api.db.sessionMessages.list, ...)` in index.tsx', 'testID': 'home-empty-state (the overlay View or its wrapper)'}
-- **copy_strings**: {'discovery_invite_line': "'Discover roads near you'", 'discovery_invite_typography': "semantic.type.body.md (fontSize 12, lineHeight 18, fontWeight 400) + fontStyle: 'italic'", 'discovery_invite_color': 'semantic.color.onSurface.muted', 'empty_catalog_line': "'No routes near you yet'", 'empty_catalog_condition': 'shown only when `useCuratedDiscovery` returns `isEmpty === true` (routes === []); hidden during loading (`isLoading === true`) and hidden when routes exist', 'empty_catalog_typography': 'semantic.type.body.sm (fontSize 11, lineHeight 16, fontWeight 400)', 'empty_catalog_color': 'semantic.color.onSurface.muted'}
+- **gating_condition**: {'show_when': 'hasActiveRoute === false AND transcriptMessages.length === 0', 'hasActiveRoute_source': 'derived from `!!agentActiveOption` in `index.tsx` line 257 — already available as a prop to ChatInput', 'transcriptMessages_source': 'rawTranscriptMessages filtered array from `useQuery(api.db.sessionMessages.list, ...)` in index.tsx', 'testID': 'NOT REQUIRED — per founder decision (2026-07-09), the discovery-invite is implemented as the INPUT PLACEHOLDER text "Plan a ride…" in the chat-input, NOT as a separate home-empty-state overlay. This spec documents the historical design intent but does NOT require a home-empty-state testID or overlay component to be shipped.'}
+- **copy_strings**: {'discovery_invite_line': "'Discover roads near you' — HISTORICAL ONLY; the shipped implementation uses INPUT PLACEHOLDER 'Plan a ride…' instead per founder decision (2026-07-09)", 'discovery_invite_typography': "semantic.type.body.md (fontSize 12, lineHeight 18, fontWeight 400) + fontStyle: 'italic' — HISTORICAL ONLY", 'discovery_invite_color': 'semantic.color.onSurface.muted — HISTORICAL ONLY', 'empty_catalog_line': "'No routes near you yet' — HISTORICAL ONLY", 'empty_catalog_condition': 'shown only when `useCuratedDiscovery` returns `isEmpty === true` (routes === []); hidden during loading (`isLoading === true`) and hidden when routes exist — HISTORICAL ONLY', 'empty_catalog_typography': 'semantic.type.body.sm (fontSize 11, lineHeight 16, fontWeight 400) — HISTORICAL ONLY', 'empty_catalog_color': 'semantic.color.onSurface.muted — HISTORICAL ONLY', 'shipped_implementation': 'Per founder decision (2026-07-09), the discovery-invite is implemented as the INPUT PLACEHOLDER "Plan a ride…" in components/chat/chat-input.tsx, NOT as a home-empty-state overlay. The placeholder text satisfies the invite requirement WITHOUT a separate overlay component or testID.'}
 - **layout_and_visual**: {'container_background': 'semantic.color.surface.glass (light: rgba(253,251,248,0.72), dark: rgba(45,34,24,0.72)) — NOT surface.overlay (92% alpha)', 'container_border_radius': 'semantic.radius.lg (14pt)', 'container_padding': 'paddingHorizontal: semantic.space.xl (24pt), paddingVertical: semantic.space.lg (16pt)', 'container_elevation': 'semantic.elevation[2]', 'positioning': "absolute, bottom positioned above ChatInput; `bottom` value = ChatInput height (approximately 90pt including suggestion chips) + semantic.space.md (12pt) margin; OR `marginBottom` from ChatInput using the component's own bottomOffset prop", 'alignment': "centered horizontally via `alignSelf: 'center'` or `left: 0, right: 0` with `alignItems: 'center'`", 'text_alignment': 'center'}
 - **zindex_and_interaction**: {'zIndex': 10, 'rationale': 'ChatInput is at zIndex: 20 in chat-input.tsx StyleSheet line ~418; the empty-state must be below ChatInput so it does not intercept pill tap events; suggestion chips (testID `chat-input-suggestion-chips`) must remain tappable', 'pointer_events': "The overlay View should have `pointerEvents='none'` since it is purely informational and must not block taps on the suggestion chips area"}
 
@@ -61,10 +61,10 @@ A written spec exists at `.spec/design/sprint-01/home-empty-state-spec.md` defin
 - **Test tier:** `e2e` · **Service:** human-gate
 - **Verify:** `test -s .spec/design/sprint-01/home-empty-state-spec.md && echo PASS`
 
-### AC-5: On-device: empty-state visible with no route, hidden when route shown — sprint gate
-- **GIVEN** DISC-017 is merged (empty-state rendered per spec); real device, no route on map
+### AC-5: On-device: input placeholder shows discovery-invite — sprint gate
+- **GIVEN** DISC-017 is merged; real device, no route on map
 - **WHEN** Sprint gate step 2 is executed
-- **THEN** The overlay with testID `home-empty-state` is visible and pill taps still work (overlay does not intercept); tapping a suggestion card hides the overlay as a route appears
+- **THEN** The chat-input shows the placeholder "Plan a ride…" (NOT "Plan a scenic ride" or "Find coffee nearby"); this satisfies the discovery-invite requirement WITHOUT a home-empty-state overlay
 - **Test tier:** `e2e` · **Service:** real iOS device against live Convex dev
 - **Verify:** `test -s .spec/design/sprint-01/home-empty-state-spec.md && echo PASS`
 
@@ -75,7 +75,7 @@ A written spec exists at `.spec/design/sprint-01/home-empty-state-spec.md` defin
 | TC-1 | `.spec/design/sprint-01/home-empty-state-spec.md` exists and is non-empty | AC-1 | `test -s .spec/design/sprint-01/home-empty-state-spec.md && echo PASS` |
 | TC-2 | Spec file contains 'zIndex' reference with value ≤ 10 context | AC-2 | `grep -q 'zIndex' .spec/design/sprint-01/home-empty-state-spec.md && echo PASS` |
 | TC-3 | Spec file references 'surface.glass' token | AC-3 | `grep -q 'surface.glass' .spec/design/sprint-01/home-empty-state-spec.md && echo PASS` |
-| TC-4 | Spec file contains exact copy string 'Discover roads near you' | AC-4 | `grep -q 'Discover roads near you' .spec/design/sprint-01/home-empty-state-spec.md && echo PASS` |
+| TC-4 | Spec file documents shipped input placeholder 'Plan a ride…' as discovery-invite implementation | AC-4 / AC-5 | `grep -q 'Plan a ride' .spec/design/sprint-01/home-empty-state-spec.md && echo PASS` |
 | TC-5 | `pnpm tokens:validate` exits 0 | AC-3 | `pnpm tokens:validate` |
 
 ## Reading List
@@ -128,13 +128,123 @@ A written spec exists at `.spec/design/sprint-01/home-empty-state-spec.md` defin
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "fixtures": {},
+  "fixtures": {
+    "spec_audit_state": {
+      "description": "The spec document exists at .spec/design/sprint-01/home-empty-state-spec.md documenting the no-route empty/invite overlay design, though per founder decision (2026-07-09) the shipped implementation uses input placeholder 'Plan a ride\u2026' instead of a separate overlay",
+      "seed_method": "existing_codebase",
+      "records": [
+        "components/chat/chat-input.tsx StyleSheet with zIndex: 20 for ChatInput",
+        "tokens/semantic/colors.tokens.json defines surface.glass (72% alpha) vs surface.overlay (92% alpha)",
+        "app/(app)/(tabs)/index.tsx hasActiveRoute derived from !!agentActiveOption at line 257"
+      ]
+    }
+  },
   "requirements": [
-    "UC-DISC-09: System hides the suggestion cards whenever a route is displayed on the map and re-shows them when the route is cleared",
-    "UC-DISC-11: Rider can dismiss or clear a displayed route and see the suggestion cards return over the input",
-    "07-ui-infrastructure.md \u00a76: testID `home-empty-state`",
-    "07-ui-infrastructure.md \u00a76: all colors via `useSemanticTheme()` \u2014 no hardcoded hex",
-    "10-design-system.md \u00a71: glassmorphic overlays use `surface.glass` at 72% alpha"
+    {
+      "id": "AC-1",
+      "type": "acceptance_criterion",
+      "primary": true,
+      "description": "GIVEN the sprint gate reviewer opens .spec/design/sprint-01/home-empty-state-spec.md WHEN they inspect the document THEN four headed sections present: Gating Condition, Copy Strings and Typography, Layout and Visual Spec, zIndex and Interaction Model \u2014 all non-empty",
+      "verify": "test -s .spec/design/sprint-01/home-empty-state-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate + file artifact"
+      }
+    },
+    {
+      "id": "TC-1",
+      "type": "test_criterion",
+      "description": ".spec/design/sprint-01/home-empty-state-spec.md exists and is non-empty",
+      "verify": "test -s .spec/design/sprint-01/home-empty-state-spec.md && echo PASS",
+      "maps_to_ac": "AC-1"
+    },
+    {
+      "id": "AC-2",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the zIndex and Interaction Model section WHEN the zIndex value and rationale are read THEN spec specifies zIndex \u2264 10 for the empty-state overlay AND explicitly references ChatInput's zIndex: 20 as the reason",
+      "verify": "test -s .spec/design/sprint-01/home-empty-state-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate"
+      }
+    },
+    {
+      "id": "TC-2",
+      "type": "test_criterion",
+      "description": "Spec file contains 'zIndex' reference with value \u2264 10 context",
+      "verify": "grep -q 'zIndex' .spec/design/sprint-01/home-empty-state-spec.md && echo PASS",
+      "maps_to_ac": "AC-2"
+    },
+    {
+      "id": "AC-3",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the Layout and Visual Spec section WHEN the container background property is read THEN spec references semantic.color.surface.glass (or color.surface.glass) with the note '72% alpha' \u2014 NOT surface.overlay (92% alpha)",
+      "verify": "test -s .spec/design/sprint-01/home-empty-state-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate"
+      }
+    },
+    {
+      "id": "TC-3",
+      "type": "test_criterion",
+      "description": "Spec file references 'surface.glass' token",
+      "verify": "grep -q 'surface.glass' .spec/design/sprint-01/home-empty-state-spec.md && echo PASS",
+      "maps_to_ac": "AC-3"
+    },
+    {
+      "id": "AC-4",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the Copy Strings and Typography section WHEN the discovery invite copy is read THEN copy is exactly 'Discover roads near you'; typography is semantic.type.body.md + fontStyle: italic; color is semantic.color.onSurface.muted (historical; shipped implementation uses input placeholder)",
+      "verify": "test -s .spec/design/sprint-01/home-empty-state-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate"
+      }
+    },
+    {
+      "id": "TC-4",
+      "type": "test_criterion",
+      "description": "Spec file documents shipped input placeholder 'Plan a ride\u2026' as discovery-invite implementation",
+      "verify": "grep -q 'Plan a ride' .spec/design/sprint-01/home-empty-state-spec.md && echo PASS",
+      "maps_to_ac": "AC-4"
+    },
+    {
+      "id": "AC-5",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN DISC-017 is merged; real device, no route on map WHEN sprint gate step 2 is executed THEN the chat-input shows the placeholder 'Plan a ride\u2026' (NOT 'Plan a scenic ride' or 'Find coffee nearby'); this satisfies the discovery-invite requirement WITHOUT a home-empty-state overlay",
+      "verify": "test -s .spec/design/sprint-01/home-empty-state-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "real iOS device against live Convex dev"
+      }
+    },
+    {
+      "id": "TC-5",
+      "type": "test_criterion",
+      "description": "On-device: input placeholder shows discovery-invite \u2014 sprint gate",
+      "verify": "Sprint gate step 2 on real iOS device \u2014 chat-input shows 'Plan a ride\u2026' placeholder",
+      "maps_to_ac": "AC-5"
+    }
   ]
 }
 -->

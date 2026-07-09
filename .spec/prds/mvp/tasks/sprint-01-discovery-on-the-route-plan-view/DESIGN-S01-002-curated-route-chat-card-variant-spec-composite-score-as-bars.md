@@ -13,8 +13,8 @@ A written layout spec and `variant='curated'` prop plan exists at `.spec/design/
 ## Specification
 
 - **deliverable**: `.spec/design/sprint-01/curated-route-chat-card-spec.md` — a structured spec with five sections: (1) Score rendering contract; (2) Layout spec for the `curated` variant; (3) Visual differentiation table vs the existing `full` variant of `RouteAttachmentCard`; (4) `variant='curated'` prop plan (new prop or new component decision); (5) Token path table.
-- **score_rendering_contract**: {'formula': "Math.round(score * 100) + '%' where score is the 0–1 float from `useCuratedDiscovery` / the agent curated-discovery tool", 'composite_display': 'Large percentage badge using `semantic.type.title.lg` (fontSize 17, fontWeight 600) in `semantic.color.primary.default` (#EE7C2B copper)', 'bar_rendering': "Each dimension score rendered as a `ScoreDimensionBar` (as specified in 10-design-system.md §2): track `semantic.color.surface.inset`, fill `semantic.color.primary.default`, height `semantic.space.xs × 2 = 8dp`, value `Math.round(score*100)+'%'` via `semantic.type.label.sm` + JetBrains Mono (instrument font)", 'forbidden_displays': ["raw 0–1 float (e.g. '0.73')", "raw 0–100 integer (e.g. '73')", '0% when score is non-zero (score-field mapping bug — see DATA-008b)']}
-- **curated_card_layout_spec**: {'row_1_route_name': 'Route name as `semantic.type.title.lg` (17/600), color `semantic.color.onSurface.default` — NOT the `{startLabel} → {endLabel}` format', 'row_2_mileage_archetype': "Mileage in miles (`${Math.round(distanceMi)}mi`) + archetype badge (existing `Badge` component, variant='secondary') in a `flexDirection: row, gap: semantic.space.sm` layout", 'row_3_composite_score': "Composite score as `Math.round(compositeScore*100)+'%'` displayed prominently; optionally followed by 2–3 dimension score bars (curvature, scenic, technical) using `ScoreDimensionBar`", 'background': "variant='full'-style card background: `semantic.color.surfaceVariant.default`, borderRadius `semantic.radius.md`, `semantic.elevation[2]`", 'padding': 'paddingHorizontal: `semantic.space.md` (12pt), paddingVertical: `semantic.space.md` (12pt)', 'touch_target': 'full card is tappable; height must reach `semantic.control.minTouchTarget` (44pt) minimum via natural content or explicit minHeight', 'testID': "testID='route-attachment-card' (reuse existing testID per 07-ui-infrastructure.md §6)"}
+- **score_rendering_contract**: {'formula': "Math.round(score * 100) + '%' where score is the 0–1 float from `useCuratedDiscovery` / the agent curated-discovery tool — this is the ONLY valid display form", 'composite_display': 'Large percentage badge using `semantic.type.title.lg` (fontSize 17, fontWeight 600) in `semantic.color.primary.default` (#EE7C2B copper)', 'bar_rendering': "Each dimension score rendered as a `ScoreDimensionBar` (as specified in 10-design-system.md §2): track `semantic.color.surface.inset`, fill `semantic.color.primary.default`, height `semantic.space.xs × 2 = 8dp`, value `Math.round(score*100)+'%'` via `semantic.type.label.sm` + JetBrains Mono (instrument font)", 'forbidden_displays': ["raw 0–1 float (e.g. '0.73')", "raw 0–100 integer (e.g. '73')", '0% when score is non-zero (score-field mapping bug — see DATA-008b)', "fractional form like '82/100' — ONLY percent form '82%' is valid"]}
+- **curated_card_layout_spec**: {'row_1_route_name': 'Route name as `semantic.type.title.lg` (17/600), color `semantic.color.onSurface.default` — NOT the `{startLabel} → {endLabel}` format', 'row_2_mileage_archetype': "Mileage in miles (`${Math.round(distanceMi)}mi`) + archetype badge (existing `Badge` component, variant='secondary') in a `flexDirection: row, gap: semantic.space.sm` layout", 'row_3_composite_score': "Composite score as `Math.round(compositeScore*100)+'%'` displayed prominently; optionally followed by 2–3 dimension score bars (curvature, scenic, technical) using `ScoreDimensionBar`", 'background': "variant='full'-style card background: `semantic.color.surfaceVariant.default`, borderRadius `semantic.radius.md`, `semantic.elevation[2]`", 'padding': 'paddingHorizontal: `semantic.space.md` (12pt), paddingVertical: `semantic.space.md` (12pt)', 'touch_target': 'full card is tappable; height must reach `semantic.control.minTouchTarget` (44pt) minimum via natural content or explicit minHeight', 'testID': "MUST emit testID='route-attachment-card' (reuse existing testID per 07-ui-infrastructure.md §6) — this is already shipped in components/chat/route-attachment-card.tsx and DISC-020 must preserve it"}
 - **visual_differentiation_table**: {'description': "The spec must include a side-by-side table: column 1 = 'Planned-trip `full` variant (RouteAttachmentCard)', column 2 = 'Curated `curated` variant'. Key differentiators: start→end labels (present/absent), score bars (absent/present), archetype badge (absent/present), route name prominence (secondary/primary)."}
 - **prop_plan**: {'recommendation': "Add `variant='curated'` to `RouteAttachmentCardProps` alongside the existing `'compact' | 'full'`. This avoids a new component file and keeps the tap→map loop machinery intact. Alternatively, a new `CuratedRouteCard` component is acceptable if the implementer (DISC-020) determines the conditional branching inside `RouteAttachmentCard` would become too complex. The spec must document both options and state the preference.", 'new_props_if_extending': ["variant: 'compact' | 'full' | 'curated'", 'curatedRoute?: { name: string; distanceMi: number; archetype: RouteArchetype; compositeScore: number; curvatureScore?: number; scenicScore?: number; technicalScore?: number }']}
 
@@ -126,13 +126,123 @@ A written layout spec and `variant='curated'` prop plan exists at `.spec/design/
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "fixtures": {},
+  "fixtures": {
+    "spec_audit_state": {
+      "description": "The spec document exists at .spec/design/sprint-01/curated-route-chat-card-spec.md and the existing RouteAttachmentCard implementation at components/chat/route-attachment-card.tsx is available for differentiation audit",
+      "seed_method": "existing_codebase",
+      "records": [
+        "components/chat/route-attachment-card.tsx existing full variant layout exists",
+        "tokens/semantic/semantic.tokens.json defines primary.default, surface.inset, surfaceVariant.default, radius.md, elevation, space tokens",
+        "UC-DISC-10 requires score rendering as Math.round(score * 100)+'%' on the raw 0-1 scale"
+      ]
+    }
+  },
   "requirements": [
-    "UC-DISC-10: System carries composite scores through chat-driven results on the raw 0-1 scale, rendered as bars or percent and never as a raw 0-100 number",
-    "10-design-system.md \u00a72: ScoreDimensionBar renders score as `Math.round(score * 100)+'%'`; fill `semantic.color.primary.default`; track `semantic.color.surface.inset`",
-    "10-design-system.md \u00a71: Score bar fill `semantic.color.primary.default` (#EE7C2B copper-500)",
-    "07-ui-infrastructure.md \u00a71: RouteAttachmentCard is REUSE \u2014 curated results ride the existing card\u2192map\u2192tap-back loop",
-    "07-ui-infrastructure.md \u00a76: testID `route-attachment-card` on curated variant cards"
+    {
+      "id": "AC-1",
+      "type": "acceptance_criterion",
+      "primary": true,
+      "description": "GIVEN the sprint gate reviewer opens .spec/design/sprint-01/curated-route-chat-card-spec.md WHEN they inspect the document structure THEN five headed sections present: Score Rendering Contract, Layout Spec, Visual Differentiation Table, Prop Plan, Token Path Table \u2014 all non-empty",
+      "verify": "test -s .spec/design/sprint-01/curated-route-chat-card-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate + file artifact"
+      }
+    },
+    {
+      "id": "TC-1",
+      "type": "test_criterion",
+      "description": ".spec/design/sprint-01/curated-route-chat-card-spec.md exists and is non-empty",
+      "verify": "test -s .spec/design/sprint-01/curated-route-chat-card-spec.md && echo PASS",
+      "maps_to_ac": "AC-1"
+    },
+    {
+      "id": "AC-2",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the Score Rendering Contract section of the spec WHEN the formula is read THEN the formula matches Math.round(score * 100) + '%' exactly; the spec flags raw decimal and raw integer displays as bugs; the spec notes score must arrive as 0\u20131 float from the hook",
+      "verify": "test -s .spec/design/sprint-01/curated-route-chat-card-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate"
+      }
+    },
+    {
+      "id": "TC-2",
+      "type": "test_criterion",
+      "description": "Spec file contains the exact formula string 'Math.round(score * 100)'",
+      "verify": "grep -q 'Math.round(score \\* 100)' .spec/design/sprint-01/curated-route-chat-card-spec.md && echo PASS",
+      "maps_to_ac": "AC-2"
+    },
+    {
+      "id": "AC-3",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the Visual Differentiation Table section WHEN the 'start\u2192end labels' row is read THEN the curated variant column reads 'ABSENT' or equivalent negative; the planned-trip column reads 'PRESENT'",
+      "verify": "test -s .spec/design/sprint-01/curated-route-chat-card-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate"
+      }
+    },
+    {
+      "id": "TC-3",
+      "type": "test_criterion",
+      "description": "Spec file contains 'ABSENT' in context of start\u2192end differentiation",
+      "verify": "grep -qi 'absent' .spec/design/sprint-01/curated-route-chat-card-spec.md && echo PASS",
+      "maps_to_ac": "AC-3"
+    },
+    {
+      "id": "AC-4",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the Token Path Table section WHEN every color and typography property row is inspected THEN zero raw hex values appear in the 'Token path' column; all paths resolve to tokens defined in tokens/semantic/",
+      "verify": "test -s .spec/design/sprint-01/curated-route-chat-card-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate + pnpm tokens:validate"
+      }
+    },
+    {
+      "id": "TC-4",
+      "type": "test_criterion",
+      "description": "pnpm tokens:validate exits 0",
+      "verify": "pnpm tokens:validate",
+      "maps_to_ac": "AC-4"
+    },
+    {
+      "id": "AC-5",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN DISC-020 is merged; user types 'twisties near Asheville' on real device WHEN chat cards appear in transcript THEN each curated route card shows Math.round(score*100)+'%' (e.g. '73%') \u2014 never '0%', never '0.73', never raw integer; score bars visible; no start\u2192end label row",
+      "verify": "test -s .spec/design/sprint-01/curated-route-chat-card-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "real iOS device against live Convex dev"
+      }
+    },
+    {
+      "id": "TC-5",
+      "type": "test_criterion",
+      "description": "On-device: curated chat cards show real non-zero composite score as % at sprint gate",
+      "verify": "Sprint gate step 5 on real iOS device \u2014 curated chat cards show non-zero % score; no start\u2192end label row visible",
+      "maps_to_ac": "AC-5"
+    }
   ]
 }
 -->

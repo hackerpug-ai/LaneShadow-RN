@@ -132,13 +132,123 @@ A written spec-diff exists at `.spec/design/sprint-01/suggestion-card-spec.md` n
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "fixtures": {},
+  "fixtures": {
+    "spec_audit_state": {
+      "description": "The spec document exists at .spec/design/sprint-01/suggestion-card-spec.md and the current SuggestionChips implementation at components/chat/chat-input.tsx lines 95-148 is available for audit",
+      "seed_method": "existing_codebase",
+      "records": [
+        "components/chat/chat-input.tsx SuggestionChips component exists with current hardcoded values",
+        "tokens/semantic/colors.tokens.json defines surface.glass token at 72% alpha",
+        "tokens/semantic/semantic.tokens.json defines accent.default, control.minTouchTarget, radius.md, borderWidth.thin, elevation tokens"
+      ]
+    }
+  },
   "requirements": [
-    "UC-DISC-09: curated-route suggestion cards over the plan input, visually distinct from generic planning prompts",
-    "10-design-system.md \u00a71: glassmorphic overlays use `surface.glass` (rgba @ 72% alpha per colors.tokens.json) \u2014 not raw hex+inline opacity",
-    "07-ui-infrastructure.md \u00a76: touch targets \u2265 44pt",
-    "07-ui-infrastructure.md \u00a76: all colors via `useSemanticTheme()` \u2014 no hardcoded hex",
-    "07-ui-infrastructure.md \u00a76: testID `discovery-suggestion-pill-{routeId}` on each curated card"
+    {
+      "id": "AC-1",
+      "type": "acceptance_criterion",
+      "primary": true,
+      "description": "GIVEN the sprint gate reviewer opens .spec/design/sprint-01/suggestion-card-spec.md WHEN they verify the document was produced by this task THEN the document contains: (1) current-state audit, (2) token gap table, (3) chip variant prop/style spec, (4) visibility rule spec \u2014 all four sections present and non-empty",
+      "verify": "test -s .spec/design/sprint-01/suggestion-card-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate (sprint gate reviewer + file artifact)"
+      }
+    },
+    {
+      "id": "TC-1",
+      "type": "test_criterion",
+      "description": ".spec/design/sprint-01/suggestion-card-spec.md exists and is non-empty with all four required sections present",
+      "verify": "test -s .spec/design/sprint-01/suggestion-card-spec.md && echo PASS",
+      "maps_to_ac": "AC-1"
+    },
+    {
+      "id": "AC-2",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the spec doc token gap table is inspected WHEN each gap row is checked for its 'Required token' column THEN every 'Required token' cell references a dot-path to a token defined in tokens/semantic/colors.tokens.json or tokens/semantic/semantic.tokens.json \u2014 zero raw hex strings appear in the 'Required token' column",
+      "verify": "test -s .spec/design/sprint-01/suggestion-card-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate + pnpm tokens:validate"
+      }
+    },
+    {
+      "id": "TC-2",
+      "type": "test_criterion",
+      "description": "pnpm tokens:validate exits 0 (no token schema regressions introduced by spec work)",
+      "verify": "pnpm tokens:validate",
+      "maps_to_ac": "AC-2"
+    },
+    {
+      "id": "AC-3",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the chip variant spec section in the document WHEN the background property spec is read THEN the spec reads semantic.color.surface.glass (or color.surface.glass) and cross-references tokens/semantic/colors.tokens.json \u2014 the spec does NOT say rgba(253,251,248,0.72) as a standalone value without the token alias",
+      "verify": "test -s .spec/design/sprint-01/suggestion-card-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate"
+      }
+    },
+    {
+      "id": "TC-3",
+      "type": "test_criterion",
+      "description": "Spec file contains the string 'surface.glass' (token alias present)",
+      "verify": "grep -q 'surface.glass' .spec/design/sprint-01/suggestion-card-spec.md && echo PASS",
+      "maps_to_ac": "AC-3"
+    },
+    {
+      "id": "AC-4",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the chip variant spec section WHEN the minHeight / touch target field is read THEN the spec references semantic.control.minTouchTarget (value 44) \u2014 NOT the magic number 44 alone",
+      "verify": "test -s .spec/design/sprint-01/suggestion-card-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate"
+      }
+    },
+    {
+      "id": "TC-4",
+      "type": "test_criterion",
+      "description": "Spec file contains 'minTouchTarget' or 'control.minTouchTarget' (44pt token citation)",
+      "verify": "grep -q 'minTouchTarget' .spec/design/sprint-01/suggestion-card-spec.md && echo PASS",
+      "maps_to_ac": "AC-4"
+    },
+    {
+      "id": "AC-5",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN DISC-016 and DISC-017 are merged and the app runs on a real device WHEN sprint gate step 2 is executed (no route on map, curated suggestion cards visible) THEN suggestion cards show copper road-variant icon, glass-scrim background, and distinct visual treatment vs generic planning prompts \u2014 reviewer can confirm spec was implemented correctly",
+      "verify": "test -s .spec/design/sprint-01/suggestion-card-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "real iOS device against live Convex dev"
+      }
+    },
+    {
+      "id": "TC-5",
+      "type": "test_criterion",
+      "description": "On-device verification: suggestion cards show copper road-variant icon, glass-scrim background at sprint gate",
+      "verify": "Sprint gate step 2 on real iOS device \u2014 curated suggestion cards visible with copper accent + road icon when no route on map",
+      "maps_to_ac": "AC-5"
+    }
   ]
 }
 -->

@@ -14,7 +14,7 @@ A written spec — `.spec/design/sprint-01/route-carousel-card-spec.md` — that
 
 ## Specification
 
-Today `index.tsx:1376-1412` renders a ScrollView stack of compact `RouteAttachmentCard`s (one per efficiency variant) — "buttons that tell me nothing." The spec replaces this with a SINGLE route-summary card directly ABOVE the chat input, flanked by a left ‹ and right › arrow — conceptual layout `‹  ROUTE DETAILS  ›` over `| INPUT FIELD |`. The card reuses the existing `RouteAttachmentCard variant='compact'` body on a `surface.glass` scrim. Arrows page prev/next through the DISTINCT-route list (dedupe efficiency variants of the same route). The spec names exact token paths, arrow affordance + disabled/end + single-route-hidden + hidden-when-no-route states, tap→RouteDetailsSheet behavior, ≥44pt targets, and the testIDs `route-carousel-card`, `route-carousel-arrow-prev`, `route-carousel-arrow-next`.
+Today `index.tsx:1376-1412` renders a ScrollView stack of compact `RouteAttachmentCard`s (one per efficiency variant) — "buttons that tell me nothing." The spec replaces this with a SINGLE route-summary card directly ABOVE the chat input, flanked by a left ‹ and right › arrow — conceptual layout `‹  ROUTE DETAILS  ›` over `| INPUT FIELD |`. The card reuses the existing `RouteAttachmentCard variant='compact'` body on a `surface.glass` scrim. Arrows page prev/next through the DISTINCT-route list (dedupe efficiency variants of the same route). The spec names exact token paths, arrow affordance + disabled/end + single-route-hidden + hidden-when-no-route states, tap→RouteDetailsSheet behavior, ≥44pt targets, and the testIDs `route-summary-card`, `route-carousel-prev-arrow`, `route-carousel-next-arrow` (shipped in components/map/route-summary-carousel.tsx).
 
 ## Critical Constraints
 
@@ -24,7 +24,7 @@ Today `index.tsx:1376-1412` renders a ScrollView stack of compact `RouteAttachme
 - **MUST** spec the disabled/hidden arrow rule precisely: left arrow disabled/hidden at the first route, right arrow disabled/hidden at the last route, BOTH arrows hidden when `distinctRoutes.length <= 1`, and the whole carousel hidden when `!hasActiveRoute`.
 - **NEVER** spec a redesign or a new design system — ship the current RN look using the existing RouteAttachmentCard compact body, Badge, Button, IconSymbol chevrons.
 - **NEVER** render more than one route card at once (the meaningless bottom stack is the thing being removed), and never write to app source — the deliverable is a spec doc only.
-- **STRICTLY**: arrows page between DISTINCT routes only (dedupe variants of the same route); tapping the card opens route details (RouteDetailsSheet) and does NOT send a chat message; every interactive element carries a stable testID (`route-carousel-card`, `route-carousel-arrow-prev`, `route-carousel-arrow-next`).
+- **STRICTLY**: arrows page between DISTINCT routes only (dedupe variants of the same route); tapping the card opens route details (RouteDetailsSheet) and does NOT send a chat message; every interactive element carries a stable testID (`route-summary-card`, `route-carousel-prev-arrow`, `route-carousel-next-arrow`) — these are already shipped in components/map/route-summary-carousel.tsx and MUST NOT be changed.
 
 ## Acceptance Criteria
 
@@ -49,8 +49,15 @@ Today `index.tsx:1376-1412` renders a ScrollView stack of compact `RouteAttachme
 ### AC-4: Tap→details behavior + full testID set spec'd
 - **GIVEN** the interaction + testID section
 - **WHEN** the reviewer checks the card tap behavior and testIDs
-- **THEN** the spec states tapping the card opens RouteDetailsSheet (no chat message), and names all three testIDs `route-carousel-card`, `route-carousel-arrow-prev`, `route-carousel-arrow-next`
-- **Verify:** `grep -q 'route-carousel-card' … && grep -q 'route-carousel-arrow-prev' … && grep -q 'route-carousel-arrow-next' .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS`
+- **THEN** the spec states tapping the card opens RouteDetailsSheet (no chat message), and names all three testIDs `route-summary-card`, `route-carousel-prev-arrow`, `route-carousel-next-arrow` (these are the canonical IDs shipped in components/map/route-summary-carousel.tsx)
+- **Verify:** `grep -q 'route-summary-card' … && grep -q 'route-carousel-prev-arrow' … && grep -q 'route-carousel-next-arrow' .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS`
+
+### AC-5: On-device: carousel renders with canonical testIDs at sprint gate
+- **GIVEN** RUX-001 is merged; real device with active route
+- **WHEN** Sprint gate step executes or `.maestro/rux-001` flow runs
+- **THEN** The carousel shows one card with testID `route-summary-card` and flanking arrows with `route-carousel-prev-arrow`/`route-carousel-next-arrow` (canonical IDs shipped in components/map/route-summary-carousel.tsx)
+- **Test tier:** `e2e` · **Service:** real iOS/Android device against live Convex dev (verified via `.maestro/rux-001` flow)
+- **Verify:** `test -s .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS`
 
 ## Test Criteria
 
@@ -59,8 +66,9 @@ Today `index.tsx:1376-1412` renders a ScrollView stack of compact `RouteAttachme
 | TC-1 | `.spec/design/sprint-01/route-carousel-card-spec.md` exists and is non-empty. | AC-1 | `test -s .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS` |
 | TC-2 | Spec references the disabled/hidden arrow conditions (`distinctRoutes` / `hasActiveRoute`). | AC-2 | `grep -Eq 'distinctRoutes|hasActiveRoute' .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS` |
 | TC-3 | Spec names `surface.glass` and `minTouchTarget` tokens. | AC-3 | `grep -q 'surface.glass' … && grep -q 'minTouchTarget' .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS` |
-| TC-4 | Spec lists all three carousel testIDs. | AC-4 | `grep -q 'route-carousel-arrow-next' … && grep -q 'route-carousel-arrow-prev' … && grep -q 'route-carousel-card' .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS` |
-| TC-5 | `pnpm tokens:validate` exits 0 (no token schema regression). | AC-3 | `pnpm tokens:validate` |
+| TC-4 | Spec lists all three carousel testIDs (canonical: route-summary-card, route-carousel-prev-arrow, route-carousel-next-arrow). | AC-4 | `grep -q 'route-carousel-next-arrow' … && grep -q 'route-carousel-prev-arrow' … && grep -q 'route-summary-card' .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS` |
+| TC-5 | `.maestro/rux-001` flow exists and passes (real-device proof). | AC-5 | `test -s .maestro/rux-001.yaml && echo PASS` |
+| TC-6 | `pnpm tokens:validate` exits 0 (no token schema regression). | AC-3 | `pnpm tokens:validate` |
 
 ## Reading List
 
@@ -112,14 +120,130 @@ Modular-design flag: `index.tsx:1376-1412` renders a per-variant compact-card st
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "fixtures": {},
+  "fixtures": {
+    "spec_audit_state": {
+      "description": "The spec document exists at .spec/design/sprint-01/route-carousel-card-spec.md and the carousel implementation at components/map/route-summary-carousel.tsx with canonical testIDs is available",
+      "seed_method": "existing_codebase",
+      "records": [
+        "components/map/route-summary-carousel.tsx ships with testIDs route-summary-card, route-carousel-prev-arrow, route-carousel-next-arrow",
+        "components/ui/route-attachment-card.tsx compact variant body to reuse",
+        "tokens/semantic/semantic.tokens.json defines space, surface.glass, control.minTouchTarget, radius.md tokens"
+      ]
+    }
+  },
   "requirements": [
-    "UC-DISC-10: a single route-summary card over the plan input flanked by carousel arrows replaces the meaningless one-card-per-variant bottom stack (index.tsx:1376-1412)",
-    "10-design-system.md §1: glassmorphic overlays use `surface.glass` (rgba @ 72% per colors.tokens.json) — not raw hex+inline opacity",
-    "07-ui-infrastructure.md §6: touch targets >= 44pt via `semantic.control.minTouchTarget`",
-    "07-ui-infrastructure.md §6: all colors via `useSemanticTheme()` — no hardcoded hex",
-    "07-ui-infrastructure.md §6: testIDs `route-carousel-card`, `route-carousel-arrow-prev`, `route-carousel-arrow-next`",
-    "One distinct route shown at a time; left disabled at first, right disabled at last; both arrows hidden when <=1 distinct route; carousel hidden when !hasActiveRoute; tap card -> RouteDetailsSheet (no chat round-trip)"
+    {
+      "id": "AC-1",
+      "type": "acceptance_criterion",
+      "primary": true,
+      "description": "GIVEN a reviewer opens route-carousel-card-spec.md WHEN they read the layout section THEN it describes ONE card centered above the chat input with flanking left/right arrows, and every spacing/inset value is a semantic.space.* token path with the resolved value in parentheses (no bare pixel numbers)",
+      "verify": "test -s .spec/design/sprint-01/route-carousel-card-spec.md && grep -q 'semantic.space' .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate (sprint gate reviewer)"
+      }
+    },
+    {
+      "id": "TC-1",
+      "type": "test_criterion",
+      "description": ".spec/design/sprint-01/route-carousel-card-spec.md exists and is non-empty",
+      "verify": "test -s .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS",
+      "maps_to_ac": "AC-1"
+    },
+    {
+      "id": "AC-2",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the arrow affordance + paging section WHEN the reviewer reads the arrow state rules THEN the spec states left disabled/hidden at the first distinct route, right disabled/hidden at the last, both hidden when distinctRoutes.length <= 1, and the carousel hidden when !hasActiveRoute — each tied to a named condition",
+      "verify": "grep -Eq 'distinctRoutes|hasActiveRoute' .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate (sprint gate reviewer)"
+      }
+    },
+    {
+      "id": "TC-2",
+      "type": "test_criterion",
+      "description": "Spec references the disabled/hidden arrow conditions (distinctRoutes / hasActiveRoute)",
+      "verify": "grep -Eq 'distinctRoutes|hasActiveRoute' .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS",
+      "maps_to_ac": "AC-2"
+    },
+    {
+      "id": "AC-3",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the card-surface + arrow-button sections WHEN the reviewer reads the background and touch-target specs THEN the card scrim is semantic.color.surface.glass (not raw rgba) and both arrows + card cite semantic.control.minTouchTarget (44)",
+      "verify": "grep -q 'surface.glass' .spec/design/sprint-01/route-carousel-card-spec.md && grep -q 'minTouchTarget' .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate (sprint gate reviewer)"
+      }
+    },
+    {
+      "id": "TC-3",
+      "type": "test_criterion",
+      "description": "Spec names surface.glass and minTouchTarget tokens",
+      "verify": "grep -q 'surface.glass' .spec/design/sprint-01/route-carousel-card-spec.md && grep -q 'minTouchTarget' .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS",
+      "maps_to_ac": "AC-3"
+    },
+    {
+      "id": "AC-4",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the interaction + testID section WHEN the reviewer checks the card tap behavior and testIDs THEN the spec states tapping the card opens RouteDetailsSheet (no chat message), and names all three testIDs route-summary-card, route-carousel-prev-arrow, route-carousel-next-arrow (these are the canonical IDs shipped in components/map/route-summary-carousel.tsx)",
+      "verify": "grep -q 'route-summary-card' .spec/design/sprint-01/route-carousel-card-spec.md && grep -q 'route-carousel-prev-arrow' .spec/design/sprint-01/route-carousel-card-spec.md && grep -q 'route-carousel-next-arrow' .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate (sprint gate reviewer)"
+      }
+    },
+    {
+      "id": "TC-4",
+      "type": "test_criterion",
+      "description": "Spec lists all three carousel testIDs (canonical: route-summary-card, route-carousel-prev-arrow, route-carousel-next-arrow)",
+      "verify": "grep -q 'route-summary-card' .spec/design/sprint-01/route-carousel-card-spec.md && grep -q 'route-carousel-prev-arrow' .spec/design/sprint-01/route-carousel-card-spec.md && grep -q 'route-carousel-next-arrow' .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS",
+      "maps_to_ac": "AC-4"
+    },
+    {
+      "id": "AC-5",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN RUX-001 is merged; real device with active route WHEN sprint gate step executes or .maestro/rux-001 flow runs THEN the carousel shows one card with testID route-summary-card and flanking arrows with route-carousel-prev-arrow/route-carousel-next-arrow (canonical IDs shipped in components/map/route-summary-carousel.tsx)",
+      "verify": "test -s .spec/design/sprint-01/route-carousel-card-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "real iOS/Android device against live Convex dev (verified via .maestro/rux-001 flow)"
+      }
+    },
+    {
+      "id": "TC-5",
+      "type": "test_criterion",
+      "description": ".maestro/rux-001 flow exists and passes (real-device proof)",
+      "verify": "test -s .maestro/rux-001.yaml && echo PASS",
+      "maps_to_ac": "AC-5"
+    },
+    {
+      "id": "TC-6",
+      "type": "test_criterion",
+      "description": "pnpm tokens:validate exits 0 (no token schema regression)",
+      "verify": "pnpm tokens:validate",
+      "maps_to_ac": "AC-3"
+    }
   ]
 }
 -->

@@ -124,13 +124,123 @@ A written compliance audit and spec exists at `.spec/design/sprint-01/footer-cha
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "fixtures": {},
+  "fixtures": {
+    "spec_audit_state": {
+      "description": "The spec document exists at .spec/design/sprint-01/footer-chat-button-spec.md for the chat-input-chat-view-button compliance audit, with current implementation at components/chat/chat-input.tsx lines 373-403 available",
+      "seed_method": "existing_codebase",
+      "records": [
+        "components/chat/chat-input.tsx chat-view toggle button at lines 373-403",
+        "components/chat/chat-input.tsx send button at lines 341-369 for icon comparison",
+        "tokens/semantic/semantic.tokens.json defines primary.default, surface.default, border.default, onPrimary.default, onSurface.muted, control.minTouchTarget, iconSize.medium, elevation tokens"
+      ]
+    }
+  },
   "requirements": [
-    "UC-DISC-11: System renders the full-chat button as a navigation affordance distinct from the chat send action",
-    "UC-DISC-11: Rider can open the full chat view from a button to the right of the chat input in the bottom footer",
-    "07-ui-infrastructure.md \u00a76: testID `chat-input-chat-view-button`",
-    "07-ui-infrastructure.md \u00a76: touch targets \u2265 44pt",
-    "07-ui-infrastructure.md \u00a76: all colors via `useSemanticTheme()` \u2014 no hardcoded hex"
+    {
+      "id": "AC-1",
+      "type": "acceptance_criterion",
+      "primary": true,
+      "description": "GIVEN the sprint gate reviewer opens .spec/design/sprint-01/footer-chat-button-spec.md WHEN they inspect the document THEN three headed sections present: Required Spec, Compliance Audit, Gap Summary \u2014 all non-empty; Gap Summary has a PASS/FAIL row for each audited property",
+      "verify": "test -s .spec/design/sprint-01/footer-chat-button-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate + file artifact"
+      }
+    },
+    {
+      "id": "TC-1",
+      "type": "test_criterion",
+      "description": ".spec/design/sprint-01/footer-chat-button-spec.md exists and is non-empty",
+      "verify": "test -s .spec/design/sprint-01/footer-chat-button-spec.md && echo PASS",
+      "maps_to_ac": "AC-1"
+    },
+    {
+      "id": "AC-2",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the compliance audit section WHEN the icon distinction row is read THEN spec names 'arrow-right' as the send icon, 'chat-outline' (inactive) and 'map-outline' (active) as the chat-view button icons, and marks the distinction PASS",
+      "verify": "test -s .spec/design/sprint-01/footer-chat-button-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate"
+      }
+    },
+    {
+      "id": "TC-2",
+      "type": "test_criterion",
+      "description": "Spec file contains 'chat-outline' icon reference (icon distinction audit)",
+      "verify": "grep -q 'chat-outline' .spec/design/sprint-01/footer-chat-button-spec.md && echo PASS",
+      "maps_to_ac": "AC-2"
+    },
+    {
+      "id": "AC-3",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the compliance audit active-state background row WHEN the token reference and PASS/FAIL verdict are read THEN spec cites semantic.color.primary.default at chat-input.tsx line 383 and marks PASS; the raw hex '#EE7C2B' does NOT appear as the specified value in the Gap Summary 'Required token' column",
+      "verify": "test -s .spec/design/sprint-01/footer-chat-button-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate"
+      }
+    },
+    {
+      "id": "TC-3",
+      "type": "test_criterion",
+      "description": "Spec file contains 'semantic.color.primary.default' in context of active state",
+      "verify": "grep -q 'primary.default' .spec/design/sprint-01/footer-chat-button-spec.md && echo PASS",
+      "maps_to_ac": "AC-3"
+    },
+    {
+      "id": "AC-4",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the compliance audit size/touch target row WHEN the audit verdict is read THEN spec compares chatViewBtnSize (48) to semantic.control.minTouchTarget (44) and marks PASS; magic-number '48' is flagged as a minor gap",
+      "verify": "test -s .spec/design/sprint-01/footer-chat-button-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "human-gate"
+      }
+    },
+    {
+      "id": "TC-4",
+      "type": "test_criterion",
+      "description": "Spec file contains 'minTouchTarget' reference",
+      "verify": "grep -q 'minTouchTarget' .spec/design/sprint-01/footer-chat-button-spec.md && echo PASS",
+      "maps_to_ac": "AC-4"
+    },
+    {
+      "id": "AC-5",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN DISC-018 is merged; real device WHEN sprint gate step 8 is executed (tap footer button to right of input) THEN the chat-input-chat-view-button icon is clearly different from the chat-input-send-button icon; tapping it opens the full chat view; active state shows copper background",
+      "verify": "test -s .spec/design/sprint-01/footer-chat-button-spec.md && echo PASS",
+      "maps_to_ac": null,
+      "scenario": {
+        "start_ref": "spec_audit_state",
+        "tier": "e2e",
+        "test_tier": "e2e",
+        "verification_service": "real iOS device against live Convex dev"
+      }
+    },
+    {
+      "id": "TC-5",
+      "type": "test_criterion",
+      "description": "On-device: full-chat button visually distinct from send at sprint gate",
+      "verify": "Sprint gate step 8 on real iOS device \u2014 full-chat button visually distinct from send; copper active state visible when chat mode is on",
+      "maps_to_ac": "AC-5"
+    }
   ]
 }
 -->
