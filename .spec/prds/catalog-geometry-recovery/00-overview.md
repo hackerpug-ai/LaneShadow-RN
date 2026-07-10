@@ -138,6 +138,26 @@ Naples→Key West = 1,351 coords / ~274 mi / south FL; Blue Ridge Parkway = 3,58
 ~438 mi (catalog 469 → 94%) / NC→VA. **Next: the gated full run** (reset 5,200 `unresolved`→
 `null` + `backfill --all`).
 
+**FULL RUN COMPLETE (2026-07-09, ~6.2h):** 5,207 unresolved processed → **2,395 recovered**
+(+ 497 original = **2,893 generated → 50.2% coverage**, up from 8.6%). 2,809 remain
+`unresolved` (can't auto-geocode). Mechanism: per-route `generateForRoute` loop (no reset
+needed; resumable; Nominatim ≤1 req/s). Cost: ~2,500 Google Routes calls ≈ $12 (under the
+$200/mo Maps credit → ~$0 net).
+
+**Final QA over all 2,893 generated:** clean 1,784 (61.7%) · suspect-location 654 (22.6%) ·
+suspect-length 455 (15.7%) · two-point 83. So **1,784 definitively correct + 1,109
+real-but-questionable = 2,893 plotting**; 2,864 unresolved.
+
+**Remaining (the recover→triage→drop tail):**
+- **Triage list** = the ~2,864 `unresolved` (centroid-only) + the ~1,109 suspect geometries
+  → deep-research pass (alternate names, OSM relations, source URLs) to recover what's
+  recoverable; the suspect-location ones are the likely-wrong-same-name-road candidates.
+- **Drop** (GATED/DESTRUCTIVE, needs explicit confirm) = routes still without trustworthy
+  geometry after research. Per the directive: a route with no geometry is dropped; the final
+  catalog must be 100% plottable. Projected final catalog: ~1,800-2,900 roads that all map.
+- **Data-debt still open** (independent): duplicate famous roads, ~1-2% scores on 0-100,
+  length outliers, dirty multi-state strings — the `curation-hardening` cleanup.
+
 ## Artifacts & pointers
 
 - **Export + scripts (gitignored):** `.tmp/convex-export/snapshot.zip` + `tables/`,
