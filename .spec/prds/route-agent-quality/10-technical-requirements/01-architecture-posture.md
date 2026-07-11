@@ -75,12 +75,15 @@ lines.
 ## Model indirection
 
 LLM calls ride the repo's single-source model indirection
-(`convex/actions/agent/lib/models.ts`, pi-ai): a new dedicated **`geometry` tier** for anchor
-extraction (Anthropic Sonnet-class — the PoC proved anchor extraction at ratio 1.00 on two
-real routes), and the existing **`low` tier on a different provider** for the ride-worthiness
-classifier (cross-provider decorrelation, mirroring enrichment's cross-provider QA). Forced
-tool calls (`emit_anchors` / `emit_verdict` with typed schemas) replace the PoC's JSON-regex
-parse. No provider/model literals outside the tier map.
+(`convex/actions/agent/lib/models.ts`), which v3.0.2 rebases wholesale onto the **Mastra
+model layer** — every tier resolves to a ModelRouter string and `@mariozechner/pi-ai` is
+removed from the dependency tree entirely (founder-ratified 2026-07-11). A new dedicated
+**`geometry` tier** serves anchor extraction (Anthropic Sonnet-class — the PoC proved anchor
+extraction at ratio 1.00 on two real routes), and the **`low` tier on a different provider**
+serves the ride-worthiness classifier (cross-provider decorrelation, mirroring enrichment's
+cross-provider QA). Schema-enforced structured outputs (`emit_anchors` / `emit_verdict` as
+Zod schemas on single-shot Mastra generations) replace the PoC's JSON-regex parse. No
+provider/model literals outside the tier map.
 
 ## Agent layer (AGT, v2.0.0) — smart loop with tools, not a dispatcher
 
@@ -110,8 +113,9 @@ the scaffolding became the ceiling.
 - **Model:** a new **`orchestrator` tier → Anthropic Sonnet-class** in the tier map — but
   the tier resolver for this tier returns a **Mastra ModelRouter string**
   (`'anthropic/claude-sonnet-…'`, resolved against the deployment's `ANTHROPIC_API_KEY`),
-  NOT a pi-ai `Model` object, which Mastra cannot consume (risk #15). pi-ai `getAgentModel`
-  stays untouched for the pipeline tiers (geometry / classifier / enrichment). The
+  NOT a pi-ai `Model` object, which Mastra cannot consume (risk #15). **v3.0.2:** the
+  pipeline tiers (geometry / classifier / enrichment) move onto the same router-string tier
+  map and pi-ai is removed entirely — one model layer for every LLM seam. The
   router-string form also avoids adding an `@ai-sdk/anthropic` dependency; the escape if the
   router can't resolve the pinned Sonnet id is an explicit AI-SDK model instance, verified
   by one real completion in the spike. Cost ≈1–3¢ per conversation turn.

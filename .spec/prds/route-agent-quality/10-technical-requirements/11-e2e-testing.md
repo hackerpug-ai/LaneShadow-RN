@@ -41,8 +41,9 @@ SKIP-with-reason on a provider outage — never fake success.
   side-table rows + status fields for those ids.
 - **Seed mechanism:** test-only internal mutation seeds known route rows (incl. a
   deliberately mis-lengthed row and a degenerate line) — public API seeding, not table dumps.
-- **Fixture/replay mechanism:** canned tool-call responses injected at the pi-ai call seam;
-  anchors persisted on real runs make failures replayable.
+- **Fixture/replay mechanism:** canned structured outputs injected at the Mastra model seam
+  (the same `MockLanguageModel` pattern as §5c); anchors persisted on real runs make
+  failures replayable.
 
 ## 3. The turnkey runner
 
@@ -62,8 +63,9 @@ SKIP-with-reason on a provider outage — never fake success.
 - Set `ANTHROPIC_API_KEY` + `GOOGLE_MAPS_API_KEY` on the **deployment** (`npx convex env
   set`), not just `.env.local`.
 - Convex `eq()` on an absent optional never matches — use the exclude-known-values pattern.
-- pi-ai registry may not carry the intended Sonnet id — verify with one real completion
-  before the batch (registry-override escape documented in 06-external-dependencies).
+- The Mastra model router may not resolve a pinned model id — verify each tier with one real
+  completion before its first batch (explicit AI-SDK instance escape documented in
+  06-external-dependencies).
 - Metro serves JS-only surface changes without a rebuild.
 
 ## 5. The proven reference flow (spike gate)
@@ -72,7 +74,8 @@ SKIP-with-reason on a provider outage — never fake success.
 Convex action (real Anthropic + Google) → gate → persist `ai_reconstructed` →
 `recomputeRiderReady` → `listCuratedRoutes` returns it → Maestro plots it on the sim from a
 cold boot. The constitution is INCOMPLETE until this flow is green through the turnkey
-runners — it de-risks the pi-ai geometry-tier wiring and the gate→query→render seam in a day.
+runners — it de-risks the geometry-tier wiring (Mastra structured output) and the
+gate→query→render seam in a day.
 
 ## 5b. The Mastra reference conversation (AGT spike gate)
 

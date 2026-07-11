@@ -25,20 +25,21 @@ prd_version: 1.0.0
 
 ## LLM seams (anchor extraction + classifier)
 
-- **Anthropic Messages API via the repo's pi-ai model indirection** — the PoC proved
+- **Anthropic Sonnet via the Mastra model layer (v3.0.2 — pi-ai removed)** — the PoC proved
   Sonnet-class anchor extraction (ratio 1.00 on two real routes). Production does NOT call
   raw `fetch`: a dedicated **`geometry` tier** in `convex/actions/agent/lib/models.ts`
-  resolves to Anthropic Sonnet, with a forced tool call (`emit_anchors`, TypeBox schema)
-  replacing the PoC's JSON-regex parse. Registry note: verify pi-ai's registry carries the
-  intended Sonnet id before the batch; if absent, use a registry-override `Model` literal
-  verified with one real completion (enrichment's documented escape). Docs:
+  resolves to a ModelRouter string (`'anthropic/claude-sonnet-…'`); a single-shot Mastra
+  generation with structured output (`emit_anchors`, Zod schema) replaces the PoC's
+  JSON-regex parse. Pin note: verify the router resolves the pinned Sonnet id with one real
+  completion before the batch; if absent, use an explicit AI-SDK model instance (the same
+  escape as the orchestrator tier). Docs:
   https://docs.anthropic.com/en/api/messages · models:
   https://docs.anthropic.com/en/docs/about-claude/models. Key: `ANTHROPIC_API_KEY`
   (deployment env, present).
 - **Ride-worthiness classifier — cross-provider** — runs on a different provider than anchor
-  extraction to decorrelate blind spots: reuse the existing `low` tier
-  (`openai:gpt-4o-mini`), mirroring enrichment's cross-provider QA. Forced `emit_verdict`
-  tool call.
+  extraction to decorrelate blind spots: the `low` tier as a ModelRouter string
+  (`'openai/gpt-4o-mini'`), mirroring enrichment's cross-provider QA. Structured
+  `emit_verdict` output (Zod).
 
 ## Deterministic gate + rendering
 
@@ -72,15 +73,18 @@ prd_version: 1.0.0
   the deployment `ANTHROPIC_API_KEY`) — NOT a pi-ai `Model` object, which Mastra cannot
   consume. The router-string form avoids adding an `@ai-sdk/anthropic` dependency; the
   escape if the router can't resolve the pinned id is an explicit AI-SDK model instance,
-  verified with one real completion in the §5b spike. pi-ai's `getAgentModel` continues to
-  serve only the pipeline tiers (geometry / classifier / enrichment).
+  verified with one real completion in the §5b spike. **v3.0.2:** the pipeline tiers
+  (geometry / classifier / enrichment) move onto the same router-string tier map — pi-ai is
+  removed entirely.
   Docs: https://docs.anthropic.com/en/docs/about-claude/models.
 - **LangSmith** — trace backend for per-turn agent observability; env already provisioned
   (`LANGSMITH_API_KEY`/`LANGSMITH_PROJECT` on the deployment). Docs:
   https://docs.smith.langchain.com/. Wire via Mastra telemetry export.
-- **Retired with the rebuild:** the orchestrator dispatch prompt machinery and
-  `@mariozechner/pi-ai`'s `runAgent.ts` loop for conversation (pi-ai remains in use for the
-  pipeline tiers: geometry anchor extraction, classifier, enrichment).
+- **Retired with the rebuild:** the orchestrator dispatch prompt machinery, pi-ai's
+  `runAgent.ts` conversation loop, and — **v3.0.2, founder-ratified — the
+  `@mariozechner/pi-ai` dependency itself**: every LLM seam (orchestrator, geometry anchors,
+  classifier, enrichment) resolves through the Mastra model layer; pi-ai is dropped from
+  `package.json`.
 
 ## Cost envelope
 

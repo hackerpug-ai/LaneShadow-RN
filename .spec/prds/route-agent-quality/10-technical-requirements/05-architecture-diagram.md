@@ -33,7 +33,7 @@ prd_version: 1.0.0
                 │                            │  Anthropic │ │ API      │ │ compute  │
                 │                            │ classifier:│ └──────────┘ │ Routes   │
                 │                            │  x-provider│              └──────────┘
-                │                            │  (pi-ai)   │
+                │                            │  (Mastra)  │
                 │                            └────────────┘
                 ▼
  TABLES
@@ -87,7 +87,7 @@ prd_version: 1.0.0
  │  planRoute ───────────► planRideOrchestrator (sketch→compile→weather; custom fallback)     │
  │  getRouteWeather ─────► weatherProvider     getUserFavorites ─► favorite_roads/saved_routes│
  │  searchAlongRoute/searchNearby ─► placesProvider     webSearch ─► web                      │
- │  enrichRoute ─────────► low-tier labeling (pi-ai, unchanged)                               │
+ │  enrichRoute ─────────► low-tier labeling (Mastra model layer)                             │
  │         │ reply + cards (≤3 options — deterministic cap at assembly)                       │
  │         ▼ persist: session_messages (+promptVersion/model/tier/traceId)                    │
  │         └────► TELEMETRY: Observability → OTLP exporter ───────────────────────────────────┼─► LangSmith
