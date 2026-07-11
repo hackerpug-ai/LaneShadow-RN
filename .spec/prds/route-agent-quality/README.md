@@ -1,6 +1,6 @@
 ---
 title: Route & Agent Quality — Real Roads, Honest Assistant
-version: 2.0.0
+version: 3.0.0
 scope_posture: full
 pr_sequencing: false
 ---
@@ -26,11 +26,11 @@ surface that lets the founder feel them. Ships **before** the enrichment R-leg.
 
 | Field | Value |
 |-------|-------|
-| Version | 2.0.0 |
+| Version | 3.0.0 |
 | Scope Posture | Full feature (default) |
 | PR Sequencing | Disabled |
 | Created | 2026-07-10 |
-| Last Updated | 2026-07-10 |
+| Last Updated | 2026-07-11 |
 | Predecessors | `.spec/prds/catalog-geometry-recovery/` (superseded), `.spec/prds/curation-hardening/` (score/dedup context) |
 | Sequenced before | `.spec/prds/enrichment/` (R-leg generates only over plottable routes) |
 
@@ -46,7 +46,7 @@ surface that lets the founder feel them. Ships **before** the enrichment R-leg.
 | [05-uc-rec.md](./05-uc-rec.md) | UC-REC-01 … UC-REC-05 (Geometry Recovery) | FEATURE_SPEC |
 | [06-uc-ver.md](./06-uc-ver.md) | UC-VER-01 … UC-VER-05 (Verification & Review) | FEATURE_SPEC |
 | [07-uc-surf.md](./07-uc-surf.md) | UC-SURF-01 … UC-SURF-06 (Rider-Ready Surface) | FEATURE_SPEC |
-| [08-uc-agt.md](./08-uc-agt.md) | UC-AGT-01 … UC-AGT-05 (Agent Quality) | FEATURE_SPEC |
+| [08-uc-agt.md](./08-uc-agt.md) | UC-AGT-01 … UC-AGT-06 (Agent Quality) | FEATURE_SPEC |
 | [09-team-contributions.md](./09-team-contributions.md) | Phase contributions | - |
 | [10-technical-requirements/](./10-technical-requirements/README.md) | Technical specifications — folder; see its README Section Index (incl. 10-routing.md: route map + Route Delta; 11-e2e-testing.md: harness constitution) | CONSTITUTION |
 | [11-e2e-testing-criteria.md](./11-e2e-testing-criteria.md) | Per-UC test criteria with type tags, AC refs, setup, pass/fail — sprint gates draw [human-gate] criteria from here | TEST_SPEC |
@@ -56,9 +56,9 @@ surface that lets the founder feel them. Ships **before** the enrichment R-leg.
 | Metric | Value |
 |--------|-------|
 | Functional Groups | 5 (HYG, REC, VER, SURF, AGT) |
-| Use Cases | 25 |
-| Acceptance Criteria | 131 |
-| Test Criteria | 82 (60 integration, 12 e2e, 6 human-gate, 5 api-contract, 2 build-gate; dual-typed rows noted in-file) |
+| Use Cases | 26 |
+| Acceptance Criteria | 139 |
+| Test Criteria | 89 (66 integration, 13 e2e, 6 human-gate, 5 api-contract, 2 build-gate; dual-typed rows noted in-file) |
 | System Components | 24 (route pipeline 18 + agent layer 6) |
 | Data Entities | 2 modified tables + 2 new indexes; Mastra memory rides the existing session store |
 | Capability Chains | 8 (CAP-GEO-01…06, CAP-AGT-01…02) |
@@ -72,6 +72,7 @@ surface that lets the founder feel them. Ships **before** the enrichment R-leg.
 |---------|------|---------|---------|
 | 1.0.0 | 2026-07-10 | Initial PRD as "Geometry Completion" (HYG/REC/VER/SURF, 20 UCs) | Ratified geometry-completion strategy (post-audit brainstorm + real-service PoC) |
 | 2.0.0 | 2026-07-10 | Renamed to "Route & Agent Quality"; added AGT group (5 UCs: Mastra rebuild, location-grounded discovery, interrogation, honesty, evals+observability); scope + TR + criteria + scenarios extended | Founder agent-failure diagnosis (live SLC/Ogden transcripts) + ratified rebuild decisions |
+| 3.0.0 | 2026-07-11 | Persona pass (`.spec/USER-PROFILES.md`): UC-AGT-02 → location AND intent grounding (+duration translation, +waypoint-anchored stops); UC-AGT-04 +volunteered weather verdicts; UC-AGT-01 +personal-library awareness; NEW UC-AGT-06 "Shape replies to the rider" (≤3-option default w/ depth on request, honest comfort labels, persistent constraints, shareable close). 26 UCs / 139 ACs / 89 criteria. Cross-session growth memory stays DEFERRED. | Persona alignment ("what could our users need from our agent?") |
 
 ## Next Steps
 

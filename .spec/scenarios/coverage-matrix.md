@@ -3,7 +3,7 @@
 Per-PRD blocks; every UC must map to ≥1 journey or scenario, or appear in the gap report.
 Format per `e2e-testing-rules` + `brain/docs/kanban/holdout-scenarios.md`.
 
-## Route & Agent Quality (`.spec/prds/route-agent-quality/`, v2.0.0, 2026-07-10 — v1.0.0 was "Geometry Completion")
+## Route & Agent Quality (`.spec/prds/route-agent-quality/`, v3.0.0, 2026-07-11 — v1.0.0 was "Geometry Completion")
 
 Journeys: `geo-rescue-waterfall-to-rider-ready` (J-GEO-1) ·
 `geo-fail-closed-review-to-absence` (J-GEO-2) · `geo-rider-previews-recovered-route` (J-GEO-3)
@@ -37,11 +37,12 @@ Journeys: `geo-rescue-waterfall-to-rider-ready` (J-GEO-1) ·
 | UC-AGT-03 | J-AGT-1 | core + edge + holdout | visible+holdout | ✅ covered |
 | UC-AGT-04 | J-AGT-1 | core + edge + holdout | visible+holdout | ✅ covered |
 | UC-AGT-05 | J-AGT-1 | core + edge + holdout | visible+holdout | ✅ covered |
+| UC-AGT-06 | — | core + edge + holdout | visible+holdout | ✅ covered (scenario-only; reply-shaping policies graded per-turn, no cross-UC arc needed) |
 
 ### Gap report (Route & Agent Quality)
 
-- **No uncovered UCs.** 25/25 UCs carry a visible core scenario + ≥2 differently-framed
-  holdouts; 19/25 additionally ride a cross-UC journey.
+- **No uncovered UCs.** 26/26 UCs carry a visible core scenario + ≥2 differently-framed
+  holdouts; 19/26 additionally ride a cross-UC journey.
 - UC-SURF-02/04 are double-anchored (geometry journeys + J-AGT-1) — intentional: they are
   the seam where the two halves meet.
 - Scenario-only UCs (HYG-01/03/04, REC-01, REC-05, VER-03) are deterministic single-surface

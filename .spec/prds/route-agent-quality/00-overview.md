@@ -1,7 +1,7 @@
 ---
 stability: PRODUCT_CONTEXT
-last_validated: 2026-07-10
-prd_version: 2.0.0
+last_validated: 2026-07-11
+prd_version: 3.0.0
 ---
 
 # Route & Agent Quality — Real Roads, Honest Assistant
@@ -64,11 +64,13 @@ the rider.
    deleted; honest thin-region absence with labeled fallback; provenance captions; saved
    routes never hidden.
 5. **Rebuild the agent** (AGT): Mastra smart-loop conversation layer on a Sonnet-class
-   `orchestrator` tier; regex intent routing deleted; discovery always location-grounded
-   (geocode "Ogden" like the router already geocodes endpoints); one clarifying question
-   when ambiguous; honest distances and thin-data candor with a custom-route fallback;
-   in-session memory; the real failed transcripts as the regression eval suite with traces
-   wired to LangSmith.
+   `orchestrator` tier; regex intent routing deleted; discovery grounded in location AND
+   intent (geocode "Ogden", translate "2–3 hours", anchor on a real BBQ stop); one
+   clarifying question when ambiguous; honest distances, thin-data candor, and volunteered
+   weather verdicts with a custom-route fallback; in-session memory + personal-library
+   awareness; persona-fit replies (`.spec/USER-PROFILES.md` — simple for Mike, deep for
+   Terry, honest comfort labels for Rachel, shareable close for Sam); the real failed
+   transcripts as the regression eval suite with traces wired to LangSmith.
 
 **FOUNDER-BAR anchoring:** Route Quality is the Trust wave's T1 ("100% of suggested routes
 plottable") and T2 ("flawless top-50"); Agent Quality is what lets the founder *feel* T1/T2

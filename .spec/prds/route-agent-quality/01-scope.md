@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
 last_validated: 2026-07-10
-prd_version: 2.0.0
+prd_version: 3.0.0
 scope_posture: full
 ---
 
@@ -94,6 +94,19 @@ Scope Posture: **Full feature** (default — complete, polished initiative).
   real-API smoke lane; per-turn traces wired to LangSmith. *Testable: replaying the Ogden
   transcript fails the eval if any suggestion exceeds the radius unlabeled; a trace exists
   per conversation turn.*
+- **Intent-grounded discovery beyond location** (persona pass, `.spec/USER-PROFILES.md`):
+  duration-expressed requests ("a 2–3 hour loop") translate to distance windows;
+  waypoint-anchored requests ("a loop with a good BBQ stop halfway") compose route search
+  with real waypoint lookup along the route. *Testable: captured tool args reflect the
+  duration constraint; the named stop comes from a real POI result, never invented.*
+- **Volunteered weather verdicts**: any suggestion tied to a stated ride date/time carries a
+  go/no-go from real forecast data. *Testable: a "Saturday morning" request's reply contains
+  a forecast-grounded verdict without the rider asking.*
+- **Persona-fit reply shaping**: ≤3 best options by default with depth on request; honest
+  comfort labels grounded in stored difficulty evidence; stated constraints persist for the
+  session; suggestions close with the saveable/shareable next step; "something new" excludes
+  the rider's saved library. *Testable: replay graders assert option count, label honesty
+  against technical scores, constraint persistence across turns, and share-close presence.*
 
 ## Out of Scope
 

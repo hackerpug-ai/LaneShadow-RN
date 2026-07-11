@@ -51,7 +51,8 @@ artifacts — deliberately NOT app routes, mirroring the enrichment trust-bounda
 - UC-SURF-05 → Curated Route Detail / `provenance-caption`
 - UC-SURF-06 → Curated Route Detail / `geometry-absent` + Saved Route Detail redirect
 - UC-AGT-03 → Route Plan View (HOME) / `clarifying-question` (a chat-content state)
-- UC-AGT-04 → Route Plan View (HOME) / `grounded-results` (distance-bearing chat replies + thin-coverage candor)
+- UC-AGT-04 → Route Plan View (HOME) / `grounded-results` (distance-bearing chat replies + thin-coverage candor + volunteered weather verdicts)
+- UC-AGT-06 → Route Plan View (HOME) / `grounded-results` (≤3-option default, comfort labels, share-close — content shaping of the same chat state; reuses the existing save/share card affordances)
 - UC-AGT-01/02/05 are conversation-engine/operator-facing — no new routes or visual states beyond the chat content itself
 - UC-SURF-01 and all HYG/REC/VER UCs are backend/operator-facing — no app routes (by design)
 
@@ -60,3 +61,9 @@ artifacts — deliberately NOT app routes, mirroring the enrichment trust-bounda
 | Route | NEW/CHANGED/DELETED | Detail | Discriminator rationale |
 |---|---|---|---|
 | Route Plan View (HOME) | **CHANGED** | Chat conversation gains `clarifying-question` and `grounded-results` (distances + thin-coverage candor) content states; rendered through the existing message/card components — no new components, no navigation change | Not a seam — chat message content within the same frame, exactly like the existing suggestion/absence states; the agent rebuild changes what the surface says, not where conversation happens |
+
+## Route Delta — v3.0.0 (persona pass)
+
+| Route | NEW/CHANGED/DELETED | Detail | Discriminator rationale |
+|---|---|---|---|
+| Route Plan View (HOME) | **CHANGED** | `grounded-results` content enriched: volunteered weather verdicts on dated requests, ≤3-option default with depth-on-request, honest comfort labels, waypoint-anchored answers, share-close via existing card actions | Not a seam — reply-content shaping of the existing chat state; zero new components or navigation |

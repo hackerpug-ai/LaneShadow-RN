@@ -1,12 +1,12 @@
 ---
 stability: TEST_SPEC
-last_validated: 2026-07-10
-prd_version: 2.0.0
+last_validated: 2026-07-11
+prd_version: 3.0.0
 ---
 
 # E2E / Human Testing Criteria — Route & Agent Quality
 
-Version 2.0.0 · 2026-07-10 · **82 criteria across 25 UCs** — every AC referenced by ≥1
+Version 3.0.0 · 2026-07-11 · **89 criteria across 26 UCs** — every AC referenced by ≥1
 criterion. Types: [human-gate] · [e2e-automated] (Maestro, iOS sim, live dev deployment) ·
 [integration-test] (vitest vs real dev deployment; pipeline tier hits REAL Google + LLM APIs;
 agent tier includes fixtured-seam transcript replay) · [api-contract] · [build-gate]. AC refs
@@ -198,14 +198,17 @@ are positional within each UC (AC-1 = first ☐).
 | T-AGT-003 | Deterministic routing pipeline preserved as tools | AC-3 | [integration-test] | "Slc to park city" through the rebuilt agent on dev | A compiled route with real polyline persists, matching the pre-rebuild behavior; the pipeline ran via tool calls |
 | T-AGT-004 | In-session memory carries context across turns | AC-5 | [integration-test] | Turn 1 establishes SLC context; turn 2 = "OK what's scenic" | Turn 2's `searchCuratedRoutes` call carries a center within ~25 mi of SLC, proven from captured tool args |
 | T-AGT-005 | Guarantees are code, not prompt | AC-6 | [integration-test] | Malformed tool args injected at the seam; budget/rate paths exercised | Validator rejects the call before any side effect; budget/rate enforcement fires from code paths; rider-ready gate identical to browse's |
+| T-AGT-016 | Personal-library awareness: "something new" and "which of my saved fits" | AC-7 | [integration-test] | Seed 3 saved routes for the test rider on dev; ask "something new near SLC" then "which of my saved rides fits 3 hours tomorrow" | First reply's suggestions exclude all 3 saved routeIds (captured tool results vs reply); second reply names only saved routes, grounded in `getUserFavorites` output |
 
-### UC-AGT-02: Ground discovery in the rider's location
+### UC-AGT-02: Ground discovery in the rider's location and intent
 
 | # | Criterion | AC Ref | Type | Setup | Pass/Fail |
 |---|---|---|---|---|---|
 | T-AGT-006 | Center always resolved; tool refuses ungrounded calls | AC-1, AC-3 | [integration-test] | Session-location case + "near Ogden" (no session location) case; `searchCuratedRoutes` called without center as negative control | Both cases produce a real center (session coords / geocoded Ogden ≈41.22,-111.97); the center-less call throws; geocoding uses the shared provider (no hardcoded list) |
 | T-AGT-007 | "Near Ogden" returns within-radius, nearest-first | AC-2 | [integration-test] | Seeded rider-ready routes at 10/40/170 mi from Ogden on dev | Result contains the 10- and 40-mi routes ordered nearest-first; the 170-mi route (Capitol Reef class) is absent |
 | T-AGT-008 | No silent widening; far routes never "near" | AC-4, AC-5 | [integration-test] | Thin-radius region; replay grader over the reply | Any widened search is explicitly labeled in the reply; no suggestion beyond the stated radius appears without its distance; grader passes |
+| T-AGT-017 | Duration-expressed requests translate to distance windows | AC-6 | [integration-test] | "Find me a 2–3 hour loop" with known session location; capture `searchCuratedRoutes` args | Captured args carry a distance window consistent with a recreational-pace translation of 2–3 h (not the default radius, not ignored); returned suggestions fall inside it |
+| T-AGT-018 | Waypoint-anchored composition from real POI data | AC-7 | [integration-test] | Seeded BBQ POI near a rider-ready loop's midpoint on dev; "loop with a good BBQ spot at the halfway point" | Reply's named stop matches a real waypoint tool result (`searchAlongRoute`/`searchNearby`) tied to the suggested route; grader fails any stop name absent from tool results |
 
 ### UC-AGT-03: Interrogate when intent is ambiguous
 
@@ -220,6 +223,7 @@ are positional within each UC (AC-1 = first ☐).
 |---|---|---|---|---|---|
 | T-AGT-011 | Distances visible; thin coverage stated with alternative + custom offer | AC-1, AC-3, AC-4 | [e2e-automated] | Maestro: chat discovery in a seeded thin region (Ogden-like) on the sim, live dev deployment | Every suggested route's reply text/card carries its real distance; thin reply names the searched radius + nearest option with distance + offers a custom route |
 | T-AGT-012 | No false proximity; claims tool-sourced | AC-2, AC-5 | [integration-test] | Replay grader over discovery replies incl. the Ogden fixture | Zero replies describe a beyond-radius route as "near"; every name/distance/score in prose maps to a tool-result field |
+| T-AGT-019 | Dated suggestions volunteer a weather verdict | AC-6 | [integration-test] | "Saturday morning" ride request; fixtured-seam replay + one real `getRouteWeather` smoke case | Reply contains a go/no-go grounded in the weather tool result for the stated window without the rider asking; grader fails a dated reply with no forecast-sourced verdict |
 
 ### UC-AGT-05: Prove and observe agent behavior
 
@@ -229,18 +233,26 @@ are positional within each UC (AC-1 = first ☐).
 | T-AGT-014 | Real-API smoke + per-turn traces inspectable | AC-3, AC-4 | [human-gate] | Founder runs `pnpm agent:eval --smoke` (cost-capped) then opens the LangSmith project | Smoke lane completes on the real orchestrator model against dev; founder locates the per-turn trace (model + tool calls with args, timings, cost) for a conversation |
 | T-AGT-015 | Eval artifacts + negative control | AC-5 | [e2e-automated] | Full eval run + a deliberately-injected false-proximity reply fixture | `agent-evals/report.json` produced and archived; the injected violation FAILS the grader (proves the teeth) |
 
+### UC-AGT-06: Shape replies to the rider
+
+| # | Criterion | AC Ref | Type | Setup | Pass/Fail |
+|---|---|---|---|---|---|
+| T-AGT-020 | Concise default; depth only on request | AC-1 | [integration-test] | Discovery request with 10+ eligible rider-ready routes; then a follow-up "tell me more about the second one" | First reply suggests ≤3 routes with a one-line reason each (grader counts); follow-up reply carries deeper detail sourced from tool results; no unprompted data dumps |
+| T-AGT-021 | Honest comfort labels + persistent constraints | AC-2, AC-3 | [integration-test] | "Beginner-friendly ride, no highways" with seeded routes incl. one high-technical-score road; two follow-up discovery turns | No route with high technical evidence is labeled easy (negative control fails the grader if so); the no-highways constraint shapes tool args/selection on later turns without being restated |
+| T-AGT-022 | Suggestions close with a saveable/shareable next step | AC-4 | [e2e-automated] | Maestro: chat discovery on the sim, live dev deployment | Suggestion reply exposes the save/share affordance; acting on it produces the shareable route link |
+
 ## Summary
 
 | Type | Count |
 |---|---|
-| [integration-test] | 60 |
-| [e2e-automated] | 12 |
+| [integration-test] | 66 |
+| [e2e-automated] | 13 |
 | [human-gate] | 6 |
 | [api-contract] | 5 |
 | [build-gate] | 2 |
-| **Total** | **82 rows** (3 rows carry a second type; type-tags sum to 85) |
+| **Total** | **89 rows** (3 rows carry a second type; type-tags sum to 92) |
 
-AC coverage: 131/131 ACs referenced by ≥1 criterion (positional refs per UC).
+AC coverage: 139/139 ACs referenced by ≥1 criterion (positional refs per UC).
 
 ## Maintenance
 

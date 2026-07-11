@@ -36,6 +36,7 @@ skills should target the specific section they need rather than loading the full
 |---------|------|---------|
 | 1.0.0 | 2026-07-10 | Initial technical requirements (11 sections) as "Geometry Completion". |
 | 2.0.0 | 2026-07-10 | AGT deltas: agent-layer posture (Mastra smart loop, `orchestrator` tier), agent components + tool contracts (`searchCuratedRoutes` center-required, `geocodePlace`), no-new-tables memory note, Mastra/LangSmith dependencies, risks 11–14, CAP-AGT-01/02, chat-content states delta, Mastra spike gate (§5b) + agent eval lane (§5c). |
+| 3.0.0 | 2026-07-11 | Persona pass: routing gains the v3 `grounded-results` content-shaping delta (weather verdicts, ≤3-option default, comfort labels, waypoint answers, share-close) + UC-AGT-06 coverage. Tool surface unchanged — duration/waypoint/library/weather behaviors ride the already-specced tools (`searchCuratedRoutes`, `searchAlongRoute`/`searchNearby`, `getUserFavorites`, `getRouteWeather`). |
 
 ## Parent PRD
 
