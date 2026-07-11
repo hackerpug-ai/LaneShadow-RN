@@ -1,12 +1,12 @@
 ---
 stability: TEST_SPEC
 last_validated: 2026-07-11
-prd_version: 3.1.0
+prd_version: 3.1.1
 ---
 
 # E2E / Human Testing Criteria — Route & Agent Quality
 
-Version 3.1.0 · 2026-07-11 · **94 criteria across 26 UCs** — every AC referenced by ≥1
+Version 3.1.1 · 2026-07-11 · **97 criteria across 26 UCs** — every AC referenced by ≥1
 criterion. Types: [human-gate] · [e2e-automated] (Maestro, iOS sim, live dev deployment) ·
 [integration-test] (vitest vs real dev deployment; pipeline tier hits REAL Google + LLM APIs;
 agent tier includes fixtured-seam transcript replay) · [api-contract] · [build-gate]. AC refs
@@ -18,7 +18,7 @@ are positional within each UC (AC-1 = first ☐).
 
 | # | Criterion | AC Ref | Type | Setup | Pass/Fail |
 |---|---|---|---|---|---|
-| T-HYG-001 | ÷100 pass normalizes all out-of-scale rows at rest | AC-1, AC-2, AC-3 | [integration-test] | Real dev deployment; seed 3 rows with 0–100 scores; run `normalizeEditorialScores` | Changed-count equals seeded out-of-scale count; direct table query returns 0–1 values; `scoreScaleNormalizedAt` stamped |
+| T-HYG-001 | ÷100 pass normalizes all out-of-scale rows at rest; dry-run previews without writing | AC-1, AC-2, AC-3 | [integration-test] | Real dev deployment; seed 3 rows with 0–100 scores; run `normalizeEditorialScores` with `{dryRun:true}` then commit | Dry-run returns a preview change-set and writes **nothing**; the committed run's change-set matches the preview; changed-count equals seeded out-of-scale count; direct table query returns 0–1 values; `scoreScaleNormalizedAt` stamped. (v3.1.1: every hygiene mutation carries `{dryRun?}` — see 04-api-design.) |
 | T-HYG-002 | Second run is a no-op (idempotent) | AC-4 | [integration-test] | Re-run the pass after T-HYG-001 | Changed-count = 0; no score value differs from the first run's output |
 | T-HYG-003 | Catalog-wide invariant: no composite score > 1.0 | AC-5 | [integration-test] | After full pass on dev data | Full-table scan finds zero rows with compositeScore > 1.0 |
 
@@ -82,6 +82,7 @@ are positional within each UC (AC-1 = first ☐).
 | T-REC-012 | Live per-lever/per-state counts + cost telemetry | AC-5, AC-6 | [api-contract] | `backfillReconstruct` report + `coverageReport` during a run | Report exposes per-lever counts and running call/cost counters within the ~$0.07/route envelope |
 | T-REC-017 | Realized-yield acceptance gate: batch not "complete" on low yield | AC-7 | [human-gate] | After a full (or full-sample) batch on real dev data: `coverageReport` per-lever PASS rates + realized rider-ready count vs the expected-yield table | Founder records accept/reject on the realized numbers; a per-lever rate far below its estimate (e.g. reconstruct <40%) surfaces as an escalation, not a silent completion; retirement stays locked until acceptance is recorded |
 | T-REC-018 | **Founder-region coverage gate (the Saturday test)** on the real post-batch catalog | AC-8 | [human-gate] | Cold boot near SLC/Ogden on the REAL, un-seeded catalog after the batch; no fixtures | Founder asks "scenic rides near SLC", gets ≥ threshold rider-ready options with real distances, browses → taps → plots → saves end to end; the previous catalog's near-Ogden failure (3 routes ≤30 mi, 0 plottable) is demonstrably fixed on real data |
+| T-REC-019 | **Batch governance: cost circuit-breaker + rate-limit/backoff** | AC-5, AC-6 | [integration-test] | Driver run with a seeded cost overrun and a seeded provider 429 | `--max-cost=N` halts the batch with `continueCursor` preserved when projected+actual spend crosses N (default ≤ ~1.5× projected); a 429 is exponentially backed-off (honoring `Retry-After`, `--max-parallel` default 1) and retried, never dropped; halt-after-N-consecutive-failures preserves the cursor. Backfill report returns `totalCostUSD`. |
 
 ### UC-REC-05: Retire only after every lever fails
 
@@ -203,7 +204,8 @@ are positional within each UC (AC-1 = first ☐).
 | T-AGT-004 | In-session memory carries context across turns | AC-5 | [integration-test] | Turn 1 establishes SLC context; turn 2 = "OK what's scenic" | Turn 2's `searchCuratedRoutes` call carries a center within ~25 mi of SLC, proven from captured tool args |
 | T-AGT-005 | Guarantees are code, not prompt | AC-6 | [integration-test] | Malformed tool args injected at the seam; budget/rate paths exercised | Validator rejects the call before any side effect; budget/rate enforcement fires from code paths; rider-ready gate identical to browse's |
 | T-AGT-016 | Personal-library awareness: "something new" and "which of my saved fits" | AC-7 | [integration-test] | Seed 3 saved routes for the test rider on dev; ask "something new near SLC" then "which of my saved rides fits 3 hours tomorrow" | First reply's suggestions exclude all 3 saved routeIds (captured tool results vs reply); second reply names only saved routes, grounded in `getUserFavorites` output |
-| T-AGT-023 | **Spike gate (§5b): Mastra reference conversation proven in Convex before the AGT deep build — numeric pass/fail** | AC-1, AC-5 | [human-gate] | A `@mastra/core` agent in a Convex `'use node'` action on the real `orchestrator` tier, `geocodePlace` + `searchCuratedRoutes` registered, answers "twisty roads near Ogden" AND a 2-turn "OK what's scenic" that must inherit the Ogden center | ALL of: cold-start under the recorded ceiling and bundle delta under the agreed MB ceiling (numbers recorded, not vibes); the 2-turn center inheritance works (exercises the memory path, risk #16); ONE visible LangSmith trace whose exported span JSON contains NO api-key substring (redaction, risk #20) and carries `promptVersion`/`sessionId`/`tier`/cost across model + tool spans. Any miss BLOCKS the AGT deep build (risk #11 fallback triggers) |
+| T-AGT-023 | **Spike gate (§5b): Mastra reference conversation proven in Convex before the AGT deep build — numeric pass/fail** | AC-1, AC-5 | [human-gate] | A `@mastra/core` agent in a Convex `'use node'` action on the real `orchestrator` tier, `geocodePlace` + `searchCuratedRoutes` registered, answers "twisty roads near Ogden" AND a 2-turn "OK what's scenic" that must inherit the Ogden center | ALL of: cold-start under the recorded ceiling and bundle delta under the agreed MB ceiling (**values pinned in 11-e2e-testing §5b**, measured on the cloud dev deployment not local `convex dev`); the 2-turn center inheritance works (exercises the memory path, risk #16); ONE visible LangSmith trace whose exported span JSON contains NO api-key substring (redaction grep patterns pinned in §5b, risk #20) and carries `promptVersion`/`sessionId`/`tier`/cost across model + tool spans. Any miss BLOCKS the AGT deep build (risk #11 fallback triggers) |
+| T-AGT-024 | **z.ai custom-provider structured-output proof** — the one non-stock provider in "one model layer" | AC-4 | [integration-test] | Real z.ai GLM-5.2 completion through the custom `createOpenAICompatible` provider (custom baseURL + `thinkingFormat:'zai'`) via the Mastra model layer, requesting an `emit_anchors`/`emit_verdict`-shaped `structuredOutput` schema | Returns a **non-empty parsed `result.object`** matching the schema (proves the model-layer claim for the provider that isn't stock); if `thinkingFormat:'zai'` breaks structured output, the documented text-mode JSON-parse fallback with a typed error is exercised. Gates the enrichment-PRD re-ratification (README Next Steps prerequisite). |
 
 ### UC-AGT-02: Ground discovery in the rider's location and intent
 
@@ -228,7 +230,7 @@ are positional within each UC (AC-1 = first ☐).
 |---|---|---|---|---|---|
 | T-AGT-011 | Distances visible; thin coverage stated with alternative + custom offer | AC-1, AC-3, AC-4 | [e2e-automated] | Maestro: chat discovery in a seeded thin region (Ogden-like) on the sim, live dev deployment | Every suggested route's reply text/card carries its real distance; thin reply names the searched radius + nearest option with distance + offers a custom route |
 | T-AGT-012 | No false proximity; claims tool-sourced | AC-2, AC-5 | [integration-test] | Replay grader over discovery replies incl. the Ogden fixture | Zero replies describe a beyond-radius route as "near"; every name/distance/score in prose maps to a tool-result field |
-| T-AGT-019 | Dated suggestions volunteer a weather verdict | AC-6 | [integration-test] | "Saturday morning" ride request; fixtured-seam replay + one real `getRouteWeather` smoke case | Reply contains a go/no-go grounded in the weather tool result for the stated window without the rider asking; grader fails a dated reply with no forecast-sourced verdict |
+| T-AGT-019 | Dated suggestions volunteer a weather verdict | AC-6 | [integration-test] | A **future-dated** "Saturday morning" ride request; fixtured-seam replay + one real `getRouteWeather` smoke case | Reply contains a go/no-go grounded in the weather tool result **for the future `departureTimeMs` window** (proves the handler was extended past current-only to fetch the `daily`/`hourly` forecast — see 04-api-design) without the rider asking; grader fails a dated reply with no forecast-sourced verdict |
 
 ### UC-AGT-05: Prove and observe agent behavior
 
@@ -237,6 +239,7 @@ are positional within each UC (AC-1 = first ☐).
 | T-AGT-013 | Captured failure session replays deterministically with policy graders | AC-1, AC-2 | [integration-test] | `pnpm agent:eval` on the recorded 2026-07-10 SLC/Ogden transcript; model seam fixtured; tools/queries real vs dev | Replay asserts tool selection + center args + outcome states; the old behavior (ungrounded state-best) fails; the rebuilt behavior passes; any policy violation exits non-zero naming policy + turn |
 | T-AGT-014 | Real-API smoke + per-turn traces inspectable | AC-3, AC-4 | [human-gate] | Founder runs `pnpm agent:eval --smoke` (cost-capped) then opens the LangSmith project | Smoke lane completes on the real orchestrator model against dev; founder locates the per-turn trace (model + tool calls with args, timings, cost) for a conversation |
 | T-AGT-015 | Eval artifacts + negative control | AC-5 | [e2e-automated] | Full eval run + a deliberately-injected false-proximity reply fixture | `agent-evals/report.json` produced and archived; the injected violation FAILS the grader (proves the teeth) |
+| T-AGT-025 | **Eval-gold transcript payload migration** — the founder's real regression fixture must still load | AC-1 | [integration-test] | `scripts/migrate-session-messages-payloads.ts` (pi-ai `Message[]` → AI-SDK `CoreMessage[]`) applied to the captured 2026-07-10 SLC/Ogden fixture + `scripts/agent-evals/fixtures/*.transcript.json` | The migrated SLC/Ogden fixture **loads and replays** under the rebuilt agent (no parse error); a pre-migration pi-ai-shaped fixture fails to load (proves the migration does work, not a no-op). Without this, T-AGT-013 would fail on parse, not behavior — the founder's real regression evidence would be unreadable. |
 
 ### UC-AGT-06: Shape replies to the rider
 
@@ -250,12 +253,12 @@ are positional within each UC (AC-1 = first ☐).
 
 | Type | Count |
 |---|---|
-| [integration-test] | 66 |
+| [integration-test] | 69 |
 | [e2e-automated] | 13 |
 | [human-gate] | 11 |
 | [api-contract] | 5 |
 | [build-gate] | 2 |
-| **Total** | **94 rows** (3 rows carry a second type; type-tags sum to 97) |
+| **Total** | **97 rows** (3 rows carry a second type; type-tags sum to 100) |
 
 AC coverage: 142/142 ACs referenced by ≥1 criterion (positional refs per UC).
 
@@ -263,6 +266,11 @@ AC coverage: 142/142 ACs referenced by ≥1 criterion (positional refs per UC).
 > gate), T-REC-018 (founder-region/Saturday-arc coverage gate), T-VER-020 (top-50-by-rank
 > review), T-AGT-023 (Mastra §5b spike with numeric pass/fail). T-AGT-022 descoped to
 > Save-only. Five new [human-gate] rows (6 → 11).
+> **v3.1.1 additions (execution-strength re-review):** T-AGT-024 (z.ai custom-provider
+> structured-output proof), T-AGT-025 (eval-gold `piMessage`→AI-SDK transcript migration),
+> T-REC-019 (batch cost circuit-breaker + rate-limit/backoff). Strengthened: T-AGT-019
+> (future-dated forecast), T-HYG-001 (dry-run preview). Three new [integration-test] rows
+> (66 → 69).
 
 ## Maintenance
 

@@ -117,7 +117,13 @@ AI-SDK types):
   PRD's ratified z.ai-via-pi-ai lock**
   (`.spec/prds/enrichment/09-technical-requirements/06-external-dependencies.md`) and requires a
   **re-ratification of that PRD's dependency section** (risk #21). Spike-gate the thinking-format
-  mapping with one real completion before the enrichment batch.
+  mapping with one real completion before the enrichment batch. **Structured-output failure path
+  (v3.1.1):** `thinkingFormat:'zai'` reasoning tokens can break `structuredOutput` parsing — the
+  documented fallback is a text-mode JSON parse with a typed error (or the low tier). Criterion
+  **T-AGT-024** requires one real GLM-5.2 completion returning a non-empty parsed `result.object`
+  through this provider before any pipeline-tier task, and it gates the enrichment re-ratification
+  (README Next Steps prerequisite) — "one model layer" is otherwise untested for the single
+  non-stock provider.
 
 ## Cost envelope
 

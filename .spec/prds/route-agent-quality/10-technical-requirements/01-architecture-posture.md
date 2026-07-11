@@ -148,7 +148,10 @@ the scaffolding became the ceiling.
   **injected as the dynamic prompt block** (12-agent-prompting) — never a Mastra storage
   call. This eliminates the adapter that would have had to track `@mastra/core`'s shifting
   1.x memory interface; risk #16 collapses to a `piMessage`→AI-SDK payload translation on the
-  read path. (Repo doctrine unchanged: persistence is deterministic code.)
+  read path. (Repo doctrine unchanged: persistence is deterministic code.) The Agent is
+constructed with **`memory: undefined`** (no adapter); if construction ever fails without a
+memory object, the fallback is the risk-#11 bespoke AI-SDK loop, **not** an `agent_memory`
+adapter — so the `agent_memory`-table escape-hatch is retired (v3.1.1; 03-data-schema).
 - **Behavior policies (prompt-encoded, eval-enforced):** ground every discovery in a
   resolved center; ask exactly one targeted clarifying question when unresolvable; state
   real distances; never claim proximity tool results don't show; offer the custom-route

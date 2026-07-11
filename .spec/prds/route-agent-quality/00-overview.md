@@ -1,7 +1,7 @@
 ---
 stability: PRODUCT_CONTEXT
 last_validated: 2026-07-11
-prd_version: 3.1.0
+prd_version: 3.1.1
 ---
 
 # Route & Agent Quality — Real Roads, Honest Assistant
@@ -85,6 +85,12 @@ catalog failed. T2 is proven by a **top-50-by-rank founder review** (UC-VER-05 A
 the provenance-stratified couch sample. The catalog *size* is a realized outcome the founder
 accepts against a per-lever yield table (UC-REC-04 AC-7), **not a committed number** — the
 earlier "4,300–4,700" projection and the FOUNDER-BAR "≈2.5–3k" line are both figures to observe.
+
+**Scope honesty (v3.1.1):** this PRD delivers **Trust (T1/T2/T3)** plus the agent surface that
+lets the founder *feel* it — it does **not, alone, green the whole Saturday Bar**. The Richness
+(R1/R2), Feel (F1–F3), and Proof (P1–P3) legs are separate initiatives. The "Saturday test" name
+on the founder-region gate (UC-REC-04 AC-8) means "the trust half is real on your phone," not
+"the Bar is met."
 
 > **Grounding:** built from the ratified geometry strategy + real-service PoC
 > (`.spec/proposals/geometry-completion/` — full prod-export audit, reconstruction PASS at

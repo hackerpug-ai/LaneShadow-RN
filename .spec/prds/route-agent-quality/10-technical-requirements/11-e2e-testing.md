@@ -97,6 +97,16 @@ Convex Node runtime (bundling, cold-start), the model-seam fixture point exists 
 telemetry export works. The AGT rebuild is BLOCKED until every deliverable is green (risk #11's
 fallback triggers otherwise). Mirrors criterion T-AGT-023.
 
+**Pinned gate values (v3.1.1 — a numeric gate needs numbers):** cold-start **≤ 8 s** first-token
+latency on the first invocation after `convex deploy` to the **cloud dev deployment** (NOT local
+`convex dev`, which is a warm sandbox); bundle-size delta **≤ 10 MB** measured from the deploy
+artifact (both ceilings are the agreed defaults — the founder may adjust, but a value is pinned so
+the gate can actually block). Redaction grep patterns that MUST NOT appear in any exported span
+JSON: `sk-ant-`, `sk-`, `AIza`, and any `*_API_KEY` env-var value. **Add the z.ai custom-provider
+proof (T-AGT-024) as a §5b/§5c deliverable:** one real GLM-5.2 completion through the custom
+`createOpenAICompatible` provider returning a non-empty parsed `result.object` — "one model layer"
+is otherwise unverified for the one non-stock provider.
+
 ## 5c. Agent eval lane (AGT — deepened v3.0.1)
 
 - **The seam is the model reference.** Because the `orchestrator` tier resolves to a
@@ -119,6 +129,11 @@ fallback triggers otherwise). Mirrors criterion T-AGT-023.
     comfort-label honesty vs stored `technicalScore` — implemented as Mastra
     `createScorer(...)` with a cheap Haiku-class judge; optionally batched via `runEvals`.
     Live production sampling (`scorers` with ratio ~1–5%, async) is deferred/optional.
+    **Grader-type discipline (v3.1.1, L5):** LLM-judge graders are **informational (non-blocking)**
+    — a non-deterministic gate can't reliably block a merge; the blocking lane is deterministic
+    only. Where a prose policy has a structural equivalent, the grader asserts on **tool args, not
+    prose** (false-proximity is already impossible via server-computed `distanceMi` + the
+    max-distance filter, so T-AGT-012 asserts the tool result, not the reply text).
   - *Negative control*: an injected false-proximity transcript must FAIL (proves teeth).
 - **Metrics per run:** policy pass-rate, tool-error rate, turn latency, cost/turn →
   `agent-evals/report.json` (`{ promptVersion, lane, summary{…}, runs[…violation…] }`).

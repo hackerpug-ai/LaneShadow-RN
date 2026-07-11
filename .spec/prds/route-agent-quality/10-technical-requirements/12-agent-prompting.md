@@ -26,7 +26,10 @@ and on every trace span — any reply is traceable to the exact prompt that prod
 ## Change control (ties to 11-e2e-testing §5c)
 
 A prompt edit (new `PROMPT_VERSION`) is **blocked from merge until the fixtured agent-eval
-lane is green** on the SLC/Ogden transcript set. The CI grep-gate that forbids provider
+lane is green** on the SLC/Ogden transcript set **AND a cost-capped real-API `--smoke` pass is
+recorded (v3.1.1, L7)** — the fixtured lane is model-blind (MockLanguageModel replays canned
+turns), so a prompt regression that manifests only on the real Sonnet model would otherwise ship
+green. The CI grep-gate that forbids provider
 literals gains a companion: a diff touching `prompts/orchestrator.v*.ts` must include an
 eval run artifact with zero policy violations. A **tool-schema change is treated as
 prompt-affecting** (risk #19) — same gate. **A tier-map MODEL-ID change (v3.1.0)** is NOT a

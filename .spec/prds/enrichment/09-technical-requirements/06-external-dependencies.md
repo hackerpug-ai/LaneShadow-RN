@@ -14,7 +14,10 @@ prd_version: 1.0.0
 > layer. The GLM-5.2 model, provider, cross-provider QA posture, and cost are UNCHANGED — only
 > the client library changes. **This section must be re-ratified** (its own `/kb-prd-plan
 > --update` + review) before enrichment's sprints; the pi-ai rows below are marked accordingly.
-> Spike-gate the thinking-format mapping with one real completion.
+> Spike-gate the thinking-format mapping with one real completion. **The re-ratification is
+> gated on that proof** — route-agent-quality criterion **T-AGT-024** (a non-empty parsed
+> `result.object` through the custom provider, with a text-mode JSON-parse fallback if
+> `thinkingFormat:'zai'` breaks structured output). Do not re-ratify until it is green.
 
 ## Active in v1
 

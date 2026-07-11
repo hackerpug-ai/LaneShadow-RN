@@ -113,7 +113,10 @@ fields are data-safe (Convex re-validates on push; enrichment precedent). **Geos
 is NOT additive (v3.1.0):** if `riderReady` becomes a geospatial filterKey, the ~5,654-point
 re-insert (`geospatial.insert` per row) is a distinct migration step sequenced **after**
 `recomputeRiderReadyBatch` populates the flag and before the SURF gate goes live on the geography
-modes — not a schema push.
+modes — not a schema push. **Migration gate (v3.1.1, L3):** a single bounded re-insert pass runs
+to completion and **asserts geospatial point-count == rider-ready count** before the SURF-gate
+change deploys, so no read ever serves a half-reindexed geospatial table (nearest-mode is
+load-bearing — `searchCuratedRoutes` wraps it).
 
 ## Agent layer (AGT, v3.0.1) — no new tables; concrete field deltas
 
@@ -156,6 +159,7 @@ by plain Convex mutations and injected as the dynamic prompt block, so there is 
 interface to track and no double-load.
 
 **Eval artifacts stay repo files** (`scripts/agent-evals/fixtures/*.transcript.json`,
-`agent-evals/report.json`) — no database rows. The sanctioned `agent_memory` table remains
-only as an install-time escape if Mastra's storage interface demands per-key KV semantics
-the single `agentMemory` object can't satisfy (risk #16) — not pre-committed.
+`agent-evals/report.json`) — no database rows. The `agent_memory`-table escape-hatch is
+**retired (v3.1.1, L4):** with `@mastra/memory` dropped there is no storage interface to
+satisfy; the Agent is built `memory: undefined`, and if construction ever needs a memory object
+the fallback is the risk-#11 bespoke AI-SDK loop, not an adapter (01-architecture-posture).
