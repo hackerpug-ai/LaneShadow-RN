@@ -97,17 +97,52 @@ the scaffolding became the ceiling.
   (`sendMessage` entry unchanged for the app). No standalone Mastra server; Convex remains
   the only backend and store. Mastra supplies the agent loop, tool registry, memory
   abstraction, and telemetry hooks; the existing `runAgent.ts` ReAct loop, the orchestrator
-  dispatch, its sub-agent meta-tools, and the regex intent path are deleted.
-- **Model:** a new **`orchestrator` tier → Anthropic Sonnet-class** in the tier map.
-  Cost ≈1–3¢ per conversation turn. Budget tiers remain for classifier/summarizer jobs.
+  dispatch, its sub-agent meta-tools, `ridePlanningAgent.ts`, and the regex intent path are
+  deleted.
+- **Module posture — stateless singleton.** One new `convex/actions/agent/rideAgent.ts`
+  constructs a module-level `Mastra` registry + one `Agent('ride-agent')` at load; warm
+  Convex Node sandboxes reuse module scope (proven in-repo by the module-scoped
+  `pendingSketches` map in `agents/routingAgent.ts:79`), so construction is amortized and
+  only a fresh sandbox pays bundle-eval + construction (measured by the §5b spike). **The
+  singleton must be stateless by contract**: no `clerkUserId` / `planningSessionId` /
+  `currentLocation` / message history in module scope — all per-request data flows through
+  `RequestContext` and the per-call messages array (a grep-gate enforces this; risk #17).
+- **Model:** a new **`orchestrator` tier → Anthropic Sonnet-class** in the tier map — but
+  the tier resolver for this tier returns a **Mastra ModelRouter string**
+  (`'anthropic/claude-sonnet-…'`, resolved against the deployment's `ANTHROPIC_API_KEY`),
+  NOT a pi-ai `Model` object, which Mastra cannot consume (risk #15). pi-ai `getAgentModel`
+  stays untouched for the pipeline tiers (geometry / classifier / enrichment). The
+  router-string form also avoids adding an `@ai-sdk/anthropic` dependency; the escape if the
+  router can't resolve the pinned Sonnet id is an explicit AI-SDK model instance, verified
+  by one real completion in the spike. Cost ≈1–3¢ per conversation turn.
+- **Loop bounds + deterministic wrappers:** `maxSteps ≈ 8–12` (single agent with real tools
+  needs far fewer hops than the old dispatch nesting). `BudgetTracker` (gate mode, per-turn
+  cap) accumulates cost in the step-finish hook and aborts on breach via the existing
+  `AGENT_BUDGET_EXCEEDED` path; `LoopDetector` (SHA-of-tool-call, threshold 3) guards at the
+  `createTool.execute` boundary, returning a typed `LOOP_DETECTED` error-as-data. Both stay
+  code, not prompt text.
+- **Processors stance:** NO LLM output-processor for reply-shape — those policies depend on
+  tool-result ground truth. The ≤3-option cap is a deterministic truncation of the
+  options/attachment array at assembly time in the Convex action; false proximity is
+  structurally impossible via server-computed `distanceMi`. Mastra input processors
+  (unicode normalization, injection screen) are a deferred optional layer — authenticated
+  riders are a low injection surface and a per-turn guardrail-model call isn't justified in
+  v1.
 - **Tools (the honest contract):** `searchCuratedRoutes({center, radiusMi, archetypes?,
   text?, limit?})` — rider-ready-only via the SURF gate, returns per-route `distanceMi` from
   center; `geocodePlace(name)` — the same real geocoding capability the routing pipeline
   uses (no hardcoded city lists); the preserved deterministic route pipeline (`planRoute`
   et al.); search/enrichment/weather tools re-registered as-is. Tool argument validation,
   budget tracking, rate limits, and the rider-ready gate stay deterministic code.
-- **Memory:** in-session only — a Mastra memory adapter backed by the existing Convex
-  session tables (`planning_sessions` / `session_messages`); no new storage system.
+- **Memory:** in-session only — `@mastra/memory` with a custom Convex-backed storage
+  adapter (`lib/mastraConvexStore.ts`) mapping Mastra's memory-domain calls onto the
+  existing session tables: thread ops → `planning_sessions` queries, message ops → the
+  existing `sessionMessages` mutations, resource working-memory → the compact
+  `planning_sessions.agentMemory` block (03-data-schema). Conversation scope passes as
+  `{ memory: { thread: planningSessionId, resource: clerkUserId } }` per call. **Durable
+  persistence stays the deterministic path already in `sendMessage.ts`** — the adapter's
+  writes are thin Convex mutations, never agent decisions (repo doctrine: persistence is
+  code). Exact interface method names verified at install (risk #16).
 - **Behavior policies (prompt-encoded, eval-enforced):** ground every discovery in a
   resolved center; ask exactly one targeted clarifying question when unresolvable; state
   real distances; never claim proximity tool results don't show; offer the custom-route
@@ -116,3 +151,27 @@ the scaffolding became the ceiling.
 - **What stays deterministic:** everything that must always happen — persistence, event
   emission, gated reads, cost caps — is code around the loop, never a prompt instruction
   (unchanged from this repo's agent doctrine in `convex/actions/agent/CLAUDE.md`).
+
+## Tools vs prompting — the enforcement ruling (v3.0.1)
+
+The dividing line: **anything that must always hold is a tool/code contract — make the
+wrong thing impossible to express. Prompts own judgment. Evals verify the prompt-borne
+remainder on every agent-touching diff.** Roughly 70% of the AGT behavior bar is carried
+structurally; ~30% is genuinely probabilistic and lives in the prompt, with every such
+policy graded in CI.
+
+| Behavior | Enforcement | Why |
+|---|---|---|
+| Center grounding | **Structural** — `searchCuratedRoutes.center` required | A missing center is unrepresentable; the root-cause bug becomes impossible, not discouraged |
+| Radius honesty | **Structural** (server `distanceMi` + max-distance filter) + eval on prose | Data can't lie; the grader catches prose that mislabels |
+| Duration → distance ("2–3 hr") | **Structural** — tool computes the miles band from hours | The constraint can't be silently dropped |
+| Waypoint composition (BBQ stop) | **Hybrid** — real `searchAlongRoute` (tool) + when-to-compose (prompt) | Businesses must be real; anchoring on a stop is judgment |
+| Weather verdicts | **Hybrid** — real forecast (tool) + volunteer-unasked (prompt, eval-graded) | The number is tool-sourced; the decision to volunteer is prompt-borne |
+| Interrogation (one question) | **Prompt + eval** | Ambiguity judgment + phrasing; "exactly one, only when unresolvable" asserted by graders |
+| ≤3-option default | **Structural** — deterministic truncation of the options array | Unbreakable in code; cheaper than an LLM output processor |
+| Comfort-label honesty | **Hybrid** — evidence structural (`technicalScore`), phrasing LLM-judge-graded | "Easy" is a claim about a number; the judge compares them |
+| Constraint persistence | **Structural memory** (`agentMemory.constraints`) + prompt application | Stored deterministically; applied each turn; eval checks it sticks |
+| Library awareness | **Structural** — real `getUserFavorites` + exclusion set | Answers from real saved rows, not model memory |
+| Share-close | **Prompt + eval** | Formatting/tone; graded present-or-absent |
+| No false proximity | **Structural** + negative-control eval | Belt (data) and suspenders (a planted violation must fail CI) |
+| Claim grounding | **Structural** (tool outputs feed cards) + eval on prose | Any prose fact not traceable to a tool result fails the grader |

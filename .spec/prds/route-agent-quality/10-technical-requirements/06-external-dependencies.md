@@ -66,8 +66,14 @@ prd_version: 1.0.0
   (bundling, no server-only assumptions) — this is the Mastra reference-conversation spike
   gate (11-e2e-testing §5b). Local KB: the `mastra-patterns` skill + mastra
   planner/implementer/reviewer specialists.
-- **Anthropic Sonnet-class via the `orchestrator` tier** — conversation model; ~1–3¢/turn;
-  same pi-ai/tier-map indirection and registry-verification escape as the geometry tier.
+- **Anthropic Sonnet-class via the `orchestrator` tier** — conversation model; ~1–3¢/turn.
+  **Correction (v3.0.1):** this tier lives in the same tier-map FILE (`lib/models.ts`) but
+  returns a **Mastra ModelRouter string** (`'anthropic/claude-sonnet-…'`, resolved against
+  the deployment `ANTHROPIC_API_KEY`) — NOT a pi-ai `Model` object, which Mastra cannot
+  consume. The router-string form avoids adding an `@ai-sdk/anthropic` dependency; the
+  escape if the router can't resolve the pinned id is an explicit AI-SDK model instance,
+  verified with one real completion in the §5b spike. pi-ai's `getAgentModel` continues to
+  serve only the pipeline tiers (geometry / classifier / enrichment).
   Docs: https://docs.anthropic.com/en/docs/about-claude/models.
 - **LangSmith** — trace backend for per-turn agent observability; env already provisioned
   (`LANGSMITH_API_KEY`/`LANGSMITH_PROJECT` on the deployment). Docs:

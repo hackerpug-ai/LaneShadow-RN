@@ -57,3 +57,40 @@ prd_version: 1.0.0
  └────────────────────────────┘           │  (labeled fallback, no fabricated 0mi)  │
                                           └────────────────────────────────────────┘
 ```
+
+## Conversation path (AGT, v3.0.1)
+
+```
+ RN CHAT (Route Plan View)                                EVAL HARNESS (repo, not Convex)
+ ┌───────────────────────────┐                            ┌─────────────────────────────────┐
+ │ chat-input → sendMessage  │                            │ scripts/agent-evals/             │
+ └─────────────┬─────────────┘                            │  fixtures/*.transcript.json      │
+               │ action(sessionId, content, currentLoc)   │  (SLC/Ogden = canonical)         │
+               ▼                                          │  graders: tool-sel · args ·      │
+ CONVEX 'use node' ACTION — sendMessage.ts (ENTRY UNCHANGED)  option-count · distance-echo    │
+ ┌────────────────────────────────────────────────────────┤  + LLM-judge (comfort labels)    │
+ │ DETERMINISTIC WRAP: requireIdentity · persist rider msg │  └── taps the SAME agent with a  │
+ │  · load history · rate/budget checks                    │      MockLanguageModel at the    │
+ │            ▼                                            │      model seam; tools/queries/  │
+ │  getRideAgent().stream({memory:{thread:sessionId,       │      gates run REAL              │
+ │                                 resource:clerkUserId}}) └─────────────────────────────────┤
+ │  ┌────────────── MASTRA (module singleton — STATELESS by contract) ───────────────────┐  │
+ │  │ Agent 'ride-agent'  ·  model ← getOrchestratorModel() [tier map → router string]    │  │
+ │  │ system prompt vN (prompts/orchestrator.v1.ts; dynamic ctx appended per turn)        │  │
+ │  │ budgetTracker(gate) ─wraps─ loop (maxSteps 8–12) ─wraps─ loopDetector(3)            │  │
+ │  │ memory ⇄ lib/mastraConvexStore.ts ⇄ planning_sessions(.agentMemory)/session_messages│  │
+ │  └──────┬──────────────────────────────────────────────────────────────────────────────┘  │
+ │         │ tool registry (createTool: Zod in/out validated; errors-as-data)                 │
+ │         ▼                                                                                  │
+ │  searchCuratedRoutes ─► listCuratedRoutes (SURF gate: riderReady-only; distanceMi server)  │
+ │  geocodePlace ────────► geocodingProvider (Google, session-biased; no gazetteer)           │
+ │  planRoute ───────────► planRideOrchestrator (sketch→compile→weather; custom fallback)     │
+ │  getRouteWeather ─────► weatherProvider     getUserFavorites ─► favorite_roads/saved_routes│
+ │  searchAlongRoute/searchNearby ─► placesProvider     webSearch ─► web                      │
+ │  enrichRoute ─────────► low-tier labeling (pi-ai, unchanged)                               │
+ │         │ reply + cards (≤3 options — deterministic cap at assembly)                       │
+ │         ▼ persist: session_messages (+promptVersion/model/tier/traceId)                    │
+ │         └────► TELEMETRY: Observability → OTLP exporter ───────────────────────────────────┼─► LangSmith
+ └────────────────────────────────────────────────────────────────────────────────────────── ┘   (turn/model/tool spans;
+                                                                                                    promptVersion stamped)
+```

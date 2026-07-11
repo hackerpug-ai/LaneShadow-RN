@@ -1,6 +1,6 @@
 ---
 title: Route & Agent Quality — Real Roads, Honest Assistant
-version: 3.0.0
+version: 3.0.1
 scope_posture: full
 pr_sequencing: false
 ---
@@ -26,7 +26,7 @@ surface that lets the founder feel them. Ships **before** the enrichment R-leg.
 
 | Field | Value |
 |-------|-------|
-| Version | 3.0.0 |
+| Version | 3.0.1 |
 | Scope Posture | Full feature (default) |
 | PR Sequencing | Disabled |
 | Created | 2026-07-10 |
@@ -73,6 +73,7 @@ surface that lets the founder feel them. Ships **before** the enrichment R-leg.
 | 1.0.0 | 2026-07-10 | Initial PRD as "Geometry Completion" (HYG/REC/VER/SURF, 20 UCs) | Ratified geometry-completion strategy (post-audit brainstorm + real-service PoC) |
 | 2.0.0 | 2026-07-10 | Renamed to "Route & Agent Quality"; added AGT group (5 UCs: Mastra rebuild, location-grounded discovery, interrogation, honesty, evals+observability); scope + TR + criteria + scenarios extended | Founder agent-failure diagnosis (live SLC/Ogden transcripts) + ratified rebuild decisions |
 | 3.0.0 | 2026-07-11 | Persona pass (`.spec/USER-PROFILES.md`): UC-AGT-02 → location AND intent grounding (+duration translation, +waypoint-anchored stops); UC-AGT-04 +volunteered weather verdicts; UC-AGT-01 +personal-library awareness; NEW UC-AGT-06 "Shape replies to the rider" (≤3-option default w/ depth on request, honest comfort labels, persistent constraints, shareable close). 26 UCs / 139 ACs / 89 criteria. Cross-session growth memory stays DEFERRED. | Persona alignment ("what could our users need from our agent?") |
+| 3.0.1 | 2026-07-11 | TECHNICAL (TR folder only; UCs/ACs/criteria unchanged): agent shape as stateless module singleton + the tools-vs-prompting enforcement ruling (~70% tool contracts / ~30% eval-verified prompting); full 9-tool contract table (Zod schemas + error taxonomies); `session_messages`/`agentMemory` schema deltas; conversation-path architecture diagram; ModelRouter-string model-ref correction; risks 15–20; eval lane deepened (fixtures, `MockLanguageModel` seam, grader taxonomy, prompt-edit CI gate) + telemetry span spec; NEW TR 12-agent-prompting.md (versioned prompt artifact). | Founder: "thin on technical requirements for the agent work" — mastra-planner deep-dive |
 
 ## Next Steps
 

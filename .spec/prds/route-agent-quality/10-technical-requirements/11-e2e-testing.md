@@ -85,21 +85,49 @@ trace visible in LangSmith. Proves: Mastra runs in the Convex Node runtime (bund
 cold-start), the tool seam fixture point exists for evals, and telemetry export works. The
 AGT rebuild is BLOCKED until this is green (risk #11's fallback triggers if it cannot be).
 
-## 5c. Agent eval lane (AGT)
+## 5c. Agent eval lane (AGT — deepened v3.0.1)
 
-- **Fixtured replay (deterministic):** `pnpm agent:eval` replays recorded transcripts —
-  including the captured 2026-07-10 SLC/Ogden failure session — with the model signal
-  fixtured at the tool-call seam. Tools, queries, and gates run REAL against the dev
-  deployment (principled seam). Graders assert: tool selection, `center` presence + value,
-  radius honesty (no suggestion beyond `searchedRadiusMi` unlabeled), asked-when-ambiguous,
-  distance-stated, no-false-proximity in prose. A violation exits non-zero naming policy +
-  turn.
-- **Real-API smoke (cost-capped, operator-triggered):** `pnpm agent:eval --smoke` runs a
-  small transcript set on the real orchestrator model; SKIP-with-reason on provider outage,
-  never fake success.
-- **Negative control:** a deliberately-injected false-proximity reply must FAIL the grader.
-- **CI placement:** fixtured replay is a blocking lane on agent-touching changes; smoke is
-  the recorded pre-merge evidence artifact, like the geometry smoke lane.
+- **The seam is the model reference.** Because the `orchestrator` tier resolves to a
+  swappable AI-SDK/router model, the harness constructs the SAME Agent with a
+  `MockLanguageModel` that replays a transcript's `modelSignal.assistantTurns` (text +
+  toolCalls) verbatim — while **tools, Convex queries, and gates run REAL against the dev
+  deployment**. This is the sanctioned determinism seam (not mocking `@mastra/core`), and it
+  is always paired with the real-API smoke lane below. Coupling: the tier resolver and this
+  harness must be designed together (08-technical-risks note).
+- **Fixture format** — `scripts/agent-evals/fixtures/*.transcript.json`: ordered turns of
+  `{ riderInput, expected:{ toolCalls:[{name, argAssertions}], optionCountMax, policies[] },
+  modelSignal:{ assistantTurns:[{ text?, toolCalls? }] } }`. The captured 2026-07-10
+  SLC/Ogden session is the canonical fixture.
+- **Grader taxonomy:**
+  - *Deterministic graders* (plain TS assertions — the **blocking** lane): tool-selection,
+    arg-assertions (`center` present + expected value, `radiusMi` in band), option-count
+    (≤3), distance-echo (stated distance = tool `distanceMi`), no-false-proximity,
+    asked-when-ambiguous (exactly one question when no center).
+  - *LLM-judge graders* (where deterministic can't reach): clarifying-question quality,
+    comfort-label honesty vs stored `technicalScore` — implemented as Mastra
+    `createScorer(...)` with a cheap Haiku-class judge; optionally batched via `runEvals`.
+    Live production sampling (`scorers` with ratio ~1–5%, async) is deferred/optional.
+  - *Negative control*: an injected false-proximity transcript must FAIL (proves teeth).
+- **Metrics per run:** policy pass-rate, tool-error rate, turn latency, cost/turn →
+  `agent-evals/report.json` (`{ promptVersion, lane, summary{…}, runs[…violation…] }`).
+- **CI placement:** `pnpm agent:eval` (fixtured) blocks on any diff under
+  `convex/actions/agent/**` or `prompts/**` — including prompt-version bumps and
+  tool-schema changes (12-agent-prompting change control); `pnpm agent:eval --smoke` (real
+  Sonnet + real tools, cost-capped) is operator-triggered pre-merge evidence;
+  SKIP-with-reason on provider outage, never fake success.
+
+## 5d. Telemetry & traces (AGT — net-new wiring)
+
+The existing `lib/tracing.ts` is a **no-op stub** — nothing is traced today. The rebuild
+wires Mastra `Observability` on the module-level instance: an OTLP-over-HTTP exporter →
+LangSmith's OTEL endpoint (`LANGSMITH_API_KEY` + project headers, env already provisioned),
+with `SensitiveDataFilter` as a span-output processor (keys never appear in traces). Spans:
+per-turn root (input/reply sizes, finishReason, total tokens+cost, step count), per-model
+call (model id, tokens, cost, latency), per-tool call (name, arg/result sizes, latency,
+typed error code). Stamped on every span: `promptVersion`, `sessionId`, `clerkUserId`,
+`tier`. The §5b spike's explicit deliverables include ONE VISIBLE TRACE in LangSmith and a
+measured cold-start number — verifying the OTLP ingestion path is part of the gate, since it
+is unverified until install (risk #20).
 
 ## 6. Flake policy
 

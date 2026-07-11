@@ -95,13 +95,36 @@ Push schema + new indexes **before** the first backfill writes `riderReady`; the
 index backfills via the `recomputeRiderReadyBatch` sweep, not at push time. Additive-optional
 fields are data-safe (Convex re-validates on push; enrichment precedent).
 
-## Agent layer (AGT, v2.0.0) — no new tables
+## Agent layer (AGT, v3.0.1) — no new tables; concrete field deltas
 
-The Mastra memory adapter is backed by the **existing** session tables
-(`planning_sessions`, `session_messages`) — in-session working memory (stated preferences,
-resolved locations) serializes into the session rows the app already persists and trims.
-Eval results and transcript fixtures are **repo artifacts** (files under the eval harness),
-not database rows. If the implementer finds Mastra's storage interface needs a dedicated
-key-value shape, the sanctioned design is a small `agent_memory` table keyed by
-`planningSessionId` (additive, optional) — flagged as an implementation decision, not
-pre-committed here.
+**`session_messages`** (`sessionMessageValidator`) — provenance stamping so every reply is
+traceable to the prompt + model + trace that produced it:
+
+```ts
+promptVersion: v.optional(v.string()),  // "orchestrator@v1" — stamped on assistant/system rows
+model: v.optional(v.string()),          // resolved model id from the tier map
+tier: v.optional(v.string()),           // "orchestrator"
+traceId: v.optional(v.string()),        // OTEL/LangSmith trace id — one-click "why did it say that"
+```
+
+**`planning_sessions`** (`planningSessionValidator`) — the working-memory block, co-located
+because a planning session IS the in-session memory thread (1:1; avoids a join; matches the
+scoped in-session lifetime). Read/written by the deterministic memory-adapter methods, never
+by agent decision:
+
+```ts
+agentMemory: v.optional(v.object({
+  constraints: v.array(v.string()),     // persistent, e.g. ["no highways","nothing too technical"]
+  resolvedCenter: v.optional(v.object({ lat: v.number(), lng: v.number(), label: v.string() })),
+  updatedAt: v.number(),
+})),
+```
+
+**`performance`** (the existing `recordAgentRun` path) — extend with `promptVersion` + `tier`
+(it already stores model/agent/tokens/cost) so cost/latency dashboards group by prompt
+version.
+
+**Eval artifacts stay repo files** (`scripts/agent-evals/fixtures/*.transcript.json`,
+`agent-evals/report.json`) — no database rows. The sanctioned `agent_memory` table remains
+only as an install-time escape if Mastra's storage interface demands per-key KV semantics
+the single `agentMemory` object can't satisfy (risk #16) — not pre-committed.

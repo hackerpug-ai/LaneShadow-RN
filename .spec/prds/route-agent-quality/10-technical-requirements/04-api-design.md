@@ -81,23 +81,36 @@ write; public reads stay Clerk-gated.
 candidates, renders Mapbox static PNGs locally → `.tmp/GEO/couch-sample/`, writes manifest;
 no image bytes through Convex).
 
-## Agent tool contracts (AGT, v2.0.0)
+## Agent tool contracts (AGT — full contract, v3.0.1)
 
 The app-facing entry (`actions/agent/sendMessage`) keeps its existing signature — the
-rebuild is behind it. Inside the Mastra agent, tools are typed contracts (Zod/TypeBox
-schemas, validated at the call boundary):
+rebuild is behind it. Every tool is a Mastra `createTool` with real Zod `inputSchema` +
+`outputSchema` (return values runtime-validated — fake-shaped returns are structurally
+dead); `execute(inputData, ctx)` reads the per-request DI bag (`runQuery`/`runMutation`/
+`clerkUserId`/`planningSessionId`/`currentLocation`) from `ctx.requestContext`, never module
+scope. **Errors are returned as typed data** (`{ error: CODE, … }`), never thrown strings —
+the model reasons over the code and reacts (re-ask, widen, fall back).
 
-| Tool | Args → Returns | Contract |
-|---|---|---|
-| `searchCuratedRoutes` | `{center:{lat,lng}, radiusMi (default 50, max 150), archetypes?, text?, limit? (≤20)}` → `{routes:[{routeId,name,distanceMi,archetype,lengthMiles,score,oneLiner}], searchedRadiusMi, totalWithinRadius}` | Rider-ready rows only (SURF gate); `center` REQUIRED — the tool throws without one, making ungrounded discovery structurally impossible; results sorted nearest-first; `distanceMi` computed from `center`, never fabricated. |
-| `geocodePlace` | `{query, biasCenter?}` → `{lat,lng,formatted} \| {notFound:true}` | Same provider as the routing pipeline; regional bias from session location; no hardcoded place list. |
-| `planRoute` (wrapper) | existing routing-pipeline args | The deterministic geocode → sketch → compile pipeline unchanged; the custom-route fallback for thin coverage. |
-| `searchNearby` / `webSearch` / enrichment + weather tools | existing args | Re-registered as-is on the Mastra tool registry. |
+| Tool | Input schema (Zod) | Output schema | Behavior contract | Error taxonomy (as data) | New/Wrapped |
+|---|---|---|---|---|---|
+| **searchCuratedRoutes** | `{ center:{lat,lng} REQUIRED, radiusMi:num.default(50).max(150), archetypes?:string[], text?:string, durationHours?:{min,max}, limit?:num.max(20) }` | `{ routes:[{routeId,name,distanceMi,archetype,lengthMiles,score,oneLiner}], searchedRadiusMi, totalWithinRadius }` | Wraps `listCuratedRoutes` nearest-mode; SURF-gated riderReady-only. `center` required — ungrounded discovery unrepresentable. `distanceMi` server-computed by the geospatial query, never fabricated; nearest-first. `durationHours` → miles band via the repo's speed constant (deterministic). | `NO_CENTER` · `ZERO_RESULTS_IN_RADIUS` (returns `searchedRadiusMi` + `totalWithinRadius:0` → honest absence) · `RATE_LIMITED` · `PROVIDER_DOWN` | **New** (absorbs `executeDiscoverCuratedRoutes`; centroid fallback deleted) |
+| **geocodePlace** | `{ query:string, biasCenter?:{lat,lng} }` | `{ lat,lng,formatted } \| { notFound:true }` | Wraps `providers/geocodingProvider.ts` — the same provider the routing pipeline uses; `biasCenter` feeds the regional bias tier. Deletes the hardcoded gazetteer. | `GEOCODE_MISS` · `GEOCODE_PROVIDER_ERROR` (typed — replaces today's silent `[]`) · `MISSING_KEY` | **New** (wraps existing provider) |
+| **planRoute** | `{ start:{lat,lng,label}, end:{lat,lng,label}, departureTime:number, preferences:{scenicBias,avoidHighways,avoidTolls} }` | `{ routePlanId, options[] } \| { error }` | Wraps `lib/planRideOrchestrator.ts` (waypoints → sketch → compile → weather) unchanged. The custom-route fallback for thin curated coverage. Coordinates required — call `geocodePlace` first. | `NO_ROUTES_GENERATED` (typed, was a throw) · `COMPILE_FAILED` | **Wrapped** |
+| **getRouteWeather** | `{ polyline:{lat,lng}[], departureTimeMs:number }` | `{ status:'ok', segments[], routeWeatherSummary } \| { status:'unavailable' }` | Wraps existing tool (already errors-as-data); ≤5 sample points; deterministic summary. Powers the volunteered go/no-go (UC-AGT-04). | `WEATHER_UNAVAILABLE` | **Wrapped** |
+| **getUserFavorites** | `{ bbox?:{n,s,e,w}, near?:{lat,lng,radiusMi} }` | `{ favorites:[{routeId?,roadName,rating?,rideCount?,lastRidden?,lengthMiles?,technicalScore?,lat,lng}] }` | **Newly wired to the real `favorite_roads`/`saved_routes` tables** (the current handler is a pure fn needing a caller-supplied list). Powers "which of my saved fits" + the "something new" exclusion set — answers grounded in real rows. | `{favorites:[]}` (honest empty) | **Wrapped + newly wired to a Convex query** |
+| **searchAlongRoute** | `{ routePolyline:string, query:string, originOffset?:number }` | `PlaceResult[] \| { error:'PLACES_API_ERROR' }` | Wraps existing Google Places tool. Composes "BBQ at the halfway point" from REAL waypoint lookup; `originOffset` biases N-hours-in via speed interpolation. Never invents businesses. | `PLACES_API_ERROR` | **Wrapped** |
+| **searchNearby** | `{ query:string, location:{lat,lng} REQUIRED, radiusMeters?:num.max(50000) }` | `PlaceResult[] \| { status:'error', reason }` | Wraps existing tool; `location` required — POI queries structurally grounded too. | `PLACES_API_ERROR` | **Wrapped** |
+| **webSearch** | `{ query:string, maxResults?:num.default(3) }` | `{ hits:WebSearchHit[] } \| { error:'WEB_SEARCH_ERROR' }` | Wraps existing tool; real-time facts (closures). Typed error replaces today's silent `[]` so the agent can say "couldn't check" honestly. | `WEB_SEARCH_ERROR` | **Wrapped** |
+| **enrichRoute** | `{ routes:[{waypoints,legContext?,stats,preferences?,existingLegLabels?}] }` | `{ enrichments:[{label,rationale,highlights,legLabels}] }` | Wraps existing forced-tool-call labeling (low tier); never throws — degrades to generic labels. Route-analysis cluster (`getCurvature`/`getElevation`/`checkSurface`/`lookupRoad`) — confirm top-level vs internal registration at wrap time. | `ENRICH_FALLBACK` (non-fatal) | **Wrapped** |
 
-**Behavior-policy enforcement points:** `searchCuratedRoutes` requiring `center` enforces
-grounding structurally; distance-honesty and interrogation are prompt policies graded by the
-eval harness (see 11-e2e-testing §5b); the reply renderer keeps existing attachments/cards
-contracts so RN surfaces need no changes beyond SURF's.
+**Contracts that structurally enforce AGT behavior (make the wrong thing impossible):**
+`center` required kills ungrounded discovery (the root-cause bug); server-computed
+`distanceMi` + the max-nearest-distance filter kill false proximity; riderReady-only gating
+makes the unvetted firehose unreachable; the in-tool `durationHours→miles` translation makes
+time constraints undroppable; `location`/`routePolyline` requirements anchor every POI and
+waypoint answer to real geometry. The ≤3-option default is enforced as a deterministic
+truncation of the options/attachment array at assembly time — not a prompt hope. Full
+enforcement ruling: 01-architecture-posture "Tools vs prompting".
 
 **Eval harness surfaces (repo, not Convex):** `pnpm agent:eval` replays
 `scripts/agent-evals/fixtures/*.transcript.json` (incl. the captured 2026-07-10 SLC/Ogden
