@@ -1,0 +1,81 @@
+{
+  "routeId": "motorcycleroads:twist-of-tepusquet-loop",
+  "name": "Twist of Tepusquet Loop",
+  "state": "California",
+  "claimedMiles": 41,
+  "routedMiles": 41.07,
+  "ratio": 1.002,
+  "verdict": "PASS",
+  "attempts": 1,
+  "anchors": [
+    {
+      "query": "US-101 & Betteravia Rd, Santa Maria, CA",
+      "why": "Start point, exit onto Betteravia Rd heading east"
+    },
+    {
+      "query": "Betteravia Rd & Foxen Canyon Rd, Santa Maria, CA",
+      "why": "Betteravia Rd transitions into Foxen Canyon Rd"
+    },
+    {
+      "query": "Foxen Canyon Rd & Santa Maria Mesa Rd, Santa Maria, CA",
+      "why": "Foxen Canyon Rd becomes Santa Maria Mesa Rd"
+    },
+    {
+      "query": "Santa Maria Mesa Rd & Tepusquet Canyon Rd, Santa Maria, CA",
+      "why": "Santa Maria Mesa Rd merges into Tepusquet Canyon Rd"
+    },
+    {
+      "query": "Tepusquet Canyon Rd & Highway 166, Santa Maria, CA",
+      "why": "Northern terminus of Tepusquet Canyon Rd at the mountain top, meeting Highway 166"
+    },
+    {
+      "query": "Highway 166 & US-101, Santa Maria, CA",
+      "why": "Highway 166 heads west back to US-101"
+    },
+    {
+      "query": "US-101 & Betteravia Rd, Santa Maria, CA",
+      "why": "Loop closes back to starting point on US-101"
+    }
+  ],
+  "geocoded": [
+    {
+      "lat": 34.9208806,
+      "lng": -120.4359049,
+      "formatted": "101 Betteravia Rd, Santa Maria, CA 93454, USA"
+    },
+    {
+      "lat": 34.9234172,
+      "lng": -120.3740285,
+      "formatted": "Betteravia Rd & Foxen Canyon Rd, California 93454, USA"
+    },
+    {
+      "lat": 34.8961601,
+      "lng": -120.3151176,
+      "formatted": "Foxen Canyon Rd & Santa Maria Mesa Rd, California 93454, USA"
+    },
+    {
+      "lat": 34.8664198,
+      "lng": -120.2514142,
+      "formatted": "Santa Maria Mesa Rd & Tepusquet Rd, California 93454, USA"
+    },
+    {
+      "lat": 34.9735743,
+      "lng": -120.426764,
+      "formatted": "CA-166, Santa Maria, CA, USA"
+    },
+    {
+      "lat": 34.9549971,
+      "lng": -120.4171345,
+      "formatted": "US-101 & CA-166, Santa Maria, CA 93454, USA"
+    },
+    {
+      "lat": 34.9208806,
+      "lng": -120.4359049,
+      "formatted": "101 Betteravia Rd, Santa Maria, CA 93454, USA"
+    }
+  ],
+  "confidence": "medium",
+  "encodedPolyline": "onctEjsa~U?DAf@ZABc@?eACu@Eq@AKEa@Ig@CQMe@Sw@IWMY}@kC]w@cAaCCIUg@}@aCO_@i@yAQe@Oa@]kA]sAc@_COcAK_AOmBG}A?YAcA@]?O@k@BmB@_@AmA?iA@cA?mAAgC?sA@eD@k@?oB?oA@i@@gC?oADmCGk@ES?k@?k@?G?A?a@?G?k@?k@?I?CPUC{@Ao@CGCCGE@iA?e@@yB?q@@e@?m@?MAu@CkAAK?]?KAIEyBIyE?AA_ACiAA_@Au@Ag@AYCqBA_BCwE?eB?o@?sA@y@?eE?i@@qT?sA?uGBsGNm`@?a@@aB?i@?a@Nia@@qCB}AFyN@qCHcQ@U?i@?k@@oD@cC?k@@gD@cC?kCBeH@_D?yE@c@?GDoO?k@@aBDeSDkKDgOBeG@yC?}B@}A?k@@k@?cA?U@oB@yEDqM?aB?E@uA@s@?U@WBk@Fk@Fk@DULo@Jg@La@Vw@Re@Xi@T_@Zc@b@i@^_@f@a@f@]ZQZMHELGRGDCHCLCJCJE\\GXEXCXAh@EjCBJ?rB@rB@vA@~IBfJDlB@dE@fA@j@Ab@Eh@IJA\\Ip@Sx@]r@_@r@e@`@c@Z[RWRYR[Ve@Vi@Vq@La@La@Jg@He@Jw@Jw@Jw@Ly@Fo@F_@B[Dc@@GBW@K@OBa@?g@@cG?W@SByPDyU@mGBgL?aE@cA@]@[B_@@IHi@V{AZkBHi@t@iEJo@Hi@Ji@Hi@x@wEHa@Hi@Hi@TsAVyAv@wEF[PiAJs@BSZwC?AFg@Hi@J}@NkADYDSHYDMPa@PYLUNQPSRQ\\W~@o@TQd@g@JKTWBEPSRQPMPMPINGZKTE`@Ih@KPCHAl@Id@E~BWf@GVCf@GBARELEHCVK@ALG\\Wf@a@TOXO\\OZI\\KLCd@KZGZCb@AhCAB?Z?F?V@ZBd@Hd@JL@JBTB\\AZAPETI`@Q`@SnAm@b@S`@URQx@w@DE`AcA`BaBf@m@f@q@Ve@Ta@Rg@Tm@Nk@HYPy@Da@Fc@F{@Du@?U?k@?k@?K@iK?kA@mB?U@wA?aC?k@?k@@oD?cA?kB@k@GyJCyAEmB?aB@W@a@?CDw@Be@Dc@N}@Ls@Le@Lg@\\iA@C@CNg@t@eCZ}@@CHYRo@\\eAFOL]J]r@sBBGL]@C@Cn@kBBGJ]BGL]jDaKb@qAfA{CPe@r@sBn@kBb@kA@GL_@j@_BFQvA_EFSHSFShBiFbAuCFQDMBEFQL_@Rk@Pe@Pa@Rc@`DcHRc@nAqCRc@nAqCz@kBpFuLRc@pAsCTg@LWBC@EDIFIDGFGbAuAX]jA}A~CiErGyIV_@X_@hA}AxAqBhA}A`CgD`AwAX_@pBwCxCiEhA_BV_@FKNSX_@bE_GvAqBLQtDmFV_@X_@xB_DX_@~@sA`CgDV_@LSdCmDpC_EV_@LQtAmBdBcCdAyAX_@V_@n@aAX_@V]\\i@j@w@V_@h@s@Zg@Va@R]To@FSLq@?KBO?Y?OCs@CSCYEOGa@AGMg@CGK_@Mc@ACQc@ACU]GISUMQGKEEI_@Mi@TJHHFFPR?@HHdApA^h@Xl@h@jAR`@d@j@X^X\\X\\?@`@l@JTP`@Tl@Ph@bA|DPf@BDHNJP?@@?PTDFDDTT@@pBzA^\\@?ZV\\X\\XRP^ZDB`@\\ZX\\V\\XZX\\VjA`Az@p@?@\\T\\VXT`A`@b@HVFf@FT@LAD?b@?x@?bEB`C?lC@b@?b@?b@?fA@b@?j@?bB?b@?jB?SbDIhBEbA?NEfAAX?P?j@Ar@?vB?@Aj@?XEn@If@CLQh@IRUb@_@j@YZQNaAx@a@^Ud@Ul@}AlFK\\M`@AD_BhFs@xBiB`GWv@iBbGm@hB[nASdAEVE^Gn@MbAAFq@bHa@nEGb@IZEJINGDKFK@K@s@@aA?c@?mA?]?c@?c@?y@?yBAc@?sD?c@?wD?kA?OBM@GFKPEVAFAR?jE?j@?j@?pHAzEAj@?j@G|U?t@AHAfLAtKA`A?R?RAnD?d@?J?jAApE@xE@`Bs@Aa@AuAAcBCcA?W@WPOToAxB{B|D}B|Dc@r@e@fASd@ABe@nAu@pBIPCJ_@|@Qd@u@nBGLABQZ}@lAIJCDUVk@t@y@dACDY\\o@v@CDSVEDm@v@EDq@z@ABg@l@OTKPQ^Sl@Qj@K^ABMf@I^Mv@Oz@Gn@Ir@CPAFCPEXG`@I`@ELI\\IVO^CDKTCFCDIPW^UZ[^ONORc@h@Y\\OP[^_CtC_@b@CDs@z@ADYXWXMLEBMJ_@TMHk@VcAh@m@ZMFQL_@RyAz@cB~@]RA@oAp@o@\\uBdA[NC@iBz@y@`@_@REBe@ZYTSP]Vu@n@c@XQLKFKFULc@R]L_@N_ATk@Hc@D_A@eA@[?eA?mB?mC@_D?w@@oC?A?wE@c@?iD@qQBgE@aA@iB?WCWG]KYKWIYM[[y@v@SPa@Tc@RoAl@a@Ra@PUHQD[@]@UCKCMAe@Ke@I[CWAG?[?C?iC@c@@[B[Fe@JMB]J[H]NYNUNg@`@]VMFA@WJIBMDSDC@g@FWBg@F_CVe@Dm@HI@QBi@Ja@HUD[JOFQHQLQLSPQRCDUVKJe@f@UP_An@]VSPQROPMTQXQ`@ELIXEREXOjAK|@Ih@Gf@?@[vCCRKr@QhAGZw@vEWxAUrAIh@Ih@I`@y@vEIh@Kh@Ih@Kn@u@hEIh@[jBWzAIh@AHC^AZA\\AbA?`ECfLAlGExUCxPAR?VAbG?f@C`@ANAJCVAFEb@CZG^Gn@Mx@Kv@Kv@Kv@Id@Kf@M`@M`@Wp@Wh@Wd@SZSXSV[Za@b@s@d@s@^y@\\q@R]HK@i@Hc@Dk@@gAAeEAmBAgJE_JCwAAsBAsBAK?kCCi@DY@YBYD]FKDKBMBIBEBSFMFID[L[Pg@\\g@`@_@^c@h@[b@U^Yh@Sd@Wv@M`@Kf@Mn@ETGj@Gj@Cj@AV?TAr@AtA?D?`BEpMAxEAnB?T?bAAj@?j@A|A?|BAxCCdGEfOEjKEdSA`B?j@EnO?FAb@?xEA~CCdH?jCAbCAfD?j@AbCAnD?j@?h@ATIbQApCGxNC|AApCOha@?`@?h@A`B?`@Ol`@CrG?tG?rAApT?h@?dEAx@?rA?n@?dBBvE@~ABpB@X@f@@t@@^BhA@~@?@HxEDxB@H?J?\\@JBjA@t@?L?l@Ad@?p@AxB?d@AhAKNAj@?FA|@c@HI@E@eBRgAHoAFwBHkA@]RcBAgA?oC?iAAsC?e@?i@?}A?q@AeB@i@?m@?uDCuD?uB?c@A]?i@?gDAqC?iHAmAAgC?qA?aAAaD?w@?u@?Y?yBAa@?[?aB?s@?k@?gAAa@?qBAO?}A?s@AA?aBCC?E?c@AgAC_@AYAG?Q?YAUAM?gACeBEUAG?K?_DGSAwACsBEKA_@Aa@AU?aAC[?{@CI?E?mBGyEKe@AgBEa@AiAA_ACi@Ae@AG?_@A{@?cB@c@B[?k@Bi@BoAFKBS@g@DA?_@DUBa@Dq@Fa@Fy@LO@m@L_@FgARaATwBj@wAb@cAZYJ{@\\c@POFm@VIDy@^YNu@^k@X]Ru@^aAh@eAh@ULYNy@b@C@[Nu@b@q@^e@Tq@^i@Xi@Zg@TUNOHmBbAA?aCnA}@f@s@^uC|AsBfAYN_Bz@_@Rq@\\w@`@e@VqBdA_Af@_@RkAn@sEbC_@REBoAn@oBdAuC|AWLa@Ra@Ti@XsAr@A@gAj@A@w@`@eDfBaAf@a@Tq@\\o@\\OHcB|@_Af@cB|@gAj@IDi@Z}@d@q@\\{@b@UJOHOFMFs@\\OGA?A?KBOD}@VwA`@YHI@E@A?C?C?C?A?A?E?AAC?AAAAAAAACAAAAAACAAACACAC?CAC?E?A?C?E?C@G?G@K@E?C?ETm@BIBIFKFOJKFGDGFEHEJG@?JEJCJCHAH?H?J?H?F@HBHBHBHDB@HDJHLNHJLPRXj@|@BBf@x@|A|BHJ~@tAHONSOcCEi@AO?C?O?O@S@G@G@I@G@EBE@GBE@GDGBEBEBE@CBCRSHGNKPKb@Wj@_@@A@ABUfAk@\\Qr@_@VM\\SfAm@x@c@p@]XQdEyBFEVMNIz@e@rAq@dAi@LGj@_@`B{@fB_ANINIh@Y|CaBJGjAo@TMbAi@BAdAk@PIb@WNIfB}@BAvAw@b@UJEZQ~@i@FCd@Wh@Y~@e@x@c@nDmBxBkAFCjCwANIn@]`Ag@~DwB|BmAjCwAd@UzBmAtAs@XODCRKhAg@j@WpAg@b@Q`@MVI\\Kh@Qn@SlAYp@Qr@O|@Qf@KpB[hBQJCl@Ez@Ij@El@Ev@CZARA@?N?b@A^Ar@AnA?V?J@N?rABR@T?N?@?vADxABb@@r@@v@Bb@@dBDzADjABxBDL?D?|BFfCDpBDZ@T?r@BR@R?J@P@t@@v@Bn@@`@@V?rDHhA@pA@vE@@?T?jB@D?D?V?l@?|@?H?lD?xF@vC@f@?t@@^Nj@DdCR`AHZ?F@D@@@BBDBDDFFBDDF@DDF@BBJDRJr@KPgAl@A@UH]JOBOBY@kADaABC?U@uA@?cA?]?cB?wB?E@e@?k@?k@@gB@}@?k@K?iBDs@@kADK@G?G?I@E@G@E@E@EBE@IDGDGFGFEDCDININGBABABWb@MTGHGHEFEDEDEDKHCBEBEBGDEBGBMDE@UHE?SBQ@C?aBD[@URk@?gAAa@?qBAO?}A?s@AA?aBCC?E?c@AgAC_@AYAG?Q?YAUAM?gACeBEUAG?K?_DGSAwACsBEKA_@Aa@AU?aAC[?{@CI?E?mBGyEKe@AgBEa@AiAA_ACi@Ae@AG?_@A{@?cB@c@B[?k@Bi@BoAFKBS@g@DA?_@DUBa@Dq@Fa@Fy@LO@m@L_@FgARaATwBj@wAb@cAZYJ{@\\c@POFm@VIDy@^YNu@^k@X]Ru@^aAh@eAh@ULYNy@b@C@[Nu@b@OEC?gDrAC@E@E@KBIDI@KBGBG@I@SBSBI?I@K?G@O?O?G?KAKAMAGCKCICICECEACAECGAu@k@GEMIMGKEIAGAA?GAK?M?[@SAArBAT?RAhAAjA?n@?j@AZ?N?j@?fA?n@?nB?~@yD@m@GKEKKCACICKAG?I?G?CDOBGBGFG\\Sr@a@PM@?Ra@x@c@nDmBxBkAFCjCwANIn@]`Ag@~DwB|BmAjCwAd@UzBmAtAs@XODCRKhAg@j@WpAg@b@Q`@MVI\\Kh@Qn@SlAYp@Qr@O|@Qf@KpB[hBQJCl@Ez@Ij@El@Ev@CZARA@?N?b@A^Ar@AnA?V?J@N?rABR@T?N?@?vADxABb@@r@@v@Bb@@dBDzADjABxBDL?D?|BFfCDpBDZ@T?r@BR@R?J@P@t@@v@Bn@@`@@V?rDHhA@pA@vE@@?T?jB@D?D?V?l@?|@?H?lD?xF@vC@f@?t@@Z?j@?z@?t@?nC?|C@t@?v@?l@?|@@~@?t@@v@?N?R?P?P?fE@jA?|B?|@@fG?v@?dG@lE@V?lB?b@R@?^DzAHD?H@J@L@LBNBRD@?D@@?NDd@Pj@Z^Tb@VZN^P\\N?b@Aj@ApA?`AAh@?~A?fCArA?P?\\@vIA~CAjAAdBA\\AL?d@?lA?f@?@@r@?t@@PH`BDt@B^LlAPrAb@~BFXTz@L`@Rl@HV\\bA\\dALZnAbDjAzCXr@dAnCd@pALn@Nz@Fh@FvA?V@j@?B",
+  "points": 2059,
+  "elapsedSec": 13.6
+}

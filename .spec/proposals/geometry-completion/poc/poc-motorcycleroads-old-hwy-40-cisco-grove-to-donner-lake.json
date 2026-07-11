@@ -1,0 +1,72 @@
+{
+  "routeId": "motorcycleroads:old-hwy-40-cisco-grove-to-donner-lake",
+  "name": "Old Hwy 40 Cisco Grove to Donner Lake",
+  "state": "California",
+  "claimedMiles": 16,
+  "routedMiles": 25.88,
+  "ratio": 1.618,
+  "verdict": "REVIEW",
+  "attempts": 2,
+  "anchors": [
+    {
+      "query": "Cisco Grove, CA",
+      "why": "Start point at I-80 Cisco Grove exit"
+    },
+    {
+      "query": "Old Hwy 40 & Hampshire Rocks Rd, Cisco Grove, CA",
+      "why": "Turn onto Old Hwy 40 from overpass"
+    },
+    {
+      "query": "Rainbow Lodge, Soda Springs, CA",
+      "why": "Described stop along Old Hwy 40"
+    },
+    {
+      "query": "Rainbow Bridge, Soda Springs, CA",
+      "why": "Historic bridge landmark just before Donner Lake vista point"
+    },
+    {
+      "query": "Donner Lake Vista Point, Truckee, CA",
+      "why": "Described scenic stop near route end"
+    },
+    {
+      "query": "Donner Lake, Truckee, CA",
+      "why": "End point of route"
+    }
+  ],
+  "geocoded": [
+    {
+      "lat": 39.3099025,
+      "lng": -120.5399297,
+      "formatted": "Cisco Grove, CA 95728, USA"
+    },
+    {
+      "lat": 39.3090344,
+      "lng": -120.5160461,
+      "formatted": "Hampshire Rocks Rd, California, USA"
+    },
+    {
+      "lat": 39.3100377,
+      "lng": -120.509074,
+      "formatted": "50080 Hampshire Rocks Rd, Soda Springs, CA 95728, USA"
+    },
+    {
+      "lat": 39.323489,
+      "lng": -120.379338,
+      "formatted": "Soda Springs, CA 95728, USA"
+    },
+    {
+      "lat": 39.3271067,
+      "lng": -120.3000596,
+      "formatted": "Donner Lake Vista Point, 631 Coyote St, Nevada City, CA 95959, USA"
+    },
+    {
+      "lat": 39.3283869,
+      "lng": -120.2835135,
+      "formatted": "Donner Lake Rd, Truckee, CA 96161, USA"
+    }
+  ],
+  "confidence": "medium",
+  "encodedPolyline": "mu|nFn~u~UzCsBdAs@nBsA^WDELIPOZYf@g@n@_AHMf@gATq@H_@Li@?ANw@PiARyARyAHk@l@aEPiATyAFe@Jq@Jm@D]XgBLgAFk@B]?S@O?G?A@Q?UAWAe@Co@CYAGGq@Ig@QoAAICKEWQmAK_ACOC[Ce@Ao@?a@Bw@Jw@?CLe@BGJUBGBCDIHMR]Ze@RWDGDEbBwB\\e@PYDIBE@CJSBE@CJYFUFO@G@GBIDOF[F[D_@DYDe@Dq@By@@[?QAw@Ag@?UAOAY?CACEk@?AIq@Mq@AKCIGYWcASk@Qi@Se@Yo@g@cAQc@Sa@IKgAcBWYCEIGYYQOKGQMc@W]Q_Ag@OIIEa@SEAUMCAa@QSI[QQGw@a@m@Yg@Uu@]QIOIECEAWOKEOKSMSOYYGGIICE[a@S[[i@Q_@[}@?AEICIMk@AGIa@?AGk@CQC[AYCo@?w@@u@?I@Q@QBSHsAFw@RsC@c@@m@Bw@A}AAc@AKKyB\\GVEDCDC@?@ABAHGDADCBADAHABADoAAKMgBLfB@JEnAC@I@E@C@EBE@IFC@A@A?EBEBWD]FMiAQuAAKQkAAMCKCSCKE_@CKAMG_@G_@Iq@I{@Eu@AwABeA?K@SJiALkA@QB[Fk@@ODu@Bq@?S@K@w@AW?KAMAS?KCa@AKAMASEm@?KAMAKAGI{AEm@Ce@AIAKAKEm@Ei@AQESSYSOc@[E}AAAEm@KyAGk@?AK_BCy@A[?_@AO?AMi@?c@@{@?{@?a@@kB@aA?g@@}F@m@?iB?a@@iC?C@uA?sAAoACeACaAIqAGw@Gy@CUEg@UgCMaBUeCGq@Iy@SeCWoCASSuB?IS{BOyA_@mECWEo@o@kHQiBO_BEi@Go@SeCCQCYKsAG_ACa@Cw@Ae@AOAu@?W?i@@cAFoDDcCBuA@mAD_B@_ABeBDqB@w@?MBkB@Y?UAs@CqAEkAEq@Gw@Is@AEEc@EUG]AIMu@GWKg@ACCKI]AGYmA?ACIMk@WgACIe@uBAAKg@I_@UmAG[AEE_@AEIk@Ky@C[?CAGEg@G{@AWC_@?MCi@Ao@?CAcA?_A@_AB_ABs@D}@HgA@O@MHaAHkALuABa@B_@B[RiC@GJ{ABc@LuADs@NkBNmBL_BX{DDm@JwA@CDk@?ARgCB[@Q@KDe@Dm@B_@B_@B_@B_@@YBa@@k@@g@@]?u@AcCA_@AUAKA]Ci@Cg@CWAWCQGo@K}@K{@Q}AOeAKaAM_AQ{AGg@E]SgBIm@MiAMy@CWKu@Ea@CWCO_@wCCYAQOoAS_B?COqAM}@E_@CWIm@K_AE_@E]EWEa@G_@Gm@Is@EYE_@Iq@Is@OiAKaAGc@Im@Ko@My@UmAUgA[uAMg@K_@_@yAAA_@oAa@wAYaAUy@cAkDe@aBm@wBW_AIYGSGU[iACGOi@Y_AU{@Uw@q@_Co@}Bw@qCQk@Qo@m@wB_@qAoAoEOi@AEi@kBCI]mAAEa@uAk@qB[eAQm@EOW}@GUOg@GSa@yAq@_CSu@Oi@Og@CGq@aCg@eBMk@Mi@Kg@Ie@CSCWGk@Gq@Cg@Ci@Au@?U@Y?S?WBs@Bm@Dk@BQB[BQD[PeAJi@Lg@XkAb@kBb@eBNq@DQBMFS\\{AVcANu@Ls@Jm@L}@Da@Fg@Ba@Fk@Dq@Ba@Bs@@_@@}@@_A?w@A}@CcAGaAGeAGq@Ee@Gg@CQE_@Im@Km@Ik@Ii@M{@UaBGa@U_BOcAWgBGa@M}@Gc@G[Ge@EWOiACOAEE]OcAUaBM}@_@gCQkAe@aDFW?AKuAAQCSAKEg@AICUAK?A?EEa@CQC_@?ACMC]?AAC?CEa@?EAEAKCUAMCSCQAEAMEUI[EQ?CCGCKACAECGACAGEIACAEAAACACCAY[Ji@B[@W?[?OAW?IASASEu@YaFEq@_@gGA_@?MA_@@g@?U@]@]Fq@Hm@PaAj@aCp@_CRu@Le@f@aBNk@DSNi@\\sAZqANi@BMJe@Jc@Hq@Fm@@a@?CBe@?_@?U?WE_ACs@EaAEcAOwDEkACo@?KA[Es@KcDAKGuAAIAe@G}AIiCIeBAe@Ck@AUEyACm@Ak@Aq@@m@?ABcA?MFy@Dg@Dq@Ls@DYJe@Jc@@C@GJa@Ne@Pi@BILSHSL[h@oAf@iAJWBGBG^{@Rc@n@_BDKNY\\y@HQ`@cADIRe@Re@DIRg@FIBIBELSBCDILSJMJO@CHMNSV_@JK?ALQDGBE@CHQHOFOBEBI@GPg@FUFSDYBI@GLi@Je@b@aC@EJk@FY@I@GFYDQDYnAwGDYBI@GJi@Jk@FY@K@Ep@oDd@{BTcAJe@@EHWXu@HUHQR_@@CTe@DKLYHSV}@Li@DOF[BQBYDe@@G?OBW?U@SAi@?UCm@?IAOASAY?G?KC{@?s@B[@Y?A@Q?ABY@Q@M@I@CBOD_@BKFW@C@EBIn@{BH[Lc@@EH[BEBIBITu@Ng@Pi@FOBIBKDMTw@HY@EBIBKDM@EDUBI@E@E@IH_@BM@GP{@Nq@Hc@@EBK@IDO?EH]Lq@h@iC?AHa@@EBK@IBO@ELk@Jk@DSDO@E@KBIDULq@b@uB@E@IBKBM@GJc@@E@KXuAHa@@IBIBO@EHk@BK@IDO?E@AFk@BS?ABO@E@K@IFm@BUDg@?AF}@FiA?EBc@?IB]?E?I@c@@K?E?[?K?[?E@o@?IAY?GAUC_@AUEYE]AG?CEQ?CCGAE?A?AACEKCKCGACAEWi@Uk@GMAEACGMKWGM[}@ESEMAA?CACAA?CEIWm@AGAAAEAAEMCEM[Wg@?AIK?ACC?AAAGKWc@CAg@y@k@s@GGACCCk@o@g@g@OUS[ACCCMUU_@Ue@So@M_@?AOg@AEMo@I_@GYAIIe@AKG]WgBEc@AQAY?G?AAa@?Y@m@JaAD{@Da@Fe@Jg@Li@Vu@BGXu@Pe@H[@CHa@@EDYBQ@IBa@?A@_@?M?M?G?AAU?ECa@?ECWGa@Ki@Kg@Og@CGGQEOAGIQEM[{@GSISKQKMSQ?AMMCCCGCEA?KSQ]?AIUKYCOEO?CIk@G_@AMGe@EQACCIGOAEGMEGEGQUGGQSIIIIQMA?KGECCCQMMIGGCCKQGKAAGWEOCKAKCKAGCQCECOACGS?AK]ACAGCK?GCO?IAMCU?CCa@AGAGEUCMAGAGCS?E?EAE?A@ODO?ABEHQFKBGLQDIDC@CHIJGDADAHCJ@F@D?PJFFBBNT@FTp@HV@FFTNj@BHLb@@DLd@@BBDHRJPJJRJLDP@LANCLEDENORSNYPc@JYRg@H[DSBS@Y?k@Ai@D}@?_@AKE_@IYKU[Y[Qs@O{AU_@CIAe@?W@K@WDYFYBU?QCMGGCQSKQGU?AEa@?e@Fg@JUBINSBCXOXIXCTC@?PCPCJCLGFCFEPWFGNYLY\\{@D[DY@WASCUEWISMQMUMSK[K]Ic@[eASg@OYSWQMWIYA[BEBODOJA?KNSZMXKRMVQROR_@Za@\\s@t@GFUREDIFMHA@SFUBYASCMGOEAAOGGC[GYAG?YAI?IAICOEWYK]EQGUAECME]Oc@U_@c@c@a@Ui@Mc@ECAM?O@S?O@G?g@?i@AQCWCKAMCa@M_@SCCOIAAOSKSKSKa@CYAU?Q?KDa@?CFg@BWBUDY@S@K@]?a@AOCWAY?GEq@Ag@?M?W?K@m@@EA_@AGAK?AIUCEGMMQQKQG?AOASAsA@]CUCEAGCICQIOQMUI]Cc@?I?K@UD{@?GP{CFaA?GPsAHi@Jw@Jw@BKF]Jo@H[HUJSPWV]FEZ]@ADGVWTY@APYTi@Rk@Pk@l@eBDOPg@L]BIDMPg@Pg@Pg@HWFODMHQ@C@CBILS@A@CLQ@CT]TURQV]LM^g@FGJQHQFKLW?AHSFQPg@d@oAVw@JWHQN[NYVe@FKLYHQHSBGL_@HWDQJ[BMLi@@ELc@BMT_A@G@EBKBO@IBS?M?c@AQ?O?KASCQCKCK?AGOIWIQ]m@q@iAIUKSMUCIEIGOCKEIIYESCMACGWCMG]Kw@Ga@SgAMm@M_@c@qAQi@m@eBEKa@iAYy@GQ[}@Wy@GSKYUm@?ECGM]K]M]EOGSGQ?AESAEIYIi@CIKo@EYCSEa@Go@WBc@DOBQ@K@A?GAG?CAMAGAECCAGCECECGGEEEGCGA?CGCG?AACCIACAC?C?CAGAG?GAG?M@Q?C?O@WB[@a@@a@@U@K@a@Bm@?EB[BeABc@@e@@]Bm@Bm@@k@F_BJiC@m@Bm@@]@QBm@@]@O?E?UAU?C?CAEAICICIAECECECEGIEGEECCA?CCECCAGAGCC?C?GAG?G?G@G?GBG@EBCBEBEDEDEDCDCDEHCFEJADEPEVMl@Q|@}@tE?BYrAWlAK\\ETCFIZMb@GTOb@M^Y|@_@|@i@pA[n@EHKPEFUf@c@x@Wh@EFOZEF]p@]r@GLCJGNITCLCJAJAFA@?DANCPAXAb@G`CCl@Ah@?B?DAHALAL?@?FCHAFCJADABGJA@CDEFA@ABC@KH_@TOJMFSJKFSLGBCBC@QHIFC@[Pk@ZUN]PKFMFGBOFGBIBG@K?SAIAGCEAMEKIKIIKKMGMGMEOEQ?ECW?]B_@@EF[LYFKDE@CTW\\_@ZKHEFAH?D@HBHDDFFHBHBHBP@P@L?@?R?b@@FLn@Ap@?d@@^?N@RDp@BZDb@D^BRBLDRFd@FXLf@Tx@Rp@Pb@HRHNFNFLR\\PXPVPVLNLN^b@~@`Af@h@|@~@f@l@d@l@b@t@\\r@\\x@N`@J^HZFTFXJj@Hb@BVFb@D`@@ZD|@@^@T?b@Az@AZA`@?DCVCb@ADC^EXEZE^Kh@Or@Mb@Oh@IXM\\EJYp@QXa@r@A@c@p@A@GHQT_@^[XOLKH]TQJw@f@GBKFSLYPEB_@R_@TUNWNULWNUNWNUNUNWLUNYPULUNEBQJULWPm@^m@^k@\\OJs@b@m@^WLWNUJo@Zo@XYJWJWJYJ]LSHMDa@NYHo@TYJUH[JUJYJSLWLULULYPWRSNSNk@f@URc@b@CDg@h@c@n@W^MNKNW^QXQVe@p@ABW^GJe@n@a@n@QVQVQVc@n@c@p@QVc@p@c@n@SVOVQXQXOVOXO\\MZKVITCFMb@Qn@Mf@Ib@G\\G^G^E^C\\C\\C`@APAh@AhA?d@BfA?NBj@D^?FDh@DT@NBP@DDXLz@@DL~@L|@F^DTBNFb@Nz@@L@?J|@Hp@Dj@@\\Bb@@Z?\\?P?J?BAn@Af@Cj@?DCVATAFEb@?@E\\EVG`@Kd@Qt@A@Sv@Sn@Oj@Uv@Y|@Wx@Oh@I\\K^G\\I`@G^G^E^G`@AN?BA@AJC`@C\\ARAPAPCj@?TEpBEhBIdDIfEGdCCtAErAAv@IfDAj@AR?LA^?ZAf@A~@@d@?d@@v@?D?\\Bf@B`A@`@B^Bh@BVFbAFn@NxADb@NbARpAF`@VnANr@RhAH`@Jf@DRH`@Jf@DTJh@DVDPDTHb@Jd@Jj@DVVpAJj@BFHb@Pz@n@dDXzANz@dAjF|@jEDRT`A@DVvAThAEV?B?@Fb@DVDXD^D^BLD\\BRHd@Fl@@HF`@Hl@L`AJbABT@J@B?FDRNv@X_@^S~@g@`@S^Sd@UOi@AAIWGMo@_BKU?AISGO?A?A[iAEOKc@Qw@Qq@AIMk@AA?AA?SK_@qB[aBKe@I_@SeAMu@Ia@Qw@{@iEES[aBIa@EUQ_AMk@EQEW}@yEMk@Kk@G[e@aCY}AI[u@yDY{AE[G[AMCIAIEUE]EWEe@ACGs@AAIaAAKIcAE{@Em@A[A[Aa@A[AQ?C?MA_@?e@AE?_@?_B?I@o@?A?I@e@DgB?a@@k@?A@k@FeDF}CHoEBeA@_A@a@@]?C?a@@]@g@@_@@[?a@@e@@[?CBe@@]B]De@B[Fe@D[Fa@F]F_@H_@H_@H_@J[DMNk@La@H[J]J]J]J_@Lc@@AFUJ_@H[H[Je@F_@Fa@Fa@@GBYBS@MB[Bg@Bm@@g@?e@?a@?c@A[Aa@C_@Eg@C]Ea@Gc@E]GYG_@G_@G_@Ic@G_@E[Ic@G_@G]G_@E_@G]Ea@Ca@C_@Ca@C_A?M?S?U?Q@]?I@U@a@Ba@Da@D_@Da@D_@H_@BSBKH_@J_@H]JYJ]N_@Zs@NWP]Xe@Zc@FIl@{@RWHMX_@LQFI`@k@RYRYv@gA\\g@b@o@lAcBPWx@gA\\g@DGb@k@TSf@i@TQTSRODARMRMXMTMVKVKp@Uz@Uh@Oh@M`@MfA[jA[XIVGXIVIr@SHCLEVKVKXMXMl@[VMVOl@_@TOVOVOTOTOXQTOTMTOTOl@a@p@a@|@k@VQfAq@n@a@RMl@a@HE^WZWXUd@e@d@g@V]\\g@T]R]N]`@w@JEBA@A@C@CTg@@CXq@Pk@ZcALe@Nm@?ABIBOBMJ_ABMBc@@e@?C?S@Y?o@?m@?IAc@Ag@?AAa@AKCe@AGEm@?AGe@Ie@QKUcBESMi@AEOo@M_@Y}@M]Yq@S_@AAIOUa@]m@W[c@k@e@m@m@s@SUSWG]IMCE]e@CEMSGIOWEGO[EGKWEIIQACEKCIIWCGEOCKGUI_@?AEYEQAGEYCUAOAGAIAUCWASC[?GCUAM?EAIC]?aALGNK^UJIBA@C@ADGBE@AFK@C@EBK@GBI?G?A@M@M@I?E?C@i@Bm@FaC@c@@YBQ@O?E@A@G@KBKBMHUFOBKFM\\s@\\q@DGN[DGVi@b@y@Tg@DGJQDIZo@h@qA",
+  "points": 2690,
+  "elapsedSec": 18.5
+}
