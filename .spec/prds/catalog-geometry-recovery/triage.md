@@ -2,9 +2,18 @@
 stability: FEATURE_SPEC
 last_validated: 2026-07-09
 prd_version: 0.2.0
+status: SUPERSEDED — see ../route-agent-quality/
+superseded_on: 2026-07-11
 ---
 
-# Geometry Triage List (post-recovery)
+# Geometry Triage List (post-recovery) [SUPERSEDED]
+
+> **SUPERSEDED 2026-07-11.** These queues seeded the successor PRD's group sizing and are
+> retained as evidence. Mapping to the live spec (`../route-agent-quality/`): **Queue A**
+> (unresolved) → the REC recovery levers, then reversible retirement (UC-REC/UC-VER) — not
+> the drop gate below; **Queue B** (suspect) → the deterministic verification gate + REVIEW
+> queue (UC-VER); **test/seed rows** → HYG quarantine (UC-HYG). The DESTRUCTIVE drop gate
+> below was replaced by reversible `retired` + founder confirmation.
 
 Generated 2026-07-09 from a fresh `convex export` (`quirky-panther-164`). Full data in
 `.tmp/triage-list.json` + `.tmp/triage-list.md` (regenerable via `.tmp/build-triage.mjs`

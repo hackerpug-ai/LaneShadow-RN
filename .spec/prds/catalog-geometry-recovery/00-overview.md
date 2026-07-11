@@ -2,16 +2,22 @@
 stability: PRODUCT_CONTEXT
 last_validated: 2026-07-08
 prd_version: 0.1.0
-status: investigation-complete / pre-implementation
+status: SUPERSEDED — see ../route-agent-quality/ (was: investigation-complete / pre-implementation)
+superseded_by: ../route-agent-quality/
+superseded_on: 2026-07-11
 deployment_verified: quirky-panther-164 (dev)
 ---
 
-# Catalog Geometry Recovery — Overview
+# Catalog Geometry Recovery — Overview [SUPERSEDED]
 
-> **Compaction-safe status doc.** Captures the verified state of the curated-route
-> catalog, the root cause of the geometry gap, the agreed post-MVP re-sequencing,
-> and the exact next action. All numbers are from a live `npx convex export`
-> (2026-07-08), not estimates. If context is compacted, read this first.
+> **SUPERSEDED 2026-07-11 — do not plan from this doc.** The live spec is
+> [`.spec/prds/route-agent-quality/`](../route-agent-quality/README.md); the delta list
+> (drop→reversible-retire, Nominatim→Google+deterministic gate, AI reconstruction lever,
+> `riderReady` read gate, pi-ai removal) is in this folder's [README](./README.md).
+> Everything below is retained verbatim as **historical evidence**: the verified 2026-07-08
+> audit, root causes, and the completed July recovery run. All numbers were from a live
+> `npx convex export` (2026-07-08), not estimates — accurate then, stale now (the
+> 2026-07-10 re-audit in `.spec/proposals/geometry-completion/` is the current baseline).
 
 ## TL;DR — where we are
 
@@ -172,14 +178,21 @@ real-but-questionable = 2,893 plotting**; 2,864 unresolved.
 - **Spec context:** `prds/mvp/01-scope.md` (MVP assumed "55% geometry" — now 8.6%),
   `prds/mvp/11-post-mvp-opportunities.md`, `PRODUCT-STRATEGY.md`, `WHY.md`.
 
-## Exact next action
+## Exact next action [SUPERSEDED]
 
 ~~Run Tier-1 yield validation~~ — **DONE (2026-07-08).** Result: 16% of unresolved resolves
 on a retried backfill; Tier 1 alone → ~23% coverage. Tier 2 (endpoint-parsing + ref-lookup)
 is required for meaningful coverage; realistic Tier-1+2 ceiling ~40-55%, capped by scraped
-colloquial names. **Awaiting decision on the strategic fork below.**
+colloquial names. ~~Awaiting decision on the strategic fork below.~~ **The fork was decided
+2026-07-10 in `.spec/prds/route-agent-quality/` — the next actions live there, not here.**
 
-## Ratified plan (directive 2026-07-08): recover → triage → drop
+## Ratified plan (directive 2026-07-08): recover → triage → drop [SUPERSEDED 2026-07-11]
+
+> **This plan was re-ratified with material changes** in `route-agent-quality`: **no
+> deletion** — un-recoverable routes get a reversible `retired` status behind founder
+> confirmation, and the "every suggestion plots" guarantee moved to a hard `riderReady`
+> read gate; recovery levers changed (Google-based + AI description-reconstruction, behind
+> a deterministic verification gate; Nominatim retired). Kept for the record:
 
 **Governing principle: a route with no geometry is a broken promise. The final catalog must
 be 100% plottable — every "recommended" road actually maps, by definition.** Centroid-only
