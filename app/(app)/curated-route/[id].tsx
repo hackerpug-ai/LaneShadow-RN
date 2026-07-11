@@ -35,13 +35,13 @@ import { useLocalSearchParams } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { SubpageLayout } from '../../../components/layouts/subpage-layout'
 import { ErrorBoundary } from '../../../components/logging/error-boundary'
 import {
   MapboxMapView,
   type MapboxMapViewHandle,
   type MapboxPolyline,
 } from '../../../components/map'
-import { SubpageLayout } from '../../../components/layouts/subpage-layout'
 import { Badge } from '../../../components/ui/badge'
 import { Button } from '../../../components/ui/button'
 import {
@@ -69,14 +69,18 @@ type WeatherResult = {
 }
 
 // ─── Score-dimension catalog (fixed order; null scores filtered by the section) ─
+//
+// NOTE: `curvatureScore` in the DB is actually `technical_score` from the LLM
+// extraction pipeline (stages.py:908 reuses technical_score for curvatureScore).
+// Showing it as a separate "Curvature" bar was misleading — it duplicated the
+// Technical bar under a false label. Removed until real curvature data exists.
 
 type ScoredDetail = Pick<
   CuratedRouteDetail,
-  'curvatureScore' | 'scenicScore' | 'technicalScore' | 'trafficScore' | 'remotenessScore'
+  'scenicScore' | 'technicalScore' | 'trafficScore' | 'remotenessScore'
 >
 
 const buildScoreDimensions = (detail: ScoredDetail): ScoreDimension[] => [
-  { key: 'curvature', label: 'Curvature', score: detail.curvatureScore },
   { key: 'scenic', label: 'Scenic', score: detail.scenicScore },
   { key: 'technical', label: 'Technical', score: detail.technicalScore },
   { key: 'traffic', label: 'Traffic', score: detail.trafficScore },
@@ -394,8 +398,13 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
             <ScoreDimensionBarSection
               compositeScore={detail.compositeScore}
               dimensions={buildScoreDimensions(detail)}
+              subtitle="Estimated"
+              disclaimer="Scores are AI-generated estimates based on route descriptions — not road measurements."
             />
           </View>
+
+          {/* 3b. Route Facts — real measured data from FHWA / highway datasets */}
+          <RouteFactsSection detail={detail} semantic={semantic} />
 
           {/* 4. Conditions — per-section weather (isolated error, never screen-level) */}
           <View testID="curated-detail-conditions">
@@ -488,6 +497,105 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
   )
 }
 
+// ─── Route Facts: real measured data section ──────────────────────────────────
+
+type RouteFactsDetail = Pick<
+  CuratedRouteDetail,
+  'elevationGainM' | 'surface' | 'aadt' | 'pavementIri'
+>
+
+type Semantic = ReturnType<typeof useSemanticTheme>['semantic']
+
+const formatElevationFt = (m: number): string => {
+  const ft = Math.round(m * 3.28084)
+  return `${ft.toLocaleString('en-US')} ft`
+}
+
+const formatAadt = (aadt: number): string =>
+  `${Math.round(aadt).toLocaleString('en-US')} vehicles/day`
+
+const formatIri = (iri: number): string => {
+  const label = iri < 1.5 ? 'Smooth' : iri < 2.7 ? 'Fair' : 'Rough'
+  return `${iri.toFixed(1)} m/km \u00B7 ${label}`
+}
+
+const titleCaseSurface = (surface: string): string =>
+  surface.length === 0 ? surface : surface.charAt(0).toUpperCase() + surface.slice(1)
+
+type FactRow = { label: string; value: string }
+
+const buildFactRows = (detail: RouteFactsDetail): FactRow[] => {
+  const rows: FactRow[] = []
+  if (typeof detail.elevationGainM === 'number') {
+    rows.push({ label: 'Elevation gain', value: formatElevationFt(detail.elevationGainM) })
+  }
+  if (typeof detail.surface === 'string' && detail.surface.length > 0) {
+    rows.push({ label: 'Surface', value: titleCaseSurface(detail.surface) })
+  }
+  if (typeof detail.aadt === 'number') {
+    rows.push({ label: 'Traffic (AADT)', value: formatAadt(detail.aadt) })
+  }
+  if (typeof detail.pavementIri === 'number') {
+    rows.push({ label: 'Pavement', value: formatIri(detail.pavementIri) })
+  }
+  return rows
+}
+
+const RouteFactsSection = ({
+  detail,
+  semantic,
+}: {
+  detail: RouteFactsDetail
+  semantic: Semantic
+}): React.ReactNode => {
+  const rows = buildFactRows(detail)
+  if (rows.length === 0) return null
+
+  return (
+    <View testID="curated-detail-facts">
+      <Text
+        style={[
+          semantic.type.label.sm,
+          {
+            color: semantic.color.onSurface.subtle,
+            textTransform: 'uppercase',
+            marginBottom: semantic.space.sm,
+          },
+        ]}
+      >
+        Route Facts
+      </Text>
+      <View
+        style={[
+          styles.factsCard,
+          {
+            backgroundColor: semantic.color.surfaceVariant.default,
+            borderRadius: semantic.radius.lg,
+            padding: semantic.space.lg,
+            gap: semantic.space.sm,
+          },
+        ]}
+      >
+        {rows.map((row) => (
+          <View key={row.label} style={[styles.factRow, { gap: semantic.space.md }]}>
+            <Text
+              style={[semantic.type.body.md, { color: semantic.color.onSurface.subtle, flex: 1 }]}
+            >
+              {row.label}
+            </Text>
+            <Text
+              style={[semantic.type.body.md, { color: semantic.color.onSurface.default }]}
+              accessibilityLabel={`${row.label}: ${row.value}`}
+            >
+              {row.value}
+            </Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  )
+}
+
 type FallbackProps = {
   semantic: ReturnType<typeof useSemanticTheme>['semantic']
 }
@@ -519,11 +627,7 @@ const CuratedRouteDetailScreen = () => {
   const { semantic } = useSemanticTheme()
 
   return (
-    <SubpageLayout
-      title="Route Detail"
-      size="compact"
-      testID="curated-route-detail-screen"
-    >
+    <SubpageLayout title="Route Detail" size="compact" testID="curated-route-detail-screen">
       {/* ErrorBoundary: a throwing getCuratedRouteDetail (DATA-006 NOT_FOUND)
           renders the SAME fallback as the explicit null-check — no uncaught
           error reaches the top-level boundary. NOTE: this boundary does NOT
@@ -572,6 +676,12 @@ const styles = StyleSheet.create({
   actionsRow: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  factsCard: {},
+  factRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   actionButton: {
     flex: 1,

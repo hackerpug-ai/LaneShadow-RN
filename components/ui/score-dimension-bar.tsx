@@ -67,6 +67,10 @@ export type ScoreDimensionBarSectionProps = {
   compositeScore: number | null | undefined
   /** Ordered dimensions; rendered in array order. */
   dimensions: ScoreDimension[]
+  /** Small label rendered beside/below the headline (e.g. "Estimated"). */
+  subtitle?: string
+  /** Methodology disclosure rendered below the bars in onSurface.subtle. */
+  disclaimer?: string
 }
 
 // ─── Pure helper (AC-2) ──────────────────────────────────────────────────────
@@ -195,6 +199,8 @@ export const ScoreDimensionBar = ({
 export const ScoreDimensionBarSection = ({
   compositeScore,
   dimensions,
+  subtitle,
+  disclaimer,
 }: ScoreDimensionBarSectionProps): React.ReactNode => {
   const { semantic } = useSemanticTheme()
 
@@ -212,12 +218,40 @@ export const ScoreDimensionBarSection = ({
 
   return (
     <View style={[styles.section, { gap: semantic.space.sm }]}>
-      <CompositeScoreHeadline compositeScore={compositeScore} />
+      <View style={[styles.headlineRow, { gap: semantic.space.sm, alignItems: 'center' }]}>
+        <CompositeScoreHeadline compositeScore={compositeScore} />
+        {subtitle ? (
+          <Text
+            style={[
+              semantic.type.label.sm,
+              {
+                color: semantic.color.onSurface.subtle,
+                fontStyle: 'italic',
+              },
+            ]}
+          >
+            {subtitle}
+          </Text>
+        ) : null}
+      </View>
       <View style={{ gap: semantic.space.md }}>
         {renderableDimensions.map((dim) => (
           <ScoreDimensionBar key={dim.key} dimension={dim} />
         ))}
       </View>
+      {disclaimer ? (
+        <Text
+          style={[
+            semantic.type.body.sm,
+            {
+              color: semantic.color.onSurface.subtle,
+              fontStyle: 'italic',
+            },
+          ]}
+        >
+          {disclaimer}
+        </Text>
+      ) : null}
     </View>
   )
 }
@@ -230,6 +264,10 @@ const LABEL_MIN_WIDTH = 80
 const styles = StyleSheet.create({
   section: {
     width: '100%',
+  },
+  headlineRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   row: {
     flexDirection: 'row',

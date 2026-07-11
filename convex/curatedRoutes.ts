@@ -371,6 +371,11 @@ const routeDetailReturnValidator = v.object({
   sourceLabel: v.optional(v.string()),
   sourceUrl: v.optional(v.string()),
   geometrySource: v.optional(v.string()),
+  // ── Real measured data (from FHWA / highway datasets) ──
+  elevationGainM: v.optional(v.number()),
+  surface: v.optional(v.string()),
+  aadt: v.optional(v.number()),
+  pavementIri: v.optional(v.number()),
 })
 
 function buildRouteDetail(route: Doc<'curated_routes'>) {
@@ -403,6 +408,10 @@ function buildRouteDetail(route: Doc<'curated_routes'>) {
     sourceLabel: route.sourceLabel,
     sourceUrl: route.sourceUrl,
     geometrySource: route.geometrySource,
+    elevationGainM: route.elevationGainM,
+    surface: route.surface,
+    aadt: route.aadt,
+    pavementIri: route.pavementIri,
   }
 }
 

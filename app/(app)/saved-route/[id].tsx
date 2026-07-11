@@ -10,12 +10,12 @@
  */
 
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { Text } from 'react-native-paper'
-import { MapboxMapView } from '../../../components/map'
 import { SubpageLayout } from '../../../components/layouts/subpage-layout'
+import { MapboxMapView, type MapboxMapViewHandle } from '../../../components/map'
 import { OverlayToggle } from '../../../components/map/overlay-toggle'
 import { buildRoutePolylines } from '../../../components/map/route-polyline'
 import { DeleteRouteDialog } from '../../../components/ui/delete-route-dialog'
@@ -106,6 +106,17 @@ const SavedRouteDetailScreen = () => {
     })
   }, [data, isCuratedBookmark, semantic, selectedOverlay])
 
+  // Fit map to route geometry bounds — mirrors the curated-route screen pattern.
+  // Without this, the map renders with no center coordinate and falls back to
+  // a global/world view instead of framing the route polyline.
+  const mapRef = useRef<MapboxMapViewHandle | null>(null)
+  useEffect(() => {
+    if (polylines.length === 0) return
+    const coords = polylines[0].coordinates
+    if (coords.length === 0) return
+    mapRef.current?.fitToCoordinates(coords)
+  }, [polylines])
+
   if (isLoading) {
     return (
       <SubpageLayout title="Route Detail" size="compact" testID="route-detail-loading">
@@ -125,11 +136,7 @@ const SavedRouteDetailScreen = () => {
   // data.routeSnapshot are never accessed for a curated row.
   if (isCuratedBookmark) {
     return (
-      <SubpageLayout
-        title="Route Detail"
-        size="compact"
-        testID="route-detail-curated-redirect"
-      >
+      <SubpageLayout title="Route Detail" size="compact" testID="route-detail-curated-redirect">
         <View style={styles.centered}>
           <ActivityIndicator
             size="large"
@@ -207,7 +214,7 @@ const SavedRouteDetailScreen = () => {
       <View style={styles.root}>
         {/* Map section */}
         <View style={styles.mapSection} accessibilityLabel={`Route map for ${data.name}`}>
-          <MapboxMapView theme={isDark ? 'dark' : 'light'} polylines={polylines} />
+          <MapboxMapView ref={mapRef} theme={isDark ? 'dark' : 'light'} polylines={polylines} />
           {overlayAvailability.wind ||
           overlayAvailability.rain ||
           overlayAvailability.temperature ? (
