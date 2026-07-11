@@ -33,7 +33,7 @@
     "storybook:ios": "EXPO_PUBLIC_STORYBOOK_ENABLED=true expo run:ios",
     "storybook:android": "EXPO_PUBLIC_STORYBOOK_ENABLED=true expo run:android",
     "prepare": "husky",
-    "eas-build-post-install": "npx convex codegen"
+    "eas-build-post-install": "CONVEX_DEPLOYMENT=quirky-panther-164 npx convex codegen"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1026.0",
