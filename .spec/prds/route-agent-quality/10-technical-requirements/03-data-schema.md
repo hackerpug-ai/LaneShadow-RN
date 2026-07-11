@@ -52,6 +52,13 @@ couchVerdict: v.optional(v.object({             // VER couch-sample per-route ve
 })),
 ```
 
+> **`geometryStatus` lives in THREE code sites (v3.1.0):** the shared validator
+> (`shared/models/curated-routes.ts`), the `listCuratedRoutes` return validator
+> (`convex/curatedRoutes.ts`), and `GEOMETRY_STATUS` in `convex/curatedGeometry.ts` (the
+> `patchRouteGeometry` arg validator). Adding `review`/`retired` must touch all three, and the
+> new `persistGeometryVerified`/`setReviewVerdict`/`retireRoute` mutations need their own
+> extended arg validators — `patchRouteGeometry`'s current union cannot write the new values.
+
 ## Deltas to `curated_route_geometry` (verification block on `curatedRouteGeometryValidator`)
 
 ```ts
@@ -86,6 +93,15 @@ anchors: v.optional(v.array(v.object({          // audit + review + repair repla
   the route doc mirrors the verdict. If numeric-audit sweeps want one later, hoist
   `verificationVerdict` top-level and add `by_verification_verdict` — deferred.
 
+- **Geospatial `riderReady` filterKey (v3.1.0, risk #22):** the discovery/browse **bbox +
+  nearest** modes run through the geospatial component (`convex/geospatialIndex.ts`), whose
+  filterKeys are `{state, primaryArchetype}` only — a Convex compound index cannot gate them,
+  and `searchCuratedRoutes` wraps **nearest**. To serve rider-ready-only there, add `riderReady`
+  as a geospatial filterKey (changes the index type param → **re-insert ~5,654 points**, NOT
+  additive) OR post-filter in memory with a raised over-fetch + a documented sparse-region
+  failure mode. This is why `listCuratedRoutes`'s "all modes gated" claim was corrected in
+  04-api-design.
+
 Existing indexes (`by_composite_score`, `by_routeId`, `by_state`, `by_name_lower`,
 `by_highway_number`, vector `by_embedding`) unchanged.
 
@@ -93,7 +109,11 @@ Existing indexes (`by_composite_score`, `by_routeId`, `by_state`, `by_name_lower
 
 Push schema + new indexes **before** the first backfill writes `riderReady`; the composite
 index backfills via the `recomputeRiderReadyBatch` sweep, not at push time. Additive-optional
-fields are data-safe (Convex re-validates on push; enrichment precedent).
+fields are data-safe (Convex re-validates on push; enrichment precedent). **Geospatial re-index
+is NOT additive (v3.1.0):** if `riderReady` becomes a geospatial filterKey, the ~5,654-point
+re-insert (`geospatial.insert` per row) is a distinct migration step sequenced **after**
+`recomputeRiderReadyBatch` populates the flag and before the SURF gate goes live on the geography
+modes — not a schema push.
 
 ## Agent layer (AGT, v3.0.1) — no new tables; concrete field deltas
 
@@ -109,8 +129,8 @@ traceId: v.optional(v.string()),        // OTEL/LangSmith trace id — one-click
 
 **`planning_sessions`** (`planningSessionValidator`) — the working-memory block, co-located
 because a planning session IS the in-session memory thread (1:1; avoids a join; matches the
-scoped in-session lifetime). Read/written by the deterministic memory-adapter methods, never
-by agent decision:
+scoped in-session lifetime). Read/written by deterministic Convex mutations (no `@mastra/memory`
+adapter — v3.1.0, risk #16) and injected as the dynamic prompt block, never by agent decision:
 
 ```ts
 agentMemory: v.optional(v.object({
@@ -123,6 +143,17 @@ agentMemory: v.optional(v.object({
 **`performance`** (the existing `recordAgentRun` path) — extend with `promptVersion` + `tier`
 (it already stores model/agent/tokens/cost) so cost/latency dashboards group by prompt
 version.
+
+**`favorite_roads` insufficiency (v3.1.0, L4):** the `getUserFavorites` tool output promises
+`rating/rideCount/lastRidden/lat/lng`, but `favorite_roads` stores only `{name, geometry,
+bounds}` today. Source the missing fields from `saved_routes.curatedRouteRef` → curated scores
+(derived), or add a `favorite_roads` schema delta; fields absent in both are returned
+optional/omitted, never fabricated.
+
+**`agentMemory` is written by deterministic mutations, NOT a Mastra storage adapter (v3.1.0):**
+`@mastra/memory` is dropped (01-architecture-posture, risk #16) — `agentMemory` is read/written
+by plain Convex mutations and injected as the dynamic prompt block, so there is no adapter
+interface to track and no double-load.
 
 **Eval artifacts stay repo files** (`scripts/agent-evals/fixtures/*.transcript.json`,
 `agent-evals/report.json`) — no database rows. The sanctioned `agent_memory` table remains

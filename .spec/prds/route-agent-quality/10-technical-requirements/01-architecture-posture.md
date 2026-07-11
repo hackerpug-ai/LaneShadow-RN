@@ -138,15 +138,17 @@ the scaffolding became the ceiling.
   uses (no hardcoded city lists); the preserved deterministic route pipeline (`planRoute`
   et al.); search/enrichment/weather tools re-registered as-is. Tool argument validation,
   budget tracking, rate limits, and the rider-ready gate stay deterministic code.
-- **Memory:** in-session only — `@mastra/memory` with a custom Convex-backed storage
-  adapter (`lib/mastraConvexStore.ts`) mapping Mastra's memory-domain calls onto the
-  existing session tables: thread ops → `planning_sessions` queries, message ops → the
-  existing `sessionMessages` mutations, resource working-memory → the compact
-  `planning_sessions.agentMemory` block (03-data-schema). Conversation scope passes as
-  `{ memory: { thread: planningSessionId, resource: clerkUserId } }` per call. **Durable
-  persistence stays the deterministic path already in `sendMessage.ts`** — the adapter's
-  writes are thin Convex mutations, never agent decisions (repo doctrine: persistence is
-  code). Exact interface method names verified at install (risk #16).
+- **Memory (v3.1.0 — deterministic single path, `@mastra/memory` DROPPED):** in-session
+  only, with **no Mastra memory adapter**. The prior design double-loaded (deterministic
+  history load in `sendMessage.ts` AND `{memory:{thread,resource}}` recall on the agent).
+  Resolution: message history loads deterministically in `sendMessage.ts` and is passed as
+  the per-call messages array; working memory (persistent `constraints` + `resolvedCenter`)
+  rides `planning_sessions.agentMemory` (03-data-schema), read/written by deterministic
+  mutations (`lib/mastraConvexStore.ts` is now just that helper, not a storage adapter) and
+  **injected as the dynamic prompt block** (12-agent-prompting) — never a Mastra storage
+  call. This eliminates the adapter that would have had to track `@mastra/core`'s shifting
+  1.x memory interface; risk #16 collapses to a `piMessage`→AI-SDK payload translation on the
+  read path. (Repo doctrine unchanged: persistence is deterministic code.)
 - **Behavior policies (prompt-encoded, eval-enforced):** ground every discovery in a
   resolved center; ask exactly one targeted clarifying question when unresolvable; state
   real distances; never claim proximity tool results don't show; offer the custom-route
@@ -174,7 +176,7 @@ policy graded in CI.
 | Interrogation (one question) | **Prompt + eval** | Ambiguity judgment + phrasing; "exactly one, only when unresolvable" asserted by graders |
 | ≤3-option default | **Structural** — deterministic truncation of the options array | Unbreakable in code; cheaper than an LLM output processor |
 | Comfort-label honesty | **Hybrid** — evidence structural (`technicalScore`), phrasing LLM-judge-graded | "Easy" is a claim about a number; the judge compares them |
-| Constraint persistence | **Structural memory** (`agentMemory.constraints`) + prompt application | Stored deterministically; applied each turn; eval checks it sticks |
+| Constraint persistence | **Structural** — stored in `agentMemory.constraints`; tool-arg-mappable constraints ("no highways" → `planRoute.preferences.avoidHighways`) injected deterministically, NOT left to the prompt | Stored AND applied in code so the constraint can't be silently dropped (parity with duration-translation); a highway route in a later reply fails the eval |
 | Library awareness | **Structural** — real `getUserFavorites` + exclusion set | Answers from real saved rows, not model memory |
 | Share-close | **Prompt + eval** | Formatting/tone; graded present-or-absent |
 | No false proximity | **Structural** + negative-control eval | Belt (data) and suspenders (a planted violation must fail CI) |

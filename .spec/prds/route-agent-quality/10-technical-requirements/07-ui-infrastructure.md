@@ -1,7 +1,7 @@
 ---
 stability: CONSTITUTION
-last_validated: 2026-07-10
-prd_version: 1.0.0
+last_validated: 2026-07-11
+prd_version: 3.1.0
 ---
 
 # UI Infrastructure
@@ -35,11 +35,21 @@ live app** (paths cited by the planning team).
 1. **Provenance caption leaf** inside the detail body: conditional `Text` keyed off
    `geometryProvenance`; renders ONLY for `ai_reconstructed` ("Route line reconstructed from
    the ride description") and `name_routed` ("Route line generated from the road name");
-   silent for `scraped_promoted` and pre-provenance rows.
-2. **Fallback-to-national label chip** + `fellBackToBest: boolean` exposed from
-   `useCuratedDiscovery`: leading non-tappable chip "No routes nearby — here's our top-rated";
-   plus the distance-suffix fix (omit `· Xmi` when `distanceMi` is null — never render a
-   fabricated `0mi`).
+   silent for `scraped_promoted` and pre-provenance rows. **Dependency (cross-link):**
+   `getCuratedRouteDetail` must project `geometryProvenance` (owned by 04-api-design) — the
+   detail screen consumes `FunctionReturnType<typeof getCuratedRouteDetail>` via
+   `hooks/use-curated-route-detail.ts`, so the query extension must land before/with the UI
+   leaf or it renders nothing.
+2. **Fallback-to-national label chip** + `fellBackToBest: boolean` **returned** from
+   `useCuratedDiscovery`. *Verified (v3.1.0 correction):* the flag is **computed** at
+   `hooks/use-curated-discovery.ts:83` but is **not in the return object** (`:198-202`), and its
+   current meaning (nearest→best on location-fail/empty) is **NOT** "zero rider-ready nearby →
+   national" — both the exposure and the semantics must be fixed. Leading non-tappable chip
+   "No routes nearby — here's our top-rated". Plus the distance-suffix fix **at its real site**:
+   the fabricated `0mi` is built at the pill-label call site `app/(app)/(tabs)/index.tsx:350`
+   (`Math.round(r.distanceMi ?? 0)` + "mi"), with a second `?? 0` at `:505` — omit the `· Xmi`
+   suffix when `distanceMi` is null *there* (NOT in `chat-input`, which renders
+   `suggestion.label` verbatim).
 
 ## Copy drafts (rider-facing)
 
@@ -54,7 +64,9 @@ live app** (paths cited by the planning team).
 ## Accessibility + testIDs
 
 - `accessibilityLiveRegion="polite"` on pill-row content swaps (absence/fallback replacing
-  results) — established pattern in `routing-card.tsx`.
+  results) — the pattern exists in `routing-card.tsx` but the pill row's non-tappable branch
+  (`chat-input.tsx:101-127`) has **none today**, so this is additive work on that container,
+  not a free inherit.
 - Tappable affordances keep `semantic.control.minTouchTarget` (44 pt), matching existing
   pills.
 - testIDs follow existing conventions: `curated-detail-provenance` (new leaf);
@@ -67,9 +79,22 @@ live app** (paths cited by the planning team).
 `react-native-paper` (existing) supplies `Text`; `@rnmapbox/maps` (existing) is the map
 engine. **No new libraries.**
 
-## Corrected stale claim
+## Corrected stale claims
 
 `curated-route/[id].tsx`'s doc comment says detail is reached by "chat card or map pin" —
 verified false for chat cards (they select + fit camera, never navigate). Real paths: map-pin
 tap, saved-route redirect, deep link. Sprint planning must not assume a chat-card→detail
-navigation exists.
+navigation exists; two more in-code comments still assert the dead path (`index.tsx:478-481`
+and `:1568-1569`).
+
+**Maestro `curated-route-detail.yaml` AC-1 is stale (blocks T-SURF-016/017):** it taps
+`curated-chat-card-cherohala-skyway` → detail, but that testID does not exist and no chat card
+navigates. The provenance-caption flow must hang off the **deep-link** entry
+(`openLink: laneshadow:///curated-route/{id}`) or the **map-pin** entry, not AC-1. New testID
+`curated-detail-provenance` is kept distinct from the pre-existing saved-route
+`route-detail-provenance`.
+
+**Share affordance does not exist (v3.1.0):** UC-AGT-06's close is **Save-to-library only** —
+an exhaustive grep found no share affordance anywhere, and planned multi-leg routes have no
+deep-link target. Building a share leaf (on the curated `laneshadow:///curated-route/{id}` deep
+link) is DEFERRED to a future PRD; no share UI is specced here.

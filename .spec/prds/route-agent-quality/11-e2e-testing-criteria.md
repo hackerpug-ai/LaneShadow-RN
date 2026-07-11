@@ -1,12 +1,12 @@
 ---
 stability: TEST_SPEC
 last_validated: 2026-07-11
-prd_version: 3.0.0
+prd_version: 3.1.0
 ---
 
 # E2E / Human Testing Criteria — Route & Agent Quality
 
-Version 3.0.0 · 2026-07-11 · **89 criteria across 26 UCs** — every AC referenced by ≥1
+Version 3.1.0 · 2026-07-11 · **94 criteria across 26 UCs** — every AC referenced by ≥1
 criterion. Types: [human-gate] · [e2e-automated] (Maestro, iOS sim, live dev deployment) ·
 [integration-test] (vitest vs real dev deployment; pipeline tier hits REAL Google + LLM APIs;
 agent tier includes fixtured-seam transcript replay) · [api-contract] · [build-gate]. AC refs
@@ -63,6 +63,7 @@ are positional within each UC (AC-1 = first ☐).
 | T-REC-004 | PoC route reconstructs end-to-end on real APIs | AC-1, AC-2, AC-3, AC-4, AC-5 | [integration-test] | Real dev deployment + real LLM + real Google; `reconstructForRoute` on Twist of Tepusquet Loop | Persisted `generated` row with `ai_reconstructed`, ratio ∈ [0.6,1.6] (PoC baseline 1.00, 7 anchors); anchors[] persisted; all anchors ≤150 mi from centroid |
 | T-REC-005 | Off-region anchor is rejected during geocoding | AC-2 | [integration-test] | Fixture LLM seam returns one anchor 300 mi away; real gate path | That anchor excluded from routing; geocode log records the rejection |
 | T-REC-006 | Gate-failing reconstruction enters the repair round, never persists as servable | AC-6 | [integration-test] | Old Hwy 40 (real PoC REVIEW case) via `reconstructForRoute` | No `generated` status on first failure; repair round runs; final state `review` with both attempts recorded |
+| T-REC-016 | **Spike gate (§5): geometry reference flow proven end-to-end before the REC deep build** | AC-5 | [human-gate] | ONE real PoC route reconstructed through a Convex action (real LLM + real Google) → gate → persist `ai_reconstructed` → `recomputeRiderReady` → `listCuratedRoutes` returns it (pin the mode: national-best AND nearest) → Maestro plots it from a cold boot. **Decoupling:** anchor extraction may use a direct AI-SDK completion so this spike does NOT depend on the §5b Mastra-in-Convex spike; if it uses the Mastra structured-output primitive instead, sequence it AFTER T-AGT-023 | Founder observes the recovered line plotted on the sim from a cold boot; the gate→query→render seam is green through the turnkey runners; recorded as the prerequisite that unblocks the REC deep build |
 
 ### UC-REC-03: Re-route from endpoints or road names (Lever 3)
 
@@ -79,6 +80,8 @@ are positional within each UC (AC-1 = first ☐).
 | T-REC-010 | Kill + restart resumes without reprocessing PASSed routes | AC-3 | [integration-test] | Kill the driver mid-batch; re-run same command | Already-`generated` routes skipped (original `verifiedAt` preserved — proof of no re-spend); totals converge to an uninterrupted run's |
 | T-REC-011 | Every processed route ends in exactly one terminal state | AC-4 | [integration-test] | After a full sample batch | Each processed routeId is exactly one of `generated` / `review` / retirement-eligible; none untouched-but-marked |
 | T-REC-012 | Live per-lever/per-state counts + cost telemetry | AC-5, AC-6 | [api-contract] | `backfillReconstruct` report + `coverageReport` during a run | Report exposes per-lever counts and running call/cost counters within the ~$0.07/route envelope |
+| T-REC-017 | Realized-yield acceptance gate: batch not "complete" on low yield | AC-7 | [human-gate] | After a full (or full-sample) batch on real dev data: `coverageReport` per-lever PASS rates + realized rider-ready count vs the expected-yield table | Founder records accept/reject on the realized numbers; a per-lever rate far below its estimate (e.g. reconstruct <40%) surfaces as an escalation, not a silent completion; retirement stays locked until acceptance is recorded |
+| T-REC-018 | **Founder-region coverage gate (the Saturday test)** on the real post-batch catalog | AC-8 | [human-gate] | Cold boot near SLC/Ogden on the REAL, un-seeded catalog after the batch; no fixtures | Founder asks "scenic rides near SLC", gets ≥ threshold rider-ready options with real distances, browses → taps → plots → saves end to end; the previous catalog's near-Ogden failure (3 routes ≤30 mi, 0 plottable) is demonstrably fixed on real data |
 
 ### UC-REC-05: Retire only after every lever fails
 
@@ -133,6 +136,7 @@ are positional within each UC (AC-1 = first ☐).
 | T-VER-017 | Sample is ~25 and stratified across provenance + difficulty | AC-1 | [integration-test] | `geometry-couch-sample.ts` after a real `--sample` run | Manifest contains ~25 routes spanning all three provenance values and non-trivial difficulty spread |
 | T-VER-018 | Founder reviews rendered lines + records verdicts | AC-2, AC-3 | [human-gate] | Local PNG renders + `recordCouchVerdict` | Founder records true/off/wrong per route + overall verdict; verdicts persisted on route docs |
 | T-VER-019 | Full batch is blocked until pass; one `wrong` forces red | AC-4, AC-5 | [integration-test] | `couchGateStatus` with a seeded `wrong` verdict; driver `--all` attempt | Driver refuses `--all` while status ≠ pass; clearing the `wrong` + meeting threshold unlocks |
+| T-VER-020 | **Top-50-by-rank founder review** (FOUNDER-BAR T2), independent of the couch sample | AC-6 | [human-gate] | Post-hygiene, post-gate top-50 curated routes by composite rank rendered for review on real dev data | Founder confirms each of the first-surface top-50 is the correct road at plausible length, no duplicate headliner, no test/seed row; a single wrong-road or dup among the top-50 fails the gate (the provenance-stratified couch sample cannot catch a rank-surface survivor) |
 
 ## SURF: Rider-Ready Surface
 
@@ -199,6 +203,7 @@ are positional within each UC (AC-1 = first ☐).
 | T-AGT-004 | In-session memory carries context across turns | AC-5 | [integration-test] | Turn 1 establishes SLC context; turn 2 = "OK what's scenic" | Turn 2's `searchCuratedRoutes` call carries a center within ~25 mi of SLC, proven from captured tool args |
 | T-AGT-005 | Guarantees are code, not prompt | AC-6 | [integration-test] | Malformed tool args injected at the seam; budget/rate paths exercised | Validator rejects the call before any side effect; budget/rate enforcement fires from code paths; rider-ready gate identical to browse's |
 | T-AGT-016 | Personal-library awareness: "something new" and "which of my saved fits" | AC-7 | [integration-test] | Seed 3 saved routes for the test rider on dev; ask "something new near SLC" then "which of my saved rides fits 3 hours tomorrow" | First reply's suggestions exclude all 3 saved routeIds (captured tool results vs reply); second reply names only saved routes, grounded in `getUserFavorites` output |
+| T-AGT-023 | **Spike gate (§5b): Mastra reference conversation proven in Convex before the AGT deep build — numeric pass/fail** | AC-1, AC-5 | [human-gate] | A `@mastra/core` agent in a Convex `'use node'` action on the real `orchestrator` tier, `geocodePlace` + `searchCuratedRoutes` registered, answers "twisty roads near Ogden" AND a 2-turn "OK what's scenic" that must inherit the Ogden center | ALL of: cold-start under the recorded ceiling and bundle delta under the agreed MB ceiling (numbers recorded, not vibes); the 2-turn center inheritance works (exercises the memory path, risk #16); ONE visible LangSmith trace whose exported span JSON contains NO api-key substring (redaction, risk #20) and carries `promptVersion`/`sessionId`/`tier`/cost across model + tool spans. Any miss BLOCKS the AGT deep build (risk #11 fallback triggers) |
 
 ### UC-AGT-02: Ground discovery in the rider's location and intent
 
@@ -238,8 +243,8 @@ are positional within each UC (AC-1 = first ☐).
 | # | Criterion | AC Ref | Type | Setup | Pass/Fail |
 |---|---|---|---|---|---|
 | T-AGT-020 | Concise default; depth only on request | AC-1 | [integration-test] | Discovery request with 10+ eligible rider-ready routes; then a follow-up "tell me more about the second one" | First reply suggests ≤3 routes with a one-line reason each (grader counts); follow-up reply carries deeper detail sourced from tool results; no unprompted data dumps |
-| T-AGT-021 | Honest comfort labels + persistent constraints | AC-2, AC-3 | [integration-test] | "Beginner-friendly ride, no highways" with seeded routes incl. one high-technical-score road; two follow-up discovery turns | No route with high technical evidence is labeled easy (negative control fails the grader if so); the no-highways constraint shapes tool args/selection on later turns without being restated |
-| T-AGT-022 | Suggestions close with a saveable/shareable next step | AC-4 | [e2e-automated] | Maestro: chat discovery on the sim, live dev deployment | Suggestion reply exposes the save/share affordance; acting on it produces the shareable route link |
+| T-AGT-021 | Honest comfort labels + persistent constraints (no-highways applied as a tool arg) | AC-2, AC-3 | [integration-test] | "Beginner-friendly ride, no highways" with seeded routes incl. one high-technical-score road; two follow-up discovery turns | No route with high technical evidence is labeled easy (negative control fails the grader if so); the no-highways constraint is applied as a structured tool arg (`planRoute.preferences.avoidHighways` / search filter) on later turns without being restated — a highway route appearing in a later reply fails the run |
+| T-AGT-022 | Suggestions close with a saveable next step (Save to library) | AC-4 | [e2e-automated] | Maestro: chat discovery on the sim, live dev deployment | Suggestion reply exposes the Save affordance; acting on it adds the route to the rider's saved library. *Share-to-link is DEFERRED to a future PRD — no share affordance is built or asserted here.* |
 
 ## Summary
 
@@ -247,12 +252,17 @@ are positional within each UC (AC-1 = first ☐).
 |---|---|
 | [integration-test] | 66 |
 | [e2e-automated] | 13 |
-| [human-gate] | 6 |
+| [human-gate] | 11 |
 | [api-contract] | 5 |
 | [build-gate] | 2 |
-| **Total** | **89 rows** (3 rows carry a second type; type-tags sum to 92) |
+| **Total** | **94 rows** (3 rows carry a second type; type-tags sum to 97) |
 
-AC coverage: 139/139 ACs referenced by ≥1 criterion (positional refs per UC).
+AC coverage: 142/142 ACs referenced by ≥1 criterion (positional refs per UC).
+
+> **v3.1.0 additions:** T-REC-016 (geometry §5 spike), T-REC-017 (realized-yield acceptance
+> gate), T-REC-018 (founder-region/Saturday-arc coverage gate), T-VER-020 (top-50-by-rank
+> review), T-AGT-023 (Mastra §5b spike with numeric pass/fail). T-AGT-022 descoped to
+> Save-only. Five new [human-gate] rows (6 → 11).
 
 ## Maintenance
 

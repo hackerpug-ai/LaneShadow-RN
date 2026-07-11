@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
-last_validated: 2026-07-10
-prd_version: 1.0.0
+last_validated: 2026-07-11
+prd_version: 3.1.0
 functional_group: VER
 ---
 
@@ -92,3 +92,4 @@ Acceptance Criteria:
 - ☐ Founder-Operator can record a per-route verdict (true / off / wrong) and an overall pass or fail on the couch-sample.
 - ☐ System blocks the full batch from committing while the couch-sample verdict is unrecorded or failed, and a single `wrong` (fabricated-but-passing line) forces a failed verdict.
 - ☐ Founder-Operator can trigger the full batch only after the couch-sample verdict is recorded as pass.
+- ☐ Founder-Operator can review the post-hygiene, post-gate **top-50 routes by composite rank** (the surface a rider hits first) for correct road, plausible length, no duplicate headliners, and no test/seed rows — FOUNDER-BAR T2 — as a check independent of the provenance-stratified ~25-route couch sample, so a wrong-road or duplicate survivor on the first surface cannot pass unseen.

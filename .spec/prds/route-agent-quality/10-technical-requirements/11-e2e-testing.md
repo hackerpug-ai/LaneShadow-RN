@@ -75,7 +75,10 @@ Convex action (real Anthropic + Google) → gate → persist `ai_reconstructed` 
 `recomputeRiderReady` → `listCuratedRoutes` returns it → Maestro plots it on the sim from a
 cold boot. The constitution is INCOMPLETE until this flow is green through the turnkey
 runners — it de-risks the geometry-tier wiring (Mastra structured output) and the
-gate→query→render seam in a day.
+gate→query→render seam in a day. **Decoupling (v3.1.0):** so §5 does not transitively depend on
+the §5b Mastra-in-Convex spike, anchor extraction here MAY use a direct AI-SDK completion; if it
+uses the tool-less-Agent structured-output primitive instead, sequence §5 AFTER §5b. Mirrors
+criterion T-REC-016.
 
 ## 5b. The Mastra reference conversation (AGT spike gate)
 
@@ -83,10 +86,16 @@ gate→query→render seam in a day.
 `@mastra/core` Agent constructed inside a Convex `'use node'` action, on the real
 `orchestrator` tier, with `geocodePlace` + `searchCuratedRoutes` registered, answers
 "twisty roads near Ogden" end to end on the dev deployment — center geocoded, SURF-gated
-results with distances, reply rendered through the existing session-message path, and a
-trace visible in LangSmith. Proves: Mastra runs in the Convex Node runtime (bundling,
-cold-start), the tool seam fixture point exists for evals, and telemetry export works. The
-AGT rebuild is BLOCKED until this is green (risk #11's fallback triggers if it cannot be).
+results with distances, reply rendered through the existing session-message path. **Numeric
+gate deliverables (v3.1.0 — pass/fail, not a vibe):** (1) cold-start under a recorded ceiling
+and bundle-size delta under an agreed MB ceiling (risk #18); (2) a **2-turn** exchange — "twisty
+near Ogden" then "OK what's scenic" — where turn 2 inherits the Ogden center (exercises the
+deterministic working-memory path, risk #16); (3) ONE visible LangSmith trace whose exported
+span JSON contains **no api-key substring** (SensitiveDataFilter redaction, risk #20) and carries
+all three span types with `promptVersion`/`sessionId`/`tier`/cost. Proves Mastra runs in the
+Convex Node runtime (bundling, cold-start), the model-seam fixture point exists for evals, and
+telemetry export works. The AGT rebuild is BLOCKED until every deliverable is green (risk #11's
+fallback triggers otherwise). Mirrors criterion T-AGT-023.
 
 ## 5c. Agent eval lane (AGT — deepened v3.0.1)
 

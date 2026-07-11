@@ -86,9 +86,48 @@ prd_version: 1.0.0
   classifier, enrichment) resolves through the Mastra model layer; pi-ai is dropped from
   `package.json`.
 
+## pi-ai teardown inventory (v3.1.0 — an ATOMIC migration, not a package bump)
+
+Convex bundles the whole deployment: a single missing `@mariozechner/pi-ai` import fails
+**every** function, not one. The removal must land as one atomic task covering all live
+importers. Verified `grep "@mariozechner/pi-ai" convex/**` → **13 production files**; each is
+DELETE (goes away with the rebuild) or PORT (kept, internals move to the Mastra model layer /
+AI-SDK types):
+
+| File | Disposition | Note |
+|---|---|---|
+| `convex/actions/agent/generateTripPlan.ts` | **PORT (was unlisted)** | a **live public `action`** calling pi-ai `complete()` + `getAgentModel('high')` — must move to a Mastra generation or it blocks deploy |
+| `orchestrator.ts` + sub-agents + `runAgent.ts` + `ridePlanningAgent.ts` | DELETE | the dispatch/ReAct loop the Mastra agent replaces |
+| `sendMessage.ts` | PORT | pi-ai `Message` types → AI-SDK message shape (risk #16 payload migration) |
+| `budgetTracker.ts` | PORT | pi-ai `Usage` type → AI-SDK usage; budget guard stays code |
+| `tools/enrichRoute.ts` | PORT | pi-ai `complete/getModel` + `getAgentModel('low')` → low-tier Mastra generation **inside the tool** (see below) |
+| `tools/manageWaypoints.ts` + `lib/piTools.ts` | PORT | pi-ai `Type` schema builder → Zod tool schemas |
+| `tools/discoverCuratedRoutes.ts` | DELETE/PORT | pi-ai `validateToolCall`; logic absorbed into `searchCuratedRoutes` |
+| `convex.json` `externalPackages` + `package.json` deps | EDIT | remove `@mariozechner/pi-ai` from both |
+
+- **`enrichRoute` becomes a nested Mastra generation inside a tool (D1 consequence):** a
+  low-tier generation runs *inside* `createTool.execute`, *inside* the orchestrator loop — the
+  per-turn `budgetTracker` must be **threaded into** that nested call or its cost is invisible;
+  the span tree gains a model span under a tool span.
+- **Enrichment tier — GLM-5.2 ported off pi-ai (D1, founder-ratified 2026-07-11):** enrichment
+  keeps **z.ai GLM-5.2** but resolves through a **custom AI-SDK OpenAI-compatible provider
+  instance** (`createOpenAICompatible` with the z.ai `baseURL` + `apiKey`, plus explicit
+  handling of the `thinkingFormat:'zai'` reasoning wrapper) instead of pi-ai's OpenAI-compat
+  path — so "pi-ai removed entirely" stays literally true. This **conflicts with the enrichment
+  PRD's ratified z.ai-via-pi-ai lock**
+  (`.spec/prds/enrichment/09-technical-requirements/06-external-dependencies.md`) and requires a
+  **re-ratification of that PRD's dependency section** (risk #21). Spike-gate the thinking-format
+  mapping with one real completion before the enrichment batch.
+
 ## Cost envelope
 
 Lever 2 ≈ $0.07/route (LLM ~$0.02 ×≤2 attempts + geocode ~8×$0.005 + routes ~$0.01); lever 3
 ≈ $0.02/route (no LLM); classifier ≈ $0.002/route on the low tier. Full recoverable backfill
 ≈ **$150**, one overnight serial run. Conversation: ≈1–3¢ per rider turn on the
 `orchestrator` tier; the eval smoke lane is operator-triggered and cost-capped.
+
+**Batch telemetry (v3.1.0):** the pipeline-seam generations (geometry / classifier /
+enrichment) run **without Mastra Observability spans and without `@mastra/memory`** — a ~4k-route
+`--all` run would otherwise emit ~12k model + tool spans over OTLP to LangSmith for no debugging
+value; provenance-as-data (`verification` + `anchors[]`) is the batch audit trail. Wire
+Observability on the conversation instance only (or sample the batch tiers at 0).

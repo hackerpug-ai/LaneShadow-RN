@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
-last_validated: 2026-07-10
-prd_version: 3.0.0
+last_validated: 2026-07-11
+prd_version: 3.1.0
 ---
 
 # Functional Groups
@@ -24,3 +24,13 @@ prd_version: 3.0.0
 | Rider-Ready Surface | SURF | 6 (UC-SURF-01 … UC-SURF-06) |
 | Agent Quality | AGT | 6 (UC-AGT-01 … UC-AGT-06) |
 | **Total** | | **26** |
+
+> **Sprint-slicing note (for `/kb-sprint-plan`, v3.1.0):** REC and VER **interleave** — the
+> gate (UC-VER-01) is invoked by every REC lever, the couch gate (UC-VER-05) sits between the
+> batch `--sample` and `--all`, and retirement (UC-REC-05) plus the realized-yield/founder-region
+> acceptance gates (UC-REC-04 AC-7/AC-8) fire only *after* the full batch. Slice by **phase**
+> (gate + levers + couch = one "trust pipeline" sprint; retirement + acceptance gates = a tail
+> gate), not strictly by functional group, or a group-aligned sprint's human gate cannot close
+> in isolation. The two spike gates (geometry reference flow, Mastra reference conversation)
+> belong in the first sprints — they are drawable `[human-gate]` rows in the criteria file
+> (T-REC-002-spike under UC-REC-02, T-AGT-001-spike under UC-AGT-01).

@@ -29,7 +29,11 @@ A prompt edit (new `PROMPT_VERSION`) is **blocked from merge until the fixtured 
 lane is green** on the SLC/Ogden transcript set. The CI grep-gate that forbids provider
 literals gains a companion: a diff touching `prompts/orchestrator.v*.ts` must include an
 eval run artifact with zero policy violations. A **tool-schema change is treated as
-prompt-affecting** (risk #19) — same gate.
+prompt-affecting** (risk #19) — same gate. **A tier-map MODEL-ID change (v3.1.0)** is NOT a
+`PROMPT_VERSION` bump but **requires the real-API `--smoke` lane as blocking pre-merge
+evidence** — the fixtured lane replays canned turns through a `MockLanguageModel` and is
+model-blind, so a model swap would otherwise ship green untested. CI also asserts
+`PROMPT_VERSION` actually differs from `main` when the prompt body changed.
 
 ## Static policy vs dynamic context
 
@@ -41,8 +45,11 @@ prompt-affecting** (risk #19) — same gate.
   pattern), the working-memory summary (persistent constraints + resolved center), the
   saved-routes count (for "something new" awareness).
 
-**Token budget:** static prompt ≤ ~1,000 tokens; dynamic blocks ~150–300. It rides every
-turn at Sonnet input pricing — keep it tight.
+**Token budget:** static prompt ≤ ~1,000 tokens; dynamic blocks ~150–300. **Plus the 9-tool
+schema tax (v3.1.0):** `createTool` Zod in/out schemas serialize into the model request EVERY
+turn (`searchCuratedRoutes` alone has 6 input fields) — budget another ~900–2,000 tokens, so
+real fixed per-turn context is ≈2× the ≤1,000 headline. Keep tool descriptions terse and enum
+docs minimal. It rides every turn at Sonnet input pricing — keep it tight.
 
 ## Prompt skeleton (named sections; 1–2 example policy lines each — not the full prompt)
 

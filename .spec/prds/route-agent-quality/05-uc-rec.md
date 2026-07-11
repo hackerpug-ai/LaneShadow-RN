@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
-last_validated: 2026-07-10
-prd_version: 1.0.0
+last_validated: 2026-07-11
+prd_version: 3.1.0
 functional_group: REC
 ---
 
@@ -14,6 +14,23 @@ functional_group: REC
 | UC-REC-03 | Re-route from endpoints or road names (Lever 3) | ~1,076 A-to-B / road-name routes re-routed deterministically |
 | UC-REC-04 | Orchestrate the resumable rescue waterfall | Levers in order over ~4,050 routes; provenance; resume; cost cap |
 | UC-REC-05 | Retire only after every lever fails | ~274 residual; founder-confirmed, reversible retirement |
+
+> **Per-lever expected yield — ASSUMPTION, not a commitment (v3.1.0).** These are planning
+> estimates only. The sole evidence is the 2026-07-10 PoC (n=3: 2 PASS / 1 REVIEW ≈ 67%) and
+> the *superseded* investigation's priors (Tier-1 retry ~16%; endpoint-parse ~40–55% ceiling).
+> **The PRD commits to NO target catalog number**; the acceptance figure is the *realized*
+> rider-ready count after the batch, gated by UC-REC-04 AC-7. This reconciles the FOUNDER-BAR
+> "≈2.5–3k honest roads" line and the earlier "4,300–4,700" projection: both are outcomes to
+> *observe*, not promises to hit.
+>
+> | Lever | Candidates | Assumed PASS → rider-ready | Basis / caveat |
+> |---|---|---|---|
+> | 1 promote (`scraped_promoted`) | ~1,752 | unproven | in-row polylines were flagged `unresolved` for a reason; T-REC-001 proves only that one promotes |
+> | 2 reconstruct (`ai_reconstructed`) | ~948 | ~67% | PoC n=3 only |
+> | 3 re-route (`name_routed`) | ~1,076 | ~40–55% | superseded endpoint-parse ceiling |
+>
+> A per-lever PASS rate far below its estimate (e.g. reconstruct < 40%) **escalates to the
+> founder** — it does not silently complete (UC-REC-04 AC-7).
 
 ---
 
@@ -74,6 +91,8 @@ Acceptance Criteria:
 - ☐ System ends every processed route in exactly one terminal state (recovered, queued for review, or retirement-eligible) with none left silently unprocessed.
 - ☐ Founder-Operator can monitor per-lever and per-state counts while the batch runs.
 - ☐ System keeps the batch within the projected envelope (~$0.07 per reconstructed route) and exposes a running cost or call count.
+- ☐ Founder-Operator can accept or reject the completed batch on its **realized** rider-ready count and per-lever PASS rates measured against the expected-yield table, and the batch is not "complete" — nor does it unlock retirement — until that acceptance is recorded; a per-lever PASS rate far below its estimate escalates to the founder rather than silently completing.
+- ☐ Founder-Operator can verify, on the **real post-batch catalog with no seeded data**, that opening the app in the founder's home region (SLC/Ogden) returns at least a threshold count of rider-ready routes that browse → tap → plot → save end to end — the literal Saturday test the previous catalog failed (near Ogden: 3 routes ≤30 mi, 0 plottable).
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
-last_validated: 2026-07-10
-prd_version: 1.0.0
+last_validated: 2026-07-11
+prd_version: 3.1.0
 functional_group: SURF
 ---
 
@@ -29,7 +29,7 @@ Acceptance Criteria:
 - ☐ System stores the flag on the route so gated queries read an index rather than recomputing at read time.
 - ☐ System sets `riderReady` to false for any route missing any one required condition.
 - ☐ System recomputes the flag whenever a route's geometry, score, length, classifier verdict, retirement, or shadow status changes.
-- ☐ Founder-Operator can query the rider-ready count and watch it rise from the audited 1,171 toward the projected 4,300–4,700 as the batch lands.
+- ☐ Founder-Operator can query the rider-ready count and watch it rise from the audited 1,171 as the batch lands; the **realized** count and per-lever PASS rates — not a committed target number — are the acceptance figures (the 4,300–4,700 range is an unvalidated projection; see the UC-REC-04 acceptance gate and the REC yield-assumption table).
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 stability: CONSTITUTION
-last_validated: 2026-07-10
-prd_version: 1.0.0
+last_validated: 2026-07-11
+prd_version: 3.1.0
 ---
 
 # Routing & Views
@@ -51,8 +51,8 @@ artifacts — deliberately NOT app routes, mirroring the enrichment trust-bounda
 - UC-SURF-05 → Curated Route Detail / `provenance-caption`
 - UC-SURF-06 → Curated Route Detail / `geometry-absent` + Saved Route Detail redirect
 - UC-AGT-03 → Route Plan View (HOME) / `clarifying-question` (a chat-content state)
-- UC-AGT-04 → Route Plan View (HOME) / `grounded-results` (distance-bearing chat replies + thin-coverage candor + volunteered weather verdicts)
-- UC-AGT-06 → Route Plan View (HOME) / `grounded-results` (≤3-option default, comfort labels, share-close — content shaping of the same chat state; reuses the existing save/share card affordances)
+- UC-AGT-04 → Route Plan View (HOME) / `grounded-results` (distance-bearing chat replies + thin-coverage candor + volunteered weather verdicts). **Render surface (v3.1.0):** the weather go/no-go verdict and the clarifying-question turn render as **agent prose in the existing `session_messages` text bubble** — NOT a new weather card; route options remain attachment cards.
+- UC-AGT-06 → Route Plan View (HOME) / `grounded-results` (≤3-option default, comfort labels, **save-close** — content shaping of the same chat state; reuses the existing **Save** card affordance). **Share-to-link is DEFERRED (v3.1.0):** no share affordance exists in the app and none is built here; the close is Save-to-library only.
 - UC-AGT-01/02/05 are conversation-engine/operator-facing — no new routes or visual states beyond the chat content itself
 - UC-SURF-01 and all HYG/REC/VER UCs are backend/operator-facing — no app routes (by design)
 
@@ -66,4 +66,10 @@ artifacts — deliberately NOT app routes, mirroring the enrichment trust-bounda
 
 | Route | NEW/CHANGED/DELETED | Detail | Discriminator rationale |
 |---|---|---|---|
-| Route Plan View (HOME) | **CHANGED** | `grounded-results` content enriched: volunteered weather verdicts on dated requests, ≤3-option default with depth-on-request, honest comfort labels, waypoint-anchored answers, share-close via existing card actions | Not a seam — reply-content shaping of the existing chat state; zero new components or navigation |
+| Route Plan View (HOME) | **CHANGED** | `grounded-results` content enriched: volunteered weather verdicts on dated requests, ≤3-option default with depth-on-request, honest comfort labels, waypoint-anchored answers, save-close via the existing Save card action | Not a seam — reply-content shaping of the existing chat state; zero new components or navigation |
+
+## Route Delta — v3.1.0 (red-hat remediation)
+
+| Route | NEW/CHANGED/DELETED | Detail | Discriminator rationale |
+|---|---|---|---|
+| Route Plan View (HOME) | **CHANGED** | Render-surface pinned: weather verdict + clarifying-question render as **prose in the `session_messages` text bubble**, not new cards. `grounded-results` close is **Save-only** — the "share via existing save/share card affordances" claim was wrong (no share affordance exists; planned routes have no deep-link target), so share-to-link is descoped to a future PRD. Note: "the carousel" for curated discovery denotes the **pill + map-pin** surfaces, not the home carousel (which renders planned/agent options); and `CuratedRouteCard` renders `/100` while the extended discovery gate asserts `%` — a card-format fix rides the F-leg polish | Not a seam — reply-content shaping + copy corrections within the same frame; no new components or navigation |

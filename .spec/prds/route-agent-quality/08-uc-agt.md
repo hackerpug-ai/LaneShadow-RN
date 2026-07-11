@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
 last_validated: 2026-07-11
-prd_version: 3.0.0
+prd_version: 3.1.0
 functional_group: AGT
 ---
 
@@ -14,7 +14,7 @@ functional_group: AGT
 | UC-AGT-03 | Interrogate when intent is ambiguous | One targeted clarifying question instead of guessing or deflecting |
 | UC-AGT-04 | Be honest about distance, thin data, and the weather | Real distances; no false proximity; weather go/no-go volunteered; custom-route fallback |
 | UC-AGT-05 | Prove and observe agent behavior | Real failed transcripts become the eval suite; traces make failures debuggable |
-| UC-AGT-06 | Shape replies to the rider | Simple-by-default depth, honest comfort labels, persistent constraints, shareable close |
+| UC-AGT-06 | Shape replies to the rider | Simple-by-default depth, honest comfort labels, persistent constraints, saveable close (share-to-link deferred) |
 
 > **Diagnosis this group answers (live transcripts + code, 2026-07-10):** the "discovery
 > agent" was a regex keyword matcher (`buildDiscoveryIntentFromQuery`) with a one-city
@@ -67,7 +67,7 @@ Acceptance Criteria:
 - ☐ System geocodes arbitrary US place names for discovery using the same real geocoding capability the routing pipeline already uses, with no hardcoded city list.
 - ☐ System never silently substitutes state-wide or national results for a location-scoped request; any widening of the search is explicit in the reply (per UC-AGT-04).
 - ☐ Rider cannot receive a route 100+ miles away presented as "near" a named place under any discovery query.
-- ☐ Rider can express ride length as time (e.g. "a 2–3 hour loop") and System translates it into a distance window for the curated-route search instead of ignoring the constraint.
+- ☐ Rider can express ride length as time (e.g. "a 2–3 hour loop") and System translates it into a distance window for the curated-route search using a defined recreational-pace constant (pinned in the TR, not left to the model) instead of ignoring the constraint.
 - ☐ Rider can ask for a ride anchored on a stop by intent (e.g. "a loop with a good BBQ spot at the halfway point") and System composes the answer from route search plus real waypoint lookup along the route, never inventing businesses.
 
 ---
@@ -123,12 +123,14 @@ Acceptance Criteria:
 ## UC-AGT-06: Shape replies to the rider
 
 Persona-fit reply behavior derived from `.spec/USER-PROFILES.md` ("simple for Mike, deep for
-Terry"; Rachel's confidence; Sam's shareability): concise best-options by default with depth
+Terry"; Rachel's confidence; Sam's save-and-return): concise best-options by default with depth
 on request, honest comfort labels grounded in stored evidence, stated constraints that stick,
-and a shareable close so a plan can leave the chat.
+and a saveable close so a plan can be kept. (v3.1.0: sharing a plan **as a link** is DEFERRED
+to a future PRD — no shareable-link affordance exists in the app today and planned multi-leg
+routes have no deep-link target; the close is Save-to-library only.)
 
 Acceptance Criteria:
 - ☐ Rider receives at most three suggested routes by default, each with a one-line reason, and System expands to deeper detail (scores, surface, curvature, comparisons) only when the rider asks for it.
 - ☐ Rider can ask for beginner-friendly or comfort-matched routes and System grounds the label in stored difficulty evidence (technical score, length, surface), never labeling a technically demanding route as easy.
 - ☐ System applies stated riding constraints (e.g. "no highways", "nothing too technical") as persistent filters for the remainder of the session without the rider repeating them.
-- ☐ Rider can act on any suggestion directly from the conversation — System closes route suggestions with the saveable/shareable next step so a plan can be sent to a riding group as a link.
+- ☐ Rider can act on any suggestion directly from the conversation — System closes route suggestions with a saveable next step (Save to the rider's library). *Sharing a plan as a link is DEFERRED to a future PRD (no shareable-link affordance exists today; planned multi-leg routes have no deep-link target).*

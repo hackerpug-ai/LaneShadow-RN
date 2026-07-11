@@ -1,7 +1,7 @@
 ---
 stability: PRODUCT_CONTEXT
 last_validated: 2026-07-11
-prd_version: 3.0.0
+prd_version: 3.1.0
 ---
 
 # Route & Agent Quality — Real Roads, Honest Assistant
@@ -76,6 +76,15 @@ the rider.
 plottable") and T2 ("flawless top-50"); Agent Quality is what lets the founder *feel* T1/T2
 through the chat surface instead of being lied to about it. Ships before the enrichment
 R-leg (`.spec/prds/enrichment/`), whose generation covers only plottable routes.
+
+**T1/T2 are verified on the real catalog, not just by gating (v3.1.0):** T1 is proven not only
+by hiding un-recovered routes behind the `riderReady` gate but by a **post-batch founder-region
+coverage gate** — the founder opens the app near SLC/Ogden on the real, un-seeded catalog and
+gets rideable options end to end (UC-REC-04 AC-8), the literal Saturday test the previous
+catalog failed. T2 is proven by a **top-50-by-rank founder review** (UC-VER-05 AC-6), not just
+the provenance-stratified couch sample. The catalog *size* is a realized outcome the founder
+accepts against a per-lever yield table (UC-REC-04 AC-7), **not a committed number** — the
+earlier "4,300–4,700" projection and the FOUNDER-BAR "≈2.5–3k" line are both figures to observe.
 
 > **Grounding:** built from the ratified geometry strategy + real-service PoC
 > (`.spec/proposals/geometry-completion/` — full prod-export audit, reconstruction PASS at

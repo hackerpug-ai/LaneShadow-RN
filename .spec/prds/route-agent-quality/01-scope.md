@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
-last_validated: 2026-07-10
-prd_version: 3.0.0
+last_validated: 2026-07-11
+prd_version: 3.1.0
 scope_posture: full
 ---
 
@@ -67,8 +67,17 @@ Scope Posture: **Full feature** (default — complete, polished initiative).
   never retroactively hidden by the gate; un-recovered ones render the existing honest
   "Approximate location" state. *Testable: a saved non-rider-ready route still resolves to
   detail.*
-- **Coverage reporting**: per-lever yields, gate PASS %, rider-ready counts by state — the
-  live T1 verdict. *Testable: report counts reconcile with table queries.*
+- **Coverage reporting + realized-yield acceptance gate**: per-lever yields, gate PASS %,
+  rider-ready counts by state; the batch is accepted on its *realized* rider-ready count and
+  per-lever PASS rates against the expected-yield table (**no committed target number** — the
+  4,300–4,700 figure is an unvalidated projection), and a far-below-projection lever escalates
+  to the founder. *Testable: a low-yield batch does not read as complete; report counts
+  reconcile with table queries.*
+- **Founder-region coverage gate (the Saturday test)**: after the batch, on the real catalog
+  with no seeding, the founder's home region (SLC/Ogden) returns a threshold count of
+  rider-ready routes that browse → tap → plot → save end to end. *Testable: the previous
+  catalog's near-Ogden failure (3 routes ≤30 mi, 0 plottable) is re-checked post-recovery on
+  real data, not on a seeded fixture.*
 - **Mastra rebuild of the conversation layer**: one `@mastra/core` agent loop (embedded in
   the existing Convex `'use node'` actions) replaces the orchestrator dispatch and the regex
   discovery shim; the deterministic routing pipeline is preserved as agent tools; a new
@@ -104,9 +113,9 @@ Scope Posture: **Full feature** (default — complete, polished initiative).
   a forecast-grounded verdict without the rider asking.*
 - **Persona-fit reply shaping**: ≤3 best options by default with depth on request; honest
   comfort labels grounded in stored difficulty evidence; stated constraints persist for the
-  session; suggestions close with the saveable/shareable next step; "something new" excludes
-  the rider's saved library. *Testable: replay graders assert option count, label honesty
-  against technical scores, constraint persistence across turns, and share-close presence.*
+  session; suggestions close with the saveable next step (share-to-link deferred); "something
+  new" excludes the rider's saved library. *Testable: replay graders assert option count, label
+  honesty against technical scores, constraint persistence across turns, and save-close presence.*
 
 ## Out of Scope
 
@@ -126,6 +135,10 @@ Scope Posture: **Full feature** (default — complete, polished initiative).
   flagged as a future need, not built.
 - **Cross-session personalization / long-term rider profiles** — [DEFERRED] memory in this
   PRD is in-session only; durable taste profiles are a future initiative.
+- **Share a plan as a link / send-to-riding-group** — [DEFERRED: future PRD] no shareable-link
+  affordance exists in the app today and planned multi-leg routes have no deep-link target;
+  UC-AGT-06 closes suggestions with Save-to-library only. Building the share leaf (starting on
+  the existing `laneshadow:///curated-route/{id}` deep link) is scoped to a later initiative.
 - **Standalone Mastra server / new deployment infrastructure** — [LOCKED OUT] `@mastra/core`
   embeds in the existing Convex actions; Convex remains the only backend and store.
 - **Voice, proactive notifications, or new chat surfaces** — the agent rebuild changes what
