@@ -37,7 +37,6 @@ ios/
 react-native/ios/
 
 # Convex backend build artifacts (source in convex/ is tracked)
-convex/_generated/
 convex/.env-aware
 .convex/
 
