@@ -133,10 +133,11 @@ actual rides decide.
 - **T-leg:** `.spec/prds/catalog-geometry-recovery/00-overview.md` (recover →
   triage → drop pipeline + gates) and `triage.md` (queues + immediate-action
   findings); `.spec/prds/curation-hardening/` (dedup + normalization).
-- **R-leg:** **no PRD exists yet** — author from
-  `prds/mvp/11-post-mvp-opportunities.md` §O1. (Note: a prior memory claim
-  that an enrichment/STEER delta PRD was "already scaffolded" was
-  cross-project contamination — nothing in this repo mentions STEER.)
+- **R-leg:** `.spec/prds/enrichment/` — PRD authored 2026-07-10 (v1.0.0: 4 groups
+  GEN/QUAL/WHY/LIFE, 12 UCs, z.ai GLM-5.2 enrichment tier, two-tier scenario suite,
+  flow-coverage gate green). Sequenced AFTER the Trust-wave drop. (A prior memory
+  claim that an enrichment/STEER delta PRD was "already scaffolded" was
+  cross-project contamination.)
 - **F-leg:** `/review-ui` survey + polish mode; remaining Sprint 01/02 tasks in
   `prds/mvp/ROADMAP.md`.
 - **P-leg:** Maestro flows under the sprint task dirs + metro MCP;
