@@ -1,7 +1,8 @@
 # Technical Requirements
 
-The implementation contract for Geometry Completion — the rescue-first geometry pipeline,
-the deterministic verification gate, and the rider-ready read-path gate.
+The implementation contract for Route & Agent Quality — the rescue-first geometry pipeline,
+the deterministic verification gate, the rider-ready read-path gate, and the Mastra rebuild
+of the conversation layer.
 
 Each section is its own file for AI-agent traversability and parallel review. Downstream
 skills should target the specific section they need rather than loading the full set.
@@ -33,7 +34,8 @@ skills should target the specific section they need rather than loading the full
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 1.0.0 | 2026-07-10 | Initial technical requirements (11 sections). |
+| 1.0.0 | 2026-07-10 | Initial technical requirements (11 sections) as "Geometry Completion". |
+| 2.0.0 | 2026-07-10 | AGT deltas: agent-layer posture (Mastra smart loop, `orchestrator` tier), agent components + tool contracts (`searchCuratedRoutes` center-required, `geocodePlace`), no-new-tables memory note, Mastra/LangSmith dependencies, risks 11–14, CAP-AGT-01/02, chat-content states delta, Mastra spike gate (§5b) + agent eval lane (§5c). |
 
 ## Parent PRD
 

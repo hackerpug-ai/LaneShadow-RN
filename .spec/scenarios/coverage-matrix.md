@@ -3,11 +3,12 @@
 Per-PRD blocks; every UC must map to ≥1 journey or scenario, or appear in the gap report.
 Format per `e2e-testing-rules` + `brain/docs/kanban/holdout-scenarios.md`.
 
-## Geometry Completion (`.spec/prds/geometry-completion/`, v1.0.0, 2026-07-10)
+## Route & Agent Quality (`.spec/prds/route-agent-quality/`, v2.0.0, 2026-07-10 — v1.0.0 was "Geometry Completion")
 
 Journeys: `geo-rescue-waterfall-to-rider-ready` (J-GEO-1) ·
 `geo-fail-closed-review-to-absence` (J-GEO-2) · `geo-rider-previews-recovered-route` (J-GEO-3)
-— all `tier: visible`, in `.spec/scenarios/journeys/`.
+· `agt-slc-ogden-honesty` (J-AGT-1, the founder's captured failure session) — all
+`tier: visible`, in `.spec/scenarios/journeys/`.
 
 | UC | Journey(s) | Per-UC scenarios (`.spec/scenarios/{UC}/`) | Tiers | Status |
 |----|-----------|---------------------------------------------|-------|--------|
@@ -31,17 +32,25 @@ Journeys: `geo-rescue-waterfall-to-rider-ready` (J-GEO-1) ·
 | UC-SURF-04 | J-GEO-2 | core + edge + holdout | visible+holdout | ✅ covered |
 | UC-SURF-05 | J-GEO-3 | core + edge + holdout | visible+holdout | ✅ covered |
 | UC-SURF-06 | J-GEO-3 | core + edge + holdout | visible+holdout | ✅ covered |
+| UC-AGT-01 | J-AGT-1 | core + edge + holdout | visible+holdout | ✅ covered |
+| UC-AGT-02 | J-AGT-1 | core + edge + holdout | visible+holdout | ✅ covered |
+| UC-AGT-03 | J-AGT-1 | core + edge + holdout | visible+holdout | ✅ covered |
+| UC-AGT-04 | J-AGT-1 | core + edge + holdout | visible+holdout | ✅ covered |
+| UC-AGT-05 | J-AGT-1 | core + edge + holdout | visible+holdout | ✅ covered |
 
-### Gap report (Geometry Completion)
+### Gap report (Route & Agent Quality)
 
-- **No uncovered UCs.** 20/20 UCs carry a visible core scenario + ≥2 differently-framed
-  holdouts; 14/20 additionally ride a cross-UC journey.
+- **No uncovered UCs.** 25/25 UCs carry a visible core scenario + ≥2 differently-framed
+  holdouts; 19/25 additionally ride a cross-UC journey.
+- UC-SURF-02/04 are double-anchored (geometry journeys + J-AGT-1) — intentional: they are
+  the seam where the two halves meet.
 - Scenario-only UCs (HYG-01/03/04, REC-01, REC-05, VER-03) are deterministic single-surface
   passes or founder-gated tails — acceptable per the single-UC rule; no journey spans them by
   design.
 - Journey J-GEO-3 is the sprint-gate headline arc (rider-visible payoff); J-GEO-2 is the
-  fail-closed integrity arc — both must be stamped onto the sprints that deliver their UCs by
-  `/kb-sprint-plan`.
+  fail-closed integrity arc; J-AGT-1 is the agent-rebuild headline arc (the founder's real
+  failed session replayed honest, with a RED baseline against the recorded v1 replies) —
+  all must be stamped onto the sprints that deliver their UCs by `/kb-sprint-plan`.
 - Note: sibling PRDs (mvp, enrichment) predate this matrix file; their blocks should be
   back-filled here on their next update rather than retro-authored now.
 

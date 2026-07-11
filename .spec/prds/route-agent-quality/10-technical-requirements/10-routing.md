@@ -50,4 +50,13 @@ artifacts — deliberately NOT app routes, mirroring the enrichment trust-bounda
 - UC-SURF-04 → Route Plan View (HOME) / `thin-region-absence`
 - UC-SURF-05 → Curated Route Detail / `provenance-caption`
 - UC-SURF-06 → Curated Route Detail / `geometry-absent` + Saved Route Detail redirect
+- UC-AGT-03 → Route Plan View (HOME) / `clarifying-question` (a chat-content state)
+- UC-AGT-04 → Route Plan View (HOME) / `grounded-results` (distance-bearing chat replies + thin-coverage candor)
+- UC-AGT-01/02/05 are conversation-engine/operator-facing — no new routes or visual states beyond the chat content itself
 - UC-SURF-01 and all HYG/REC/VER UCs are backend/operator-facing — no app routes (by design)
+
+## Route Delta — v2.0.0 (AGT)
+
+| Route | NEW/CHANGED/DELETED | Detail | Discriminator rationale |
+|---|---|---|---|
+| Route Plan View (HOME) | **CHANGED** | Chat conversation gains `clarifying-question` and `grounded-results` (distances + thin-coverage candor) content states; rendered through the existing message/card components — no new components, no navigation change | Not a seam — chat message content within the same frame, exactly like the existing suggestion/absence states; the agent rebuild changes what the surface says, not where conversation happens |

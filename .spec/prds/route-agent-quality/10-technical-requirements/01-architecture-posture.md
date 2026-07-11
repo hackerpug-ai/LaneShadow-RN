@@ -81,3 +81,38 @@ real routes), and the existing **`low` tier on a different provider** for the ri
 classifier (cross-provider decorrelation, mirroring enrichment's cross-provider QA). Forced
 tool calls (`emit_anchors` / `emit_verdict` with typed schemas) replace the PoC's JSON-regex
 parse. No provider/model literals outside the tier map.
+
+## Agent layer (AGT, v2.0.0) — smart loop with tools, not a dispatcher
+
+**Diagnosis this replaces:** discovery ran through `buildDiscoveryIntentFromQuery`
+(`convex/actions/agent/agents/orchestrator.ts:197`) — a regex keyword matcher with a
+one-entry place gazetteer that never passed the rider's known location as `center` and
+hardcoded `sort:'best'`; the orchestrator's "high" tier was gpt-4.1 as an emergency fallback
+from a budget model. Intelligence had been moved out of the model into rigid scaffolding;
+the scaffolding became the ceiling.
+
+**The stance:** one capable model owns intent; deterministic code owns guarantees.
+
+- **Framework:** `@mastra/core` Agent embedded in the existing Convex `'use node'` actions
+  (`sendMessage` entry unchanged for the app). No standalone Mastra server; Convex remains
+  the only backend and store. Mastra supplies the agent loop, tool registry, memory
+  abstraction, and telemetry hooks; the existing `runAgent.ts` ReAct loop, the orchestrator
+  dispatch, its sub-agent meta-tools, and the regex intent path are deleted.
+- **Model:** a new **`orchestrator` tier → Anthropic Sonnet-class** in the tier map.
+  Cost ≈1–3¢ per conversation turn. Budget tiers remain for classifier/summarizer jobs.
+- **Tools (the honest contract):** `searchCuratedRoutes({center, radiusMi, archetypes?,
+  text?, limit?})` — rider-ready-only via the SURF gate, returns per-route `distanceMi` from
+  center; `geocodePlace(name)` — the same real geocoding capability the routing pipeline
+  uses (no hardcoded city lists); the preserved deterministic route pipeline (`planRoute`
+  et al.); search/enrichment/weather tools re-registered as-is. Tool argument validation,
+  budget tracking, rate limits, and the rider-ready gate stay deterministic code.
+- **Memory:** in-session only — a Mastra memory adapter backed by the existing Convex
+  session tables (`planning_sessions` / `session_messages`); no new storage system.
+- **Behavior policies (prompt-encoded, eval-enforced):** ground every discovery in a
+  resolved center; ask exactly one targeted clarifying question when unresolvable; state
+  real distances; never claim proximity tool results don't show; offer the custom-route
+  fallback on thin coverage. Policies are graded by the AGT eval harness — violations fail
+  the run, so prompt drift is caught by evals, not by the founder's thumb.
+- **What stays deterministic:** everything that must always happen — persistence, event
+  emission, gated reads, cost caps — is code around the loop, never a prompt instruction
+  (unchanged from this repo's agent doctrine in `convex/actions/agent/CLAUDE.md`).

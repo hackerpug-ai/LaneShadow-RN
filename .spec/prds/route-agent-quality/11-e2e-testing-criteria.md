@@ -1,15 +1,16 @@
 ---
 stability: TEST_SPEC
 last_validated: 2026-07-10
-prd_version: 1.0.0
+prd_version: 2.0.0
 ---
 
-# E2E / Human Testing Criteria — Geometry Completion
+# E2E / Human Testing Criteria — Route & Agent Quality
 
-Version 1.0.0 · 2026-07-10 · **67 criteria across 20 UCs** — every AC referenced by ≥1
+Version 2.0.0 · 2026-07-10 · **82 criteria across 25 UCs** — every AC referenced by ≥1
 criterion. Types: [human-gate] · [e2e-automated] (Maestro, iOS sim, live dev deployment) ·
-[integration-test] (vitest vs real dev deployment; pipeline tier hits REAL Google + LLM APIs)
-· [api-contract] · [build-gate]. AC refs are positional within each UC (AC-1 = first ☐).
+[integration-test] (vitest vs real dev deployment; pipeline tier hits REAL Google + LLM APIs;
+agent tier includes fixtured-seam transcript replay) · [api-contract] · [build-gate]. AC refs
+are positional within each UC (AC-1 = first ☐).
 
 ## HYG: Catalog Hygiene
 
@@ -186,18 +187,60 @@ criterion. Types: [human-gate] · [e2e-automated] (Maestro, iOS sim, live dev de
 | T-SURF-020 | Un-recovered saved route renders the honest approximate state | AC-2 | [e2e-automated] | Saved centroid-only route reopened | Existing "Approximate location" state (`curated-detail-approximate-badge`) shown; no fake line |
 | T-SURF-021 | Shadow-merged saved route resolves to canonical | AC-3 | [integration-test] | Save a row, then mark it `duplicateOf` a canonical | `getCuratedRouteDetail` returns the canonical row's detail |
 
+## AGT: Agent Quality
+
+### UC-AGT-01: Rebuild the conversation layer on Mastra
+
+| # | Criterion | AC Ref | Type | Setup | Pass/Fail |
+|---|---|---|---|---|---|
+| T-AGT-001 | One Mastra loop serves discovery, routing, search, and enrichment end to end | AC-1 | [integration-test] | Real dev deployment; Mastra agent in the `'use node'` action on the real `orchestrator` tier; one request of each class | Each request completes through the single agent loop; replies persist via the existing session-message path; no orchestrator dispatch code in the trace |
+| T-AGT-002 | Regex intent path deleted; model resolution tier-mapped | AC-2, AC-4 | [build-gate] | Grep + tsc | `buildDiscoveryIntentFromQuery` and the place gazetteer are absent from the codebase; zero provider/model literals outside the tier map; `orchestrator` tier resolves a Sonnet-class Anthropic model; tsc clean |
+| T-AGT-003 | Deterministic routing pipeline preserved as tools | AC-3 | [integration-test] | "Slc to park city" through the rebuilt agent on dev | A compiled route with real polyline persists, matching the pre-rebuild behavior; the pipeline ran via tool calls |
+| T-AGT-004 | In-session memory carries context across turns | AC-5 | [integration-test] | Turn 1 establishes SLC context; turn 2 = "OK what's scenic" | Turn 2's `searchCuratedRoutes` call carries a center within ~25 mi of SLC, proven from captured tool args |
+| T-AGT-005 | Guarantees are code, not prompt | AC-6 | [integration-test] | Malformed tool args injected at the seam; budget/rate paths exercised | Validator rejects the call before any side effect; budget/rate enforcement fires from code paths; rider-ready gate identical to browse's |
+
+### UC-AGT-02: Ground discovery in the rider's location
+
+| # | Criterion | AC Ref | Type | Setup | Pass/Fail |
+|---|---|---|---|---|---|
+| T-AGT-006 | Center always resolved; tool refuses ungrounded calls | AC-1, AC-3 | [integration-test] | Session-location case + "near Ogden" (no session location) case; `searchCuratedRoutes` called without center as negative control | Both cases produce a real center (session coords / geocoded Ogden ≈41.22,-111.97); the center-less call throws; geocoding uses the shared provider (no hardcoded list) |
+| T-AGT-007 | "Near Ogden" returns within-radius, nearest-first | AC-2 | [integration-test] | Seeded rider-ready routes at 10/40/170 mi from Ogden on dev | Result contains the 10- and 40-mi routes ordered nearest-first; the 170-mi route (Capitol Reef class) is absent |
+| T-AGT-008 | No silent widening; far routes never "near" | AC-4, AC-5 | [integration-test] | Thin-radius region; replay grader over the reply | Any widened search is explicitly labeled in the reply; no suggestion beyond the stated radius appears without its distance; grader passes |
+
+### UC-AGT-03: Interrogate when intent is ambiguous
+
+| # | Criterion | AC Ref | Type | Setup | Pass/Fail |
+|---|---|---|---|---|---|
+| T-AGT-009 | Unresolvable location yields exactly one targeted question | AC-1, AC-3 | [integration-test] | No session location; "find me something scenic" (no place named); then rider declines to clarify | Reply is one clarifying question (not results, not deflection); after decline, agent proceeds best-effort with honest labeling; never two questions in one turn |
+| T-AGT-010 | Unclear ride type asks; resolvable requests answer | AC-2, AC-4 | [integration-test] | "Something that slaps" (unmappable) vs "scenic rides near SLC" with known location | First yields one targeted question; second yields grounded results with zero questions |
+
+### UC-AGT-04: Be honest about distance and thin data
+
+| # | Criterion | AC Ref | Type | Setup | Pass/Fail |
+|---|---|---|---|---|---|
+| T-AGT-011 | Distances visible; thin coverage stated with alternative + custom offer | AC-1, AC-3, AC-4 | [e2e-automated] | Maestro: chat discovery in a seeded thin region (Ogden-like) on the sim, live dev deployment | Every suggested route's reply text/card carries its real distance; thin reply names the searched radius + nearest option with distance + offers a custom route |
+| T-AGT-012 | No false proximity; claims tool-sourced | AC-2, AC-5 | [integration-test] | Replay grader over discovery replies incl. the Ogden fixture | Zero replies describe a beyond-radius route as "near"; every name/distance/score in prose maps to a tool-result field |
+
+### UC-AGT-05: Prove and observe agent behavior
+
+| # | Criterion | AC Ref | Type | Setup | Pass/Fail |
+|---|---|---|---|---|---|
+| T-AGT-013 | Captured failure session replays deterministically with policy graders | AC-1, AC-2 | [integration-test] | `pnpm agent:eval` on the recorded 2026-07-10 SLC/Ogden transcript; model seam fixtured; tools/queries real vs dev | Replay asserts tool selection + center args + outcome states; the old behavior (ungrounded state-best) fails; the rebuilt behavior passes; any policy violation exits non-zero naming policy + turn |
+| T-AGT-014 | Real-API smoke + per-turn traces inspectable | AC-3, AC-4 | [human-gate] | Founder runs `pnpm agent:eval --smoke` (cost-capped) then opens the LangSmith project | Smoke lane completes on the real orchestrator model against dev; founder locates the per-turn trace (model + tool calls with args, timings, cost) for a conversation |
+| T-AGT-015 | Eval artifacts + negative control | AC-5 | [e2e-automated] | Full eval run + a deliberately-injected false-proximity reply fixture | `agent-evals/report.json` produced and archived; the injected violation FAILS the grader (proves the teeth) |
+
 ## Summary
 
 | Type | Count |
 |---|---|
-| [integration-test] | 49 |
-| [e2e-automated] | 10 |
-| [human-gate] | 5 |
+| [integration-test] | 60 |
+| [e2e-automated] | 12 |
+| [human-gate] | 6 |
 | [api-contract] | 5 |
-| [build-gate] | 1 |
-| **Total** | **67 rows** (3 rows carry a second type; type-tags sum to 70) |
+| [build-gate] | 2 |
+| **Total** | **82 rows** (3 rows carry a second type; type-tags sum to 85) |
 
-AC coverage: 106/106 ACs referenced by ≥1 criterion (positional refs per UC).
+AC coverage: 131/131 ACs referenced by ≥1 criterion (positional refs per UC).
 
 ## Maintenance
 

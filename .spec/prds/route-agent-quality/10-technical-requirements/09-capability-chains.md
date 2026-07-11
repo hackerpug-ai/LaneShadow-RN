@@ -118,3 +118,47 @@ Per `~/Projects/brain/docs/CAPABILITY-CHAIN-PLANNING.md`. Trigger verbs present 
 - **Proof:** integration on a real endpoint-named row → `name_routed` PASS on real Google
   APIs.
 - **Owners:** convex-implementer.
+
+## CAP-AGT-01 — Location-grounded conversational discovery (utterance → grounded suggestions)
+
+- **Promise:** a rider's discovery utterance ends as rider-ready suggestions within a stated
+  radius of a real center, an honest thin-coverage statement with the nearest alternative, or
+  one targeted clarifying question — never ungrounded results presented as "near."
+- **Trigger:** rider sends a discovery message through the chat surface.
+- **Ordered hops:** `sendMessage` action → Mastra agent (orchestrator tier) → resolve center
+  (session location ∨ `geocodePlace`) → `searchCuratedRoutes({center, radiusMi})` (SURF-gated
+  query, per-route `distanceMi`) → reply composed only from tool results (distances echoed) →
+  attachments/cards persisted via the existing session-message path → RN render.
+- **Boundary contracts:** `searchCuratedRoutes` throws without `center` (grounding is
+  structural, not prompted); tool args validated at the boundary; model resolved through the
+  tier map with deployment-env keys, redacted from logs and traces; reply claims sourced from
+  tool results only; the rider-ready gate is the same one browse uses (no agent side-door).
+- **Failure modes:** no session location ∧ no place in utterance → one clarifying question;
+  geocode miss → clarifying question naming the miss; zero results in radius → honest
+  thin-coverage statement + nearest alternative + custom-route offer; model/provider outage →
+  existing error message path, never fabricated suggestions.
+- **Proof:** transcript-replay eval (fixtured model seam) asserts tool selection + center
+  args + outcome states on the real SLC/Ogden session; the smoke lane proves the wiring on
+  the real orchestrator model + dev deployment; Maestro drives the chat surface cold-boot.
+- **Owners:** mastra-implementer (agent layer) + convex-implementer (tools/queries).
+
+## CAP-AGT-02 — Eval replay + observability (transcript → graded verdict → trace)
+
+- **Promise:** any recorded conversation can be replayed deterministically and graded
+  against the behavior policies, and any live conversation can be inspected per-turn — a
+  behavior regression is visible as a failed artifact before a build reaches the founder.
+- **Trigger:** `pnpm agent:eval` (fixtured) / `pnpm agent:eval --smoke` (real-API,
+  cost-capped) / any live conversation (traces).
+- **Ordered hops:** transcript fixture → replay driver → Mastra agent with the model signal
+  fixtured at the tool-call seam → captured tool calls + final states → policy graders →
+  `agent-evals/report.json`; live path: Mastra telemetry export → LangSmith project.
+- **Boundary contracts:** fixtures contain no secrets; the fixtured seam is the model call
+  ONLY (tools, queries, gates run real against the dev deployment — principled seam, not
+  core-logic stubbing); smoke lane spend-capped; trace payloads redact keys.
+- **Failure modes:** grader violation → non-zero exit + named policy + turn; fixture drift
+  after a tool-contract change → replay fails loudly (fixtures are versioned with the
+  contract); LangSmith outage degrades to console traces, never blocks the rider.
+- **Proof:** the captured 2026-07-10 failure session replays RED against the old behavior
+  and GREEN against the rebuilt agent; a deliberately-injected false-proximity reply fails
+  the grader (negative control).
+- **Owners:** mastra-evals-implementer (harness) + observability wiring: mastra-implementer.

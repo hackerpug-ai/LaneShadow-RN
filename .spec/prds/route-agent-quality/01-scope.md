@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
 last_validated: 2026-07-10
-prd_version: 1.0.0
+prd_version: 2.0.0
 scope_posture: full
 ---
 
@@ -69,6 +69,31 @@ Scope Posture: **Full feature** (default — complete, polished initiative).
   detail.*
 - **Coverage reporting**: per-lever yields, gate PASS %, rider-ready counts by state — the
   live T1 verdict. *Testable: report counts reconcile with table queries.*
+- **Mastra rebuild of the conversation layer**: one `@mastra/core` agent loop (embedded in
+  the existing Convex `'use node'` actions) replaces the orchestrator dispatch and the regex
+  discovery shim; the deterministic routing pipeline is preserved as agent tools; a new
+  Sonnet-class `orchestrator` model tier via the existing tier map. *Testable:
+  `buildDiscoveryIntentFromQuery` and the place gazetteer are deleted; "Slc to park city"
+  still compiles a route; no provider/model literals outside the tier map.*
+- **Location-grounded discovery**: every discovery request resolves a center (session
+  location or geocoded place name) and searches by radius, nearest first; silent state/
+  national widening deleted. *Testable: "twisty near Ogden" returns only routes within the
+  radius of Ogden, nearest first.*
+- **Interrogation policy**: exactly one targeted clarifying question when intent is
+  unresolvable; none when it is resolvable. *Testable: no-location + no-session-location
+  discovery yields one question; known-location "scenic near SLC" yields results.*
+- **Honesty policy**: real distance on every conversational suggestion; no prose proximity
+  claims the data doesn't support; thin coverage stated with nearest real alternative +
+  custom-route offer. *Testable: no reply contains "near {place}" for a route beyond the
+  search radius; thin-region replies name the radius and nearest option.*
+- **In-session conversation memory**: stated preferences and prior locations persist across
+  turns via a Mastra memory adapter backed by the existing Convex session store. *Testable:
+  "OK what's scenic" after an SLC turn searches near SLC.*
+- **Agent eval harness + observability**: recorded transcripts (incl. the real SLC/Ogden
+  failure) replay against a fixtured model seam with behavior graders; a cost-capped
+  real-API smoke lane; per-turn traces wired to LangSmith. *Testable: replaying the Ogden
+  transcript fails the eval if any suggestion exceeds the radius unlabeled; a trace exists
+  per conversation turn.*
 
 ## Out of Scope
 
@@ -86,3 +111,11 @@ Scope Posture: **Full feature** (default — complete, polished initiative).
 - **App-store release work** — data + read-path initiative, verified on the dev deployment.
 - **Parallel batch execution** — batches are serial by construction in v1; a lease field is
   flagged as a future need, not built.
+- **Cross-session personalization / long-term rider profiles** — [DEFERRED] memory in this
+  PRD is in-session only; durable taste profiles are a future initiative.
+- **Standalone Mastra server / new deployment infrastructure** — [LOCKED OUT] `@mastra/core`
+  embeds in the existing Convex actions; Convex remains the only backend and store.
+- **Voice, proactive notifications, or new chat surfaces** — the agent rebuild changes what
+  the existing chat surface says, not where conversation happens.
+- **Prompt-only fixes to the old orchestrator** — [SUPERSEDED] the dispatch architecture and
+  regex intent path are replaced, not tuned.

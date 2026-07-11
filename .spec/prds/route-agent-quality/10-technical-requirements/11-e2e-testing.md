@@ -4,7 +4,7 @@ last_validated: 2026-07-10
 prd_version: 1.0.0
 ---
 
-# E2E Harness Constitution — Geometry Completion
+# E2E Harness Constitution — Route & Agent Quality
 
 Per `brain/docs/E2E-HARNESS-CONSTITUTION.md`. Inherits the MVP + enrichment posture; assert
 **engine outcomes** — persisted verdicts, provenance, `riderReady` flags, gated query results
@@ -73,6 +73,33 @@ Convex action (real Anthropic + Google) → gate → persist `ai_reconstructed` 
 `recomputeRiderReady` → `listCuratedRoutes` returns it → Maestro plots it on the sim from a
 cold boot. The constitution is INCOMPLETE until this flow is green through the turnkey
 runners — it de-risks the pi-ai geometry-tier wiring and the gate→query→render seam in a day.
+
+## 5b. The Mastra reference conversation (AGT spike gate)
+
+**One real conversation through the embedded framework before the agent deep build:** a
+`@mastra/core` Agent constructed inside a Convex `'use node'` action, on the real
+`orchestrator` tier, with `geocodePlace` + `searchCuratedRoutes` registered, answers
+"twisty roads near Ogden" end to end on the dev deployment — center geocoded, SURF-gated
+results with distances, reply rendered through the existing session-message path, and a
+trace visible in LangSmith. Proves: Mastra runs in the Convex Node runtime (bundling,
+cold-start), the tool seam fixture point exists for evals, and telemetry export works. The
+AGT rebuild is BLOCKED until this is green (risk #11's fallback triggers if it cannot be).
+
+## 5c. Agent eval lane (AGT)
+
+- **Fixtured replay (deterministic):** `pnpm agent:eval` replays recorded transcripts —
+  including the captured 2026-07-10 SLC/Ogden failure session — with the model signal
+  fixtured at the tool-call seam. Tools, queries, and gates run REAL against the dev
+  deployment (principled seam). Graders assert: tool selection, `center` presence + value,
+  radius honesty (no suggestion beyond `searchedRadiusMi` unlabeled), asked-when-ambiguous,
+  distance-stated, no-false-proximity in prose. A violation exits non-zero naming policy +
+  turn.
+- **Real-API smoke (cost-capped, operator-triggered):** `pnpm agent:eval --smoke` runs a
+  small transcript set on the real orchestrator model; SKIP-with-reason on provider outage,
+  never fake success.
+- **Negative control:** a deliberately-injected false-proximity reply must FAIL the grader.
+- **CI placement:** fixtured replay is a blocking lane on agent-touching changes; smoke is
+  the recorded pre-merge evidence artifact, like the geometry smoke lane.
 
 ## 6. Flake policy
 

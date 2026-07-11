@@ -26,3 +26,16 @@ prd_version: 1.0.0
 | `convex/actions/agent/lib/models.ts` + `convex/lib/env.ts` | Modified | Add the dedicated `geometry` LLM tier; confirm `ANTHROPIC_API_KEY` / `GOOGLE_MAPS_API_KEY` deployment-env wiring. |
 | Driver scripts | New (precedent: `scripts/backfill-curated-geometry.ts`) | `scripts/reconstruct-curated-geometry.ts` (`--lever=1\|2\|3 --sample/--all/--cursor/--top`), `scripts/classify-curated-routes.ts`, `scripts/geometry-coverage-report.ts`, `scripts/geometry-couch-sample.ts` (renders ~25 Mapbox static PNGs locally + manifest). |
 | Superseded: Nominatim/Overpass name-anchored backfill (`convex/actions/curatedGeometry.ts`) | Retired | The name-only geocode + no-validation path is the documented root cause; kept only until the levers land, then removed. Its resumable-scan scaffolding is reused. |
+
+## Agent layer components (AGT, v2.0.0)
+
+| Component | Type | Role |
+|---|---|---|
+| `convex/actions/agent/rideAgent.ts` (Mastra agent) | New (`'use node'`) | The single `@mastra/core` Agent: Sonnet-class `orchestrator` tier, behavior-policy system prompt, tool registry, in-session memory. Entry stays `sendMessage`; the app contract is unchanged. |
+| `searchCuratedRoutes` agent tool | New | The honest discovery contract: `{center, radiusMi, archetypes?, text?, limit?}` → rider-ready routes with per-route `distanceMi`; reads the SURF-gated queries; refuses to run without a center. |
+| `geocodePlace` agent tool | New (wraps existing provider) | Place-name → lat/lng via the geocoding provider the routing pipeline already uses; replaces the hardcoded gazetteer. |
+| Routing-pipeline tool wrappers | Modified | The deterministic geocode → sketch → compile pipeline (works today) re-registered as Mastra tools; search/enrichment/weather tools re-registered as-is. |
+| Mastra memory adapter (Convex-backed) | New | In-session preferences + prior locations persisted through the existing session tables; no new storage system. |
+| Agent eval harness (`scripts/agent-evals/` + fixtures) | New | Transcript replay against the fixtured model seam + behavior graders (asked-when-ambiguous, distance-stated, no-false-proximity) + cost-capped real-API smoke lane; results recorded as artifacts. |
+| Mastra telemetry → LangSmith wiring | New | Per-turn traces (model calls, tool calls + args, timings, cost) to the already-provisioned LangSmith project. |
+| Deleted: orchestrator dispatch + sub-agent meta-tools + `buildDiscoveryIntentFromQuery` + `KNOWN_PLACE_STATES` + `runAgent.ts` loop | Retired | The regex intent path and the query-paraphrase dispatch hops are removed, not tuned. `executeDiscoverCuratedRoutes`'s query logic is absorbed into `searchCuratedRoutes`. |

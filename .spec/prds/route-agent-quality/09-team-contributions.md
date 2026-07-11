@@ -2,6 +2,7 @@
 
 PRD authored 2026-07-10 by a planner team against the live repo, the full prod-export audit
 (`.spec/proposals/geometry-completion/STRATEGY.md`), and the real-service reconstruction PoC.
+v2.0.0 adds the AGT group from the same-day agent-failure diagnosis (Phase 5).
 
 ## Phase 1 — User Personas (product-manager + frontend-designer)
 
@@ -47,3 +48,18 @@ PRD authored 2026-07-10 by a planner team against the live repo, the full prod-e
   fixture the LLM signal only, always paired with a cost-capped real-API smoke lane; assert
   engine outcomes (verdicts, flags, gated query results), never LLM prose.
 - E2E testing criteria: every AC referenced by ≥1 typed criterion (T-{PREFIX}-{NNN}).
+
+## Phase 5 — Agent Diagnosis & Rebuild Direction (v2.0.0, founder + lead)
+
+- Live-evidence diagnosis of the founder's failed session (real `session_messages`
+  transcripts + orchestrator source + near-SLC/Ogden catalog replay): discovery ran through
+  a regex keyword matcher (`buildDiscoveryIntentFromQuery`) with a one-entry gazetteer that
+  never passed the rider's known location and hardcoded best-first sort; the orchestrator's
+  "high" tier was gpt-4.1 as an emergency fallback from a budget model; near Ogden the
+  catalog held 3 routes ≤30 mi, zero plottable — both halves broken.
+- Founder-ratified decisions: full rebuild of the conversation layer on an agent framework
+  (Mastra confirmed); Sonnet-class quality-first model; interrogate-when-ambiguous + honest
+  distances; fold into this PRD as the AGT group (initiative renamed Route & Agent Quality).
+- Preservation ruling: the deterministic routing pipeline (proven working in the same
+  session) is wrapped as tools, not rewritten; behavior policies are eval-enforced with the
+  captured failure session as the permanent regression suite.

@@ -94,3 +94,14 @@ Existing indexes (`by_composite_score`, `by_routeId`, `by_state`, `by_name_lower
 Push schema + new indexes **before** the first backfill writes `riderReady`; the composite
 index backfills via the `recomputeRiderReadyBatch` sweep, not at push time. Additive-optional
 fields are data-safe (Convex re-validates on push; enrichment precedent).
+
+## Agent layer (AGT, v2.0.0) — no new tables
+
+The Mastra memory adapter is backed by the **existing** session tables
+(`planning_sessions`, `session_messages`) — in-session working memory (stated preferences,
+resolved locations) serializes into the session rows the app already persists and trims.
+Eval results and transcript fixtures are **repo artifacts** (files under the eval harness),
+not database rows. If the implementer finds Mastra's storage interface needs a dedicated
+key-value shape, the sanctioned design is a small `agent_memory` table keyed by
+`planningSessionId` (additive, optional) — flagged as an implementation decision, not
+pre-committed here.

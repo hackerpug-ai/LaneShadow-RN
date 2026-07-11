@@ -80,3 +80,26 @@ write; public reads stay Clerk-gated.
 `scripts/geometry-coverage-report.ts` · `scripts/geometry-couch-sample.ts` (reads top-25
 candidates, renders Mapbox static PNGs locally → `.tmp/GEO/couch-sample/`, writes manifest;
 no image bytes through Convex).
+
+## Agent tool contracts (AGT, v2.0.0)
+
+The app-facing entry (`actions/agent/sendMessage`) keeps its existing signature — the
+rebuild is behind it. Inside the Mastra agent, tools are typed contracts (Zod/TypeBox
+schemas, validated at the call boundary):
+
+| Tool | Args → Returns | Contract |
+|---|---|---|
+| `searchCuratedRoutes` | `{center:{lat,lng}, radiusMi (default 50, max 150), archetypes?, text?, limit? (≤20)}` → `{routes:[{routeId,name,distanceMi,archetype,lengthMiles,score,oneLiner}], searchedRadiusMi, totalWithinRadius}` | Rider-ready rows only (SURF gate); `center` REQUIRED — the tool throws without one, making ungrounded discovery structurally impossible; results sorted nearest-first; `distanceMi` computed from `center`, never fabricated. |
+| `geocodePlace` | `{query, biasCenter?}` → `{lat,lng,formatted} \| {notFound:true}` | Same provider as the routing pipeline; regional bias from session location; no hardcoded place list. |
+| `planRoute` (wrapper) | existing routing-pipeline args | The deterministic geocode → sketch → compile pipeline unchanged; the custom-route fallback for thin coverage. |
+| `searchNearby` / `webSearch` / enrichment + weather tools | existing args | Re-registered as-is on the Mastra tool registry. |
+
+**Behavior-policy enforcement points:** `searchCuratedRoutes` requiring `center` enforces
+grounding structurally; distance-honesty and interrogation are prompt policies graded by the
+eval harness (see 11-e2e-testing §5b); the reply renderer keeps existing attachments/cards
+contracts so RN surfaces need no changes beyond SURF's.
+
+**Eval harness surfaces (repo, not Convex):** `pnpm agent:eval` replays
+`scripts/agent-evals/fixtures/*.transcript.json` (incl. the captured 2026-07-10 SLC/Ogden
+session) with the model seam fixtured; `pnpm agent:eval --smoke` runs the small real-API
+lane against the dev deployment; both emit `agent-evals/report.json` artifacts.

@@ -57,8 +57,28 @@ prd_version: 1.0.0
   existing action stays in-tree only until the levers land, then is removed. Reference during
   removal: https://nominatim.org/release-docs/latest/api/Search/.
 
+## Agent layer (AGT, v2.0.0)
+
+- **`@mastra/core`** — the agent framework: Agent loop, tool registry, memory abstraction,
+  telemetry hooks; embedded in the existing Convex `'use node'` actions (no standalone
+  server). Docs: https://mastra.ai/docs · repo: https://github.com/mastra-ai/mastra.
+  Constraint to verify in the spike: clean operation inside the Convex Node runtime
+  (bundling, no server-only assumptions) — this is the Mastra reference-conversation spike
+  gate (11-e2e-testing §5b). Local KB: the `mastra-patterns` skill + mastra
+  planner/implementer/reviewer specialists.
+- **Anthropic Sonnet-class via the `orchestrator` tier** — conversation model; ~1–3¢/turn;
+  same pi-ai/tier-map indirection and registry-verification escape as the geometry tier.
+  Docs: https://docs.anthropic.com/en/docs/about-claude/models.
+- **LangSmith** — trace backend for per-turn agent observability; env already provisioned
+  (`LANGSMITH_API_KEY`/`LANGSMITH_PROJECT` on the deployment). Docs:
+  https://docs.smith.langchain.com/. Wire via Mastra telemetry export.
+- **Retired with the rebuild:** the orchestrator dispatch prompt machinery and
+  `@mariozechner/pi-ai`'s `runAgent.ts` loop for conversation (pi-ai remains in use for the
+  pipeline tiers: geometry anchor extraction, classifier, enrichment).
+
 ## Cost envelope
 
 Lever 2 ≈ $0.07/route (LLM ~$0.02 ×≤2 attempts + geocode ~8×$0.005 + routes ~$0.01); lever 3
 ≈ $0.02/route (no LLM); classifier ≈ $0.002/route on the low tier. Full recoverable backfill
-≈ **$150**, one overnight serial run.
+≈ **$150**, one overnight serial run. Conversation: ≈1–3¢ per rider turn on the
+`orchestrator` tier; the eval smoke lane is operator-triggered and cost-capped.
