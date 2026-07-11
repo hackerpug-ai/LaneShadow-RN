@@ -16,6 +16,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "build:ios": "expo run:ios --device",
+    "build:ios:tf": "eas build --platform ios --profile production --auto-submit",
+    "submit:ios": "eas submit --platform ios --profile production --latest",
     "devices:list": "xcrun devicectl list devices",
     "web": "expo start --web",
     "type-check": "tsc --noEmit -p convex/tsconfig.json && tsc --noEmit -p tsconfig.json",
