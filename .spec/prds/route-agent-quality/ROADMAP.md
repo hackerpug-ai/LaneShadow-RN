@@ -14,7 +14,7 @@ pr_sequencing: false
 
 **Sprints:** 10
 **Total Tasks:** 61
-**Current Sprint:** — (none in progress)
+**Current Sprint:** 1 — Geometry reference-flow spike (In Progress; tasks expanded)
 
 Gate-first roadmap for the v3.1.1 PRD (26 UCs / 142 ACs / 97 criteria). Every sprint closes on a
 human-testing gate the Founder-Operator verifies on the running app or via a real operator command
@@ -36,7 +36,7 @@ green the whole Saturday Bar (Richness R1/R2, Feel F1–F3, Proof P1–P3 are se
 
 | # | Sprint | Gate | Tasks | Dependencies | Status |
 |---|--------|------|-------|--------------|--------|
-| 1 | [Geometry reference-flow spike](#sprint-01-geometry-reference-spike) | Founder watches one recovered route plot its correct road line from a cold boot | 4 | — | Planned |
+| 1 | [Geometry reference-flow spike](#sprint-01-geometry-reference-spike) | Founder watches one recovered route plot its correct road line from a cold boot | 4 | — | In Progress |
 | 2 | [Mastra spike + z.ai proof + enrichment re-ratification](#sprint-02-mastra-reference-spike) | Turn-two "OK what's scenic" inherits the Ogden center on cloud dev | 8 | — | Planned |
 | 3 | [Catalog hygiene](#sprint-03-catalog-hygiene) | Founder confirms canonical-vs-shadow per duplicate group before merge commits | 4 | — | Planned |
 | 4 | [Trust pipeline](#sprint-04-trust-pipeline) | Founder reviews the ~25 couch-sample lines and records the pass that unlocks the batch | 7 | 1, 3 | Planned |
@@ -58,7 +58,7 @@ The eight capability chains (CAP-GEO-01…06, CAP-AGT-01/02) are each owned by �
 
 **Sequence:** 1
 **Timeline:** Phase 1 (parallel opener)
-**Status:** Planned
+**Status:** In Progress
 **Proposed by:** product-manager + convex-planner (lane) + aisdk-planner (anchor completion) + react-native-ui-planner (cold-boot plot flow)
 
 #### Human Testing Gate
@@ -83,7 +83,12 @@ The eight capability chains (CAP-GEO-01…06, CAP-AGT-01/02) are each owned by �
 | S1-T3 | Maestro cold-boot plot-verification flow for the single recovered route | react-native-ui-implementer | 75 min |
 | S1-T4 | Observe the recovered line plotted from cold boot; record the §5 seam as green | Founder-Operator | 25 min |
 
-**Next Sprint Tasks:** *(populated JIT by kb-sprint-tasks-plan)*
+**Next Sprint Tasks:** *(expanded by kb-sprint-tasks-plan on 2026-07-11 → [`tasks/sprint-01-geometry-reference-spike/`](./tasks/sprint-01-geometry-reference-spike/))*
+
+- S1-T1-direct-ai-sdk-anchor-extraction-completion.md
+- S1-T2-deterministic-gate-reconstruct-persist-query.md
+- S1-T3-maestro-cold-boot-plot-verification-flow.md
+- S1-T4-founder-observe-recovered-line-plot.md
 
 #### Dependencies
 
