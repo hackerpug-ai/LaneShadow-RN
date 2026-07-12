@@ -3,7 +3,7 @@ sprint: 1
 slug: sprint-01-geometry-reference-spike
 sequence: 1
 timeline: Phase 1 (parallel opener)
-status: In Progress
+status: Done
 prd: .spec/prds/route-agent-quality/README.md
 prd_version: 3.1.1
 roadmap: .spec/prds/route-agent-quality/ROADMAP.md
@@ -14,7 +14,7 @@ generated_by: kb-sprint-tasks-plan
 
 **Sequence:** 1
 **Timeline:** Phase 1 (parallel opener)
-**Status:** In Progress
+**Status:** Done
 **Proposed by:** product-manager + convex-planner (lane) + aisdk-planner (anchor completion) + react-native-ui-planner (cold-boot plot flow)
 
 ## Overview

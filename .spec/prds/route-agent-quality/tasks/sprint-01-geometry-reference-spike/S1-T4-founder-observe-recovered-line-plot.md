@@ -7,7 +7,7 @@
 | TASK_TYPE | HUMAN_GATE |
 | AGENT | Founder-Operator (manual) |
 | ESTIMATE | 25 min |
-| STATUS | Backlog |
+| STATUS | Done (CLI 1-5 + Maestro 6-7) |
 | PROPOSED_BY | product-manager + convex-planner + aisdk-planner + react-native-ui-planner (transcribed from ROADMAP human-gate) |
 | TDD_MODE | `skipped` (manual observation; the automated proof is S1-T3's Maestro flow) |
 | RED_GREEN_REQUIRED | no |

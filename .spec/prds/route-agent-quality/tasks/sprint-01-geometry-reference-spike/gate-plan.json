@@ -1,0 +1,70 @@
+{
+  "sprint": "sprint-01-geometry-reference-spike",
+  "planned_at": "2026-07-12T07:21:27Z",
+  "planned_steps": 7,
+  "steps": [
+    {
+      "n": 1,
+      "text": "Reconstruct one real PoC route through a Convex action on real APIs.",
+      "type": "terminal",
+      "literal_cmd": "npx convex run ...",
+      "assertion": {
+        "kind": "exit_and_log_regex"
+      }
+    },
+    {
+      "n": 2,
+      "text": "Confirm the deterministic gate admits the line within the ratio band.",
+      "type": "terminal",
+      "literal_cmd": "npx convex run ...",
+      "assertion": {
+        "kind": "exit_and_log_regex"
+      }
+    },
+    {
+      "n": 3,
+      "text": "Persist the line as ai_reconstructed and recompute its rider-ready flag.",
+      "type": "terminal",
+      "literal_cmd": "npx convex run ...",
+      "assertion": {
+        "kind": "exit_and_log_regex"
+      }
+    },
+    {
+      "n": 4,
+      "text": "Query listCuratedRoutes national-best mode; confirm the route appears.",
+      "type": "terminal",
+      "literal_cmd": "npx convex run ...",
+      "assertion": {
+        "kind": "exit_and_log_regex"
+      }
+    },
+    {
+      "n": 5,
+      "text": "Query listCuratedRoutes nearest mode; confirm the route appears.",
+      "type": "terminal",
+      "literal_cmd": "npx convex run ...",
+      "assertion": {
+        "kind": "exit_and_log_regex"
+      }
+    },
+    {
+      "n": 6,
+      "text": "Cold-boot the simulator and tap the recovered route.",
+      "type": "ui",
+      "literal_cmd": null,
+      "assertion": {
+        "kind": "locator_text_regex"
+      }
+    },
+    {
+      "n": 7,
+      "text": "Watch the correct road line plot on the map.",
+      "type": "ui",
+      "literal_cmd": null,
+      "assertion": {
+        "kind": "locator_text_regex"
+      }
+    }
+  ]
+}
