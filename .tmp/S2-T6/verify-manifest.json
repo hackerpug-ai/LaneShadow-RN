@@ -1,0 +1,11 @@
+{
+  "task_id": "S2-T6",
+  "verification_policy": { "requires_tests": true, "requires_red_evidence": true, "requires_seeded_evidence": true },
+  "project_commands": { "typecheck": "pnpm type-check", "lint": "pnpm lint", "test": "pnpm test" },
+  "requirements": [
+    { "id": "AC-1", "verify": "pnpm test -- convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts -t \"returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion\"" },
+    { "id": "AC-2", "verify": "pnpm test -- convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts -t \"generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it\"" },
+    { "id": "AC-3", "verify": "pnpm test -- convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts -t \"parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text\"" },
+    { "id": "AC-4", "verify": "pnpm test -- convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts -t \"createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts\"" }
+  ]
+}

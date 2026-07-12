@@ -1,0 +1,14 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T6
+
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-4: createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts > createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts
+{"ac":"AC-4","baseURL":"https://api.z.ai/api/coding/paas/v4","apiKeyMatchesEnvExport":true,"apiKeyIsNonEmptyString":true}
+
+ ✓ convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts (5 tests | 4 skipped) 2ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 4 skipped (5)
+   Start at  16:46:01
+   Duration  449ms (transform 30ms, setup 61ms, collect 42ms, tests 2ms, environment 226ms, prepare 27ms)
+

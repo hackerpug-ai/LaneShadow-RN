@@ -1,0 +1,17 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T6
+> vitest "convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts" "-t" "createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts"
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T6
+
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-4: createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts > createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts
+{"ac":"AC-4","baseURL":"https://api.z.ai/api/coding/paas/v4","apiKeyMatchesEnvExport":true,"apiKeyIsNonEmptyString":true}
+
+ ✓ convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts (5 tests | 4 skipped) 1ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 4 skipped (5)
+   Start at  16:50:48
+   Duration  411ms (transform 29ms, setup 58ms, collect 42ms, tests 1ms, environment 202ms, prepare 25ms)
+

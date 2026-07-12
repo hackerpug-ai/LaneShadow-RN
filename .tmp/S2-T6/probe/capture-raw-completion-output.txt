@@ -1,0 +1,17 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T6
+
+stdout | convex/actions/agent/lib/__tests__/__probe__.capture.test.ts > PROBE capture raw completion (temporary, not committed) > captures raw text-mode completion for AC-3 fixture
+===RAW_TEXT_START===
+{"summary": "This route is a scenic loop starting and ending at Highway 101 in Santa Maria, taking riders on a winding mountainous journey through Foxen and Tepusquet Canyons.", "confidence": "high"}
+===RAW_TEXT_END===
+
+ ✓ convex/actions/agent/lib/__tests__/__probe__.capture.test.ts (1 test) 14064ms
+   ✓ PROBE capture raw completion (temporary, not committed) > captures raw text-mode completion for AC-3 fixture  14064ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  16:44:00
+   Duration  14.49s (transform 27ms, setup 59ms, collect 39ms, tests 14.06s, environment 212ms, prepare 25ms)
+

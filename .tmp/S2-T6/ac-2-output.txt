@@ -1,0 +1,23 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T6
+> vitest "convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts" "-t" "generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it"
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T6
+
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it
+AI SDK Warning System: To turn off warning logging, set the AI_SDK_LOG_WARNINGS global to false.
+
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it
+{"ac":"AC-2","ok":true,"path":"structured","summary":"This scenic route follows Old Hwy 40 from Cisco Grove to Donner Lake, offering great twisties and notable stops at Rainbow Lodge and the Donner Lake vista point near historic Rainbow Bridge.","confidence":"high"}
+
+(node:25359) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts (5 tests | 4 skipped) 7181ms
+   ✓ zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it  7180ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 4 skipped (5)
+   Start at  16:50:39
+   Duration  7.59s (transform 28ms, setup 57ms, collect 41ms, tests 7.18s, environment 203ms, prepare 24ms)
+

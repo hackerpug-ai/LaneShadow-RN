@@ -1,0 +1,24 @@
+import { describe, expect, it } from 'vitest'
+import { generateText } from 'ai'
+import { buildZaiProofPrompt, createZaiProvider } from '../zaiProvider'
+
+describe('PROBE capture raw completion (temporary, not committed)', () => {
+  it('captures raw text-mode completion for AC-3 fixture', async () => {
+    const { provider } = createZaiProvider()
+    const model = provider('glm-5.2')
+    const prompt = buildZaiProofPrompt(
+      'Highway 101 in Santa Maria, CA. Exit Betteravia Road heading East. Betteravia Road becomes Foxen Canyon Road. Foxen Canyon Road becomes Santa Maria Mesa Road. Santa Maria Mesa Road merges into Tepusquet Canyon Road. Head North on Tepusquet Canyon Road. Follow this all the way up the mountain and back down until you reach highway 166. Follow 166 West until you reach highway 101 again.',
+    )
+
+    const result = await generateText({ model, prompt })
+
+    // biome-ignore lint/suspicious/noConsole: temporary probe evidence capture
+    console.log('===RAW_TEXT_START===')
+    // biome-ignore lint/suspicious/noConsole: temporary probe evidence capture
+    console.log(result.text)
+    // biome-ignore lint/suspicious/noConsole: temporary probe evidence capture
+    console.log('===RAW_TEXT_END===')
+
+    expect(result.text.length).toBeGreaterThan(0)
+  }, 120_000)
+})

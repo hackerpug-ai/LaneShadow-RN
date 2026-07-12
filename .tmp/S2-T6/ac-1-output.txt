@@ -1,0 +1,23 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T6
+> vitest "convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts" "-t" "returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion"
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T6
+
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion
+AI SDK Warning System: To turn off warning logging, set the AI_SDK_LOG_WARNINGS global to false.
+
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion
+{"ac":"AC-1","ok":true,"path":"structured","summary":"A scenic loop ride starting and ending at Highway 101 in Santa Maria, CA, winding east through Foxen Canyon and over the mountains via Tepusquet Canyon Road before returning west on Highway 166.","confidence":"high"}
+
+(node:25085) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts (5 tests | 4 skipped) 5031ms
+   ✓ zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion  5030ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 4 skipped (5)
+   Start at  16:50:33
+   Duration  5.62s (transform 30ms, setup 60ms, collect 46ms, tests 5.03s, environment 366ms, prepare 25ms)
+

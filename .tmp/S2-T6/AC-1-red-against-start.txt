@@ -1,0 +1,33 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T6
+
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts [ convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts ]
+Error: Failed to resolve import "../zaiProvider" from "convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T6/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts:8:7
+  6  |    zaiStructuredComplete,
+  7  |    zaiStructuredProofSchema
+  8  |  } from "../zaiProvider";
+     |          ^
+  9  |  const twistOfTepusquetDescription = "Highway 101 in Santa Maria, CA. Exit Betteravia Road heading East. Betteravia Ro...
+  10 |  const oldHwy40Description = "I-80 to Cisco Grove exit, about 50 miles East of Auburn. Get off, go across the overpass...
+ ❯ TransformPluginContext._formatLog ../../../node_modules/vite/dist/node/chunks/config.js:28999:43
+ ❯ TransformPluginContext.error ../../../node_modules/vite/dist/node/chunks/config.js:28996:14
+ ❯ normalizeUrl ../../../node_modules/vite/dist/node/chunks/config.js:27119:18
+ ❯ ../../../node_modules/vite/dist/node/chunks/config.js:27177:32
+ ❯ TransformPluginContext.transform ../../../node_modules/vite/dist/node/chunks/config.js:27145:4
+ ❯ EnvironmentPluginContainer.transform ../../../node_modules/vite/dist/node/chunks/config.js:28797:14
+ ❯ loadAndTransform ../../../node_modules/vite/dist/node/chunks/config.js:22670:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  16:45:29
+   Duration  406ms (transform 17ms, setup 65ms, collect 0ms, tests 0ms, environment 225ms, prepare 24ms)
+

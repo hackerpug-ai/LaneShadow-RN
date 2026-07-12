@@ -1,0 +1,17 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T6
+> vitest "convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts" "-t" "parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text"
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T6
+
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-3: parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text > parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text
+{"ac":"AC-3","capturedOk":true,"capturedSummaryLength":162,"proseOk":false,"proseReason":"structured_and_fallback_both_failed","emptyOk":false,"emptyReason":"structured_and_fallback_both_failed"}
+
+ ✓ convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts (5 tests | 3 skipped) 2ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 3 skipped (5)
+   Start at  16:50:47
+   Duration  407ms (transform 28ms, setup 57ms, collect 41ms, tests 2ms, environment 201ms, prepare 24ms)
+

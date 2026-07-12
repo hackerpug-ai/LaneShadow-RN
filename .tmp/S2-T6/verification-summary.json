@@ -1,0 +1,42 @@
+{
+  "task_id": "S2-T6",
+  "timestamp": "2026-07-12T22:50:49Z",
+  "commit_sha": "6bc5e5c17948e46fede57e1aef22d44137c0b977",
+  "typecheck": {
+    "exit_code": 0
+  },
+  "lint": {
+    "exit_code": 1,
+    "warnings": 1
+  },
+  "pre_existing_issues": false,
+  "requirement_results": [
+    {
+      "id": "AC-1",
+      "verify": "pnpm test -- convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts -t \"returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion\"",
+      "exit_code": 0,
+      "output_file": ".tmp/S2-T6/ac-1-output.txt"
+    },
+    {
+      "id": "AC-2",
+      "verify": "pnpm test -- convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts -t \"generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it\"",
+      "exit_code": 0,
+      "output_file": ".tmp/S2-T6/ac-2-output.txt"
+    },
+    {
+      "id": "AC-3",
+      "verify": "pnpm test -- convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts -t \"parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text\"",
+      "exit_code": 0,
+      "output_file": ".tmp/S2-T6/ac-3-output.txt"
+    },
+    {
+      "id": "AC-4",
+      "verify": "pnpm test -- convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts -t \"createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts\"",
+      "exit_code": 0,
+      "output_file": ".tmp/S2-T6/ac-4-output.txt"
+    }
+  ],
+  "red_evidence": {
+    "required": true
+  }
+}

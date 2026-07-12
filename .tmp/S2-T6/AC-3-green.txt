@@ -1,0 +1,14 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T6
+
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-3: parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text > parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text
+{"ac":"AC-3","capturedOk":true,"capturedSummaryLength":162,"proseOk":false,"proseReason":"structured_and_fallback_both_failed","emptyOk":false,"emptyReason":"structured_and_fallback_both_failed"}
+
+ ✓ convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts (5 tests | 3 skipped) 2ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 3 skipped (5)
+   Start at  16:46:01
+   Duration  442ms (transform 29ms, setup 62ms, collect 42ms, tests 2ms, environment 223ms, prepare 26ms)
+

@@ -1,0 +1,31 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T6
+
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion
+AI SDK Warning System: To turn off warning logging, set the AI_SDK_LOG_WARNINGS global to false.
+
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion
+{"ac":"AC-1","ok":true,"path":"structured","summary":"This scenic loop route from Santa Maria winds through a series of canyon roads—Foxen Canyon, Santa Maria Mesa, and Tepusquet Canyon—climbing over a mountain before returning via Highway 166 back to Highway 101.","confidence":"high"}
+
+(node:4821) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+(Use `node --trace-warnings ...` to show where the warning was created)
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it
+{"ac":"AC-2","ok":true,"path":"structured","summary":"This scenic motorcycle route features great twisties along Old Hwy 40 from Cisco Grove to Donner Lake, with recommended stops at Rainbow Lodge and the historic Rainbow Bridge vista point.","confidence":"high"}
+
+(node:4821) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-3: parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text > parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text
+{"ac":"AC-3","capturedOk":true,"capturedSummaryLength":162,"proseOk":false,"proseReason":"structured_and_fallback_both_failed","emptyOk":false,"emptyReason":"structured_and_fallback_both_failed"}
+
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-4: createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts > createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts
+{"ac":"AC-4","baseURL":"https://api.z.ai/api/coding/paas/v4","apiKeyMatchesEnvExport":true,"apiKeyIsNonEmptyString":true}
+
+ ✓ convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts (5 tests) 14021ms
+   ✓ zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion  6387ms
+   ✓ zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it  7633ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  16:46:53
+   Duration  14.47s (transform 29ms, setup 60ms, collect 39ms, tests 14.02s, environment 244ms, prepare 25ms)
+

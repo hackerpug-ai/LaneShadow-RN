@@ -1,0 +1,20 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T6
+
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it
+AI SDK Warning System: To turn off warning logging, set the AI_SDK_LOG_WARNINGS global to false.
+
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it
+{"ac":"AC-2","ok":true,"path":"structured","summary":"A scenic mountain route along Old Hwy 40 from Cisco Grove to Donner Lake featuring twisty roads, historic landmarks like Rainbow Bridge, and beautiful vista points with 35 mph speed limits.","confidence":"high"}
+
+(node:556) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts (5 tests | 4 skipped) 9336ms
+   ✓ zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it  9336ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 4 skipped (5)
+   Start at  16:45:50
+   Duration  9.75s (transform 29ms, setup 58ms, collect 41ms, tests 9.34s, environment 205ms, prepare 25ms)
+

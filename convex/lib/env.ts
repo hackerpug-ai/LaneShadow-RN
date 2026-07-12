@@ -61,6 +61,17 @@ export const ANTHROPIC_API_KEY = optionalEnv('ANTHROPIC_API_KEY')
  */
 export const MAPBOX_ACCESS_TOKEN = optionalEnv('MAPBOX_ACCESS_TOKEN')
 
+/**
+ * z.ai API key for the GLM-5.2 custom AI-SDK v7 provider
+ * (convex/actions/agent/lib/zaiProvider.ts, S2-T6/T-AGT-024).
+ *
+ * NOT yet set on the Convex deployment as of 2026-07-12 (`npx convex env
+ * list` shows only ANTHROPIC_API_KEY) — this is a vitest-level spike proof;
+ * setting it on the deployment is a follow-up when this tier moves into a
+ * deployed Convex action.
+ */
+export const Z_AI_API_KEY = optionalEnv('Z_AI_API_KEY')
+
 export const isTestEnvironment = process.env.NODE_ENV === 'test'
 
 /**
