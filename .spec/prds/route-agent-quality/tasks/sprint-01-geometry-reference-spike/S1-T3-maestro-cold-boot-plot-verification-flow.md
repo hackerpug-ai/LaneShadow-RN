@@ -9,7 +9,7 @@
 | ESTIMATE | 75 min |
 | EFFORT | S |
 | PRIORITY | P0 |
-| STATUS | Backlog |
+| STATUS | Done (land f251eca0; Maestro AC-1/3/4 iPhone 17 + vitest 4/4) |
 | PROPOSED_BY | `react-native-ui-planner` |
 | TDD_MODE | `red_first` |
 | RED_GREEN_REQUIRED | yes |
