@@ -1,0 +1,99 @@
+=== db_query evidence for AC-2: real listCuratedRoutesInternal nearest query at resolved Ogden center ===
+Command: npx convex run curatedRoutes:listCuratedRoutesInternal '{"center":{"lat":41.223,"lng":-111.973},"sort":"nearest","limit":25}'
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+[]
+=== sanity: same query at a confirmed riderReady route centroid (Twist of Tepusquet Loop, CA) proves the geospatial nearest + distanceMi pipeline is live and correct ===
+Command: npx convex run curatedRoutes:listCuratedRoutesInternal '{"center":{"lat":34.95,"lng":-120.42},"sort":"nearest","limit":5}'
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+[
+  {
+    "centroidLat": 34.95,
+    "centroidLng": -120.42,
+    "compositeScore": 0.85,
+    "curvatureScore": 0.9,
+    "distanceMi": 0,
+    "geometryStatus": "generated",
+    "lengthMiles": 41,
+    "name": "Ratio 1.00",
+    "primaryArchetype": "twisties",
+    "remotenessScore": 0.7,
+    "routeId": "test:ratio-100",
+    "scenicScore": 0.8,
+    "state": "California",
+    "summary": "Test route summary",
+    "technicalScore": 0.85,
+    "trafficScore": 0.75
+  },
+  {
+    "centroidLat": 34.95,
+    "centroidLng": -120.42,
+    "compositeScore": 0.85,
+    "curvatureScore": 0.9,
+    "distanceMi": 0,
+    "geometryStatus": "generated",
+    "lengthMiles": 41,
+    "name": "Mixed anchors",
+    "primaryArchetype": "twisties",
+    "remotenessScore": 0.7,
+    "routeId": "test:mixed-anchors",
+    "scenicScore": 0.8,
+    "state": "California",
+    "summary": "Test route summary",
+    "technicalScore": 0.85,
+    "trafficScore": 0.75
+  },
+  {
+    "centroidLat": 34.95,
+    "centroidLng": -120.42,
+    "compositeScore": 0.85,
+    "curvatureScore": 0.9,
+    "distanceMi": 0,
+    "geometryStatus": "generated",
+    "lengthMiles": 100,
+    "name": "Ratio 1.59",
+    "primaryArchetype": "twisties",
+    "remotenessScore": 0.7,
+    "routeId": "test:ratio-159",
+    "scenicScore": 0.8,
+    "state": "California",
+    "summary": "Test route summary",
+    "technicalScore": 0.85,
+    "trafficScore": 0.75
+  },
+  {
+    "centroidLat": 34.95,
+    "centroidLng": -120.42,
+    "compositeScore": 0.85,
+    "curvatureScore": 0.9,
+    "distanceMi": 0,
+    "geometryStatus": "generated",
+    "lengthMiles": 100,
+    "name": "Ratio 0.61",
+    "primaryArchetype": "twisties",
+    "remotenessScore": 0.7,
+    "routeId": "test:ratio-061",
+    "scenicScore": 0.8,
+    "state": "California",
+    "summary": "Test route summary",
+    "technicalScore": 0.85,
+    "trafficScore": 0.75
+  },
+  {
+    "centroidLat": 34.95,
+    "centroidLng": -120.42,
+    "compositeScore": 0.85,
+    "curvatureScore": 0.9,
+    "distanceMi": 0,
+    "geometryStatus": "generated",
+    "lengthMiles": 41,
+    "name": "Twist of Tepusquet Loop",
+    "primaryArchetype": "twisties",
+    "remotenessScore": 0.7,
+    "routeId": "motorcycleroads:twist-of-tepusquet-loop",
+    "scenicScore": 0.8,
+    "state": "California",
+    "summary": "Highway 101 in Santa Maria, CA. Exit Betteravia Road heading East. Betteravia Road becomes Foxen Canyon Road. Foxen Canyon Road becomes Santa Maria Mesa Road. Santa Maria Mesa Road merges into Tepusquet Canyon Road. Head North on Tepusquet Canyon Road. Follow this all the way up the mountain and back down until you reach highway 166. Follow 166 West until you reach highway 101 again.",
+    "technicalScore": 0.85,
+    "trafficScore": 0.75
+  }
+]
