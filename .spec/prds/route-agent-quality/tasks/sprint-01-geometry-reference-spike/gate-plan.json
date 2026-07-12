@@ -4,13 +4,14 @@
   "planned_steps": 7,
   "poc_route_id": "motorcycleroads:twist-of-tepusquet-loop",
   "convex_deployment": "dev:quirky-panther-164",
-  "gate_cli_identity": "{\"subject\":\"geometry-gate-honesty\",\"issuer\":\"https://laneshadow.test\"}",
+  "gate_cli_identity": "{\"subject\":\"s1-human-gate\",\"issuer\":\"https://laneshadow.test\"}",
+  "identity_note": "Terminal Convex steps that hit requireIdentity (reconstruct/verification/listCuratedRoutes) require Clerk-style --identity JSON (REDHAT-FIX-003 + REDHAT-FIX-005). getRouteForReading remains public read-only.",
   "steps": [
     {
       "n": 1,
       "text": "Reconstruct one real PoC route through a Convex action on real APIs.",
       "type": "terminal",
-      "literal_cmd": "npx convex run curatedGeometryReconstruct:reconstructForRoute '{\"routeId\":\"motorcycleroads:twist-of-tepusquet-loop\"}' --identity '{\"subject\":\"geometry-gate-honesty\",\"issuer\":\"https://laneshadow.test\"}'",
+      "literal_cmd": "npx convex run curatedGeometryReconstruct:reconstructForRoute '{\"routeId\":\"motorcycleroads:twist-of-tepusquet-loop\"}' --identity '{\"subject\":\"s1-human-gate\",\"issuer\":\"https://laneshadow.test\"}'",
       "assertion": {
         "kind": "exit_and_log_regex",
         "pattern": "geometryStatus|provenance|verdict"
@@ -20,7 +21,7 @@
       "n": 2,
       "text": "Confirm the deterministic gate admits the line within the ratio band.",
       "type": "terminal",
-      "literal_cmd": "npx convex run curatedGeometryReconstruct:getVerificationForRoute '{\"routeId\":\"motorcycleroads:twist-of-tepusquet-loop\"}'",
+      "literal_cmd": "npx convex run curatedGeometryReconstruct:getVerificationForRoute '{\"routeId\":\"motorcycleroads:twist-of-tepusquet-loop\"}' --identity '{\"subject\":\"s1-human-gate\",\"issuer\":\"https://laneshadow.test\"}'",
       "assertion": {
         "kind": "exit_and_log_regex",
         "pattern": "\"ratio\"|verdict"
@@ -40,7 +41,7 @@
       "n": 4,
       "text": "Query listCuratedRoutes national-best mode; confirm the route appears.",
       "type": "terminal",
-      "literal_cmd": "npx convex run ...",
+      "literal_cmd": "npx convex run curatedRoutes:listCuratedRoutes '{}' --identity '{\"subject\":\"s1-human-gate\",\"issuer\":\"https://laneshadow.test\"}'",
       "assertion": {
         "kind": "exit_and_log_regex"
       }
@@ -49,7 +50,7 @@
       "n": 5,
       "text": "Query listCuratedRoutes nearest mode; confirm the route appears.",
       "type": "terminal",
-      "literal_cmd": "npx convex run ...",
+      "literal_cmd": "npx convex run curatedRoutes:listCuratedRoutes '{\"mode\":\"nearest\",\"lat\":34.95,\"lng\":-120.42}' --identity '{\"subject\":\"s1-human-gate\",\"issuer\":\"https://laneshadow.test\"}'",
       "assertion": {
         "kind": "exit_and_log_regex"
       }
