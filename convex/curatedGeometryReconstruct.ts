@@ -7,10 +7,12 @@ import { v } from 'convex/values'
 import { internal } from './_generated/api'
 import { action, query } from './_generated/server'
 import type { ReconstructPersistResult } from './actions/curatedGeometryReconstruct'
+import { requireIdentity } from './guards'
 
 export const reconstructForRoute = action({
   args: { routeId: v.string() },
   handler: async (ctx, args): Promise<ReconstructPersistResult> => {
+    await requireIdentity(ctx)
     return ctx.runAction(internal.actions.curatedGeometryReconstruct.reconstructForRoute, args)
   },
 })
@@ -24,6 +26,7 @@ export const reconstructForRouteWithFixedGeometry = action({
     claimedMiles: v.optional(v.union(v.number(), v.null())),
   },
   handler: async (ctx, args): Promise<ReconstructPersistResult> => {
+    await requireIdentity(ctx)
     return ctx.runAction(
       internal.actions.curatedGeometryReconstruct.reconstructForRouteWithFixedGeometry,
       args,
@@ -38,6 +41,7 @@ export const reconstructForRouteWithFixedAnchors = action({
     claimedMiles: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<ReconstructPersistResult> => {
+    await requireIdentity(ctx)
     return ctx.runAction(
       internal.actions.curatedGeometryReconstruct.reconstructForRouteWithFixedAnchors,
       args,
@@ -52,6 +56,7 @@ export const reconstructForRouteWithMixedAnchors = action({
     offRegionCount: v.number(),
   },
   handler: async (ctx, args): Promise<ReconstructPersistResult> => {
+    await requireIdentity(ctx)
     return ctx.runAction(
       internal.actions.curatedGeometryReconstruct.reconstructForRouteWithMixedAnchors,
       args,
@@ -62,6 +67,7 @@ export const reconstructForRouteWithMixedAnchors = action({
 export const getVerificationForRoute = query({
   args: { routeId: v.string() },
   handler: async (ctx, { routeId }) => {
+    await requireIdentity(ctx)
     const route = await ctx.db
       .query('curated_routes')
       .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
