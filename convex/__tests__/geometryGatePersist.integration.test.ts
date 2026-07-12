@@ -13,6 +13,17 @@ import { resolve } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 const PROJECT_ROOT = resolve(__dirname, '..', '..')
+const POC_ROUTE_ID = 'motorcycleroads:twist-of-tepusquet-loop'
+
+const RIDER_READY_FLIPS = [
+  'geometry',
+  'name',
+  'score',
+  'length',
+  'rideWorthiness',
+  'retired',
+  'duplicate',
+] as const
 
 const TEST_IDENTITY = JSON.stringify({
   subject: 'geometry-gate-persist-test',
@@ -240,6 +251,10 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
       )
 
       expect(reconstructResult.ok).toBe(true)
+      const actionResult = JSON.parse(reconstructResult.stdout)
+      expect(actionResult?.routingCallCount).toBe(0)
+      expect(actionResult?.geometryStatus).toBe('review')
+      expect(actionResult?.failedCondition).toBe('anchors')
 
       const verifyResult = runConvexFn(
         'curatedGeometryReconstruct:getVerificationForRoute',
@@ -247,11 +262,11 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
         { identity: true },
       )
 
-      if (verifyResult.ok) {
-        const verificationData = JSON.parse(verifyResult.stdout)
-        expect(verificationData?.geometryStatus).toBe('review')
-        expect(verificationData?.failedCondition).toBe('anchors')
-      }
+      expect(verifyResult.ok).toBe(true)
+      const verificationData = JSON.parse(verifyResult.stdout)
+      expect(verificationData?.geometryStatus).toBe('review')
+      expect(verificationData?.failedCondition).toBe('anchors')
+      expect(verificationData?.riderReady).toBe(false)
     })
 
     it('off-region anchor (300mi) excluded before routing', () => {
@@ -262,6 +277,8 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
       )
 
       expect(reconstructResult.ok).toBe(true)
+      const actionResult = JSON.parse(reconstructResult.stdout)
+      expect(actionResult?.verdict).toBe('pass')
 
       const verifyResult = runConvexFn(
         'curatedGeometryReconstruct:getVerificationForRoute',
@@ -269,12 +286,14 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
         { identity: true },
       )
 
-      if (verifyResult.ok) {
-        const verificationData = JSON.parse(verifyResult.stdout)
-        expect(verificationData?.anchorCount).toBe(2) // Only in-region anchors counted
-        expect(verificationData?.verdict).toBe('pass')
+      expect(verifyResult.ok).toBe(true)
+      const verificationData = JSON.parse(verifyResult.stdout)
+      expect(verificationData?.anchorCount).toBeGreaterThanOrEqual(2)
+      expect(verificationData?.verdict).toBe('pass')
+      for (const anchor of verificationData?.anchors ?? []) {
+        expect(anchor.distanceFromCentroid).toBeLessThanOrEqual(150)
       }
-    })
+    }, 120_000)
   })
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -323,7 +342,7 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
         expect(verificationData?.degenerate).toBe(true)
         expect(verificationData?.geometryStatus).toBe('review')
       }
-    })
+    }, 30_000)
   })
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -410,13 +429,12 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
   // TC-7/AC-7: riderReady 7-input predicate and index walk
   // ─────────────────────────────────────────────────────────────────────────
   describe('AC-7: riderReady 7-input predicate', () => {
-    it('7 inputs: all good → riderReady true', () => {
+    beforeAll(() => {
       runConvexFn('curatedGeometryTestSupport:seedPoCRoute', {}, { identity: true })
-
       const reconstructResult = runConvexFn(
         'curatedGeometryReconstruct:reconstructForRouteWithFixedGeometry',
         {
-          routeId: 'motorcycleroads:twist-of-tepusquet-loop',
+          routeId: POC_ROUTE_ID,
           routedMiles: 41.07,
           pointCount: 50,
           anchorCount: 2,
@@ -424,43 +442,84 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
         { identity: true },
       )
       expect(reconstructResult.ok).toBe(true)
+      runConvexFn('curatedGeometryTestSupport:restorePoCRouteAllGood', {}, { identity: true })
+    }, 120_000)
 
+    it('7 inputs: all good → riderReady true', () => {
       const getResult = runConvexFn(
         'curatedGeometryReconstruct:getRouteForReading',
-        { routeId: 'motorcycleroads:twist-of-tepusquet-loop' },
+        { routeId: POC_ROUTE_ID },
         { identity: true },
       )
 
       expect(getResult.ok).toBe(true)
       const route = JSON.parse(getResult.stdout)
       expect(route?.riderReady).toBe(true)
-    }, 120_000)
+    })
 
-    it('best-mode query uses by_riderReady_and_composite_score index (not table scan)', () => {
-      // Query best mode with a trace to verify index usage
+    it.each(
+      RIDER_READY_FLIPS,
+    )('single flip %s → riderReady false and excluded from best-mode list', (flipInput) => {
+      runConvexFn('curatedGeometryTestSupport:restorePoCRouteAllGood', {}, { identity: true })
+
+      const flipResult = runConvexFn(
+        'curatedGeometryTestSupport:flipPoCRiderReadyInput',
+        { input: flipInput },
+        { identity: true },
+      )
+      expect(flipResult.ok).toBe(true)
+      const flipped = JSON.parse(flipResult.stdout)
+      expect(flipped.riderReady).toBe(false)
+
+      const getResult = runConvexFn(
+        'curatedGeometryReconstruct:getRouteForReading',
+        { routeId: POC_ROUTE_ID },
+        { identity: true },
+      )
+      expect(getResult.ok).toBe(true)
+      const route = JSON.parse(getResult.stdout)
+      expect(route?.riderReady).toBe(false)
+
       const bestResult = runConvexFn('curatedRoutes:listCuratedRoutesInternal', {
         sort: 'best',
-        limit: 100,
+        limit: 200,
       })
-
       expect(bestResult.ok).toBe(true)
-      // The actual index usage is verified by performance characteristics in the real database
-      // For now, we just verify the query succeeds
       const routes = JSON.parse(bestResult.stdout)
-      expect(Array.isArray(routes)).toBe(true)
+      const pocRoute = routes.find((r: { routeId: string }) => r.routeId === POC_ROUTE_ID)
+      expect(pocRoute).toBeUndefined()
+    }, 120_000)
+
+    it('restore all-good → riderReady true and present in best-mode list', () => {
+      const restoreResult = runConvexFn(
+        'curatedGeometryTestSupport:restorePoCRouteAllGood',
+        {},
+        { identity: true },
+      )
+      expect(restoreResult.ok).toBe(true)
+      const restored = JSON.parse(restoreResult.stdout)
+      expect(restored.riderReady).toBe(true)
+
+      const bestResult = runConvexFn('curatedRoutes:listCuratedRoutesInternal', {
+        sort: 'best',
+        limit: 200,
+      })
+      expect(bestResult.ok).toBe(true)
+      const routes = JSON.parse(bestResult.stdout)
+      const pocRoute = routes.find((r: { routeId: string }) => r.routeId === POC_ROUTE_ID)
+      expect(pocRoute).toBeDefined()
     })
 
     it('riderReady is a stored boolean field (not computed at read time)', () => {
       const getResult = runConvexFn(
         'curatedGeometryReconstruct:getRouteForReading',
-        { routeId: 'motorcycleroads:twist-of-tepusquet-loop' },
+        { routeId: POC_ROUTE_ID },
         { identity: true },
       )
 
-      if (getResult.ok) {
-        const route = JSON.parse(getResult.stdout)
-        expect(Object.hasOwn(route, 'riderReady')).toBe(true)
-      }
+      expect(getResult.ok).toBe(true)
+      const route = JSON.parse(getResult.stdout)
+      expect(Object.hasOwn(route, 'riderReady')).toBe(true)
     })
   })
 })

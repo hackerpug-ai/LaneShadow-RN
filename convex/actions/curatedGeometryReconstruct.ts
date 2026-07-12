@@ -7,6 +7,7 @@ import type { Id } from '../_generated/dataModel'
 import type { ActionCtx } from '../_generated/server'
 import { internalAction } from '../_generated/server'
 import {
+  destinationPointMi,
   determineGateVerdict,
   haversineDistance,
   isAnchorInRegion,
@@ -55,6 +56,30 @@ export type ReconstructPersistResult = {
   claimedMiles: number | null
   routedMiles: number
   riderReady: boolean
+  routingCallCount: number
+}
+
+const TEPUSQUET_GEOCODE_QUERIES = [
+  'Santa Maria, California',
+  'Los Olivos, California',
+  'Solvang, California',
+  'Buellton, California',
+  'Lompoc, California',
+  'Santa Ynez, California',
+  'Goleta, California',
+]
+
+let routingInvocationCount = 0
+
+function resetRoutingInvocationCount(): void {
+  routingInvocationCount = 0
+}
+
+async function routeWithInvocationCount(
+  coords: Array<{ lat: number; lng: number }>,
+): Promise<RouteResult> {
+  routingInvocationCount += 1
+  return defaultRoute(coords)
 }
 
 function buildCannedPolyline(pointCount: number, centroid: { lat: number; lng: number }): string {
@@ -63,6 +88,39 @@ function buildCannedPolyline(pointCount: number, centroid: { lat: number; lng: n
     points.push([centroid.lat + i * 0.01, centroid.lng + i * 0.01])
   }
   return polyline.encode(points, 5)
+}
+
+async function geocodeUpToAnchors(
+  targetCount: number,
+  centroid: { lat: number; lng: number },
+): Promise<GeocodedAnchor[]> {
+  const geocodedAnchors: GeocodedAnchor[] = []
+  for (const query of TEPUSQUET_GEOCODE_QUERIES) {
+    if (geocodedAnchors.length >= targetCount) break
+    const geocoded = await defaultGeocode(query, centroid)
+    if (!geocoded) continue
+    if (!isAnchorInRegion(geocoded, centroid)) continue
+    geocodedAnchors.push(geocoded)
+  }
+  return geocodedAnchors
+}
+
+function makeOffRegionAnchors(
+  count: number,
+  centroid: { lat: number; lng: number },
+  distanceMi = 300,
+): GeocodedAnchor[] {
+  const anchors: GeocodedAnchor[] = []
+  for (let i = 0; i < count; i++) {
+    const point = destinationPointMi(centroid, distanceMi + i * 5, 0)
+    anchors.push({
+      lat: point.lat,
+      lng: point.lng,
+      formatted: `Off-region ~${distanceMi}mi`,
+      distanceFromCentroid: haversineDistance(point, centroid),
+    })
+  }
+  return anchors
 }
 
 function makeInRegionAnchors(
@@ -175,6 +233,7 @@ async function persistGateResult(
     claimedMiles: number | null
   },
 ): Promise<ReconstructPersistResult> {
+  const routingCallCount = routingInvocationCount
   const geometryStatus: 'generated' | 'review' =
     args.gateResult.verdict === 'pass' ? 'generated' : 'review'
   const verification = {
@@ -199,7 +258,27 @@ async function persistGateResult(
     verification,
   })
 
-  return { ...verification, riderReady: args.gateResult.verdict === 'pass' }
+  const stored = await ctx.runQuery(internal.curatedGeometry.getVerificationForRoute, {
+    routeId: route.routeId,
+  })
+
+  return {
+    routeId: route.routeId,
+    verdict: verification.verdict,
+    failedCondition: verification.failedCondition,
+    geometry: verification.geometry,
+    geometryStatus: verification.geometryStatus,
+    provenance: verification.provenance,
+    anchorCount: verification.anchorCount,
+    anchors: verification.anchors,
+    pointCount: verification.pointCount,
+    degenerate: verification.degenerate,
+    ratio: verification.ratio,
+    claimedMiles: verification.claimedMiles,
+    routedMiles: verification.routedMiles,
+    riderReady: stored?.riderReady ?? false,
+    routingCallCount,
+  }
 }
 
 function thinAnchorsForRouting(anchors: GeocodedAnchor[], maxPoints = 8): GeocodedAnchor[] {
@@ -224,7 +303,7 @@ async function evaluateRoutedAnchors(
   ratio: number | null
 }> {
   const routingAnchors = thinAnchorsForRouting(geocodedAnchors)
-  const routeResult = await defaultRoute(routingAnchors)
+  const routeResult = await routeWithInvocationCount(routingAnchors)
   const decodedPoints = polyline.decode(routeResult.polyline.encodedPolyline, 5)
   const routedMiles = routeResult.distanceMeters / 1609.34
   const ratio = claimedMiles != null && claimedMiles > 0 ? routedMiles / claimedMiles : null
@@ -247,6 +326,7 @@ async function evaluateRoutedAnchors(
 export const reconstructForRoute = internalAction({
   args: { routeId: v.string() },
   handler: async (ctx, { routeId }): Promise<ReconstructPersistResult> => {
+    resetRoutingInvocationCount()
     const route = await loadRouteForReconstruct(ctx, routeId)
     if (!route) throw new Error(`Route not found: ${routeId}`)
 
@@ -349,6 +429,7 @@ export const reconstructForRouteWithFixedGeometry = internalAction({
     claimedMiles: v.optional(v.union(v.number(), v.null())),
   },
   handler: async (ctx, args): Promise<ReconstructPersistResult> => {
+    resetRoutingInvocationCount()
     const route = await loadRouteForReconstruct(ctx, args.routeId)
     if (!route) throw new Error(`Route not found: ${args.routeId}`)
 
@@ -390,21 +471,45 @@ export const reconstructForRouteWithFixedAnchors = internalAction({
     anchorCount: v.number(),
     claimedMiles: v.optional(v.number()),
   },
-  handler: async (ctx, { routeId, anchorCount }): Promise<ReconstructPersistResult> => {
+  handler: async (
+    ctx,
+    { routeId, anchorCount, claimedMiles },
+  ): Promise<ReconstructPersistResult> => {
+    resetRoutingInvocationCount()
     const route = await loadRouteForReconstruct(ctx, routeId)
     if (!route) throw new Error(`Route not found: ${routeId}`)
 
     const centroid = { lat: route.centroidLat, lng: route.centroidLng }
-    const geocodedAnchors = makeInRegionAnchors(anchorCount, centroid)
+    const resolvedClaimedMiles = claimedMiles ?? route.lengthMiles
+    const geocodedAnchors = await geocodeUpToAnchors(anchorCount, centroid)
 
+    if (geocodedAnchors.length < 2) {
+      const gateResult = determineGateVerdict({
+        ratio: null,
+        pointCount: 0,
+        routedMiles: 0,
+        anchorCount: geocodedAnchors.length,
+      })
+      return persistGateResult(ctx, route, {
+        gateResult,
+        geocodedAnchors,
+        encodedPolyline: undefined,
+        pointCount: 0,
+        routedMiles: 0,
+        ratio: null,
+        claimedMiles: resolvedClaimedMiles,
+      })
+    }
+
+    const routed = await evaluateRoutedAnchors(geocodedAnchors, resolvedClaimedMiles)
     return persistGateResult(ctx, route, {
-      gateResult: { verdict: 'review', failedCondition: 'anchors' },
-      geocodedAnchors,
-      encodedPolyline: undefined,
-      pointCount: 0,
-      routedMiles: 0,
-      ratio: null,
-      claimedMiles: route.lengthMiles,
+      gateResult: routed.gateResult,
+      geocodedAnchors: routed.geocodedAnchors,
+      encodedPolyline: routed.encodedPolyline,
+      pointCount: routed.pointCount,
+      routedMiles: routed.routedMiles,
+      ratio: routed.ratio,
+      claimedMiles: resolvedClaimedMiles,
     })
   },
 })
@@ -419,31 +524,45 @@ export const reconstructForRouteWithMixedAnchors = internalAction({
     ctx,
     { routeId, inRegionCount, offRegionCount },
   ): Promise<ReconstructPersistResult> => {
+    resetRoutingInvocationCount()
     const route = await loadRouteForReconstruct(ctx, routeId)
     if (!route) throw new Error(`Route not found: ${routeId}`)
 
     const centroid = { lat: route.centroidLat, lng: route.centroidLng }
-    const inRegion = makeInRegionAnchors(inRegionCount, centroid)
+    const geocodedIn = await geocodeUpToAnchors(inRegionCount + 2, centroid)
+    const offRegion = makeOffRegionAnchors(offRegionCount, centroid, 300)
+    const merged = [...geocodedIn, ...offRegion]
 
-    const surviving = inRegion.filter((a) => isAnchorInRegion(a, centroid))
-    const routedMiles = 41.07
-    const pointCount = 50
-    const encodedPolyline = buildCannedPolyline(pointCount, centroid)
-    const ratio = route.lengthMiles > 0 ? routedMiles / route.lengthMiles : null
-    const gateResult = determineGateVerdict({
-      ratio,
-      pointCount,
-      routedMiles,
-      anchorCount: surviving.length,
-    })
+    const surviving = merged.filter((anchor) =>
+      isAnchorInRegion({ lat: anchor.lat, lng: anchor.lng }, centroid),
+    )
 
+    if (surviving.length < 2) {
+      const gateResult = determineGateVerdict({
+        ratio: null,
+        pointCount: 0,
+        routedMiles: 0,
+        anchorCount: surviving.length,
+      })
+      return persistGateResult(ctx, route, {
+        gateResult,
+        geocodedAnchors: surviving,
+        encodedPolyline: undefined,
+        pointCount: 0,
+        routedMiles: 0,
+        ratio: null,
+        claimedMiles: route.lengthMiles,
+      })
+    }
+
+    const routed = await evaluateRoutedAnchors(surviving, route.lengthMiles)
     return persistGateResult(ctx, route, {
-      gateResult,
-      geocodedAnchors: surviving,
-      encodedPolyline,
-      pointCount,
-      routedMiles,
-      ratio: ratio == null ? null : Math.round(ratio * 100) / 100,
+      gateResult: routed.gateResult,
+      geocodedAnchors: routed.geocodedAnchors,
+      encodedPolyline: routed.encodedPolyline,
+      pointCount: routed.pointCount,
+      routedMiles: routed.routedMiles,
+      ratio: routed.ratio,
       claimedMiles: route.lengthMiles,
     })
   },

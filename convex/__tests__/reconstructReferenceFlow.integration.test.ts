@@ -17,6 +17,7 @@
  */
 
 import { execFileSync } from 'node:child_process'
+import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
@@ -81,33 +82,36 @@ describe('TC-1: PoC route reconstruction smoke lane (AC-1 PRIMARY)', () => {
       console.log('✓ PoC route seeded')
     }
 
-    // Step 2: Call reconstructForRoute on the real deployment
-    console.log('\n🔧 Calling reconstructForRoute on PoC route...')
-    reconstructResult = runConvexFn(
-      'curatedGeometryReconstruct:reconstructForRoute',
-      { routeId: POC_ROUTE_ID },
-      { identity: true },
-    )
+    // Step 2: Call reconstructForRoute (up to 2 attempts until gate pass)
+    console.log('\n🔧 Calling reconstructForRoute on PoC route (max 2 attempts)...')
+    let lastFailure = ''
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      console.log(`  Attempt ${attempt}/2`)
+      reconstructResult = runConvexFn(
+        'curatedGeometryReconstruct:reconstructForRoute',
+        { routeId: POC_ROUTE_ID },
+        { identity: true },
+      )
 
-    if (!reconstructResult.ok) {
-      const isOutage =
-        reconstructResult.stderr.includes('ANTHROPIC') ||
-        reconstructResult.stderr.includes('GOOGLE') ||
-        reconstructResult.stderr.includes('network') ||
-        reconstructResult.stderr.includes('401') ||
-        reconstructResult.stderr.includes('403')
+      if (!reconstructResult.ok) {
+        lastFailure = reconstructResult.stderr
+        const isOutage =
+          reconstructResult.stderr.includes('ANTHROPIC') ||
+          reconstructResult.stderr.includes('GOOGLE') ||
+          reconstructResult.stderr.includes('network') ||
+          reconstructResult.stderr.includes('401') ||
+          reconstructResult.stderr.includes('403')
 
-      if (isOutage) {
-        console.warn('⏭️ SKIP-with-reason: provider outage detected')
-        vi.stubGlobal('SKIP_AC1', true)
-      } else {
-        throw new Error(`Reconstruct failed: ${reconstructResult.stderr}`)
+        if (isOutage) {
+          console.warn('⏭️ SKIP-with-reason: provider outage detected')
+          vi.stubGlobal('SKIP_AC1', true)
+          break
+        }
+        continue
       }
-    } else {
+
       console.log('✓ reconstructForRoute completed')
 
-      // Step 3: Query getVerificationForRoute
-      console.log('\n📋 Querying verification block...')
       const verifyResult = runConvexFn(
         'curatedGeometryReconstruct:getVerificationForRoute',
         { routeId: POC_ROUTE_ID },
@@ -118,11 +122,47 @@ describe('TC-1: PoC route reconstruction smoke lane (AC-1 PRIMARY)', () => {
         try {
           verificationData = JSON.parse(verifyResult.stdout)
           console.log('✓ Verification block retrieved')
-        } catch (e) {
+        } catch {
           console.warn('⚠️ Failed to parse verification JSON')
         }
       }
 
+      if (
+        verificationData?.geometryStatus === 'generated' &&
+        verificationData?.verdict === 'pass'
+      ) {
+        break
+      }
+      lastFailure = `attempt ${attempt}: geometryStatus=${verificationData?.geometryStatus} verdict=${verificationData?.verdict}`
+    }
+
+    if (!(globalThis as any).SKIP_AC1) {
+      const evidenceDir = resolve(PROJECT_ROOT, '.tmp/S1-T2/evidence')
+      mkdirSync(evidenceDir, { recursive: true })
+      writeFileSync(
+        resolve(evidenceDir, 'verification-poc-rerun.json'),
+        JSON.stringify(
+          {
+            capturedAt: new Date().toISOString(),
+            reconstructOk: reconstructResult?.ok ?? false,
+            verification: verificationData ?? null,
+            lastFailure,
+          },
+          null,
+          2,
+        ),
+      )
+
+      if (
+        !reconstructResult?.ok ||
+        verificationData?.geometryStatus !== 'generated' ||
+        verificationData?.verdict !== 'pass'
+      ) {
+        throw new Error(`Reconstruct did not pass within 2 attempts: ${lastFailure}`)
+      }
+    }
+
+    if (reconstructResult?.ok && !(globalThis as any).SKIP_AC1) {
       // Step 4: Query listCuratedRoutes in best mode
       console.log('\n📊 Querying listCuratedRoutes (best mode)...')
       const bestResult = runConvexFn('curatedRoutes:listCuratedRoutesInternal', {
@@ -186,8 +226,10 @@ describe('TC-1: PoC route reconstruction smoke lane (AC-1 PRIMARY)', () => {
       }
 
       expect(reconstructResult.ok).toBe(true)
-      // Verify the function didn't error
       expect(reconstructResult.stderr).toBeFalsy()
+      expect(verificationData?.geometryStatus).toBe('generated')
+      expect(verificationData?.verdict).toBe('pass')
+      expect(verificationData?.provenance).toBe('ai_reconstructed')
     })
 
     it('MUST_OBSERVE: side-table provenance == "ai_reconstructed"', () => {

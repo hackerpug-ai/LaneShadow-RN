@@ -1,5 +1,6 @@
 import { v } from 'convex/values'
 import { internal } from './_generated/api'
+import type { Doc } from './_generated/dataModel'
 import { mutation } from './_generated/server'
 import { geospatial } from './geospatialIndex'
 import { requireIdentity } from './guards'
@@ -206,6 +207,147 @@ export const teardownPoCRoute = mutation({
       await ctx.db.delete(doc._id)
     }
     return { status: 'deleted' }
+  },
+})
+
+const POC_ROUTE_ID = 'motorcycleroads:twist-of-tepusquet-loop'
+
+async function getPoCRouteDoc(ctx: {
+  db: { query: (table: 'curated_routes') => any }
+}): Promise<Doc<'curated_routes'> | null> {
+  return ctx.db
+    .query('curated_routes')
+    .withIndex('by_routeId', (q: any) => q.eq('routeId', POC_ROUTE_ID))
+    .first()
+}
+
+export const recomputeRiderReadyForPoC = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const doc = await getPoCRouteDoc(ctx)
+    if (!doc) throw new Error(`Missing PoC route: ${POC_ROUTE_ID}`)
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, { id: doc._id })
+    const refreshed = (await ctx.db.get(doc._id)) as Doc<'curated_routes'> | null
+    return { routeId: POC_ROUTE_ID, riderReady: refreshed?.riderReady ?? false }
+  },
+})
+
+export const restorePoCRouteAllGood = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const doc = await getPoCRouteDoc(ctx)
+    if (!doc) throw new Error(`Missing PoC route: ${POC_ROUTE_ID}`)
+    const nowMs = Date.now()
+    await ctx.db.patch(doc._id, {
+      name: 'Twist of Tepusquet Loop',
+      compositeScore: 85,
+      lengthMiles: 41,
+      rideWorthiness: {
+        verdict: 'ride',
+        reason: 'spike seed',
+        model: 'test',
+        classifiedAt: nowMs,
+      },
+      retiredAt: undefined,
+      duplicateOf: undefined,
+      quarantine: undefined,
+      geometryStatus: 'generated',
+    })
+
+    const geomRow = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q) => q.eq('routeId', POC_ROUTE_ID))
+      .first()
+
+    if (geomRow?.verification) {
+      await ctx.db.patch(geomRow._id, {
+        verification: {
+          ...geomRow.verification,
+          verdict: 'pass',
+          geometryStatus: 'generated',
+          failedCondition: undefined,
+        },
+      })
+    }
+
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, { id: doc._id })
+    const refreshed = (await ctx.db.get(doc._id)) as Doc<'curated_routes'> | null
+    return { routeId: POC_ROUTE_ID, riderReady: refreshed?.riderReady ?? false }
+  },
+})
+
+type FlipKey = 'geometry' | 'name' | 'score' | 'length' | 'rideWorthiness' | 'retired' | 'duplicate'
+
+export const flipPoCRiderReadyInput = mutation({
+  args: {
+    input: v.union(
+      v.literal('geometry'),
+      v.literal('name'),
+      v.literal('score'),
+      v.literal('length'),
+      v.literal('rideWorthiness'),
+      v.literal('retired'),
+      v.literal('duplicate'),
+    ),
+  },
+  handler: async (ctx, { input }) => {
+    await requireIdentity(ctx)
+    const doc = await getPoCRouteDoc(ctx)
+    if (!doc) throw new Error(`Missing PoC route: ${POC_ROUTE_ID}`)
+
+    switch (input as FlipKey) {
+      case 'geometry': {
+        await ctx.db.patch(doc._id, { geometryStatus: 'review' })
+        const geomRow = await ctx.db
+          .query('curated_route_geometry')
+          .withIndex('by_routeId', (q) => q.eq('routeId', POC_ROUTE_ID))
+          .first()
+        if (geomRow?.verification) {
+          await ctx.db.patch(geomRow._id, {
+            verification: {
+              ...geomRow.verification,
+              verdict: 'review',
+              geometryStatus: 'review',
+              failedCondition: 'ratio',
+            },
+          })
+        }
+        break
+      }
+      case 'name':
+        await ctx.db.patch(doc._id, { name: '' })
+        break
+      case 'score':
+        await ctx.db.patch(doc._id, { compositeScore: 10 })
+        break
+      case 'length':
+        await ctx.db.patch(doc._id, { lengthMiles: 0 })
+        break
+      case 'rideWorthiness':
+        await ctx.db.patch(doc._id, {
+          rideWorthiness: {
+            verdict: 'not_a_ride',
+            reason: 'flip test',
+            model: 'test',
+            classifiedAt: Date.now(),
+          },
+        })
+        break
+      case 'retired':
+        await ctx.db.patch(doc._id, { retiredAt: Date.now() })
+        break
+      case 'duplicate':
+        await ctx.db.patch(doc._id, { duplicateOf: 'shadow:duplicate-test' })
+        break
+      default:
+        break
+    }
+
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, { id: doc._id })
+    const refreshed = (await ctx.db.get(doc._id)) as Doc<'curated_routes'> | null
+    return { flipped: input, riderReady: refreshed?.riderReady ?? false }
   },
 })
 

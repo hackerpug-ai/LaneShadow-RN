@@ -25,6 +25,29 @@ export function isDegenerate(args: { pointCount: number; routedMiles: number }):
   return false
 }
 
+/** Great-circle destination from start, distance (mi), bearing (degrees). */
+export function destinationPointMi(
+  start: { lat: number; lng: number },
+  distanceMi: number,
+  bearingDeg = 0,
+): { lat: number; lng: number } {
+  const R = 3958.8
+  const brng = (bearingDeg * Math.PI) / 180
+  const lat1 = (start.lat * Math.PI) / 180
+  const lon1 = (start.lng * Math.PI) / 180
+  const d = distanceMi / R
+  const lat2 = Math.asin(
+    Math.sin(lat1) * Math.cos(d) + Math.cos(lat1) * Math.sin(d) * Math.cos(brng),
+  )
+  const lon2 =
+    lon1 +
+    Math.atan2(
+      Math.sin(brng) * Math.sin(d) * Math.cos(lat1),
+      Math.cos(d) - Math.sin(lat1) * Math.sin(lat2),
+    )
+  return { lat: (lat2 * 180) / Math.PI, lng: (lon2 * 180) / Math.PI }
+}
+
 export function haversineDistance(
   p1: { lat: number; lng: number },
   p2: { lat: number; lng: number },
@@ -35,8 +58,7 @@ export function haversineDistance(
   const dLng = toRad(p2.lng - p1.lng)
   const la1 = toRad(p1.lat)
   const la2 = toRad(p2.lat)
-  const a =
-    Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2
   const c = 2 * Math.asin(Math.sqrt(a))
   return R * c
 }

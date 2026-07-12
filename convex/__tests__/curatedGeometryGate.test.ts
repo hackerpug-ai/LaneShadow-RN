@@ -5,12 +5,14 @@
  * Verifies ratio boundaries, degenerate detection, region filtering, and null-length handling.
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
-  evaluateRatioBoundary,
-  isDegenerate,
-  isAnchorInRegion,
+  destinationPointMi,
   determineGateVerdict,
+  evaluateRatioBoundary,
+  haversineDistance,
+  isAnchorInRegion,
+  isDegenerate,
 } from '../curatedGeometryGate'
 
 describe('curatedGeometryGate (pure math unit tests)', () => {
@@ -112,30 +114,29 @@ describe('curatedGeometryGate (pure math unit tests)', () => {
     const centroid = { lat: 34.95, lng: -120.42 }
 
     it('anchor at 150.0 mi is in region', () => {
-      const result = isAnchorInRegion(
-        { lat: 34.95, lng: -120.42 },
-        centroid,
-        { lat: 34.95, lng: -120.42 },
-      )
-      expect(result).toBe(true)
+      let miles = 150.0
+      let anchor = destinationPointMi(centroid, miles, 0)
+      let dist = haversineDistance(anchor, centroid)
+      while (dist > 150.0 && miles > 149.0) {
+        miles -= 0.01
+        anchor = destinationPointMi(centroid, miles, 0)
+        dist = haversineDistance(anchor, centroid)
+      }
+      expect(dist).toBeLessThanOrEqual(150.0)
+      expect(dist).toBeGreaterThan(149.0)
+      expect(isAnchorInRegion(anchor, centroid)).toBe(true)
     })
 
     it('anchor at 149.9 mi is in region', () => {
-      // Create a point ~149.9 mi away
-      const anchor = { lat: 36.37, lng: -120.42 } // roughly 100 mi north
-      const result = isAnchorInRegion(anchor, centroid, { lat: 34.95, lng: -120.42 })
-      expect(result).toBe(true)
+      const anchor = destinationPointMi(centroid, 149.9, 90)
+      expect(haversineDistance(anchor, centroid)).toBeCloseTo(149.9, 0)
+      expect(isAnchorInRegion(anchor, centroid)).toBe(true)
     })
 
     it('anchor at 150.1 mi is out of region', () => {
-      // We'll just test the boundary logic
-      const result = isAnchorInRegion(
-        { lat: 37.0, lng: -120.42 }, // ~73 mi
-        centroid,
-        { lat: 37.0, lng: -120.42 },
-      )
-      // The actual distance calculation needs real haversine
-      expect(typeof result).toBe('boolean')
+      const anchor = destinationPointMi(centroid, 150.1, 180)
+      expect(haversineDistance(anchor, centroid)).toBeCloseTo(150.1, 0)
+      expect(isAnchorInRegion(anchor, centroid)).toBe(false)
     })
   })
 
