@@ -55,7 +55,12 @@ const returnValidator = v.array(
     // list — it lives in the curated_route_geometry side table and is fetched on demand
     // for the ~10 routes a discovery actually plots. Only the small status stays here.
     geometryStatus: v.optional(
-      v.union(v.literal('generated'), v.literal('unresolved'), v.literal('failed')),
+      v.union(
+        v.literal('generated'),
+        v.literal('unresolved'),
+        v.literal('failed'),
+        v.literal('review'),
+      ),
     ),
   }),
 )
@@ -246,7 +251,16 @@ async function listCuratedRoutesHandler(ctx: any, args: any) {
     )
 
     return pairs
-      .filter((p) => p.route !== null && matchesState(p.route) && matchesArchetype(p.route))
+      .filter(
+        (p) =>
+          p.route !== null &&
+          p.route.riderReady === true &&
+          p.route.retiredAt == null &&
+          p.route.duplicateOf == null &&
+          p.route.quarantine == null &&
+          matchesState(p.route) &&
+          matchesArchetype(p.route),
+      )
       .map((p) => buildRouteCard(p.route, p.geo.distance * 0.000621371))
       .filter((route) => isWithinNearestCuratedRouteDistance(route.distanceMi))
       .sort((a, b) => (a.distanceMi ?? 0) - (b.distanceMi ?? 0))
@@ -277,20 +291,21 @@ async function listCuratedRoutesHandler(ctx: any, args: any) {
       .slice(0, effectiveLimit)
   }
 
-  // Mode 4: no geography — best sort via by_composite_score index.
-  // Cap the archetype pre-filter scan at 800 full docs: each curated_routes doc carries a
-  // 1536-float searchEmbedding (~7.4KB) regardless of geometry, so 2,000 docs ≈ 14.8MB —
-  // perilously close to Convex's 16MB single-execution read limit. 800 docs ≈ 5.9MB keeps
-  // comfortable headroom and still amply fills any effectiveLimit (≤200) after filtering.
-  // (No real caller passes limit ≥ 80, so effectiveLimit*10 only reaches this cap in theory.)
+  // Mode 4: national best — riderReady-gated via by_riderReady_and_composite_score index.
   const topRoutes = await ctx.db
     .query('curated_routes')
-    .withIndex('by_composite_score')
+    .withIndex('by_riderReady_and_composite_score', (q: any) => q.eq('riderReady', true))
     .order('desc')
     .take(dbArchetypeSet ? Math.min(effectiveLimit * 10, 800) : effectiveLimit)
 
   return topRoutes
-    .filter(matchesArchetype)
+    .filter(
+      (r: any) =>
+        matchesArchetype(r) &&
+        r.retiredAt == null &&
+        r.duplicateOf == null &&
+        r.quarantine == null,
+    )
     .map((r: any) => buildRouteCard(r))
     .slice(0, effectiveLimit)
 }

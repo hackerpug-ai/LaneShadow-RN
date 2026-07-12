@@ -151,7 +151,17 @@ export type CuratedRoute = {
     value?: string
     segments?: string[]
   } | null
-  geometryStatus?: 'generated' | 'unresolved' | 'failed' | null
+  geometryStatus?: 'generated' | 'unresolved' | 'failed' | 'review' | null
+  geometryProvenance?: 'scraped_promoted' | 'ai_reconstructed' | 'name_routed' | null
+  riderReady?: boolean | null
+  rideWorthiness?: {
+    verdict: 'ride' | 'marginal' | 'not_a_ride'
+    reason: string
+    model: string
+    classifiedAt: number
+  } | null
+  retiredAt?: number | null
+  duplicateOf?: string | null
 }
 
 /**
@@ -174,7 +184,40 @@ export const curatedRouteValidator = v.object({
     }),
   ),
   geometryStatus: v.optional(
-    v.union(v.literal('generated'), v.literal('unresolved'), v.literal('failed')),
+    v.union(
+      v.literal('generated'),
+      v.literal('unresolved'),
+      v.literal('failed'),
+      v.literal('review'),
+    ),
+  ),
+  geometryProvenance: v.optional(
+    v.union(
+      v.literal('scraped_promoted'),
+      v.literal('ai_reconstructed'),
+      v.literal('name_routed'),
+    ),
+  ),
+  riderReady: v.optional(v.boolean()),
+  rideWorthiness: v.optional(
+    v.object({
+      verdict: v.union(v.literal('ride'), v.literal('marginal'), v.literal('not_a_ride')),
+      reason: v.string(),
+      model: v.string(),
+      classifiedAt: v.number(),
+    }),
+  ),
+  retiredAt: v.optional(v.number()),
+  duplicateOf: v.optional(v.string()),
+  quarantine: v.optional(
+    v.object({
+      reason: v.union(
+        v.literal('zero_length'),
+        v.literal('length_outlier'),
+        v.literal('test_row'),
+      ),
+      flaggedAt: v.number(),
+    }),
   ),
 
   // ========================================================================
@@ -267,6 +310,39 @@ export const curatedRouteGeometryValidator = v.object({
   precision: v.number(),
   value: v.optional(v.string()), // single-line form
   segments: v.optional(v.array(v.string())), // multipolyline form (Overpass full route)
+  provenance: v.optional(
+    v.union(
+      v.literal('scraped_promoted'),
+      v.literal('ai_reconstructed'),
+      v.literal('name_routed'),
+    ),
+  ),
+  verification: v.optional(
+    v.object({
+      routeId: v.string(),
+      verdict: v.union(v.literal('pass'), v.literal('review')),
+      failedCondition: v.optional(
+        v.union(v.literal('ratio'), v.literal('anchors'), v.literal('degenerate')),
+      ),
+      provenance: v.optional(v.string()),
+      geometry: v.optional(v.string()),
+      geometryStatus: v.union(v.literal('generated'), v.literal('review')),
+      anchorCount: v.number(),
+      anchors: v.array(
+        v.object({
+          lat: v.number(),
+          lng: v.number(),
+          formatted: v.string(),
+          distanceFromCentroid: v.number(),
+        }),
+      ),
+      pointCount: v.number(),
+      degenerate: v.boolean(),
+      ratio: v.union(v.number(), v.null()),
+      claimedMiles: v.union(v.number(), v.null()),
+      routedMiles: v.number(),
+    }),
+  ),
 })
 
 /**
