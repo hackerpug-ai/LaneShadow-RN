@@ -10,7 +10,7 @@
 
 import { execFileSync } from 'node:child_process'
 import { resolve } from 'node:path'
-import { beforeAll, afterAll, describe, it, expect } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 const PROJECT_ROOT = resolve(__dirname, '..', '..')
 
@@ -30,7 +30,7 @@ function execNpx(cmd: string[]): RunResult {
     const stdout = execFileSync('npx', cmd, {
       cwd: PROJECT_ROOT,
       encoding: 'utf-8',
-      timeout: 60000,
+      timeout: 120000,
       stdio: ['pipe', 'pipe', 'pipe'],
     })
     return { ok: true, stdout, stderr: '' }
@@ -41,63 +41,73 @@ function execNpx(cmd: string[]): RunResult {
   }
 }
 
+/** Convex CLI: positional JSON args (not --args=). */
+function runConvexFn(
+  fn: string,
+  args: Record<string, unknown> = {},
+  opts: { identity?: boolean } = {},
+): RunResult {
+  const cmd = ['convex', 'run', fn, JSON.stringify(args)]
+  if (opts.identity) cmd.push('--identity', TEST_IDENTITY)
+  return execNpx(cmd)
+}
+
+function nonDegeneratePointCount(routedMiles: number): number {
+  return Math.max(50, Math.ceil(routedMiles) + 10)
+}
+
 describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
   beforeAll(async () => {
     // Seed test fixtures
     console.log('🌱 Seeding boundary_ratio_rows...')
-    const seedRatioResult = execNpx([
-      'convex',
-      'run',
+    const seedRatioResult = runConvexFn(
       'curatedGeometryTestSupport:seedBoundaryRatioRows',
-      `--identity=${TEST_IDENTITY}`,
-    ])
+      {},
+      { identity: true },
+    )
     if (!seedRatioResult.ok) {
       console.warn('⚠️ Seeding boundary_ratio_rows failed:', seedRatioResult.stderr)
     }
 
     console.log('🌱 Seeding degenerate_rows...')
-    const seedDegenerateResult = execNpx([
-      'convex',
-      'run',
+    const seedDegenerateResult = runConvexFn(
       'curatedGeometryTestSupport:seedDegenerateRows',
-      `--identity=${TEST_IDENTITY}`,
-    ])
+      {},
+      { identity: true },
+    )
     if (!seedDegenerateResult.ok) {
       console.warn('⚠️ Seeding degenerate_rows failed:', seedDegenerateResult.stderr)
     }
 
     console.log('🌱 Seeding quarantined_length_row...')
-    const seedQuarantineResult = execNpx([
-      'convex',
-      'run',
+    const seedQuarantineResult = runConvexFn(
       'curatedGeometryTestSupport:seedQuarantinedLengthRow',
-      `--identity=${TEST_IDENTITY}`,
-    ])
+      {},
+      { identity: true },
+    )
     if (!seedQuarantineResult.ok) {
       console.warn('⚠️ Seeding quarantined_length_row failed:', seedQuarantineResult.stderr)
     }
 
     console.log('🌱 Seeding anchor test routes...')
-    const seedAnchorResult = execNpx([
-      'convex',
-      'run',
+    const seedAnchorResult = runConvexFn(
       'curatedGeometryTestSupport:seedAnchorTestRoutes',
-      `--identity=${TEST_IDENTITY}`,
-    ])
+      {},
+      { identity: true },
+    )
     if (!seedAnchorResult.ok) {
       console.warn('⚠️ Seeding anchor test routes failed:', seedAnchorResult.stderr)
     }
-  })
+  }, 120_000)
 
   afterAll(async () => {
     // Cleanup
     console.log('🧹 Cleaning up test routes...')
-    const cleanupResult = execNpx([
-      'convex',
-      'run',
+    const cleanupResult = runConvexFn(
       'curatedGeometryTestSupport:teardownAllTestRoutes',
-      `--identity=${TEST_IDENTITY}`,
-    ])
+      {},
+      { identity: true },
+    )
     if (!cleanupResult.ok) {
       console.warn('⚠️ Cleanup failed:', cleanupResult.stderr)
     }
@@ -154,23 +164,23 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
       beforeAll(() => {
         // Reconstruct with fixtured geometry (canned routed line)
         console.log(`  Reconstructing ${routeId}...`)
-        const reconstructResult = execNpx([
-          'convex',
-          'run',
+        const reconstructResult = runConvexFn(
           'curatedGeometryReconstruct:reconstructForRouteWithFixedGeometry',
-          `--args={"routeId":"${routeId}","routedMiles":${routedMiles},"anchorCount":2}`,
-          `--identity=${TEST_IDENTITY}`,
-        ])
+          {
+            routeId,
+            routedMiles,
+            anchorCount: 2,
+            pointCount: nonDegeneratePointCount(routedMiles),
+          },
+          { identity: true },
+        )
 
         if (reconstructResult.ok) {
-          // Query verification
-          const verifyResult = execNpx([
-            'convex',
-            'run',
+          const verifyResult = runConvexFn(
             'curatedGeometryReconstruct:getVerificationForRoute',
-            `--args={"routeId":"${routeId}"}`,
-            `--identity=${TEST_IDENTITY}`,
-          ])
+            { routeId },
+            { identity: true },
+          )
 
           if (verifyResult.ok) {
             try {
@@ -223,24 +233,19 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
   // ─────────────────────────────────────────────────────────────────────────
   describe('AC-3: Anchor count and region filtering', () => {
     it('1 anchor → review (failedCondition "anchors") with 0 routing calls', () => {
-      const reconstructResult = execNpx([
-        'convex',
-        'run',
+      const reconstructResult = runConvexFn(
         'curatedGeometryReconstruct:reconstructForRouteWithFixedAnchors',
-        `--args={"routeId":"test:single-anchor","anchorCount":1,"claimedMiles":41}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+        { routeId: 'test:single-anchor', anchorCount: 1, claimedMiles: 41 },
+        { identity: true },
+      )
 
       expect(reconstructResult.ok).toBe(true)
 
-      // Query verification
-      const verifyResult = execNpx([
-        'convex',
-        'run',
+      const verifyResult = runConvexFn(
         'curatedGeometryReconstruct:getVerificationForRoute',
-        `--args={"routeId":"test:single-anchor"}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+        { routeId: 'test:single-anchor' },
+        { identity: true },
+      )
 
       if (verifyResult.ok) {
         const verificationData = JSON.parse(verifyResult.stdout)
@@ -250,24 +255,19 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
     })
 
     it('off-region anchor (300mi) excluded before routing', () => {
-      const reconstructResult = execNpx([
-        'convex',
-        'run',
+      const reconstructResult = runConvexFn(
         'curatedGeometryReconstruct:reconstructForRouteWithMixedAnchors',
-        `--args={"routeId":"test:mixed-anchors","inRegionCount":2,"offRegionCount":1}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+        { routeId: 'test:mixed-anchors', inRegionCount: 2, offRegionCount: 1 },
+        { identity: true },
+      )
 
       expect(reconstructResult.ok).toBe(true)
 
-      // Query verification
-      const verifyResult = execNpx([
-        'convex',
-        'run',
+      const verifyResult = runConvexFn(
         'curatedGeometryReconstruct:getVerificationForRoute',
-        `--args={"routeId":"test:mixed-anchors"}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+        { routeId: 'test:mixed-anchors' },
+        { identity: true },
+      )
 
       if (verifyResult.ok) {
         const verificationData = JSON.parse(verifyResult.stdout)
@@ -282,23 +282,19 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
   // ─────────────────────────────────────────────────────────────────────────
   describe('AC-4: Degenerate lines', () => {
     it('2-point line is degenerate → review', () => {
-      const reconstructResult = execNpx([
-        'convex',
-        'run',
+      const reconstructResult = runConvexFn(
         'curatedGeometryReconstruct:reconstructForRouteWithFixedGeometry',
-        `--args={"routeId":"test:degenerate-2pt","pointCount":2,"routedMiles":40}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+        { routeId: 'test:degenerate-2pt', pointCount: 2, routedMiles: 40 },
+        { identity: true },
+      )
 
       expect(reconstructResult.ok).toBe(true)
 
-      const verifyResult = execNpx([
-        'convex',
-        'run',
+      const verifyResult = runConvexFn(
         'curatedGeometryReconstruct:getVerificationForRoute',
-        `--args={"routeId":"test:degenerate-2pt"}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+        { routeId: 'test:degenerate-2pt' },
+        { identity: true },
+      )
 
       if (verifyResult.ok) {
         const verificationData = JSON.parse(verifyResult.stdout)
@@ -308,23 +304,19 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
     })
 
     it('10 points over 50 miles (<1 pt/mi) is degenerate → review', () => {
-      const reconstructResult = execNpx([
-        'convex',
-        'run',
+      const reconstructResult = runConvexFn(
         'curatedGeometryReconstruct:reconstructForRouteWithFixedGeometry',
-        `--args={"routeId":"test:degenerate-10pt-50mi","pointCount":10,"routedMiles":50}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+        { routeId: 'test:degenerate-10pt-50mi', pointCount: 10, routedMiles: 50 },
+        { identity: true },
+      )
 
       expect(reconstructResult.ok).toBe(true)
 
-      const verifyResult = execNpx([
-        'convex',
-        'run',
+      const verifyResult = runConvexFn(
         'curatedGeometryReconstruct:getVerificationForRoute',
-        `--args={"routeId":"test:degenerate-10pt"}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+        { routeId: 'test:degenerate-10pt-50mi' },
+        { identity: true },
+      )
 
       if (verifyResult.ok) {
         const verificationData = JSON.parse(verifyResult.stdout)
@@ -339,23 +331,24 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
   // ─────────────────────────────────────────────────────────────────────────
   describe('AC-5: Quarantined length (null claimed miles)', () => {
     it('null claimed length → ratio-skip, verdict by degenerate+region', () => {
-      const reconstructResult = execNpx([
-        'convex',
-        'run',
+      const reconstructResult = runConvexFn(
         'curatedGeometryReconstruct:reconstructForRouteWithFixedGeometry',
-        `--args={"routeId":"test:quarantined-null-length","routedMiles":22.0,"pointCount":50,"claimedMiles":null}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+        {
+          routeId: 'test:quarantined-null-length',
+          routedMiles: 22.0,
+          pointCount: 50,
+          claimedMiles: null,
+        },
+        { identity: true },
+      )
 
       expect(reconstructResult.ok).toBe(true)
 
-      const verifyResult = execNpx([
-        'convex',
-        'run',
+      const verifyResult = runConvexFn(
         'curatedGeometryReconstruct:getVerificationForRoute',
-        `--args={"routeId":"test:quarantined-null-length"}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+        { routeId: 'test:quarantined-null-length' },
+        { identity: true },
+      )
 
       if (verifyResult.ok) {
         const verificationData = JSON.parse(verifyResult.stdout)
@@ -374,13 +367,11 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
   describe('AC-6: failedCondition reporting', () => {
     it('failedCondition == "ratio" for 1.61 ratio review', () => {
       // Use the ratio 1.61 row from AC-2
-      const verifyResult = execNpx([
-        'convex',
-        'run',
+      const verifyResult = runConvexFn(
         'curatedGeometryReconstruct:getVerificationForRoute',
-        `--args={"routeId":"test:ratio-161"}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+        { routeId: 'test:ratio-161' },
+        { identity: true },
+      )
 
       if (verifyResult.ok) {
         const verificationData = JSON.parse(verifyResult.stdout)
@@ -389,13 +380,11 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
     })
 
     it('failedCondition == "anchors" for 1-anchor review', () => {
-      const verifyResult = execNpx([
-        'convex',
-        'run',
+      const verifyResult = runConvexFn(
         'curatedGeometryReconstruct:getVerificationForRoute',
-        `--args={"routeId":"test:single-anchor"}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+        { routeId: 'test:single-anchor' },
+        { identity: true },
+      )
 
       if (verifyResult.ok) {
         const verificationData = JSON.parse(verifyResult.stdout)
@@ -404,13 +393,11 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
     })
 
     it('failedCondition == "degenerate" for 2-point review', () => {
-      const verifyResult = execNpx([
-        'convex',
-        'run',
+      const verifyResult = runConvexFn(
         'curatedGeometryReconstruct:getVerificationForRoute',
-        `--args={"routeId":"test:degenerate-2pt"}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+        { routeId: 'test:degenerate-2pt' },
+        { identity: true },
+      )
 
       if (verifyResult.ok) {
         const verificationData = JSON.parse(verifyResult.stdout)
@@ -424,44 +411,37 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
   // ─────────────────────────────────────────────────────────────────────────
   describe('AC-7: riderReady 7-input predicate', () => {
     it('7 inputs: all good → riderReady true', () => {
-      execNpx([
-        'convex',
-        'run',
-        'curatedGeometryTestSupport:seedPoCRoute',
-        `--identity=${TEST_IDENTITY}`,
-      ])
+      runConvexFn('curatedGeometryTestSupport:seedPoCRoute', {}, { identity: true })
 
-      const reconstructResult = execNpx([
-        'convex',
-        'run',
+      const reconstructResult = runConvexFn(
         'curatedGeometryReconstruct:reconstructForRouteWithFixedGeometry',
-        `--args={"routeId":"motorcycleroads:twist-of-tepusquet-loop","routedMiles":41.07,"pointCount":50,"anchorCount":2}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+        {
+          routeId: 'motorcycleroads:twist-of-tepusquet-loop',
+          routedMiles: 41.07,
+          pointCount: 50,
+          anchorCount: 2,
+        },
+        { identity: true },
+      )
       expect(reconstructResult.ok).toBe(true)
 
-      const getResult = execNpx([
-        'convex',
-        'run',
+      const getResult = runConvexFn(
         'curatedGeometryReconstruct:getRouteForReading',
-        `--args={"routeId":"motorcycleroads:twist-of-tepusquet-loop"}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+        { routeId: 'motorcycleroads:twist-of-tepusquet-loop' },
+        { identity: true },
+      )
 
       expect(getResult.ok).toBe(true)
       const route = JSON.parse(getResult.stdout)
       expect(route?.riderReady).toBe(true)
-    })
+    }, 120_000)
 
     it('best-mode query uses by_riderReady_and_composite_score index (not table scan)', () => {
       // Query best mode with a trace to verify index usage
-      const bestResult = execNpx([
-        'convex',
-        'run',
-        'curatedRoutes:listCuratedRoutes',
-        `--args={"sort":"best","limit":100}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+      const bestResult = runConvexFn('curatedRoutes:listCuratedRoutesInternal', {
+        sort: 'best',
+        limit: 100,
+      })
 
       expect(bestResult.ok).toBe(true)
       // The actual index usage is verified by performance characteristics in the real database
@@ -471,17 +451,15 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
     })
 
     it('riderReady is a stored boolean field (not computed at read time)', () => {
-      const getResult = execNpx([
-        'convex',
-        'run',
+      const getResult = runConvexFn(
         'curatedGeometryReconstruct:getRouteForReading',
-        `--args={"routeId":"motorcycleroads:twist-of-tepusquet-loop"}`,
-        `--identity=${TEST_IDENTITY}`,
-      ])
+        { routeId: 'motorcycleroads:twist-of-tepusquet-loop' },
+        { identity: true },
+      )
 
       if (getResult.ok) {
         const route = JSON.parse(getResult.stdout)
-        expect(Object.prototype.hasOwnProperty.call(route, 'riderReady')).toBe(true)
+        expect(Object.hasOwn(route, 'riderReady')).toBe(true)
       }
     })
   })

@@ -17,6 +17,7 @@ import type * as actions_agent_agents_types from "../actions/agent/agents/types.
 import type * as actions_agent_budgetTracker from "../actions/agent/budgetTracker.js";
 import type * as actions_agent_enrichment_runEnrichmentJob from "../actions/agent/enrichment/runEnrichmentJob.js";
 import type * as actions_agent_generateTripPlan from "../actions/agent/generateTripPlan.js";
+import type * as actions_agent_lib_anchorExtraction from "../actions/agent/lib/anchorExtraction.js";
 import type * as actions_agent_lib_enrichmentCache from "../actions/agent/lib/enrichmentCache.js";
 import type * as actions_agent_lib_geo from "../actions/agent/lib/geo.js";
 import type * as actions_agent_lib_models from "../actions/agent/lib/models.js";
@@ -61,6 +62,7 @@ import type * as actions_agent_tools_searchAlongRoute from "../actions/agent/too
 import type * as actions_agent_tools_searchNearby from "../actions/agent/tools/searchNearby.js";
 import type * as actions_agent_tools_webSearch from "../actions/agent/tools/webSearch.js";
 import type * as actions_curatedGeometry from "../actions/curatedGeometry.js";
+import type * as actions_curatedGeometryReconstruct from "../actions/curatedGeometryReconstruct.js";
 import type * as actions_curation_intentExtraction from "../actions/curation/intentExtraction.js";
 import type * as actions_mapData from "../actions/mapData.js";
 import type * as actions_monitoring from "../actions/monitoring.js";
@@ -70,7 +72,10 @@ import type * as actions_users from "../actions/users.js";
 import type * as actions_weather from "../actions/weather.js";
 import type * as crons from "../crons.js";
 import type * as curatedGeometry from "../curatedGeometry.js";
+import type * as curatedGeometryGate from "../curatedGeometryGate.js";
 import type * as curatedGeometryQa from "../curatedGeometryQa.js";
+import type * as curatedGeometryReconstruct from "../curatedGeometryReconstruct.js";
+import type * as curatedGeometryTestSupport from "../curatedGeometryTestSupport.js";
 import type * as curatedRouteStateCounts from "../curatedRouteStateCounts.js";
 import type * as curatedRoutes from "../curatedRoutes.js";
 import type * as curationAdmin from "../curationAdmin.js";
@@ -129,6 +134,7 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/budgetTracker": typeof actions_agent_budgetTracker;
   "actions/agent/enrichment/runEnrichmentJob": typeof actions_agent_enrichment_runEnrichmentJob;
   "actions/agent/generateTripPlan": typeof actions_agent_generateTripPlan;
+  "actions/agent/lib/anchorExtraction": typeof actions_agent_lib_anchorExtraction;
   "actions/agent/lib/enrichmentCache": typeof actions_agent_lib_enrichmentCache;
   "actions/agent/lib/geo": typeof actions_agent_lib_geo;
   "actions/agent/lib/models": typeof actions_agent_lib_models;
@@ -173,6 +179,7 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/tools/searchNearby": typeof actions_agent_tools_searchNearby;
   "actions/agent/tools/webSearch": typeof actions_agent_tools_webSearch;
   "actions/curatedGeometry": typeof actions_curatedGeometry;
+  "actions/curatedGeometryReconstruct": typeof actions_curatedGeometryReconstruct;
   "actions/curation/intentExtraction": typeof actions_curation_intentExtraction;
   "actions/mapData": typeof actions_mapData;
   "actions/monitoring": typeof actions_monitoring;
@@ -182,7 +189,10 @@ declare const fullApi: ApiFromModules<{
   "actions/weather": typeof actions_weather;
   crons: typeof crons;
   curatedGeometry: typeof curatedGeometry;
+  curatedGeometryGate: typeof curatedGeometryGate;
   curatedGeometryQa: typeof curatedGeometryQa;
+  curatedGeometryReconstruct: typeof curatedGeometryReconstruct;
+  curatedGeometryTestSupport: typeof curatedGeometryTestSupport;
   curatedRouteStateCounts: typeof curatedRouteStateCounts;
   curatedRoutes: typeof curatedRoutes;
   curationAdmin: typeof curationAdmin;

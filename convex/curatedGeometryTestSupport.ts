@@ -1,4 +1,5 @@
 import { v } from 'convex/values'
+import { internal } from './_generated/api'
 import { mutation } from './_generated/server'
 import { geospatial } from './geospatialIndex'
 import { requireIdentity } from './guards'
@@ -29,7 +30,29 @@ async function insertTestRoute(
     .first()
 
   if (existing) {
-    return { routeId: row.routeId, id: existing._id, created: false }
+    const nowMs = Date.now()
+    const centroidLat = row.centroidLat ?? 34.95
+    const centroidLng = row.centroidLng ?? -120.42
+    await ctx.db.patch(existing._id, {
+      name: row.name,
+      lengthMiles: row.lengthMiles,
+      centroidLat,
+      centroidLng,
+      compositeScore: 85,
+      rideWorthiness: row.rideWorthiness ?? {
+        verdict: 'ride',
+        reason: 'spike seed',
+        model: 'test',
+        classifiedAt: nowMs,
+      },
+      quarantine: row.quarantine,
+      retiredAt: undefined,
+      duplicateOf: undefined,
+    })
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: existing._id,
+    })
+    return { routeId: row.routeId, id: existing._id, created: false, refreshed: true }
   }
 
   const centroidLat = row.centroidLat ?? 34.95

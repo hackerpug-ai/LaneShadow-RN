@@ -6,11 +6,12 @@
 import { v } from 'convex/values'
 import { internal } from './_generated/api'
 import { action, query } from './_generated/server'
+import type { ReconstructPersistResult } from './actions/curatedGeometryReconstruct'
 
 export const reconstructForRoute = action({
   args: { routeId: v.string() },
-  handler: async (ctx, args) => {
-    return ctx.runAction(internal.actions.reconstructOneGeometry.reconstructForRoute, args)
+  handler: async (ctx, args): Promise<ReconstructPersistResult> => {
+    return ctx.runAction(internal.actions.curatedGeometryReconstruct.reconstructForRoute, args)
   },
 })
 
@@ -22,9 +23,9 @@ export const reconstructForRouteWithFixedGeometry = action({
     anchorCount: v.optional(v.number()),
     claimedMiles: v.optional(v.union(v.number(), v.null())),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<ReconstructPersistResult> => {
     return ctx.runAction(
-      internal.actions.reconstructOneGeometry.reconstructForRouteWithFixedGeometry,
+      internal.actions.curatedGeometryReconstruct.reconstructForRouteWithFixedGeometry,
       args,
     )
   },
@@ -36,9 +37,9 @@ export const reconstructForRouteWithFixedAnchors = action({
     anchorCount: v.number(),
     claimedMiles: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<ReconstructPersistResult> => {
     return ctx.runAction(
-      internal.actions.reconstructOneGeometry.reconstructForRouteWithFixedAnchors,
+      internal.actions.curatedGeometryReconstruct.reconstructForRouteWithFixedAnchors,
       args,
     )
   },
@@ -50,9 +51,9 @@ export const reconstructForRouteWithMixedAnchors = action({
     inRegionCount: v.number(),
     offRegionCount: v.number(),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<ReconstructPersistResult> => {
     return ctx.runAction(
-      internal.actions.reconstructOneGeometry.reconstructForRouteWithMixedAnchors,
+      internal.actions.curatedGeometryReconstruct.reconstructForRouteWithMixedAnchors,
       args,
     )
   },
@@ -73,8 +74,10 @@ export const getVerificationForRoute = query({
 
     if (!geomRow?.verification) return null
 
+    const sideProvenance = geomRow.provenance
     return {
       ...geomRow.verification,
+      provenance: geomRow.verification.provenance ?? sideProvenance,
       riderReady: route?.riderReady ?? false,
     }
   },
