@@ -9,7 +9,7 @@
 | ESTIMATE | 180 min |
 | EFFORT | L |
 | PRIORITY | P0 |
-| STATUS | Backlog |
+| STATUS | Done (commit 1b1280b6 / land 2cbb372c; convex-reviewer APPROVED; real Convex AC-1..AC-7) |
 | PROPOSED_BY | `convex-planner` |
 | TDD_MODE | `red_first` |
 | RED_GREEN_REQUIRED | yes |
