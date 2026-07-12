@@ -9,7 +9,7 @@
 | ESTIMATE | 60 min |
 | EFFORT | S |
 | PRIORITY | P0 |
-| STATUS | Backlog |
+| STATUS | Done (commit 5730b550; aisdk-reviewer APPROVED; 5/5 integration vs real Anthropic; AC-1..AC-4 satisfied) |
 | PROPOSED_BY | `aisdk-planner` |
 | TDD_MODE | `red_first` |
 | RED_GREEN_REQUIRED | yes |
