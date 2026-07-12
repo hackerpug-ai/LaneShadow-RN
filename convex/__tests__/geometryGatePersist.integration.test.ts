@@ -9,6 +9,7 @@
  */
 
 import { execFileSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
@@ -315,11 +316,11 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
         { identity: true },
       )
 
-      if (verifyResult.ok) {
-        const verificationData = JSON.parse(verifyResult.stdout)
-        expect(verificationData?.degenerate).toBe(true)
-        expect(verificationData?.geometryStatus).toBe('review')
-      }
+      expect(verifyResult.ok).toBe(true)
+      const verificationData = JSON.parse(verifyResult.stdout)
+      expect(verificationData.degenerate).toBe(true)
+      expect(verificationData.geometryStatus).toBe('review')
+      expect(verificationData.failedCondition).toBe('degenerate')
     })
 
     it('10 points over 50 miles (<1 pt/mi) is degenerate → review', () => {
@@ -337,11 +338,11 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
         { identity: true },
       )
 
-      if (verifyResult.ok) {
-        const verificationData = JSON.parse(verifyResult.stdout)
-        expect(verificationData?.degenerate).toBe(true)
-        expect(verificationData?.geometryStatus).toBe('review')
-      }
+      expect(verifyResult.ok).toBe(true)
+      const verificationData = JSON.parse(verifyResult.stdout)
+      expect(verificationData.degenerate).toBe(true)
+      expect(verificationData.geometryStatus).toBe('review')
+      expect(verificationData.failedCondition).toBe('degenerate')
     }, 30_000)
   })
 
@@ -369,14 +370,38 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
         { identity: true },
       )
 
-      if (verifyResult.ok) {
-        const verificationData = JSON.parse(verifyResult.stdout)
-        expect(verificationData?.ratio).toBeNull()
-        expect(verificationData?.claimedMiles).toBeNull()
-        expect(verificationData?.verdict).toBe('pass') // decided by degenerate + region
-        expect(verificationData?.routedMiles).toBe(22.0)
-        expect(verificationData?.geometryStatus).toBe('generated')
-      }
+      expect(verifyResult.ok).toBe(true)
+      const verificationData = JSON.parse(verifyResult.stdout)
+      expect(verificationData.ratio).toBeNull()
+      expect(verificationData.claimedMiles).toBeNull()
+      expect(verificationData.verdict).toBe('pass') // decided by degenerate + region
+      expect(verificationData.routedMiles).toBe(22.0)
+      expect(verificationData.geometryStatus).toBe('generated')
+    })
+  })
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // AC-4 (REDHAT-FIX-006): failure-discriminating source guard for AC-4/5/6
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('AC-4: failure-discriminating verification reads (no soft if)', () => {
+    it('AC-4/5/6 bodies contain zero verifyResult.ok vacuous-pass wrappers', () => {
+      const source = readFileSync(
+        resolve(__dirname, 'geometryGatePersist.integration.test.ts'),
+        'utf-8',
+      )
+      const ac4Start = source.indexOf("describe('AC-4: Degenerate lines'")
+      const guardStart = source.indexOf("describe('AC-4: failure-discriminating")
+      const ac7Start = source.indexOf("describe('AC-7: riderReady")
+      expect(ac4Start).toBeGreaterThan(-1)
+      expect(guardStart).toBeGreaterThan(ac4Start)
+      expect(ac7Start).toBeGreaterThan(guardStart)
+      const ac456Block =
+        source.slice(ac4Start, guardStart) +
+        source.slice(source.indexOf("describe('AC-6: failedCondition reporting'"), ac7Start)
+      const softIfLines = ac456Block
+        .split('\n')
+        .filter((line) => /^\s*if\s*\(\s*verifyResult\.ok\s*\)/.test(line))
+      expect(softIfLines).toEqual([])
     })
   })
 
@@ -392,10 +417,9 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
         { identity: true },
       )
 
-      if (verifyResult.ok) {
-        const verificationData = JSON.parse(verifyResult.stdout)
-        expect(verificationData?.failedCondition).toBe('ratio')
-      }
+      expect(verifyResult.ok).toBe(true)
+      const verificationData = JSON.parse(verifyResult.stdout)
+      expect(verificationData.failedCondition).toBe('ratio')
     })
 
     it('failedCondition == "anchors" for 1-anchor review', () => {
@@ -405,10 +429,9 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
         { identity: true },
       )
 
-      if (verifyResult.ok) {
-        const verificationData = JSON.parse(verifyResult.stdout)
-        expect(verificationData?.failedCondition).toBe('anchors')
-      }
+      expect(verifyResult.ok).toBe(true)
+      const verificationData = JSON.parse(verifyResult.stdout)
+      expect(verificationData.failedCondition).toBe('anchors')
     })
 
     it('failedCondition == "degenerate" for 2-point review', () => {
@@ -418,10 +441,9 @@ describe('AC-2 through AC-7: Gate persistence and riderReady', () => {
         { identity: true },
       )
 
-      if (verifyResult.ok) {
-        const verificationData = JSON.parse(verifyResult.stdout)
-        expect(verificationData?.failedCondition).toBe('degenerate')
-      }
+      expect(verifyResult.ok).toBe(true)
+      const verificationData = JSON.parse(verifyResult.stdout)
+      expect(verificationData.failedCondition).toBe('degenerate')
     })
   })
 
