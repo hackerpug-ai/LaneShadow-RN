@@ -1,150 +1,181 @@
 {
-  "version": 3,
-  "sprint_id": "sprint-02-route-detail-close-the-loop",
-  "batch_id": "retry-1",
-  "harness": "opencode",
-  "created_at": "2026-07-05T00:55:53Z",
-  "reconciled_at": "2026-07-05T23:20:00Z",
-  "driven_at": "2026-07-05T20:25:00Z",
-  "max_concurrent": 2,
-  "sprint_goal": {
-    "gate": "From a curated route discovered on the route plan view (Sprint 01) \u2014 tapping its card or its map pin \u2014 an honest, complete curated-route detail opens; the rider can save it, find it in Saved, reopen without error, and hand off to Apple/Google Maps (web fallback).",
-    "condition_text": "All 9 tasks completed AND human testing gate PASS AND E2E PASS",
-    "contingencies": [
-      "tasks-per-AC complete",
-      "human tests verified by E2E"
-    ]
-  },
-  "tasks": [
-    {
-      "id": "DATA-006",
-      "title": "getCuratedRouteDetail public query (lean fields + 0-1 scores + routePolyline + centroid; NO enrichment; Clerk-gated)",
+  "version": 1,
+  "sprint_id": "sprint-01-geometry-reference-spike",
+  "sprint_path": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike",
+  "batch_id": "sprint-01-redhat-remediation-20260712T081500Z",
+  "harness": "grok",
+  "protected_branch": "main",
+  "base_sha": "20e8a445c0a0c048198440875b6779f2b3ad4d55",
+  "goal": "Run /kb-run-sprint sprint-01-geometry-reference-spike until GATE-GOAL: ACHIEVED. Preserve S1-T1..T4; execute REDHAT-FIX-001..007.",
+  "created_at": "2026-07-12T08:15:00Z",
+  "phase": "done",
+  "e2e_framework": "maestro",
+  "tasks": {
+    "S1-T1": {
       "status": "completed",
+      "phase": "done_preexisting",
+      "assignee": "aisdk-implementer",
+      "reviewer": "aisdk-reviewer",
+      "commit": "5730b550",
+      "preserve_history": true
+    },
+    "S1-T2": {
+      "status": "completed",
+      "phase": "done_preexisting",
       "assignee": "convex-implementer",
       "reviewer": "convex-reviewer",
-      "verdict": "APPROVED",
-      "commit_sha": "996a132c43bd2405b2d9ea9e82b1afa7818e993c",
-      "merge_sha": "f8e8ef6d116f16d0a71df8733d3e2a1415562d20",
-      "depends_on": [],
-      "blocks": [
-        "DTL-001"
-      ],
-      "tdd_mode": "red_first",
-      "completed_at": "2026-07-05T20:25:00Z",
-      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
+      "commit": "1b1280b6",
+      "land_sha": "2cbb372c",
+      "preserve_history": true
     },
-    {
-      "id": "DATA-003",
-      "title": "Add optional curatedRouteRef to saved_routes (additive; XOR-validate)",
+    "S1-T3": {
       "status": "completed",
-      "assignee": "convex-implementer",
-      "depends_on": [],
-      "blocks": [
-        "SAVE-001"
-      ],
-      "tdd_mode": "red_first",
-      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
+      "phase": "done_preexisting",
+      "assignee": "react-native-ui-implementer",
+      "reviewer": "react-native-ui-reviewer",
+      "commit": "f251eca0",
+      "land_sha": "1f490e73",
+      "preserve_history": true
     },
-    {
-      "id": "DTL-001",
-      "title": "Create app/(app)/curated-route/[id].tsx route + useCuratedRouteDetail hook, wire plan-view tap",
+    "S1-T4": {
+      "status": "completed",
+      "phase": "done_preexisting_revoked_by_redhat",
+      "assignee": "Founder-Operator",
+      "note": "Prior Done/gate-pass revoked by red-hat H1/H3/H4; REDHAT-FIX-004 re-runs honest founder gate",
+      "preserve_history": true
+    },
+    "REDHAT-FIX-001": {
       "status": "completed",
       "assignee": "react-native-ui-implementer",
       "reviewer": "react-native-ui-reviewer",
-      "verdict": "APPROVED",
-      "commit_sha": "cb7135069b1998ca5885c3a8b0fde1f7dd68ee0e",
-      "merge_sha": "815b6ae8ce65b5a7ef332d739aec188b7eede049",
+      "file_path": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/REDHAT-FIX-001-visible-road-line-paint-honest-visual-oracle-h1.md",
       "depends_on": [
-        "DATA-006"
+        "S1-T2",
+        "S1-T3"
       ],
-      "blocks": [
-        "DESIGN-002",
-        "SAVE-001"
-      ],
-      "tdd_mode": "red_first",
-      "completed_at": "2026-07-05T20:50:00Z",
-      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
+      "wave": "A",
+      "worktree": ".kb-run-sprint/worktrees/REDHAT-FIX-001",
+      "branch": "task/REDHAT-FIX-001",
+      "started_at": "2026-07-12T08:20:00Z",
+      "commit": "6bd8a5df",
+      "land_sha": "ba215310"
     },
-    {
-      "id": "DESIGN-001",
-      "title": "Build ScoreDimensionBar primitive in components/ui/ (labeled % bar, copper fill; composite /100 headline)",
+    "REDHAT-FIX-002": {
       "status": "completed",
       "assignee": "react-native-ui-implementer",
-      "depends_on": [],
-      "blocks": [
-        "DESIGN-002"
-      ],
-      "tdd_mode": "red_first",
-      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
-    },
-    {
-      "id": "DESIGN-002",
-      "title": "Build lean curated-route detail screen body (six sections)",
-      "status": "completed",
-      "assignee": "react-native-ui-implementer",
+      "reviewer": "react-native-ui-reviewer",
+      "file_path": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/REDHAT-FIX-002-honest-painted-road-line-oracle-h2.md",
       "depends_on": [
-        "DESIGN-001"
+        "REDHAT-FIX-001",
+        "S1-T3"
       ],
-      "blocks": [],
-      "tdd_mode": "red_first",
-      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
+      "wave": "B",
+      "worktree": ".kb-run-sprint/worktrees/REDHAT-FIX-002",
+      "branch": "task/REDHAT-FIX-002",
+      "commit": "fe30ae19",
+      "land_sha": "04eb8310"
     },
-    {
-      "id": "DESIGN-003",
-      "title": "Geometry graceful degradation: polyline / centroid + Approximate location badge",
+    "REDHAT-FIX-003": {
       "status": "completed",
-      "assignee": "react-native-ui-implementer",
+      "assignee": "convex-implementer",
+      "reviewer": "convex-reviewer",
+      "file_path": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/REDHAT-FIX-003-honest-gate-steps-1-3-reconstruct-evidence-h3.md",
       "depends_on": [
-        "DESIGN-002"
+        "S1-T2"
       ],
-      "blocks": [],
-      "tdd_mode": "red_first",
-      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
+      "wave": "A",
+      "worktree": ".kb-run-sprint/worktrees/REDHAT-FIX-003",
+      "branch": "task/REDHAT-FIX-003",
+      "started_at": "2026-07-12T08:20:00Z",
+      "commit": "ba8692dc",
+      "land_sha": "676f494f"
     },
-    {
-      "id": "DESIGN-004",
-      "title": "Detail actions UX: Save (loading->Saved) + Ride It affordances",
+    "REDHAT-FIX-004": {
       "status": "completed",
-      "assignee": "react-native-ui-implementer",
+      "assignee": "Founder-Operator",
+      "reviewer": "react-native-ui-reviewer",
+      "file_path": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/REDHAT-FIX-004-founder-operator-observation-after-visual-fix-h4.md",
       "depends_on": [
-        "SAVE-001",
-        "SAVE-002"
+        "REDHAT-FIX-001",
+        "REDHAT-FIX-002",
+        "REDHAT-FIX-003"
       ],
-      "blocks": [],
-      "tdd_mode": "red_first",
-      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
+      "wave": "C",
+      "worktree": null,
+      "branch": "task/REDHAT-FIX-004",
+      "run_id": "20260712T100751Z",
+      "founder_visual": "YES"
     },
-    {
-      "id": "SAVE-001",
-      "title": "Save curated route via curatedRouteRef (useSaveCuratedRoute); Saved-screen tolerance",
+    "REDHAT-FIX-005": {
       "status": "completed",
-      "assignee": "react-native-ui-implementer",
+      "assignee": "convex-implementer",
+      "reviewer": "convex-reviewer",
+      "file_path": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/REDHAT-FIX-005-auth-gate-reconstruct-verification-surface-h5.md",
       "depends_on": [
-        "DATA-003"
+        "S1-T2"
       ],
-      "blocks": [
-        "DESIGN-004"
-      ],
-      "tdd_mode": "red_first",
-      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
+      "wave": "A",
+      "worktree": ".kb-run-sprint/worktrees/REDHAT-FIX-005",
+      "branch": "task/REDHAT-FIX-005",
+      "started_at": "2026-07-12T08:20:00Z",
+      "commit": "b80910ba",
+      "land_sha": "0266ac28"
     },
-    {
-      "id": "SAVE-002",
-      "title": "Ride-It maps deep-link util lib/maps-deeplink.ts (Apple/Google via expo-linking; web fallback)",
+    "REDHAT-FIX-006": {
+      "status": "completed",
+      "assignee": "convex-implementer",
+      "reviewer": "convex-reviewer",
+      "file_path": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/REDHAT-FIX-006-failure-discriminating-tests-ac456-m1.md",
+      "depends_on": [
+        "S1-T2"
+      ],
+      "wave": "A",
+      "worktree": ".kb-run-sprint/worktrees/REDHAT-FIX-006",
+      "branch": "task/REDHAT-FIX-006",
+      "started_at": "2026-07-12T08:20:00Z",
+      "commit": "32fa3320",
+      "land_sha": "11a2bb4e"
+    },
+    "REDHAT-FIX-007": {
       "status": "completed",
       "assignee": "react-native-ui-implementer",
-      "depends_on": [],
-      "blocks": [
-        "DESIGN-004"
+      "reviewer": "react-native-ui-reviewer",
+      "file_path": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/REDHAT-FIX-007-archive-absent-route-maestro-ac4-m2.md",
+      "depends_on": [
+        "S1-T3"
       ],
-      "tdd_mode": "red_first",
-      "notes": "Review APPROVED + landed on trunk (df8369ae). See sprint-goal-state.json."
+      "wave": "A",
+      "worktree": ".kb-run-sprint/worktrees/REDHAT-FIX-007",
+      "branch": "task/REDHAT-FIX-007",
+      "started_at": "2026-07-12T08:20:00Z",
+      "commit": "46ae7544",
+      "land_sha": "95c7c645"
     }
+  },
+  "waves": {
+    "A": [
+      "REDHAT-FIX-001",
+      "REDHAT-FIX-003",
+      "REDHAT-FIX-005",
+      "REDHAT-FIX-006",
+      "REDHAT-FIX-007"
+    ],
+    "B": [
+      "REDHAT-FIX-002"
+    ],
+    "C": [
+      "REDHAT-FIX-004"
+    ]
+  },
+  "authority": ".spec/reviews/red-hat-sprint-01-2026-07-12T07-30-55Z.md",
+  "binding_findings": [
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H5",
+    "M1",
+    "M2"
   ],
-  "id_counter": 9,
-  "goal_state": {
-    "met": false,
-    "verdict": "BLOCKED_E2E_REQUIRES_SIMULATOR",
-    "sentinel": "[goal:blocked]"
-  }
+  "goal_status": "GATE-GOAL: ACHIEVED"
 }

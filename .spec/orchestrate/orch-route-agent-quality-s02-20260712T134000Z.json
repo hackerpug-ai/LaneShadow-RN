@@ -1,0 +1,11 @@
+{
+  "run_id": "orch-route-agent-quality-s02-20260712T134000Z",
+  "updated_at": "2026-07-12T14:04:10Z",
+  "project": "/Users/justinrich/Projects/LaneShadow-RN",
+  "workspace": "workspace:3",
+  "status": "blocked",
+  "cycle_stage": "blocked",
+  "cycle_count": 0,
+  "max_cycles": 3,
+  "surfaces": []
+}

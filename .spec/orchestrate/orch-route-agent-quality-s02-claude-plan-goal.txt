@@ -1,0 +1,3 @@
+/kb-sprint-tasks-plan /Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/ROADMAP.md --sprint 02 --overwrite
+
+This is a recovery attempt after valid Grok and Codex planning runs failed to produce task contracts and the OpenCode fallback had a verified model mismatch. Complete the specialist-authored Sprint 02 task expansion. The existing SPRINT.md is incomplete; overwrite it only as the skill requires. Write all TASK-*.md Requirement Contract v1 files with Proposed By metadata. Do not implement product code. End only with [goal:complete] when the artifacts exist, or [goal:blocked] with a specific external blocker.
