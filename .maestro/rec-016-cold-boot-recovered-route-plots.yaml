@@ -164,6 +164,7 @@ appId: com.hackerpug.laneshadow
       - takeScreenshot: 02-absent-route-fallback
 
 # AC-1 branch: recovered route with gate-passing geometry.
+# AC-3: require map-ready painted-line oracle — transparent 1px probe alone is NOT proof.
 - runFlow:
     when:
       visible: { id: "curated-detail-map" }
@@ -173,6 +174,17 @@ appId: com.hackerpug.laneshadow
           text: "Twist of Tepusquet Loop"
       - assertVisible:
           id: "curated-detail-map"
+      - extendedWaitUntil:
+          visible:
+            id: "mapbox-road-polyline-layer"
+          timeout: 120000
+      - extendedWaitUntil:
+          visible:
+            id: "curated-route-detail-real-line"
+          timeout: 120000
+      - waitForAnimationToEnd
+      - assertVisible:
+          id: "mapbox-road-polyline-layer"
       - assertVisible:
           id: "curated-route-detail-real-line"
       - assertNotVisible:

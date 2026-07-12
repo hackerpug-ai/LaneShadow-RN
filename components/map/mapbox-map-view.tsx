@@ -151,6 +151,13 @@ export interface MapboxMapViewProps {
   style?: StyleProp<ViewStyle>
   /** Optional children to render overlays */
   children?: ReactNode
+  /** Fires once after Mapbox finishes loading the map style (safe to fit bounds / paint layers). */
+  onMapReady?: () => void
+  /**
+   * When true, do not auto-recenter on the first user-location fix — callers
+   * are fitting the viewport to route polylines instead (curated-route detail).
+   */
+  preferPolylineViewport?: boolean
 }
 
 /**
@@ -209,6 +216,11 @@ export interface MapboxMapViewHandle {
     },
     duration?: number,
   ) => void
+  /**
+   * Vitest-only: simulates `onDidFinishLoadingMap` when the global rnmapbox stub
+   * cannot fire native map lifecycle events.
+   */
+  __simulateMapStyleLoadForTests?: () => void
 }
 
 type CameraCommand = {
@@ -252,6 +264,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#2F9BFF',
     borderWidth: 3,
     borderColor: '#FFFFFF',
+  },
+  mapRoot: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  // Maestro visibility oracle for the painted road LineLayer.
+  // opacity must be ≥0.01 (opacity:0 fails Maestro assertVisible); keep near-
+  // invisible so it does not obscure the copper stroke. collapsable={false}
+  // ensures the empty View appears in the native accessibility tree.
+  roadLineOracle: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.01,
+    // Non-zero painted size so Maestro can treat the node as on-screen.
+    minWidth: 44,
+    minHeight: 44,
   },
 })
 
@@ -301,12 +329,20 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
       userLocation,
       style,
       children,
+      onMapReady,
+      preferPolylineViewport = false,
     },
     ref,
   ) => {
     const cameraRef = useRef<any>(null)
     const pendingCameraCommandRef = useRef<CameraCommand | null>(null)
     const mapViewRef = useRef<any>(null)
+    const isStyleLoadedRef = useRef(false)
+    const pendingFitRef = useRef<{
+      coordinates: { latitude: number; longitude: number }[]
+      padding: { top: number; right: number; bottom: number; left: number }
+    } | null>(null)
+    const [isStyleLoaded, setIsStyleLoaded] = useState(false)
     const isWeb = Platform.OS === 'web'
 
     // Track last known camera state for zoomBy calculations.
@@ -357,47 +393,18 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
       pendingCameraCommandRef.current = null
     }, [])
 
-    // Imperative handle for camera controls
-    useImperativeHandle(ref, () => ({
-      setCamera: (cameraConfig, duration = 500) => {
-        applyCameraCommand({
-          centerCoordinate: cameraConfig.center,
-          zoom: cameraConfig.zoom,
-          pitch: cameraConfig.pitch ?? 0,
-          heading: cameraConfig.heading ?? 0,
-          duration: duration,
-        })
-        setLastCameraState({ center: cameraConfig.center, zoom: cameraConfig.zoom })
-      },
-
-      zoomIn: (delta = 1) => {
-        if (!cameraRef.current) return
-        const currentZoom = lastCameraState.zoom
-        cameraRef.current.zoomTo(currentZoom + delta, 300)
-        setLastCameraState((prev) => ({ ...prev, zoom: currentZoom + delta }))
-      },
-
-      zoomOut: (delta = 1) => {
-        if (!cameraRef.current) return
-        const currentZoom = lastCameraState.zoom
-        const newZoom = Math.max(0, currentZoom - delta)
-        cameraRef.current.zoomTo(newZoom, 300)
-        setLastCameraState((prev) => ({ ...prev, zoom: newZoom }))
-      },
-
-      fitToCoordinates: (coordinates, padding = { top: 80, right: 40, bottom: 80, left: 40 }) => {
+    const runFitToCoordinates = useCallback(
+      (
+        coordinates: { latitude: number; longitude: number }[],
+        padding: { top: number; right: number; bottom: number; left: number },
+      ) => {
         if (!cameraRef.current || coordinates.length === 0) return
 
-        // Convert coordinates to Mapbox format
         const mapboxCoords = coordinates.map(latLngToMapbox)
-
-        // Calculate proper bounding box (not just first/last)
         const lats = mapboxCoords.map((c) => c[1])
         const lngs = mapboxCoords.map((c) => c[0])
         const ne: [number, number] = [Math.max(...lngs), Math.max(...lats)]
         const sw: [number, number] = [Math.min(...lngs), Math.min(...lats)]
-
-        // Mapbox fitBounds expects padding as [top, right, bottom, left] array
         const paddingArray: [number, number, number, number] = [
           padding.top,
           padding.right,
@@ -406,79 +413,145 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
         ]
         cameraRef.current.fitBounds(ne, sw, paddingArray, 500)
       },
+      [],
+    )
 
-      // --- Google Maps parity methods ---
+    const flushPendingFit = useCallback(() => {
+      if (!pendingFitRef.current) return
+      const pending = pendingFitRef.current
+      pendingFitRef.current = null
+      runFitToCoordinates(pending.coordinates, pending.padding)
+    }, [runFitToCoordinates])
 
-      setCameraPosition: (input) => {
-        const { coordinates, zoom, duration = 500 } = input
+    const handleDidFinishLoadingMap = useCallback(() => {
+      if (isStyleLoadedRef.current) return
+      isStyleLoadedRef.current = true
+      setIsStyleLoaded(true)
+      onMapReady?.()
+      flushPendingFit()
+    }, [flushPendingFit, onMapReady])
 
-        if (coordinates) {
-          const center: [number, number] = latLngToMapbox(coordinates)
+    const hasDrawableRoadPolylines = useMemo(() => {
+      return (polylines ?? []).some((polyline) => (polyline.coordinates?.length ?? 0) >= 2)
+    }, [polylines])
+
+    // Imperative handle for camera controls
+    useImperativeHandle(
+      ref,
+      () => ({
+        setCamera: (cameraConfig, duration = 500) => {
+          applyCameraCommand({
+            centerCoordinate: cameraConfig.center,
+            zoom: cameraConfig.zoom,
+            pitch: cameraConfig.pitch ?? 0,
+            heading: cameraConfig.heading ?? 0,
+            duration: duration,
+          })
+          setLastCameraState({ center: cameraConfig.center, zoom: cameraConfig.zoom })
+        },
+
+        zoomIn: (delta = 1) => {
+          if (!cameraRef.current) return
+          const currentZoom = lastCameraState.zoom
+          cameraRef.current.zoomTo(currentZoom + delta, 300)
+          setLastCameraState((prev) => ({ ...prev, zoom: currentZoom + delta }))
+        },
+
+        zoomOut: (delta = 1) => {
+          if (!cameraRef.current) return
+          const currentZoom = lastCameraState.zoom
+          const newZoom = Math.max(0, currentZoom - delta)
+          cameraRef.current.zoomTo(newZoom, 300)
+          setLastCameraState((prev) => ({ ...prev, zoom: newZoom }))
+        },
+
+        fitToCoordinates: (coordinates, padding = { top: 80, right: 40, bottom: 80, left: 40 }) => {
+          if (coordinates.length === 0) return
+          if (!isStyleLoadedRef.current) {
+            pendingFitRef.current = { coordinates, padding }
+            return
+          }
+          runFitToCoordinates(coordinates, padding)
+        },
+
+        // --- Google Maps parity methods ---
+
+        setCameraPosition: (input) => {
+          const { coordinates, zoom, duration = 500 } = input
+
+          if (coordinates) {
+            const center: [number, number] = latLngToMapbox(coordinates)
+            applyCameraCommand({
+              centerCoordinate: center,
+              zoom: zoom ?? lastCameraState.zoom,
+              pitch: 0,
+              heading: 0,
+              duration,
+            })
+            setLastCameraState({ center, zoom: zoom ?? lastCameraState.zoom })
+          } else if (zoom !== undefined) {
+            // Zoom only, keep current center
+            if (cameraRef.current) {
+              cameraRef.current.zoomTo(zoom, duration)
+            }
+            setLastCameraState((prev) => ({ ...prev, zoom }))
+          }
+        },
+
+        zoomBy: (delta: number) => {
+          if (delta >= 0) {
+            // Positive delta = zoom in
+            const zoomDelta = delta === 0 ? 0 : delta
+            const currentZoom = lastCameraState.zoom
+            const newZoom = currentZoom + zoomDelta
+            if (cameraRef.current) {
+              cameraRef.current.zoomTo(newZoom, 300)
+            }
+            setLastCameraState((prev) => ({ ...prev, zoom: newZoom }))
+          } else {
+            // Negative delta = zoom out
+            const currentZoom = lastCameraState.zoom
+            const newZoom = Math.max(0, currentZoom + delta) // delta is negative
+            if (cameraRef.current) {
+              cameraRef.current.zoomTo(newZoom, 300)
+            }
+            setLastCameraState((prev) => ({ ...prev, zoom: newZoom }))
+          }
+        },
+
+        recenterToUser: () => {
+          if (!lastUserLocationRef.current) return
+          const userLoc = lastUserLocationRef.current
+          const center: [number, number] = latLngToMapbox(userLoc)
           applyCameraCommand({
             centerCoordinate: center,
-            zoom: zoom ?? lastCameraState.zoom,
+            zoom: lastCameraState.zoom,
+            pitch: 0,
+            heading: 0,
+            duration: 300,
+          })
+          setLastCameraState((prev) => ({ ...prev, center }))
+        },
+
+        animateToRegion: (region, duration = 500) => {
+          const center: [number, number] = [region.longitude, region.latitude]
+          const zoom = Math.log2(360 / region.latitudeDelta)
+          applyCameraCommand({
+            centerCoordinate: center,
+            zoom,
             pitch: 0,
             heading: 0,
             duration,
           })
-          setLastCameraState({ center, zoom: zoom ?? lastCameraState.zoom })
-        } else if (zoom !== undefined) {
-          // Zoom only, keep current center
-          if (cameraRef.current) {
-            cameraRef.current.zoomTo(zoom, duration)
-          }
-          setLastCameraState((prev) => ({ ...prev, zoom }))
-        }
-      },
+          setLastCameraState({ center, zoom })
+        },
 
-      zoomBy: (delta: number) => {
-        if (delta >= 0) {
-          // Positive delta = zoom in
-          const zoomDelta = delta === 0 ? 0 : delta
-          const currentZoom = lastCameraState.zoom
-          const newZoom = currentZoom + zoomDelta
-          if (cameraRef.current) {
-            cameraRef.current.zoomTo(newZoom, 300)
-          }
-          setLastCameraState((prev) => ({ ...prev, zoom: newZoom }))
-        } else {
-          // Negative delta = zoom out
-          const currentZoom = lastCameraState.zoom
-          const newZoom = Math.max(0, currentZoom + delta) // delta is negative
-          if (cameraRef.current) {
-            cameraRef.current.zoomTo(newZoom, 300)
-          }
-          setLastCameraState((prev) => ({ ...prev, zoom: newZoom }))
-        }
-      },
-
-      recenterToUser: () => {
-        if (!lastUserLocationRef.current) return
-        const userLoc = lastUserLocationRef.current
-        const center: [number, number] = latLngToMapbox(userLoc)
-        applyCameraCommand({
-          centerCoordinate: center,
-          zoom: lastCameraState.zoom,
-          pitch: 0,
-          heading: 0,
-          duration: 300,
-        })
-        setLastCameraState((prev) => ({ ...prev, center }))
-      },
-
-      animateToRegion: (region, duration = 500) => {
-        const center: [number, number] = [region.longitude, region.latitude]
-        const zoom = Math.log2(360 / region.latitudeDelta)
-        applyCameraCommand({
-          centerCoordinate: center,
-          zoom,
-          pitch: 0,
-          heading: 0,
-          duration,
-        })
-        setLastCameraState({ center, zoom })
-      },
-    }))
+        ...(process.env.NODE_ENV === 'test'
+          ? { __simulateMapStyleLoadForTests: handleDidFinishLoadingMap }
+          : {}),
+      }),
+      [applyCameraCommand, handleDidFinishLoadingMap, lastCameraState, runFitToCoordinates],
+    )
 
     // Convert markers to Mapbox format
     const markerElements = useMemo(() => {
@@ -562,6 +635,10 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
             longitude,
           }
           if (!hasUserLocation) {
+            if (preferPolylineViewport) {
+              setHasUserLocation(true)
+              return
+            }
             // Only auto-snap when there's no camera position at all.
             // When initialCamera (persisted) or camera (controlled) is supplied,
             // respect the caller's choice and do not move on first location fix.
@@ -578,7 +655,13 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
           }
         }
       },
-      [applyCameraCommand, camera?.center, initialCamera?.center, hasUserLocation],
+      [
+        applyCameraCommand,
+        camera?.center,
+        initialCamera?.center,
+        hasUserLocation,
+        preferPolylineViewport,
+      ],
     )
 
     const userLocationFallbackElement = useMemo(() => {
@@ -689,40 +772,54 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
     }
 
     return (
-      <MapView
-        ref={mapViewRef}
-        style={[styles.map, style]}
-        styleURL={styleURL}
-        onPress={handlePress}
-        onCameraChanged={handleCameraChanged}
-        logoEnabled={false}
-        attributionEnabled={false}
-        scaleBarEnabled={false}
-      >
-        <Camera
-          ref={handleCameraRef}
-          defaultSettings={defaultSettings}
-          centerCoordinate={isValidCenter ? validCenter : undefined}
-          zoomLevel={camera?.zoom ?? (defaultSettings ? undefined : 14)}
-          pitch={camera?.pitch ?? 0}
-          heading={camera?.heading ?? 0}
-        />
+      <View style={[styles.mapRoot, style]}>
+        <MapView
+          ref={mapViewRef}
+          style={styles.map}
+          styleURL={styleURL}
+          onPress={handlePress}
+          onCameraChanged={handleCameraChanged}
+          onDidFinishLoadingMap={handleDidFinishLoadingMap}
+          onDidFinishLoadingStyle={handleDidFinishLoadingMap}
+          onDidFinishRenderingMapFully={handleDidFinishLoadingMap}
+          logoEnabled={false}
+          attributionEnabled={false}
+          scaleBarEnabled={false}
+        >
+          <Camera
+            ref={handleCameraRef}
+            defaultSettings={defaultSettings}
+            centerCoordinate={isValidCenter ? validCenter : undefined}
+            zoomLevel={camera?.zoom ?? (defaultSettings ? undefined : 14)}
+            pitch={camera?.pitch ?? 0}
+            heading={camera?.heading ?? 0}
+          />
 
-        {showsUserLocation && UserLocation ? (
-          <UserLocation
-            visible={true}
-            animated={true}
-            showsUserHeadingIndicator={true}
-            minDisplacement={1}
-            onUpdate={handleUserLocationUpdate}
+          {showsUserLocation && UserLocation ? (
+            <UserLocation
+              visible={true}
+              animated={true}
+              showsUserHeadingIndicator={true}
+              minDisplacement={1}
+              onUpdate={handleUserLocationUpdate}
+            />
+          ) : null}
+
+          {userLocationFallbackElement}
+          {markerElements}
+          {polylineElements}
+          {children}
+        </MapView>
+        {isStyleLoaded && hasDrawableRoadPolylines ? (
+          <View
+            testID="mapbox-road-polyline-layer"
+            accessibilityLabel="mapbox-road-polyline-layer"
+            pointerEvents="none"
+            collapsable={false}
+            style={styles.roadLineOracle}
           />
         ) : null}
-
-        {userLocationFallbackElement}
-        {markerElements}
-        {polylineElements}
-        {children}
-      </MapView>
+      </View>
     )
   },
 )

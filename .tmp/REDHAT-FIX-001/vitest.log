@@ -1,0 +1,12 @@
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/REDHAT-FIX-001
+
+ ✓ app/(app)/curated-route/[id].geometry-degradation.integration.test.tsx (4 tests) 320ms
+   ✓ DESIGN-003: geometry graceful degradation > polylinePresentRendersPolylineAndHidesApproximateBadge  303ms
+ ✓ components/map/mapbox-map-view.test.tsx (4 tests) 6ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  02:44:23
+   Duration  1.89s (transform 355ms, setup 193ms, collect 210ms, tests 326ms, environment 721ms, prepare 160ms)
+

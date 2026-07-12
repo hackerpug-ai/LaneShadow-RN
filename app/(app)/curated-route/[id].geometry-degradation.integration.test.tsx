@@ -43,7 +43,11 @@ const mapboxPropsLog: Array<{
   markers?: Array<{ coordinates: { latitude: number; longitude: number } }>
   camera?: { center: [number, number]; zoom: number }
   polylines?: unknown[]
+  preferPolylineViewport?: boolean
+  onMapReady?: () => void
 }> = []
+
+const fitToCoordinatesSpy = vi.fn()
 
 vi.mock('convex/react', () => ({
   useQuery: (...args: unknown[]) => mockUseQuery(...args),
@@ -74,16 +78,39 @@ vi.mock('../../../contexts/theme-preference', () => ({
 // approximate-badge (both rendered as siblings inside the map section) are
 // reachable. Mocked WITHOUT importOriginal: the real map module pulls in
 // @rnmapbox/maps + react-native-worklets which crash under jsdom.
-vi.mock('../../../components/map', () => ({
-  MapboxMapView: (props: { children?: React.ReactNode }) => {
-    mapboxPropsLog.push({
-      markers: props?.markers as never,
-      camera: props?.camera as never,
-      polylines: props?.polylines as never,
-    })
-    return props?.children ?? null
-  },
-}))
+vi.mock('../../../components/map', () => {
+  const React = require('react')
+  const MapboxMapView = React.forwardRef(
+    (
+      props: {
+        children?: React.ReactNode
+        markers?: unknown
+        camera?: unknown
+        polylines?: unknown
+        preferPolylineViewport?: boolean
+        onMapReady?: () => void
+      },
+      ref: React.Ref<{ fitToCoordinates: (coords: unknown) => void }>,
+    ) => {
+      mapboxPropsLog.push({
+        markers: props?.markers as never,
+        camera: props?.camera as never,
+        polylines: props?.polylines as never,
+        preferPolylineViewport: props?.preferPolylineViewport,
+        onMapReady: props?.onMapReady,
+      })
+      React.useImperativeHandle(ref, () => ({
+        fitToCoordinates: (coords: unknown) => fitToCoordinatesSpy(coords),
+      }))
+      React.useEffect(() => {
+        props.onMapReady?.()
+      }, [props.onMapReady])
+      return props?.children ?? null
+    },
+  )
+  MapboxMapView.displayName = 'MapboxMapView'
+  return { MapboxMapView }
+})
 
 vi.mock('../../../components/map/map-header-overlay', () => ({
   MapHeaderOverlay: () => null,
@@ -151,6 +178,7 @@ describe('DESIGN-003: geometry graceful degradation', () => {
     cleanup()
     vi.clearAllMocks()
     mapboxPropsLog.length = 0
+    fitToCoordinatesSpy.mockClear()
   })
 
   beforeEach(async () => {
@@ -191,6 +219,17 @@ describe('DESIGN-003: geometry graceful degradation', () => {
 
     // S1-T3 AC-2 (≥2-point branch): real-line probe discriminates coord count.
     expect(getByTestId('curated-route-detail-real-line')).toBeTruthy()
+
+    // REDHAT-FIX-001 AC-2: fit runs only after map-ready with ≥2 coords.
+    expect(fitToCoordinatesSpy).toHaveBeenCalledTimes(1)
+    const fitted = fitToCoordinatesSpy.mock.calls[0]?.[0] as Array<{
+      latitude: number
+      longitude: number
+    }>
+    expect(fitted.length).toBeGreaterThanOrEqual(2)
+    expect(lastMapCall.preferPolylineViewport).toBe(true)
+    const strokeWidth = (lastMapCall.polylines as Array<{ strokeWidth?: number }>)[0]?.strokeWidth
+    expect(strokeWidth).toBeGreaterThanOrEqual(4)
   })
 
   // ─────────────────────────────────────────────────────────────────────────
