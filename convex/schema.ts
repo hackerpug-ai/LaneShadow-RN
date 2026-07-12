@@ -189,6 +189,7 @@ export default defineSchema({
     .index('by_archetype', ['primaryArchetype'])
     .index('by_state', ['state'])
     .index('by_composite_score', ['compositeScore'])
+    .index('by_riderReady_and_composite_score', ['riderReady', 'compositeScore'])
     .index('by_routeId', ['routeId'])
     .index('by_name_lower', ['name_lower'])
     .index('by_highway_number', ['highwayNumber'])

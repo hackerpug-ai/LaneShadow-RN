@@ -32,7 +32,33 @@ export const GEOMETRY_STATUS = v.union(
   v.literal('generated'),
   v.literal('unresolved'),
   v.literal('failed'),
+  v.literal('review'),
 )
+
+export const VERIFICATION_VALIDATOR = v.object({
+  routeId: v.string(),
+  verdict: v.union(v.literal('pass'), v.literal('review')),
+  failedCondition: v.optional(
+    v.union(v.literal('ratio'), v.literal('anchors'), v.literal('degenerate')),
+  ),
+  provenance: v.optional(v.string()),
+  geometry: v.optional(v.string()),
+  geometryStatus: v.union(v.literal('generated'), v.literal('review')),
+  anchorCount: v.number(),
+  anchors: v.array(
+    v.object({
+      lat: v.number(),
+      lng: v.number(),
+      formatted: v.string(),
+      distanceFromCentroid: v.number(),
+    }),
+  ),
+  pointCount: v.number(),
+  degenerate: v.boolean(),
+  ratio: v.union(v.number(), v.null()),
+  claimedMiles: v.union(v.number(), v.null()),
+  routedMiles: v.number(),
+})
 
 // ---------------------------------------------------------------------------
 // Types
@@ -50,7 +76,7 @@ export type BackfillRouteRow = {
   boundsNeLng: number
   boundsSwLat: number
   boundsSwLng: number
-  geometryStatus: 'generated' | 'unresolved' | 'failed' | null
+  geometryStatus: 'generated' | 'unresolved' | 'failed' | 'review' | null
 }
 
 export type BackfillPage = {
@@ -75,7 +101,7 @@ export type GenerateForRouteResult = {
   routeId: string
   name: string
   state: string
-  geometryStatus: 'generated' | 'unresolved' | 'failed'
+  geometryStatus: 'generated' | 'unresolved' | 'failed' | 'review'
   coordCount?: number
   error?: string
 }
@@ -370,6 +396,177 @@ export const clearGeometry = internalMutation({
       if (existing) await ctx.db.delete(existing._id)
     }
     await ctx.db.patch(id, { geometryStatus: undefined, routeGeometry: undefined })
+  },
+})
+
+// ---------------------------------------------------------------------------
+// VER-01 gate persistence + riderReady seam
+// ---------------------------------------------------------------------------
+
+export async function computeRiderReadyFromDoc(
+  doc: {
+    routeId: string
+    name: string
+    compositeScore: number
+    lengthMiles: number
+    rideWorthiness?: {
+      verdict: 'ride' | 'marginal' | 'not_a_ride'
+    } | null
+    retiredAt?: number | null
+    duplicateOf?: string | null
+    quarantine?: { reason: string } | null
+  },
+  verification: {
+    verdict: 'pass' | 'review'
+    geometryStatus: 'generated' | 'review'
+  } | null,
+): Promise<boolean> {
+  const gatePass = verification?.verdict === 'pass' && verification.geometryStatus === 'generated'
+  const rideVerdict = doc.rideWorthiness?.verdict
+  const rideWorthinessOk =
+    rideVerdict === 'ride' || rideVerdict === 'marginal' || rideVerdict === undefined
+
+  return (
+    gatePass &&
+    doc.name.length > 0 &&
+    doc.compositeScore >= 50 &&
+    doc.lengthMiles > 0 &&
+    rideWorthinessOk &&
+    doc.retiredAt == null &&
+    doc.duplicateOf == null &&
+    doc.quarantine == null
+  )
+}
+
+async function recomputeRiderReady(
+  ctx: { db: import('./_generated/server').MutationCtx['db'] },
+  id: import('./_generated/dataModel').Id<'curated_routes'>,
+): Promise<void> {
+  const doc = await ctx.db.get(id)
+  if (!doc) return
+
+  const geomRow = await ctx.db
+    .query('curated_route_geometry')
+    .withIndex('by_routeId', (q) => q.eq('routeId', doc.routeId))
+    .first()
+
+  const riderReady = await computeRiderReadyFromDoc(doc, geomRow?.verification ?? null)
+  await ctx.db.patch(id, { riderReady })
+}
+
+export const persistGeometryVerified = internalMutation({
+  args: {
+    id: v.id('curated_routes'),
+    routeId: v.string(),
+    verification: VERIFICATION_VALIDATOR,
+  },
+  handler: async (ctx, { id, routeId, verification }) => {
+    const existing = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+
+    const provenance =
+      verification.geometryStatus === 'generated' && verification.provenance === 'ai_reconstructed'
+        ? ('ai_reconstructed' as const)
+        : undefined
+
+    const geomDoc = {
+      routeId,
+      format: 'polyline' as const,
+      encoding: 'utf-8',
+      precision: 5,
+      value: verification.geometry,
+      provenance,
+      verification,
+    }
+
+    if (existing) {
+      await ctx.db.replace(existing._id, geomDoc)
+    } else {
+      await ctx.db.insert('curated_route_geometry', geomDoc)
+    }
+
+    await ctx.db.patch(id, {
+      geometryStatus: verification.geometryStatus,
+      geometryProvenance: provenance,
+    })
+
+    if (verification.geometryStatus === 'generated') {
+      await recomputeRiderReady(ctx, id)
+    } else {
+      await ctx.db.patch(id, { riderReady: false })
+    }
+  },
+})
+
+export const recomputeRiderReadyForRoute = internalMutation({
+  args: { id: v.id('curated_routes') },
+  handler: async (ctx, { id }) => {
+    await recomputeRiderReady(ctx, id)
+  },
+})
+
+export const getVerificationForRoute = internalQuery({
+  args: { routeId: v.string() },
+  handler: async (ctx, { routeId }) => {
+    const route = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+
+    const geomRow = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+
+    if (!geomRow?.verification) return null
+
+    return {
+      ...geomRow.verification,
+      riderReady: route?.riderReady ?? false,
+    }
+  },
+})
+
+export const getRouteForReconstruct = internalQuery({
+  args: { routeId: v.string() },
+  handler: async (ctx, { routeId }) => {
+    const doc = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+    if (!doc) return null
+    return {
+      id: doc._id,
+      routeId: doc.routeId,
+      name: doc.name,
+      state: doc.state,
+      lengthMiles: doc.lengthMiles,
+      centroidLat: doc.centroidLat,
+      centroidLng: doc.centroidLng,
+      oneLiner: doc.oneLiner,
+      summary: doc.summary,
+      description: doc.description,
+      quarantine: doc.quarantine ?? null,
+    }
+  },
+})
+
+export const getRouteForReading = internalQuery({
+  args: { routeId: v.string() },
+  handler: async (ctx, { routeId }) => {
+    const doc = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+    if (!doc) return null
+    return {
+      routeId: doc.routeId,
+      riderReady: doc.riderReady ?? false,
+      geometryStatus: doc.geometryStatus ?? null,
+      name: doc.name,
+    }
   },
 })
 

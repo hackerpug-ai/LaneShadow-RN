@@ -1,3 +1,5 @@
+'use node'
+
 import { anthropic } from '@ai-sdk/anthropic'
 import { generateText, type LanguageModel, Output } from 'ai'
 import { z } from 'zod'
