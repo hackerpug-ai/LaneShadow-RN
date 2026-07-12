@@ -39,11 +39,14 @@ simulator from a cold boot.
 
 ### Step-by-step (the 7 ROADMAP gate steps)
 
-1. Reconstruct one real PoC route through the Convex action on real APIs
-   (`npx convex run curatedGeometryReconstruct:reconstructForRoute …`).
+1. Reconstruct one real PoC route through the Convex action on real APIs — run **exactly** the step 1
+   `literal_cmd` from `gate-plan.json` (includes `reconstructForRoute` + `--identity` when REDHAT-FIX-005
+   requires it; do **not** substitute `getVerificationForRoute` for this step).
    → Expect: geometryStatus `generated`, provenance `ai_reconstructed`.
-2. Confirm the deterministic gate admits the line within the ratio band (verification.ratio ∈ [0.6,1.6]).
-3. Persist the line as `ai_reconstructed` and recompute its rider-ready flag → `riderReady == true`.
+2. Run gate-plan step 2 (`getVerificationForRoute`) and confirm the deterministic gate admits the line
+   within the ratio band (verification.ratio ∈ [0.6,1.6]).
+3. Run gate-plan step 3 (`getRouteForReading`) and confirm persist + recompute:
+   `geometryStatus == generated`, provenance `ai_reconstructed`, `riderReady == true`.
 4. Query `listCuratedRoutes` national-best mode; confirm the route appears.
 5. Query `listCuratedRoutes` nearest mode; confirm the route appears.
 6. Cold-boot the simulator (kill + relaunch, dismiss the dev-client launcher) and tap the recovered route.
