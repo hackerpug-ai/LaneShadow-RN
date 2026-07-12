@@ -146,15 +146,21 @@ appId: com.hackerpug.laneshadow
       text: "Twist of Tepusquet Loop|Route not found"
     timeout: 60000
 
-# AC-4 branch: missing row → fallback, no fabricated line.
+# AC-4 branch: missing row → honest fallback, 0 red-box crash surfaces.
+# "Render Error" / ConvexError NOT_FOUND must NOT paint over the fallback
+# (getCuratedRouteDetail returns null for absent routeId — never throws).
 - runFlow:
     when:
       visible: { id: "curated-route-detail-fallback" }
     commands:
       - assertVisible:
           id: "curated-route-detail-fallback"
+      - assertVisible: "Route not found"
       - assertNotVisible:
           id: "curated-route-detail-real-line"
+      - assertNotVisible: "Render Error"
+      - assertNotVisible: "ConvexError"
+      - assertNotVisible: "NOT_FOUND"
       - takeScreenshot: 02-absent-route-fallback
 
 # AC-1 branch: recovered route with gate-passing geometry.

@@ -7,15 +7,14 @@
  * hook run for real.
  *
  * AC-4 (two complementary cases):
- *   - nullDataRendersFallback: getCuratedRouteDetail resolves to null/undefined
- *     (bad id that the backend returns no row for) → the screen's null-guard
- *     renders `curated-route-detail-fallback` with literal 'Route not found'.
- *   - throwingQueryRendersFallback: getCuratedRouteDetail THROWS (DATA-006
- *     throws ConvexError NOT_FOUND for an unknown id) → the screen's
- *     ErrorBoundary catches it and renders the SAME fallback. No uncaught
- *     error reaches the top-level error boundary.
+ *   - nullDataRendersFallback: getCuratedRouteDetail resolves to null
+ *     (absent routeId — production contract after S1-T3) → null-guard renders
+ *     `curated-route-detail-fallback` with literal 'Route not found'.
+ *   - throwingQueryRendersFallback: unexpected query throw → ErrorBoundary
+ *     renders the SAME fallback (defense-in-depth; production absent-id path
+ *     returns null and must not throw / LogBox redbox).
  *
- * Service: vitest (jsdom). The live-Convex variant of AC-4 runs in PHASE 3.5;
+ * Service: vitest (jsdom). The live-Convex/Maestro variant of AC-4 runs on-device;
  * this jsdom test pins the fallback contract for the component tier.
  */
 

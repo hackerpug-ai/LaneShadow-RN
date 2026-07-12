@@ -5,7 +5,7 @@
  * state, and archetype filtering over the 5,654-row curated catalog.
  */
 
-import { ConvexError, v } from 'convex/values'
+import { v } from 'convex/values'
 import type { Doc } from './_generated/dataModel'
 import { internalQuery, query } from './_generated/server'
 import { geospatial } from './geospatialIndex'
@@ -448,7 +448,10 @@ function buildRouteDetail(
 
 export const getCuratedRouteDetail = query({
   args: routeDetailArgsValidator,
-  returns: routeDetailReturnValidator,
+  // null = honest not-found (S1-T3 AC-4). Do NOT throw ConvexError NOT_FOUND:
+  // convex/react useQuery rethrows during render, which RN LogBox surfaces as a
+  // full-screen "Render Error" even when an ErrorBoundary paints fallback UI.
+  returns: v.union(routeDetailReturnValidator, v.null()),
   handler: async (ctx, args) => {
     // Clerk gate — MUST run before any DB read (AC-5: unauthenticated → UNAUTHENTICATED).
     await requireIdentity(ctx)
@@ -462,10 +465,7 @@ export const getCuratedRouteDetail = query({
       .unique()
 
     if (!route) {
-      throw new ConvexError({
-        code: 'NOT_FOUND',
-        message: `Curated route not found: ${args.routeId}`,
-      })
+      return null
     }
 
     const geomRow = await ctx.db

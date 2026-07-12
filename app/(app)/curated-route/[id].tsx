@@ -610,9 +610,9 @@ type FallbackProps = {
 
 /**
  * "Route not found" fallback — centered, in body.md / onSurface.muted.
- * Used both by the explicit null-check AND by the ErrorBoundary so a throwing
- * query (DATA-006 ConvexError NOT_FOUND) surfaces the SAME node, never an
- * uncaught error.
+ * Primary path: getCuratedRouteDetail returns null for an absent routeId
+ * (no throw → no RN LogBox redbox). ErrorBoundary still covers unexpected
+ * render failures with the SAME node.
  */
 const CuratedRouteFallback = ({ semantic }: FallbackProps) => (
   <View
@@ -636,11 +636,10 @@ const CuratedRouteDetailScreen = () => {
 
   return (
     <SubpageLayout title="Route Detail" size="compact" testID="curated-route-detail-screen">
-      {/* ErrorBoundary: a throwing getCuratedRouteDetail (DATA-006 NOT_FOUND)
-          renders the SAME fallback as the explicit null-check — no uncaught
-          error reaches the top-level boundary. NOTE: this boundary does NOT
-          swallow per-section weather failures — those are isolated inside
-          PolylineGuardedBody's conditions section. */}
+      {/* ErrorBoundary: unexpected render failures share the null-detail
+          fallback. Absent routeIds do not throw (query returns null). This
+          boundary does NOT swallow per-section weather failures — those are
+          isolated inside PolylineGuardedBody's conditions section. */}
       <ErrorBoundary fallback={<CuratedRouteFallback semantic={semantic} />}>
         <PolylineGuardedBody id={id ?? ''} />
       </ErrorBoundary>
