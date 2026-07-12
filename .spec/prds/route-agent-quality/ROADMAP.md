@@ -37,7 +37,7 @@ green the whole Saturday Bar (Richness R1/R2, Feel F1–F3, Proof P1–P3 are se
 | # | Sprint | Gate | Tasks | Dependencies | Status |
 |---|--------|------|-------|--------------|--------|
 | 1 | [Geometry reference-flow spike](#sprint-01-geometry-reference-spike) | Founder watches one recovered route plot its correct road line from a cold boot | 4 | — | In Progress |
-| 2 | [Mastra spike + z.ai proof + enrichment re-ratification](#sprint-02-mastra-reference-spike) | Turn-two "OK what's scenic" inherits the Ogden center on cloud dev | 8 | — | Planned |
+| 2 | [Mastra spike + z.ai proof + enrichment re-ratification](#sprint-02-mastra-reference-spike) | Turn-two "OK what's scenic" inherits the Ogden center on cloud dev | 8 | — | In Progress |
 | 3 | [Catalog hygiene](#sprint-03-catalog-hygiene) | Founder confirms canonical-vs-shadow per duplicate group before merge commits | 4 | — | Planned |
 | 4 | [Trust pipeline](#sprint-04-trust-pipeline) | Founder reviews the ~25 couch-sample lines and records the pass that unlocks the batch | 7 | 1, 3 | Planned |
 | 5 | [Batch acceptance + retirement](#sprint-05-batch-acceptance) | Founder accepts the realized rider-ready count against the expected-yield table | 4 | 4 | Planned |
@@ -112,7 +112,7 @@ The eight capability chains (CAP-GEO-01…06, CAP-AGT-01/02) are each owned by �
 
 **Sequence:** 2
 **Timeline:** Phase 1 (parallel opener)
-**Status:** Planned
+**Status:** In Progress
 **Proposed by:** mastra-planner + aisdk-planner (z.ai provider) + product-manager (sequence)
 
 #### Human Testing Gate
@@ -141,7 +141,16 @@ The eight capability chains (CAP-GEO-01…06, CAP-AGT-01/02) are each owned by �
 | S2-T7 | Run the §5b spike gate; record accept/adjust on the pinned ceilings | Founder-Operator | 30 min |
 | S2-T8 | Observe the green T-AGT-024 proof; re-ratify enrichment/06-external-dependencies.md (discharge cross-PRD prerequisite) | Founder-Operator | 30 min |
 
-**Next Sprint Tasks:** *(populated JIT by kb-sprint-tasks-plan)*
+**Next Sprint Tasks:** *(expanded by kb-sprint-tasks-plan on 2026-07-12 → [`tasks/sprint-02-mastra-reference-spike/`](./tasks/sprint-02-mastra-reference-spike/))*
+
+- S2-T1-install-mastra-core-ai-sdk-openai-compatible-assert-and-preserve-ai-7-nodeversio.md
+- S2-T2-spike-tools-geocodeplace-searchcuratedroutes-as-createtool-zod-errors-as-data-ce.md
+- S2-T3-rideagentspike-ts-stateless-mastra-core-agent-in-a-use-node-action-2-turn-ogden-.md
+- S2-T4-wire-mastra-observability-otlp-langsmith-with-sensitivedatafilter-prove-one-reda.md
+- S2-T5-measure-record-cold-start-8s-cloud-dev-bundle-size-delta-10mb-from-the-deploy-ar.md
+- S2-T6-z-ai-glm-5-2-custom-provider-structured-output-proof-text-mode-json-fallback-t-a.md
+- S2-T7-run-the-5b-spike-gate-record-accept-adjust-on-the-pinned-ceilings.md
+- S2-T8-observe-the-green-t-agt-024-proof-re-ratify-enrichment-06-external-dependencies-.md
 
 #### Dependencies
 
