@@ -1,0 +1,4 @@
+
+> laneshadow@1.0.0 type-check /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/REDHAT-FIX-002
+> tsc --noEmit -p convex/tsconfig.json && tsc --noEmit -p tsconfig.json
+

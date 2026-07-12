@@ -1,0 +1,55 @@
+Running on iPhone 17 - iOS 26.4 - 9051A0C2-CCB5-4D0F-AAAC-F03F74719352
+ > Flow rec-016-cold-boot-recovered-route-plots
+Stop com.hackerpug.laneshadow... COMPLETED
+Launch app "com.hackerpug.laneshadow" with clear state and clear keychain... COMPLETED
+Assert that "DEVELOPMENT SERVERS|Login with Email|Plan|Saved|chat|laneshadow|Where|Route" is visible... COMPLETED
+Run flow when "DEVELOPMENT SERVERS" is visible...
+  Tap on ".*localhost:8081.*"... COMPLETED
+Run flow when "DEVELOPMENT SERVERS" is visible... COMPLETED
+Assert that "Login with Email|.*developer menu.*|Reload|Go home|Toggle performance monitor|Toggle element inspector|Open JS debugger|Close|Continue" is visible... COMPLETED
+Assert that (Optional) "Continue" is visible... COMPLETED
+Run flow when "Continue" is visible...
+  Tap on "Continue"... COMPLETED
+  Wait for animation to end... COMPLETED
+Run flow when "Continue" is visible... COMPLETED
+Run flow when "Continue" is visible...
+Run flow when "Continue" is visible... SKIPPED
+Run flow when "Close" is visible...
+  Tap on "Close"... COMPLETED
+  Wait for animation to end... COMPLETED
+Run flow when "Close" is visible... COMPLETED
+Run flow when "Reload" is visible...
+Run flow when "Reload" is visible... SKIPPED
+Run flow when "Go home|Toggle performance monitor" is visible...
+Run flow when "Go home|Toggle performance monitor" is visible... SKIPPED
+Assert that "Login with Email|Plan|Saved|Where|Route" is visible... COMPLETED
+Run flow when "Continue" is visible...
+Run flow when "Continue" is visible... SKIPPED
+Run flow when "Close" is visible...
+Run flow when "Close" is visible... SKIPPED
+Run flow when "Login with Email" is visible...
+  Assert that id: e2e-test-login-button is visible... COMPLETED
+  Tap on id: e2e-test-login-button... COMPLETED
+Run flow when "Login with Email" is visible... COMPLETED
+Assert that id: chat-input is visible... COMPLETED
+Assert that id: chat-input is visible... COMPLETED
+Take screenshot 01-cold-boot-home... COMPLETED
+Open laneshadow:///curated-route/${RECOVERED_ROUTE_ID}... COMPLETED
+Assert that "Twist of Tepusquet Loop|Route not found" is visible... COMPLETED
+Run flow when id: curated-route-detail-fallback is visible...
+Run flow when id: curated-route-detail-fallback is visible... SKIPPED
+Run flow when id: curated-detail-map is visible...
+  Assert that "Twist of Tepusquet Loop", id: curated-route-detail-name is visible... COMPLETED
+  Assert that id: curated-detail-map is visible... COMPLETED
+  Assert that id: map-settled is visible... COMPLETED
+  Assert that id: mapbox-road-polyline-layer is visible... COMPLETED
+  Assert that id: curated-route-detail-line-painted is visible... COMPLETED
+  Wait for animation to end... COMPLETED
+  Assert that id: map-settled is visible... COMPLETED
+  Assert that id: mapbox-road-polyline-layer is visible... COMPLETED
+  Assert that id: curated-route-detail-line-painted is visible... COMPLETED
+  Assert that id: curated-detail-approximate-badge is not visible... COMPLETED
+  Assert that id: curated-route-detail-fallback is not visible... COMPLETED
+  Assert that "Approximate location" is not visible... COMPLETED
+  Take screenshot 02-recovered-route-line-painted... COMPLETED
+Run flow when id: curated-detail-map is visible... COMPLETED

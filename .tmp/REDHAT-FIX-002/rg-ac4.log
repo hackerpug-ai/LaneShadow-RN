@@ -1,0 +1,28 @@
+app/(app)/curated-route/[id].tsx:28: *   - `curated-route-detail-line-painted` — honest paint oracle (REDHAT-FIX-002/H2):
+app/(app)/curated-route/[id].tsx:29: *         coords ≥2 AND map settled (paint-ready). Replaces transparent real-line
+app/(app)/curated-route/[id].tsx:245:  // Maestro PRIMARY also asserts map-settled + mapbox-road-polyline-layer.
+app/(app)/curated-route/[id].tsx:364:            style={styles.polylineProbe}
+app/(app)/curated-route/[id].tsx:368:            necessary but not sufficient — requires map-settled (onMapReady).
+app/(app)/curated-route/[id].tsx:369:            Transparent real-line probe retired as PRIMARY Maestro plot proof. */}
+app/(app)/curated-route/[id].tsx:372:            testID="curated-route-detail-line-painted"
+app/(app)/curated-route/[id].tsx:374:            accessibilityLabel="curated-route-detail-line-painted"
+app/(app)/curated-route/[id].tsx:763:  polylineProbe: {
+app/(app)/curated-route/[id].tsx:769:  // REDHAT-FIX-002 honest paint oracle — Maestro assertVisible needs non-zero
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:136:- assertVisible:
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:156:      - assertVisible:
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:158:      - assertVisible: "Route not found"
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:160:          id: "curated-route-detail-line-painted"
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:164:          id: "map-settled"
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:171:# REDHAT-FIX-002 / H2 PRIMARY: honest paint/settle oracle — map-settled +
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:172:# mapbox-road-polyline-layer (LineLayer paint-ready) + line-painted.
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:173:# Transparent curated-route-detail-real-line probe is NOT PRIMARY plot proof.
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:179:      - assertVisible:
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:182:      - assertVisible:
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:186:            id: "map-settled"
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:194:            id: "curated-route-detail-line-painted"
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:197:      - assertVisible:
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:198:          id: "map-settled"
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:199:      - assertVisible:
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:201:      - assertVisible:
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:202:          id: "curated-route-detail-line-painted"
+.maestro/rec-016-cold-boot-recovered-route-plots.yaml:208:      - takeScreenshot: 02-recovered-route-line-painted

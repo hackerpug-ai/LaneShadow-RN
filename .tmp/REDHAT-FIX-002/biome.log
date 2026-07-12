@@ -1,0 +1,7 @@
+app/(app)/curated-route/[id].geometry-degradation.integration.test.tsx plugin ━━━━━━━━━━━━━━━━━━━━━━
+
+  i no-dynamic-import errored: regex pattern matched 1 variables, but expected 0
+  
+
+Checked 3 files in 85ms. No fixes applied.
+Found 1 info.

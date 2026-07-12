@@ -157,14 +157,21 @@ appId: com.hackerpug.laneshadow
           id: "curated-route-detail-fallback"
       - assertVisible: "Route not found"
       - assertNotVisible:
-          id: "curated-route-detail-real-line"
+          id: "curated-route-detail-line-painted"
+      - assertNotVisible:
+          id: "mapbox-road-polyline-layer"
+      - assertNotVisible:
+          id: "map-settled"
       - assertNotVisible: "Render Error"
       - assertNotVisible: "ConvexError"
       - assertNotVisible: "NOT_FOUND"
       - takeScreenshot: 02-absent-route-fallback
 
 # AC-1 branch: recovered route with gate-passing geometry.
-# AC-3: require map-ready painted-line oracle — transparent 1px probe alone is NOT proof.
+# REDHAT-FIX-002 / H2 PRIMARY: honest paint/settle oracle — map-settled +
+# mapbox-road-polyline-layer (LineLayer paint-ready) + line-painted.
+# Transparent curated-route-detail-real-line probe is NOT PRIMARY plot proof.
+# coords ≥2 is necessary but not sufficient (blank map with valid coords fails).
 - runFlow:
     when:
       visible: { id: "curated-detail-map" }
@@ -176,20 +183,26 @@ appId: com.hackerpug.laneshadow
           id: "curated-detail-map"
       - extendedWaitUntil:
           visible:
+            id: "map-settled"
+          timeout: 120000
+      - extendedWaitUntil:
+          visible:
             id: "mapbox-road-polyline-layer"
           timeout: 120000
       - extendedWaitUntil:
           visible:
-            id: "curated-route-detail-real-line"
+            id: "curated-route-detail-line-painted"
           timeout: 120000
       - waitForAnimationToEnd
       - assertVisible:
+          id: "map-settled"
+      - assertVisible:
           id: "mapbox-road-polyline-layer"
       - assertVisible:
-          id: "curated-route-detail-real-line"
+          id: "curated-route-detail-line-painted"
       - assertNotVisible:
           id: "curated-detail-approximate-badge"
       - assertNotVisible:
           id: "curated-route-detail-fallback"
       - assertNotVisible: "Approximate location"
-      - takeScreenshot: 02-recovered-route-real-line-plotted
+      - takeScreenshot: 02-recovered-route-line-painted
