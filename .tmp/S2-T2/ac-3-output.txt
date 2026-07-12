@@ -1,0 +1,14 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T2
+> vitest "convex/actions/agent/spike/__tests__/spikeTools.integration.test.ts" "-t" "tools return errors-as-data typed values"
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T2
+
+ ✓ convex/actions/agent/spike/__tests__/spikeTools.integration.test.ts (4 tests | 3 skipped) 206ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 3 skipped (4)
+   Start at  16:55:36
+   Duration  634ms (transform 35ms, setup 70ms, collect 234ms, tests 206ms, environment 0ms, prepare 28ms)
+

@@ -1,0 +1,14 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T2
+> vitest "convex/actions/agent/spike/__tests__/spikeTools.integration.test.ts" "-t" "tool schemas are discriminated unions with real teeth"
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T2
+
+ ✓ convex/actions/agent/spike/__tests__/spikeTools.integration.test.ts (4 tests | 3 skipped) 2ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 3 skipped (4)
+   Start at  16:55:37
+   Duration  506ms (transform 42ms, setup 82ms, collect 271ms, tests 2ms, environment 0ms, prepare 35ms)
+

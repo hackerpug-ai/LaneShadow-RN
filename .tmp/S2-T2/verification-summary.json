@@ -1,0 +1,42 @@
+{
+  "task_id": "S2-T2",
+  "timestamp": "2026-07-12T22:55:38Z",
+  "commit_sha": "5a34cf1b3f8a89c6d1f6333f548e12e1f61dc714",
+  "typecheck": {
+    "exit_code": 0
+  },
+  "lint": {
+    "exit_code": 1,
+    "warnings": 1
+  },
+  "pre_existing_issues": false,
+  "requirement_results": [
+    {
+      "id": "AC-1",
+      "verify": "pnpm test -- convex/actions/agent/spike/__tests__/spikeTools.integration.test.ts -t \"geocodePlace resolves Ogden via real Google Geocoding\"",
+      "exit_code": 0,
+      "output_file": ".tmp/S2-T2/ac-1-output.txt"
+    },
+    {
+      "id": "AC-2",
+      "verify": "pnpm test -- convex/actions/agent/spike/__tests__/spikeTools.integration.test.ts -t \"searchCuratedRoutes returns server distanceMi within radius nearest-first\"",
+      "exit_code": 0,
+      "output_file": ".tmp/S2-T2/ac-2-output.txt"
+    },
+    {
+      "id": "AC-3",
+      "verify": "pnpm test -- convex/actions/agent/spike/__tests__/spikeTools.integration.test.ts -t \"tools return errors-as-data typed values\"",
+      "exit_code": 0,
+      "output_file": ".tmp/S2-T2/ac-3-output.txt"
+    },
+    {
+      "id": "AC-4",
+      "verify": "pnpm test -- convex/actions/agent/spike/__tests__/spikeTools.integration.test.ts -t \"tool schemas are discriminated unions with real teeth\"",
+      "exit_code": 0,
+      "output_file": ".tmp/S2-T2/ac-4-output.txt"
+    }
+  ],
+  "red_evidence": {
+    "required": true
+  }
+}

@@ -1,0 +1,15 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T2
+> vitest "convex/actions/agent/spike/__tests__/spikeTools.integration.test.ts" "-t" "searchCuratedRoutes returns server distanceMi within radius nearest-first"
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T2
+
+ ✓ convex/actions/agent/spike/__tests__/spikeTools.integration.test.ts (4 tests | 3 skipped) 1758ms
+   ✓ S2-T2 spike tools: geocodePlace + searchCuratedRoutes > searchCuratedRoutes returns server distanceMi within radius nearest-first  1758ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 3 skipped (4)
+   Start at  16:55:33
+   Duration  2.25s (transform 41ms, setup 79ms, collect 261ms, tests 1.76s, environment 0ms, prepare 34ms)
+
