@@ -25,6 +25,7 @@
  * maestro flow + fallback test):
  *   - `curated-route-detail-name`     — the name Text (leaf inside header section)
  *   - `curated-route-detail-polyline` — polyline-presence probe (inside map section)
+ *   - `curated-route-detail-real-line` — ≥2 decoded polyline points (S1-T3 plot gate)
  *   - `curated-route-detail-fallback` — null/error fallback node (unchanged)
  *   - `curated-route-detail-loading`  — loading skeleton (unchanged)
  * The six section ROOT Views carry the canonical `curated-detail-*` testIDs.
@@ -185,6 +186,10 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
     ]
   }, [detail, semantic.color.primary.default])
 
+  // S1-T3: discriminate a drawable road line (≥2 coords) from a centroid dot or
+  // degenerate 0/1-point polyline string — the Maestro plot gate keys off this.
+  const hasRealRoadLine = (polylines[0]?.coordinates.length ?? 0) >= 2
+
   // Centroid marker — ONE pin in state 2 only (state 1 fits the polyline bounds
   // and the polyline carries the geometry; state 3 has nothing to show).
   const centroidMarkers = useMemo(() => {
@@ -322,6 +327,9 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
             state 1 (polyline present) — never in state 2/3. */}
         {hasPolyline ? (
           <View testID="curated-route-detail-polyline" style={styles.polylineProbe} />
+        ) : null}
+        {hasRealRoadLine ? (
+          <View testID="curated-route-detail-real-line" style={styles.polylineProbe} />
         ) : null}
         {/* DESIGN-003 state 2: 'Approximate location' outline badge, centered
             BELOW the map. Mutually exclusive with the polyline branch — nulls

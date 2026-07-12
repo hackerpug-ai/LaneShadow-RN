@@ -1,0 +1,65 @@
+# S1-T3 / T-REC-016 — cold-boot plot verification for the recovered PoC route.
+#
+# PRIMARY (AC-1): RECOVERED_ROUTE_ID = S1-T2 slug on live Convex dev
+#   (default: motorcycleroads:twist-of-tepusquet-loop → Twist of Tepusquet Loop).
+# AC-4: maestro test ... -e RECOVERED_ROUTE_ID=nonexistent-route-slug
+#
+# Prereqs: booted iOS sim, dev client on Metro (localhost:8081), EXPO_PUBLIC_E2E=1.
+#
+# Run:
+#   maestro test .maestro/rec-016-cold-boot-recovered-route-plots.yaml \
+#     -e RECOVERED_ROUTE_ID='motorcycleroads:twist-of-tepusquet-loop'
+
+appId: com.hackerpug.laneshadow
+---
+- stopApp
+
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+- runFlow: _common-auth.yaml
+
+# AC-3: authenticated home from a true cold boot before navigation.
+- assertVisible:
+    id: 'chat-input'
+- takeScreenshot: 01-cold-boot-home
+
+# Deep-link to the recovered (or absent) curated route.
+- openLink: laneshadow:///curated-route/${RECOVERED_ROUTE_ID}
+
+# Wait for detail name (recovered) or not-found fallback (AC-4).
+- extendedWaitUntil:
+    visible:
+      text: 'Twist of Tepusquet Loop|Route not found'
+    timeout: 60000
+
+# AC-4 branch: missing row → fallback, no fabricated line.
+- runFlow:
+    when:
+      visible: { id: 'curated-route-detail-fallback' }
+    commands:
+      - assertVisible:
+          id: 'curated-route-detail-fallback'
+      - assertNotVisible:
+          id: 'curated-route-detail-real-line'
+      - takeScreenshot: 02-absent-route-fallback
+
+# AC-1 branch: recovered route with gate-passing geometry.
+- runFlow:
+    when:
+      visible: { id: 'curated-detail-map' }
+    commands:
+      - assertVisible:
+          id: 'curated-route-detail-name'
+          text: 'Twist of Tepusquet Loop'
+      - assertVisible:
+          id: 'curated-detail-map'
+      - assertVisible:
+          id: 'curated-route-detail-real-line'
+      - assertNotVisible:
+          id: 'curated-detail-approximate-badge'
+      - assertNotVisible:
+          id: 'curated-route-detail-fallback'
+      - assertNotVisible: 'Approximate location'
+      - takeScreenshot: 02-recovered-route-real-line-plotted
