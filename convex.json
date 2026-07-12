@@ -11,7 +11,9 @@
       "jose",
       "@mariozechner/pi-ai",
       "ai",
-      "@ai-sdk/anthropic"
+      "@ai-sdk/anthropic",
+      "@mastra/core",
+      "@ai-sdk/openai-compatible"
     ],
     "nodeVersion": "22"
   },

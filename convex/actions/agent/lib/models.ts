@@ -46,3 +46,18 @@ export function getAgentModel(level: IntelligenceLevel) {
 export function getAgentModelInfo(level: IntelligenceLevel) {
   return MODEL_MAP[level]
 }
+
+/**
+ * Orchestrator tier (Mastra spike, additive) — returns a Mastra ModelRouter
+ * string, NOT a pi-ai Model object. Mastra's `Agent` accepts `model` as a
+ * plain 'provider/model-id' string and resolves it against the deployment's
+ * ANTHROPIC_API_KEY. Kept separate from IntelligenceLevel/getAgentModel:
+ * this tier is for the Mastra orchestrator Agent, not the pi-ai conversation
+ * loop.
+ *
+ * Pinned model id reused verbatim from the already-proven
+ * createDefaultAnchorExtractionModel() in anchorExtraction.ts (DEFAULT_MODEL_ID).
+ */
+export function getOrchestratorModel(): string {
+  return 'anthropic/claude-sonnet-4-6'
+}

@@ -1,0 +1,1484 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T1
+> vitest
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T1
+
+ ✓ shared/lib/disc-016-curated-tap.test.ts (3 tests) 1ms
+ ✓ convex/actions/agent/tools/__tests__/discoverCuratedRoutes.scores.integration.test.ts (6 tests) 19088ms
+   ✓ REDHAT-FIX-001 AC-1: optionCarriesRealNonZeroScores > live discovery option[0].scores.composite > 0 and matches the route real flat compositeScore, with >=1 non-zero dimension  5658ms
+   ✓ REDHAT-FIX-001 AC-2: distanceGuardedToNearestSort > best-sort (LIVE): option[0].stats.distanceMeters === undefined (no fabricated 0)  3233ms
+   ✓ REDHAT-FIX-005 AC-1: omitCuratedStatsFabricatedZeros > best-sort (LIVE): option[0].stats.durationSeconds === undefined and legsCount === undefined (no fabricated 0)  3049ms
+   ✓ REDHAT-FIX-005 AC-2: centerPointFallsBackToRouteCentroid > best-sort (LIVE, no center): planInput.start uses the first route centroid, NOT {0,0}  3765ms
+ ❯ convex/__tests__/listCuratedRoutes.integration.test.ts (15 tests | 8 failed) 1111ms
+   ✓ AC-2: Clerk gate (requireIdentity) > logic verification (mocked ctx) > unauthenticatedCallIsRejected 1ms
+   ✓ AC-2: Clerk gate (requireIdentity) > logic verification (mocked ctx) > gate is the first statement — no DB or geospatial access on reject 0ms
+   × AC-2: Clerk gate (requireIdentity) > logic verification (mocked ctx) > authenticated identity proceeds past the gate (default mode returns rows) 4ms
+     → expected [] to have a length of 1 but got +0
+   ✓ AC-2: Clerk gate (requireIdentity) > code inspection (curatedRoutes.ts source) > requireIdentity is the first statement of the handler 0ms
+   ✓ AC-2: Clerk gate (requireIdentity) > live deployment gate (npx convex run — admin auth has no Clerk identity) > unauthenticatedCallIsRejected_onLiveDev  1100ms
+   ✓ AC-1: all four browse modes > mode1_bbox_returnsInBoxRoutesRankedByCompositeScoreDescWith0to1Scores 1ms
+   × AC-1: all four browse modes > mode2_nearest_populatesDistanceMiAndSortsAscending 0ms
+     → expected [] to have a length of 3 but got +0
+   ✓ AC-1: all four browse modes > mode2_nearest_throwsWhenNoCenterProvided 0ms
+   ✓ AC-1: all four browse modes > mode3_state_probesBothDirtyAndCleanVariantsViaByStateIndex 1ms
+   × AC-1: all four browse modes > mode4_archetypesOnly_fallsThroughToByCompositeScoreAndFiltersByUiEnum 1ms
+     → expected [] to include 'top-twisties'
+   × AC-1: all four browse modes > mode4_defaultBest_usesByCompositeScoreIndexAndReturnsTopRows 1ms
+     → expected [] to deeply equal [ 'a', 'b' ]
+   × AC-1: all four browse modes > scoreNormalization_preserves0to1AndCoercesDirty0to100Defensively 0ms
+     → Cannot read properties of undefined (reading 'compositeScore')
+   × AC-1: all four browse modes > lengthClamp_drops710430MiJunkAndNegativeLengths 0ms
+     → Cannot read properties of undefined (reading 'lengthMiles')
+   × AC-1: all four browse modes > limitCap_capsAtMathMinLimit50_200 0ms
+     → expected [] to have a length of 5 but got +0
+   × AC-1: all four browse modes > allFourModesReturnCorrectRankedCappedResults 0ms
+     → expected [] to deeply equal [ 'near-close', 'near-far' ]
+ ✓ app/(app)/(tabs)/index.route-tap.integration.test.tsx (3 tests) 359ms
+ ❯ components/ui/__tests__/save-favorite-sheet.test.tsx (30 tests | 29 failed) 29ms
+   × SaveFavoriteSheet > AC1: Sheet renders with title and name input > renders the sheet when visible=true 5ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC1: Sheet renders with title and name input > displays "Save as Favorite" title 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC1: Sheet renders with title and name input > renders name input field 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC1: Sheet renders with title and name input > renders Save button 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   ✓ SaveFavoriteSheet > AC1: Sheet renders with title and name input > does not render when visible=false 0ms
+   × SaveFavoriteSheet > AC2: Save calls mutation and closes sheet on success > calls mutation with correct args when user enters name and taps Save 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC2: Save calls mutation and closes sheet on success > closes sheet on successful save 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC2: Save calls mutation and closes sheet on success > trims whitespace from name before saving 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC2: Save calls mutation and closes sheet on success > shows loading state while saving 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Validation error shown for empty name > shows validation error when name is empty 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Validation error shown for empty name > shows validation error when name is only whitespace 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Validation error shown for empty name > does not call mutation when name is empty 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Validation error shown for empty name > does not close sheet when validation fails 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Validation error shown for empty name > shows validation error when name exceeds 100 characters 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Validation error shown for empty name > clears validation error when user starts typing 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC2: onSuccess callback > calls onSuccess after successful save 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC2: onSuccess callback > calls onSuccess before onClose 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Cancel button behavior > calls onCancel callback when Cancel button pressed 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Cancel button behavior > calls onClose after onCancel 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC3: Cancel button behavior > disables Cancel button while saving 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC5: Character count display > shows character count 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC5: Character count display > updates character count as user types 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC4: Error handling when mutation fails > displays error message when mutation throws 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC4: Error handling when mutation fails > keeps sheet open when mutation fails 2ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC4: Error handling when mutation fails > reenables Save button after mutation fails 2ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > AC4: Error handling when mutation fails > clears error message when user starts typing again 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > Additional behaviors > resets form when sheet opens 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > Additional behaviors > requires at least 1 character (min validation) 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > Additional behaviors > enforces max 100 character limit 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+   × SaveFavoriteSheet > Additional behaviors > does not call mutation without route data 1ms
+     → [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts (59 tests | 38 failed) 24ms
+   ✓ buildSystemPrompt > includes device location and instructs the agent not to ask for origin when currentLocation is set 1ms
+   × buildSystemPrompt > omits device location and prompts to ask when currentLocation is undefined and no lastKnownLocation 3ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'ask where they are starting from'
+   ✓ buildSystemPrompt > uses lastKnownLocation fallback when currentLocation is undefined but session has lastKnownLocation 0ms
+   × buildSystemPrompt > includes route summary block when buildInSessionRouteBlock returns content 1ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'Routes already planned this session:'
+   ✓ buildSystemPrompt > has no extra blank lines when buildInSessionRouteBlock returns empty string 0ms
+   × buildSystemPrompt > llm-first prompt: instructs LLM to author a route sketch for all requests 1ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'createRouteSketch'
+   × buildSystemPrompt > avoid guidance: instructs LLM to route around avoidances in the sketch, not via avoidRoads API 0ms
+     → expected 'you are a motorcycle ride planning as…' to match /avoid.*sketch|route around.*sketch|sk…/
+   × buildSystemPrompt > fallback guidance: instructs LLM to fall back to planRoute when uncertain 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'planRoute'
+   × buildSystemPrompt > planRoute available: preserves planRoute as an available tool in the prompt 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'planRoute'
+   × buildSystemPrompt > llm-first prompt: includes viaNames guidance for intermediate landmarks 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'viaNames'
+   × buildSystemPrompt > llm-first prompt: includes segment retry hint 0ms
+     → expected 'you are a motorcycle ride planning as…' to match /fail|didn.t work|revise/
+   ✓ extractRouteAttachments > returns attachment with the Convex routePlanId when planRoute persisted a route_plans row 0ms
+   ✓ extractRouteAttachments > returns empty array when planRoute result has no routePlanId 0ms
+   ✓ extractRouteAttachments > returns empty array when toolName is not planRoute 0ms
+   ✓ extractRouteAttachments > returns empty array when planRoute result type is chat not routes 0ms
+   ✓ extractRouteAttachments > returns empty array for an empty input array 0ms
+   ✓ extractRouteAttachments > returns multiple attachments when multiple planRoute results are present 0ms
+   ✓ executeRidePlanningAgent > returns text response with no attachments for a single-turn chat 1ms
+   × executeRidePlanningAgent > calls planRoute tool then returns text with route attachment 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   ✓ executeRidePlanningAgent > forwards real planRoute pipeline progress as sub-tool planning events 1ms
+   ✓ executeRidePlanningAgent > passes sub-tool planning callbacks through the orchestrator into routing_agent 1ms
+   × executeRidePlanningAgent > passes planningSessionId to createForAgentInternal when planRoute tool runs 0ms
+     → Cannot read properties of undefined (reading '0')
+   ✓ executeRidePlanningAgent > does not call orchestrator and returns upsell message when usage limit is reached 0ms
+   × executeRidePlanningAgent > executes geocode then planRoute then text (multi-step) 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > caps the loop at MAX_STEPS (10) if stream keeps returning toolUse 0ms
+     → expected "spy" to be called 10 times, but got 20 times
+   ✓ executeRidePlanningAgent > throws when API key is missing 0ms
+   ✓ executeRidePlanningAgent > fires onThinkingDelta for each thinking_delta event from the stream 0ms
+   ✓ executeRidePlanningAgent > fires onToolPending for each toolcall_start event from the stream 0ms
+   × executeRidePlanningAgent > fires onStepStart once per loop iteration with (step, MAX_STEPS) 0ms
+     → expected 1st "spy" call to have been called with [ +0, 10 ]
+   ✓ executeRidePlanningAgent > fires onAgentTurn once per assistant turn that has tool calls 0ms
+   × executeRidePlanningAgent > fires onToolResultPiMessage after each tool result with correct toolCallId and ToolResultMessage 1ms
+     → expected '{"type":"error","message":"Unknown or…' to contain 'weather'
+   ✓ executeRidePlanningAgent > back-compat: runs normally with no callbacks provided (no crashes, tools execute) 1ms
+   × executeRidePlanningAgent > LoopDetector intercepts 3rd identical tool call — tool NOT executed, error result injected 1ms
+     → expected false to be true // Object.is equality
+   ✓ executeRidePlanningAgent > LoopDetector does NOT fire for calls with different args (no false positives) 0ms
+   × executeRidePlanningAgent > BudgetTracker throws after cumulative cost exceeds limit — loop aborts with AGENT_BUDGET_EXCEEDED 1ms
+     → promise resolved "{ response: 'Hello', …(2) }" instead of rejecting
+   ✓ executeRidePlanningAgent > BudgetTracker does NOT throw when cumulative cost is under limit (normal operation) 0ms
+   × executeRidePlanningAgent > US-320: two concurrent geocode calls both execute (parallel safe) 0ms
+     → expected [] to have a length of 2 but got +0
+   × executeRidePlanningAgent > US-320: geocode (safe) and planRoute (unsafe) in same turn — geocode runs parallel-safe, planRoute sequential 0ms
+     → expected "spy" to be called at least once
+   ✓ executeRidePlanningAgent > US-320: result ordering is preserved regardless of parallel execution order 0ms
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > per-segment dispatch: dispatches to compileSegments when sketch has segments 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > segment error feedback: returns structured failed/succeeded arrays when a segment fails 0ms
+     → expected 'Unknown orchestrator tool: compileSke…' to contain '1 of 3'
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > single-shot fallback: uses single-shot compilation when sketch has no segments 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > all segments failed: returns error with all in failed[], empty succeeded[], revise_failed_segments guidance 0ms
+     → expected 'Unknown orchestrator tool: compileSke…' to contain '3 of 3'
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > partial geometry: includes partial stitched route info in error hint when some segments succeed 0ms
+     → expected 'Unknown orchestrator tool: compileSke…' to contain '1 of 3'
+   × executeRidePlanningAgent > segment retry loop (US-025) > skip succeeded: only compiles segment 2 on retry when segments 0,1,3 are unchanged and already succeeded 0ms
+     → expected "spy" to be called 2 times, but got 0 times
+   × executeRidePlanningAgent > segment retry loop (US-025) > merge cached: revised segment 2 success merges with cached 0,1,3 for fully stitched 4-segment route 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > segment retry loop (US-025) > attempt count: error hint includes attemptsRemaining decremented per retry 0ms
+     → "undefined" is not valid JSON
+   × executeRidePlanningAgent > segment retry loop (US-025) > max retries: returns partial route with user message after 3 failed attempts on same session 0ms
+     → expected [ 'routes', 'chat' ] to include 'error'
+   × executeRidePlanningAgent > US-310: ToolResultMessage pushed to context contains summarized planRoute result (no geometry), while toolResultsTracker holds full result 0ms
+     → expected 'error' to be 'routes' // Object.is equality
+   × executeRidePlanningAgent > tool registration > all 7 new tools appear in the agent context passed to stream 0ms
+     → expected [ 'routing_agent', …(2) ] to include 'lookupRoad'
+   × executeRidePlanningAgent > grounding before sketch > system prompt instructs LLM to call lookupRoad before sketch for scenic requests 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'lookupRoad'
+   × executeRidePlanningAgent > grounding before sketch > lookupRoad tool executes and returns road match data when called 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > curvature in rationale > system prompt instructs LLM to cite curvature scores in route rationale 1ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'getCurvature'
+   × executeRidePlanningAgent > curvature in rationale > getCurvature tool executes and returns score data when called 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > skip grounding > system prompt documents when to skip grounding tools (direct A-to-B, named roads, retries) 0ms
+     → expected 'you are a motorcycle ride planning as…' to match /skip.*grounding|when to skip/
+   × executeRidePlanningAgent > post-compile enrichment > system prompt instructs LLM to call getElevation and getRouteWeather after compileSketch 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'getElevation'
+   × executeRidePlanningAgent > post-compile enrichment > getElevation tool executes and returns elevation profile when called 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > post-compile enrichment > getRouteWeather tool executes and returns weather summary when called 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > post-compile enrichment > searchAlongRoute tool executes and returns nearby places when called 0ms
+     → expected "spy" to be called 1 times, but got 0 times
+ ❯ components/map/__tests__/route-polyline.test.tsx (18 tests | 1 failed) 6ms
+   ✓ RoutePolyline Component > Rendering (AC1) > renders_mapbox_line_layer_for_each_polyline 1ms
+   ✓ RoutePolyline Component > Rendering (AC1) > should use custom testID when provided 0ms
+   ✓ RoutePolyline Component > Rendering (AC1) > should render polylines without IDs using fallback index 0ms
+   ✓ RoutePolyline Component > Visual Feedback (AC1 highlight) > should highlight selected segment via prop 0ms
+   × RoutePolyline Component > Visual Feedback (AC1 highlight) > should use semantic spacing for stroke widths 1ms
+     → expected undefined to be defined
+   ✓ RoutePolyline Component > Segment Selection Callback (AC2) > tap_select_fires_callback_with_geometry 1ms
+   ✓ RoutePolyline Component > Segment Selection Callback (AC2) > should provide correct segment data structure 0ms
+   ✓ RoutePolyline Component > Segment Selection Callback (AC2) > should encode geometry as polyline string 0ms
+   ✓ RoutePolyline Component > Overlay Segment Selection (AC3) > should trigger callback for wind overlay segment 0ms
+   ✓ RoutePolyline Component > Overlay Segment Selection (AC3) > should trigger callback for rain overlay segment 0ms
+   ✓ RoutePolyline Component > Coordinate Conversion (AC4) > coordinates_converted_from_google_to_mapbox_format 0ms
+   ✓ RoutePolyline Component > Segment Type Parsing > should parse overview segment type 0ms
+   ✓ RoutePolyline Component > Segment Type Parsing > should parse leg segment type with index 0ms
+   ✓ RoutePolyline Component > Segment Type Parsing > should parse wind overlay segment type 0ms
+   ✓ RoutePolyline Component > Segment Type Parsing > should parse rain overlay segment type 0ms
+   ✓ RoutePolyline Component > Segment Type Parsing > should parse temperature overlay segment type 0ms
+   ✓ RoutePolyline Component > Bounds Calculation > should calculate correct bounds for segment coordinates 0ms
+   ✓ RoutePolyline Component > Edge Cases > should skip polylines with fewer than 2 coordinates 0ms
+stdout | convex/__tests__/geometryGatePersist.integration.test.ts > AC-2 through AC-7: Gate persistence and riderReady
+🌱 Seeding boundary_ratio_rows...
+🌱 Seeding degenerate_rows...
+🌱 Seeding quarantined_length_row...
+🌱 Seeding anchor test routes...
+
+stdout | convex/__tests__/geometryGatePersist.integration.test.ts > AC-2 through AC-7: Gate persistence and riderReady > AC-2: Ratio boundaries > 'ratio 1.00 (PoC baseline)'
+  Reconstructing test:ratio-100...
+
+stdout | convex/__tests__/geometryGatePersist.integration.test.ts > AC-2 through AC-7: Gate persistence and riderReady > AC-2: Ratio boundaries > 'ratio 0.61 (lower boundary)'
+  Reconstructing test:ratio-061...
+
+stdout | convex/__tests__/geometryGatePersist.integration.test.ts > AC-2 through AC-7: Gate persistence and riderReady > AC-2: Ratio boundaries > 'ratio 1.59 (upper boundary)'
+  Reconstructing test:ratio-159...
+
+stdout | convex/__tests__/geometryGatePersist.integration.test.ts > AC-2 through AC-7: Gate persistence and riderReady > AC-2: Ratio boundaries > 'ratio 0.59 (below boundary)'
+  Reconstructing test:ratio-059...
+
+stdout | convex/__tests__/geometryGatePersist.integration.test.ts > AC-2 through AC-7: Gate persistence and riderReady > AC-2: Ratio boundaries > 'ratio 1.61 (above boundary)'
+  Reconstructing test:ratio-161...
+
+stdout | convex/__tests__/geometryGatePersist.integration.test.ts > AC-2 through AC-7: Gate persistence and riderReady
+🧹 Cleaning up test routes...
+
+ ✓ convex/__tests__/geometryGatePersist.integration.test.ts (42 tests) 84895ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-3: Anchor count and region filtering > 1 anchor → review (failedCondition "anchors") with 0 routing calls  2493ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-3: Anchor count and region filtering > off-region anchor (300mi) excluded before routing  3041ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-4: Degenerate lines > 2-point line is degenerate → review  2400ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-4: Degenerate lines > 10 points over 50 miles (<1 pt/mi) is degenerate → review  2492ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-5: Quarantined length (null claimed miles) > null claimed length → ratio-skip, verdict by degenerate+region  2745ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-6: failedCondition reporting > failedCondition == "ratio" for 1.61 ratio review  1044ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-6: failedCondition reporting > failedCondition == "anchors" for 1-anchor review  1801ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-6: failedCondition reporting > failedCondition == "degenerate" for 2-point review  1601ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-7: riderReady 7-input predicate > 7 inputs: all good → riderReady true  1698ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-7: riderReady 7-input predicate > single flip geometry → riderReady false and excluded from best-mode list  5114ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-7: riderReady 7-input predicate > single flip name → riderReady false and excluded from best-mode list  5194ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-7: riderReady 7-input predicate > single flip score → riderReady false and excluded from best-mode list  6094ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-7: riderReady 7-input predicate > single flip length → riderReady false and excluded from best-mode list  5241ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-7: riderReady 7-input predicate > single flip rideWorthiness → riderReady false and excluded from best-mode list  5311ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-7: riderReady 7-input predicate > single flip retired → riderReady false and excluded from best-mode list  4375ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-7: riderReady 7-input predicate > single flip duplicate → riderReady false and excluded from best-mode list  4576ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-7: riderReady 7-input predicate > restore all-good → riderReady true and present in best-mode list  2729ms
+   ✓ AC-2 through AC-7: Gate persistence and riderReady > AC-7: riderReady 7-input predicate > riderReady is a stored boolean field (not computed at read time)  1220ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  components/ui/__tests__/chat-transcript.test.tsx [ components/ui/__tests__/chat-transcript.test.tsx ]
+Error: Cannot find module '/__mocks__/react-native-markdown-display.ts' imported from '/Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T1/components/ui/markdown-text.tsx'
+ ❯ components/ui/markdown-text.tsx:22:1
+     20| import type React from 'react'
+     21| import { Platform, StyleSheet } from 'react-native'
+     22| import Markdown from 'react-native-markdown-display'
+       | ^
+     23| import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+     24| 
+
+Caused by: Error: Failed to load url /__mocks__/react-native-markdown-display.ts (resolved id: /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T1/__mocks__/react-native-markdown-display.ts) in /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T1/components/ui/markdown-text.tsx. Does the file exist?
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/config.js:22663:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/77]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 76 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  convex/__tests__/listCuratedRoutes.integration.test.ts > AC-2: Clerk gate (requireIdentity) > logic verification (mocked ctx) > authenticated identity proceeds past the gate (default mode returns rows)
+AssertionError: expected [] to have a length of 1 but got +0
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+ ❯ convex/__tests__/listCuratedRoutes.integration.test.ts:246:22
+    244|       })
+    245|       const result = await runHandler(ctx, {})
+    246|       expect(result).toHaveLength(1)
+       |                      ^
+    247|       assertValidCard(result[0])
+    248|     })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/77]⎯
+
+ FAIL  convex/__tests__/listCuratedRoutes.integration.test.ts > AC-1: all four browse modes > mode2_nearest_populatesDistanceMiAndSortsAscending
+AssertionError: expected [] to have a length of 3 but got +0
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 3[39m
+[31m+ 0[39m
+
+ ❯ convex/__tests__/listCuratedRoutes.integration.test.ts:365:20
+    363|     })
+    364| 
+    365|     expect(result).toHaveLength(3)
+       |                    ^
+    366|     expect(geospatialNearest).toHaveBeenCalledTimes(1)
+    367|     const nearestCall = geospatialNearest.mock.calls[0]
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/77]⎯
+
+ FAIL  convex/__tests__/listCuratedRoutes.integration.test.ts > AC-1: all four browse modes > mode4_archetypesOnly_fallsThroughToByCompositeScoreAndFiltersByUiEnum
+AssertionError: expected [] to include 'top-twisties'
+ ❯ convex/__tests__/listCuratedRoutes.integration.test.ts:510:17
+    508|     // THEN: only routes mapped through the archetype enum are returne…
+    509|     const ids = result.map((r: any) => r.routeId)
+    510|     expect(ids).toContain('top-twisties')
+       |                 ^
+    511|     expect(ids).toContain('top-coastal')
+    512|     expect(ids).toContain('top-scenic-byway')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/77]⎯
+
+ FAIL  convex/__tests__/listCuratedRoutes.integration.test.ts > AC-1: all four browse modes > mode4_defaultBest_usesByCompositeScoreIndexAndReturnsTopRows
+AssertionError: expected [] to deeply equal [ 'a', 'b' ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   "a",[39m
+[32m-   "b",[39m
+[32m- ][39m
+[31m+ [][39m
+
+ ❯ convex/__tests__/listCuratedRoutes.integration.test.ts:532:47
+    530|     const ctx = buildCtx({ indexData: { by_composite_score: topRoutes …
+    531|     const result = await runHandler(ctx, { limit: 2 })
+    532|     expect(result.map((r: any) => r.routeId)).toEqual(['a', 'b'])
+       |                                               ^
+    533|     for (const card of result) assertValidCard(card)
+    534|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/77]⎯
+
+ FAIL  convex/__tests__/listCuratedRoutes.integration.test.ts > AC-1: all four browse modes > scoreNormalization_preserves0to1AndCoercesDirty0to100Defensively
+TypeError: Cannot read properties of undefined (reading 'compositeScore')
+ ❯ convex/__tests__/listCuratedRoutes.integration.test.ts:552:33
+    550|     const byId = new Map(result.map((r: any) => [r.routeId, r]))
+    551| 
+    552|     expect(byId.get('clean-half').compositeScore).toBe(0.5) // unchang…
+       |                                 ^
+    553|     expect(byId.get('clean-one').compositeScore).toBe(1.0) // unchange…
+    554|     expect(byId.get('dirty-70').compositeScore).toBeCloseTo(0.7, 5) //…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/77]⎯
+
+ FAIL  convex/__tests__/listCuratedRoutes.integration.test.ts > AC-1: all four browse modes > lengthClamp_drops710430MiJunkAndNegativeLengths
+TypeError: Cannot read properties of undefined (reading 'lengthMiles')
+ ❯ convex/__tests__/listCuratedRoutes.integration.test.ts:572:32
+    570|     const byId = new Map(result.map((r: any) => [r.routeId, r]))
+    571| 
+    572|     expect(byId.get('junk-huge').lengthMiles).toBeUndefined()
+       |                                ^
+    573|     expect(byId.get('junk-zero').lengthMiles).toBeUndefined()
+    574|     expect(byId.get('junk-neg').lengthMiles).toBeUndefined()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/77]⎯
+
+ FAIL  convex/__tests__/listCuratedRoutes.integration.test.ts > AC-1: all four browse modes > limitCap_capsAtMathMinLimit50_200
+AssertionError: expected [] to have a length of 5 but got +0
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 5[39m
+[31m+ 0[39m
+
+ ❯ convex/__tests__/listCuratedRoutes.integration.test.ts:589:20
+    587|     const ctx = buildCtx({ indexData: { by_composite_score: topRoutes …
+    588|     const result = await runHandler(ctx, { limit: 1000 })
+    589|     expect(result).toHaveLength(5)
+       |                    ^
+    590|     expect(result.length).toBeLessThanOrEqual(200)
+    591|     for (const card of result) assertValidCard(card)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/77]⎯
+
+ FAIL  convex/__tests__/listCuratedRoutes.integration.test.ts > AC-1: all four browse modes > allFourModesReturnCorrectRankedCappedResults
+AssertionError: expected [] to deeply equal [ 'near-close', 'near-far' ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   "near-close",[39m
+[32m-   "near-far",[39m
+[32m- ][39m
+[31m+ [][39m
+
+ ❯ convex/__tests__/listCuratedRoutes.integration.test.ts:687:54
+    685|       limit: 25,
+    686|     })
+    687|     expect(nearestResult.map((r: any) => r.routeId)).toEqual(['near-cl…
+       |                                                      ^
+    688|     for (const card of nearestResult) assertValidCard(card, { distance…
+    689| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/77]⎯
+
+ FAIL  components/map/__tests__/route-polyline.test.tsx > RoutePolyline Component > Visual Feedback (AC1 highlight) > should use semantic spacing for stroke widths
+AssertionError: expected undefined to be defined
+ ❯ components/map/__tests__/route-polyline.test.tsx:308:32
+    306|       // Other segments should use their configured strokeWidth
+    307|       const highlightedLayer = lineLayers.find((layer: any) => layer.p…
+    308|       expect(highlightedLayer).toBeDefined()
+       |                                ^
+    309|       expect(highlightedLayer!.props.style.lineWidth).toBe(8) // seman…
+    310|     })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/77]⎯
+
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC1: Sheet renders with title and name input > renders the sheet when visible=true
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC1: Sheet renders with title and name input > displays "Save as Favorite" title
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC1: Sheet renders with title and name input > renders name input field
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC1: Sheet renders with title and name input > renders Save button
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC2: Save calls mutation and closes sheet on success > calls mutation with correct args when user enters name and taps Save
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC2: Save calls mutation and closes sheet on success > closes sheet on successful save
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC2: Save calls mutation and closes sheet on success > trims whitespace from name before saving
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC2: Save calls mutation and closes sheet on success > shows loading state while saving
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC3: Validation error shown for empty name > shows validation error when name is empty
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC3: Validation error shown for empty name > shows validation error when name is only whitespace
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC3: Validation error shown for empty name > does not call mutation when name is empty
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC3: Validation error shown for empty name > does not close sheet when validation fails
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC3: Validation error shown for empty name > shows validation error when name exceeds 100 characters
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC3: Validation error shown for empty name > clears validation error when user starts typing
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC2: onSuccess callback > calls onSuccess after successful save
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC2: onSuccess callback > calls onSuccess before onClose
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC3: Cancel button behavior > calls onCancel callback when Cancel button pressed
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC3: Cancel button behavior > calls onClose after onCancel
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC3: Cancel button behavior > disables Cancel button while saving
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC5: Character count display > shows character count
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC5: Character count display > updates character count as user types
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC4: Error handling when mutation fails > displays error message when mutation throws
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC4: Error handling when mutation fails > keeps sheet open when mutation fails
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC4: Error handling when mutation fails > reenables Save button after mutation fails
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > AC4: Error handling when mutation fails > clears error message when user starts typing again
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > Additional behaviors > resets form when sheet opens
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > Additional behaviors > requires at least 1 character (min validation)
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > Additional behaviors > enforces max 100 character limit
+ FAIL  components/ui/__tests__/save-favorite-sheet.test.tsx > SaveFavoriteSheet > Additional behaviors > does not call mutation without route data
+Error: [vitest] No "BottomSheetTextInput" export is defined on the "@gorhom/bottom-sheet" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi[33m.[39m[34mmock[39m([35mimport[39m([32m"@gorhom/bottom-sheet"[39m)[33m,[39m [35masync[39m (importOriginal) [33m=>[39m {
+  [35mconst[39m actual [33m=[39m [35mawait[39m [34mimportOriginal[39m()
+  [35mreturn[39m {
+    [33m...[39mactual[33m,[39m
+    [90m// your mocked methods[39m
+  }
+})
+
+ ❯ BottomSheetInput components/ui/bottom-sheet-input.tsx:123:10
+    121| 
+    122|         {/* Text input */}
+    123|         <BottomSheetTextInput
+       |          ^
+    124|           {...props}
+    125|           editable={editable}
+ ❯ Object.react-stack-bottom-frame node_modules/react-test-renderer/cjs/react-test-renderer.development.js:13976:20
+ ❯ renderWithHooks node_modules/react-test-renderer/cjs/react-test-renderer.development.js:2866:22
+ ❯ updateFunctionComponent node_modules/react-test-renderer/cjs/react-test-renderer.development.js:6006:19
+ ❯ beginWork node_modules/react-test-renderer/cjs/react-test-renderer.development.js:7474:18
+ ❯ runWithFiberInDEV node_modules/react-test-renderer/cjs/react-test-renderer.development.js:1574:13
+ ❯ performUnitOfWork node_modules/react-test-renderer/cjs/react-test-renderer.development.js:10980:22
+ ❯ workLoopSync node_modules/react-test-renderer/cjs/react-test-renderer.development.js:10816:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > buildSystemPrompt > omits device location and prompts to ask when currentLocation is undefined and no lastKnownLocation
+AssertionError: expected 'You are a motorcycle ride planning as…' to contain 'ask where they are starting from'
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- ask where they are starting from[39m
+[31m+ You are a motorcycle ride planning assistant. Your job is to understand rider intent and pick the right specialist.[39m
+[31m+[39m
+[31m+ The rider's current location is unknown. Use natural-language intent: if the rider gives an origin and destination, that is a complete route request ("SF to Santacruze", "from DFW to Austin", "NY to Bear Mountain"). Ask where they are starting from only for destination-only route requests that do not name an origin.[39m
+[31m+[39m
+[31m+ ## Available specialists[39m
+[31m+ - routing_agent: plan or refine a route[39m
+[31m+ - search_agent: nearby places, web search, general questions[39m
+[31m+ - enrichment_agent: analyze the existing route (surface, weather, elevation, etc.)[39m
+[31m+[39m
+[31m+ ## How to use them[39m
+[31m+ - Route requests ("take me somewhere", "plan a ride to X") → routing_agent[39m
+[31m+ - When intent calls for a place, common shorthand can be real place language: SF/S.F. = San Francisco, DFW = Dallas-Fort Worth, NY/NYC = New York City. Compact/misspelled Santa Cruz variants like "Santacruze" can mean Santa Cruz.[39m
+[31m+ - Use context to distinguish route intent from search intent before choosing a specialist.[39m
+[31m+ - Nearby places, road closures, general knowledge → search_agent[39m
+[31m+ - Questions about an existing route (twisty? surface? weather?) → enrichment_agent[39m
+[31m+ - Route discovery ("twisties near Asheville", "scenic routes in Oregon") → discovery_agent[39m
+[31m+ - If the rider asks for multiple things, handle them one at a time — observe results before deciding the next step[39m
+[31m+ - Greetings, thanks, and off-topic messages → respond directly, no specialist needed[39m
+[31m+[39m
+[31m+ ## IMPORTANT: Always use your tools[39m
+[31m+ When the rider asks for a route, search, question about a route, or route discovery — you MUST call the appropriate specialist tool. Do NOT respond with text instead of calling a tool. Your text response comes AFTER the tool returns results.[39m
+[31m+[39m
+[31m+ ## Thinking style[39m
+[31m+ When reasoning (in extended thinking / chain-of-thought), use plain rider-friendly language — your thinking is displayed as a planning indicator. Say "scenic coastal route via Big Sur" not "calling routing_agent with geocoded coordinates".[39m
+[31m+[39m
+[31m+ ## Presentation rules[39m
+[31m+ Respond in 1-2 sentences, 2nd person. Never expose tool names or technical details to the rider.[39m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:333:20
+    331| 
+    332|     expect(prompt).not.toContain('lat=')
+    333|     expect(prompt).toContain('ask where they are starting from')
+       |                    ^
+    334|     expect(prompt).not.toContain('Do NOT ask')
+    335|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > buildSystemPrompt > includes route summary block when buildInSessionRouteBlock returns content
+AssertionError: expected 'You are a motorcycle ride planning as…' to contain 'Routes already planned this session:'
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Routes already planned this session:[39m
+[31m+ You are a motorcycle ride planning assistant. Your job is to understand rider intent and pick the right specialist.[39m
+[31m+[39m
+[31m+ The rider's current location is lat=37.77, lng=-122.42. Treat chat as an agent conversation: use this location as context and as the default origin for destination-only route requests. Do NOT ask "where are you starting from?" when a destination-only route can use this location. Natural-language intent still matters: "SF to Santacruze" near the Bay Area is likely a routing request, while "where is SF Bread Company" is likely a place/search request.[39m
+[31m+[39m
+[31m+ ## Available specialists[39m
+[31m+ - routing_agent: plan or refine a route[39m
+[31m+ - search_agent: nearby places, web search, general questions[39m
+[31m+ - enrichment_agent: analyze the existing route (surface, weather, elevation, etc.)[39m
+[31m+[39m
+[31m+ ## How to use them[39m
+[31m+ - Route requests ("take me somewhere", "plan a ride to X") → routing_agent[39m
+[31m+ - When intent calls for a place, common shorthand can be real place language: SF/S.F. = San Francisco, DFW = Dallas-Fort Worth, NY/NYC = New York City. Compact/misspelled Santa Cruz variants like "Santacruze" can mean Santa Cruz.[39m
+[31m+ - Use context to distinguish route intent from search intent before choosing a specialist.[39m
+[31m+ - Nearby places, road closures, general knowledge → search_agent[39m
+[31m+ - Questions about an existing route (twisty? surface? weather?) → enrichment_agent[39m
+[31m+ - Route discovery ("twisties near Asheville", "scenic routes in Oregon") → discovery_agent[39m
+[31m+ - If the rider asks for multiple things, handle them one at a time — observe results before deciding the next step[39m
+[31m+ - Greetings, thanks, and off-topic messages → respond directly, no specialist needed[39m
+[31m+[39m
+[31m+ ## IMPORTANT: Always use your tools[39m
+[31m+ When the rider asks for a route, search, question about a route, or route discovery — you MUST call the appropriate specialist tool. Do NOT respond with text instead of calling a tool. Your text response comes AFTER the tool returns results.[39m
+[31m+[39m
+[31m+ ## Thinking style[39m
+[31m+ When reasoning (in extended thinking / chain-of-thought), use plain rider-friendly language — your thinking is displayed as a planning indicator. Say "scenic coastal route via Big Sur" not "calling routing_agent with geocoded coordinates".[39m
+[31m+[39m
+[31m+ ## Presentation rules[39m
+[31m+ Respond in 1-2 sentences, 2nd person. Never expose tool names or technical details to the rider.[39m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:374:20
+    372|     const prompt = await buildSystemPrompt(ctx)
+    373| 
+    374|     expect(prompt).toContain('Routes already planned this session:')
+       |                    ^
+    375|     expect(prompt).toContain('SF → Santa Cruz')
+    376|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > buildSystemPrompt > llm-first prompt: instructs LLM to author a route sketch for all requests
+AssertionError: expected 'You are a motorcycle ride planning as…' to contain 'createRouteSketch'
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- createRouteSketch[39m
+[31m+ You are a motorcycle ride planning assistant. Your job is to understand rider intent and pick the right specialist.[39m
+[31m+[39m
+[31m+ The rider's current location is lat=37.77, lng=-122.42. Treat chat as an agent conversation: use this location as context and as the default origin for destination-only route requests. Do NOT ask "where are you starting from?" when a destination-only route can use this location. Natural-language intent still matters: "SF to Santacruze" near the Bay Area is likely a routing request, while "where is SF Bread Company" is likely a place/search request.[39m
+[31m+[39m
+[31m+ ## Available specialists[39m
+[31m+ - routing_agent: plan or refine a route[39m
+[31m+ - search_agent: nearby places, web search, general questions[39m
+[31m+ - enrichment_agent: analyze the existing route (surface, weather, elevation, etc.)[39m
+[31m+[39m
+[31m+ ## How to use them[39m
+[31m+ - Route requests ("take me somewhere", "plan a ride to X") → routing_agent[39m
+[31m+ - When intent calls for a place, common shorthand can be real place language: SF/S.F. = San Francisco, DFW = Dallas-Fort Worth, NY/NYC = New York City. Compact/misspelled Santa Cruz variants like "Santacruze" can mean Santa Cruz.[39m
+[31m+ - Use context to distinguish route intent from search intent before choosing a specialist.[39m
+[31m+ - Nearby places, road closures, general knowledge → search_agent[39m
+[31m+ - Questions about an existing route (twisty? surface? weather?) → enrichment_agent[39m
+[31m+ - Route discovery ("twisties near Asheville", "scenic routes in Oregon") → discovery_agent[39m
+[31m+ - If the rider asks for multiple things, handle them one at a time — observe results before deciding the next step[39m
+[31m+ - Greetings, thanks, and off-topic messages → respond directly, no specialist needed[39m
+[31m+[39m
+[31m+ ## IMPORTANT: Always use your tools[39m
+[31m+ When the rider asks for a route, search, question about a route, or route discovery — you MUST call the appropriate specialist tool. Do NOT respond with text instead of calling a tool. Your text response comes AFTER the tool returns results.[39m
+[31m+[39m
+[31m+ ## Thinking style[39m
+[31m+ When reasoning (in extended thinking / chain-of-thought), use plain rider-friendly language — your thinking is displayed as a planning indicator. Say "scenic coastal route via Big Sur" not "calling routing_agent with geocoded coordinates".[39m
+[31m+[39m
+[31m+ ## Presentation rules[39m
+[31m+ Respond in 1-2 sentences, 2nd person. Never expose tool names or technical details to the rider.[39m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:416:20
+    414| 
+    415|     // Must instruct the LLM to use createRouteSketch as the default f…
+    416|     expect(prompt).toContain('createRouteSketch')
+       |                    ^
+    417|     // Must communicate the always-sketch-first principle
+    418|     expect(prompt.toLowerCase()).toMatch(/any route request|every rout…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > buildSystemPrompt > avoid guidance: instructs LLM to route around avoidances in the sketch, not via avoidRoads API
+AssertionError: expected 'you are a motorcycle ride planning as…' to match /avoid.*sketch|route around.*sketch|sk…/
+
+[32m- Expected:[39m 
+/avoid.*sketch|route around.*sketch|sketch.*avoid/
+
+[31m+ Received:[39m 
+"you are a motorcycle ride planning assistant. your job is to understand rider intent and pick the right specialist.
+
+the rider's current location is lat=37.77, lng=-122.42. treat chat as an agent conversation: use this location as context and as the default origin for destination-only route requests. do not ask \"where are you starting from?\" when a destination-only route can use this location. natural-language intent still matters: \"sf to santacruze\" near the bay area is likely a routing request, while \"where is sf bread company\" is likely a place/search request.
+
+## available specialists
+- routing_agent: plan or refine a route
+- search_agent: nearby places, web search, general questions
+- enrichment_agent: analyze the existing route (surface, weather, elevation, etc.)
+
+## how to use them
+- route requests (\"take me somewhere\", \"plan a ride to x\") → routing_agent
+- when intent calls for a place, common shorthand can be real place language: sf/s.f. = san francisco, dfw = dallas-fort worth, ny/nyc = new york city. compact/misspelled santa cruz variants like \"santacruze\" can mean santa cruz.
+- use context to distinguish route intent from search intent before choosing a specialist.
+- nearby places, road closures, general knowledge → search_agent
+- questions about an existing route (twisty? surface? weather?) → enrichment_agent
+- route discovery (\"twisties near asheville\", \"scenic routes in oregon\") → discovery_agent
+- if the rider asks for multiple things, handle them one at a time — observe results before deciding the next step
+- greetings, thanks, and off-topic messages → respond directly, no specialist needed
+
+## important: always use your tools
+when the rider asks for a route, search, question about a route, or route discovery — you must call the appropriate specialist tool. do not respond with text instead of calling a tool. your text response comes after the tool returns results.
+
+## thinking style
+when reasoning (in extended thinking / chain-of-thought), use plain rider-friendly language — your thinking is displayed as a planning indicator. say \"scenic coastal route via big sur\" not \"calling routing_agent with geocoded coordinates\".
+
+## presentation rules
+respond in 1-2 sentences, 2nd person. never expose tool names or technical details to the rider."
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:426:34
+    424| 
+    425|     // Prompt must tell LLM to handle avoidance in the sketch
+    426|     expect(prompt.toLowerCase()).toMatch(/avoid.*sketch|route around.*…
+       |                                  ^
+    427|     // Must explicitly say no avoidRoads API is needed
+    428|     expect(prompt).toMatch(/no.*avoidRoads|avoidRoads.*not needed|avoi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > buildSystemPrompt > fallback guidance: instructs LLM to fall back to planRoute when uncertain
+AssertionError: expected 'You are a motorcycle ride planning as…' to contain 'planRoute'
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- planRoute[39m
+[31m+ You are a motorcycle ride planning assistant. Your job is to understand rider intent and pick the right specialist.[39m
+[31m+[39m
+[31m+ The rider's current location is lat=37.77, lng=-122.42. Treat chat as an agent conversation: use this location as context and as the default origin for destination-only route requests. Do NOT ask "where are you starting from?" when a destination-only route can use this location. Natural-language intent still matters: "SF to Santacruze" near the Bay Area is likely a routing request, while "where is SF Bread Company" is likely a place/search request.[39m
+[31m+[39m
+[31m+ ## Available specialists[39m
+[31m+ - routing_agent: plan or refine a route[39m
+[31m+ - search_agent: nearby places, web search, general questions[39m
+[31m+ - enrichment_agent: analyze the existing route (surface, weather, elevation, etc.)[39m
+[31m+[39m
+[31m+ ## How to use them[39m
+[31m+ - Route requests ("take me somewhere", "plan a ride to X") → routing_agent[39m
+[31m+ - When intent calls for a place, common shorthand can be real place language: SF/S.F. = San Francisco, DFW = Dallas-Fort Worth, NY/NYC = New York City. Compact/misspelled Santa Cruz variants like "Santacruze" can mean Santa Cruz.[39m
+[31m+ - Use context to distinguish route intent from search intent before choosing a specialist.[39m
+[31m+ - Nearby places, road closures, general knowledge → search_agent[39m
+[31m+ - Questions about an existing route (twisty? surface? weather?) → enrichment_agent[39m
+[31m+ - Route discovery ("twisties near Asheville", "scenic routes in Oregon") → discovery_agent[39m
+[31m+ - If the rider asks for multiple things, handle them one at a time — observe results before deciding the next step[39m
+[31m+ - Greetings, thanks, and off-topic messages → respond directly, no specialist needed[39m
+[31m+[39m
+[31m+ ## IMPORTANT: Always use your tools[39m
+[31m+ When the rider asks for a route, search, question about a route, or route discovery — you MUST call the appropriate specialist tool. Do NOT respond with text instead of calling a tool. Your text response comes AFTER the tool returns results.[39m
+[31m+[39m
+[31m+ ## Thinking style[39m
+[31m+ When reasoning (in extended thinking / chain-of-thought), use plain rider-friendly language — your thinking is displayed as a planning indicator. Say "scenic coastal route via Big Sur" not "calling routing_agent with geocoded coordinates".[39m
+[31m+[39m
+[31m+ ## Presentation rules[39m
+[31m+ Respond in 1-2 sentences, 2nd person. Never expose tool names or technical details to the rider.[39m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:436:20
+    434| 
+    435|     // Must mention planRoute as available fallback
+    436|     expect(prompt).toContain('planRoute')
+       |                    ^
+    437|     // Must state the fallback condition (uncertainty)
+    438|     expect(prompt.toLowerCase()).toMatch(/uncertain|unsure|don.t know|…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > buildSystemPrompt > planRoute available: preserves planRoute as an available tool in the prompt
+AssertionError: expected 'You are a motorcycle ride planning as…' to contain 'planRoute'
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- planRoute[39m
+[31m+ You are a motorcycle ride planning assistant. Your job is to understand rider intent and pick the right specialist.[39m
+[31m+[39m
+[31m+ The rider's current location is lat=37.77, lng=-122.42. Treat chat as an agent conversation: use this location as context and as the default origin for destination-only route requests. Do NOT ask "where are you starting from?" when a destination-only route can use this location. Natural-language intent still matters: "SF to Santacruze" near the Bay Area is likely a routing request, while "where is SF Bread Company" is likely a place/search request.[39m
+[31m+[39m
+[31m+ ## Available specialists[39m
+[31m+ - routing_agent: plan or refine a route[39m
+[31m+ - search_agent: nearby places, web search, general questions[39m
+[31m+ - enrichment_agent: analyze the existing route (surface, weather, elevation, etc.)[39m
+[31m+[39m
+[31m+ ## How to use them[39m
+[31m+ - Route requests ("take me somewhere", "plan a ride to X") → routing_agent[39m
+[31m+ - When intent calls for a place, common shorthand can be real place language: SF/S.F. = San Francisco, DFW = Dallas-Fort Worth, NY/NYC = New York City. Compact/misspelled Santa Cruz variants like "Santacruze" can mean Santa Cruz.[39m
+[31m+ - Use context to distinguish route intent from search intent before choosing a specialist.[39m
+[31m+ - Nearby places, road closures, general knowledge → search_agent[39m
+[31m+ - Questions about an existing route (twisty? surface? weather?) → enrichment_agent[39m
+[31m+ - Route discovery ("twisties near Asheville", "scenic routes in Oregon") → discovery_agent[39m
+[31m+ - If the rider asks for multiple things, handle them one at a time — observe results before deciding the next step[39m
+[31m+ - Greetings, thanks, and off-topic messages → respond directly, no specialist needed[39m
+[31m+[39m
+[31m+ ## IMPORTANT: Always use your tools[39m
+[31m+ When the rider asks for a route, search, question about a route, or route discovery — you MUST call the appropriate specialist tool. Do NOT respond with text instead of calling a tool. Your text response comes AFTER the tool returns results.[39m
+[31m+[39m
+[31m+ ## Thinking style[39m
+[31m+ When reasoning (in extended thinking / chain-of-thought), use plain rider-friendly language — your thinking is displayed as a planning indicator. Say "scenic coastal route via Big Sur" not "calling routing_agent with geocoded coordinates".[39m
+[31m+[39m
+[31m+ ## Presentation rules[39m
+[31m+ Respond in 1-2 sentences, 2nd person. Never expose tool names or technical details to the rider.[39m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:446:20
+    444| 
+    445|     // planRoute must remain mentioned as a tool option (fallback)
+    446|     expect(prompt).toContain('planRoute')
+       |                    ^
+    447|   })
+    448| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > buildSystemPrompt > llm-first prompt: includes viaNames guidance for intermediate landmarks
+AssertionError: expected 'You are a motorcycle ride planning as…' to contain 'viaNames'
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- viaNames[39m
+[31m+ You are a motorcycle ride planning assistant. Your job is to understand rider intent and pick the right specialist.[39m
+[31m+[39m
+[31m+ The rider's current location is lat=37.77, lng=-122.42. Treat chat as an agent conversation: use this location as context and as the default origin for destination-only route requests. Do NOT ask "where are you starting from?" when a destination-only route can use this location. Natural-language intent still matters: "SF to Santacruze" near the Bay Area is likely a routing request, while "where is SF Bread Company" is likely a place/search request.[39m
+[31m+[39m
+[31m+ ## Available specialists[39m
+[31m+ - routing_agent: plan or refine a route[39m
+[31m+ - search_agent: nearby places, web search, general questions[39m
+[31m+ - enrichment_agent: analyze the existing route (surface, weather, elevation, etc.)[39m
+[31m+[39m
+[31m+ ## How to use them[39m
+[31m+ - Route requests ("take me somewhere", "plan a ride to X") → routing_agent[39m
+[31m+ - When intent calls for a place, common shorthand can be real place language: SF/S.F. = San Francisco, DFW = Dallas-Fort Worth, NY/NYC = New York City. Compact/misspelled Santa Cruz variants like "Santacruze" can mean Santa Cruz.[39m
+[31m+ - Use context to distinguish route intent from search intent before choosing a specialist.[39m
+[31m+ - Nearby places, road closures, general knowledge → search_agent[39m
+[31m+ - Questions about an existing route (twisty? surface? weather?) → enrichment_agent[39m
+[31m+ - Route discovery ("twisties near Asheville", "scenic routes in Oregon") → discovery_agent[39m
+[31m+ - If the rider asks for multiple things, handle them one at a time — observe results before deciding the next step[39m
+[31m+ - Greetings, thanks, and off-topic messages → respond directly, no specialist needed[39m
+[31m+[39m
+[31m+ ## IMPORTANT: Always use your tools[39m
+[31m+ When the rider asks for a route, search, question about a route, or route discovery — you MUST call the appropriate specialist tool. Do NOT respond with text instead of calling a tool. Your text response comes AFTER the tool returns results.[39m
+[31m+[39m
+[31m+ ## Thinking style[39m
+[31m+ When reasoning (in extended thinking / chain-of-thought), use plain rider-friendly language — your thinking is displayed as a planning indicator. Say "scenic coastal route via Big Sur" not "calling routing_agent with geocoded coordinates".[39m
+[31m+[39m
+[31m+ ## Presentation rules[39m
+[31m+ Respond in 1-2 sentences, 2nd person. Never expose tool names or technical details to the rider.[39m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:453:20
+    451|     const prompt = await buildSystemPrompt(ctx)
+    452| 
+    453|     expect(prompt).toContain('viaNames')
+       |                    ^
+    454|   })
+    455| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > buildSystemPrompt > llm-first prompt: includes segment retry hint
+AssertionError: expected 'you are a motorcycle ride planning as…' to match /fail|didn.t work|revise/
+
+[32m- Expected:[39m 
+/fail|didn.t work|revise/
+
+[31m+ Received:[39m 
+"you are a motorcycle ride planning assistant. your job is to understand rider intent and pick the right specialist.
+
+the rider's current location is lat=37.77, lng=-122.42. treat chat as an agent conversation: use this location as context and as the default origin for destination-only route requests. do not ask \"where are you starting from?\" when a destination-only route can use this location. natural-language intent still matters: \"sf to santacruze\" near the bay area is likely a routing request, while \"where is sf bread company\" is likely a place/search request.
+
+## available specialists
+- routing_agent: plan or refine a route
+- search_agent: nearby places, web search, general questions
+- enrichment_agent: analyze the existing route (surface, weather, elevation, etc.)
+
+## how to use them
+- route requests (\"take me somewhere\", \"plan a ride to x\") → routing_agent
+- when intent calls for a place, common shorthand can be real place language: sf/s.f. = san francisco, dfw = dallas-fort worth, ny/nyc = new york city. compact/misspelled santa cruz variants like \"santacruze\" can mean santa cruz.
+- use context to distinguish route intent from search intent before choosing a specialist.
+- nearby places, road closures, general knowledge → search_agent
+- questions about an existing route (twisty? surface? weather?) → enrichment_agent
+- route discovery (\"twisties near asheville\", \"scenic routes in oregon\") → discovery_agent
+- if the rider asks for multiple things, handle them one at a time — observe results before deciding the next step
+- greetings, thanks, and off-topic messages → respond directly, no specialist needed
+
+## important: always use your tools
+when the rider asks for a route, search, question about a route, or route discovery — you must call the appropriate specialist tool. do not respond with text instead of calling a tool. your text response comes after the tool returns results.
+
+## thinking style
+when reasoning (in extended thinking / chain-of-thought), use plain rider-friendly language — your thinking is displayed as a planning indicator. say \"scenic coastal route via big sur\" not \"calling routing_agent with geocoded coordinates\".
+
+## presentation rules
+respond in 1-2 sentences, 2nd person. never expose tool names or technical details to the rider."
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:461:34
+    459| 
+    460|     // Must mention that failed segments can be revised individually
+    461|     expect(prompt.toLowerCase()).toMatch(/fail|didn.t work|revise/)
+       |                                  ^
+    462|   })
+    463| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > calls planRoute tool then returns text with route attachment
+AssertionError: expected "spy" to be called 1 times, but got 0 times
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:641:34
+    639| 
+    640|     expect(mockStream).toHaveBeenCalledTimes(2)
+    641|     expect(planRideOrchestrator).toHaveBeenCalledTimes(1)
+       |                                  ^
+    642|     // runPlanRoute writes the route_plans row (create → finalize) and
+    643|     // increments usage after a successful planRoute: three mutations.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > passes planningSessionId to createForAgentInternal when planRoute tool runs
+TypeError: Cannot read properties of undefined (reading '0')
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:797:12
+    795|     const { internal: internalApi } = (await import('../../../_generat…
+    796|     const firstCall = ctx.runMutation.mock.calls[0]
+    797|     expect(firstCall[0]).toBe(internalApi.db.routePlans.createForAgent…
+       |            ^
+    798|     expect(firstCall[1]).toMatchObject({ planningSessionId: 'session_t…
+    799|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > executes geocode then planRoute then text (multi-step)
+AssertionError: expected "spy" to be called 1 times, but got 0 times
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:883:34
+    881| 
+    882|     expect(mockStream).toHaveBeenCalledTimes(3)
+    883|     expect(planRideOrchestrator).toHaveBeenCalledTimes(1)
+       |                                  ^
+    884|     // create + finalize + incrementUsage = 3 mutations
+    885|     expect(ctx.runMutation).toHaveBeenCalledTimes(3)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > caps the loop at MAX_STEPS (10) if stream keeps returning toolUse
+AssertionError: expected "spy" to be called 10 times, but got 20 times
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:904:24
+    902| 
+    903|     // The loop runs at most MAX_STEPS (10) iterations.
+    904|     expect(mockStream).toHaveBeenCalledTimes(10)
+       |                        ^
+    905|   })
+    906| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > fires onStepStart once per loop iteration with (step, MAX_STEPS)
+AssertionError: expected 1st "spy" call to have been called with [ +0, 10 ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[2m    0,[22m
+[32m-   10,[39m
+[31m+   20,[39m
+[2m  ][22m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:991:25
+    989| 
+    990|     expect(onStepStart).toHaveBeenCalledTimes(2)
+    991|     expect(onStepStart).toHaveBeenNthCalledWith(1, 0, 10)
+       |                         ^
+    992|     expect(onStepStart).toHaveBeenNthCalledWith(2, 1, 10)
+    993|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > fires onToolResultPiMessage after each tool result with correct toolCallId and ToolResultMessage
+AssertionError: expected '{"type":"error","message":"Unknown or…' to contain 'weather'
+
+Expected: [32m"[7mw[27meather"[39m
+Received: [31m"[7m{"type":"error","message":"Unknown orchestrator tool: fetchW[27meather[7m"}[27m"[39m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:1040:43
+    1038|       isError: false,
+    1039|     })
+    1040|     expect(toolResultMsg.content[0].text).toContain('weather')
+       |                                           ^
+    1041|   })
+    1042| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > LoopDetector intercepts 3rd identical tool call — tool NOT executed, error result injected
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:1102:29
+    1100|     expect(loopInterceptCall).toBeDefined()
+    1101|     const loopMsg = loopInterceptCall![1]
+    1102|     expect(loopMsg.isError).toBe(true)
+       |                             ^
+    1103|     expect(loopMsg.content[0].text).toContain('identical arguments')
+    1104| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > BudgetTracker throws after cumulative cost exceeds limit — loop aborts with AGENT_BUDGET_EXCEEDED
+AssertionError: promise resolved "{ response: 'Hello', …(2) }" instead of rejecting
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Error {[39m
+[32m-   "message": "rejected promise",[39m
+[31m+ {[39m
+[31m+   "attachments": undefined,[39m
+[31m+   "metrics": {[39m
+[31m+     "cacheReadTokens": 0,[39m
+[31m+     "durationMs": 0,[39m
+[31m+     "inputTokens": 1000,[39m
+[31m+     "outputTokens": 1000,[39m
+[31m+     "steps": 1,[39m
+[31m+     "toolCalls": 0,[39m
+[31m+     "tools": [],[39m
+[31m+     "totalCostUsd": 0.3,[39m
+[31m+   },[39m
+[31m+   "response": "Hello",[39m
+[2m  }[22m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:1154:56
+    1152| 
+    1153|     const ctx = makeAgentContext()
+    1154|     await expect(executeRidePlanningAgent(ctx, 'hello')).rejects.toMat…
+       |                                                        ^
+    1155|       data: { code: 'AGENT_BUDGET_EXCEEDED' },
+    1156|     })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > US-320: two concurrent geocode calls both execute (parallel safe)
+AssertionError: expected [] to have a length of 2 but got +0
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 2[39m
+[31m+ 0[39m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:1217:29
+    1215|     ).flatMap((r) => r.value.geocode.mock.calls as unknown[][])
+    1216| 
+    1217|     expect(allGeocodeCalls).toHaveLength(2)
+       |                             ^
+    1218|     const queries = allGeocodeCalls.map((args) => args[0])
+    1219|     expect(queries).toContain('Santa Cruz')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > US-320: geocode (safe) and planRoute (unsafe) in same turn — geocode runs parallel-safe, planRoute sequential
+AssertionError: expected "spy" to be called at least once
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:1262:29
+    1260| 
+    1261|     // planRoute must have executed (runMutation called).
+    1262|     expect(ctx.runMutation).toHaveBeenCalled()
+       |                             ^
+    1263|     expect(result.response).toBe('Done.')
+    1264|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > per-segment dispatch (US-023) > per-segment dispatch: dispatches to compileSegments when sketch has segments
+AssertionError: expected "spy" to be called 1 times, but got 0 times
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:1417:35
+    1415| 
+    1416|       // compileSegments must have been called (per-segment path)
+    1417|       expect(compileSegmentsMock).toHaveBeenCalledTimes(1)
+       |                                   ^
+    1418|       // compileSketch (single-shot) must NOT have been called
+    1419|       expect(compileSketchImplMock).not.toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > per-segment dispatch (US-023) > segment error feedback: returns structured failed/succeeded arrays when a segment fails
+AssertionError: expected 'Unknown orchestrator tool: compileSke…' to contain '1 of 3'
+
+Expected: [32m"1 of 3"[39m
+Received: [31m"Unknown orchestrator tool: compileSketch"[39m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:1461:30
+    1459| 
+    1460|       expect(parsed.type).toBe('error')
+    1461|       expect(parsed.message).toContain('1 of 3')
+       |                              ^
+    1462| 
+    1463|       const hint = JSON.parse(parsed.hint)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > per-segment dispatch (US-023) > single-shot fallback: uses single-shot compilation when sketch has no segments
+AssertionError: expected "spy" to be called 1 times, but got 0 times
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:1502:37
+    1500| 
+    1501|       // Must use single-shot, not per-segment
+    1502|       expect(compileSketchImplMock).toHaveBeenCalledTimes(1)
+       |                                     ^
+    1503|       expect(compileSegmentsMock).not.toHaveBeenCalled()
+    1504|       expect(stitchSegmentsMock).not.toHaveBeenCalled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > per-segment dispatch (US-023) > all segments failed: returns error with all in failed[], empty succeeded[], revise_failed_segments guidance
+AssertionError: expected 'Unknown orchestrator tool: compileSke…' to contain '3 of 3'
+
+Expected: [32m"3 of 3"[39m
+Received: [31m"Unknown orchestrator tool: compileSketch"[39m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:1538:30
+    1536| 
+    1537|       expect(parsed.type).toBe('error')
+    1538|       expect(parsed.message).toContain('3 of 3')
+       |                              ^
+    1539|       expect(parsed.retryGuidance).toBe('revise_failed_segments')
+    1540| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > per-segment dispatch (US-023) > partial geometry: includes partial stitched route info in error hint when some segments succeed
+AssertionError: expected 'Unknown orchestrator tool: compileSke…' to contain '1 of 3'
+
+Expected: [32m"1 of 3"[39m
+Received: [31m"Unknown orchestrator tool: compileSketch"[39m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:1584:30
+    1582| 
+    1583|       expect(parsed.type).toBe('error')
+    1584|       expect(parsed.message).toContain('1 of 3')
+       |                              ^
+    1585| 
+    1586|       const hint = JSON.parse(parsed.hint)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > segment retry loop (US-025) > skip succeeded: only compiles segment 2 on retry when segments 0,1,3 are unchanged and already succeeded
+AssertionError: expected "spy" to be called 2 times, but got 0 times
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:1757:35
+    1755| 
+    1756|       // compileSegments called twice total
+    1757|       expect(compileSegmentsMock).toHaveBeenCalledTimes(2)
+       |                                   ^
+    1758| 
+    1759|       // Second call to compileSegments must only include segment 2 (t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > segment retry loop (US-025) > merge cached: revised segment 2 success merges with cached 0,1,3 for fully stitched 4-segment route
+AssertionError: expected "spy" to be called 1 times, but got 0 times
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:1823:34
+    1821| 
+    1822|       // stitchSegments must have been called with all 4 segments (3 c…
+    1823|       expect(stitchSegmentsMock).toHaveBeenCalledTimes(1)
+       |                                  ^
+    1824|       const stitchArgs = stitchSegmentsMock.mock.calls[0][0]
+    1825|       expect(stitchArgs).toHaveLength(4)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > segment retry loop (US-025) > attempt count: error hint includes attemptsRemaining decremented per retry
+SyntaxError: "undefined" is not valid JSON
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:1889:26
+    1887|       // Attempt 1 error hint should show 2 attempts remaining
+    1888|       const hint1Text = (capturedHints[0] as any).content[0].text
+    1889|       const hint1 = JSON.parse(JSON.parse(hint1Text).hint)
+       |                          ^
+    1890|       expect(hint1.attemptsRemaining).toBe(2)
+    1891| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > segment retry loop (US-025) > max retries: returns partial route with user message after 3 failed attempts on same session
+AssertionError: expected [ 'routes', 'chat' ] to include 'error'
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:1959:34
+    1957|       const parsed = JSON.parse(resultText)
+    1958|       // Returns a chat/routes result with a partial-route message
+    1959|       expect(['routes', 'chat']).toContain(parsed.type)
+       |                                  ^
+    1960|       // The message must mention the failed road and indicate partial…
+    1961|       const _msgContent = parsed.message ?? parsed.data?.message ?? ''
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > US-310: ToolResultMessage pushed to context contains summarized planRoute result (no geometry), while toolResultsTracker holds full result
+AssertionError: expected 'error' to be 'routes' // Object.is equality
+
+Expected: [32m"routes"[39m
+Received: [31m"error"[39m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:2043:25
+    2041| 
+    2042|     // Summarized shape has type, routePlanId, summary — NOT data.opti…
+    2043|     expect(parsed.type).toBe('routes')
+       |                         ^
+    2044|     expect(parsed.routePlanId).toBe('rp_summary_test')
+    2045|     expect(parsed.summary).toBeDefined()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > tool registration > all 7 new tools appear in the agent context passed to stream
+AssertionError: expected [ 'routing_agent', …(2) ] to include 'lookupRoad'
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:2131:25
+    2129|       const toolNames = capturedContext.tools.map((t: any) => t.name) …
+    2130| 
+    2131|       expect(toolNames).toContain('lookupRoad')
+       |                         ^
+    2132|       expect(toolNames).toContain('getCurvature')
+    2133|       expect(toolNames).toContain('checkSurface')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > grounding before sketch > system prompt instructs LLM to call lookupRoad before sketch for scenic requests
+AssertionError: expected 'You are a motorcycle ride planning as…' to contain 'lookupRoad'
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- lookupRoad[39m
+[31m+ You are a motorcycle ride planning assistant. Your job is to understand rider intent and pick the right specialist.[39m
+[31m+[39m
+[31m+ The rider's current location is lat=37.77, lng=-122.42. Treat chat as an agent conversation: use this location as context and as the default origin for destination-only route requests. Do NOT ask "where are you starting from?" when a destination-only route can use this location. Natural-language intent still matters: "SF to Santacruze" near the Bay Area is likely a routing request, while "where is SF Bread Company" is likely a place/search request.[39m
+[31m+[39m
+[31m+ ## Available specialists[39m
+[31m+ - routing_agent: plan or refine a route[39m
+[31m+ - search_agent: nearby places, web search, general questions[39m
+[31m+ - enrichment_agent: analyze the existing route (surface, weather, elevation, etc.)[39m
+[31m+[39m
+[31m+ ## How to use them[39m
+[31m+ - Route requests ("take me somewhere", "plan a ride to X") → routing_agent[39m
+[31m+ - When intent calls for a place, common shorthand can be real place language: SF/S.F. = San Francisco, DFW = Dallas-Fort Worth, NY/NYC = New York City. Compact/misspelled Santa Cruz variants like "Santacruze" can mean Santa Cruz.[39m
+[31m+ - Use context to distinguish route intent from search intent before choosing a specialist.[39m
+[31m+ - Nearby places, road closures, general knowledge → search_agent[39m
+[31m+ - Questions about an existing route (twisty? surface? weather?) → enrichment_agent[39m
+[31m+ - Route discovery ("twisties near Asheville", "scenic routes in Oregon") → discovery_agent[39m
+[31m+ - If the rider asks for multiple things, handle them one at a time — observe results before deciding the next step[39m
+[31m+ - Greetings, thanks, and off-topic messages → respond directly, no specialist needed[39m
+[31m+[39m
+[31m+ ## IMPORTANT: Always use your tools[39m
+[31m+ When the rider asks for a route, search, question about a route, or route discovery — you MUST call the appropriate specialist tool. Do NOT respond with text instead of calling a tool. Your text response comes AFTER the tool returns results.[39m
+[31m+[39m
+[31m+ ## Thinking style[39m
+[31m+ When reasoning (in extended thinking / chain-of-thought), use plain rider-friendly language — your thinking is displayed as a planning indicator. Say "scenic coastal route via Big Sur" not "calling routing_agent with geocoded coordinates".[39m
+[31m+[39m
+[31m+ ## Presentation rules[39m
+[31m+ Respond in 1-2 sentences, 2nd person. Never expose tool names or technical details to the rider.[39m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:2146:22
+    2144|       const prompt = await buildSystemPrompt(ctx)
+    2145| 
+    2146|       expect(prompt).toContain('lookupRoad')
+       |                      ^
+    2147|       expect(prompt.toLowerCase()).toMatch(/scenic|twisty|exploratory/)
+    2148|       expect(prompt.toLowerCase()).toMatch(/pre-sketch|before.*sketch|…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > grounding before sketch > lookupRoad tool executes and returns road match data when called
+AssertionError: expected "spy" to be called 1 times, but got 0 times
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:2179:30
+    2177|       const result = await executeRidePlanningAgent(ctx, 'scenic ride …
+    2178| 
+    2179|       expect(lookupRoadMock).toHaveBeenCalledTimes(1)
+       |                              ^
+    2180|       expect(lookupRoadMock).toHaveBeenCalledWith({
+    2181|         roadName: 'Skyline Blvd',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > curvature in rationale > system prompt instructs LLM to cite curvature scores in route rationale
+AssertionError: expected 'You are a motorcycle ride planning as…' to contain 'getCurvature'
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- getCurvature[39m
+[31m+ You are a motorcycle ride planning assistant. Your job is to understand rider intent and pick the right specialist.[39m
+[31m+[39m
+[31m+ The rider's current location is lat=37.77, lng=-122.42. Treat chat as an agent conversation: use this location as context and as the default origin for destination-only route requests. Do NOT ask "where are you starting from?" when a destination-only route can use this location. Natural-language intent still matters: "SF to Santacruze" near the Bay Area is likely a routing request, while "where is SF Bread Company" is likely a place/search request.[39m
+[31m+[39m
+[31m+ ## Available specialists[39m
+[31m+ - routing_agent: plan or refine a route[39m
+[31m+ - search_agent: nearby places, web search, general questions[39m
+[31m+ - enrichment_agent: analyze the existing route (surface, weather, elevation, etc.)[39m
+[31m+[39m
+[31m+ ## How to use them[39m
+[31m+ - Route requests ("take me somewhere", "plan a ride to X") → routing_agent[39m
+[31m+ - When intent calls for a place, common shorthand can be real place language: SF/S.F. = San Francisco, DFW = Dallas-Fort Worth, NY/NYC = New York City. Compact/misspelled Santa Cruz variants like "Santacruze" can mean Santa Cruz.[39m
+[31m+ - Use context to distinguish route intent from search intent before choosing a specialist.[39m
+[31m+ - Nearby places, road closures, general knowledge → search_agent[39m
+[31m+ - Questions about an existing route (twisty? surface? weather?) → enrichment_agent[39m
+[31m+ - Route discovery ("twisties near Asheville", "scenic routes in Oregon") → discovery_agent[39m
+[31m+ - If the rider asks for multiple things, handle them one at a time — observe results before deciding the next step[39m
+[31m+ - Greetings, thanks, and off-topic messages → respond directly, no specialist needed[39m
+[31m+[39m
+[31m+ ## IMPORTANT: Always use your tools[39m
+[31m+ When the rider asks for a route, search, question about a route, or route discovery — you MUST call the appropriate specialist tool. Do NOT respond with text instead of calling a tool. Your text response comes AFTER the tool returns results.[39m
+[31m+[39m
+[31m+ ## Thinking style[39m
+[31m+ When reasoning (in extended thinking / chain-of-thought), use plain rider-friendly language — your thinking is displayed as a planning indicator. Say "scenic coastal route via Big Sur" not "calling routing_agent with geocoded coordinates".[39m
+[31m+[39m
+[31m+ ## Presentation rules[39m
+[31m+ Respond in 1-2 sentences, 2nd person. Never expose tool names or technical details to the rider.[39m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:2193:22
+    2191|       const prompt = await buildSystemPrompt(ctx)
+    2192| 
+    2193|       expect(prompt).toContain('getCurvature')
+       |                      ^
+    2194|       expect(prompt.toLowerCase()).toMatch(/curvature|twisty|score/)
+    2195|       expect(prompt.toLowerCase()).toMatch(/cite|reference|data/)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > curvature in rationale > getCurvature tool executes and returns score data when called
+AssertionError: expected "spy" to be called 1 times, but got 0 times
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:2230:32
+    2228|       const result = await executeRidePlanningAgent(ctx, 'twisty mount…
+    2229| 
+    2230|       expect(getCurvatureMock).toHaveBeenCalledTimes(1)
+       |                                ^
+    2231|       expect(result.response).toContain('2400')
+    2232|     })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > skip grounding > system prompt documents when to skip grounding tools (direct A-to-B, named roads, retries)
+AssertionError: expected 'you are a motorcycle ride planning as…' to match /skip.*grounding|when to skip/
+
+[32m- Expected:[39m 
+/skip.*grounding|when to skip/
+
+[31m+ Received:[39m 
+"you are a motorcycle ride planning assistant. your job is to understand rider intent and pick the right specialist.
+
+the rider's current location is lat=37.77, lng=-122.42. treat chat as an agent conversation: use this location as context and as the default origin for destination-only route requests. do not ask \"where are you starting from?\" when a destination-only route can use this location. natural-language intent still matters: \"sf to santacruze\" near the bay area is likely a routing request, while \"where is sf bread company\" is likely a place/search request.
+
+## available specialists
+- routing_agent: plan or refine a route
+- search_agent: nearby places, web search, general questions
+- enrichment_agent: analyze the existing route (surface, weather, elevation, etc.)
+
+## how to use them
+- route requests (\"take me somewhere\", \"plan a ride to x\") → routing_agent
+- when intent calls for a place, common shorthand can be real place language: sf/s.f. = san francisco, dfw = dallas-fort worth, ny/nyc = new york city. compact/misspelled santa cruz variants like \"santacruze\" can mean santa cruz.
+- use context to distinguish route intent from search intent before choosing a specialist.
+- nearby places, road closures, general knowledge → search_agent
+- questions about an existing route (twisty? surface? weather?) → enrichment_agent
+- route discovery (\"twisties near asheville\", \"scenic routes in oregon\") → discovery_agent
+- if the rider asks for multiple things, handle them one at a time — observe results before deciding the next step
+- greetings, thanks, and off-topic messages → respond directly, no specialist needed
+
+## important: always use your tools
+when the rider asks for a route, search, question about a route, or route discovery — you must call the appropriate specialist tool. do not respond with text instead of calling a tool. your text response comes after the tool returns results.
+
+## thinking style
+when reasoning (in extended thinking / chain-of-thought), use plain rider-friendly language — your thinking is displayed as a planning indicator. say \"scenic coastal route via big sur\" not \"calling routing_agent with geocoded coordinates\".
+
+## presentation rules
+respond in 1-2 sentences, 2nd person. never expose tool names or technical details to the rider."
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:2241:36
+    2239| 
+    2240|       // Must describe when to skip grounding
+    2241|       expect(prompt.toLowerCase()).toMatch(/skip.*grounding|when to sk…
+       |                                    ^
+    2242|       // Must mention direct A-to-B as a skip case
+    2243|       expect(prompt.toLowerCase()).toMatch(/direct|a-to-b|fastest/)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[45/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > post-compile enrichment > system prompt instructs LLM to call getElevation and getRouteWeather after compileSketch
+AssertionError: expected 'You are a motorcycle ride planning as…' to contain 'getElevation'
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- getElevation[39m
+[31m+ You are a motorcycle ride planning assistant. Your job is to understand rider intent and pick the right specialist.[39m
+[31m+[39m
+[31m+ The rider's current location is lat=37.77, lng=-122.42. Treat chat as an agent conversation: use this location as context and as the default origin for destination-only route requests. Do NOT ask "where are you starting from?" when a destination-only route can use this location. Natural-language intent still matters: "SF to Santacruze" near the Bay Area is likely a routing request, while "where is SF Bread Company" is likely a place/search request.[39m
+[31m+[39m
+[31m+ ## Available specialists[39m
+[31m+ - routing_agent: plan or refine a route[39m
+[31m+ - search_agent: nearby places, web search, general questions[39m
+[31m+ - enrichment_agent: analyze the existing route (surface, weather, elevation, etc.)[39m
+[31m+[39m
+[31m+ ## How to use them[39m
+[31m+ - Route requests ("take me somewhere", "plan a ride to X") → routing_agent[39m
+[31m+ - When intent calls for a place, common shorthand can be real place language: SF/S.F. = San Francisco, DFW = Dallas-Fort Worth, NY/NYC = New York City. Compact/misspelled Santa Cruz variants like "Santacruze" can mean Santa Cruz.[39m
+[31m+ - Use context to distinguish route intent from search intent before choosing a specialist.[39m
+[31m+ - Nearby places, road closures, general knowledge → search_agent[39m
+[31m+ - Questions about an existing route (twisty? surface? weather?) → enrichment_agent[39m
+[31m+ - Route discovery ("twisties near Asheville", "scenic routes in Oregon") → discovery_agent[39m
+[31m+ - If the rider asks for multiple things, handle them one at a time — observe results before deciding the next step[39m
+[31m+ - Greetings, thanks, and off-topic messages → respond directly, no specialist needed[39m
+[31m+[39m
+[31m+ ## IMPORTANT: Always use your tools[39m
+[31m+ When the rider asks for a route, search, question about a route, or route discovery — you MUST call the appropriate specialist tool. Do NOT respond with text instead of calling a tool. Your text response comes AFTER the tool returns results.[39m
+[31m+[39m
+[31m+ ## Thinking style[39m
+[31m+ When reasoning (in extended thinking / chain-of-thought), use plain rider-friendly language — your thinking is displayed as a planning indicator. Say "scenic coastal route via Big Sur" not "calling routing_agent with geocoded coordinates".[39m
+[31m+[39m
+[31m+ ## Presentation rules[39m
+[31m+ Respond in 1-2 sentences, 2nd person. Never expose tool names or technical details to the rider.[39m
+
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:2254:22
+    2252|       const prompt = await buildSystemPrompt(ctx)
+    2253| 
+    2254|       expect(prompt).toContain('getElevation')
+       |                      ^
+    2255|       expect(prompt).toContain('getRouteWeather')
+    2256|       expect(prompt.toLowerCase()).toMatch(/after.*compil|post.compil/)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[46/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > post-compile enrichment > getElevation tool executes and returns elevation profile when called
+AssertionError: expected "spy" to be called 1 times, but got 0 times
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:2289:32
+    2287|       const result = await executeRidePlanningAgent(ctx, 'show me elev…
+    2288| 
+    2289|       expect(getElevationMock).toHaveBeenCalledTimes(1)
+       |                                ^
+    2290|       expect(result.response).toContain('1200ft')
+    2291|     })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[47/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > post-compile enrichment > getRouteWeather tool executes and returns weather summary when called
+AssertionError: expected "spy" to be called 1 times, but got 0 times
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:2326:35
+    2324|       const result = await executeRidePlanningAgent(ctx, 'check weathe…
+    2325| 
+    2326|       expect(getRouteWeatherMock).toHaveBeenCalledTimes(1)
+       |                                   ^
+    2327|       expect(result.response).toContain('15°C')
+    2328|     })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[48/77]⎯
+
+ FAIL  convex/actions/agent/__tests__/ridePlanningAgent.test.ts > executeRidePlanningAgent > post-compile enrichment > searchAlongRoute tool executes and returns nearby places when called
+AssertionError: expected "spy" to be called 1 times, but got 0 times
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts:2361:36
+    2359|       const result = await executeRidePlanningAgent(ctx, 'find stops a…
+    2360| 
+    2361|       expect(searchAlongRouteMock).toHaveBeenCalledTimes(1)
+       |                                    ^
+    2362|       expect(result.response).toContain("Alice's Restaurant")
+    2363|     })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[49/77]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-worker]: Timeout calling "onTaskUpdate"
+ ❯ Object.onTimeoutError node_modules/vitest/dist/chunks/rpc.-pEldfrD.js:53:10
+ ❯ Timeout._onTimeout node_modules/vitest/dist/chunks/index.B521nVV-.js:59:62
+ ❯ listOnTimeout node:internal/timers:605:17
+ ❯ processTimers node:internal/timers:541:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  5 failed | 4 passed (255)
+      Tests  76 failed | 100 passed (176)
+     Errors  1 error
+   Start at  15:50:33
+   Duration  106.77s (transform 250ms, setup 157ms, collect 435ms, tests 105.51s, environment 395ms, prepare 61ms)
+
+ ELIFECYCLE  Test failed. See above for more details.
+EXIT_CODE:1

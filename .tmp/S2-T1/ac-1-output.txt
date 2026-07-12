@@ -1,0 +1,27 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T1
+> vitest "convex/actions/agent/lib/__tests__/models.orchestratorTier.test.ts"
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T1
+
+stdout | convex/actions/agent/lib/__tests__/models.orchestratorTier.test.ts > models orchestrator tier (S2-T1 Mastra spike) > package.json lists @mastra/core and @ai-sdk/openai-compatible while preserving ai@7 and @ai-sdk/anthropic
+{"ac":"AC-1","mastraCore":"^1.50.1","aiSdkOpenaiCompatible":"^3.0.5","ai":"^7.0.22","aiSdkAnthropic":"^4.0.12"}
+
+stdout | convex/actions/agent/lib/__tests__/models.orchestratorTier.test.ts > models orchestrator tier (S2-T1 Mastra spike) > convex.json preserves nodeVersion 22 and adds @mastra/core + @ai-sdk/openai-compatible to externalPackages without removing existing entries
+{"ac":"AC-2","nodeVersion":"22","externalPackages":["@workos-inc/node","papaparse","langchain","@langchain/core","@langchain/openai","@langchain/langgraph","jose","@mariozechner/pi-ai","ai","@ai-sdk/anthropic","@mastra/core","@ai-sdk/openai-compatible"]}
+
+stdout | convex/actions/agent/lib/__tests__/models.orchestratorTier.test.ts > models orchestrator tier (S2-T1 Mastra spike) > getOrchestratorModel returns the pinned Mastra router string without touching the existing pi-ai tiers
+{"ac":"AC-3","orchestratorModel":"anthropic/claude-sonnet-4-6","highModel":"gpt-4.1","lowModel":"gpt-4o-mini"}
+
+stdout | convex/actions/agent/lib/__tests__/models.orchestratorTier.test.ts > models orchestrator tier (S2-T1 Mastra spike) > resolves the orchestrator tier through a real @mastra/core Agent against real Anthropic > returns non-empty result.text containing banana from a real .generate() call
+{"ac":"AC-4","resolvedVia":"router-string","model":"anthropic/claude-sonnet-4-6","textLength":6,"containsBanana":true}
+
+ ✓ convex/actions/agent/lib/__tests__/models.orchestratorTier.test.ts (4 tests) 1032ms
+   ✓ models orchestrator tier (S2-T1 Mastra spike) > resolves the orchestrator tier through a real @mastra/core Agent against real Anthropic > returns non-empty result.text containing banana from a real .generate() call  1029ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  15:52:20
+   Duration  2.31s (transform 37ms, setup 113ms, collect 498ms, tests 1.03s, environment 522ms, prepare 37ms)
+

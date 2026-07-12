@@ -1,0 +1,26 @@
+[
+  {
+    "id": "AC-1",
+    "verify": "pnpm test convex/actions/agent/lib/__tests__/models.orchestratorTier.test.ts -t \"package.json lists @mastra/core and @ai-sdk/openai-compatible while preserving ai@7 and @ai-sdk/anthropic\"",
+    "exit_code": 0,
+    "output_file": ".tmp/S2-T1/ac-1-output.txt"
+  },
+  {
+    "id": "AC-2",
+    "verify": "pnpm test convex/actions/agent/lib/__tests__/models.orchestratorTier.test.ts -t \"convex.json preserves nodeVersion 22 and adds @mastra/core + @ai-sdk/openai-compatible to externalPackages without removing existing entries\"",
+    "exit_code": 0,
+    "output_file": ".tmp/S2-T1/ac-2-output.txt"
+  },
+  {
+    "id": "AC-3",
+    "verify": "pnpm test convex/actions/agent/lib/__tests__/models.orchestratorTier.test.ts -t \"getOrchestratorModel returns the pinned Mastra router string without touching the existing pi-ai tiers\"",
+    "exit_code": 0,
+    "output_file": ".tmp/S2-T1/ac-3-output.txt"
+  },
+  {
+    "id": "AC-4",
+    "verify": "pnpm test convex/actions/agent/lib/__tests__/models.orchestratorTier.test.ts -t \"resolves the orchestrator tier through a real @mastra/core Agent against real Anthropic\"",
+    "exit_code": 0,
+    "output_file": ".tmp/S2-T1/ac-4-output.txt"
+  }
+]
