@@ -1,0 +1,41 @@
+{
+  "task_id": "REDHAT-FIX-007",
+  "ac": "S1-T3 AC-4 / REDHAT-FIX-007 AC-1..AC-4",
+  "flow": ".maestro/rec-016-cold-boot-recovered-route-plots.yaml",
+  "env": {
+    "RECOVERED_ROUTE_ID": "nonexistent-route-slug"
+  },
+  "command": "maestro test .maestro/rec-016-cold-boot-recovered-route-plots.yaml -e RECOVERED_ROUTE_ID=nonexistent-route-slug",
+  "device": "iPhone 17 - iOS 26.4 - 9051A0C2-CCB5-4D0F-AAAC-F03F74719352",
+  "exit_code": 0,
+  "ran_at": "2026-07-12T09:29:51Z",
+  "must_observe": [
+    "curated-route-detail-fallback visible",
+    "Route not found",
+    "Maestro exit 0",
+    "screenshot 02-absent-route-fallback"
+  ],
+  "must_not_observe": [
+    "curated-route-detail-real-line visible",
+    "Render Error",
+    "ConvexError",
+    "fabricated copper road line"
+  ],
+  "artifacts": {
+    "gate_package_log": "/tmp/laneshadow-gate-sprint-01-geometry-reference-spike/maestro-ac4-absent.log",
+    "gate_package_screenshot": "/tmp/laneshadow-gate-sprint-01-geometry-reference-spike/maestro-ac4-absent.png",
+    "sprint_evidence_log": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/evidence/maestro-ac4-absent.log",
+    "sprint_evidence_screenshot": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/evidence/maestro-ac4-absent.png"
+  },
+  "distinct_from_happy_path": {
+    "happy_path_logs": [
+      "/tmp/laneshadow-gate-sprint-01-geometry-reference-spike/step6.log",
+      "/tmp/laneshadow-gate-sprint-01-geometry-reference-spike/step7.log"
+    ],
+    "happy_path_screenshots": [
+      "/tmp/laneshadow-gate-sprint-01-geometry-reference-spike/step6.png",
+      "/tmp/laneshadow-gate-sprint-01-geometry-reference-spike/step7.png"
+    ],
+    "note": "Happy path takes real-line branch (Twist of Tepusquet Loop); AC-4 takes fallback branch (Route not found). Separate filenames."
+  }
+}
