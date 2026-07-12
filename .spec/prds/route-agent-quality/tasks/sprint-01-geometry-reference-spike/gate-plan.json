@@ -1,11 +1,12 @@
 {
   "sprint": "sprint-01-geometry-reference-spike",
   "planned_at": "2026-07-12T07:21:27Z",
-  "planned_steps": 7,
+  "planned_steps": 8,
   "poc_route_id": "motorcycleroads:twist-of-tepusquet-loop",
   "convex_deployment": "dev:quirky-panther-164",
   "gate_cli_identity": "{\"subject\":\"s1-human-gate\",\"issuer\":\"https://laneshadow.test\"}",
   "identity_note": "Terminal Convex steps that hit requireIdentity (reconstruct/verification/listCuratedRoutes) require Clerk-style --identity JSON (REDHAT-FIX-003 + REDHAT-FIX-005). getRouteForReading remains public read-only.",
+  "dual_maestro_note": "Steps 6-7 are happy-path Maestro (RECOVERED_ROUTE_ID=motorcycleroads:twist-of-tepusquet-loop). Step 8 is AC-4 absent-route dual execution (RECOVERED_ROUTE_ID=nonexistent-route-slug) — same YAML, second env; distinct log/screenshot (REDHAT-FIX-007 / M2).",
   "steps": [
     {
       "n": 1,
@@ -59,18 +60,44 @@
       "n": 6,
       "text": "Cold-boot the simulator and tap the recovered route.",
       "type": "ui",
-      "literal_cmd": null,
+      "literal_cmd": "maestro test .maestro/rec-016-cold-boot-recovered-route-plots.yaml -e RECOVERED_ROUTE_ID=motorcycleroads:twist-of-tepusquet-loop",
+      "branch": "happy_path_real_line",
       "assertion": {
-        "kind": "locator_text_regex"
+        "kind": "locator_text_regex",
+        "pattern": "curated-route-detail-real-line|Twist of Tepusquet Loop"
       }
     },
     {
       "n": 7,
       "text": "Watch the correct road line plot on the map.",
       "type": "ui",
-      "literal_cmd": null,
+      "literal_cmd": "maestro test .maestro/rec-016-cold-boot-recovered-route-plots.yaml -e RECOVERED_ROUTE_ID=motorcycleroads:twist-of-tepusquet-loop",
+      "branch": "happy_path_real_line",
       "assertion": {
-        "kind": "locator_text_regex"
+        "kind": "locator_text_regex",
+        "pattern": "curated-route-detail-real-line"
+      }
+    },
+    {
+      "n": 8,
+      "text": "AC-4 absent-route Maestro branch: cold-boot + deep-link nonexistent-route-slug; honest fallback, no fabricated line.",
+      "type": "ui",
+      "task": "REDHAT-FIX-007",
+      "flow_ref": "T-REC-016 / S1-T3 AC-4",
+      "branch": "ac4_absent_route_fallback",
+      "literal_cmd": "maestro test .maestro/rec-016-cold-boot-recovered-route-plots.yaml -e RECOVERED_ROUTE_ID=nonexistent-route-slug",
+      "recovered_route_id": "nonexistent-route-slug",
+      "expected_artifacts": {
+        "log": "/tmp/laneshadow-gate-sprint-01-geometry-reference-spike/maestro-ac4-absent.log",
+        "screenshot": "/tmp/laneshadow-gate-sprint-01-geometry-reference-spike/maestro-ac4-absent.png",
+        "sprint_evidence_log": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/evidence/maestro-ac4-absent.log",
+        "sprint_evidence_screenshot": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/evidence/maestro-ac4-absent.png"
+      },
+      "assertion": {
+        "kind": "maestro_exit_and_log_regex",
+        "exit_code": 0,
+        "pattern": "curated-route-detail-fallback|Route not found|MAESTRO_EXIT=0",
+        "must_not_match": "curated-route-detail-real-line is visible|Render Error|ConvexError"
       }
     }
   ]
