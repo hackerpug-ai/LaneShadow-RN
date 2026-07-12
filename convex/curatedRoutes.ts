@@ -5,7 +5,7 @@
  * state, and archetype filtering over the 5,654-row curated catalog.
  */
 
-import { ConvexError, v } from 'convex/values'
+import { v } from 'convex/values'
 import type { Doc } from './_generated/dataModel'
 import { internalQuery, query } from './_generated/server'
 import { geospatial } from './geospatialIndex'
@@ -390,7 +390,26 @@ const routeDetailReturnValidator = v.object({
   pavementIri: v.optional(v.number()),
 })
 
-function buildRouteDetail(route: Doc<'curated_routes'>) {
+/**
+ * Prefer DATA-011 side-table geometry for detail plot (S1-T2 recovery stores
+ * ai_reconstructed polylines here, not on curated_routes.routePolyline). Fall
+ * back to legacy in-row routePolyline when no side-table value exists.
+ */
+function resolveDetailRoutePolyline(
+  route: Doc<'curated_routes'>,
+  geomRow: Doc<'curated_route_geometry'> | null,
+): string | null {
+  const sideValue = geomRow?.value?.trim()
+  if (sideValue) return sideValue
+  const firstSegment = geomRow?.segments?.find((s) => typeof s === 'string' && s.trim().length > 0)
+  if (firstSegment) return firstSegment
+  return route.routePolyline ?? null
+}
+
+function buildRouteDetail(
+  route: Doc<'curated_routes'>,
+  geomRow: Doc<'curated_route_geometry'> | null = null,
+) {
   const headline = route.summary && route.summary.trim().length > 0 ? route.summary : route.name
 
   return {
@@ -409,7 +428,7 @@ function buildRouteDetail(route: Doc<'curated_routes'>) {
     remotenessScore: route.remotenessScore !== undefined ? norm(route.remotenessScore) : undefined,
     lengthMiles: clampLength(route.lengthMiles),
     summary: route.summary,
-    routePolyline: route.routePolyline ?? null,
+    routePolyline: resolveDetailRoutePolyline(route, geomRow),
     bounds: {
       north: route.boundsNeLat,
       south: route.boundsSwLat,
@@ -429,25 +448,31 @@ function buildRouteDetail(route: Doc<'curated_routes'>) {
 
 export const getCuratedRouteDetail = query({
   args: routeDetailArgsValidator,
-  returns: routeDetailReturnValidator,
+  // null = honest not-found (S1-T3 AC-4). Do NOT throw ConvexError NOT_FOUND:
+  // convex/react useQuery rethrows during render, which RN LogBox surfaces as a
+  // full-screen "Render Error" even when an ErrorBoundary paints fallback UI.
+  returns: v.union(routeDetailReturnValidator, v.null()),
   handler: async (ctx, args) => {
     // Clerk gate — MUST run before any DB read (AC-5: unauthenticated → UNAUTHENTICATED).
     await requireIdentity(ctx)
 
     // Resolve via the by_routeId index (caller never needs the internal _id).
-    // NEVER reads curated_route_enrichments (empty table) or curated_route_geometry.
+    // Side-table join is on-demand (single route) — browse list still omits geometry
+    // to stay under the DATA-011 16MB read limit.
     const route = await ctx.db
       .query('curated_routes')
       .withIndex('by_routeId', (q) => q.eq('routeId', args.routeId))
       .unique()
 
     if (!route) {
-      throw new ConvexError({
-        code: 'NOT_FOUND',
-        message: `Curated route not found: ${args.routeId}`,
-      })
+      return null
     }
 
-    return buildRouteDetail(route)
+    const geomRow = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q) => q.eq('routeId', args.routeId))
+      .first()
+
+    return buildRouteDetail(route, geomRow)
   },
 })

@@ -188,6 +188,9 @@ describe('DESIGN-003: geometry graceful degradation', () => {
     // when a polyline is present — the badge AND the centroid are exclusive
     // to the no-polyline branch per the design enrichment).
     expect((lastMapCall.markers ?? []).length).toBe(0)
+
+    // S1-T3 AC-2 (≥2-point branch): real-line probe discriminates coord count.
+    expect(getByTestId('curated-route-detail-real-line')).toBeTruthy()
   })
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -232,6 +235,24 @@ describe('DESIGN-003: geometry graceful degradation', () => {
     expect(lastMapCall.camera?.zoom).toBe(11)
     expect(lastMapCall.camera?.center[0]).toBe(-83.2) // lng
     expect(lastMapCall.camera?.center[1]).toBe(35.4) // lat
+
+    // S1-T3 AC-2: centroid-only route must NOT render the real-line probe.
+    expect(queryByTestId('curated-route-detail-real-line')).toBeNull()
+  })
+
+  it('degenerateOnePointPolylineOmitsRealLineProbe', async () => {
+    // GIVEN a route whose polyline decodes to exactly one point (< 2 threshold)
+    mockUseQuery.mockReturnValue(
+      buildDetail({
+        routePolyline: '_uxvF~zchT',
+        name: 'Degenerate One Point',
+      }),
+    )
+
+    const { queryByTestId } = render(createElement(CuratedRouteDetailScreen))
+
+    // THEN: string-presence polyline probe may still render, but real-line must not.
+    expect(queryByTestId('curated-route-detail-real-line')).toBeNull()
   })
 
   // ─────────────────────────────────────────────────────────────────────────

@@ -1,0 +1,183 @@
+# S1-T3 / T-REC-016 — cold-boot plot verification for the recovered PoC route.
+#
+# PRIMARY (AC-1): RECOVERED_ROUTE_ID = S1-T2 slug on live Convex dev
+#   (default: motorcycleroads:twist-of-tepusquet-loop → Twist of Tepusquet Loop).
+# AC-4: maestro test ... -e RECOVERED_ROUTE_ID=nonexistent-route-slug
+#
+# Prereqs: booted iOS sim, dev client on Metro (localhost:8081), EXPO_PUBLIC_E2E=1.
+#
+# Cold-boot auth is inlined (not _common-auth.yaml): after tapping the Metro
+# server, the Expo developer-menu intro appears asynchronously — Login with Email
+# can paint first, so a zero-wait "when Continue" check races and leaves the
+# modal over the login form (chat-input never becomes interactable).
+# Pattern: wait for first surface → dedicated optional Continue window →
+# dismiss panel → wait for login (mirrors discovery-full-gate + late-menu fix).
+#
+# Run:
+#   maestro test .maestro/rec-016-cold-boot-recovered-route-plots.yaml \
+#     -e RECOVERED_ROUTE_ID='motorcycleroads:twist-of-tepusquet-loop' \
+#     --device '9051A0C2-CCB5-4D0F-AAAC-F03F74719352'
+
+appId: com.hackerpug.laneshadow
+---
+- stopApp
+
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+# ── Cold-boot: Expo dev-client launcher ─────────────────────────────────────
+# Wait for ANY first surface (picker, login, or residual home text).
+- extendedWaitUntil:
+    visible:
+      text: "DEVELOPMENT SERVERS|Login with Email|Plan|Saved|chat|laneshadow|Where|Route"
+    timeout: 180000
+
+# Tap the Metro server when the DEVELOPMENT SERVERS picker is showing.
+- runFlow:
+    when:
+      visible: { text: "DEVELOPMENT SERVERS" }
+    commands:
+      - tapOn:
+          text: ".*localhost:8081.*"
+
+# CRITICAL: wait for the post-connect surface before dismiss. Bundle load paints
+# Login with Email under a dimmed backdrop; the developer-menu intro ("Continue")
+# often arrives a beat later.
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|.*developer menu.*|Reload|Go home|Toggle performance monitor|Toggle element inspector|Open JS debugger|Close|Continue"
+    timeout: 240000
+
+# FIRST-RUN RACE FIX: Login may match the wait above before Continue exists.
+# Always give the intro sheet a dedicated window on clearState cold boots.
+- extendedWaitUntil:
+    visible:
+      text: "Continue"
+    timeout: 30000
+    optional: true
+
+# Intro sheet: "This is the developer menu…" → Continue (text or long copy).
+- runFlow:
+    when:
+      visible: { text: "Continue" }
+    commands:
+      - tapOn: { text: "Continue" }
+      - waitForAnimationToEnd
+
+# Second pass if Continue re-appears after animation / remount.
+- runFlow:
+    when:
+      visible: { text: "Continue" }
+    commands:
+      - tapOn: { text: "Continue" }
+      - waitForAnimationToEnd
+
+# Full Expo dev-client panel can remain open after Continue.
+- runFlow:
+    when:
+      visible: { text: "Close" }
+    commands:
+      - tapOn: { text: "Close" }
+      - waitForAnimationToEnd
+
+# If the tools panel is still up (Reload / Go home), reload JS to clear it.
+- runFlow:
+    when:
+      visible: { text: "Reload" }
+    commands:
+      - tapOn: { text: "Reload" }
+      - waitForAnimationToEnd
+
+# Dimmed-backdrop dismiss when panel text remains after Reload path skipped.
+- runFlow:
+    when:
+      visible: { text: "Go home|Toggle performance monitor" }
+    commands:
+      - tapOn:
+          point: "50%,7%"
+      - waitForAnimationToEnd
+
+# ── Auth: E2E test login (EXPO_PUBLIC_E2E=1) ─────────────────────────────────
+# After overlay dismiss, either login or (rare warm) home is reachable.
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|Plan|Saved|Where|Route"
+    timeout: 180000
+
+# Late-arriving intro (seen in fail-chat-input.png): dismiss once more if present.
+- runFlow:
+    when:
+      visible: { text: "Continue" }
+    commands:
+      - tapOn: { text: "Continue" }
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: { text: "Close" }
+    commands:
+      - tapOn: { text: "Close" }
+
+- runFlow:
+    when:
+      visible: { text: "Login with Email" }
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: "e2e-test-login-button"
+          timeout: 60000
+      - tapOn: { id: "e2e-test-login-button" }
+
+# AC-3: authenticated home from a true cold boot before navigation.
+- extendedWaitUntil:
+    visible:
+      id: "chat-input"
+    timeout: 180000
+- assertVisible:
+    id: "chat-input"
+- takeScreenshot: 01-cold-boot-home
+
+# Deep-link to the recovered (or absent) curated route.
+- openLink: laneshadow:///curated-route/${RECOVERED_ROUTE_ID}
+
+# Wait for detail name (recovered) or not-found fallback (AC-4).
+- extendedWaitUntil:
+    visible:
+      text: "Twist of Tepusquet Loop|Route not found"
+    timeout: 60000
+
+# AC-4 branch: missing row → honest fallback, 0 red-box crash surfaces.
+# "Render Error" / ConvexError NOT_FOUND must NOT paint over the fallback
+# (getCuratedRouteDetail returns null for absent routeId — never throws).
+- runFlow:
+    when:
+      visible: { id: "curated-route-detail-fallback" }
+    commands:
+      - assertVisible:
+          id: "curated-route-detail-fallback"
+      - assertVisible: "Route not found"
+      - assertNotVisible:
+          id: "curated-route-detail-real-line"
+      - assertNotVisible: "Render Error"
+      - assertNotVisible: "ConvexError"
+      - assertNotVisible: "NOT_FOUND"
+      - takeScreenshot: 02-absent-route-fallback
+
+# AC-1 branch: recovered route with gate-passing geometry.
+- runFlow:
+    when:
+      visible: { id: "curated-detail-map" }
+    commands:
+      - assertVisible:
+          id: "curated-route-detail-name"
+          text: "Twist of Tepusquet Loop"
+      - assertVisible:
+          id: "curated-detail-map"
+      - assertVisible:
+          id: "curated-route-detail-real-line"
+      - assertNotVisible:
+          id: "curated-detail-approximate-badge"
+      - assertNotVisible:
+          id: "curated-route-detail-fallback"
+      - assertNotVisible: "Approximate location"
+      - takeScreenshot: 02-recovered-route-real-line-plotted

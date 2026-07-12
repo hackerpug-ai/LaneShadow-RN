@@ -25,6 +25,7 @@
  * maestro flow + fallback test):
  *   - `curated-route-detail-name`     — the name Text (leaf inside header section)
  *   - `curated-route-detail-polyline` — polyline-presence probe (inside map section)
+ *   - `curated-route-detail-real-line` — ≥2 decoded polyline points (S1-T3 plot gate)
  *   - `curated-route-detail-fallback` — null/error fallback node (unchanged)
  *   - `curated-route-detail-loading`  — loading skeleton (unchanged)
  * The six section ROOT Views carry the canonical `curated-detail-*` testIDs.
@@ -185,6 +186,10 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
     ]
   }, [detail, semantic.color.primary.default])
 
+  // S1-T3: discriminate a drawable road line (≥2 coords) from a centroid dot or
+  // degenerate 0/1-point polyline string — the Maestro plot gate keys off this.
+  const hasRealRoadLine = (polylines[0]?.coordinates.length ?? 0) >= 2
+
   // Centroid marker — ONE pin in state 2 only (state 1 fits the polyline bounds
   // and the polyline carries the geometry; state 3 has nothing to show).
   const centroidMarkers = useMemo(() => {
@@ -322,6 +327,9 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
             state 1 (polyline present) — never in state 2/3. */}
         {hasPolyline ? (
           <View testID="curated-route-detail-polyline" style={styles.polylineProbe} />
+        ) : null}
+        {hasRealRoadLine ? (
+          <View testID="curated-route-detail-real-line" style={styles.polylineProbe} />
         ) : null}
         {/* DESIGN-003 state 2: 'Approximate location' outline badge, centered
             BELOW the map. Mutually exclusive with the polyline branch — nulls
@@ -602,9 +610,9 @@ type FallbackProps = {
 
 /**
  * "Route not found" fallback — centered, in body.md / onSurface.muted.
- * Used both by the explicit null-check AND by the ErrorBoundary so a throwing
- * query (DATA-006 ConvexError NOT_FOUND) surfaces the SAME node, never an
- * uncaught error.
+ * Primary path: getCuratedRouteDetail returns null for an absent routeId
+ * (no throw → no RN LogBox redbox). ErrorBoundary still covers unexpected
+ * render failures with the SAME node.
  */
 const CuratedRouteFallback = ({ semantic }: FallbackProps) => (
   <View
@@ -628,11 +636,10 @@ const CuratedRouteDetailScreen = () => {
 
   return (
     <SubpageLayout title="Route Detail" size="compact" testID="curated-route-detail-screen">
-      {/* ErrorBoundary: a throwing getCuratedRouteDetail (DATA-006 NOT_FOUND)
-          renders the SAME fallback as the explicit null-check — no uncaught
-          error reaches the top-level boundary. NOTE: this boundary does NOT
-          swallow per-section weather failures — those are isolated inside
-          PolylineGuardedBody's conditions section. */}
+      {/* ErrorBoundary: unexpected render failures share the null-detail
+          fallback. Absent routeIds do not throw (query returns null). This
+          boundary does NOT swallow per-section weather failures — those are
+          isolated inside PolylineGuardedBody's conditions section. */}
       <ErrorBoundary fallback={<CuratedRouteFallback semantic={semantic} />}>
         <PolylineGuardedBody id={id ?? ''} />
       </ErrorBoundary>

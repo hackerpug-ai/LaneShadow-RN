@@ -18,7 +18,10 @@ import type { FunctionReturnType } from 'convex/server'
 import { useMemo } from 'react'
 import { api } from '../convex/_generated/api'
 
-export type CuratedRouteDetail = FunctionReturnType<typeof api.curatedRoutes.getCuratedRouteDetail>
+/** Lean detail payload (excludes the query's null not-found result). */
+export type CuratedRouteDetail = NonNullable<
+  FunctionReturnType<typeof api.curatedRoutes.getCuratedRouteDetail>
+>
 
 export interface UseCuratedRouteDetailResult {
   /** Lean detail payload, or null when the query resolves to no row. */
@@ -32,6 +35,8 @@ export interface UseCuratedRouteDetailResult {
  *
  * @param routeId - the curated `routeId` (NOT the internal `_id`). When null
  *                  the query is skipped and `detail` is null / not loading.
+ * Absent routeIds resolve to `null` (not a thrown ConvexError) so RN never
+ * mounts a LogBox "Render Error" redbox for missing deep-links.
  */
 export const useCuratedRouteDetail = (routeId: string | null): UseCuratedRouteDetailResult => {
   const data = useQuery(api.curatedRoutes.getCuratedRouteDetail, routeId ? { routeId } : 'skip')
@@ -40,7 +45,7 @@ export const useCuratedRouteDetail = (routeId: string | null): UseCuratedRouteDe
 
   return useMemo(
     () => ({
-      detail: (data as CuratedRouteDetail | null) ?? null,
+      detail: data ?? null,
       isLoading,
     }),
     [data, isLoading],
