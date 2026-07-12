@@ -7,6 +7,10 @@
  * expo-router, native map, theme, safe-area) is mocked — the screen, the hook,
  * the real Badge/MapboxMapView contract, and ErrorBoundary run for real.
  *
+ * REDHAT-FIX-002 / H2: honest painted-line oracle requires map-settled +
+ * line-paint-ready (≥2 coords necessary but not sufficient alone). Blank map
+ * with valid coords must fail the oracle.
+ *
  * AC coverage (jsdom-testable logic; full-render against live dev + simulator
  * is PHASE 3.5 — the maestro flows `.maestro/uc-dtl-03-*.yaml`):
  *   AC-1 (PRIMARY)  polylinePresentRendersPolylineAndHidesApproximateBadge
@@ -36,6 +40,10 @@ import { MOCK_SEMANTIC } from '../../../test-helpers/mock-semantic'
 
 const mockUseQuery = vi.fn()
 const mockGetCurrentWeather = vi.fn()
+
+// Controls whether the MapboxMapView mock fires onMapReady / exposes settle +
+// paint oracles. REDHAT-FIX-002 AC-2: blank map with valid coords must fail.
+let autoMapSettle = true
 
 // Records the last props passed to MapboxMapView so camera/marker assertions
 // are possible without probing the (mocked-away) native children.
@@ -78,15 +86,18 @@ vi.mock('../../../contexts/theme-preference', () => ({
 // approximate-badge (both rendered as siblings inside the map section) are
 // reachable. Mocked WITHOUT importOriginal: the real map module pulls in
 // @rnmapbox/maps + react-native-worklets which crash under jsdom.
+// Surfaces map-settled + mapbox-road-polyline-layer oracles when settled with
+// drawable polylines (mirrors real MapboxMapView REDHAT-FIX-001/002 contract).
 vi.mock('../../../components/map', () => {
   const React = require('react')
+  const { View } = require('react-native')
   const MapboxMapView = React.forwardRef(
     (
       props: {
         children?: React.ReactNode
         markers?: unknown
         camera?: unknown
-        polylines?: unknown
+        polylines?: Array<{ coordinates?: unknown[] }>
         preferPolylineViewport?: boolean
         onMapReady?: () => void
       },
@@ -102,10 +113,30 @@ vi.mock('../../../components/map', () => {
       React.useImperativeHandle(ref, () => ({
         fitToCoordinates: (coords: unknown) => fitToCoordinatesSpy(coords),
       }))
+      const [settled, setSettled] = React.useState(false)
       React.useEffect(() => {
+        if (!autoMapSettle) return
         props.onMapReady?.()
+        setSettled(true)
       }, [props.onMapReady])
-      return props?.children ?? null
+      const hasDrawable = (props.polylines ?? []).some((p) => (p?.coordinates?.length ?? 0) >= 2)
+      return React.createElement(
+        View,
+        { testID: 'mapbox-map-view-mock' },
+        settled
+          ? React.createElement(View, {
+              testID: 'map-settled',
+              accessibilityLabel: 'map-settled',
+            })
+          : null,
+        settled && hasDrawable
+          ? React.createElement(View, {
+              testID: 'mapbox-road-polyline-layer',
+              accessibilityLabel: 'mapbox-road-polyline-layer',
+            })
+          : null,
+        props?.children ?? null,
+      )
     },
   )
   MapboxMapView.displayName = 'MapboxMapView'
@@ -179,12 +210,14 @@ describe('DESIGN-003: geometry graceful degradation', () => {
     vi.clearAllMocks()
     mapboxPropsLog.length = 0
     fitToCoordinatesSpy.mockClear()
+    autoMapSettle = true
   })
 
   beforeEach(async () => {
     mockUseQuery.mockReset()
     mockGetCurrentWeather.mockReset()
     mockGetCurrentWeather.mockResolvedValue(WEATHER_OK)
+    autoMapSettle = true
     const mod = await import('./[id]')
     CuratedRouteDetailScreen = mod.default
   })
@@ -217,8 +250,12 @@ describe('DESIGN-003: geometry graceful degradation', () => {
     // to the no-polyline branch per the design enrichment).
     expect((lastMapCall.markers ?? []).length).toBe(0)
 
-    // S1-T3 AC-2 (≥2-point branch): real-line probe discriminates coord count.
-    expect(getByTestId('curated-route-detail-real-line')).toBeTruthy()
+    // REDHAT-FIX-002: honest paint oracle after settle + ≥2 coords.
+    expect(getByTestId('map-settled')).toBeTruthy()
+    expect(getByTestId('mapbox-road-polyline-layer')).toBeTruthy()
+    expect(getByTestId('curated-route-detail-line-painted')).toBeTruthy()
+    // Transparent real-line probe retired as PRIMARY (must not reappear).
+    expect(queryByTestId('curated-route-detail-real-line')).toBeNull()
 
     // REDHAT-FIX-001 AC-2: fit runs only after map-ready with ≥2 coords.
     expect(fitToCoordinatesSpy).toHaveBeenCalledTimes(1)
@@ -230,6 +267,29 @@ describe('DESIGN-003: geometry graceful degradation', () => {
     expect(lastMapCall.preferPolylineViewport).toBe(true)
     const strokeWidth = (lastMapCall.polylines as Array<{ strokeWidth?: number }>)[0]?.strokeWidth
     expect(strokeWidth).toBeGreaterThanOrEqual(4)
+  })
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // REDHAT-FIX-002 AC-2: ≥2 coords + blank/unsettled map → oracle ABSENT
+  // ─────────────────────────────────────────────────────────────────────────
+  it('honestPaintedLineOracleAbsentWhenMapNotSettledDespiteValidCoords', async () => {
+    // GIVEN valid ≥2-point polyline but Mapbox never settles / paints
+    autoMapSettle = false
+    mockUseQuery.mockReturnValue(buildDetail())
+
+    const { queryByTestId, getByTestId } = render(createElement(CuratedRouteDetailScreen))
+
+    // String-presence probe may still mount from coord string alone.
+    expect(getByTestId('curated-route-detail-polyline')).toBeTruthy()
+
+    // Honest paint/settle oracles MUST be absent — coords alone are not enough.
+    expect(queryByTestId('map-settled')).toBeNull()
+    expect(queryByTestId('mapbox-road-polyline-layer')).toBeNull()
+    expect(queryByTestId('curated-route-detail-line-painted')).toBeNull()
+    expect(queryByTestId('curated-route-detail-real-line')).toBeNull()
+
+    // Fit must not run without settle.
+    expect(fitToCoordinatesSpy).not.toHaveBeenCalled()
   })
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -275,11 +335,14 @@ describe('DESIGN-003: geometry graceful degradation', () => {
     expect(lastMapCall.camera?.center[0]).toBe(-83.2) // lng
     expect(lastMapCall.camera?.center[1]).toBe(35.4) // lat
 
-    // S1-T3 AC-2: centroid-only route must NOT render the real-line probe.
+    // REDHAT-FIX-002 AC-3: centroid-only route must NOT render paint oracle.
+    // Map may settle, but no drawable road line → no paint-ready oracle.
+    expect(queryByTestId('curated-route-detail-line-painted')).toBeNull()
+    expect(queryByTestId('mapbox-road-polyline-layer')).toBeNull()
     expect(queryByTestId('curated-route-detail-real-line')).toBeNull()
   })
 
-  it('degenerateOnePointPolylineOmitsRealLineProbe', async () => {
+  it('degenerateOnePointPolylineOmitsPaintedLineOracle', async () => {
     // GIVEN a route whose polyline decodes to exactly one point (< 2 threshold)
     mockUseQuery.mockReturnValue(
       buildDetail({
@@ -290,7 +353,10 @@ describe('DESIGN-003: geometry graceful degradation', () => {
 
     const { queryByTestId } = render(createElement(CuratedRouteDetailScreen))
 
-    // THEN: string-presence polyline probe may still render, but real-line must not.
+    // THEN: string-presence polyline probe may still render, but honest paint
+    // oracle must not (coords ≥2 is necessary).
+    expect(queryByTestId('curated-route-detail-line-painted')).toBeNull()
+    expect(queryByTestId('mapbox-road-polyline-layer')).toBeNull()
     expect(queryByTestId('curated-route-detail-real-line')).toBeNull()
   })
 
@@ -328,6 +394,11 @@ describe('DESIGN-003: geometry graceful degradation', () => {
     // (no geometry → no geometry UI).
     expect(screen.queryByTestId('curated-detail-approximate-badge')).toBeNull()
     expect(screen.queryByTestId('curated-route-detail-polyline')).toBeNull()
+
+    // REDHAT-FIX-002 AC-3: honest paint oracle absent for null polyline.
+    expect(screen.queryByTestId('curated-route-detail-line-painted')).toBeNull()
+    expect(screen.queryByTestId('mapbox-road-polyline-layer')).toBeNull()
+    expect(screen.queryByTestId('curated-route-detail-real-line')).toBeNull()
 
     // AND: MapboxMapView received NO markers and NO polylines (graceful no-op).
     const lastMapCall = mapboxPropsLog[mapboxPropsLog.length - 1]

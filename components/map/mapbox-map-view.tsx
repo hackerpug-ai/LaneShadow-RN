@@ -281,6 +281,16 @@ const styles = StyleSheet.create({
     minWidth: 44,
     minHeight: 44,
   },
+  // REDHAT-FIX-002: settle signal (style/map load complete). Distinct from
+  // paint-ready so blank maps with valid coords still fail the painted oracle.
+  mapSettledOracle: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 2,
+    height: 2,
+    opacity: 0.01,
+  },
 })
 
 /**
@@ -810,6 +820,19 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
           {polylineElements}
           {children}
         </MapView>
+        {/* REDHAT-FIX-002: map-settled is necessary for the honest painted-line
+            oracle — style/map load alone, independent of coord count. */}
+        {isStyleLoaded ? (
+          <View
+            testID="map-settled"
+            accessibilityLabel="map-settled"
+            pointerEvents="none"
+            collapsable={false}
+            style={styles.mapSettledOracle}
+          />
+        ) : null}
+        {/* Paint-ready oracle: settle + drawable (≥2-pt) LineLayer pipeline.
+            Maestro PRIMARY plot proof for H2 — not a transparent detail probe. */}
         {isStyleLoaded && hasDrawableRoadPolylines ? (
           <View
             testID="mapbox-road-polyline-layer"

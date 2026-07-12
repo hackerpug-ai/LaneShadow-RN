@@ -25,7 +25,9 @@
  * maestro flow + fallback test):
  *   - `curated-route-detail-name`     — the name Text (leaf inside header section)
  *   - `curated-route-detail-polyline` — polyline-presence probe (inside map section)
- *   - `curated-route-detail-real-line` — ≥2 decoded polyline points (S1-T3 plot gate)
+ *   - `curated-route-detail-line-painted` — honest paint oracle (REDHAT-FIX-002/H2):
+ *         coords ≥2 AND map settled (paint-ready). Replaces transparent real-line
+ *         probe as PRIMARY plot proof. Maestro also requires mapbox-road-polyline-layer.
  *   - `curated-route-detail-fallback` — null/error fallback node (unchanged)
  *   - `curated-route-detail-loading`  — loading skeleton (unchanged)
  * The six section ROOT Views carry the canonical `curated-detail-*` testIDs.
@@ -186,8 +188,9 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
     ]
   }, [detail, semantic.color.primary.default])
 
-  // S1-T3: discriminate a drawable road line (≥2 coords) from a centroid dot or
-  // degenerate 0/1-point polyline string — the Maestro plot gate keys off this.
+  // Necessary condition for a drawable road line (≥2 coords). Not sufficient
+  // alone for the honest painted-line oracle (REDHAT-FIX-002 / H2) — map must
+  // also settle and Mapbox must mount the paint-ready LineLayer oracle.
   const hasRealRoadLine = (polylines[0]?.coordinates.length ?? 0) >= 2
 
   // Centroid marker — ONE pin in state 2 only (state 1 fits the polyline bounds
@@ -237,6 +240,10 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
   const handleMapReady = useCallback(() => {
     setIsMapStyleReady(true)
   }, [])
+
+  // Sufficient paint proof at the detail layer: necessary coords + map settled.
+  // Maestro PRIMARY also asserts map-settled + mapbox-road-polyline-layer.
+  const isLinePaintReady = hasRealRoadLine && isMapStyleReady
 
   // Imperative fit-bounds for state 1: only after Mapbox style/map-ready so
   // fitBounds is not a no-op on an unloaded map (REDHAT-FIX-001 / H1).
@@ -357,12 +364,15 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
             style={styles.polylineProbe}
           />
         ) : null}
-        {hasRealRoadLine && isMapStyleReady ? (
+        {/* REDHAT-FIX-002 / H2: honest painted-line oracle. coords ≥2 is
+            necessary but not sufficient — requires map-settled (onMapReady).
+            Transparent real-line probe retired as PRIMARY Maestro plot proof. */}
+        {isLinePaintReady ? (
           <View
-            testID="curated-route-detail-real-line"
+            testID="curated-route-detail-line-painted"
             collapsable={false}
-            accessibilityLabel="curated-route-detail-real-line"
-            style={styles.polylineProbe}
+            accessibilityLabel="curated-route-detail-line-painted"
+            style={styles.linePaintedOracle}
           />
         ) : null}
         {/* DESIGN-003 state 2: 'Approximate location' outline badge, centered
@@ -749,9 +759,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  // Maestro assertVisible needs non-zero layout + opacity ≥0.01 (not pure
-  // transparent zero-hit boxes). Keep nearly invisible so the map stays clear.
+  // String-presence polyline probe (not PRIMARY plot proof).
   polylineProbe: {
+    height: 2,
+    marginTop: 8,
+    opacity: 0.01,
+    backgroundColor: 'rgba(184, 115, 51, 0.02)',
+  },
+  // REDHAT-FIX-002 honest paint oracle — Maestro assertVisible needs non-zero
+  // layout + opacity ≥0.01. Gated on settle + ≥2 coords, not coord count alone.
+  linePaintedOracle: {
     height: 2,
     marginTop: 8,
     opacity: 0.01,
