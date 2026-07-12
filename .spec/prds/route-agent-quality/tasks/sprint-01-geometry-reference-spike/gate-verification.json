@@ -4,5 +4,8 @@
   "recomputed_verdict": "pass",
   "steps_planned": 7,
   "steps_recomputed": 7,
-  "discrepancies": []
+  "discrepancies": [],
+  "notes": "REDHAT-FIX-004 founder re-run. Steps 1-3 live reconstruct (distinct cmd_sha). Steps 6-7 type=ui with founder visual YES copper line (step7-road-line.png). Revokes 20260712T072127Z package.",
+  "evidence_root": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/evidence/redhat-fix-004-founder-20260712",
+  "run_id": "20260712T100751Z"
 }

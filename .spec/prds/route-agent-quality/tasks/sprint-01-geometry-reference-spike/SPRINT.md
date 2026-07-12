@@ -14,7 +14,7 @@ generated_by: kb-sprint-tasks-plan
 
 **Sequence:** 1
 **Timeline:** Phase 1 (parallel opener)
-**Status:** In Progress — red-hat remediation required (2026-07-12 review)
+**Status:** Done — red-hat remediation REDHAT-FIX-001..007 landed; founder gate re-pass 20260712T100751Z
 **Proposed by:** product-manager + convex-planner (lane) + aisdk-planner (anchor completion) + react-native-ui-planner (cold-boot plot flow)
 
 ## Overview

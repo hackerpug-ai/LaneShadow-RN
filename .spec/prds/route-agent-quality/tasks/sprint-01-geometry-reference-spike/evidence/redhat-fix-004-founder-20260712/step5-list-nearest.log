@@ -1,0 +1,27 @@
+@@GATE-META step=5 cmd_sha=9a6c6ca10f8647cb708d866a18f40d5e93072c5de528758c268315bb3c22b364 run_id=20260712T093109Z task=REDHAT-FIX-004@@
+NOTE: gate-plan literal used mode/lat/lng; public validator requires sort=nearest + center:{lat,lng} (ArgumentValidationError on first attempt — see step5-list-nearest-attempt1 if present).
+CMD: npx convex run curatedRoutes:listCuratedRoutes '{"sort":"nearest","center":{"lat":34.95,"lng":-120.42},"limit":20}' --identity '{"subject":"s1-human-gate","issuer":"https://laneshadow.test"}'
+STARTED_AT: 2026-07-12T09:31:09Z
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+[
+  {
+    "centroidLat": 34.95,
+    "centroidLng": -120.42,
+    "compositeScore": 0.85,
+    "curvatureScore": 0.9,
+    "distanceMi": 0,
+    "geometryStatus": "generated",
+    "lengthMiles": 41,
+    "name": "Twist of Tepusquet Loop",
+    "primaryArchetype": "twisties",
+    "remotenessScore": 0.7,
+    "routeId": "motorcycleroads:twist-of-tepusquet-loop",
+    "scenicScore": 0.8,
+    "state": "California",
+    "summary": "Highway 101 in Santa Maria, CA. Exit Betteravia Road heading East. Betteravia Road becomes Foxen Canyon Road. Foxen Canyon Road becomes Santa Maria Mesa Road. Santa Maria Mesa Road merges into Tepusquet Canyon Road. Head North on Tepusquet Canyon Road. Follow this all the way up the mountain and back down until you reach highway 166. Follow 166 West until you reach highway 101 again.",
+    "technicalScore": 0.85,
+    "trafficScore": 0.75
+  }
+]
+ENDED_AT: 2026-07-12T09:31:28Z
+EXIT_CODE: 0

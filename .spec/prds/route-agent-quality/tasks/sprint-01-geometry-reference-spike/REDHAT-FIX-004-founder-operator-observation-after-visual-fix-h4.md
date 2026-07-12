@@ -9,7 +9,7 @@
 | ESTIMATE | 30 min |
 | EFFORT | S |
 | PRIORITY | P0 |
-| STATUS | Backlog |
+| STATUS | Done (founder re-run 20260712T100751Z; copper line YES) |
 | PROPOSED_BY | `product-manager` |
 | TDD_MODE | `skipped` |
 | RED_GREEN_REQUIRED | no |
@@ -53,11 +53,11 @@ Founder re-executes the full 7-step Human Testing Gate honestly and watches the 
 
 ## DONE WHEN
 
-- [ ] AC-1: Live reconstruct chain for steps 1–3
-- [ ] AC-2: Best + nearest browse membership
-- [ ] AC-3: Cold-boot human open of recovered route
-- [ ] AC-4: Founder-watched copper road line
-- [ ] AC-5: Honest STATUS and Sprint 04 gate control
+- [x] AC-1: Live reconstruct chain for steps 1–3
+- [x] AC-2: Best + nearest browse membership
+- [x] AC-3: Cold-boot human open of recovered route
+- [x] AC-4: Founder-watched copper road line
+- [x] AC-5: Honest STATUS and Sprint 04 gate control
 - [ ] Only SCOPE.writeAllowed files modified (`git diff --name-only`)
 - [ ] Do **not** mark Sprint 01 Done from this task alone
 
