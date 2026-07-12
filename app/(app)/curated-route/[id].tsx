@@ -214,17 +214,39 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
     }
   }, [hasPolyline, centroid])
 
-  // Imperative fit-bounds for state 1: when a polyline resolves, call the
-  // map's fitToCoordinates once. (Default fitToCoordinates padding matches the
-  // existing wrapper's; the camera prop is left undefined so the imperative
-  // call is the source of truth.) Phase 3.5 verifies the fit on-device.
+  // Seed the camera near the route so the first user-location fix does not
+  // steal the viewport before Mapbox style load + fitToCoordinates run.
+  const polylineInitialCamera = useMemo(() => {
+    if (!hasRealRoadLine || polylines.length === 0) return undefined
+    const coords = polylines[0].coordinates
+    if (coords.length < 2) return undefined
+    const lats = coords.map((c) => c.latitude)
+    const lngs = coords.map((c) => c.longitude)
+    return {
+      center: [
+        (Math.min(...lngs) + Math.max(...lngs)) / 2,
+        (Math.min(...lats) + Math.max(...lats)) / 2,
+      ] as [number, number],
+      zoom: 10,
+      pitch: 0,
+      heading: 0,
+    }
+  }, [hasRealRoadLine, polylines])
+
+  const [isMapStyleReady, setIsMapStyleReady] = useState(false)
+  const handleMapReady = useCallback(() => {
+    setIsMapStyleReady(true)
+  }, [])
+
+  // Imperative fit-bounds for state 1: only after Mapbox style/map-ready so
+  // fitBounds is not a no-op on an unloaded map (REDHAT-FIX-001 / H1).
   const mapRef = useRef<MapboxMapViewHandle | null>(null)
   useEffect(() => {
-    if (!hasPolyline || polylines.length === 0) return
+    if (!isMapStyleReady || !hasRealRoadLine || polylines.length === 0) return
     const coords = polylines[0].coordinates
-    if (coords.length === 0) return
+    if (coords.length < 2) return
     mapRef.current?.fitToCoordinates(coords)
-  }, [hasPolyline, polylines])
+  }, [isMapStyleReady, hasRealRoadLine, polylines])
 
   // ─── DESIGN-004: Save + Ride It actions wiring ──────────────────────────
   //
@@ -321,15 +343,27 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
           polylines={polylines}
           markers={centroidMarkers}
           camera={centroidCamera}
+          initialCamera={polylineInitialCamera}
+          preferPolylineViewport={hasRealRoadLine}
+          onMapReady={handleMapReady}
         />
         {/* Polyline-presence marker so AC-1's "polyline layer rendered" can be
             asserted independently of the native map children. Rendered ONLY in
             state 1 (polyline present) — never in state 2/3. */}
         {hasPolyline ? (
-          <View testID="curated-route-detail-polyline" style={styles.polylineProbe} />
+          <View
+            testID="curated-route-detail-polyline"
+            collapsable={false}
+            style={styles.polylineProbe}
+          />
         ) : null}
-        {hasRealRoadLine ? (
-          <View testID="curated-route-detail-real-line" style={styles.polylineProbe} />
+        {hasRealRoadLine && isMapStyleReady ? (
+          <View
+            testID="curated-route-detail-real-line"
+            collapsable={false}
+            accessibilityLabel="curated-route-detail-real-line"
+            style={styles.polylineProbe}
+          />
         ) : null}
         {/* DESIGN-003 state 2: 'Approximate location' outline badge, centered
             BELOW the map. Mutually exclusive with the polyline branch — nulls
@@ -715,10 +749,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  // Maestro assertVisible needs non-zero layout + opacity ≥0.01 (not pure
+  // transparent zero-hit boxes). Keep nearly invisible so the map stays clear.
   polylineProbe: {
-    height: 1,
+    height: 2,
     marginTop: 8,
-    backgroundColor: 'transparent',
+    opacity: 0.01,
+    backgroundColor: 'rgba(184, 115, 51, 0.02)',
   },
   // DESIGN-003 state 2: badge wrapper centered BELOW the map viewport.
   // Position absolute over the map's bottom edge so the map's flex sizing
