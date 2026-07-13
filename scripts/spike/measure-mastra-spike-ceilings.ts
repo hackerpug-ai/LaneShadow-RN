@@ -450,8 +450,8 @@ async function main() {
       postInstallBytes != null &&
       baselineBytes != null
 
-    // AC: pass only when both numbers real and within ceilings; positive delta preferred
-    // for "mastra added weight" narrative but shrink is still a valid honest result.
+    // AC: pass only when both numbers are real, the artifact grew by a positive
+    // delta, the restore succeeded, and both values are within the ceilings.
     const hasRealNumbers =
       coldStartMs != null &&
       coldStartMs > 0 &&

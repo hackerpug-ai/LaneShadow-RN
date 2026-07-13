@@ -133,7 +133,9 @@ describe('S2-T5 — AC tests (all run when evidence present)', () => {
       expect(typeof e.bundleDeltaBytes).toBe('number')
       // Computed verdict: status==='pass' iff both within ceiling.
       const within =
-        (e.coldStartMs as number) <= 10000 && (e.bundleDeltaBytes as number) <= 10485760
+        (e.coldStartMs as number) <= 10000 &&
+        (e.bundleDeltaBytes as number) > 0 &&
+        (e.bundleDeltaBytes as number) <= 10485760
       expect(e.status).toBe(within ? 'pass' : 'adjust')
     },
   )
@@ -200,6 +202,13 @@ describe('blocker fidelity (not an AC)', () => {
           (e.postInstallBytes as number) - (e.baselineBytes as number),
         )
       }
+    } else if (blocked) {
+      // Any blocked measurement (including a failed baseline restore after a
+      // real cold-start) must retain a real blocker instead of being treated
+      // as a completed pass.
+      expect(e.status).toBe('blocked')
+      expect(e.blocker).toBeDefined()
+      expect(e.blocker?.error.length).toBeGreaterThan(0)
     } else {
       // When fully unblocked, no blocker should be claimed.
       expect(e.status).not.toBe('blocked')
