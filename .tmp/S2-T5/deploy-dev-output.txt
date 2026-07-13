@@ -1,11 +1,7 @@
-
-npm warn Unknown env config "manage-package-manager-versions". This will stop working in the next major version of npm.
 npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
 Found multiple EXPO_PUBLIC_CONVEX_URL environment variables in .env.local so cannot update automatically.
 - Preparing Convex functions...
 
 [36mA minor update is available for Convex[39m [2m(1.34.1 → 1.42.1)[22m
 [2mChangelog:[22m [4mhttps://github.com/get-convex/convex-js/blob/main/CHANGELOG.md#changelog[24m
-[31m✖[39m Error: Unable to start push to https://quirky-panther-164.convex.cloud
-✖ Error fetching POST  https://quirky-panther-164.convex.cloud/api/deploy2/start_push 400 Bad Request: ModulesTooLarge: Hit an error while pushing:
-Total module size exceeded the zipped maximum (62.79 MiB > maximum size 42.92 MiB)
+[32m✔[39m 13:21:31 Convex functions ready! (1.38m)

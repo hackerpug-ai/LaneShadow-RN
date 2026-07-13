@@ -8,11 +8,16 @@
  * runSpikeTurn (the stateless @mastra/core Agent factory + deterministic
  * working-memory injection in rideAgentSpike.ts).
  *
- * DEPLOYMENT NOTE (DEPENDENCY-FIX-001): cloud-dev push via
- * `npx convex dev --once` succeeds after trimming vestigial externalPackages
- * and bundling Mastra/ai SDK deps (tree-shaken) instead of full-package
- * externalization. Spike action is deployable on cloud dev; see
- * evidence/s2-t5-ceilings.json for cold-start + bundle ceiling measurements.
+ * DEPLOYMENT NOTE: The spike action is FULLY deployable on cloud dev with
+ * working tool calls. Three fixes landed to reach this state:
+ *   - DEPENDENCY-FIX-001: trimmed vestigial externalPackages + bundled
+ *     Mastra/ai SDK deps (tree-shaken) — resolved the 62.79 MiB > 42.92 MiB
+ *     ModulesTooLarge error.
+ *   - S2-T5-COLDSTART-FIX: serialized the action return to strip Mastra
+ *     FullOutput Date objects (Convex wire-format incompatible).
+ *   - REDHAT-RH001: replaced the execSync('npx convex run') CLI bridge with
+ *     a ctx.runQuery seam — tool calls now work inside the 'use node' sandbox.
+ * See evidence/s2-t5-ceilings.json: coldStartMs=2165ms, status='pass'.
  *
  * Statelessness: the action holds NO per-request state in module scope.
  * All per-session data (sessionId, resolved center) flows through the

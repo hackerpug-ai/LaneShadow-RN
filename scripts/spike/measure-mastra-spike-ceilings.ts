@@ -262,10 +262,11 @@ async function measureColdStart(): Promise<number | null> {
   client.setFetchOptions({ cache: 'no-store' })
   const t0 = Date.now()
   try {
-    await client.action(spikeAction, {
+    const response = await client.action(spikeAction, {
       sessionId: `s2-t5-coldstart-${Date.now()}`,
       userMessage: 'Reply with exactly the single word: banana.',
     })
+    writeFileSync(resolve(TMP_DIR, 'coldstart-response.txt'), JSON.stringify(response, null, 2))
     return Date.now() - t0
   } catch {
     const cli = runCmd('npx', [

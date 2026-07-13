@@ -5,15 +5,11 @@
  * `scripts/spike/measure-mastra-spike-ceilings.ts`.
  *
  * HONESTY CONTRACT (per task STRICTLY rule):
- * - After DEPENDENCY-FIX-001 trimmed vestigial externalPackages, the cloud-dev
- *   deploy SUCCEEDS (exit 0). The bundle-size delta is REAL and within ceiling.
- * - Cold-start measurement is still BLOCKED: the spike action's Mastra
- *   FullOutput return type contains Date objects that Convex's wire format
- *   cannot deserialize, so the first-invocation latency could not be measured.
- * - AC-1/AC-3 SKIP (coldStartMs is null); AC-2 RUNS and passes (bundle delta
- *   is real and within the 10 MB ceiling).
- * - A separate "blocker fidelity (not an AC)" describe block verifies the
- *   partial-blocked state is recorded honestly.
+ * - After DEPENDENCY-FIX-001 trimmed vestigial externalPackages + S2-T5-COLDSTART-FIX
+ *   serialized the action return, ALL ACs run and pass: coldStartMs=2165ms,
+ *   bundleDeltaBytes=2904363 (2.77MB), status='pass'.
+ * - A "blocker fidelity (not an AC)" describe block verifies that when evidence
+ *   is incomplete, the partial-blocked state is recorded honestly (never fakes 'pass').
  *
  * Run: `pnpm test convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts`
  */
@@ -71,11 +67,10 @@ const coldStartSkipReason = coldStartBlocked
   : 'RUN'
 
 // ---------------------------------------------------------------------------
-// AC TESTS — these SKIP (not pass) when the cloud-dev deploy is blocked.
-// They only run their assertions when the deploy succeeds and real numbers
-// are recorded. When blocked, vitest reports them as skipped.
+// AC TESTS — run and pass when evidence is present (all ACs currently GREEN).
+// The test.skipIf guards ensure graceful skip if evidence is ever incomplete.
 // ---------------------------------------------------------------------------
-describe('S2-T5 — AC tests (AC-1/AC-3 SKIP when coldStart is null; AC-2 runs)', () => {
+describe('S2-T5 — AC tests (all run when evidence present)', () => {
   // ---- AC-1: cold-start first invocation on cloud dev within 8s -----------
   test.skipIf(coldStartBlocked)(
     `AC-1: cold-start first invocation on cloud dev is within 8s [${coldStartSkipReason}]`,
@@ -127,10 +122,10 @@ describe('S2-T5 — AC tests (AC-1/AC-3 SKIP when coldStart is null; AC-2 runs)'
 })
 
 // ---------------------------------------------------------------------------
-// BLOCKER FIDELITY (not an AC) — verifies partial-blocked state is honest.
-// After DEPENDENCY-FIX-001: deploy succeeds, bundle delta is real, but
-// coldStartMs is null (action invocation fails). These tests do NOT satisfy
-// any AC. They ensure the script never fakes 'pass' while coldStart is null.
+// BLOCKER FIDELITY (not an AC) — verifies the evidence is honest in ALL states.
+// Currently fully unblocked (coldStartMs=2165). These tests do NOT satisfy
+// any AC. They ensure the script never fakes 'pass' — if coldStartMs were
+// ever null, the status MUST reflect 'blocked', not 'pass'.
 // ---------------------------------------------------------------------------
 describe('blocker fidelity (not an AC)', () => {
   test('evidence artifact is present and non-empty', () => {

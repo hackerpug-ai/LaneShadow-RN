@@ -1,0 +1,13 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+{
+  "text": "I'll start by geocoding Santa Maria, California, then search for nearby routes simultaneously!Great news — here's what's near Santa Maria within 50 miles:\n\n🏍️ **Twist of Tepusquet Loop** — Less than 1 mile from your center, with a strong score of 0.85, this route looks like a prime twisty pick in the area! It's rider-ready and waiting for you.\n\nOpen it up in LaneShadow for the full route details and turn-by-turn. Enjoy the curves! 🤙",
+  "tripwireHandled": false,
+  "workingMemory": {
+    "center": {
+      "lat": 34.9530337,
+      "lng": -120.4357191
+    },
+    "place": "Santa Maria, CA, USA",
+    "sessionId": "rh001-verify-tepusquet-001"
+  }
+}
