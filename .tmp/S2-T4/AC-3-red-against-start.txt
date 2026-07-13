@@ -1,0 +1,12 @@
+=== AC-3 RED-against-start (recovered WIP state — BEFORE the auth-header/dotted-order fix) ===
+The recovered WIP used 'x-langsmith-api-key' auth header (wrong) and emitted bare OTLP
+spans with no langsmith.* stamps. Result: LangSmith OTEL endpoint returned HTTP 401.
+
+     → OTLP export status must be < 300: expected 401 to be less than 300
+   ✓ S2-T4 spikeObservability — OTLP→LangSmith with SensitiveDataFilter > AC-4: paired capture exporter captures the same spans as OTLP export > capture exporter span IDs match OTLP exporter span IDs — proving redaction is on real content  46821ms
+
+--
+AssertionError: OTLP export status must be < 300: expected 401 to be less than 300
+
+OTLP_EXPORTER_DEBUG from the RED run:
+OTLP_EXPORTER_DEBUG {"isDisabled":false,"receivedEventCount":61,"receivedEventTypes":["span_started","span_updated","span_started","span_started","span_started","span_updated","span_updated","span_started","span_ended","span_started"],"bufferedSpansCount":26,"lastResponseStatus":401,"apiKeyPresent":true,"apiKeyLength":51}

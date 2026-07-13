@@ -1,0 +1,38 @@
+[
+  {
+    "id": "AC-1",
+    "verify": "pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t \"exports root/model/tool spans stamped and priced to LangSmith\"",
+    "exit_code": 0,
+    "output_file": ".tmp/S2-T4/ac-1-output.txt"
+  },
+  {
+    "id": "AC-2",
+    "verify": "pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t \"exported span JSON is redacted of all api-key signatures\"",
+    "exit_code": 0,
+    "output_file": ".tmp/S2-T4/ac-2-output.txt"
+  },
+  {
+    "id": "AC-3",
+    "verify": "pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t \"OTLP export to LangSmith returns 2xx and the trace is retrievable\"",
+    "exit_code": 0,
+    "output_file": ".tmp/S2-T4/ac-3-output.txt"
+  },
+  {
+    "id": "TC-1",
+    "verify": "pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t \"exports root/model/tool spans stamped and priced to LangSmith\"",
+    "exit_code": 0,
+    "output_file": ".tmp/S2-T4/tc-1-output.txt"
+  },
+  {
+    "id": "TC-2",
+    "verify": "pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t \"exported span JSON is redacted of all api-key signatures\"",
+    "exit_code": 0,
+    "output_file": ".tmp/S2-T4/tc-2-output.txt"
+  },
+  {
+    "id": "TC-3",
+    "verify": "pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t \"OTLP export to LangSmith returns 2xx and the trace is retrievable\"",
+    "exit_code": 0,
+    "output_file": ".tmp/S2-T4/tc-3-output.txt"
+  }
+]

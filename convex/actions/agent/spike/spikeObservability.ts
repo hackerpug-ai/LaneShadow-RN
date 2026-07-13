@@ -634,8 +634,8 @@ export type SpikeObservabilityBundle = {
  * - requestContextKeys → auto-extracts sessionId/promptVersion/tier as
  *   metadata on ALL spans (not just the root)
  *
- * NEVER leave a 0.x telemetry:{} block — it is silently ignored in 1.x.
- * This uses the 1.x Observability API: new Observability({ configs: { default: { ... } } })
+ * NEVER leave a 0.x empty telemetry config object — it is silently ignored in 1.x.
+ * This uses the 1.x Observability API (new Observability with configs.default).
  */
 export function createSpikeObservability(): SpikeObservabilityBundle {
   const apiKey = process.env.LANGSMITH_API_KEY ?? ''

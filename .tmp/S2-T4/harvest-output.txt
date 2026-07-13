@@ -1,0 +1,26 @@
+harvest-evidence: task=S2-T4 manifest=.tmp/S2-T4/verify-manifest.json
+  typecheck: pnpm type-check
+  lint: pnpm exec biome check convex/actions/agent/spike/spikeObservability.ts
+  test (suite): pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts
+  requirements: 6
+  [AC-1] pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t "exports root/model/tool spans stamped and priced to LangSmith"
+  [AC-2] pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t "exported span JSON is redacted of all api-key signatures"
+  [AC-3] pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t "OTLP export to LangSmith returns 2xx and the trace is retrievable"
+  [TC-1] pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t "exports root/model/tool spans stamped and priced to LangSmith"
+  [TC-2] pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t "exported span JSON is redacted of all api-key signatures"
+  [TC-3] pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t "OTLP export to LangSmith returns 2xx and the trace is retrievable"
+
+harvest-evidence: done
+  task:       S2-T4
+  commit:     b35841c3
+  typecheck:  exit=0
+  lint:       exit=0 warnings=0
+  evidence:   6 pass, 0 fail (of 6 requirements)
+  output:     .tmp/S2-T4/verification-summary.json
+
+  Manual files still needed (if applicable):
+    .tmp/S2-T4/red-output.txt                 (if requires_red_evidence)
+    .tmp/S2-T4/{AC}-red-against-start.txt     (if requires_seeded_evidence)
+    .tmp/S2-T4/{AC}-green.txt                 (if requires_seeded_evidence)
+    .tmp/S2-T4/{AC}-seeded-artifact.*          (if requires_seeded_evidence)
+    .tmp/S2-T4/pre-existing-issues.md         (if pre-existing failures)

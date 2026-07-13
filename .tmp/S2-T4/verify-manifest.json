@@ -1,0 +1,47 @@
+{
+  "task_id": "S2-T4",
+  "task_type": "FEATURE",
+  "tdd_mode": "red_first",
+  "project_commands": {
+    "typecheck": "pnpm type-check",
+    "lint": "pnpm exec biome check convex/actions/agent/spike/spikeObservability.ts",
+    "test": "pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts"
+  },
+  "verification_policy": {
+    "requires_tests": true,
+    "requires_red_evidence": true,
+    "requires_seeded_evidence": true
+  },
+  "requirements": [
+    {
+      "id": "AC-1",
+      "type": "acceptance_criterion",
+      "verify": "pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t \"exports root/model/tool spans stamped and priced to LangSmith\""
+    },
+    {
+      "id": "AC-2",
+      "type": "acceptance_criterion",
+      "verify": "pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t \"exported span JSON is redacted of all api-key signatures\""
+    },
+    {
+      "id": "AC-3",
+      "type": "acceptance_criterion",
+      "verify": "pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t \"OTLP export to LangSmith returns 2xx and the trace is retrievable\""
+    },
+    {
+      "id": "TC-1",
+      "type": "test_criterion",
+      "verify": "pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t \"exports root/model/tool spans stamped and priced to LangSmith\""
+    },
+    {
+      "id": "TC-2",
+      "type": "test_criterion",
+      "verify": "pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t \"exported span JSON is redacted of all api-key signatures\""
+    },
+    {
+      "id": "TC-3",
+      "type": "test_criterion",
+      "verify": "pnpm test convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts -t \"OTLP export to LangSmith returns 2xx and the trace is retrievable\""
+    }
+  ]
+}

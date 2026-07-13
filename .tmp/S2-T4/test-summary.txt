@@ -1,0 +1,5 @@
+=== Test summary (all 4 pass) ===
+ ✓ convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts (4 tests) 20768ms
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Duration  21.51s (transform 51ms, setup 95ms, collect 523ms, tests 20.77s, environment 0ms, prepare 35ms)

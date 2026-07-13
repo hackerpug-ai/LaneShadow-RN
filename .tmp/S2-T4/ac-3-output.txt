@@ -1,0 +1,68 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T4
+> vitest "convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts"
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T4
+
+stdout | convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts > S2-T4 spikeObservability — OTLP→LangSmith with SensitiveDataFilter
+[TestExporter] flush #1 summary:
+  uptime: 14.8s
+  total events received: 76
+  by signal: tracing=61, log=0, metric=15, score=0, feedback=0
+  buffered: spans=26, logs=0, metrics=15, scores=0, feedback=0
+  estimated JSON size: 80.5KB
+
+stdout | convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts > S2-T4 spikeObservability — OTLP→LangSmith with SensitiveDataFilter
+[TestExporter] flush #2 summary:
+  uptime: 15.3s
+  total events received: 76
+  by signal: tracing=61, log=0, metric=15, score=0, feedback=0
+  buffered: spans=26, logs=0, metrics=15, scores=0, feedback=0
+  estimated JSON size: 80.5KB
+
+stdout | convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts > S2-T4 spikeObservability — OTLP→LangSmith with SensitiveDataFilter
+[TestExporter] flush #3 summary:
+  uptime: 15.3s
+  total events received: 76
+  by signal: tracing=61, log=0, metric=15, score=0, feedback=0
+  buffered: spans=26, logs=0, metrics=15, scores=0, feedback=0
+  estimated JSON size: 80.5KB
+
+stdout | convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts > S2-T4 spikeObservability — OTLP→LangSmith with SensitiveDataFilter
+[TestExporter] flush #4 summary:
+  uptime: 15.3s
+  total events received: 76
+  by signal: tracing=61, log=0, metric=15, score=0, feedback=0
+  buffered: spans=26, logs=0, metrics=15, scores=0, feedback=0
+  estimated JSON size: 80.5KB
+
+stdout | convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts > S2-T4 spikeObservability — OTLP→LangSmith with SensitiveDataFilter
+TestExporter shutdown
+
+stdout | convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts > S2-T4 spikeObservability — OTLP→LangSmith with SensitiveDataFilter
+[OBSERVABILITY] [Observability] Shutdown completed [name=laneshadow-agent]
+
+stdout | convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts > S2-T4 spikeObservability — OTLP→LangSmith with SensitiveDataFilter
+OTLP_EXPORTER_DEBUG {"isDisabled":false,"receivedEventCount":61,"receivedEventTypes":["span_started","span_updated","span_started","span_started","span_started","span_updated","span_updated","span_started","span_ended","span_started"],"bufferedSpansCount":26,"lastResponseStatus":200,"apiKeyPresent":true,"apiKeyLength":51}
+MODEL_SPAN_DEBUG {"modelSpanCount":2,"modelSpanAttributes":[{"type":"model_generation","name":"llm: 'claude-sonnet-4-6'","attributes":{"model":"claude-sonnet-4-6","provider":"anthropic","streaming":true,"parameters":{},"finishReason":"stop","responseId":"msg_011CcyTd4H9doH1Ss1vGuDRj","responseModel":"claude-sonnet-4-6","completionStartTime":"2026-07-13T04:54:19.716Z","usage":{"inputTokens":3785,"outputTokens":217,"inputDetails":{"cacheRead":0,"cacheWrite":0,"text":3785},"outputDetails":{"text":217}},"costContext":{"provider":"anthropic","model":"claude-sonnet-4-6","estimatedCost":0.014610000000000001,"costUnit":"USD"}},"metadata":{"sessionId":"spike-ogden-obs-1","promptVersion":"spike-observability-v1","tier":"orchestrator","runId":"17183586-d53c-485e-b62e-a43d314a41d6","environment":"test"}},{"type":"model_generation","name":"llm: 'claude-sonnet-4-6'","attributes":{"model":"claude-sonnet-4-6","provider":"anthropic","streaming":true,"parameters":{},"finishReason":"stop","responseId":"msg_011CcyTdUNEt7rtKxLW2fq8B","responseModel":"claude-sonnet-4-6","completionStartTime":"2026-07-13T04:54:29.184Z","usage":{"inputTokens":2657,"outputTokens":182,"inputDetails":{"cacheRead":0,"cacheWrite":0,"text":2657},"outputDetails":{"text":182}},"costContext":{"provider":"anthropic","model":"claude-sonnet-4-6","estimatedCost":0.010701,"costUnit":"USD"}},"metadata":{"sessionId":"spike-ogden-obs-1","promptVersion":"spike-observability-v1","tier":"orchestrator","runId":"56f7ad35-01b6-49aa-9269-7fe078984d62","environment":"test"}}]}
+
+stdout | convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts > S2-T4 spikeObservability — OTLP→LangSmith with SensitiveDataFilter > AC-1: exports root/model/tool spans stamped and priced to LangSmith > captures root + model + tool spans, each stamped promptVersion/sessionId/tier, model span cost>0/tokens>0
+{"ac":"AC-1","traceId":"69f4c5542adc4cb2956500e955df02e9","totalSpans":26,"spanTypes":["agent_run","model_generation","model_step","model_inference","model_chunk","tool_call","model_chunk","model_step","model_inference","model_chunk","tool_call","model_chunk","model_step","model_inference","model_chunk","agent_run","model_generation","model_step","model_inference","model_chunk","model_chunk","tool_call","model_chunk","model_step","model_inference","model_chunk"],"rootSpanCount":2,"modelSpanCount":2,"toolSpanCount":3,"modelSpanTokens":{"inputTokens":3785,"outputTokens":217,"totalTokens":4002},"modelSpanCost":0.014610000000000001,"sampleStamping":{"promptVersion":"spike-observability-v1","sessionId":"spike-ogden-obs-1","tier":"orchestrator"}}
+
+stdout | convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts > S2-T4 spikeObservability — OTLP→LangSmith with SensitiveDataFilter > AC-2: exported span JSON is redacted of all api-key signatures > span JSON has 0 occurrences of sk-ant-, sk-, AIza, and no raw *_API_KEY value, with >=1 model + >=1 tool span
+{"ac":"AC-2","spanJsonLength":46576,"forbiddenCounts":{"skAnt":0,"sk":0,"aiza":0},"modelSpanCount":2,"toolSpanCount":3,"apiKeyChecks":{"anthropicRedacted":true,"googleMapsRedacted":true,"langsmithRedacted":true}}
+
+stdout | convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts > S2-T4 spikeObservability — OTLP→LangSmith with SensitiveDataFilter > AC-3: OTLP export to LangSmith returns 2xx and the trace is retrievable > OTLP POST returns HTTP 2xx; trace retrievable by traceId within 30s with >=3 spans
+{"ac":"AC-3","traceId":"69f4c5542adc4cb2956500e955df02e9","otlpResponseStatus":200,"traceRetrieved":true,"retrievedSpanCount":25,"langsmithEndpoint":"https://api.smith.langchain.com/otel/v1/traces"}
+
+stdout | convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts > S2-T4 spikeObservability — OTLP→LangSmith with SensitiveDataFilter > AC-4: paired capture exporter captures the same spans as OTLP export > capture exporter span IDs match OTLP exporter span IDs — proving redaction is on real content
+{"ac":"AC-4","otlpSpanCount":26,"captureSpanCount":26,"spanIdsMatch":true,"sampleSpanIds":["c2869668be154d00","7434fdcfc1f30270","d7794b577d441d8e","826e66bd12f93cfb","c4752f032e67b201"]}
+
+ ✓ convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts (4 tests) 18663ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  22:54:17
+   Duration  19.19s (transform 48ms, setup 73ms, collect 332ms, tests 18.66s, environment 0ms, prepare 31ms)
+

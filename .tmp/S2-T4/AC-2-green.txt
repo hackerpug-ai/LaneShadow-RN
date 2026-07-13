@@ -1,0 +1,3 @@
+=== AC-2 GREEN: exported span JSON is redacted ===
+{"ac":"AC-2","spanJsonLength":46426,"forbiddenCounts":{"skAnt":0,"sk":0,"aiza":0},"modelSpanCount":2,"toolSpanCount":3,"apiKeyChecks":{"anthropicRedacted":true,"googleMapsRedacted":true,"langsmithRedacted":true}}
+

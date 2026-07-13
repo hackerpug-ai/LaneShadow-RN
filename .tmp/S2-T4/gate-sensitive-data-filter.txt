@@ -1,0 +1,10 @@
+5: * with SensitiveDataFilter + a paired local capture exporter.
+19: * 3. SensitiveDataFilter — a SpanOutputProcessor that redacts sensitive fields
+36:  SensitiveDataFilter,
+79: * The SensitiveDataFilter runs as a spanOutputProcessor BEFORE this exporter
+555: * Runs BEFORE SensitiveDataFilter (order in spanOutputProcessors array:
+556: * [CostEnricher, SensitiveDataFilter]) so the cost is computed on raw usage,
+557: * then SensitiveDataFilter redacts any sensitive fields.
+633: * - SensitiveDataFilter → redacts api keys/tokens/secrets before export
+653:        // SensitiveDataFilter redacts secrets from the final span payload.
+654:        spanOutputProcessors: [new CostEnricher(), new SensitiveDataFilter()],
