@@ -9,7 +9,7 @@
 | ESTIMATE | 120 min |
 | EFFORT | M |
 | PRIORITY | P0 |
-| STATUS | Backlog |
+| STATUS | completed |
 | PROPOSED_BY | `mastra-planner` |
 | TDD_MODE | `red_first` |
 | RED_GREEN_REQUIRED | yes |
@@ -23,6 +23,10 @@ RUNTIME_COMMANDS:
 - lint: `pnpm exec biome check`
 
 ## OUTCOME
+
+Completion evidence: `.tmp/S2-T4/requirement-results.json` records exit code 0 for
+AC-1 through AC-3 and TC-1 through TC-3; deployed redaction and retrieval are also
+captured in the fresh gate artifacts (`04d00eb0`, `b1c8ba41`).
 
 Running one 2-turn spike conversation exports a single trace to real LangSmith whose captured span JSON has all three span types (each stamped promptVersion/sessionId/tier, model span cost>0/tokens>0), contains zero 'sk-ant-'/'sk-'/'AIza'/*_API_KEY occurrences, and the OTLP export returns 2xx with the trace retrievable by traceId.
 

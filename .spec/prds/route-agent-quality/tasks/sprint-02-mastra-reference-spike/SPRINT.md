@@ -3,7 +3,7 @@ sprint: 2
 slug: sprint-02-mastra-reference-spike
 sequence: 2
 timeline: Phase 1 (parallel opener)
-status: Planned
+status: Completed
 prd: .spec/prds/route-agent-quality/README.md
 prd_version: 3.1.1
 roadmap: .spec/prds/route-agent-quality/ROADMAP.md
@@ -16,7 +16,7 @@ tasks_expanded: 2026-07-12
 
 **Sequence:** 2
 **Timeline:** Phase 1 (parallel opener)
-**Status:** Planned
+**Status:** Completed
 **Proposed by:** mastra-planner + aisdk-planner (z.ai provider) + product-manager (sequence)
 
 ## Overview
@@ -24,7 +24,7 @@ tasks_expanded: 2026-07-12
 SPIKE — the recorded prerequisite that unblocks the AGT deep build (Sprint 07). Proves
 `@mastra/core` runs inside a Convex `'use node'` action on the cloud dev deployment with real
 tools, 2-turn Ogden center inheritance (deterministic working memory, `memory:undefined`),
-LangSmith redaction, cold-start ≤8s / bundle delta ≤10MB, and the z.ai GLM-5.2 structured-output
+LangSmith redaction, Founder-adjusted cold-start ≤10s (original default ≤8s) / bundle delta ≤10MB, and the z.ai GLM-5.2 structured-output
 proof (T-AGT-024) that gates the enrichment-PRD re-ratification.
 
 **Additive only:** nothing is torn down here — `@mastra/core` installs alongside the live
@@ -57,7 +57,7 @@ A 2-turn Mastra reference conversation on cloud dev that (1) geocodes Ogden and 
 | S2-T2 | Spike tools: geocodePlace + searchCuratedRoutes as createTool + Zod, errors-as-data (center-required, server distanceMi) | convex-implementer | 120 min |
 | S2-T3 | rideAgentSpike.ts — stateless @mastra/core Agent in a 'use node' action, 2-turn Ogden center inheritance (memory:undefined) | convex-implementer | 150 min |
 | S2-T4 | Wire Mastra Observability → OTLP → LangSmith with SensitiveDataFilter; prove one redacted trace | convex-implementer | 120 min |
-| S2-T5 | Measure + record cold-start (≤8s cloud dev) + bundle-size delta (≤10MB) from the deploy artifact | convex-implementer | 60 min |
+| S2-T5 | Measure + record cold-start (Founder-adjusted ≤10s cloud dev; original default ≤8s) + bundle-size delta (≤10MB) from the deploy artifact | convex-implementer | 60 min |
 | S2-T6 | z.ai GLM-5.2 custom-provider structured-output proof + text-mode JSON fallback (T-AGT-024) | convex-implementer | 120 min |
 | S2-T7 | Run the §5b spike gate; record accept/adjust on the pinned ceilings | Founder-Operator | 30 min |
 | S2-T8 | Observe the green T-AGT-024 proof; re-ratify enrichment/06-external-dependencies.md (discharge cross-PRD prerequisite) | Founder-Operator | 30 min |

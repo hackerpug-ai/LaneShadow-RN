@@ -9,7 +9,7 @@
 | ESTIMATE | 90 min |
 | EFFORT | M |
 | PRIORITY | P0 |
-| STATUS | Backlog |
+| STATUS | completed |
 | PROPOSED_BY | `aisdk-planner` |
 | TDD_MODE | `skipped` |
 | RED_GREEN_REQUIRED | no |
@@ -23,6 +23,9 @@ RUNTIME_COMMANDS:
 - lint: `pnpm exec biome check`
 
 ## OUTCOME
+
+Completion evidence: `.tmp/S2-T1/requirement-results.json` records exit code 0 for
+AC-1 through AC-4 against the landed S2-T1 implementation (`6bc5e5c1`).
 
 `getOrchestratorModel()` returns `'anthropic/claude-sonnet-4-6'`; a minimal real `@mastra/core` Agent built on that model returns real, non-empty text from Anthropic; package.json and convex.json list the two new packages while every pre-existing dependency/config value (ai@7, @ai-sdk/anthropic, nodeVersion=22, @mariozechner/pi-ai, the pi-ai `low`/`high` tiers) is provably unchanged.
 

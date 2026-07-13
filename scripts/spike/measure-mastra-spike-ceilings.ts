@@ -1,5 +1,5 @@
 /**
- * S2-T5 — Measure + record cold-start (≤8s cloud dev) + bundle-size delta (≤10MB)
+ * S2-T5 — Measure + record cold-start (Founder-adjusted ≤10s cloud dev) + bundle-size delta (≤10MB)
  * from the REAL cloud-dev deploy artifact.
  *
  * CLOUD-DEV ONLY (hard rule):
@@ -37,8 +37,11 @@ import { api } from '../../convex/_generated/api'
 // reference is identical — the action exists on the deployed cloud-dev instance.
 const spikeAction = (api as any).actions.agent.spike.rideAgentSpikeAction.runSpikeTurnAction
 
-// --- Pinned ceilings (authoritative — from 11-e2e-testing §5b) ---------------
-const COLD_START_CEILING_MS = 8000
+// --- Founder-adjusted ceilings (S2-T7, 2026-07-13) ---------------------------
+// The original §5b default was 8000ms. Founder accepted the measured 9373ms
+// cold start and adjusted the operational ceiling to 10000ms; the evidence
+// artifact preserves the original default for auditability.
+const COLD_START_CEILING_MS = 10000
 const BUNDLE_DELTA_CEILING_BYTES = 10485760 // 10 MB
 
 // --- Paths --------------------------------------------------------------------

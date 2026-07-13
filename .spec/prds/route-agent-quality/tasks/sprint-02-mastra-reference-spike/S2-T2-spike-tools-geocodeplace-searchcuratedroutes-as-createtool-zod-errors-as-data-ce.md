@@ -9,7 +9,7 @@
 | ESTIMATE | 120 min |
 | EFFORT | M |
 | PRIORITY | P0 |
-| STATUS | Backlog |
+| STATUS | completed |
 | PROPOSED_BY | `mastra-planner` |
 | TDD_MODE | `red_first` |
 | RED_GREEN_REQUIRED | yes |
@@ -23,6 +23,10 @@ RUNTIME_COMMANDS:
 - lint: `pnpm exec biome check`
 
 ## OUTCOME
+
+Completion evidence: `.tmp/S2-T2/requirement-results.json` records exit code 0 for
+AC-1 through AC-4, including real Ogden geocoding, server distance ordering, and
+errors-as-data (`37194901` plus the indexed-route remediation `be1f55a4`).
 
 geocodePlace('Ogden, UT') returns ok:true with a center ~41.22,-111.97 from the real geocoder; searchCuratedRoutes({center:Ogden,radiusMi}) returns routes each carrying a server-computed distanceMi <= radius, nearest-first; a missing center yields { ok:false, errorCode:'center_required' } without throwing; an unresolvable place yields ok:false without throwing; the discriminated-union outputSchema rejects malformed shapes.
 

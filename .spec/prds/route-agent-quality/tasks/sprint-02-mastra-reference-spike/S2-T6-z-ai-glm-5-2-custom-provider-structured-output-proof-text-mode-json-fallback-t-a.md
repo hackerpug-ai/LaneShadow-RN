@@ -9,7 +9,7 @@
 | ESTIMATE | 120 min |
 | EFFORT | M |
 | PRIORITY | P0 |
-| STATUS | Backlog |
+| STATUS | completed |
 | PROPOSED_BY | `aisdk-planner` |
 | TDD_MODE | `red_first` |
 | RED_GREEN_REQUIRED | yes |
@@ -23,6 +23,10 @@ RUNTIME_COMMANDS:
 - lint: `pnpm exec biome check`
 
 ## OUTCOME
+
+Completion evidence: `.tmp/S2-T6/requirement-results.json` records exit code 0 for
+AC-1 through AC-4 against the real provider implementation (`fed7c669`); the fresh
+two-run Founder proof is recorded in `evidence/s2-t8-zai-ratification.json`.
 
 A real z.ai GLM-5.2 completion through the custom provider returns a non-empty parsed object matching `zaiStructuredProofSchema` (AC-1), a second real completion generalizes and records which path (structured vs. text-fallback) actually resolved it (AC-2), the fallback parser correctly extracts+validates a captured real completion and returns a typed error for genuinely malformed or empty text (AC-3), and the provider factory is provably configured with the correct baseURL + apiKey source (AC-4).
 

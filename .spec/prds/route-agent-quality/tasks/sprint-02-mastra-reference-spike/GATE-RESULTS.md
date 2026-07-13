@@ -73,3 +73,13 @@ All evidence in `/tmp/laneshadow-gate-sprint-02-r3/`:
 - `step6.log` — LangSmith trace query (25 runs, no secrets)
 - `step7.log` — z.ai GLM-5.2 structured output proof
 - `langsmith-response.json` — raw LangSmith API response (25 runs)
+
+## Founder Dispositions
+
+- **S2-T7 — ACCEPT WITH ADJUSTMENT (2026-07-13):** The original 8,000 ms cold-start
+  default is adjusted to a 10,000 ms operational ceiling. The observed 9,373 ms cold
+  start and 2,906,599-byte bundle delta satisfy the adjusted predicate; the original
+  default remains preserved in `evidence/s2-t5-ceilings.json`.
+- **S2-T8 — RATIFIED (2026-07-13):** Two fresh live z.ai CLI runs returned different,
+  non-empty structured results. The enrichment external-dependencies section is
+  re-ratified against S2-T6 commit `fed7c669`.

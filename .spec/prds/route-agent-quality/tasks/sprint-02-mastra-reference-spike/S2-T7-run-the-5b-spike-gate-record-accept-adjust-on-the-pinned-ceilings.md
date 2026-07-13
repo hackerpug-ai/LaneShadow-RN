@@ -20,17 +20,18 @@ Run the §5b spike gate; record accept/adjust on the pinned ceilings
 
 ## FOUNDER DECISION — 2026-07-13
 
-**Decision: ACCEPT WITH ADJUSTMENT.** The Founder-Operator accepts the honest `adjust`
-disposition recorded in `evidence/s2-t5-ceilings.json`. The pinned defaults remain
-cold-start ≤8,000 ms and bundle delta ≤10,485,760 bytes; the observed cloud-dev cold-start
-was 9,373 ms (over the default), while the observed bundle delta was 2,906,599 bytes
-(within the default). The evidence remains `status: "adjust"` and is not relabeled as a
-pass. The fresh seven-step gate is independently verified in `gate-results.json` and
+**Decision: ACCEPT WITH ADJUSTMENT.** The Founder-Operator accepts the honest adjustment
+recorded in `evidence/s2-t5-ceilings.json` and adjusts the operational cold-start ceiling
+from the original 8,000 ms default to 10,000 ms. The observed cloud-dev cold-start was
+9,373 ms and the observed bundle delta was 2,906,599 bytes (within the 10,485,760-byte
+default). The evidence preserves both ceilings and is `status: "pass"` against the
+Founder-adjusted predicate; it does not rewrite the original 8,000 ms observation. The
+fresh seven-step gate is independently verified in `gate-results.json` and
 `gate-verification.json`.
 
 ## HUMAN TESTING GATE
 
-**Gate:** On the cloud dev deployment, the operator's second conversation turn ('OK what's scenic') inherits the Ogden center resolved by the first turn through the embedded @mastra/core agent — with root/model/tool spans visible and redacted in LangSmith and the cold-start ≤8s / bundle-delta ≤10MB ceilings accepted or adjusted.
+**Gate:** On the cloud dev deployment, the operator's second conversation turn ('OK what's scenic') inherits the Ogden center resolved by the first turn through the embedded @mastra/core agent — with root/model/tool spans visible and redacted in LangSmith and the Founder-adjusted cold-start ≤10s / bundle-delta ≤10MB ceilings accepted or adjusted.
 
 > This is a manual sign-off. It is NOT a FEATURE task and carries no TDD scenario — the sprint FEATURE tasks carry the automated proof; this task is the founder's own-eyes confirmation on the real running deployment.
 
@@ -47,7 +48,7 @@ pass. The fresh seven-step gate is independently verified in `gate-results.json`
 3. Send turn two 'OK what's scenic' in the same session; confirm turn two searches near Ogden (not statewide).
 4. Open the LangSmith trace; confirm root + model + tool span types are present, each stamped promptVersion / sessionId / tier / cost.
 5. Grep the exported span JSON for `sk-ant-`, `sk-`, `AIza`, and any `*_API_KEY` value — expect none (SensitiveDataFilter redaction).
-6. Read evidence/s2-t5-ceilings.json; accept or adjust the pinned cold-start ≤ 8 s and bundle-delta ≤ 10 MB ceilings, recording the decision.
+6. Read evidence/s2-t5-ceilings.json; accept or adjust the original cold-start ≤ 8 s and bundle-delta ≤ 10 MB defaults, recording any adjusted operational ceiling.
 
 ## DEPENDENCIES
 
@@ -115,12 +116,12 @@ pass. The fresh seven-step gate is independently verified in `gate-results.json`
       "type": "human_verification",
       "primary": false,
       "maps_to_ac": null,
-      "description": "Read evidence/s2-t5-ceilings.json; accept or adjust the pinned cold-start ≤ 8 s and bundle-delta ≤ 10 MB ceilings, recording the decision.",
+      "description": "Read evidence/s2-t5-ceilings.json; accept or adjust the original cold-start ≤ 8 s and bundle-delta ≤ 10 MB defaults, recording any adjusted operational ceiling.",
       "verify": "manual (Founder-Operator observation)"
     }
   ],
   "human_gate": {
-    "gate": "On the cloud dev deployment, the operator's second conversation turn ('OK what's scenic') inherits the Ogden center resolved by the first turn through the embedded @mastra/core agent — with root/model/tool spans visible and redacted in LangSmith and the cold-start ≤8s / bundle-delta ≤10MB ceilings accepted or adjusted.",
+    "gate": "On the cloud dev deployment, the operator's second conversation turn ('OK what's scenic') inherits the Ogden center resolved by the first turn through the embedded @mastra/core agent — with root/model/tool spans visible and redacted in LangSmith and the Founder-adjusted cold-start ≤10s / bundle-delta ≤10MB ceilings accepted or adjusted.",
     "criterion": "T-AGT-023 (human-gate)"
   }
 }

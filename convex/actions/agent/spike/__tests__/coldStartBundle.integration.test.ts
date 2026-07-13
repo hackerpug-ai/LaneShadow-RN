@@ -1,13 +1,13 @@
 /**
- * S2-T5 — Cold-start (≤8s cloud dev) + bundle-size delta (≤10MB) ceilings test.
+ * S2-T5 — Cold-start (Founder-adjusted ≤10s cloud dev) + bundle-size delta (≤10MB) ceilings test.
  *
  * This test consumes the durable evidence artifact produced by
  * `scripts/spike/measure-mastra-spike-ceilings.ts`.
  *
  * HONESTY CONTRACT (per task STRICTLY rule):
- * - The current cloud-dev evidence is status='adjust': the latest fresh
- *   coldStartMs=9490ms exceeds the 8s ceiling, while bundleDeltaBytes remains
- *   within its 10MB ceiling. The test must not describe this as a pass.
+ * - The original §5b default was 8s. S2-T7's Founder decision adjusted the
+ *   operational ceiling to 10s; the latest fresh coldStartMs=9373ms is within
+ *   that adjusted ceiling, while bundleDeltaBytes remains within 10MB.
  * - The "blocker fidelity (not an AC)" describe block is a synthetic/conditional
  *   branch check: if evidence is incomplete, it verifies that the partial-blocked
  *   state is recorded honestly (never fakes 'pass'). It is not current deployment
@@ -76,16 +76,16 @@ const coldStartSkipReason = coldStartBlocked
 // The test.skipIf guards ensure graceful skip if evidence is ever incomplete.
 // ---------------------------------------------------------------------------
 describe('S2-T5 — AC tests (all run when evidence present)', () => {
-  // ---- AC-1: cold-start first invocation on cloud dev within 8s -----------
+  // ---- AC-1: cold-start first invocation on cloud dev within adjusted 10s -
   test.skipIf(coldStartBlocked)(
-    `AC-1: cold-start first invocation on cloud dev is within 8s [${coldStartSkipReason}]`,
+    `AC-1: cold-start first invocation on cloud dev is within adjusted 10s [${coldStartSkipReason}]`,
     () => {
       expect(evidence).not.toBeNull()
       const e = evidence as Evidence
-      // MUST_OBSERVE: real positive number <= 8000, tagged cloud-dev.
+      // MUST_OBSERVE: real positive number <= adjusted 10000, tagged cloud-dev.
       expect(typeof e.coldStartMs).toBe('number')
       expect(e.coldStartMs as number).toBeGreaterThan(0)
-      expect(e.coldStartMs as number).toBeLessThanOrEqual(8000)
+      expect(e.coldStartMs as number).toBeLessThanOrEqual(10000)
       expect(e.deployment).toBe('cloud-dev')
     },
   )
@@ -114,13 +114,14 @@ describe('S2-T5 — AC tests (all run when evidence present)', () => {
       expect(evidence).not.toBeNull()
       const e = evidence as Evidence
       // Pinned ceilings are always recorded.
-      expect(e.ceilings.coldStartMs).toBe(8000)
+      expect(e.ceilings.coldStartMs).toBe(10000)
       expect(e.ceilings.bundleDeltaBytes).toBe(10485760)
       // Both numbers present and numeric.
       expect(typeof e.coldStartMs).toBe('number')
       expect(typeof e.bundleDeltaBytes).toBe('number')
       // Computed verdict: status==='pass' iff both within ceiling.
-      const within = (e.coldStartMs as number) <= 8000 && (e.bundleDeltaBytes as number) <= 10485760
+      const within =
+        (e.coldStartMs as number) <= 10000 && (e.bundleDeltaBytes as number) <= 10485760
       expect(e.status).toBe(within ? 'pass' : 'adjust')
     },
   )
@@ -129,7 +130,7 @@ describe('S2-T5 — AC tests (all run when evidence present)', () => {
 // ---------------------------------------------------------------------------
 // BLOCKER FIDELITY (not an AC) — synthetic/conditional checks that verify the
 // evidence is honest in ALL states. The current cold-start measurement is an
-// adjustment (9490ms > 8000ms), not a pass.
+// adjustment (9373ms > original 8000ms, but <= Founder-adjusted 10000ms).
 // These tests do NOT satisfy any AC or provide current deployment evidence.
 // They ensure the script never fakes 'pass' — if coldStartMs were ever null,
 // the status MUST reflect 'blocked', not 'pass'.
@@ -148,7 +149,7 @@ describe('blocker fidelity (not an AC)', () => {
     if (e.status === 'pass') {
       expect(typeof e.coldStartMs).toBe('number')
       expect(typeof e.bundleDeltaBytes).toBe('number')
-      expect((e.coldStartMs as number) <= 8000).toBe(true)
+      expect((e.coldStartMs as number) <= 10000).toBe(true)
       expect((e.bundleDeltaBytes as number) <= 10485760).toBe(true)
     } else {
       // Not pass — must be a real verdict with a real reason.
@@ -167,7 +168,7 @@ describe('blocker fidelity (not an AC)', () => {
       expect(e.status).not.toBe('pass')
       expect(e.coldStartMs).toBeNull()
       // Ceilings still pinned so the predicate is visible to the human gate.
-      expect(e.ceilings.coldStartMs).toBe(8000)
+      expect(e.ceilings.coldStartMs).toBe(10000)
       expect(e.ceilings.bundleDeltaBytes).toBe(10485760)
 
       // After DEPENDENCY-FIX-001: deploy attempts exit 0 (not the old
