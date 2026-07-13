@@ -42,9 +42,11 @@
  */
 
 import { anthropic } from '@ai-sdk/anthropic'
+import { Mastra } from '@mastra/core'
 import { Agent } from '@mastra/core/agent'
 import { RequestContext } from '@mastra/core/request-context'
 import type { FullOutput } from '@mastra/core/stream'
+import type { Observability } from '@mastra/observability'
 import { getOrchestratorModel } from '../lib/models'
 import { geocodePlace, searchCuratedRoutes } from './spikeTools'
 
@@ -251,6 +253,175 @@ export async function runSpikeTurn(input: SpikeTurnInput): Promise<SpikeTurnOutp
   // Extract resolved center from geocodePlace tool result, update working memory.
   // The geocodePlace tool returns { ok: true, center: {lat, lng}, formattedAddress }
   // via its errors-as-data contract.
+  if (!tripwireHandled) {
+    for (const toolResult of result.toolResults ?? []) {
+      const payload = (toolResult as { payload?: { toolName?: string; result?: unknown } }).payload
+      if (!payload) continue
+      if (payload.toolName === 'geocodePlace') {
+        const geocodeResult = payload.result as
+          | { ok: true; center: GeoPoint; formattedAddress: string }
+          | { ok: false; errorCode: string; message: string }
+          | undefined
+        if (geocodeResult?.ok === true) {
+          workingMemory.center = geocodeResult.center
+          workingMemory.place = geocodeResult.formattedAddress
+        }
+        break
+      }
+    }
+  }
+
+  return { result, workingMemory, tripwireHandled }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// S2-T4 — Observed spike turn (Mastra Observability attached)
+// ─────────────────────────────────────────────────────────────────────────
+
+/**
+ * Input for an observed spike turn — same as SpikeTurnInput but with the
+ * Observability instance and trace stamping parameters.
+ */
+export type ObservedSpikeTurnInput = {
+  sessionId: string
+  userMessage: string
+  /** Threaded from a prior turn's output — carries the resolved center. */
+  workingMemory?: WorkingMemory
+  /** The Observability bundle to attach (from createSpikeObservability). */
+  observability: Observability
+  /** OTLP-compatible trace ID (32 hex chars) — shared across both turns. */
+  traceId: string
+  /** Prompt version stamp — emitted on every span via requestContextKeys. */
+  promptVersion: string
+  /** Tier stamp — emitted on every span via requestContextKeys. */
+  tier: string
+}
+
+/**
+ * Cached Mastra instance keyed by the Observability object. Creating a new
+ * Mastra on every turn would re-register the agent singleton unnecessarily.
+ * The WeakMap ensures the cache doesn't leak when the observability is GC'd.
+ */
+const observedMastraCache = new WeakMap<Observability, Mastra>()
+
+/**
+ * Get (or create) a Mastra instance with the spike Agent registered and the
+ * given Observability attached. The Mastra constructor wires the observability
+ * to the Agent — after that, agent.generate() emits spans through both
+ * exporters (OTLP→LangSmith + TestExporter capture).
+ */
+function getObservedMastra(observability: Observability): Mastra {
+  let mastra = observedMastraCache.get(observability)
+  if (!mastra) {
+    mastra = new Mastra({
+      agents: {
+        rideAgent: createRideAgentSpike(),
+      },
+      observability,
+    })
+    observedMastraCache.set(observability, mastra)
+  }
+  return mastra
+}
+
+/**
+ * Run one turn of the ride-agent spike WITH Mastra Observability attached.
+ *
+ * This is the S2-T4 observed path — the same stateless Agent + tools +
+ * deterministic working-memory seam as runSpikeTurn, but wrapped in a Mastra
+ * instance with Observability (OTLP→LangSmith + SensitiveDataFilter + capture).
+ *
+ * Spans are emitted for:
+ * - agent_run (root): input/reply sizes, finishReason, step count
+ * - model_generation (model): model id, tokens, cost, latency
+ * - tool_call (tool): name, arg/result sizes, latency, error code
+ *
+ * Each span is stamped with promptVersion/sessionId/tier via the
+ * requestContextKeys config on the Observability instance.
+ *
+ * The traceId is shared across both turns so the entire 2-turn conversation
+ * exports as a SINGLE trace to LangSmith.
+ */
+export async function runObservedSpikeTurn(
+  input: ObservedSpikeTurnInput,
+): Promise<SpikeTurnOutput> {
+  const mastra = getObservedMastra(input.observability)
+  const agent = mastra.getAgent('rideAgent')
+
+  // Build per-session working memory (threaded through arg/return, NOT module scope)
+  const workingMemory: WorkingMemory = input.workingMemory
+    ? { ...input.workingMemory }
+    : { sessionId: input.sessionId }
+
+  // Build per-call RequestContext — carries sessionId + resolved center +
+  // the promptVersion/tier stamps that the observability's requestContextKeys
+  // will auto-extract as metadata on ALL spans.
+  const requestContext = new RequestContext()
+  requestContext.set('sessionId', input.sessionId)
+  requestContext.set('promptVersion', input.promptVersion)
+  requestContext.set('tier', input.tier)
+  if (workingMemory.center) {
+    requestContext.set('resolvedCenter', workingMemory.center)
+  }
+
+  let result: FullOutput<undefined>
+
+  try {
+    result = await agent.generate(input.userMessage, {
+      requestContext,
+      maxSteps: 5,
+      tracingOptions: {
+        traceId: input.traceId,
+        metadata: {
+          promptVersion: input.promptVersion,
+          sessionId: input.sessionId,
+          tier: input.tier,
+        },
+      },
+    })
+  } catch (err) {
+    // Escape hatch (constraint #8): if the orchestrator tier ModelRouter
+    // string doesn't resolve, retry with an explicit AI-SDK model instance.
+    const errorMessage = err instanceof Error ? err.message : String(err)
+    const isModelResolutionError =
+      errorMessage.toLowerCase().includes('model') ||
+      errorMessage.toLowerCase().includes('provider') ||
+      errorMessage.toLowerCase().includes('resolve') ||
+      errorMessage.toLowerCase().includes('unsupported')
+
+    if (!isModelResolutionError) {
+      throw err
+    }
+
+    // Create a fresh agent with the escape-hatch model, still under the
+    // observed Mastra instance so spans are emitted.
+    const escapeAgent = new Agent({
+      id: 'ride-agent-spike' as const,
+      name: 'Ride Agent Spike',
+      instructions: ({ requestContext: rc }) => buildInstructions(rc),
+      model: anthropic('claude-sonnet-4-6'),
+      tools: { geocodePlace, searchCuratedRoutes },
+      memory: undefined,
+    })
+
+    result = await escapeAgent.generate(input.userMessage, {
+      requestContext,
+      maxSteps: 5,
+      tracingOptions: {
+        traceId: input.traceId,
+        metadata: {
+          promptVersion: input.promptVersion,
+          sessionId: input.sessionId,
+          tier: input.tier,
+        },
+      },
+    })
+  }
+
+  // Handle tripwire at the call site (never silently drop — constraint #7)
+  const tripwireHandled = Boolean(result.tripwire) || result.finishReason === 'other'
+
+  // Extract resolved center from geocodePlace tool result, update working memory
   if (!tripwireHandled) {
     for (const toolResult of result.toolResults ?? []) {
       const payload = (toolResult as { payload?: { toolName?: string; result?: unknown } }).payload
