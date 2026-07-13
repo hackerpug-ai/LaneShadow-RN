@@ -28,6 +28,15 @@ import { dirname, resolve } from 'node:path'
 import { ConvexHttpClient } from 'convex/browser'
 import { api } from '../../convex/_generated/api'
 
+// The baseline api.d.ts does not register spike modules (they were added after
+// the last `convex dev` codegen on the integration branch). Regenerating api.d.ts
+// to include them would expose pre-existing TS errors in unrelated modules
+// (zaiProvider.ts, rideAgentSpike.ts, spikeTools.ts) that are out of scope for
+// DEPENDENCY-FIX-001. The cast below keeps the static import (no dynamic import)
+// while sidestepping the missing type registration at compile time. The runtime
+// reference is identical — the action exists on the deployed cloud-dev instance.
+const spikeAction = (api as any).actions.agent.spike.rideAgentSpikeAction.runSpikeTurnAction
+
 // --- Pinned ceilings (authoritative — from 11-e2e-testing §5b) ---------------
 const COLD_START_CEILING_MS = 8000
 const BUNDLE_DELTA_CEILING_BYTES = 10485760 // 10 MB
@@ -253,7 +262,7 @@ async function measureColdStart(): Promise<number | null> {
   client.setFetchOptions({ cache: 'no-store' })
   const t0 = Date.now()
   try {
-    await client.action(api.actions.agent.spike.rideAgentSpikeAction.runSpikeTurnAction, {
+    await client.action(spikeAction, {
       sessionId: `s2-t5-coldstart-${Date.now()}`,
       userMessage: 'Reply with exactly the single word: banana.',
     })
