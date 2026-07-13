@@ -5,7 +5,7 @@
 | TASK_ID | S2-T2 |
 | SPRINT | [Sprint 02 — Mastra spike + z.ai proof + enrichment re-ratification](./SPRINT.md) |
 | TASK_TYPE | FEATURE |
-| AGENT | implementer=`mastra-implementer` · reviewer=`mastra-reviewer` |
+| AGENT | implementer=`convex-implementer` · reviewer=`convex-reviewer` |
 | ESTIMATE | 120 min |
 | EFFORT | M |
 | PRIORITY | P0 |
@@ -176,8 +176,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 ## AGENT ASSIGNMENT
 
-- Implementer: `mastra-implementer` — Two @mastra/core createTool definitions (Zod input/output, two-positional-arg execute, runtime output-validation, errors-as-data union) wrapping the real Google geocoder and the real curated_routes nearest query — a Core tool-surface unit verified against the real dev deployment, exactly mastra-implementer's charter.
-- Reviewer: `mastra-reviewer`
+- Implementer: `convex-implementer` — two @mastra/core tools wrap the real Google geocoder and curated-route query on the Convex surface.
+- Reviewer: `convex-reviewer`
 
 ## EVIDENCE GATES
 

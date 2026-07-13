@@ -5,7 +5,7 @@
 | TASK_ID | S2-T6 |
 | SPRINT | [Sprint 02 — Mastra spike + z.ai proof + enrichment re-ratification](./SPRINT.md) |
 | TASK_TYPE | FEATURE |
-| AGENT | implementer=`aisdk-implementer` · reviewer=`aisdk-reviewer` |
+| AGENT | implementer=`convex-implementer` · reviewer=`convex-reviewer` |
 | ESTIMATE | 120 min |
 | EFFORT | M |
 | PRIORITY | P0 |
@@ -65,7 +65,7 @@ A real z.ai GLM-5.2 completion through the custom provider returns a non-empty p
 - `zai_baseurl_and_key` (seed_method: `public_api`): z.ai OpenAI-compatible endpoint config: baseURL 'https://api.z.ai/api/coding/paas/v4'; model id 'glm-5.2' (LOCKED per enrichment PRD 2026-07-10). Z_AI_API_KEY confirmed present in .env.local (verified via Read 2026-07-12, value not reproduced here); NOT yet set on the Convex deployment (npx convex env list verified 2026-07-12 shows only ANTHROPIC_API_KEY).
 - `twist_of_tepusquet_description` (seed_method: `recorded_external`): Real curated_routes row twist-of-tepusquet-loop (CA, 41mi loop) — the same real description proven in S1-T1's anchor-extraction fixture, reused here as grounding content for the z.ai proof prompt.
 - `old_hwy_40_description` (seed_method: `recorded_external`): Real curated_routes row old-hwy-40 point-to-point route (S1-T1's second proven fixture), reused here for AC-2's generalization completion.
-- `captured_zai_raw_completion` (seed_method: `recorded_external`): A raw completion string captured verbatim from a real z.ai GLM-5.2 call made during this task's own AC-1/AC-2 implementation. To be recorded by aisdk-implementer at RED-phase time from an actual API response (NOT fabricated upfront by the planner); must preserve any thinkingFormat reasoning preamble observed around the JSON payload.
+- `captured_zai_raw_completion` (seed_method: `recorded_external`): A raw completion string captured verbatim from a real z.ai GLM-5.2 call made during this task's own AC-1/AC-2 implementation. To be recorded by the implementer at RED-phase time from an actual API response (NOT fabricated upfront by the planner); must preserve any thinkingFormat reasoning preamble observed around the JSON payload.
 - `malformed_proof_completion_texts` (seed_method: `public_api`): Deliberately malformed and empty raw completion strings fed to the fallback parser to prove the typed-error path when even the text-mode fallback cannot recover a valid object.
 
 ## ACCEPTANCE CRITERIA (TDD beads — RED → GREEN → REFACTOR per AC)
@@ -189,8 +189,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 ## AGENT ASSIGNMENT
 
-- Implementer: `aisdk-implementer` — aisdk-implementer owns AI-SDK v7 Core-surface provider work (generateText + Output.object structured output against a real, non-stock provider) — this is a direct extension of the proven anchorExtraction.ts pattern (S1-T1) onto a custom createOpenAICompatible provider instance, with no UI and no Mastra Agent coupling.
-- Reviewer: `aisdk-reviewer`
+- Implementer: `convex-implementer` — AI-SDK provider work runs on the Convex surface.
+- Reviewer: `convex-reviewer`
 
 ## EVIDENCE GATES
 
@@ -244,10 +244,10 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
       ]
     },
     "captured_zai_raw_completion": {
-      "description": "A raw completion string captured verbatim from a real z.ai GLM-5.2 call made during this task's own AC-1/AC-2 implementation. To be recorded by aisdk-implementer at RED-phase time from an actual API response (NOT fabricated upfront by the planner); must preserve any thinkingFormat reasoning preamble observed around the JSON payload.",
+      "description": "A raw completion string captured verbatim from a real z.ai GLM-5.2 call made during this task's own AC-1/AC-2 implementation. To be recorded by the implementer at RED-phase time from an actual API response (NOT fabricated upfront by the planner); must preserve any thinkingFormat reasoning preamble observed around the JSON payload.",
       "seed_method": "recorded_external",
       "records": [
-        "captured by aisdk-implementer during RED phase from a real z.ai completion; raw response text recorded verbatim, including any reasoning-token preamble"
+        "captured by the implementer during RED phase from a real z.ai completion; raw response text recorded verbatim, including any reasoning-token preamble"
       ]
     },
     "malformed_proof_completion_texts": {

@@ -5,7 +5,7 @@
 | TASK_ID | S2-T4 |
 | SPRINT | [Sprint 02 — Mastra spike + z.ai proof + enrichment re-ratification](./SPRINT.md) |
 | TASK_TYPE | FEATURE |
-| AGENT | implementer=`mastra-implementer` · reviewer=`mastra-reviewer` |
+| AGENT | implementer=`convex-implementer` · reviewer=`convex-reviewer` |
 | ESTIMATE | 120 min |
 | EFFORT | M |
 | PRIORITY | P0 |
@@ -156,8 +156,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 ## AGENT ASSIGNMENT
 
-- Implementer: `mastra-implementer` — Wiring @mastra/observability (Observability + SensitiveDataFilter + an OTLP-over-HTTP exporter to LangSmith's OTEL endpoint) onto the spike conversation instance and proving a redacted trace lands — an observability-wiring unit verified against the real LangSmith ingestion path, squarely mastra-implementer's scope.
-- Reviewer: `mastra-reviewer`
+- Implementer: `convex-implementer` — Convex-side Mastra observability and OTLP wiring.
+- Reviewer: `convex-reviewer`
 
 ## EVIDENCE GATES
 

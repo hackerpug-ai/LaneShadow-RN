@@ -5,7 +5,7 @@
 | TASK_ID | S2-T5 |
 | SPRINT | [Sprint 02 — Mastra spike + z.ai proof + enrichment re-ratification](./SPRINT.md) |
 | TASK_TYPE | MEASUREMENT |
-| AGENT | implementer=`mastra-implementer` · reviewer=`mastra-reviewer` |
+| AGENT | implementer=`convex-implementer` · reviewer=`convex-reviewer` |
 | ESTIMATE | 60 min |
 | EFFORT | S |
 | PRIORITY | P0 |
@@ -147,8 +147,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 ## AGENT ASSIGNMENT
 
-- Implementer: `mastra-implementer` — Measures two real numbers from the deployed spike — first-invocation cold-start latency on cloud dev and the deploy-artifact bundle delta from adding @mastra/core — and records them to a durable evidence artifact the human gate reads. A measurement task against the real cloud dev deployment; mastra-implementer owns the spike surface it measures.
-- Reviewer: `mastra-reviewer`
+- Implementer: `convex-implementer` — measures the real deployed Convex spike and records durable evidence.
+- Reviewer: `convex-reviewer`
 
 ## EVIDENCE GATES
 

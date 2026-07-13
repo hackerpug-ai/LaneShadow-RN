@@ -5,11 +5,11 @@
 | TASK_ID | S2-T3 |
 | SPRINT | [Sprint 02 — Mastra spike + z.ai proof + enrichment re-ratification](./SPRINT.md) |
 | TASK_TYPE | FEATURE |
-| AGENT | implementer=`mastra-implementer` · reviewer=`mastra-reviewer` |
+| AGENT | implementer=`convex-implementer` · reviewer=`convex-reviewer` |
 | ESTIMATE | 150 min |
 | EFFORT | L |
 | PRIORITY | P0 |
-| STATUS | Backlog |
+| STATUS | completed |
 | PROPOSED_BY | `mastra-planner` |
 | TDD_MODE | `red_first` |
 | RED_GREEN_REQUIRED | yes |
@@ -175,8 +175,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 ## AGENT ASSIGNMENT
 
-- Implementer: `mastra-implementer` — A stateless @mastra/core Agent constructed inside a Convex 'use node' action, wired to S2-T2's tools on the orchestrator tier with memory:undefined and a deterministic working-memory seam — the core §5b Mastra-in-Convex proof, verified turn-by-turn against real Anthropic + real tools on the dev deployment. Exactly mastra-implementer's remit.
-- Reviewer: `mastra-reviewer`
+- Implementer: `convex-implementer` — a stateless @mastra/core Agent in a Convex `use node` action.
+- Reviewer: `convex-reviewer`
 
 ## EVIDENCE GATES
 

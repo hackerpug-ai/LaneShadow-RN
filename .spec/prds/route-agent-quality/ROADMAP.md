@@ -78,7 +78,7 @@ The eight capability chains (CAP-GEO-01…06, CAP-AGT-01/02) are each owned by �
 
 | ID | Title | Agent | Estimate |
 |----|-------|-------|----------|
-| S1-T1 | Direct AI-SDK anchor-extraction completion (decoupled from the Mastra spike per T-REC-016) | aisdk-implementer | 60 min |
+| S1-T1 | Direct AI-SDK anchor-extraction completion (decoupled from the Mastra spike per T-REC-016) | convex-implementer | 60 min |
 | S1-T2 | Deterministic gate module (VER-01 core) + reconstruct-one path + persist ai_reconstructed + recomputeRiderReady seam + query return (best + nearest) | convex-implementer | 180 min |
 | S1-T3 | Maestro cold-boot plot-verification flow for the single recovered route | react-native-ui-implementer | 75 min |
 | S1-T4 | Observe the recovered line plotted from cold boot; record the §5 seam as green | Founder-Operator | 25 min |
@@ -132,12 +132,12 @@ The eight capability chains (CAP-GEO-01…06, CAP-AGT-01/02) are each owned by �
 
 | ID | Title | Agent | Estimate |
 |----|-------|-------|----------|
-| S2-T1 | Install @mastra/core + ai@7 + @ai-sdk/openai-compatible; bump convex.json nodeVersion 20→22; add orchestrator tier as a ModelRouter string (additive, coexists with pi-ai) | aisdk-implementer | 90 min |
-| S2-T2 | Spike tools: geocodePlace + searchCuratedRoutes as createTool + Zod, errors-as-data (center-required, server distanceMi) | mastra-implementer | 120 min |
-| S2-T3 | rideAgentSpike.ts — stateless @mastra/core Agent in a 'use node' action, 2-turn Ogden center inheritance (memory:undefined) | mastra-implementer | 150 min |
-| S2-T4 | Wire Mastra Observability → OTLP → LangSmith with SensitiveDataFilter; prove one redacted trace | mastra-implementer | 120 min |
-| S2-T5 | Measure + record cold-start (≤8s cloud dev) + bundle-size delta (≤10MB) from the deploy artifact | mastra-implementer | 60 min |
-| S2-T6 | z.ai GLM-5.2 custom-provider structured-output proof + text-mode JSON fallback (T-AGT-024) | aisdk-implementer | 120 min |
+| S2-T1 | Install @mastra/core + ai@7 + @ai-sdk/openai-compatible; bump convex.json nodeVersion 20→22; add orchestrator tier as a ModelRouter string (additive, coexists with pi-ai) | convex-implementer | 90 min |
+| S2-T2 | Spike tools: geocodePlace + searchCuratedRoutes as createTool + Zod, errors-as-data (center-required, server distanceMi) | convex-implementer | 120 min |
+| S2-T3 | rideAgentSpike.ts — stateless @mastra/core Agent in a 'use node' action, 2-turn Ogden center inheritance (memory:undefined) | convex-implementer | 150 min |
+| S2-T4 | Wire Mastra Observability → OTLP → LangSmith with SensitiveDataFilter; prove one redacted trace | convex-implementer | 120 min |
+| S2-T5 | Measure + record cold-start (≤8s cloud dev) + bundle-size delta (≤10MB) from the deploy artifact | convex-implementer | 60 min |
+| S2-T6 | z.ai GLM-5.2 custom-provider structured-output proof + text-mode JSON fallback (T-AGT-024) | convex-implementer | 120 min |
 | S2-T7 | Run the §5b spike gate; record accept/adjust on the pinned ceilings | Founder-Operator | 30 min |
 | S2-T8 | Observe the green T-AGT-024 proof; re-ratify enrichment/06-external-dependencies.md (discharge cross-PRD prerequisite) | Founder-Operator | 30 min |
 
@@ -245,7 +245,7 @@ The eight capability chains (CAP-GEO-01…06, CAP-AGT-01/02) are each owned by �
 |----|-------|-------|----------|
 | S4-T1 | Deterministic geometry gate (VER-01 full: ratio band, anchor/region, degenerate, pre-existing sweep, quarantine ratio-skip) + bounded LLM repair round (VER-02) | convex-implementer | 210 min |
 | S4-T2 | Lever 1 promote (scraped_promoted, $0) + Lever 3 re-route (name_routed) deterministic paths (REC-01, REC-03) | convex-implementer | 180 min |
-| S4-T3 | Lever 2 reconstruct (ai_reconstructed) LLM anchors → geocode → route → gate, structured outputs via the model layer (REC-02) | aisdk-implementer | 180 min |
+| S4-T3 | Lever 2 reconstruct (ai_reconstructed) LLM anchors → geocode → route → gate, structured outputs via the model layer (REC-02) | convex-implementer | 180 min |
 | S4-T4 | Cross-provider ride-worthiness classifier stored as evidence (VER-03) | convex-implementer | 150 min |
 | S4-T5 | Resumable --sample waterfall + cost circuit-breaker + rate-limit/backoff + REVIEW queue with dispositions (REC-04 sample, T-REC-019, VER-04) | convex-implementer | 210 min |
 | S4-T6 | Couch-sample assembler (~25 stratified) + recordCouchVerdict + couchGateStatus --all block (VER-05 AC-1..5) | convex-implementer | 150 min |
@@ -399,14 +399,14 @@ The eight capability chains (CAP-GEO-01…06, CAP-AGT-01/02) are each owned by �
 
 | ID | Title | Agent | Estimate |
 |----|-------|-------|----------|
-| S7-T1 | Port the deterministic scaffolding off pi-ai (budgetTracker, piTools→Zod, sendMessage types, generateTripPlan live action) | mastra-implementer | 180 min |
-| S7-T2 | rideAgent.ts stateless singleton + ATOMIC cutover: delete the dispatch/sub-agents/runAgent, refactor pendingSketches off module scope, remove @mariozechner/pi-ai (co-lands with S7-T1) | mastra-implementer | 240 min |
-| S7-T3 | Versioned prompt artifact prompts/orchestrator.v1.ts (PROMPT_VERSION + buildSystemPrompt, static policy + dynamic blocks) | mastra-implementer | 120 min |
-| S7-T4 | Deterministic memory: agentMemory read/write + dynamic prompt injection + piMessage→AI-SDK read translation + provenance stamping | mastra-implementer | 150 min |
-| S7-T5 | Core 9-tool registry hardened: searchCuratedRoutes (center-REQUIRED, SURF-gated) + geocodePlace + planRoute + searchNearby + webSearch (errors-as-data) | mastra-implementer | 180 min |
-| S7-T6 | Grounded discovery + one-question interrogation + distance/thin-data honesty behavior | mastra-implementer | 150 min |
-| S7-T7 | Eval harness foundation: fixture format + MockLanguageModel seam + eval-gold piMessage→AI-SDK transcript migration (T-AGT-025) | mastra-evals-implementer | 180 min |
-| S7-T8 | SLC/Ogden transcript replay: old behavior RED, rebuilt behavior GREEN + deterministic policy graders (T-AGT-013) | mastra-evals-implementer | 150 min |
+| S7-T1 | Port the deterministic scaffolding off pi-ai (budgetTracker, piTools→Zod, sendMessage types, generateTripPlan live action) | convex-implementer | 180 min |
+| S7-T2 | rideAgent.ts stateless singleton + ATOMIC cutover: delete the dispatch/sub-agents/runAgent, refactor pendingSketches off module scope, remove @mariozechner/pi-ai (co-lands with S7-T1) | convex-implementer | 240 min |
+| S7-T3 | Versioned prompt artifact prompts/orchestrator.v1.ts (PROMPT_VERSION + buildSystemPrompt, static policy + dynamic blocks) | convex-implementer | 120 min |
+| S7-T4 | Deterministic memory: agentMemory read/write + dynamic prompt injection + piMessage→AI-SDK read translation + provenance stamping | convex-implementer | 150 min |
+| S7-T5 | Core 9-tool registry hardened: searchCuratedRoutes (center-REQUIRED, SURF-gated) + geocodePlace + planRoute + searchNearby + webSearch (errors-as-data) | convex-implementer | 180 min |
+| S7-T6 | Grounded discovery + one-question interrogation + distance/thin-data honesty behavior | convex-implementer | 150 min |
+| S7-T7 | Eval harness foundation: fixture format + MockLanguageModel seam + eval-gold piMessage→AI-SDK transcript migration (T-AGT-025) | convex-implementer | 180 min |
+| S7-T8 | SLC/Ogden transcript replay: old behavior RED, rebuilt behavior GREEN + deterministic policy graders (T-AGT-013) | convex-implementer | 150 min |
 | S7-T9 | Chat render: per-option real distance cards + clarifying-question/thin-candor prose in the session-message bubble | react-native-ui-implementer | 120 min |
 | S7-T10 | Verify grounded discovery on the running app (Ogden no-false-proximity gate) | Founder-Operator | 30 min |
 
@@ -455,13 +455,13 @@ The eight capability chains (CAP-GEO-01…06, CAP-AGT-01/02) are each owned by �
 
 | ID | Title | Agent | Estimate |
 |----|-------|-------|----------|
-| S8-T1 | searchCuratedRoutes durationHours→distance-window (pinned recreational-pace constant) | mastra-implementer | 90 min |
-| S8-T2 | Waypoint-anchored composition via searchAlongRoute/searchNearby (real POI, never invented) | mastra-implementer | 120 min |
+| S8-T1 | searchCuratedRoutes durationHours→distance-window (pinned recreational-pace constant) | convex-implementer | 90 min |
+| S8-T2 | Waypoint-anchored composition via searchAlongRoute/searchNearby (real POI, never invented) | convex-implementer | 120 min |
 | S8-T3 | Extend getRouteWeather to fetch the future-dated daily/hourly forecast window (current-only today) | convex-implementer | 120 min |
 | S8-T4 | Wire getUserFavorites to the real favorite_roads/saved_routes tables + personal-library awareness (exclusion set + which-of-my-saved) | convex-implementer | 150 min |
-| S8-T5 | Persona-fit reply shaping: ≤3-option deterministic truncation + depth-on-request + honest comfort labels + Save-close | mastra-implementer | 150 min |
-| S8-T6 | Persistent constraints as tool args (no-highways → planRoute.preferences / search filter, stored in agentMemory) | mastra-implementer | 120 min |
-| S8-T7 | Extend eval graders for intent + persona policies (duration args, comfort negative control, constraint persistence, option count) | mastra-evals-implementer | 120 min |
+| S8-T5 | Persona-fit reply shaping: ≤3-option deterministic truncation + depth-on-request + honest comfort labels + Save-close | convex-implementer | 150 min |
+| S8-T6 | Persistent constraints as tool args (no-highways → planRoute.preferences / search filter, stored in agentMemory) | convex-implementer | 120 min |
+| S8-T7 | Extend eval graders for intent + persona policies (duration args, comfort negative control, constraint persistence, option count) | convex-implementer | 120 min |
 | S8-T8 | Verify intent + persona-fit behavior on the running app (volunteered weather gate) | Founder-Operator | 30 min |
 
 **Next Sprint Tasks:** *(populated JIT by kb-sprint-tasks-plan)*
@@ -507,11 +507,11 @@ The eight capability chains (CAP-GEO-01…06, CAP-AGT-01/02) are each owned by �
 
 | ID | Title | Agent | Estimate |
 |----|-------|-------|----------|
-| S9-T1 | LLM-judge graders (createScorer, cheap judge) — informational, non-blocking + negative-control transcript (T-AGT-015) | mastra-evals-implementer | 150 min |
-| S9-T2 | report.json artifacts + per-run metrics (policy pass-rate, tool-error rate, latency, cost) | mastra-evals-implementer | 90 min |
-| S9-T3 | Real-API cost-capped `pnpm agent:eval --smoke` lane (real Sonnet + real tools on dev) | mastra-evals-implementer | 120 min |
-| S9-T4 | Per-turn trace completeness (root/model/tool spans + nested enrichRoute model-under-tool) + replace the 13-file tracing stub | mastra-implementer | 180 min |
-| S9-T5 | CI change-control gate (agent/** + prompts/** blocked on green evals; tool-schema = prompt-affecting; model-id change requires smoke) + build-gate greps (T-AGT-002) | mastra-evals-implementer | 150 min |
+| S9-T1 | LLM-judge graders (createScorer, cheap judge) — informational, non-blocking + negative-control transcript (T-AGT-015) | convex-implementer | 150 min |
+| S9-T2 | report.json artifacts + per-run metrics (policy pass-rate, tool-error rate, latency, cost) | convex-implementer | 90 min |
+| S9-T3 | Real-API cost-capped `pnpm agent:eval --smoke` lane (real Sonnet + real tools on dev) | convex-implementer | 120 min |
+| S9-T4 | Per-turn trace completeness (root/model/tool spans + nested enrichRoute model-under-tool) + replace the 13-file tracing stub | convex-implementer | 180 min |
+| S9-T5 | CI change-control gate (agent/** + prompts/** blocked on green evals; tool-schema = prompt-affecting; model-id change requires smoke) + build-gate greps (T-AGT-002) | convex-implementer | 150 min |
 | S9-T6 | Run the eval smoke + trace-inspection gate (T-AGT-014) | Founder-Operator | 30 min |
 
 **Next Sprint Tasks:** *(populated JIT by kb-sprint-tasks-plan)*

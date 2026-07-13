@@ -5,7 +5,7 @@
 | TASK_ID | S2-T1 |
 | SPRINT | [Sprint 02 — Mastra spike + z.ai proof + enrichment re-ratification](./SPRINT.md) |
 | TASK_TYPE | INFRA |
-| AGENT | implementer=`aisdk-implementer` · reviewer=`aisdk-reviewer` |
+| AGENT | implementer=`convex-implementer` · reviewer=`convex-reviewer` |
 | ESTIMATE | 90 min |
 | EFFORT | M |
 | PRIORITY | P0 |
@@ -179,8 +179,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 ## AGENT ASSIGNMENT
 
-- Implementer: `aisdk-implementer` — aisdk-implementer owns AI-SDK v7 + Mastra-adjacent dependency/tier-map work in this codebase (it built the proven anchorExtraction.ts pattern in S1-T1) — this task extends the same lib/models.ts tier map additively and proves the new Mastra ModelRouter string against a real provider, which is squarely Core-surface AI-SDK/Mastra installation work, not a generic Node/Convex change.
-- Reviewer: `aisdk-reviewer`
+- Implementer: `convex-implementer` — this is Convex dependency and tier-map work.
+- Reviewer: `convex-reviewer`
 
 ## EVIDENCE GATES
 

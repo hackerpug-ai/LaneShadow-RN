@@ -53,12 +53,12 @@ A 2-turn Mastra reference conversation on cloud dev that (1) geocodes Ogden and 
 
 | ID | Title | Agent | Estimate |
 |----|-------|-------|----------|
-| S2-T1 | Install @mastra/core + ai@7 + @ai-sdk/openai-compatible; bump convex.json nodeVersion 20→22; add orchestrator tier as a ModelRouter string (additive, coexists with pi-ai) | aisdk-implementer | 90 min |
-| S2-T2 | Spike tools: geocodePlace + searchCuratedRoutes as createTool + Zod, errors-as-data (center-required, server distanceMi) | mastra-implementer | 120 min |
-| S2-T3 | rideAgentSpike.ts — stateless @mastra/core Agent in a 'use node' action, 2-turn Ogden center inheritance (memory:undefined) | mastra-implementer | 150 min |
-| S2-T4 | Wire Mastra Observability → OTLP → LangSmith with SensitiveDataFilter; prove one redacted trace | mastra-implementer | 120 min |
-| S2-T5 | Measure + record cold-start (≤8s cloud dev) + bundle-size delta (≤10MB) from the deploy artifact | mastra-implementer | 60 min |
-| S2-T6 | z.ai GLM-5.2 custom-provider structured-output proof + text-mode JSON fallback (T-AGT-024) | aisdk-implementer | 120 min |
+| S2-T1 | Install @mastra/core + ai@7 + @ai-sdk/openai-compatible; bump convex.json nodeVersion 20→22; add orchestrator tier as a ModelRouter string (additive, coexists with pi-ai) | convex-implementer | 90 min |
+| S2-T2 | Spike tools: geocodePlace + searchCuratedRoutes as createTool + Zod, errors-as-data (center-required, server distanceMi) | convex-implementer | 120 min |
+| S2-T3 | rideAgentSpike.ts — stateless @mastra/core Agent in a 'use node' action, 2-turn Ogden center inheritance (memory:undefined) | convex-implementer | 150 min |
+| S2-T4 | Wire Mastra Observability → OTLP → LangSmith with SensitiveDataFilter; prove one redacted trace | convex-implementer | 120 min |
+| S2-T5 | Measure + record cold-start (≤8s cloud dev) + bundle-size delta (≤10MB) from the deploy artifact | convex-implementer | 60 min |
+| S2-T6 | z.ai GLM-5.2 custom-provider structured-output proof + text-mode JSON fallback (T-AGT-024) | convex-implementer | 120 min |
 | S2-T7 | Run the §5b spike gate; record accept/adjust on the pinned ceilings | Founder-Operator | 30 min |
 | S2-T8 | Observe the green T-AGT-024 proof; re-ratify enrichment/06-external-dependencies.md (discharge cross-PRD prerequisite) | Founder-Operator | 30 min |
 
