@@ -37,7 +37,22 @@
  */
 // @vitest-environment node
 
-import { describe, expect, it } from 'vitest'
+import { execFile } from 'node:child_process'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { promisify } from 'node:util'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import {
+  AC2_SEED_CENTER,
+  AC2_SEED_LAT_OFFSET_FAR_EXCLUDED,
+  AC2_SEED_LAT_OFFSET_MID,
+  AC2_SEED_LAT_OFFSET_NEAR,
+  AC2_SEED_RADIUS_MI,
+  AC2_SEED_ROUTE_ID_FAR_EXCLUDED,
+  AC2_SEED_ROUTE_ID_MID,
+  AC2_SEED_ROUTE_ID_NEAR,
+} from '../../../../spikeAc2SeedConstants'
 import {
   geocodePlace,
   geocodePlaceInputSchema,
@@ -48,6 +63,96 @@ import {
 // Real HTTP (Google Geocoding) + real CLI round-trip (npx convex run) to the
 // real dev deployment — generous timeout, this is genuinely a live network call.
 const REAL_SERVICE_TIMEOUT_MS = 45_000
+// geospatialSeed:seedGeospatialAll paginates the ENTIRE curated_routes table
+// (5,700+ rows) to index the 3 new seeded rows — this real full-table sweep
+// is slower than a normal single-row CLI round-trip. Measured at ~4m19s
+// against the real dev deployment (5,760 rows, 29 batches) — generous margin.
+const SEED_GEOSPATIAL_TIMEOUT_MS = 420_000
+
+// Promisified (non-blocking) execFile: seedGeospatialAll's multi-minute real
+// CLI round-trip must NOT block the Node event loop, or vitest's own
+// worker<->main RPC heartbeat ("onTaskUpdate") times out and the process
+// exits non-zero even though every assertion passed — a false failure of
+// the CI-enforced check, not a real one. execFileSync (fully synchronous)
+// was tried first and reproduced exactly this: assertions green, but
+// `pnpm test` exited 1 on an "Unhandled Error: Timeout calling
+// onTaskUpdate". Async execFile keeps the event loop turning during the
+// long real subprocess wait, so vitest's heartbeat keeps flowing.
+const execFileAsync = promisify(execFile)
+
+/** Convex CLI: positional JSON args (matches the pattern this repo's other
+ * real-deployment integration suites use — see
+ * convex/__tests__/geometryGatePersist.integration.test.ts's runConvexFn). */
+async function runConvexFn(
+  fnPath: string,
+  args: Record<string, unknown> = {},
+  timeoutMs = REAL_SERVICE_TIMEOUT_MS,
+): Promise<string> {
+  const { stdout } = await execFileAsync('npx', ['convex', 'run', fnPath, JSON.stringify(args)], {
+    encoding: 'utf-8',
+    timeout: timeoutMs,
+  })
+  return stdout
+}
+
+const AC2_SEEDED_ROUTE_IDS = [
+  AC2_SEED_ROUTE_ID_NEAR,
+  AC2_SEED_ROUTE_ID_MID,
+  AC2_SEED_ROUTE_ID_FAR_EXCLUDED,
+]
+
+/**
+ * Builds a real curated_routes document (matching shared/models/curated-routes.ts's
+ * curatedRouteValidator exactly) at a known due-north offset from
+ * AC2_SEED_CENTER, for `npx convex import`.
+ */
+function buildAc2SeedRow(routeId: string, name: string, latOffsetDeg: number) {
+  const centroidLat = AC2_SEED_CENTER.lat + latOffsetDeg
+  const centroidLng = AC2_SEED_CENTER.lng
+  return {
+    routeId,
+    name,
+    state: 'International Waters',
+    source: 'editorial',
+    primaryArchetype: 'twisties',
+    secondaryTags: ['spike-test', 's2-t2-ac-2'],
+    centroidLat,
+    centroidLng,
+    boundsNeLat: centroidLat + 0.01,
+    boundsNeLng: centroidLng + 0.01,
+    boundsSwLat: centroidLat - 0.01,
+    boundsSwLng: centroidLng - 0.01,
+    lengthMiles: 10,
+    compositeScore: 85,
+    curvatureScore: 80,
+    scenicScore: 80,
+    technicalScore: 80,
+    trafficScore: 20,
+    remotenessScore: 90,
+    oneLiner: 'S2-T2 AC-2 remediation spike-test row',
+    summary:
+      'S2-T2 AC-2 remediation spike-test row — real seeded route for non-degenerate coverage.',
+    badges: [],
+    season: 'year_round',
+    contentVersion: 1,
+    seededAt: Date.now(),
+    location: { type: 'Point', coordinates: [centroidLng, centroidLat] },
+    riderReady: true,
+    geometryStatus: 'generated',
+  }
+}
+
+/**
+ * Deletes the 3 seeded rows via the already-deployed, real
+ * `curationAdmin:deleteCuratedRoutesByRouteIds` public mutation. Safe to call
+ * even when the rows don't exist yet (returns them in `missing`), so this
+ * doubles as an idempotent pre-clean at the start of beforeAll.
+ */
+async function teardownAc2SeedRows(): Promise<void> {
+  await runConvexFn('curationAdmin:deleteCuratedRoutesByRouteIds', {
+    routeIds: AC2_SEEDED_ROUTE_IDS,
+  })
+}
 
 describe('S2-T2 spike tools: geocodePlace + searchCuratedRoutes', () => {
   // ---------------------------------------------------------------------
@@ -115,6 +220,137 @@ describe('S2-T2 spike tools: geocodePlace + searchCuratedRoutes', () => {
     },
     REAL_SERVICE_TIMEOUT_MS,
   )
+
+  // ---------------------------------------------------------------------
+  // AC-2 REMEDIATION (cycle 1) — CI-ENFORCED non-degenerate case.
+  //
+  // The Ogden-centered case above is an HONEST but DEGENERATE proof: the real
+  // dev catalog has exactly one riderReady route nationally (~700mi away,
+  // outside MAX_NEAREST_CURATED_ROUTE_DISTANCE_MI=20mi — convex/curatedRoutes.ts:130),
+  // so `result.ok` is ALWAYS false there and the `if (result.ok === true) {...}`
+  // assertions above NEVER execute. A stub returning unconditional
+  // `{ok:false, errorCode:'no_results'}` would pass that case byte-identically.
+  //
+  // This block seeds THREE real curated_routes rows at known, differing
+  // real-world distances from an isolated open-Pacific test center, then
+  // calls `searchCuratedRoutes.execute()` directly (never the raw
+  // `npx convex run` bypass `AC-2-db-query-evidence.txt` used) and asserts
+  // the radius filter + server distanceMi mapping + nearest-first ordering
+  // unconditionally (result.ok MUST be true — no honest-degenerate escape
+  // hatch).
+  //
+  // Seeding mechanism: `npx convex dev`/`convex deploy` pushes to this
+  // task's dev deployment are CURRENTLY BROKEN deployment-wide — reproduced
+  // identically on the clean pre-remediation commit with zero files from
+  // this task present — with "ModulesTooLarge: Total module size exceeded
+  // the zipped maximum (61.82 MiB > maximum size 42.92 MiB)" while bundling
+  // the shared Node.js runtime bundle (almost certainly S2-T1's large
+  // @mastra/core/langchain/ai-sdk externalPackages additions — see
+  // convex/spikeAc2Seed.ts's header for the full trail). That is a
+  // pre-existing infra blocker unrelated to this AC-2 fix, so this test
+  // seeds/tears down using only ALREADY-DEPLOYED real primitives instead of
+  // deploying a new mutation:
+  //   1. `npx convex import --table curated_routes --append` — a real CLI
+  //      write of 3 real rows into the real curated_routes table (the
+  //      standard Convex data-loading mechanism, not a mock).
+  //   2. `geospatialSeed:seedGeospatialAll` — the already-deployed real
+  //      action that indexes any un-indexed curated_routes row into the
+  //      real geospatial component (idempotent: skips already-indexed rows).
+  //   3. `curationAdmin:deleteCuratedRoutesByRouteIds` — the already-deployed
+  //      real mutation used for teardown (and as an idempotent pre-clean).
+  // KNOWN LIMITATION: deleteCuratedRoutesByRouteIds removes the curated_routes
+  // docs but not their geospatial-index entries (no already-deployed function
+  // exposes that). The orphaned entries point at deleted doc ids; every
+  // downstream query (`listCuratedRoutesInternal`/`listCuratedRoutes`)
+  // defensively filters `route !== null` after `ctx.db.get()`
+  // (convex/curatedRoutes.ts:254-256), so they can never surface in any
+  // query result — inert leftover state, not a correctness or leakage risk.
+  // ---------------------------------------------------------------------
+  describe('AC-2 non-degenerate: seeded real routes at known differing distances', () => {
+    beforeAll(async () => {
+      // Idempotent pre-clean in case a prior interrupted run left rows behind.
+      await teardownAc2SeedRows()
+
+      const seedDir = mkdtempSync(join(tmpdir(), 's2-t2-ac2-seed-'))
+      const seedFile = join(seedDir, 'ac2-seed-routes.jsonl')
+      const rows = [
+        buildAc2SeedRow(
+          AC2_SEED_ROUTE_ID_NEAR,
+          'S2-T2 AC-2 Spike Near (~3.5mi)',
+          AC2_SEED_LAT_OFFSET_NEAR,
+        ),
+        buildAc2SeedRow(
+          AC2_SEED_ROUTE_ID_MID,
+          'S2-T2 AC-2 Spike Mid (~10.4mi)',
+          AC2_SEED_LAT_OFFSET_MID,
+        ),
+        buildAc2SeedRow(
+          AC2_SEED_ROUTE_ID_FAR_EXCLUDED,
+          'S2-T2 AC-2 Spike Far-Excluded (~17.3mi)',
+          AC2_SEED_LAT_OFFSET_FAR_EXCLUDED,
+        ),
+      ]
+      writeFileSync(seedFile, rows.map((r) => JSON.stringify(r)).join('\n'), 'utf-8')
+
+      try {
+        await execFileAsync(
+          'npx',
+          ['convex', 'import', '--table', 'curated_routes', '--append', '-y', seedFile],
+          { encoding: 'utf-8', timeout: REAL_SERVICE_TIMEOUT_MS },
+        )
+      } finally {
+        rmSync(seedDir, { recursive: true, force: true })
+      }
+
+      // Real full-table sweep against the real geospatial component —
+      // idempotent (skips rows already indexed), so safe even if a prior
+      // run already indexed some of these routeIds.
+      await runConvexFn('geospatialSeed:seedGeospatialAll', {}, SEED_GEOSPATIAL_TIMEOUT_MS)
+    }, SEED_GEOSPATIAL_TIMEOUT_MS)
+
+    afterAll(async () => {
+      await teardownAc2SeedRows()
+    }, REAL_SERVICE_TIMEOUT_MS)
+
+    it(
+      'returns the two in-radius seeded routes nearest-first with real server distanceMi, excluding the out-of-radius seeded route',
+      async () => {
+        const result: any = await searchCuratedRoutes.execute({
+          center: AC2_SEED_CENTER,
+          radiusMi: AC2_SEED_RADIUS_MI,
+        })
+
+        // MUST_OBSERVE — unconditional real success, no honest-no_results escape hatch.
+        expect(result.ok).toBe(true)
+
+        const { routes } = result
+        expect(Array.isArray(routes)).toBe(true)
+        expect(routes.length).toBe(2)
+
+        // Server-computed distanceMi, real numbers, within the requested radius.
+        expect(typeof routes[0].distanceMi).toBe('number')
+        expect(routes[0].distanceMi).toBeGreaterThan(0)
+        expect(routes[0].distanceMi).toBeLessThanOrEqual(AC2_SEED_RADIUS_MI)
+        expect(typeof routes[1].distanceMi).toBe('number')
+        expect(routes[1].distanceMi).toBeGreaterThan(0)
+        expect(routes[1].distanceMi).toBeLessThanOrEqual(AC2_SEED_RADIUS_MI)
+
+        // Nearest-first ordering.
+        expect(routes[0].distanceMi).toBeLessThanOrEqual(routes[1].distanceMi)
+
+        // The two in-radius seeded routes are present, correctly ordered by
+        // known real-world proximity to AC2_SEED_CENTER.
+        expect(routes[0].routeId).toBe(AC2_SEED_ROUTE_ID_NEAR)
+        expect(routes[1].routeId).toBe(AC2_SEED_ROUTE_ID_MID)
+
+        // MUST_NOT_OBSERVE (negative controls)
+        expect(routes.some((r: any) => r.distanceMi > AC2_SEED_RADIUS_MI)).toBe(false)
+        expect(routes.some((r: any) => r.routeId === AC2_SEED_ROUTE_ID_FAR_EXCLUDED)).toBe(false)
+        expect(routes.some((r: any) => r.distanceMi === undefined)).toBe(false)
+      },
+      REAL_SERVICE_TIMEOUT_MS,
+    )
+  })
 
   // ---------------------------------------------------------------------
   // AC-3 — errors-as-data: missing center + unresolvable place, real services
