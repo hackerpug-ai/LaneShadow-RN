@@ -1,0 +1,6 @@
+convex.json
+convex/actions/agent/spike/__tests__/spikeObservability.integration.test.ts
+convex/actions/agent/spike/rideAgentSpike.ts
+convex/actions/agent/spike/spikeObservability.ts
+package.json
+pnpm-lock.yaml

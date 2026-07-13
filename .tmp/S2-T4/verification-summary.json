@@ -1,18 +1,23 @@
 {
   "task_id": "S2-T4",
-  "timestamp": "2026-07-13T05:16:41Z",
-  "commit_sha": "5808ae055d47022f884aeae3d7f3788bc6e59b36",
+  "timestamp": "2026-07-13T05:30:00Z",
+  "commit_sha": "8d23c8a385aea76c3df00114d5191d35714cacc3",
   "typecheck": {
     "exit_code": 0
   },
   "lint": {
     "exit_code": 1,
-    "warnings": 0,
+    "errors": 19,
+    "warnings": 236,
+    "infos": 61,
     "pre_existing": true,
-    "note": "full 'pnpm exec biome check' exits 1 on pre-existing errors in unrelated files; scoped staged-file lint exits 0; see pre-existing-issues.md",
-    "full_output_file": ".tmp/S2-T4/lint-full-output.txt",
     "scoped_exit_code": 0,
-    "scoped_note": "pnpm exec biome check scoped to S2-T4 source files (spikeObservability.ts, rideAgentSpike.ts, spikeObservability.integration.test.ts) exits 0 — S2-T4 introduces zero lint errors"
+    "scoped_errors": 0,
+    "scoped_warnings": 0,
+    "scoped_infos": 0,
+    "full_output_file": ".tmp/S2-T4/lint-full-output.txt",
+    "scoped_output_file": ".tmp/S2-T4/lint-scoped-output.txt",
+    "note": "Full 'pnpm exec biome check' exits 1 on pre-existing errors/warnings/infos in unrelated files (19 errors, 236 warnings, 61 infos — Checked 842 files); S2-T4 scoped files are clean (scoped exit 0, 0 errors, 0 warnings, 0 infos — Checked 3 files). See pre-existing-issues.md for the non-mutative disjoint-set proof."
   },
   "pre_existing_issues": true,
   "requirement_results": [
@@ -56,5 +61,5 @@
   "red_evidence": {
     "required": true
   },
-  "evidence_method": "harvest_script + pre_existing_truth_fix"
+  "evidence_method": "harvest_script + non_mutative_pre_existing_proof"
 }

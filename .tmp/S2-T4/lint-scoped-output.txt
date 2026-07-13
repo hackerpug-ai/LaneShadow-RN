@@ -1,1 +1,2 @@
-Checked 1 file in 8ms. No fixes applied.
+Checked 3 files in 7ms. No fixes applied.
+SCOPED_LINT_EXIT=0

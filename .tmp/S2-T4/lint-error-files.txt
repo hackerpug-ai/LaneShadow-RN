@@ -1,0 +1,14 @@
+app/(app)/(tabs)/index.footer-visibility-simple.test.tsx
+app/(auth)/sign-in.tsx
+biome-plugins/no-dynamic-import.grit
+components/layouts/menu-layout.integration.test.tsx
+components/layouts/subpage-layout.tsx
+components/map/route-tag.test.ts
+convex/actions/agent/__tests__/planRideSingleRoute.integration.test.ts
+convex/curatedGeometryQa.ts
+convex/db/savedRoutes.ts
+lib/ai/model-manifest.ts
+scripts/__tests__/check-convex-health.integration.test.ts
+scripts/test-protomaps.ts
+tests/discovery/quarantine-import-graph.integration.test.ts
+tokens/scripts/generate.ts
