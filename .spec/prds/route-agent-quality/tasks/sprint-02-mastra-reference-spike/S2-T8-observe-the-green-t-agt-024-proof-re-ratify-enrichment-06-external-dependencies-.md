@@ -57,13 +57,15 @@ RATIFIED against S2-T6 commit `fed7c669`; the re-ratification prerequisite is di
 
    **Expected:** Exit code 0 again; the printed `summary` text on this run reads differently (even slightly) from step 1's run — real LLM output is not byte-identical across calls. An IDENTICAL string across both runs is a red flag (possible stub) and should block this gate — do not proceed to step 3 until this is resolved.
 
-3. Open the target PRD section and locate the pending-ratification callout.
+3. Open the target PRD section and locate the pending-ratification callout (historical
+   pre-ratification state).
 
    ```bash
    grep -n "pending re-ratification" .spec/prds/enrichment/09-technical-requirements/06-external-dependencies.md
    ```
 
-   **Expected:** One match, at or near the 'z.ai API — GLM-5.2' row (line ~26) and its D1 callout block (lines 11-20), currently reading: '... v3.1.0 D1: the client becomes a custom AI-SDK OpenAI-compatible provider (pi-ai removed); model + baseUrl + thinkingFormat unchanged; pending re-ratification'.
+   **Expected before the Founder decision:** One match, at or near the 'z.ai API — GLM-5.2'
+   row and its D1 callout block. After the decision below, this check must return no matches.
 
 4. Edit that row/callout in a text editor: remove the words 'pending re-ratification' and replace with a re-ratification record — today's date, the S2-T6 commit SHA as verifying evidence, and confirmation that the documented wiring (createOpenAICompatible, baseURL https://api.z.ai/api/coding/paas/v4, env var name Z_AI_API_KEY — NOT ZAI_API_KEY) matches what actually shipped.
 
@@ -88,6 +90,9 @@ RATIFIED against S2-T6 commit `fed7c669`; the re-ratification prerequisite is di
    ```
 
    **Expected:** `exit=1` (grep found no matches) — this is the proof the prerequisite is cleared. Sprint 07 (agent rebuild / pi-ai teardown) and the enrichment PRD's own sprints are now unblocked on this specific prerequisite.
+
+> **Completed gate record (2026-07-13):** The target section was committed in
+> `68e4174d` with the Founder ratification, and the post-decision grep returns exit 1.
 
 
 ## DEPENDENCIES
