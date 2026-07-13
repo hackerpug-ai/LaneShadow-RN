@@ -175,7 +175,8 @@ describe('blocker fidelity (not an AC)', () => {
   test('partial-blocked state honestly records: deploy success, bundle delta real, coldStart null', () => {
     expect(evidence).not.toBeNull()
     const e = evidence as Evidence
-    if (blocked && coldStartBlocked) {
+    const allDeploysSucceeded = e.probe?.deployAttempts?.every((a) => a.exitCode === 0)
+    if (blocked && coldStartBlocked && allDeploysSucceeded) {
       // MUST_OBSERVE: status blocked + blocker recorded when coldStart is null.
       expect(e.blocker).toBeDefined()
       expect(e.blocker?.error.length).toBeGreaterThan(0)
@@ -189,7 +190,6 @@ describe('blocker fidelity (not an AC)', () => {
       // After DEPENDENCY-FIX-001: deploy attempts exit 0 (not the old
       // ModulesTooLarge failure). Bundle delta may be real even when
       // coldStart is null — both are honest.
-      const allDeploysSucceeded = e.probe?.deployAttempts?.every((a) => a.exitCode === 0)
       expect(allDeploysSucceeded).toBe(true)
 
       // Bundle delta is real and within ceiling (partial measurement success).

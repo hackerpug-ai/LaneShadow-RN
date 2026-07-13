@@ -36,7 +36,7 @@ evidence/s2-t5-ceilings.json records coldStartMs (real, from the first cloud-dev
 - Measure cold-start as the FIRST invocation of the spike action AFTER `npx convex dev --once --typecheck disable` to the CLOUD DEV deployment — not a local-only warm sandbox.
 - Measure bundle-size delta from the REAL cloud-dev deploy artifact: the artifact size with @mastra/core installed minus the pre-install baseline artifact size.
 - Record both numbers, the pinned ceilings (10000 ms; 10485760 bytes = 10 MB), and a pass/fail verdict to a durable evidence artifact the human gate (S2-T7) reads.
-- The pass/fail predicate is coldStartMs <= 10000 AND bundleDeltaBytes <= 10485760.
+- The pass/fail predicate is coldStartMs <= 10000 AND bundleDeltaBytes > 0 AND bundleDeltaBytes <= 10485760, with baseline and current-tree cloud-dev pushes both exiting 0.
 - The recorded numbers are REAL observations from the deployed artifact/invocation — never estimated or hand-written.
 
 **NEVER**
