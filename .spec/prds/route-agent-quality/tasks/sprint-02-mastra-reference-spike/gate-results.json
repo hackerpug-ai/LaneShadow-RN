@@ -4,7 +4,7 @@
   "verdict": "fail",
   "steps_total": 7,
   "steps_executed": 7,
-  "steps_passed": 3,
+  "steps_passed": 4,
   "ui_driver": "none",
   "exec_surface": "surface:81 (71D7C0FD-2F78-40E2-B0A2-81653DF57295)",
   "qa_surface_id": "A8D33435-18C4-41E7-9C55-03F7131AF3C2",
