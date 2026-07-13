@@ -27,26 +27,26 @@ Observe the green T-AGT-024 proof; re-ratify enrichment/06-external-dependencies
 ### Pre-steps (one-time setup)
 
 1. Confirm S2-T6 has landed: `git log --oneline -10 -- convex/actions/agent/lib/zaiProvider.ts` shows at least one commit.
-2. Confirm `Z_AI_API_KEY` is still present locally so the proof can be re-run live if desired: `grep -c Z_AI_API_KEY .env.local` -> expected output `1`.
+2. Confirm `Z_AI_API_KEY` is present locally so the proof CLI can call the real z.ai API: `grep -c Z_AI_API_KEY .env.local` -> expected output `1`.
 3. Open `.spec/prds/enrichment/09-technical-requirements/06-external-dependencies.md` in an editor — this is the file being re-ratified in step 4 below.
 
 ### Step-by-step
 
-1. Run S2-T6's integration test suite to produce fresh, live evidence.
+1. Run the z.ai GLM-5.2 proof CLI to produce fresh, live evidence.
 
    ```bash
-   pnpm test convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts
+   pnpm tsx scripts/spike/zai-glm-proof.ts
    ```
 
-   **Expected:** All tests pass (green), including a test named 'returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion' (AC-1/PRIMARY) and 'generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it' (AC-2). Console output shows a non-empty `summary` string and a `confidence` value (high/medium/low) captured from a REAL completion — content should read as natural model output, not a static placeholder string.
+   **Expected:** Exit code 0. STDOUT prints a JSON object with `ok: true`, a `path` field (`"structured"` or `"text-fallback"`), a non-empty `summary` string, and a `confidence` value (high/medium/low). STDERR prints a human-readable proof summary. Content should read as natural model output, not a static placeholder string. This CLI calls the REAL `createZaiProvider` / `zaiStructuredComplete` path — it does NOT mock the provider.
 
 2. Sanity-check the captured evidence is not a stub: re-run once more and compare the two summaries.
 
    ```bash
-   pnpm test convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts -t "returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion"
+   pnpm tsx scripts/spike/zai-glm-proof.ts
    ```
 
-   **Expected:** The test passes again; the printed `summary` text on this run reads differently (even slightly) from step 1's run — real LLM output is not byte-identical across calls. An IDENTICAL string across both runs is a red flag (possible stub) and should block this gate — do not proceed to step 3 until this is resolved.
+   **Expected:** Exit code 0 again; the printed `summary` text on this run reads differently (even slightly) from step 1's run — real LLM output is not byte-identical across calls. An IDENTICAL string across both runs is a red flag (possible stub) and should block this gate — do not proceed to step 3 until this is resolved.
 
 3. Open the target PRD section and locate the pending-ratification callout.
 
@@ -107,16 +107,16 @@ Observe the green T-AGT-024 proof; re-ratify enrichment/06-external-dependencies
       "type": "human_verification",
       "primary": false,
       "maps_to_ac": null,
-      "description": "Run S2-T6's integration test suite to produce fresh, live evidence. — Expected: All tests pass (green), including a test named 'returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion' (AC-1/PRIMARY) and 'generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it' (AC-2). Console output shows a non-empty `summary` string and a `confidence` value (high/medium/low) captured from a REAL completion — content should read as natural model output, not a static placeholder string.",
-      "verify": "pnpm test convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts"
+      "description": "Run the z.ai GLM-5.2 proof CLI to produce fresh, live evidence. — Expected: Exit code 0. STDOUT prints a JSON object with ok: true, path (structured/text-fallback), non-empty summary, and confidence. Calls the REAL createZaiProvider/zaiStructuredComplete path — no mocking.",
+      "verify": "pnpm tsx scripts/spike/zai-glm-proof.ts"
     },
     {
       "id": "HG-2",
       "type": "human_verification",
       "primary": false,
       "maps_to_ac": null,
-      "description": "Sanity-check the captured evidence is not a stub: re-run once more and compare the two summaries. — Expected: The test passes again; the printed `summary` text on this run reads differently (even slightly) from step 1's run — real LLM output is not byte-identical across calls. An IDENTICAL string across both runs is a red flag (possible stub) and should block this gate — do not proceed to step 3 until this is resolved.",
-      "verify": "pnpm test convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts -t \"returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion\""
+      "description": "Sanity-check the captured evidence is not a stub: re-run once more and compare the two summaries. — Expected: Exit code 0 again; the printed `summary` text on this run reads differently (even slightly) from step 1's run — real LLM output is not byte-identical across calls. An IDENTICAL string across both runs is a red flag (possible stub) and should block this gate — do not proceed to step 3 until this is resolved.",
+      "verify": "pnpm tsx scripts/spike/zai-glm-proof.ts"
     },
     {
       "id": "HG-3",

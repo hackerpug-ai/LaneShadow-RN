@@ -32,7 +32,7 @@ Run the §5b spike gate; record accept/adjust on the pinned ceilings
 
 ### Step-by-step
 
-1. Run `npx convex deploy` to the cloud dev deployment (NOT local `convex dev`, which is a warm sandbox).
+1. Run `npx convex dev --once --typecheck disable` to push to the cloud dev deployment (targets `CONVEX_DEPLOYMENT` from `.env.local` — the cloud-dev deployment). NEVER use `npx convex deploy` (targets production by default). Evidence that production was not touched is recorded in `evidence/s2-t5-ceilings.json` → `probe.deployAttempts[]`, which shows only `npx convex dev --once` commands against the `dev:quirky-panther-164` cloud-dev deployment.
 2. Invoke the spike action with 'twisty roads near Ogden'; confirm the reply lists routes with real distances from Ogden.
 3. Send turn two 'OK what's scenic' in the same session; confirm turn two searches near Ogden (not statewide).
 4. Open the LangSmith trace; confirm root + model + tool span types are present, each stamped promptVersion / sessionId / tier / cost.
@@ -65,7 +65,7 @@ Run the §5b spike gate; record accept/adjust on the pinned ceilings
       "type": "human_verification",
       "primary": false,
       "maps_to_ac": null,
-      "description": "Run `npx convex deploy` to the cloud dev deployment (NOT local `convex dev`, which is a warm sandbox).",
+      "description": "Run `npx convex dev --once --typecheck disable` to push to the cloud dev deployment (targets CONVEX_DEPLOYMENT from .env.local). NEVER use `npx convex deploy` (production). Evidence of cloud-dev-only: evidence/s2-t5-ceilings.json probe.deployAttempts[].",
       "verify": "manual (Founder-Operator observation)"
     },
     {

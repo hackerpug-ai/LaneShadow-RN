@@ -41,7 +41,7 @@ A 2-turn Mastra reference conversation on cloud dev that (1) geocodes Ogden and 
 
 ### Test Steps
 
-1. Run `npx convex deploy` to the cloud dev deployment (not local convex dev).
+1. Run `npx convex dev --once --typecheck disable` to push to the cloud dev deployment (targets `CONVEX_DEPLOYMENT` from `.env.local`; NEVER `npx convex deploy` which targets production).
 2. Invoke the spike action with "twisty roads near Ogden".
 3. Confirm the reply lists routes with real distances from Ogden.
 4. Send turn two "OK what's scenic" in the same session.
