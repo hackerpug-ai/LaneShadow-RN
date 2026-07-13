@@ -51,15 +51,23 @@ describe('models orchestrator tier (S2-T1 Mastra spike)', () => {
     )
   })
 
-  it('convex.json preserves nodeVersion 22 and adds @mastra/core + @ai-sdk/openai-compatible to externalPackages without removing existing entries', () => {
+  it('convex.json preserves nodeVersion 22 and intentional externalPackages steady-state (DEPENDENCY-FIX-001: bundle Mastra/ai SDK; externalize live pi-ai only)', () => {
     const { node } = readConvexJson()
 
     expect(node.nodeVersion).toBe('22')
-    expect(node.externalPackages).toContain('@mastra/core')
-    expect(node.externalPackages).toContain('@ai-sdk/openai-compatible')
-    expect(node.externalPackages).toContain('ai')
-    expect(node.externalPackages).toContain('@ai-sdk/anthropic')
-    expect(node.externalPackages).toContain('@mariozechner/pi-ai')
+    // Mastra + ai@7 + @ai-sdk/* are bundled (tree-shaken) — not full-package externalized.
+    expect(node.externalPackages).not.toContain('@mastra/core')
+    expect(node.externalPackages).not.toContain('@mastra/observability')
+    expect(node.externalPackages).not.toContain('ai')
+    expect(node.externalPackages).not.toContain('@ai-sdk/anthropic')
+    expect(node.externalPackages).not.toContain('@ai-sdk/openai-compatible')
+    // Vestigial entries removed (zero convex imports, not in package.json deps).
+    expect(node.externalPackages).not.toContain('@workos-inc/node')
+    expect(node.externalPackages).not.toContain('papaparse')
+    expect(node.externalPackages).not.toContain('langchain')
+    expect(node.externalPackages).not.toContain('@langchain/core')
+    expect(node.externalPackages).not.toContain('jose')
+    expect(node.externalPackages).toEqual(['@mariozechner/pi-ai'])
 
     // EVIDENCE: seeded MUST_OBSERVE values for scenario validation
     // biome-ignore lint/suspicious/noConsole: required stdout evidence artifact for AC-2 scenario

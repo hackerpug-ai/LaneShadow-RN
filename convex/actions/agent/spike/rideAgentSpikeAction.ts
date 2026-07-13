@@ -8,15 +8,11 @@
  * runSpikeTurn (the stateless @mastra/core Agent factory + deterministic
  * working-memory injection in rideAgentSpike.ts).
  *
- * ⚠️  DEPLOYMENT NOTE: `npx convex dev` is currently broken (ModulesTooLarge
- * — 61.82 MiB > 42.92 MiB max, a pre-existing infra blocker from S2-T1's
- * large externalPackages additions). This action CANNOT be deployed to the
- * dev deployment yet. The integration tests in
- * __tests__/rideAgentSpike.integration.test.ts construct the Agent in-process
- * (Node.js context) and call runSpikeTurn directly — proving the Mastra
- * Agent works with the orchestrator tier and S2-T2's tools, even though
- * this Convex action can't be deployed yet. Once the ModulesTooLarge blocker
- * is resolved, this action will be deployable as-is.
+ * DEPLOYMENT NOTE (DEPENDENCY-FIX-001): cloud-dev push via
+ * `npx convex dev --once` succeeds after trimming vestigial externalPackages
+ * and bundling Mastra/ai SDK deps (tree-shaken) instead of full-package
+ * externalization. Spike action is deployable on cloud dev; see
+ * evidence/s2-t5-ceilings.json for cold-start + bundle ceiling measurements.
  *
  * Statelessness: the action holds NO per-request state in module scope.
  * All per-session data (sessionId, resolved center) flows through the
