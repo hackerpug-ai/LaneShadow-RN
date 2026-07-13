@@ -33,8 +33,8 @@ evidence/s2-t5-ceilings.json records coldStartMs (real, from the first cloud-dev
 ## 🚫 CRITICAL CONSTRAINTS (Never tier — read before acting)
 
 **MUST**
-- Measure cold-start as the FIRST invocation of the spike action AFTER `npx convex deploy` to the CLOUD DEV deployment — not local `convex dev` (a warm sandbox).
-- Measure bundle-size delta from the REAL convex deploy artifact: the artifact size with @mastra/core installed minus the pre-install baseline artifact size.
+- Measure cold-start as the FIRST invocation of the spike action AFTER `npx convex dev --once --typecheck disable` to the CLOUD DEV deployment — not a local-only warm sandbox.
+- Measure bundle-size delta from the REAL cloud-dev deploy artifact: the artifact size with @mastra/core installed minus the pre-install baseline artifact size.
 - Record both numbers, the pinned ceilings (10000 ms; 10485760 bytes = 10 MB), and a pass/fail verdict to a durable evidence artifact the human gate (S2-T7) reads.
 - The pass/fail predicate is coldStartMs <= 10000 AND bundleDeltaBytes <= 10485760.
 - The recorded numbers are REAL observations from the deployed artifact/invocation — never estimated or hand-written.
@@ -48,8 +48,8 @@ evidence/s2-t5-ceilings.json records coldStartMs (real, from the first cloud-dev
 
 **STRICTLY**
 - STRICTLY test_tier=integration: the assertion test compares the RECORDED real numbers against the ceilings.
-- STRICTLY SKIP-with-reason (never fake success) if the cloud dev deployment is unreachable or `npx convex deploy` fails.
-- STRICTLY seed the numbers from a REAL entrypoint — a fresh `npx convex deploy` + the deployed spike action invocation.
+- STRICTLY SKIP-with-reason (never fake success) if the cloud dev deployment is unreachable or `npx convex dev --once --typecheck disable` fails.
+- STRICTLY seed the numbers from a REAL entrypoint — a fresh `npx convex dev --once --typecheck disable` + the deployed spike action invocation.
 
 ## SPECIFICATION
 
@@ -59,16 +59,16 @@ evidence/s2-t5-ceilings.json records coldStartMs (real, from the first cloud-dev
 
 ## FIXTURES (shared seed data — referenced by scenario `start_ref`)
 
-- `cloud_dev_cold_start` (seed_method: `recorded_external`): The timestamped first-invocation latency of the spike action after a fresh `npx convex deploy` to the cloud dev deployment.
-- `bundle_artifact_delta` (seed_method: `recorded_external`): The deploy-artifact size before vs after adding @mastra/core (+ ai@7 + observability), yielding the byte delta.
+- `cloud_dev_cold_start` (seed_method: `recorded_external`): The timestamped first-invocation latency of the spike action after a fresh `npx convex dev --once --typecheck disable` to the cloud dev deployment.
+- `bundle_artifact_delta` (seed_method: `recorded_external`): The cloud-dev deploy-artifact size before vs after adding @mastra/core (+ ai@7 + observability), yielding the byte delta.
 
 ## ACCEPTANCE CRITERIA (TDD beads — RED → GREEN → REFACTOR per AC)
 
 ### AC-1
 
-**Requirement:** GIVEN a fresh `npx convex deploy` to the cloud dev deployment WHEN the spike action is invoked for the first time THEN the measured first-response latency is a real positive number ≤ 10000 ms, recorded to evidence and tagged cloud-dev
+**Requirement:** GIVEN a fresh `npx convex dev --once --typecheck disable` to the cloud dev deployment WHEN the spike action is invoked for the first time THEN the measured first-response latency is a real positive number ≤ 10000 ms, recorded to evidence and tagged cloud-dev
 
-- TEST_TIER: `integration`  ·  VERIFICATION_SERVICE: cloud dev Convex deployment (first invocation after `npx convex deploy`)
+- TEST_TIER: `integration`  ·  VERIFICATION_SERVICE: cloud dev Convex deployment (first invocation after `npx convex dev --once --typecheck disable`)
 - FLOW_REF: UC-AGT-01
 - VERIFY: `pnpm test convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts -t "cold-start first invocation on cloud dev is within 10s"`
 
@@ -76,7 +76,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 - NEGATIVE_CONTROL — would fail if: the latency number is hardcoded/faked rather than measured from a real cloud-dev invocation; the measurement runs against local convex dev (a warm sandbox) instead of the cloud dev deployment after a fresh deploy; the value is recorded but never compared to the 10000 ms ceiling
 - EVIDENCE: `stdout` (required_capture: true)
 - CASE 1 — start_ref `cloud_dev_cold_start`
-    - ACTION (cli_user): run `npx convex deploy` to cloud dev → invoke the spike action once and record ms to first response
+    - ACTION (cli_user): run `npx convex dev --once --typecheck disable` to cloud dev → invoke the spike action once and record ms to first response
     - MUST_OBSERVE: record.coldStartMs > 0 (e.g. observed 4200); record.coldStartMs <= 10000; record.deployment === 'cloud-dev'
     - MUST_NOT_OBSERVE: record.coldStartMs === 0 || record.coldStartMs === null (nothing measured); record.deployment === 'local' (measured against local convex dev)
 
@@ -84,11 +84,11 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 **Requirement:** GIVEN the deploy artifact before and after adding @mastra/core WHEN the two artifact sizes are measured THEN the byte delta is a real positive number ≤ 10485760 bytes, recorded to evidence
 
-- TEST_TIER: `integration`  ·  VERIFICATION_SERVICE: convex deploy artifact (baseline vs @mastra/core-installed)
+- TEST_TIER: `integration`  ·  VERIFICATION_SERVICE: cloud-dev deploy artifact (baseline vs @mastra/core-installed)
 - VERIFY: `pnpm test convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts -t "bundle delta from @mastra/core is within 10MB"`
 
 SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0):
-- NEGATIVE_CONTROL — would fail if: the byte delta is estimated/faked/hardcoded rather than read from the real convex deploy artifact; the measurement script is a no-op stub returning a canned byte count with no real artifact read; only one side (baseline or post-install) is measured so the delta is fabricated; the delta is computed from node_modules size instead of the deploy artifact
+- NEGATIVE_CONTROL — would fail if: the byte delta is estimated/faked/hardcoded rather than read from the real cloud-dev deploy artifact; the measurement script is a no-op stub returning a canned byte count with no real artifact read; only one side (baseline or post-install) is measured so the delta is fabricated; the delta is computed from node_modules size instead of the deploy artifact
 - EVIDENCE: `stdout` (required_capture: true)
 - CASE 1 — start_ref `bundle_artifact_delta`
     - ACTION (cli_user): measure the deploy artifact size at the pre-@mastra/core baseline and with @mastra/core installed → compute the byte delta
@@ -114,7 +114,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 | TC | Statement | Maps to | Verify |
 |----|-----------|---------|--------|
-| TC-1 | the recorded coldStartMs is a positive number <= 10000 with deployment==='cloud-dev', measured on the first cloud-dev invocation after `npx convex deploy` | AC-1 | `pnpm test convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts -t "cold-start first invocation on cloud dev is within 10s"` |
+| TC-1 | the recorded coldStartMs is a positive number <= 10000 with deployment==='cloud-dev', measured on the first cloud-dev invocation after `npx convex dev --once --typecheck disable` | AC-1 | `pnpm test convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts -t "cold-start first invocation on cloud dev is within 10s"` |
 | TC-2 | the recorded bundleDeltaBytes > 0 && <= 10485760, equal to postInstallBytes - baselineBytes measured from the deploy artifact | AC-2 | `pnpm test convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts -t "bundle delta from @mastra/core is within 10MB"` |
 | TC-3 | evidence/s2-t5-ceilings.json records numeric coldStartMs and bundleDeltaBytes, the ceilings (10000, 10485760), and status==='pass' only when both are within ceiling | AC-3 | `pnpm test convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts -t "ceilings evidence artifact records both numbers and a computed verdict"` |
 
@@ -147,7 +147,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 - assertion test passes on the recorded numbers: `pnpm test convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts` → Exit 0
 - typecheck: `pnpm type-check` → Exit 0
 - lint: `pnpm exec biome check` → Exit 0
-- fresh deploy before the cold-start measurement: `npx convex deploy` → deploy succeeds to cloud dev
+- fresh cloud-dev push before the cold-start measurement: `npx convex dev --once --typecheck disable` → push succeeds to cloud dev
 
 ## AGENT ASSIGNMENT
 
@@ -180,7 +180,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
   },
   "fixtures": {
     "cloud_dev_cold_start": {
-      "description": "The timestamped first-invocation latency of the spike action after a fresh `npx convex deploy` to the cloud dev deployment.",
+      "description": "The timestamped first-invocation latency of the spike action after a fresh `npx convex dev --once --typecheck disable` to the cloud dev deployment.",
       "seed_method": "recorded_external",
       "records": [
         "deploy target = cloud dev (not local convex dev)",
@@ -205,14 +205,14 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
       "type": "acceptance_criterion",
       "primary": false,
       "maps_to_ac": null,
-      "description": "GIVEN a fresh `npx convex deploy` to the cloud dev deployment WHEN the spike action is invoked for the first time THEN the measured first-response latency is a real positive number ≤ 10000 ms, recorded to evidence and tagged cloud-dev",
+      "description": "GIVEN a fresh `npx convex dev --once --typecheck disable` to the cloud dev deployment WHEN the spike action is invoked for the first time THEN the measured first-response latency is a real positive number ≤ 10000 ms, recorded to evidence and tagged cloud-dev",
       "verify": "pnpm test convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts -t \"cold-start first invocation on cloud dev is within 10s\"",
       "scenario": {
         "id": "AC-1",
         "primary": true,
         "tier": "visible",
         "test_tier": "integration",
-        "verification_service": "cloud dev Convex deployment (first invocation after `npx convex deploy`)",
+        "verification_service": "cloud dev Convex deployment (first invocation after `npx convex dev --once --typecheck disable`)",
         "negative_control": {
           "would_fail_if": [
             "the latency number is hardcoded/faked rather than measured from a real cloud-dev invocation",
@@ -230,7 +230,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
             "action": {
               "actor": "cli_user",
               "steps": [
-                "run `npx convex deploy` to cloud dev",
+                "run `npx convex dev --once --typecheck disable` to cloud dev",
                 "invoke the spike action once and record ms to first response"
               ]
             },
@@ -261,10 +261,10 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
         "primary": false,
         "tier": "visible",
         "test_tier": "integration",
-        "verification_service": "convex deploy artifact (baseline vs @mastra/core-installed)",
+        "verification_service": "cloud-dev deploy artifact (baseline vs @mastra/core-installed)",
         "negative_control": {
           "would_fail_if": [
-            "the byte delta is estimated/faked/hardcoded rather than read from the real convex deploy artifact",
+            "the byte delta is estimated/faked/hardcoded rather than read from the real cloud-dev deploy artifact",
             "the measurement script is a no-op stub returning a canned byte count with no real artifact read",
             "only one side (baseline or post-install) is measured so the delta is fabricated",
             "the delta is computed from node_modules size instead of the deploy artifact"
@@ -353,7 +353,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
       "type": "test_criterion",
       "primary": false,
       "maps_to_ac": "AC-1",
-      "description": "the recorded coldStartMs is a positive number <= 10000 with deployment==='cloud-dev', measured on the first cloud-dev invocation after `npx convex deploy`",
+      "description": "the recorded coldStartMs is a positive number <= 10000 with deployment==='cloud-dev', measured on the first cloud-dev invocation after `npx convex dev --once --typecheck disable`",
       "verify": "pnpm test convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts -t \"cold-start first invocation on cloud dev is within 10s\""
     },
     {

@@ -99,6 +99,10 @@ type Evidence = {
   convexVersion: string
   status: 'pass' | 'adjust' | 'blocked'
   ceilings: { coldStartMs: number; bundleDeltaBytes: number }
+  /** Original §5b defaults are retained when this script rewrites evidence. */
+  originalCeilings: { coldStartMs: number; bundleDeltaBytes: number }
+  /** Founder disposition is audit metadata, not a newly inferred measurement. */
+  founderDecision?: Record<string, unknown>
   coldStartMs: number | null
   bundleDeltaBytes: number | null
   baselineBytes: number | null
@@ -112,6 +116,50 @@ type Evidence = {
       exitCode: number
       note: string
     }>
+  }
+}
+
+type PreservedAuditMetadata = Pick<Evidence, 'originalCeilings' | 'founderDecision'>
+
+const ORIGINAL_CEILINGS = {
+  coldStartMs: 8000,
+  bundleDeltaBytes: BUNDLE_DELTA_CEILING_BYTES,
+} as const
+
+/**
+ * Preserve the human-gate audit trail across a fresh measurement.
+ *
+ * The measurement is allowed to replace the live observations and predicate,
+ * but it must never erase the original defaults or a Founder disposition that
+ * was already recorded in the durable evidence file. Older evidence that
+ * predates `originalCeilings` is migrated from its pinned 8s `ceilings` field.
+ */
+function loadPreservedAuditMetadata(): PreservedAuditMetadata {
+  const fallback: PreservedAuditMetadata = { originalCeilings: ORIGINAL_CEILINGS }
+  if (!existsSync(EVIDENCE_PATH)) return fallback
+  try {
+    const parsed = JSON.parse(readFileSync(EVIDENCE_PATH, 'utf8')) as {
+      originalCeilings?: { coldStartMs?: unknown; bundleDeltaBytes?: unknown }
+      ceilings?: { coldStartMs?: unknown; bundleDeltaBytes?: unknown }
+      founderDecision?: unknown
+    }
+    const legacyPinned =
+      parsed.ceilings?.coldStartMs === ORIGINAL_CEILINGS.coldStartMs ? parsed.ceilings : undefined
+    const original = parsed.originalCeilings ?? legacyPinned
+    const originalCeilings =
+      typeof original?.coldStartMs === 'number' && typeof original?.bundleDeltaBytes === 'number'
+        ? { coldStartMs: original.coldStartMs, bundleDeltaBytes: original.bundleDeltaBytes }
+        : ORIGINAL_CEILINGS
+    const founderDecision =
+      parsed.founderDecision !== null && typeof parsed.founderDecision === 'object'
+        ? (parsed.founderDecision as Record<string, unknown>)
+        : undefined
+    return founderDecision ? { originalCeilings, founderDecision } : { originalCeilings }
+  } catch {
+    // A malformed prior artifact cannot be trusted as audit metadata. The
+    // original defaults remain explicit rather than silently inventing a
+    // Founder decision.
+    return fallback
   }
 }
 
@@ -323,6 +371,7 @@ function detectBlocker(attempt: DeployAttempt): BlockedRecord | null {
 async function main() {
   mkdirSync(TMP_DIR, { recursive: true })
   mkdirSync(dirname(EVIDENCE_PATH), { recursive: true })
+  const preservedAudit = loadPreservedAuditMetadata()
 
   const probeAttempts: Evidence['probe']['deployAttempts'] = []
 
@@ -462,6 +511,8 @@ async function main() {
       coldStartMs: COLD_START_CEILING_MS,
       bundleDeltaBytes: BUNDLE_DELTA_CEILING_BYTES,
     },
+    originalCeilings: preservedAudit.originalCeilings,
+    ...(preservedAudit.founderDecision ? { founderDecision: preservedAudit.founderDecision } : {}),
     coldStartMs,
     bundleDeltaBytes,
     baselineBytes,

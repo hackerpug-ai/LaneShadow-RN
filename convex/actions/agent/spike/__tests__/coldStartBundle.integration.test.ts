@@ -29,6 +29,12 @@ type Evidence = {
   deployment: string
   status: 'pass' | 'adjust' | 'blocked'
   ceilings: { coldStartMs: number; bundleDeltaBytes: number }
+  originalCeilings: { coldStartMs: number; bundleDeltaBytes: number }
+  founderDecision?: {
+    decision?: string
+    originalPinnedCeilings?: { coldStartMs?: number; bundleDeltaBytes?: number }
+    adjustedCeilings?: { coldStartMs?: number; bundleDeltaBytes?: number }
+  }
   coldStartMs: number | null
   bundleDeltaBytes: number | null
   baselineBytes: number | null
@@ -116,6 +122,12 @@ describe('S2-T5 — AC tests (all run when evidence present)', () => {
       // Pinned ceilings are always recorded.
       expect(e.ceilings.coldStartMs).toBe(10000)
       expect(e.ceilings.bundleDeltaBytes).toBe(10485760)
+      // Founder audit metadata must survive any subsequent measurement rewrite.
+      expect(e.originalCeilings.coldStartMs).toBe(8000)
+      expect(e.originalCeilings.bundleDeltaBytes).toBe(10485760)
+      expect(e.founderDecision?.decision).toBe('accept_adjustment')
+      expect(e.founderDecision?.originalPinnedCeilings?.coldStartMs).toBe(8000)
+      expect(e.founderDecision?.adjustedCeilings?.coldStartMs).toBe(10000)
       // Both numbers present and numeric.
       expect(typeof e.coldStartMs).toBe('number')
       expect(typeof e.bundleDeltaBytes).toBe('number')
