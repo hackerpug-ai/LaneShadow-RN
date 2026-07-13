@@ -2,7 +2,7 @@ S2-T5 ceilings measurement — recorded to:
   /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T5/.spec/prds/route-agent-quality/tasks/sprint-02-mastra-reference-spike/evidence/s2-t5-ceilings.json
 {
   "taskId": "S2-T5",
-  "measuredAt": "2026-07-13T06:43:43.649Z",
+  "measuredAt": "2026-07-13T06:56:13.739Z",
   "deployment": "cloud-dev",
   "convexVersion": "1.34.1",
   "status": "blocked",
@@ -20,21 +20,16 @@ S2-T5 ceilings measurement — recorded to:
     "exitCode": 1,
     "error": "Total module size exceeded the zipped maximum (62.79 MiB > maximum size 42.92 MiB)",
     "endpoint": "https://quirky-panther-164.convex.cloud/api/deploy2/start_push",
-    "rootCause": "The Convex node externalPackages (@mastra/core, @mastra/observability, ai, @ai-sdk/anthropic, @ai-sdk/openai-compatible, langchain, @langchain/core, @langchain/openai, @langchain/langgraph) push the zipped module total above Convex’s 42.92 MiB ceiling. This is a pre-existing infra blocker carried from S2-T1/S2-T4 — NOT introduced by this measurement task (no product source was modified).",
+    "rootCause": "Upstream sprint configuration/dependency footprint from S2-T1/S2-T4: the @mastra/core + ai@7 + @mastra/observability + @ai-sdk/* externalPackages (installed in S2-T1, extended in S2-T4) push the zipped module total to 62.79 MiB, exceeding Convex's 42.92 MiB ceiling. This was INTRODUCED by this sprint's additive dependency footprint — NOT a pre-existing defect.",
     "unblockCondition": "Reduce the zipped module size below 42.92 MiB (e.g. trim externalPackages, lazy-load heavy deps, split modules, or move them out of the Convex bundle) so `npx convex dev --once` succeeds to the cloud-dev deployment, then re-run this measurement script to record real cold-start + bundle-delta numbers."
   },
-  "predicateNote": "status NOT 'pass': no real cold-start or bundle-delta numbers could be measured because the cloud-dev deploy never succeeded (Total module size exceeded the zipped maximum (62.79 MiB > maximum size 42.92 MiB)). Per the task STRICTLY rule, this script records blocked-with-reason rather than faking 'pass'. coldStartMs/bundleDeltaBytes are intentionally null.",
+  "predicateNote": "status NOT 'pass': the cloud-dev deploy is blocked — no real cold-start or bundle-delta numbers could be measured (Total module size exceeded the zipped maximum (62.79 MiB > maximum size 42.92 MiB)). Per the task STRICTLY rule, this script records blocked-with-reason rather than faking 'pass'. coldStartMs/bundleDeltaBytes are intentionally null.",
   "probe": {
     "deployAttempts": [
       {
         "command": "npx convex dev --once --typecheck disable",
         "exitCode": 1,
         "note": "targets cloud dev quirky-panther-164"
-      },
-      {
-        "command": "npx convex deploy",
-        "exitCode": 1,
-        "note": "targets prod (default); non-interactive"
       }
     ]
   }

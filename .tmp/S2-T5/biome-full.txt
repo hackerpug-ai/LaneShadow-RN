@@ -284,7 +284,7 @@ biome-plugins/no-dynamic-import.grit format ━━━━━━━━━━━━
 
 The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
 Diagnostics not shown: 296.
-Checked 844 files in 186ms. No fixes applied.
+Checked 844 files in 183ms. No fixes applied.
 Found 19 errors.
 Found 236 warnings.
 Found 61 infos.
