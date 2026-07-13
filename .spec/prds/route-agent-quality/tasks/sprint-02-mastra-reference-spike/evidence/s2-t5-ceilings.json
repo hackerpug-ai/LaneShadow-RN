@@ -14,6 +14,20 @@
   "postInstallBytes": 4668858,
   "baselineSource": "git ref 6bc5e5c1^ cloud-dev deploy artifact (pre-@mastra/core); restored current tree after measure",
   "predicateNote": "status='adjust': ceiling comparison — coldStartMs=9373, bundleDeltaBytes=2906599, baselineBytes=1762259, postInstallBytes=4668858.",
+  "founderDecision": {
+    "decision": "accept_adjustment",
+    "decidedAt": "2026-07-13",
+    "recordedBy": "Founder-Operator",
+    "pinnedCeilingsRetained": {
+      "coldStartMs": 8000,
+      "bundleDeltaBytes": 10485760
+    },
+    "acceptedObservation": {
+      "coldStartMs": 9373,
+      "bundleDeltaBytes": 2906599
+    },
+    "rationale": "Founder accepts the honest adjustment disposition for this spike: cold-start exceeds the pinned 8s default, while bundle delta remains within the pinned 10MB default. The evidence status remains 'adjust' and is not relabeled as pass."
+  },
   "probe": {
     "deployAttempts": [
       {

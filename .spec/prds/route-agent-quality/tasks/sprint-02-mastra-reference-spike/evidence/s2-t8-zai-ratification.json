@@ -1,0 +1,35 @@
+{
+  "taskId": "S2-T8",
+  "criterion": "T-AGT-024",
+  "decidedAt": "2026-07-13",
+  "recordedBy": "Founder-Operator",
+  "provider": {
+    "implementationCommit": "fed7c669",
+    "factory": "createOpenAICompatible",
+    "baseURL": "https://api.z.ai/api/coding/paas/v4",
+    "model": "glm-5.2",
+    "apiKeySource": "Z_AI_API_KEY",
+    "structuredOutputPath": "ai@7 Output.object",
+    "fallback": "typed text-mode JSON extraction and Zod validation"
+  },
+  "proofRuns": [
+    {
+      "timestamp": "2026-07-13T21:35:57.278Z",
+      "ok": true,
+      "path": "structured",
+      "confidence": "high",
+      "summaryLength": 219,
+      "summary": "This route is a scenic loop starting and ending on Highway 101 near Santa Maria, CA, that takes riders east through a series of canyon roads over the mountains via Tepusquet Canyon, before returning west on Highway 166."
+    },
+    {
+      "timestamp": "2026-07-13T21:36:05.968Z",
+      "ok": true,
+      "path": "structured",
+      "confidence": "high",
+      "summaryLength": 300,
+      "summary": "This loop route from Santa Maria heads east through a succession of canyon roads—Foxen Canyon, Santa Maria Mesa, and Tepusquet Canyon—climbing over the mountain before returning to Highway 101 via Highway 166. The ride showcases remote canyon and mountain terrain in Central California's backcountry."
+    }
+  ],
+  "distinctSummaries": true,
+  "decision": "ratified"
+}
