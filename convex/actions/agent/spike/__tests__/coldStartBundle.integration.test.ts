@@ -8,8 +8,10 @@
  * - After DEPENDENCY-FIX-001 trimmed vestigial externalPackages + S2-T5-COLDSTART-FIX
  *   serialized the action return, ALL ACs run and pass: coldStartMs=2165ms,
  *   bundleDeltaBytes=2904363 (2.77MB), status='pass'.
- * - A "blocker fidelity (not an AC)" describe block verifies that when evidence
- *   is incomplete, the partial-blocked state is recorded honestly (never fakes 'pass').
+ * - The "blocker fidelity (not an AC)" describe block is a synthetic/conditional
+ *   branch check: if evidence is incomplete, it verifies that the partial-blocked
+ *   state is recorded honestly (never fakes 'pass'). It is not current deployment
+ *   evidence and does not replace the passing artifact above.
  *
  * Run: `pnpm test convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts`
  */
@@ -55,7 +57,9 @@ function loadEvidence(): Evidence | null {
 
 const evidence = loadEvidence()
 
-// Granular skip conditions: each AC depends on different measured numbers.
+// Granular conditional guards: each AC depends on a different measured number.
+// The current cloud-dev artifact is complete; skip branches remain synthetic
+// fallback coverage for a future incomplete measurement.
 const coldStartBlocked = evidence?.coldStartMs === null
 const bundleDeltaBlocked = evidence?.bundleDeltaBytes === null
 const blocked = evidence?.status === 'blocked'
@@ -122,10 +126,11 @@ describe('S2-T5 — AC tests (all run when evidence present)', () => {
 })
 
 // ---------------------------------------------------------------------------
-// BLOCKER FIDELITY (not an AC) — verifies the evidence is honest in ALL states.
-// Currently fully unblocked (coldStartMs=2165). These tests do NOT satisfy
-// any AC. They ensure the script never fakes 'pass' — if coldStartMs were
-// ever null, the status MUST reflect 'blocked', not 'pass'.
+// BLOCKER FIDELITY (not an AC) — synthetic/conditional checks that verify the
+// evidence is honest in ALL states. Currently fully unblocked (coldStartMs=2165).
+// These tests do NOT satisfy any AC or provide current deployment evidence.
+// They ensure the script never fakes 'pass' — if coldStartMs were ever null,
+// the status MUST reflect 'blocked', not 'pass'.
 // ---------------------------------------------------------------------------
 describe('blocker fidelity (not an AC)', () => {
   test('evidence artifact is present and non-empty', () => {

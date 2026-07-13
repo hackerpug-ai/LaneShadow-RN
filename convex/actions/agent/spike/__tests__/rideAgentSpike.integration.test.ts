@@ -4,16 +4,15 @@
  * REAL SERVICES ONLY — no mocks. AC-1..AC-4 hit the REAL Anthropic API
  * (orchestrator tier ModelRouter string from lib/models.ts), the REAL Google
  * Geocoding API (via geocodePlace from S2-T2's spikeTools), and the REAL
- * Convex dev deployment's curated_routes catalog (via searchCuratedRoutes
- * from S2-T2's spikeTools, which shells to `npx convex run`).
+ * Convex cloud-dev deployment's curated_routes catalog (via searchCuratedRoutes
+ * from S2-T2's spikeTools). The deployed action now uses an injected
+ * `ctx.runQuery` callback for its tool path; these Vitest tests run the Agent
+ * loop in-process and use the documented CLI fallback for the same catalog.
  *
- * CRITICAL — npx convex dev is broken (ModulesTooLarge, 61.82 MiB > 42.92 MiB
- * max — a pre-existing infra blocker from S2-T1's large externalPackages).
- * The spike 'use node' action (rideAgentSpikeAction.ts) CANNOT be deployed.
- * So these tests construct the Agent IN-PROCESS (Node.js context) and call
- * `runSpikeTurn` / `agent.generate` directly — proving the Mastra Agent works
- * with the orchestrator tier and S2-T2's tools, even though the Convex action
- * can't be deployed yet. This is the documented testing strategy for this task.
+ * Deployment status: the cloud-dev action and its tool-call path are working
+ * after the dependency and action-return serialization fixes. Keeping these
+ * assertions in-process makes the Mastra loop and tool-call arguments easy to
+ * inspect without changing the deployed-action evidence.
  *
  * Statelessness contract (risk #17): the Agent singleton holds ZERO per-request
  * state. All per-session data (sessionId, resolved center) flows through
@@ -35,7 +34,7 @@ import { createRideAgentSpike, runSpikeTurn } from '../rideAgentSpike'
 
 const hasAnthropicKey = Boolean(ANTHROPIC_API_KEY)
 
-// Real Anthropic + real Google + real Convex CLI round-trip — generous timeout.
+// Real Anthropic + real Google + real Convex cloud-dev catalog round-trip — generous timeout.
 const REAL_SERVICE_TIMEOUT_MS = 120_000
 
 // Ogden center bounds (from the task's MUST_OBSERVE)
