@@ -1,0 +1,10 @@
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S2-T5
+
+ ✓ convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts (6 tests | 3 skipped) 2ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed | 3 skipped (6)
+   Start at  00:44:24
+   Duration  676ms (transform 28ms, setup 91ms, collect 8ms, tests 2ms, environment 434ms, prepare 42ms)
+

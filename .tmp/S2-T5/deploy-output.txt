@@ -1,0 +1,15 @@
+Do you want to push your code to your prod deployment fantastic-owl-967 now?
+
+npm warn Unknown env config "manage-package-manager-versions". This will stop working in the next major version of npm.
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+You're currently developing against your dev deployment
+
+  quirky-panther-164 (set in CONVEX_DEPLOYMENT)
+
+Your prod deployment fantastic-owl-967 serves traffic at:
+
+  EXPO_PUBLIC_CONVEX_URL=https://fantastic-owl-967.convex.cloud
+
+Make sure that your published client is configured with this URL (for instructions see https://docs.convex.dev/hosting)
+
+✖ Cannot prompt for input in non-interactive terminals. (Do you want to push your code to your prod deployment fantastic-owl-967 now?)

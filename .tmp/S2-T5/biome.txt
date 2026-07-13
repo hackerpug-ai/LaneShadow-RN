@@ -1,0 +1,336 @@
+convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts:68:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━
+
+  ! Don't use console.
+  
+    66 │ if (evidence && blocked) {
+    67 │   // Surface the SKIP-with-reason to the test runner output.
+  > 68 │   console.warn(
+       │   ^^^^^^^^^^^^
+    69 │     `[S2-T5] Cloud-dev deploy is BLOCKED — AC-1/AC-2/AC-3 number assertions ` +
+    70 │       `will be SKIPPED (never faked). Recorded blocker:\n` +
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+     65  65 │   
+     66  66 │   if (evidence && blocked) {
+     67     │ - ··//·Surface·the·SKIP-with-reason·to·the·test·runner·output.
+     68     │ - ··console.warn(
+     69     │ - ····`[S2-T5]·Cloud-dev·deploy·is·BLOCKED·—·AC-1/AC-2/AC-3·number·assertions·`·+
+     70     │ - ······`will·be·SKIPPED·(never·faked).·Recorded·blocker:\n`·+
+     71     │ - ······`··command:·${evidence.blocker?.command}\n`·+
+     72     │ - ······`··exit:····${evidence.blocker?.exitCode}\n`·+
+     73     │ - ······`··error:···${evidence.blocker?.error}\n`·+
+     74     │ - ······`··unblock:·${evidence.blocker?.unblockCondition}`,
+     75     │ - ··)
+     76  67 │   }
+     77  68 │   
+  
+
+scripts/spike/measure-mastra-spike-ceilings.ts:282:14 lint/correctness/noUnusedVariables  FIXABLE  ━━━━━━━━━━
+
+  ! This variable e is unused.
+  
+    280 │     try {
+    281 │       coldStartMs = await measureColdStart()
+  > 282 │     } catch (e) {
+        │              ^
+    283 │       coldStartMs = null
+    284 │     }
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+  i Unsafe fix: If this is intentional, prepend e with an underscore.
+  
+    280 280 │       try {
+    281 281 │         coldStartMs = await measureColdStart()
+    282     │ - ····}·catch·(e)·{
+        282 │ + ····}·catch·(_e)·{
+    283 283 │         coldStartMs = null
+    284 284 │       }
+  
+
+scripts/spike/measure-mastra-spike-ceilings.ts:360:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    358 │   writeFileSync(EVIDENCE_PATH, `${JSON.stringify(evidence, null, 2)}\n`)
+    359 │   // Human-readable summary to stdout (EVIDENCE capture: stdout required by ACs).
+  > 360 │   console.log('S2-T5 ceilings measurement — recorded to:')
+        │   ^^^^^^^^^^^
+    361 │   console.log(`  ${EVIDENCE_PATH}`)
+    362 │   console.log(JSON.stringify(evidence, null, 2))
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    357 357 │   
+    358 358 │     writeFileSync(EVIDENCE_PATH, `${JSON.stringify(evidence, null, 2)}\n`)
+    359     │ - ··//·Human-readable·summary·to·stdout·(EVIDENCE·capture:·stdout·required·by·ACs).
+    360     │ - ··console.log('S2-T5·ceilings·measurement·—·recorded·to:')
+    361 359 │     console.log(`  ${EVIDENCE_PATH}`)
+    362 360 │     console.log(JSON.stringify(evidence, null, 2))
+  
+
+scripts/spike/measure-mastra-spike-ceilings.ts:361:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    359 │   // Human-readable summary to stdout (EVIDENCE capture: stdout required by ACs).
+    360 │   console.log('S2-T5 ceilings measurement — recorded to:')
+  > 361 │   console.log(`  ${EVIDENCE_PATH}`)
+        │   ^^^^^^^^^^^
+    362 │   console.log(JSON.stringify(evidence, null, 2))
+    363 │ }
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    359 359 │     // Human-readable summary to stdout (EVIDENCE capture: stdout required by ACs).
+    360 360 │     console.log('S2-T5 ceilings measurement — recorded to:')
+    361     │ - ··console.log(`··${EVIDENCE_PATH}`)
+    362 361 │     console.log(JSON.stringify(evidence, null, 2))
+    363 362 │   }
+  
+
+scripts/spike/measure-mastra-spike-ceilings.ts:362:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    360 │   console.log('S2-T5 ceilings measurement — recorded to:')
+    361 │   console.log(`  ${EVIDENCE_PATH}`)
+  > 362 │   console.log(JSON.stringify(evidence, null, 2))
+        │   ^^^^^^^^^^^
+    363 │ }
+    364 │ 
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    360 360 │     console.log('S2-T5 ceilings measurement — recorded to:')
+    361 361 │     console.log(`  ${EVIDENCE_PATH}`)
+    362     │ - ··console.log(JSON.stringify(evidence,·null,·2))
+    363 362 │   }
+    364 363 │   
+  
+
+scripts/spike/measure-mastra-spike-ceilings.ts:366:3 lint/suspicious/noConsole  FIXABLE  ━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    365 │ main().catch((e) => {
+  > 366 │   console.error('measure-mastra-spike-ceilings failed:', e)
+        │   ^^^^^^^^^^^^^
+    367 │   process.exit(1)
+    368 │ })
+  
+  i The use of console is often reserved for debugging.
+  
+  i Unsafe fix: Remove console.
+  
+    364 364 │   
+    365 365 │   main().catch((e) => {
+    366     │ - ··console.error('measure-mastra-spike-ceilings·failed:',·e)
+    367 366 │     process.exit(1)
+    368 367 │   })
+  
+
+convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts format ━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     84  84 │   
+     85  85 │     // ---- AC-1: cold-start first invocation on cloud dev within 8s -----------
+     86     │ - ··test.skipIf(blocked)(
+     87     │ - ····'cold-start·first·invocation·on·cloud·dev·is·within·8s',
+     88     │ - ····()·=>·{
+     89     │ - ······expect(evidence).not.toBeNull()
+     90     │ - ······const·e·=·evidence·as·Evidence
+     91     │ - ······//·MUST_OBSERVE:·real·positive·number·<=·8000,·tagged·cloud-dev.
+     92     │ - ······expect(typeof·e.coldStartMs).toBe('number')
+     93     │ - ······expect(e.coldStartMs·as·number).toBeGreaterThan(0)
+     94     │ - ······expect(e.coldStartMs·as·number).toBeLessThanOrEqual(8000)
+     95     │ - ······expect(e.deployment).toBe('cloud-dev')
+     96     │ - ····},
+     97     │ - ··)
+         86 │ + ··test.skipIf(blocked)('cold-start·first·invocation·on·cloud·dev·is·within·8s',·()·=>·{
+         87 │ + ····expect(evidence).not.toBeNull()
+         88 │ + ····const·e·=·evidence·as·Evidence
+         89 │ + ····//·MUST_OBSERVE:·real·positive·number·<=·8000,·tagged·cloud-dev.
+         90 │ + ····expect(typeof·e.coldStartMs).toBe('number')
+         91 │ + ····expect(e.coldStartMs·as·number).toBeGreaterThan(0)
+         92 │ + ····expect(e.coldStartMs·as·number).toBeLessThanOrEqual(8000)
+         93 │ + ····expect(e.deployment).toBe('cloud-dev')
+         94 │ + ··})
+     98  95 │   
+     99  96 │     // ---- AC-2: bundle delta from @mastra/core within 10MB -------------------
+    100     │ - ··test.skipIf(blocked)(
+    101     │ - ····'bundle·delta·from·@mastra/core·is·within·10MB',
+    102     │ - ····()·=>·{
+    103     │ - ······expect(evidence).not.toBeNull()
+    104     │ - ······const·e·=·evidence·as·Evidence
+    105     │ - ······//·MUST_OBSERVE:·real·positive·delta·<=·10485760,·==·post·-·baseline,
+    106     │ - ······//·measured·from·the·deploy·artifact.
+    107     │ - ······expect(typeof·e.bundleDeltaBytes).toBe('number')
+    108     │ - ······expect(e.bundleDeltaBytes·as·number).toBeGreaterThan(0)
+    109     │ - ······expect(e.bundleDeltaBytes·as·number).toBeLessThanOrEqual(10485760)
+    110     │ - ······expect(e.baselineBytes).not.toBeNull()
+    111     │ - ······expect(e.postInstallBytes).not.toBeNull()
+    112     │ - ······expect(e.bundleDeltaBytes).toBe(
+    113     │ - ········(e.postInstallBytes·as·number)·-·(e.baselineBytes·as·number),
+    114     │ - ······)
+    115     │ - ····},
+    116     │ - ··)
+         97 │ + ··test.skipIf(blocked)('bundle·delta·from·@mastra/core·is·within·10MB',·()·=>·{
+         98 │ + ····expect(evidence).not.toBeNull()
+         99 │ + ····const·e·=·evidence·as·Evidence
+        100 │ + ····//·MUST_OBSERVE:·real·positive·delta·<=·10485760,·==·post·-·baseline,
+        101 │ + ····//·measured·from·the·deploy·artifact.
+        102 │ + ····expect(typeof·e.bundleDeltaBytes).toBe('number')
+        103 │ + ····expect(e.bundleDeltaBytes·as·number).toBeGreaterThan(0)
+        104 │ + ····expect(e.bundleDeltaBytes·as·number).toBeLessThanOrEqual(10485760)
+        105 │ + ····expect(e.baselineBytes).not.toBeNull()
+        106 │ + ····expect(e.postInstallBytes).not.toBeNull()
+        107 │ + ····expect(e.bundleDeltaBytes).toBe((e.postInstallBytes·as·number)·-·(e.baselineBytes·as·number))
+        108 │ + ··})
+    117 109 │   
+    118 110 │     // ---- AC-3: ceilings evidence records numbers + computed verdict ---------
+    ······· │ 
+    129 121 │         expect(typeof e.bundleDeltaBytes).toBe('number')
+    130 122 │         // Computed verdict: status==='pass' iff both within ceiling.
+    131     │ - ······const·within·=
+    132     │ - ········(e.coldStartMs·as·number)·<=·8000·&&
+    133     │ - ········(e.bundleDeltaBytes·as·number)·<=·10485760
+        123 │ + ······const·within·=·(e.coldStartMs·as·number)·<=·8000·&&·(e.bundleDeltaBytes·as·number)·<=·10485760
+    134 124 │         expect(e.status).toBe(within ? 'pass' : 'adjust')
+    135 125 │       },
+  
+
+scripts/spike/measure-mastra-spike-ceilings.ts:166:38 plugin ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Dynamic import() (lazy loading) is banned in production code — use a static top-of-file import. Lazy-loading the Convex generated API hid a wrong-path bug that only tsc caught (vitest's alias masks wrong-depth paths). If you genuinely need deferral, raise it in review.
+  
+    164 │  */
+    165 │ async function measureColdStart(): Promise<number> {
+  > 166 │   const { ConvexHttpClient } = await import('convex/browser')
+        │                                      ^^^^^^^^^^^^^^^^^^^^^^^^
+    167 │   const { api } = await import('../../convex/_generated/api')
+    168 │   const client = new ConvexHttpClient(CLOUD_DEV_URL)
+  
+
+scripts/spike/measure-mastra-spike-ceilings.ts:167:25 plugin ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Dynamic import() (lazy loading) is banned in production code — use a static top-of-file import. Lazy-loading the Convex generated API hid a wrong-path bug that only tsc caught (vitest's alias masks wrong-depth paths). If you genuinely need deferral, raise it in review.
+  
+    165 │ async function measureColdStart(): Promise<number> {
+    166 │   const { ConvexHttpClient } = await import('convex/browser')
+  > 167 │   const { api } = await import('../../convex/_generated/api')
+        │                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    168 │   const client = new ConvexHttpClient(CLOUD_DEV_URL)
+    169 │   client.setFetchOptions({ cache: 'no-store' })
+  
+
+scripts/spike/measure-mastra-spike-ceilings.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     65  65 │   }
+     66  66 │   const CONVEX_DEPLOYMENT = deploymentSlug(
+     67     │ - ··process.env.CONVEX_DEPLOYMENT·??
+     68     │ - ····readEnvFromFile('.env.local',·'CONVEX_DEPLOYMENT'),
+         67 │ + ··process.env.CONVEX_DEPLOYMENT·??·readEnvFromFile('.env.local',·'CONVEX_DEPLOYMENT'),
+     69  68 │   )
+     70  69 │   const CLOUD_DEV_URL = `https://${CONVEX_DEPLOYMENT}.convex.cloud`
+    ······· │ 
+    147 146 │     // Success-path: Convex reports "Total: X MiB" or per-module sizes. We look
+    148 147 │     // for an explicit total. (Best-effort; null when absent.)
+    149     │ - ··const·totalMatch·=·/Total(?:\s+module\s+size)?[^0-9]*([\d.]+)\s*(MiB|KiB|GiB)/i.exec(
+    150     │ - ····out,
+    151     │ - ··)
+        148 │ + ··const·totalMatch·=·/Total(?:\s+module\s+size)?[^0-9]*([\d.]+)\s*(MiB|KiB|GiB)/i.exec(out)
+    152 149 │     if (!totalMatch) return null
+    153 150 │     const n = Number.parseFloat(totalMatch[1])
+    154 151 │     const unit = totalMatch[2].toLowerCase()
+    155     │ - ··const·bytes·=
+    156     │ - ····unit·===·'gib'·?·n·*·1024·**·3·:·unit·===·'mib'·?·n·*·1024·**·2·:·n·*·1024
+        152 │ + ··const·bytes·=·unit·===·'gib'·?·n·*·1024·**·3·:·unit·===·'mib'·?·n·*·1024·**·2·:·n·*·1024
+    157 153 │     return Math.round(bytes)
+    158 154 │   }
+    ······· │ 
+    171 167 │     try {
+    172 168 │       // Turn 1 (no workingMemory) — the genuine first-invocation cold path.
+    173     │ - ····await·client.action(
+    174     │ - ······api.actions.agent.spike.rideAgentSpikeAction.runSpikeTurnAction,
+    175     │ - ······{
+    176     │ - ········sessionId:·'s2-t5-coldstart-probe',
+    177     │ - ········userMessage:·'twisty·roads·near·Ogden',
+    178     │ - ······},
+    179     │ - ····)
+        169 │ + ····await·client.action(api.actions.agent.spike.rideAgentSpikeAction.runSpikeTurnAction,·{
+        170 │ + ······sessionId:·'s2-t5-coldstart-probe',
+        171 │ + ······userMessage:·'twisty·roads·near·Ogden',
+        172 │ + ····})
+    180 173 │       return Date.now() - t0
+    181 174 │     } finally {
+    ······· │ 
+    189 182 │       /ModulesTooLarge/i.test(combined) ||
+    190 183 │       /Total module size exceeded the zipped maximum/i.test(combined)
+    191     │ - ··const·endpoint·=
+    192     │ - ····/https:\/\/[a-z0-9-]+\.convex\.cloud\/api\/[a-z0-9/_]+/i.exec(combined)?.[0]
+        184 │ + ··const·endpoint·=·/https:\/\/[a-z0-9-]+\.convex\.cloud\/api\/[a-z0-9/_]+/i.exec(combined)?.[0]
+    193 185 │     if (modulesTooLarge) {
+    194 186 │       const sizeLine =
+    ······· │ 
+    243 235 │     // only command that pushes code to the configured DEV deployment once is
+    244 236 │     // `npx convex dev --once`. This is the genuine "deploy to cloud dev".
+    245     │ - ··const·devDeploy·=·runDeploy('npx',·[
+    246     │ - ····'convex',
+    247     │ - ····'dev',
+    248     │ - ····'--once',
+    249     │ - ····'--typecheck',
+    250     │ - ····'disable',
+    251     │ - ··])
+        237 │ + ··const·devDeploy·=·runDeploy('npx',·['convex',·'dev',·'--once',·'--typecheck',·'disable'])
+    252 238 │     probeAttempts.push(devDeploy)
+    253 239 │     writeFileSync(resolve(TMP_DIR, 'deploy-dev-output.txt'), devDeploy.combined)
+    ······· │ 
+    265 251 │     const convexVersion = (() => {
+    266 252 │       const v = runDeploy('npx', ['convex', '--version'])
+    267     │ - ····return·(/(\d+\.\d+\.\d+)/.exec(v.combined)?.[1])·??·'unknown'
+        253 │ + ····return·/(\d+\.\d+\.\d+)/.exec(v.combined)?.[1]·??·'unknown'
+    268 254 │     })()
+    269 255 │   
+    ······· │ 
+    306 292 │     } else {
+    307 293 │       // BLOCKED PATH — record the real blocker, never fake.
+    308     │ - ····blocker·=
+    309     │ - ······devBlocker·??
+        294 │ + ····blocker·=·devBlocker·??
+    310 295 │         detectBlocker(prodDeploy) ?? {
+    311 296 │           classification: 'external_project_defect',
+    ······· │ 
+    348 333 │           command: `${a.command} ${a.args.join(' ')}`,
+    349 334 │           exitCode: a.exitCode,
+    350     │ - ········note:
+    351     │ - ··········/--once/.test(a.args.join('·'))
+    352     │ - ············?·`targets·cloud·dev·${CONVEX_DEPLOYMENT}`
+    353     │ - ············:·'targets·prod·(default);·non-interactive',
+        335 │ + ········note:·/--once/.test(a.args.join('·'))
+        336 │ + ··········?·`targets·cloud·dev·${CONVEX_DEPLOYMENT}`
+        337 │ + ··········:·'targets·prod·(default);·non-interactive',
+    354 338 │         })),
+    355 339 │       },
+  
+
+Checked 2 files in 8ms. No fixes applied.
+Found 4 errors.
+Found 6 warnings.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+
