@@ -7,7 +7,7 @@
 | TASK_TYPE | HUMAN_GATE |
 | AGENT | Founder-Operator (manual) |
 | ESTIMATE | 30 min |
-| STATUS | Backlog |
+| STATUS | completed |
 | PROPOSED_BY | `aisdk-planner` |
 | TDD_MODE | `skipped` (manual observation; the automated proof is the FEATURE tasks) |
 | RED_GREEN_REQUIRED | no |
@@ -17,6 +17,15 @@
 ## OUTCOME
 
 Observe the green T-AGT-024 proof; re-ratify enrichment/06-external-dependencies.md (discharge cross-PRD prerequisite)
+
+## FOUNDER DECISION — 2026-07-13
+
+**Decision: ACCEPTED AND RATIFIED.** Two fresh live runs of
+`pnpm tsx scripts/spike/zai-glm-proof.ts` returned `ok:true`, `path:"structured"`, and
+`confidence:"high"` with non-empty, different summaries (219 and 300 characters). The
+provider wiring and proof details are recorded in
+`evidence/s2-t8-zai-ratification.json`. The enrichment dependency section is now
+RATIFIED against S2-T6 commit `fed7c669`; the re-ratification prerequisite is discharged.
 
 ## HUMAN TESTING GATE
 
