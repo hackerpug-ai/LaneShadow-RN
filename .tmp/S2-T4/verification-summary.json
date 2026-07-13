@@ -1,15 +1,20 @@
 {
   "task_id": "S2-T4",
-  "timestamp": "2026-07-13T04:56:47Z",
-  "commit_sha": "b35841c3d5e53db8327c6d94b483650aa63e698a",
+  "timestamp": "2026-07-13T05:16:41Z",
+  "commit_sha": "5808ae055d47022f884aeae3d7f3788bc6e59b36",
   "typecheck": {
     "exit_code": 0
   },
   "lint": {
-    "exit_code": 0,
-    "warnings": 0
+    "exit_code": 1,
+    "warnings": 0,
+    "pre_existing": true,
+    "note": "full 'pnpm exec biome check' exits 1 on pre-existing errors in unrelated files; scoped staged-file lint exits 0; see pre-existing-issues.md",
+    "full_output_file": ".tmp/S2-T4/lint-full-output.txt",
+    "scoped_exit_code": 0,
+    "scoped_note": "pnpm exec biome check scoped to S2-T4 source files (spikeObservability.ts, rideAgentSpike.ts, spikeObservability.integration.test.ts) exits 0 — S2-T4 introduces zero lint errors"
   },
-  "pre_existing_issues": false,
+  "pre_existing_issues": true,
   "requirement_results": [
     {
       "id": "AC-1",
@@ -50,5 +55,6 @@
   ],
   "red_evidence": {
     "required": true
-  }
+  },
+  "evidence_method": "harvest_script + pre_existing_truth_fix"
 }
