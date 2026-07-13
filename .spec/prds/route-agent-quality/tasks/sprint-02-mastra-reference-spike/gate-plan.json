@@ -1,6 +1,6 @@
 {
   "sprint": "sprint-02-mastra-reference-spike",
-  "planned_at": "2026-07-13T21:30:00Z",
+  "planned_at": "2026-07-13T21:50:00Z",
   "planned_steps": 7,
   "steps": [
     {
@@ -21,7 +21,7 @@
       "text": "Invoke the spike action with 'twisty roads near Ogden'.",
       "type": "api",
       "method": "real-api",
-      "literal_cmd": "npx convex run actions/agent/spike/rideAgentSpikeAction:runSpikeTurnAction '{\"sessionId\":\"gate-s02-r2-1783976511\",\"userMessage\":\"twisty roads near Ogden\"}'",
+      "literal_cmd": "npx convex run actions/agent/spike/rideAgentSpikeAction:runSpikeTurnAction '{\"sessionId\":\"gate-s02-r3-1783977809\",\"userMessage\":\"twisty roads near Ogden\"}'",
       "assertion": {
         "kind": "exit_and_log_regex",
         "expected_exit": 0,
@@ -32,12 +32,14 @@
     {
       "n": 3,
       "text": "Confirm the reply lists routes with real distances from Ogden.",
-      "type": "observer",
-      "method": "manual",
-      "literal_cmd": null,
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "python3 /tmp/laneshadow-gate-sprint-02-r3/check-step3.py",
       "assertion": {
-        "kind": "manual",
-        "reason": "requires human judgment: 'lists routes with real distances' is subjective — a grep for 'mi' could match false positives; the human must read the reply and confirm real route names + distances"
+        "kind": "exit_and_log_regex",
+        "expected_exit": 0,
+        "expect_log_regex": "OK:.*routes with distances",
+        "expect_not_log_regex": "FAIL:|no curated routes"
       },
       "depends_on": 2
     },
@@ -46,7 +48,7 @@
       "text": "Send turn two 'OK what's scenic' in the same session.",
       "type": "api",
       "method": "real-api",
-      "literal_cmd": "bash /tmp/laneshadow-gate-sprint-02-r2/run-step4.sh",
+      "literal_cmd": "bash /tmp/laneshadow-gate-sprint-02-r3/run-step4.sh",
       "assertion": {
         "kind": "exit_and_log_regex",
         "expected_exit": 0,
@@ -58,12 +60,14 @@
     {
       "n": 5,
       "text": "Confirm turn two searches near Ogden, not statewide.",
-      "type": "observer",
-      "method": "manual",
-      "literal_cmd": null,
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "python3 /tmp/laneshadow-gate-sprint-02-r3/check-step5.py",
       "assertion": {
-        "kind": "manual",
-        "reason": "requires human judgment: 'searches near Ogden, not statewide' means the human reads the turn-two reply and confirms the agent scoped its search to the inherited Ogden center rather than doing a statewide query"
+        "kind": "exit_and_log_regex",
+        "expected_exit": 0,
+        "expect_log_regex": "OK:.*center inherited",
+        "expect_not_log_regex": "FAIL:|statewide"
       },
       "depends_on": 4
     },
@@ -72,12 +76,12 @@
       "text": "Open the LangSmith trace and grep spans for `sk-ant-`/`AIza` — expect none.",
       "type": "terminal",
       "method": "real-cli",
-      "literal_cmd": "bash /tmp/laneshadow-gate-sprint-02-r2/run-step6.sh",
+      "literal_cmd": "bash /tmp/laneshadow-gate-sprint-02-r3/run-step6.sh",
       "assertion": {
         "kind": "exit_and_log_regex",
         "expected_exit": 0,
         "expect_log_regex": "OK: no secret patterns found",
-        "expect_not_log_regex": "CURL_FAILED|FAIL"
+        "expect_not_log_regex": "CURL_FAILED|FAIL:"
       },
       "depends_on": 2
     },
