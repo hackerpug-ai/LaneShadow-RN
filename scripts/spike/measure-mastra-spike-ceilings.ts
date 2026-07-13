@@ -437,6 +437,7 @@ async function main() {
       bundleDeltaBytes = postInstallBytes - baselineBytes
     }
 
+    const baselineSucceeded = baseline.baselineAttempt.exitCode === 0
     const restoreSucceeded = baseline.restoreAttempt.exitCode === 0
     const withinCeilings =
       coldStartMs != null &&
@@ -459,26 +460,30 @@ async function main() {
       postInstallBytes != null &&
       baselineBytes != null
 
-    if (!restoreSucceeded) {
+    if (!baselineSucceeded || !restoreSucceeded) {
+      const failedAttempt = baselineSucceeded ? baseline.restoreAttempt : baseline.baselineAttempt
+      const failedPhase = baselineSucceeded
+        ? 'restoring the current Mastra tree'
+        : 'measuring the baseline tree'
       status = 'blocked'
       blocker = {
         classification: 'environment_or_sandbox_mismatch',
-        command: `${baseline.restoreAttempt.command} ${baseline.restoreAttempt.args.join(' ')}`,
-        exitCode: baseline.restoreAttempt.exitCode,
-        error: 'Cloud-dev restore of the current Mastra tree failed after baseline measurement.',
+        command: `${failedAttempt.command} ${failedAttempt.args.join(' ')}`,
+        exitCode: failedAttempt.exitCode,
+        error: `Cloud-dev ${failedPhase} failed after the current-tree measurement.`,
         rootCause:
-          'The deployment may still point at the pre-@mastra/core baseline, so a pass would ' +
-          'misrepresent which tree is live.',
+          'The baseline and current-tree deployment sequence did not complete, so a pass would ' +
+          'misrepresent the artifact comparison or which tree is live.',
         unblockCondition:
-          'Restore the current tree successfully with npx convex dev --once --typecheck disable, ' +
-          'then re-run this measurement so the cloud-dev deployment and evidence agree.',
+          'Make both cloud-dev pushes succeed with npx convex dev --once --typecheck disable, ' +
+          'then re-run this measurement so the artifact comparison, deployment, and evidence agree.',
       }
       predicateNote =
-        'status NOT pass: baseline artifact was measured, but restoring the current Mastra tree ' +
-        'to cloud-dev failed; evidence is blocked to avoid claiming the wrong deployment is live.'
+        'status NOT pass: the baseline/current-tree cloud-dev sequence failed; evidence is blocked ' +
+        'to avoid claiming an incomplete artifact comparison or the wrong deployment is live.'
     } else if (hasRealNumbers && withinCeilings) {
       status = 'pass'
-      predicateNote = `status='pass' iff coldStartMs(${coldStartMs})<=${COLD_START_CEILING_MS} AND bundleDeltaBytes(${bundleDeltaBytes})<=${BUNDLE_DELTA_CEILING_BYTES} (real cloud-dev observations).`
+      predicateNote = `status='pass' iff coldStartMs(${coldStartMs})<=${COLD_START_CEILING_MS} AND bundleDeltaBytes(${bundleDeltaBytes})>0 AND bundleDeltaBytes(${bundleDeltaBytes})<=${BUNDLE_DELTA_CEILING_BYTES} AND baseline/restore exits are 0 (real cloud-dev observations).`
     } else if (hasRealNumbers) {
       status = 'adjust'
       predicateNote = `status='adjust': ceiling comparison — coldStartMs=${coldStartMs}, bundleDeltaBytes=${bundleDeltaBytes}, baselineBytes=${baselineBytes}, postInstallBytes=${postInstallBytes}.`

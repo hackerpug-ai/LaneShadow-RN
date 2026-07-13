@@ -107,8 +107,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 - EVIDENCE: `file` (required_capture: true)
 - CASE 1 — start_ref `cloud_dev_cold_start`
     - ACTION (cli_user): write evidence/s2-t5-ceilings.json with coldStartMs, bundleDeltaBytes, ceilings, and status
-    - MUST_OBSERVE: typeof json.coldStartMs === 'number' && json.coldStartMs <= 10000; typeof json.bundleDeltaBytes === 'number' && json.bundleDeltaBytes <= 10485760; json.ceilings.coldStartMs === 10000 && json.ceilings.bundleDeltaBytes === 10485760; json.status === 'pass' iff (json.coldStartMs <= 10000 && json.bundleDeltaBytes <= 10485760)
-    - MUST_NOT_OBSERVE: the evidence file is absent or empty (0 bytes / nothing recorded); json.status === 'pass' while json.coldStartMs > 10000 || json.bundleDeltaBytes > 10485760
+    - MUST_OBSERVE: typeof json.coldStartMs === 'number' && json.coldStartMs <= 10000; typeof json.bundleDeltaBytes === 'number' && json.bundleDeltaBytes > 0 && json.bundleDeltaBytes <= 10485760; json.ceilings.coldStartMs === 10000 && json.ceilings.bundleDeltaBytes === 10485760; json.status === 'pass' iff (json.coldStartMs <= 10000 && json.bundleDeltaBytes > 0 && json.bundleDeltaBytes <= 10485760 and all baseline/current-tree cloud-dev deploy attempts exit 0)
+    - MUST_NOT_OBSERVE: the evidence file is absent or empty (0 bytes / nothing recorded); json.status === 'pass' while json.coldStartMs > 10000 || json.bundleDeltaBytes <= 0 || json.bundleDeltaBytes > 10485760 || any baseline/current-tree deploy attempt exits nonzero
 
 ## TEST CRITERIA
 
@@ -116,7 +116,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 |----|-----------|---------|--------|
 | TC-1 | the recorded coldStartMs is a positive number <= 10000 with deployment==='cloud-dev', measured on the first cloud-dev invocation after `npx convex dev --once --typecheck disable` | AC-1 | `pnpm test convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts -t "cold-start first invocation on cloud dev is within 10s"` |
 | TC-2 | the recorded bundleDeltaBytes > 0 && <= 10485760, equal to postInstallBytes - baselineBytes measured from the deploy artifact | AC-2 | `pnpm test convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts -t "bundle delta from @mastra/core is within 10MB"` |
-| TC-3 | evidence/s2-t5-ceilings.json records numeric coldStartMs and bundleDeltaBytes, the ceilings (10000, 10485760), and status==='pass' only when both are within ceiling | AC-3 | `pnpm test convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts -t "ceilings evidence artifact records both numbers and a computed verdict"` |
+| TC-3 | evidence/s2-t5-ceilings.json records numeric coldStartMs and positive bundleDeltaBytes, the ceilings (10000, 10485760), and status==='pass' only when both are within ceiling and baseline/current-tree deploy attempts exit 0 | AC-3 | `pnpm test convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts -t "ceilings evidence artifact records both numbers and a computed verdict"` |
 
 ## SCOPE (file-level write permissions)
 
@@ -335,13 +335,13 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
             "end_state": {
               "must_observe": [
                 "typeof json.coldStartMs === 'number' && json.coldStartMs <= 10000",
-                "typeof json.bundleDeltaBytes === 'number' && json.bundleDeltaBytes <= 10485760",
+                "typeof json.bundleDeltaBytes === 'number' && json.bundleDeltaBytes > 0 && json.bundleDeltaBytes <= 10485760",
                 "json.ceilings.coldStartMs === 10000 && json.ceilings.bundleDeltaBytes === 10485760",
-                "json.status === 'pass' iff (json.coldStartMs <= 10000 && json.bundleDeltaBytes <= 10485760)"
+                "json.status === 'pass' iff (json.coldStartMs <= 10000 && json.bundleDeltaBytes > 0 && json.bundleDeltaBytes <= 10485760 and all baseline/current-tree cloud-dev deploy attempts exit 0)"
               ],
               "must_not_observe": [
                 "the evidence file is absent or empty (0 bytes / nothing recorded)",
-                "json.status === 'pass' while json.coldStartMs > 10000 || json.bundleDeltaBytes > 10485760"
+                "json.status === 'pass' while json.coldStartMs > 10000 || json.bundleDeltaBytes <= 0 || json.bundleDeltaBytes > 10485760 || any baseline/current-tree deploy attempt exits nonzero"
               ]
             }
           }
@@ -369,7 +369,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
       "type": "test_criterion",
       "primary": false,
       "maps_to_ac": "AC-3",
-      "description": "evidence/s2-t5-ceilings.json records numeric coldStartMs and bundleDeltaBytes, the ceilings (10000, 10485760), and status==='pass' only when both are within ceiling",
+      "description": "evidence/s2-t5-ceilings.json records numeric coldStartMs and positive bundleDeltaBytes, the ceilings (10000, 10485760), and status==='pass' only when both are within ceiling and baseline/current-tree deploy attempts exit 0",
       "verify": "pnpm test convex/actions/agent/spike/__tests__/coldStartBundle.integration.test.ts -t \"ceilings evidence artifact records both numbers and a computed verdict\""
     }
   ]
