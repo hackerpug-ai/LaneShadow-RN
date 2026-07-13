@@ -437,14 +437,16 @@ async function main() {
       bundleDeltaBytes = postInstallBytes - baselineBytes
     }
 
+    const restoreSucceeded = baseline.restoreAttempt.exitCode === 0
     const withinCeilings =
       coldStartMs != null &&
       coldStartMs > 0 &&
       coldStartMs <= COLD_START_CEILING_MS &&
       bundleDeltaBytes != null &&
-      // Delta may be negative if footprint shrank; treat as within ceiling when <= 10MB.
+      // The task's artifact-delta contract requires a real positive delta.
+      bundleDeltaBytes > 0 &&
       bundleDeltaBytes <= BUNDLE_DELTA_CEILING_BYTES &&
-      // Require a real post-install size; delta of 0 is allowed only if both measured.
+      // Require real artifact sizes in addition to the positive delta.
       postInstallBytes != null &&
       baselineBytes != null
 
@@ -457,7 +459,24 @@ async function main() {
       postInstallBytes != null &&
       baselineBytes != null
 
-    if (hasRealNumbers && withinCeilings) {
+    if (!restoreSucceeded) {
+      status = 'blocked'
+      blocker = {
+        classification: 'environment_or_sandbox_mismatch',
+        command: `${baseline.restoreAttempt.command} ${baseline.restoreAttempt.args.join(' ')}`,
+        exitCode: baseline.restoreAttempt.exitCode,
+        error: 'Cloud-dev restore of the current Mastra tree failed after baseline measurement.',
+        rootCause:
+          'The deployment may still point at the pre-@mastra/core baseline, so a pass would ' +
+          'misrepresent which tree is live.',
+        unblockCondition:
+          'Restore the current tree successfully with npx convex dev --once --typecheck disable, ' +
+          'then re-run this measurement so the cloud-dev deployment and evidence agree.',
+      }
+      predicateNote =
+        'status NOT pass: baseline artifact was measured, but restoring the current Mastra tree ' +
+        'to cloud-dev failed; evidence is blocked to avoid claiming the wrong deployment is live.'
+    } else if (hasRealNumbers && withinCeilings) {
       status = 'pass'
       predicateNote = `status='pass' iff coldStartMs(${coldStartMs})<=${COLD_START_CEILING_MS} AND bundleDeltaBytes(${bundleDeltaBytes})<=${BUNDLE_DELTA_CEILING_BYTES} (real cloud-dev observations).`
     } else if (hasRealNumbers) {

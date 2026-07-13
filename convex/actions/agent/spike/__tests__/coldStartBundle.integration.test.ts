@@ -162,6 +162,7 @@ describe('blocker fidelity (not an AC)', () => {
       expect(typeof e.coldStartMs).toBe('number')
       expect(typeof e.bundleDeltaBytes).toBe('number')
       expect((e.coldStartMs as number) <= 10000).toBe(true)
+      expect((e.bundleDeltaBytes as number) > 0).toBe(true)
       expect((e.bundleDeltaBytes as number) <= 10485760).toBe(true)
     } else {
       // Not pass — must be a real verdict with a real reason.
