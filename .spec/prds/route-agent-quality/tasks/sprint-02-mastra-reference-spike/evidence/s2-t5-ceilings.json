@@ -1,27 +1,19 @@
 {
   "taskId": "S2-T5",
-  "measuredAt": "2026-07-13T17:59:39.420Z",
+  "measuredAt": "2026-07-13T18:41:13.875Z",
   "deployment": "cloud-dev",
   "convexVersion": "1.34.1",
-  "status": "blocked",
+  "status": "pass",
   "ceilings": {
     "coldStartMs": 8000,
     "bundleDeltaBytes": 10485760
   },
-  "coldStartMs": null,
-  "bundleDeltaBytes": 2904132,
+  "coldStartMs": 2165,
+  "bundleDeltaBytes": 2904363,
   "baselineBytes": 1762259,
-  "postInstallBytes": 4666391,
+  "postInstallBytes": 4666622,
   "baselineSource": "git ref 6bc5e5c1^ cloud-dev deploy artifact (pre-@mastra/core); restored current tree after measure",
-  "blocker": {
-    "classification": "environment_or_sandbox_mismatch",
-    "command": "measureColdStart / baseline parse",
-    "exitCode": -1,
-    "error": "Cloud-dev deploy succeeded but cold-start and/or artifact byte parse failed to yield real numbers.",
-    "rootCause": "Invocation or verbose startPush parse did not produce measurable coldStartMs / bundle bytes.",
-    "unblockCondition": "Confirm spike action is exported, LANGSMITH/ANTHROPIC keys on cloud-dev, and verbose deploy logs contain startPush package sizes; re-run."
-  },
-  "predicateNote": "status NOT 'pass': deploy succeeded but real cold-start/bundle numbers incomplete. coldStartMs/bundleDeltaBytes left null or partial — never faked.",
+  "predicateNote": "status='pass' iff coldStartMs(2165)<=8000 AND bundleDeltaBytes(2904363)<=10485760 (real cloud-dev observations).",
   "probe": {
     "deployAttempts": [
       {
