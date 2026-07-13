@@ -1,0 +1,13 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+{
+  "text": "Using the inherited center from your previous search, let me find scenic routes nearby!Here's a great option near you: **Twist of Tepusquet Loop** — just under a mile away and highly rated with a score of 0.85. It's a curated, rider-ready route that should offer some solid scenic riding in the Tepusquet area! 🏍️",
+  "tripwireHandled": false,
+  "workingMemory": {
+    "center": {
+      "lat": 34.9530337,
+      "lng": -120.4357191
+    },
+    "place": "Santa Maria, CA, USA",
+    "sessionId": "s2-t7-tepusquet-live-001"
+  }
+}

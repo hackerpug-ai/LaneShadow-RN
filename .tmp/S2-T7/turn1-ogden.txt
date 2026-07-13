@@ -1,0 +1,13 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+{
+  "text": "Let me look that up for you — first I'll geocode Ogden, then search for curated routes nearby!Got it! Now searching for twisty routes within 50 miles of Ogden...Unfortunately, it looks like there are **no curated routes currently cataloged within 50 miles of Ogden, UT**. This area may not have coverage yet in LaneShadow's curated route catalog.\n\nHere are a few things you can try:\n- **Expand your search radius** — want me to try 100 miles out?\n- **Try a nearby city** — like Salt Lake City, Park City, or Provo, which may have more route coverage.\n\nJust say the word! 🏍️",
+  "tripwireHandled": false,
+  "workingMemory": {
+    "center": {
+      "lat": 41.2185625,
+      "lng": -111.97051
+    },
+    "place": "Ogden, UT, USA",
+    "sessionId": "s2-t7-ogden-live-001"
+  }
+}
