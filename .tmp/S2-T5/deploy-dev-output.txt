@@ -6,4 +6,4 @@ Found multiple EXPO_PUBLIC_CONVEX_URL environment variables in .env.local so can
 
 [36mA minor update is available for Convex[39m [2m(1.34.1 → 1.42.1)[22m
 [2mChangelog:[22m [4mhttps://github.com/get-convex/convex-js/blob/main/CHANGELOG.md#changelog[24m
-✔ 13:41:13 Convex functions ready! (8.63s)
+✔ 13:43:18 Convex functions ready! (10.37s)

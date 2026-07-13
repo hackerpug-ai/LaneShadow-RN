@@ -2,6 +2,6 @@
   "text": "banana.",
   "tripwireHandled": false,
   "workingMemory": {
-    "sessionId": "s2-t5-coldstart-1783971680735"
+    "sessionId": "s2-t5-coldstart-1783971806273"
   }
 }
