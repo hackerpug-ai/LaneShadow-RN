@@ -1,0 +1,98 @@
+{
+  "sprint": "sprint-02-mastra-reference-spike",
+  "planned_at": "2026-07-13T21:30:00Z",
+  "planned_steps": 7,
+  "steps": [
+    {
+      "n": 1,
+      "text": "Run `npx convex dev --once --typecheck disable` to push to the cloud dev deployment.",
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "npx convex dev --once --typecheck disable",
+      "assertion": {
+        "kind": "exit_and_log_regex",
+        "expected_exit": 0,
+        "expect_log_regex": "ready|deployed|pushed",
+        "expect_not_log_regex": "ModulesTooLarge|Error:"
+      }
+    },
+    {
+      "n": 2,
+      "text": "Invoke the spike action with 'twisty roads near Ogden'.",
+      "type": "api",
+      "method": "real-api",
+      "literal_cmd": "npx convex run actions/agent/spike/rideAgentSpikeAction:runSpikeTurnAction '{\"sessionId\":\"gate-s02-r2-1783976511\",\"userMessage\":\"twisty roads near Ogden\"}'",
+      "assertion": {
+        "kind": "exit_and_log_regex",
+        "expected_exit": 0,
+        "expect_log_regex": "text|center",
+        "expect_not_log_regex": "Could not find function|UnhandledError"
+      }
+    },
+    {
+      "n": 3,
+      "text": "Confirm the reply lists routes with real distances from Ogden.",
+      "type": "observer",
+      "method": "manual",
+      "literal_cmd": null,
+      "assertion": {
+        "kind": "manual",
+        "reason": "requires human judgment: 'lists routes with real distances' is subjective — a grep for 'mi' could match false positives; the human must read the reply and confirm real route names + distances"
+      },
+      "depends_on": 2
+    },
+    {
+      "n": 4,
+      "text": "Send turn two 'OK what's scenic' in the same session.",
+      "type": "api",
+      "method": "real-api",
+      "literal_cmd": "bash /tmp/laneshadow-gate-sprint-02-r2/run-step4.sh",
+      "assertion": {
+        "kind": "exit_and_log_regex",
+        "expected_exit": 0,
+        "expect_log_regex": "text|center",
+        "expect_not_log_regex": "Could not find function|UnhandledError"
+      },
+      "depends_on": 2
+    },
+    {
+      "n": 5,
+      "text": "Confirm turn two searches near Ogden, not statewide.",
+      "type": "observer",
+      "method": "manual",
+      "literal_cmd": null,
+      "assertion": {
+        "kind": "manual",
+        "reason": "requires human judgment: 'searches near Ogden, not statewide' means the human reads the turn-two reply and confirms the agent scoped its search to the inherited Ogden center rather than doing a statewide query"
+      },
+      "depends_on": 4
+    },
+    {
+      "n": 6,
+      "text": "Open the LangSmith trace and grep spans for `sk-ant-`/`AIza` — expect none.",
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "bash /tmp/laneshadow-gate-sprint-02-r2/run-step6.sh",
+      "assertion": {
+        "kind": "exit_and_log_regex",
+        "expected_exit": 0,
+        "expect_log_regex": "OK: no secret patterns found",
+        "expect_not_log_regex": "CURL_FAILED|FAIL"
+      },
+      "depends_on": 2
+    },
+    {
+      "n": 7,
+      "text": "Run a z.ai GLM-5.2 structured-output completion; confirm a non-empty parsed object.",
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "pnpm tsx scripts/spike/zai-glm-proof.ts",
+      "assertion": {
+        "kind": "exit_and_log_regex",
+        "expected_exit": 0,
+        "expect_log_regex": "ok.*true|Proof PASSED|structured",
+        "expect_not_log_regex": "FAIL|FATAL|missing Z_AI_API_KEY"
+      }
+    }
+  ]
+}
