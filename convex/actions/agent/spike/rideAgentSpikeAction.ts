@@ -27,8 +27,10 @@
  */
 
 import { v } from 'convex/values'
+import { internal } from '../../../_generated/api'
 import { action } from '../../../_generated/server'
 import { runSpikeTurn, type SpikeTurnOutput, type WorkingMemory } from './rideAgentSpike'
+import type { QueryNearestCuratedRoutesFn } from './spikeTools'
 
 /**
  * Input validator for the spike action. The workingMemory field is optional
@@ -77,11 +79,25 @@ export const runSpikeTurnAction = action({
     userMessage: v.string(),
     workingMemory: v.optional(workingMemoryValidator),
   },
-  handler: async (_ctx, args): Promise<SpikeTurnActionResult> => {
+  handler: async (ctx, args): Promise<SpikeTurnActionResult> => {
+    // REDHAT-RH001: Create the ctx.runQuery seam for searchCuratedRoutes.
+    // This replaces the execSync('npx convex run') CLI bridge that fails
+    // inside the Convex 'use node' action sandbox (npx is not available).
+    // The query function is threaded: action → runSpikeTurn →
+    // createRideAgentSpike → createSearchCuratedRoutes → tool.execute.
+    const queryNearestCuratedRoutes: QueryNearestCuratedRoutesFn = async (queryArgs) => {
+      return await ctx.runQuery(internal.curatedRoutes.listCuratedRoutesInternal, {
+        center: queryArgs.center,
+        sort: 'nearest',
+        limit: queryArgs.limit,
+      })
+    }
+
     const raw = await runSpikeTurn({
       sessionId: args.sessionId,
       userMessage: args.userMessage,
       workingMemory: args.workingMemory,
+      queryNearestCuratedRoutes,
     })
     // Strip Mastra's FullOutput (Date-laden) to a Convex-serializable shape
     // BEFORE it crosses the wire.

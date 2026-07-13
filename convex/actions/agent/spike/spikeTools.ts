@@ -16,23 +16,13 @@
  * searchCuratedRoutes wraps the REAL curated_routes catalog via
  * `curatedRoutes.ts`'s `listCuratedRoutesInternal` (nearest mode: real
  * geospatial index, real riderReady gate, real server-computed distanceMi).
- * `listCuratedRoutesInternal` is a Convex `internalQuery` — only invokable
- * from inside the Convex function runtime (ctx.runQuery) or via the Convex
- * CLI's admin-authenticated `convex run`. This task's write-scope is exactly
- * this file + its test (no wrapper action file is in scope), and vitest's
- * own `_generated/api` alias (vitest.config.ts resolve.alias) would silently
- * replace a direct import with a mock Proxy — defeating the real-service
- * requirement. So this file reaches the REAL dev deployment the same way
- * this codebase's existing DATA-008 integration coverage does (see
- * `../tools/__tests__/discoverCuratedRoutes.integration.test.ts`'s
- * `convexRun` helper): by shelling to `npx convex run`. This executes the
- * real production function against the real dev deployment — it is not a
- * mock or a stub. When this tool is wired into S2-T3's Agent (which will run
- * inside a real Convex 'use node' action with a live ActionCtx), a follow-up
- * task should replace `queryNearestCuratedRoutesViaRealDeployment` with a
- * direct `ctx.runQuery(internal.curatedRoutes.listCuratedRoutesInternal, args)`
- * call — far cleaner and faster than a CLI round-trip. That refactor is
- * explicitly out of scope here (writeProhibited: convex/curatedRoutes.ts).
+ *
+ * REDHAT-RH001: searchCuratedRoutes is now a FACTORY (createSearchCuratedRoutes)
+ * that accepts a query function. The PRIMARY path (deployed Convex action)
+ * passes a `ctx.runQuery` seam; the FALLBACK path (vitest without ActionCtx)
+ * uses the CLI bridge. This fixes the production bug where the deployed action
+ * shelled to `npx convex run` (unavailable inside the Convex 'use node'
+ * sandbox), causing every searchCuratedRoutes call to fail with query_failed.
  */
 
 import { execSync } from 'node:child_process'
@@ -153,13 +143,33 @@ type NearestCuratedRouteRow = {
 }
 
 /**
- * SPIKE-SCOPED bridge to the real dev deployment. See the file-level doc
- * comment above for why this shells to the Convex CLI instead of importing
- * `_generated/api` + calling `ctx.runQuery` directly. This is a real call
- * against the real curated_routes catalog on the real dev deployment — not a
- * mock, not a stub, not a hardcoded fixture.
+ * Query function signature for fetching nearest curated routes.
+ *
+ * PRIMARY path (deployed action): implemented via `ctx.runQuery` in
+ * rideAgentSpikeAction.ts — a direct in-runtime call to
+ * `internal.curatedRoutes.listCuratedRoutesInternal`.
+ *
+ * FALLBACK path (vitest without ActionCtx): uses the CLI bridge
+ * (`queryNearestCuratedRoutesViaCli` below), which shells to
+ * `npx convex run` against the real dev deployment.
  */
-function queryNearestCuratedRoutesViaRealDeployment(args: {
+export type QueryNearestCuratedRoutesFn = (args: {
+  center: { lat: number; lng: number }
+  limit: number
+}) => Promise<NearestCuratedRouteRow[]> | NearestCuratedRouteRow[]
+
+/**
+ * CLI bridge — LOCAL TESTING FALLBACK only (vitest without ActionCtx).
+ *
+ * Shells to `npx convex run` to execute the real production function against
+ * the real dev deployment. This is NOT a mock or a stub — it hits the same
+ * curated_routes catalog the deployed action queries via ctx.runQuery.
+ *
+ * This is the fallback when no queryFn is provided to
+ * `createSearchCuratedRoutes`. The PRIMARY path (deployed action) injects a
+ * `ctx.runQuery` seam instead, avoiding the CLI round-trip entirely.
+ */
+function queryNearestCuratedRoutesViaCli(args: {
   center: { lat: number; lng: number }
   limit: number
 }): NearestCuratedRouteRow[] {
@@ -184,65 +194,83 @@ function queryNearestCuratedRoutesViaRealDeployment(args: {
   return Array.isArray(parsed) ? parsed : []
 }
 
-export const searchCuratedRoutes = createTool({
-  id: 'searchCuratedRoutes',
-  description:
-    'Find curated motorcycle routes near a resolved center within radiusMi, sorted nearest-first, using the real curated_routes catalog on the dev deployment (server-computed distanceMi, riderReady-gated). Errors-as-data: a missing center returns { ok:false, errorCode:"center_required" } and never runs a national/statewide fallback query.',
-  inputSchema: searchCuratedRoutesInputSchema,
-  outputSchema: searchCuratedRoutesOutputSchema,
-  execute: async (inputData, _context) => {
-    if (!inputData.center) {
-      return {
-        ok: false as const,
-        errorCode: 'center_required' as const,
-        message:
-          'A resolved center point is required to search curated routes — no national/statewide fallback is performed.',
+/**
+ * Factory: create a searchCuratedRoutes tool with the given query function.
+ *
+ * @param queryFn — when provided (deployed action), uses `ctx.runQuery` for
+ *   a direct in-runtime call. When omitted (vitest), falls back to the CLI
+ *   bridge (`npx convex run`) against the real dev deployment.
+ * @returns a @mastra/core createTool instance.
+ */
+export function createSearchCuratedRoutes(queryFn?: QueryNearestCuratedRoutesFn) {
+  const resolveQuery = queryFn ?? queryNearestCuratedRoutesViaCli
+
+  return createTool({
+    id: 'searchCuratedRoutes',
+    description:
+      'Find curated motorcycle routes near a resolved center within radiusMi, sorted nearest-first, using the real curated_routes catalog on the dev deployment (server-computed distanceMi, riderReady-gated). Errors-as-data: a missing center returns { ok:false, errorCode:"center_required" } and never runs a national/statewide fallback query.',
+    inputSchema: searchCuratedRoutesInputSchema,
+    outputSchema: searchCuratedRoutesOutputSchema,
+    execute: async (inputData, _context) => {
+      if (!inputData.center) {
+        return {
+          ok: false as const,
+          errorCode: 'center_required' as const,
+          message:
+            'A resolved center point is required to search curated routes — no national/statewide fallback is performed.',
+        }
       }
-    }
 
-    const center = inputData.center
+      const center = inputData.center
 
-    let rawRoutes: NearestCuratedRouteRow[]
-    try {
-      rawRoutes = queryNearestCuratedRoutesViaRealDeployment({
-        center,
-        limit: inputData.limit ?? 25,
-      })
-    } catch (err) {
-      return {
-        ok: false as const,
-        errorCode: 'query_failed' as const,
-        message: err instanceof Error ? err.message : 'Curated route search failed.',
+      let rawRoutes: NearestCuratedRouteRow[]
+      try {
+        rawRoutes = await resolveQuery({
+          center,
+          limit: inputData.limit ?? 25,
+        })
+      } catch (err) {
+        return {
+          ok: false as const,
+          errorCode: 'query_failed' as const,
+          message: err instanceof Error ? err.message : 'Curated route search failed.',
+        }
       }
-    }
 
-    const withinRadius = rawRoutes
-      .filter(
-        (route): route is NearestCuratedRouteRow & { distanceMi: number } =>
-          typeof route.distanceMi === 'number' && route.distanceMi <= inputData.radiusMi,
-      )
-      .sort((a, b) => a.distanceMi - b.distanceMi)
+      const withinRadius = rawRoutes
+        .filter(
+          (route): route is NearestCuratedRouteRow & { distanceMi: number } =>
+            typeof route.distanceMi === 'number' && route.distanceMi <= inputData.radiusMi,
+        )
+        .sort((a, b) => a.distanceMi - b.distanceMi)
 
-    if (withinRadius.length === 0) {
-      return {
-        ok: false as const,
-        errorCode: 'no_results' as const,
-        message: `No curated routes found within ${inputData.radiusMi}mi of the resolved center.`,
+      if (withinRadius.length === 0) {
+        return {
+          ok: false as const,
+          errorCode: 'no_results' as const,
+          message: `No curated routes found within ${inputData.radiusMi}mi of the resolved center.`,
+        }
       }
-    }
 
-    return {
-      ok: true as const,
-      routes: withinRadius.map((route) => ({
-        routeId: route.routeId,
-        name: route.name,
-        distanceMi: route.distanceMi,
-        score: route.compositeScore,
-        // listCuratedRoutesInternal's nearest mode already filters
-        // riderReady===true server-side (convex/curatedRoutes.ts) — every
-        // row here is real rider-ready, never fabricated.
-        riderReady: true as const,
-      })),
-    }
-  },
-})
+      return {
+        ok: true as const,
+        routes: withinRadius.map((route) => ({
+          routeId: route.routeId,
+          name: route.name,
+          distanceMi: route.distanceMi,
+          score: route.compositeScore,
+          // listCuratedRoutesInternal's nearest mode already filters
+          // riderReady===true server-side (convex/curatedRoutes.ts) — every
+          // row here is real rider-ready, never fabricated.
+          riderReady: true as const,
+        })),
+      }
+    },
+  })
+}
+
+/**
+ * Backward-compat export: the default tool uses the CLI bridge (vitest path).
+ * The deployed action uses `createSearchCuratedRoutes(ctxRunQueryFn)` instead.
+ */
+export const searchCuratedRoutes = createSearchCuratedRoutes()

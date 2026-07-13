@@ -48,7 +48,11 @@ import { RequestContext } from '@mastra/core/request-context'
 import type { FullOutput } from '@mastra/core/stream'
 import type { Observability } from '@mastra/observability'
 import { getOrchestratorModel } from '../lib/models'
-import { geocodePlace, searchCuratedRoutes } from './spikeTools'
+import {
+  createSearchCuratedRoutes,
+  geocodePlace,
+  type QueryNearestCuratedRoutesFn,
+} from './spikeTools'
 
 // ─────────────────────────────────────────────────────────────────────────
 // Types — the deterministic working-memory seam
@@ -79,6 +83,12 @@ export type SpikeTurnInput = {
    * instead of the orchestrator tier ModelRouter string.
    */
   modelOverride?: Parameters<typeof anthropic>[0] extends string ? never : never
+  /**
+   * REDHAT-RH001: Query function for searchCuratedRoutes. When provided
+   * (deployed action), the tool uses `ctx.runQuery` for a direct in-runtime
+   * call. When omitted (vitest), falls back to the CLI bridge.
+   */
+  queryNearestCuratedRoutes?: QueryNearestCuratedRoutesFn
 }
 
 export type SpikeTurnOutput = {
@@ -110,8 +120,21 @@ let agentSingleton: Agent | undefined
  * @param modelOverride — when provided, returns a NEW Agent instance using
  *   the explicit AI-SDK model instance (the escape hatch). When omitted,
  *   returns the cached singleton using the orchestrator tier string.
+ * @param queryNearestCuratedRoutes — REDHAT-RH001: when provided (deployed
+ *   action), the searchCuratedRoutes tool uses `ctx.runQuery` for a direct
+ *   in-runtime call. When omitted (vitest), falls back to the CLI bridge.
+ *   A non-undefined value forces a fresh Agent (no singleton cache) so the
+ *   ctx.runQuery seam is always wired.
  */
-export function createRideAgentSpike(modelOverride?: unknown): Agent {
+export function createRideAgentSpike(
+  modelOverride?: unknown,
+  queryNearestCuratedRoutes?: QueryNearestCuratedRoutesFn,
+): Agent {
+  const tools = {
+    geocodePlace,
+    searchCuratedRoutes: createSearchCuratedRoutes(queryNearestCuratedRoutes),
+  }
+
   // Escape hatch: explicit AI-SDK model instance
   if (modelOverride !== undefined) {
     return new Agent({
@@ -119,7 +142,21 @@ export function createRideAgentSpike(modelOverride?: unknown): Agent {
       name: 'Ride Agent Spike',
       instructions: ({ requestContext }) => buildInstructions(requestContext),
       model: modelOverride as any,
-      tools: { geocodePlace, searchCuratedRoutes },
+      tools,
+      memory: undefined,
+    })
+  }
+
+  // REDHAT-RH001: when a queryFn is provided (deployed action), always
+  // create a fresh Agent so the ctx.runQuery seam is wired. The singleton
+  // cache is only safe for the default vitest path (CLI bridge, no queryFn).
+  if (queryNearestCuratedRoutes !== undefined) {
+    return new Agent({
+      id: 'ride-agent-spike' as const,
+      name: 'Ride Agent Spike',
+      instructions: ({ requestContext }) => buildInstructions(requestContext),
+      model: getOrchestratorModel(),
+      tools,
       memory: undefined,
     })
   }
@@ -132,7 +169,7 @@ export function createRideAgentSpike(modelOverride?: unknown): Agent {
       // The orchestrator tier ModelRouter STRING from S2-T1's getOrchestratorModel().
       // No provider/model literal outside the tier map (constraint #2).
       model: getOrchestratorModel(),
-      tools: { geocodePlace, searchCuratedRoutes },
+      tools,
       // memory: undefined — NO @mastra/memory anywhere (risk #16 resolution).
       // Deterministic working memory rides the session via RequestContext.
       memory: undefined,
@@ -218,7 +255,7 @@ export async function runSpikeTurn(input: SpikeTurnInput): Promise<SpikeTurnOutp
   }
 
   // Get the stateless agent (singleton by default, override for escape hatch)
-  let agent = createRideAgentSpike(input.modelOverride)
+  let agent = createRideAgentSpike(input.modelOverride, input.queryNearestCuratedRoutes)
   let result: FullOutput<undefined>
 
   try {
@@ -240,7 +277,7 @@ export async function runSpikeTurn(input: SpikeTurnInput): Promise<SpikeTurnOutp
       throw err
     }
 
-    agent = createRideAgentSpike(anthropic('claude-sonnet-4-6'))
+    agent = createRideAgentSpike(anthropic('claude-sonnet-4-6'), input.queryNearestCuratedRoutes)
     result = await agent.generate(input.userMessage, {
       requestContext,
       maxSteps: 5,
@@ -295,6 +332,11 @@ export type ObservedSpikeTurnInput = {
   promptVersion: string
   /** Tier stamp — emitted on every span via requestContextKeys. */
   tier: string
+  /**
+   * REDHAT-RH001: Query function for searchCuratedRoutes. When provided
+   * (deployed action), uses ctx.runQuery. When omitted (vitest), CLI bridge.
+   */
+  queryNearestCuratedRoutes?: QueryNearestCuratedRoutesFn
 }
 
 /**
@@ -310,12 +352,15 @@ const observedMastraCache = new WeakMap<Observability, Mastra>()
  * to the Agent — after that, agent.generate() emits spans through both
  * exporters (OTLP→LangSmith + TestExporter capture).
  */
-function getObservedMastra(observability: Observability): Mastra {
+function getObservedMastra(
+  observability: Observability,
+  queryFn?: QueryNearestCuratedRoutesFn,
+): Mastra {
   let mastra = observedMastraCache.get(observability)
   if (!mastra) {
     mastra = new Mastra({
       agents: {
-        rideAgent: createRideAgentSpike(),
+        rideAgent: createRideAgentSpike(undefined, queryFn),
       },
       observability,
     })
@@ -345,7 +390,7 @@ function getObservedMastra(observability: Observability): Mastra {
 export async function runObservedSpikeTurn(
   input: ObservedSpikeTurnInput,
 ): Promise<SpikeTurnOutput> {
-  const mastra = getObservedMastra(input.observability)
+  const mastra = getObservedMastra(input.observability, input.queryNearestCuratedRoutes)
   const agent = mastra.getAgent('rideAgent')
 
   // Build per-session working memory (threaded through arg/return, NOT module scope)
@@ -400,7 +445,10 @@ export async function runObservedSpikeTurn(
       name: 'Ride Agent Spike',
       instructions: ({ requestContext: rc }) => buildInstructions(rc),
       model: anthropic('claude-sonnet-4-6'),
-      tools: { geocodePlace, searchCuratedRoutes },
+      tools: {
+        geocodePlace,
+        searchCuratedRoutes: createSearchCuratedRoutes(input.queryNearestCuratedRoutes),
+      },
       memory: undefined,
     })
 
