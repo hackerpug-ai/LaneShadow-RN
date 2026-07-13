@@ -1,0 +1,145 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s02-pickup-grok-174609Z
+> vitest "convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts"
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s02-pickup-grok-174609Z
+
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion
+AI SDK Warning System: To turn off warning logging, set the AI_SDK_LOG_WARNINGS global to false.
+
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion
+{"ac":"AC-1","ok":true,"path":"structured","summary":"This scenic loop starts and ends at Highway 101 in Santa Maria, taking riders east through a series of connected canyon roads over the mountains before returning via Highway 166. It offers a classic mountain and canyon riding experience.","confidence":"high"}
+
+(node:49437) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+(Use `node --trace-warnings ...` to show where the warning was created)
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it
+{"ac":"AC-2","ok":true,"path":"structured","summary":"A scenic motorcycle ride along Old Hwy 40 from Cisco Grove to Donner Lake, featuring great twisties and historic stops like Rainbow Lodge and Rainbow Bridge. The route can be enjoyed as an out-and-back trip or combined with other segments.","confidence":"high"}
+
+(node:49437) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-3: parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text > parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text
+{"ac":"AC-3","capturedOk":true,"capturedSummaryLength":162,"proseOk":false,"proseReason":"structured_and_fallback_both_failed","emptyOk":false,"emptyReason":"structured_and_fallback_both_failed"}
+
+stdout | convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-4: createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts > createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts
+{"ac":"AC-4","baseURL":"https://api.z.ai/api/coding/paas/v4","apiKeyMatchesEnvExport":true,"apiKeyIsNonEmptyString":true}
+
+ ✓ convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts (5 tests) 16976ms
+   ✓ zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion  8761ms
+   ✓ zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it  8213ms
+stdout | .kb-run-sprint/worktrees/RH-EVIDENCE-003/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion
+{"ac":"AC-1","ok":true,"path":"structured","summary":"This loop route begins and ends on Highway 101 in Santa Maria, traveling east through a progression of canyon roads—Betteravia, Foxen Canyon, Santa Maria Mesa, and Tepusquet Canyon—over the mountains before returning via Highway 166 West.","confidence":"high"}
+
+(node:49437) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+stdout | .kb-run-sprint/worktrees/RH-EVIDENCE-003/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it
+{"ac":"AC-2","ok":true,"path":"structured","summary":"This motorcycle route follows Old Hwy 40 from Cisco Grove to Donner Lake, featuring excellent twisties and scenic stops at Rainbow Lodge and the Donner Lake vista point past historic Rainbow Bridge. Riders can either return the same way or continue to another segment.","confidence":"high"}
+
+stdout | .kb-run-sprint/worktrees/RH-EVIDENCE-003/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-3: parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text > parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text
+{"ac":"AC-3","capturedOk":true,"capturedSummaryLength":162,"proseOk":false,"proseReason":"structured_and_fallback_both_failed","emptyOk":false,"emptyReason":"structured_and_fallback_both_failed"}
+
+stdout | .kb-run-sprint/worktrees/RH-EVIDENCE-003/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-4: createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts > createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts
+{"ac":"AC-4","baseURL":"https://api.z.ai/api/coding/paas/v4","apiKeyMatchesEnvExport":true,"apiKeyIsNonEmptyString":true}
+
+(node:49437) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+ ✓ .kb-run-sprint/worktrees/RH-EVIDENCE-003/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts (5 tests) 11464ms
+   ✓ zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion  4884ms
+   ✓ zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it  6579ms
+stdout | .kb-run-sprint/worktrees/RH-EVIDENCE/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion
+{"ac":"AC-1","ok":true,"path":"structured","summary":"This route forms a scenic loop starting and ending at Highway 101 near Santa Maria, taking riders east through the winding mountain roads of Foxen and Tepusquet Canyons before returning west via Highway 166.","confidence":"high"}
+
+(node:49437) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+stdout | .kb-run-sprint/worktrees/RH-EVIDENCE/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it
+{"ac":"AC-2","ok":true,"path":"structured","summary":"This route follows Old Hwy 40 from Cisco Grove to Donner Lake, featuring scenic stops at Rainbow Lodge and the Donner Lake vista point past historic Rainbow Bridge, with great twisties along the way.","confidence":"high"}
+
+stdout | .kb-run-sprint/worktrees/RH-EVIDENCE/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-3: parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text > parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text
+{"ac":"AC-3","capturedOk":true,"capturedSummaryLength":162,"proseOk":false,"proseReason":"structured_and_fallback_both_failed","emptyOk":false,"emptyReason":"structured_and_fallback_both_failed"}
+
+stdout | .kb-run-sprint/worktrees/RH-EVIDENCE/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-4: createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts > createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts
+{"ac":"AC-4","baseURL":"https://api.z.ai/api/coding/paas/v4","apiKeyMatchesEnvExport":true,"apiKeyIsNonEmptyString":true}
+
+(node:49437) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+ ✓ .kb-run-sprint/worktrees/RH-EVIDENCE/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts (5 tests) 17082ms
+   ✓ zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion  13253ms
+   ✓ zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it  3828ms
+stdout | .kb-run-sprint/worktrees/REDHAT-RH001/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion
+AI SDK Warning System: To turn off warning logging, set the AI_SDK_LOG_WARNINGS global to false.
+
+stdout | .kb-run-sprint/worktrees/REDHAT-RH001/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion
+{"ac":"AC-1","ok":true,"path":"structured","summary":"This route is a scenic loop starting from Highway 101 in Santa Maria that takes riders through a series of connecting canyon roads (Betteravia, Foxen Canyon, Santa Maria Mesa, and Tepusquet Canyon) up and over a mountain before returning via Highway 166. The route highlights rural canyon and mountain riding in the Santa Maria area of California.","confidence":"high"}
+
+(node:49437) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+stdout | .kb-run-sprint/worktrees/REDHAT-RH001/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it
+{"ac":"AC-2","ok":true,"path":"structured","summary":"This scenic route along Old Hwy 40 from Cisco Grove to Donner Lake features historic landmarks like Rainbow Bridge and excellent twisties. Riders can enjoy beautiful lake vistas at a relaxed pace before turning back or continuing their journey.","confidence":"high"}
+
+stdout | .kb-run-sprint/worktrees/REDHAT-RH001/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-3: parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text > parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text
+{"ac":"AC-3","capturedOk":true,"capturedSummaryLength":162,"proseOk":false,"proseReason":"structured_and_fallback_both_failed","emptyOk":false,"emptyReason":"structured_and_fallback_both_failed"}
+
+stdout | .kb-run-sprint/worktrees/REDHAT-RH001/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-4: createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts > createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts
+{"ac":"AC-4","baseURL":"https://api.z.ai/api/coding/paas/v4","apiKeyMatchesEnvExport":true,"apiKeyIsNonEmptyString":true}
+
+(node:49437) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+ ✓ .kb-run-sprint/worktrees/REDHAT-RH001/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts (5 tests) 15821ms
+   ✓ zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion  6946ms
+   ✓ zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it  8873ms
+stdout | .kb-run-sprint/worktrees/RH-EVIDENCE-003-CURRENT/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion
+{"ac":"AC-1","ok":true,"path":"structured","summary":"This loop route from Santa Maria winds through a succession of canyon roads (Betteravia, Foxen Canyon, Santa Maria Mesa, and Tepusquet Canyon) up and over the mountains before returning via Highway 166 West back to Highway 101.","confidence":"high"}
+
+(node:49437) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+stdout | .kb-run-sprint/worktrees/RH-EVIDENCE-003-CURRENT/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it
+{"ac":"AC-2","ok":true,"path":"structured","summary":"This scenic out-and-back motorcycle route follows Old Hwy 40 from Cisco Grove to Donner Lake, offering great twisties and beautiful stops at Rainbow Lodge and the historic Rainbow Bridge. Riders can choose to turn around at the lake or connect to other nearby rides.","confidence":"high"}
+
+stdout | .kb-run-sprint/worktrees/RH-EVIDENCE-003-CURRENT/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-3: parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text > parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text
+{"ac":"AC-3","capturedOk":true,"capturedSummaryLength":162,"proseOk":false,"proseReason":"structured_and_fallback_both_failed","emptyOk":false,"emptyReason":"structured_and_fallback_both_failed"}
+
+stdout | .kb-run-sprint/worktrees/RH-EVIDENCE-003-CURRENT/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-4: createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts > createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts
+{"ac":"AC-4","baseURL":"https://api.z.ai/api/coding/paas/v4","apiKeyMatchesEnvExport":true,"apiKeyIsNonEmptyString":true}
+
+(node:49437) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+ ✓ .kb-run-sprint/worktrees/RH-EVIDENCE-003-CURRENT/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts (5 tests) 18713ms
+   ✓ zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion  6488ms
+   ✓ zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it  12224ms
+stdout | .kb-run-sprint/worktrees/DEPENDENCY-FIX-001/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion
+AI SDK Warning System: To turn off warning logging, set the AI_SDK_LOG_WARNINGS global to false.
+
+stdout | .kb-run-sprint/worktrees/DEPENDENCY-FIX-001/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion
+{"ac":"AC-1","ok":true,"path":"structured","summary":"This route forms a scenic loop starting and ending at Highway 101 in Santa Maria, winding east through a series of canyon roads — Foxen Canyon, Santa Maria Mesa, and Tepusquet Canyon — over mountainous terrain before returning via Highway 166.","confidence":"high"}
+
+(node:49437) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+stdout | .kb-run-sprint/worktrees/DEPENDENCY-FIX-001/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it
+{"ac":"AC-2","ok":true,"path":"structured","summary":"This scenic out-and-back route along Old Highway 40 from Cisco Grove to Donner Lake features excellent twisties and historic landmarks. Riders can enjoy beautiful lake vistas and notable stops like Rainbow Lodge and Rainbow Bridge.","confidence":"high"}
+
+stdout | .kb-run-sprint/worktrees/DEPENDENCY-FIX-001/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-3: parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text > parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text
+{"ac":"AC-3","capturedOk":true,"capturedSummaryLength":162,"proseOk":false,"proseReason":"structured_and_fallback_both_failed","emptyOk":false,"emptyReason":"structured_and_fallback_both_failed"}
+
+stdout | .kb-run-sprint/worktrees/DEPENDENCY-FIX-001/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-4: createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts > createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts
+{"ac":"AC-4","baseURL":"https://api.z.ai/api/coding/paas/v4","apiKeyMatchesEnvExport":true,"apiKeyIsNonEmptyString":true}
+
+(node:49437) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+ ✓ .kb-run-sprint/worktrees/DEPENDENCY-FIX-001/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts (5 tests) 15783ms
+   ✓ zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion  3894ms
+   ✓ zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it  11888ms
+stdout | .kb-run-sprint/worktrees/S2-T5-COLDSTART-FIX/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion
+AI SDK Warning System: To turn off warning logging, set the AI_SDK_LOG_WARNINGS global to false.
+
+stdout | .kb-run-sprint/worktrees/S2-T5-COLDSTART-FIX/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion
+{"ac":"AC-1","ok":true,"path":"structured","summary":"A scenic loop route from Highway 101 in Santa Maria that winds through multiple canyon roads (Betteravia, Foxen Canyon, Santa Maria Mesa, and Tepusquet Canyon) with mountain climbs and descents before returning via Highway 166.","confidence":"high"}
+
+(node:49437) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+stdout | .kb-run-sprint/worktrees/S2-T5-COLDSTART-FIX/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it
+{"ac":"AC-2","ok":true,"path":"structured","summary":"This scenic ride along Old Hwy 40 from Cisco Grove to Donner Lake features great twisties and notable stops at Rainbow Lodge and the Donner Lake vista point near historic Rainbow Bridge. The route is an out-and-back ride through the Sierra Nevada approximately 50 miles east of Auburn.","confidence":"high"}
+
+stdout | .kb-run-sprint/worktrees/S2-T5-COLDSTART-FIX/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-3: parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text > parseZaiFallback extracts and validates a captured real completion, and returns a typed error for malformed text
+{"ac":"AC-3","capturedOk":true,"capturedSummaryLength":162,"proseOk":false,"proseReason":"structured_and_fallback_both_failed","emptyOk":false,"emptyReason":"structured_and_fallback_both_failed"}
+
+stdout | .kb-run-sprint/worktrees/S2-T5-COLDSTART-FIX/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts > zaiProvider > AC-4: createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts > createZaiProvider is configured with the z.ai baseURL and reads the apiKey from env.ts
+{"ac":"AC-4","baseURL":"https://api.z.ai/api/coding/paas/v4","apiKeyMatchesEnvExport":true,"apiKeyIsNonEmptyString":true}
+
+(node:49437) Warning: AI SDK Warning (zai.chat / glm-5.2): The feature "responseFormat" is not supported. JSON response format schema is only supported with structuredOutputs
+ ✓ .kb-run-sprint/worktrees/S2-T5-COLDSTART-FIX/convex/actions/agent/lib/__tests__/zaiProvider.integration.test.ts (5 tests) 13043ms
+   ✓ zaiProvider > AC-1: returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion > returns a non-empty parsed structured object from a real z.ai GLM-5.2 completion  7995ms
+   ✓ zaiProvider > AC-2: generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it > generalizes to a second real z.ai GLM-5.2 completion and records which path resolved it  5047ms
+
+ Test Files  7 passed (7)
+      Tests  35 passed (35)
+   Start at  13:46:14
+   Duration  112.81s (transform 120ms, setup 89ms, collect 382ms, tests 108.88s, environment 417ms, prepare 32ms)
+
