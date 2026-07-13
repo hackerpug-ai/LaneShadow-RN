@@ -10,8 +10,10 @@
  * 5. Assert on redaction: zero 'sk-ant-', 'sk-', 'AIza', no raw *_API_KEY values
  * 6. Assert the OTLP export returns 2xx and the trace is retrievable by traceId
  *
- * CRITICAL — npx convex dev is broken (ModulesTooLarge). Tests run in-process:
- * import Agent + Observability directly, call agent.generate(), capture spans.
+ * Deployment status: the cloud-dev action and its tool-call path are working.
+ * This suite still runs in-process so it can capture Mastra Observability spans
+ * directly; its route tool uses the documented CLI fallback, while the deployed
+ * action injects its Convex query callback.
  *
  * Environment: @vitest-environment node — same quirk as S2-T3 (jsdom AbortSignal
  * identity doesn't match Node's undici fetch).
@@ -30,7 +32,7 @@ const hasLangsmithKey = Boolean(process.env.LANGSMITH_API_KEY)
 
 const canRunIntegration = hasAnthropicKey && hasLangsmithKey
 
-// Real Anthropic + real Google Geocoding + real Convex CLI + real LangSmith — generous timeout.
+// Real Anthropic + real Google Geocoding + real Convex cloud-dev catalog + real LangSmith — generous timeout.
 const REAL_SERVICE_TIMEOUT_MS = 180_000
 
 /**
