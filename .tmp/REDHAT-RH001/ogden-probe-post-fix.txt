@@ -1,0 +1,13 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+{
+  "text": "No curated routes were found within 50 miles of Ogden, UT just yet — our catalog may not have that area fully covered. Try expanding your search radius, or check back as we continue adding routes!",
+  "tripwireHandled": false,
+  "workingMemory": {
+    "center": {
+      "lat": 41.2185625,
+      "lng": -111.97051
+    },
+    "place": "Ogden, UT, USA",
+    "sessionId": "rh001-verify-ogden-001"
+  }
+}
