@@ -1,0 +1,12 @@
+{
+  "text": "I'll start by geocoding Santa Maria to get the coordinates, then search for routes nearby!Got it! Now let me search for curated motorcycle routes within 50 miles of Santa Maria, CA.Great news! Here's what's near **Santa Maria, CA**:\n\n🏍️ **Twist of Tepusquet Loop** — Just under a mile from your starting point, this highly-rated route (score: 0.85) is rider-ready and promises some satisfying twists through the scenic Tepusquet Canyon area. A perfect pick for a local ride!",
+  "tripwireHandled": false,
+  "workingMemory": {
+    "center": {
+      "lat": 34.9530337,
+      "lng": -120.4357191
+    },
+    "place": "Santa Maria, CA, USA",
+    "sessionId": "s2-t7-observed-tepusquet-001"
+  }
+}

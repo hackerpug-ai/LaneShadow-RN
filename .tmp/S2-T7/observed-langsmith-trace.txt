@@ -1,0 +1,12 @@
+S2-T7 deployed observed action LangSmith verification
+deployment: cloud-dev (dev:quirky-panther-164)
+sessionId: s2-t7-observed-tepusquet-001
+traceId: c90d036e-996c-2f23-5508-d9d09769bb07
+project: LaneShadowDev
+queryEndpoint: https://api.smith.langchain.com/runs/query
+queryStatus: 200
+runCount: 27
+retrieval: trace materialized and queryable after deployed two-turn action run
+turn1Evidence: observed-turn1-tepusquet.txt
+turn2Evidence: observed-turn2-tepusquet.txt
+secrets: no API keys or credential values recorded

@@ -1,0 +1,12 @@
+{
+  "text": "Sure! Let me search for curated routes near your previously resolved location right away.Great news — there's a curated route right in your area! Here's what came up:\n\n- **Twist of Tepusquet Loop** (~0.9 mi away) — a highly-rated scenic loop with a score of 0.85, perfect for a nearby ride.\n\nIt's the standout option within 50 miles of your current area. Want more details or directions for this route?",
+  "tripwireHandled": false,
+  "workingMemory": {
+    "center": {
+      "lat": 34.9530337,
+      "lng": -120.4357191
+    },
+    "place": "Santa Maria, CA, USA",
+    "sessionId": "s2-t7-observed-tepusquet-001"
+  }
+}
