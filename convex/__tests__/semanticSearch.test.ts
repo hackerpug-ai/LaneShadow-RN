@@ -282,6 +282,12 @@ describe('AC-2: findCandidateRoutesByEmbedding supports state filter', () => {
 // AC-3: findRoutesByIdentifier matches by name, highway, and candidateIdentifiers
 // ---------------------------------------------------------------------------
 
+// Helper: mock .filter() that returns empty results (for tests not exercising legacy path)
+const emptyFilterMock = vi.fn((cb: any) => {
+  cb({ eq: vi.fn().mockReturnThis(), field: vi.fn().mockReturnThis() })
+  return { take: vi.fn().mockResolvedValue([]) }
+})
+
 describe('AC-3: findRoutesByIdentifier matches by name, highway, and candidateIdentifiers', () => {
   it('should match by name case-insensitively', async () => {
     const mockRoute = createMockCuratedRoute({
@@ -299,6 +305,7 @@ describe('AC-3: findRoutesByIdentifier matches by name, highway, and candidateId
               take: vi.fn().mockResolvedValue([mockRoute]),
             }
           }),
+          filter: emptyFilterMock,
           take: vi.fn().mockResolvedValue([]),
         })),
       },
@@ -337,6 +344,7 @@ describe('AC-3: findRoutesByIdentifier matches by name, highway, and candidateId
               take: vi.fn().mockResolvedValue([]),
             }
           }),
+          filter: emptyFilterMock,
           take: vi.fn().mockResolvedValue([]),
         })),
       },
@@ -367,6 +375,7 @@ describe('AC-3: findRoutesByIdentifier matches by name, highway, and candidateId
               take: vi.fn().mockResolvedValue([]),
             }
           }),
+          filter: emptyFilterMock,
           take: vi.fn().mockResolvedValue([mockRoute]),
         })),
       },
@@ -417,6 +426,7 @@ describe('AC-3: findRoutesByIdentifier matches by name, highway, and candidateId
               take: vi.fn().mockResolvedValue([]),
             }
           }),
+          filter: emptyFilterMock,
           take: vi.fn().mockResolvedValue([]),
         })),
       },
@@ -441,6 +451,117 @@ describe('AC-3: findRoutesByIdentifier matches by name, highway, and candidateId
     expect(result[0].matchType).toBe('name')
     expect(result[1].routeId).toBe(':highway-route')
     expect(result[1].matchType).toBe('highway')
+  })
+
+  // -------------------------------------------------------------------------
+  // Regression: legacy rows with name but no name_lower field
+  // -------------------------------------------------------------------------
+
+  it('should match legacy rows missing name_lower by exact name (case-insensitive)', async () => {
+    // Legacy row: has name but NO name_lower — absent from by_name_lower index
+    const legacyRoute = createMockCuratedRoute({
+      _id: ':legacy-route' as Id<'curated_routes'>,
+      name: 'Cherohala Skyway',
+      name_lower: undefined,
+      candidateIdentifiers: undefined,
+    })
+
+    const ctx = {
+      db: {
+        query: vi.fn(() => ({
+          withIndex: vi.fn((_indexName: string, callback: any) => {
+            const qb = { eq: vi.fn().mockReturnThis() }
+            callback(qb)
+            return { take: vi.fn().mockResolvedValue([]) }
+          }),
+          filter: vi.fn((callback: any) => {
+            const fb = { eq: vi.fn().mockReturnThis(), field: vi.fn().mockReturnThis() }
+            callback(fb)
+            return { take: vi.fn().mockResolvedValue([legacyRoute]) }
+          }),
+          take: vi.fn().mockResolvedValue([]),
+        })),
+      },
+    } as any
+
+    const result = await callHandler(findRoutesByIdentifier, ctx, {
+      identifier: 'Cherohala Skyway',
+    })
+
+    expect(result).toHaveLength(1)
+    expect(result[0]).toMatchObject({
+      routeId: ':legacy-route',
+      name: 'Cherohala Skyway',
+      matchType: 'name',
+    })
+  })
+
+  it('should exclude legacy shadow rows (duplicateOf set) from name match', async () => {
+    // Legacy shadow row: no name_lower AND has duplicateOf — must be excluded
+    const shadowRoute = createMockCuratedRoute({
+      _id: ':shadow-route' as Id<'curated_routes'>,
+      name: 'Cherohala Skyway',
+      name_lower: undefined,
+      duplicateOf: ':canonical-route',
+      candidateIdentifiers: undefined,
+    })
+
+    const ctx = {
+      db: {
+        query: vi.fn(() => ({
+          withIndex: vi.fn((_indexName: string, callback: any) => {
+            const qb = { eq: vi.fn().mockReturnThis() }
+            callback(qb)
+            return { take: vi.fn().mockResolvedValue([]) }
+          }),
+          filter: vi.fn((callback: any) => {
+            const fb = { eq: vi.fn().mockReturnThis(), field: vi.fn().mockReturnThis() }
+            callback(fb)
+            return { take: vi.fn().mockResolvedValue([shadowRoute]) }
+          }),
+          take: vi.fn().mockResolvedValue([]),
+        })),
+      },
+    } as any
+
+    const result = await callHandler(findRoutesByIdentifier, ctx, {
+      identifier: 'Cherohala Skyway',
+    })
+
+    expect(result).toHaveLength(0)
+  })
+
+  it('should not match legacy rows when name does not equal search term', async () => {
+    const legacyRoute = createMockCuratedRoute({
+      _id: ':legacy-route' as Id<'curated_routes'>,
+      name: 'Blue Ridge Parkway',
+      name_lower: undefined,
+      candidateIdentifiers: undefined,
+    })
+
+    const ctx = {
+      db: {
+        query: vi.fn(() => ({
+          withIndex: vi.fn((_indexName: string, callback: any) => {
+            const qb = { eq: vi.fn().mockReturnThis() }
+            callback(qb)
+            return { take: vi.fn().mockResolvedValue([]) }
+          }),
+          filter: vi.fn((callback: any) => {
+            const fb = { eq: vi.fn().mockReturnThis(), field: vi.fn().mockReturnThis() }
+            callback(fb)
+            return { take: vi.fn().mockResolvedValue([legacyRoute]) }
+          }),
+          take: vi.fn().mockResolvedValue([]),
+        })),
+      },
+    } as any
+
+    const result = await callHandler(findRoutesByIdentifier, ctx, {
+      identifier: 'Cherohala Skyway',
+    })
+
+    expect(result).toHaveLength(0)
   })
 })
 

@@ -210,7 +210,7 @@ export const findRoutesByIdentifier = query({
     const searchTermLower = identifier.toLowerCase()
 
     // Query indexes in parallel
-    const [byName, byHighway, allRoutes] = await Promise.all([
+    const [byName, byHighway, allRoutes, legacyName] = await Promise.all([
       // Index lookup for exact name match (case-insensitive)
       // Filter out shadow rows (duplicateOf != null) so deduped routes don't surface
       ctx.db
@@ -233,6 +233,16 @@ export const findRoutesByIdentifier = query({
             .withIndex('by_state', (q) => q.eq('state', stateFilter))
             .take(limit * 2)
         : ctx.db.query('curated_routes').take(limit * 2),
+      // Legacy name fallback: rows that pre-date the by_name_lower index
+      // lack the name_lower field entirely and are absent from that index.
+      // Scan for them and match by name in JS.
+      ctx.db
+        .query('curated_routes')
+        .filter((q) => q.eq(q.field('name_lower'), undefined))
+        .take(limit)
+        .then((rows) =>
+          rows.filter((r) => !r.duplicateOf && r.name.toLowerCase() === searchTermLower),
+        ),
     ])
 
     // Collect and deduplicate matches by _id
@@ -254,6 +264,19 @@ export const findRoutesByIdentifier = query({
         state: route.state,
         matchType: 'name',
       })
+    }
+
+    // Add legacy name matches — rows missing name_lower that can't use the
+    // by_name_lower index (same priority as name, different rows).
+    for (const route of legacyName) {
+      if (!matchMap.has(route._id)) {
+        matchMap.set(route._id, {
+          routeId: route._id,
+          name: route.name,
+          state: route.state,
+          matchType: 'name',
+        })
+      }
     }
 
     // Add highway matches (second priority)
