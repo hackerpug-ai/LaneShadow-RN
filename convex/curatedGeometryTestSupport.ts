@@ -665,6 +665,86 @@ export const teardownHygieneScoreRowsByRunId = mutation({
   },
 })
 
+// ---------------------------------------------------------------------------
+// REDHAT-FIX-004: paginated seed helpers for multi-batch cursor-loop tests
+// ---------------------------------------------------------------------------
+
+/**
+ * Seed 10 out-of-scale rows + 1 in-scale control for multi-batch pagination tests.
+ * routeId prefix: test:hyg-pag-*
+ * With batchSize=3, ceil(10/3)=4 batches are needed.
+ */
+export const seedPaginatedScoreRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const scores = [95, 88, 92, 76, 84, 98, 70, 82, 94, 86]
+    const results = []
+    for (let i = 0; i < scores.length; i++) {
+      const num = String(i + 1).padStart(2, '0')
+      const composite = scores[i]
+      const results_item = await insertTestRoute(ctx, {
+        routeId: `test:hyg-pag-${num}`,
+        name: `Paginated Score ${composite}`,
+        lengthMiles: 41,
+        scores: {
+          compositeScore: composite,
+          curvatureScore: composite - 2,
+          scenicScore: composite - 4,
+          technicalScore: composite - 6,
+          trafficScore: composite - 8,
+          remotenessScore: composite - 10,
+        },
+      })
+      results.push(results_item)
+    }
+    // In-scale control row — scanned but NOT normalized across batches
+    results.push(
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-pag-inscale',
+        name: 'Paginated In-Scale Control',
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 0.85,
+          curvatureScore: 0.88,
+          scenicScore: 0.84,
+          technicalScore: 0.8,
+          trafficScore: 0.76,
+          remotenessScore: 0.7,
+        },
+      }),
+    )
+    return results
+  },
+})
+
+/** Teardown all paginated test rows (test:hyg-pag-*). */
+export const teardownPaginatedScoreRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const prefix = 'test:hyg-pag-'
+    const upperBound = `${prefix}\uffff`
+    const rows = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.gte('routeId', prefix).lt('routeId', upperBound))
+      .collect()
+
+    let deleted = 0
+    for (const doc of rows) {
+      await geospatial.remove(ctx, doc._id)
+      const geomRow = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', doc.routeId))
+        .first()
+      if (geomRow) await ctx.db.delete(geomRow._id)
+      await ctx.db.delete(doc._id)
+      deleted++
+    }
+    return { status: 'deleted', count: deleted }
+  },
+})
+
 /** Teardown all hygiene test rows and reset scoreScaleNormalizedAt. */
 export const teardownHygieneScoreRows = mutation({
   args: {},
@@ -678,6 +758,7 @@ export const teardownHygieneScoreRows = mutation({
       'test:hyg-mixed-001',
       'test:hyg-mixed-all-inscale',
       'test:hyg-mixed-all-out',
+      'test:hyg-pag-inscale',
     ]
 
     let deleted = 0

@@ -8,6 +8,9 @@
  * S3-T2/S3-T3 will reuse the shared {dryRun?} preview/change-set helper
  * pattern established here.
  *
+ * REDHAT-FIX-004: All handlers use .paginate({cursor, numItems}) so the
+ * real 5,757-row catalog stays under Convex's per-transaction read limit.
+ *
  * CONVENTIONS (from backfill-curated-geometry.ts driver):
  *   --dryRun    Preview the change-set without writing
  *   npx convex run curatedGeometryHygiene:normalizeEditorialScores '{"dryRun":true}'
@@ -15,8 +18,7 @@
  */
 
 import { v } from 'convex/values'
-import type { Doc } from './_generated/dataModel'
-import { internalMutation, type MutationCtx } from './_generated/server'
+import { internalMutation } from './_generated/server'
 
 // ---------------------------------------------------------------------------
 // Pure helpers (exported for unit testing)
@@ -78,9 +80,6 @@ const SCORE_FIELDS = [
 export function computeNormalizedScores(
   row: DimensionScores & { scoreScaleNormalizedAt?: number },
 ): NormalizeResult {
-  // Double idempotency gate: marker + per-dimension value>1 guard.
-  // If scoreScaleNormalizedAt is already set, this row was already processed.
-  // If NO score field is > 1, the row is entirely in-scale.
   const hasAnyOutOfScale = SCORE_FIELDS.some(
     (k) => typeof row[k] === 'number' && (row[k] as number) > 1,
   )
@@ -104,64 +103,36 @@ export function computeNormalizedScores(
 
 /**
  * Hygiene change-set result — identical shape for dry-run preview and commit.
+ *
+ * REDHAT-FIX-004: now includes {continueCursor, isDone} for paginated
+ * multi-batch processing. The additive fields are backward-compatible —
+ * callers destructuring {scanned, normalized} are unaffected.
  */
 export type HygieneChangeSet = {
   scanned: number
   normalized: number
-}
-
-/**
- * Fetch candidate rows for score normalization.
- *
- * When `routeIdPrefix` is provided (test mode): performs a broad prefix-scoped
- * scan to catch ALL matching rows regardless of compositeScore value — this
- * catches mixed-scale rows where compositeScore ≤ 1 but some dimension is > 1.
- *
- * When no prefix (production): uses the by_composite_score index to only read
- * rows with compositeScore > 1 (avoids the 16MB read limit on the 5,757-row
- * catalog).
- */
-async function fetchOutOfScaleRows(
-  ctx: MutationCtx,
-  routeIdPrefix?: string,
-): Promise<Doc<'curated_routes'>[]> {
-  if (routeIdPrefix) {
-    // Prefix-scoped index scan — catches ALL prefix-matching rows regardless
-    // of compositeScore (mixed-scale rows included). Uses by_routeId index
-    // range to avoid the 16MB read limit from a full table scan.
-    const upperBound = `${routeIdPrefix}\uffff`
-    return await ctx.db
-      .query('curated_routes')
-      .withIndex('by_routeId', (q) => q.gte('routeId', routeIdPrefix).lt('routeId', upperBound))
-      .collect()
-  }
-
-  // Production: use index for read efficiency on the full catalog
-  return await ctx.db
-    .query('curated_routes')
-    .withIndex('by_composite_score', (q) => q.gt('compositeScore', 1))
-    .collect()
+  continueCursor: string
+  isDone: boolean
 }
 
 // ---------------------------------------------------------------------------
-// normalizeEditorialScores: ÷100 editorial scores at rest
+// normalizeEditorialScores: ÷100 editorial scores at rest (paginated)
 // ---------------------------------------------------------------------------
 
 /**
  * S3-T1: Normalize editorial scores ÷100 at rest.
  *
- * Scans curated_routes for rows where compositeScore > 1 and
- * scoreScaleNormalizedAt is absent (out-of-scale, unprocessed).
- * Divides compositeScore + all dimension scores by 100 at rest,
- * stamps scoreScaleNormalizedAt for idempotency.
+ * Uses Convex `.paginate({cursor, numItems})` to stay under the
+ * per-transaction read limit on the real 5,757-row catalog.
  *
- * {dryRun:true} returns the preview change-set {scanned,normalized}
- * WITHOUT writing anything. The committed run returns the same shape
- * and applies the change-set.
+ * Args (all optional — bare {} works for backward compat):
+ *   - dryRun: true previews without writing
+ *   - routeIdPrefix: scope to test rows only
+ *   - cursor: opaque continuation cursor from a prior response
+ *   - batchSize: rows per batch (default 100)
  *
- * Optional {routeIdPrefix} scopes the pass to only routes whose routeId
- * starts with the given prefix (used for test isolation; production runs
- * omit it to process the full catalog).
+ * Returns {scanned, normalized, continueCursor, isDone} on every call.
+ * Loop until isDone===true to process the full catalog.
  *
  * Idempotent: the marker + value>1 guard ensure no score is ever divided twice.
  */
@@ -169,17 +140,31 @@ export const normalizeEditorialScores = internalMutation({
   args: {
     dryRun: v.optional(v.boolean()),
     routeIdPrefix: v.optional(v.string()),
+    cursor: v.optional(v.union(v.string(), v.null())),
+    batchSize: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<HygieneChangeSet> => {
     const dryRun = args.dryRun ?? false
+    const cursor = args.cursor ?? null
+    const numItems = args.batchSize ?? 100
 
-    // Fetch only out-of-scale rows via index (avoids 16MB read limit)
-    const rows = await fetchOutOfScaleRows(ctx, args.routeIdPrefix)
+    // Build the paginated query based on prefix mode
+    const page = args.routeIdPrefix
+      ? await ctx.db
+          .query('curated_routes')
+          .withIndex('by_routeId', (q) =>
+            q.gte('routeId', args.routeIdPrefix!).lt('routeId', `${args.routeIdPrefix!}\uffff`),
+          )
+          .paginate({ cursor, numItems })
+      : await ctx.db
+          .query('curated_routes')
+          .withIndex('by_composite_score', (q) => q.gt('compositeScore', 1))
+          .paginate({ cursor, numItems })
 
     let scanned = 0
     let normalized = 0
 
-    for (const row of rows) {
+    for (const row of page.page) {
       scanned++
 
       const normalizedScores = computeNormalizedScores(row)
@@ -191,6 +176,11 @@ export const normalizeEditorialScores = internalMutation({
       normalized++
     }
 
-    return { scanned, normalized }
+    return {
+      scanned,
+      normalized,
+      continueCursor: page.continueCursor,
+      isDone: page.isDone,
+    }
   },
 })

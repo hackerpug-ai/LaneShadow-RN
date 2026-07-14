@@ -579,3 +579,195 @@ describe('REDHAT-FIX-003: concurrent-namespaces', () => {
     }, 120_000)
   })
 })
+
+// ---------------------------------------------------------------------------
+// REDHAT-FIX-004: paginated multi-batch catalog scan (F-3)
+// ---------------------------------------------------------------------------
+
+/** Prefix for paginated test rows. */
+const PAG_PREFIX = 'test:hyg-pag-'
+
+/** Run normalizeEditorialScores with pagination args scoped to paginated rows. */
+function runPagNormalize(
+  opts: { dryRun?: boolean; cursor?: string | null; batchSize?: number } = {},
+): any {
+  return parseResult(
+    runConvexFn('curatedGeometryHygiene:normalizeEditorialScores', {
+      routeIdPrefix: PAG_PREFIX,
+      ...(opts.dryRun ? { dryRun: true } : {}),
+      ...(opts.cursor !== undefined ? { cursor: opts.cursor } : {}),
+      ...(opts.batchSize !== undefined ? { batchSize: opts.batchSize } : {}),
+    }),
+  )
+}
+
+describe('REDHAT-FIX-004: multi-batch-pagination', () => {
+  beforeAll(() => {
+    runConvexFn('curatedGeometryTestSupport:teardownPaginatedScoreRows', {}, { identity: true })
+    runConvexFn('curatedGeometryTestSupport:seedPaginatedScoreRows', {}, { identity: true })
+  }, 120_000)
+
+  afterAll(() => {
+    runConvexFn('curatedGeometryTestSupport:teardownPaginatedScoreRows', {}, { identity: true })
+  }, 120_000)
+
+  // ───────────────────────────────────────────────────────────────────
+  // AC-1 [PRIMARY]: multi-batch full-catalog via cursor loop (batchSize:3)
+  // ───────────────────────────────────────────────────────────────────
+  describe('multi-batch-pagination', () => {
+    it('all 10 out-of-scale rows normalized across >= 2 batches; in-scale control untouched', () => {
+      // Reseed fresh (other tests in this block may have normalized rows)
+      runConvexFn('curatedGeometryTestSupport:teardownPaginatedScoreRows', {}, { identity: true })
+      runConvexFn('curatedGeometryTestSupport:seedPaginatedScoreRows', {}, { identity: true })
+
+      let cursor: string | null = null
+      let totalNormalized = 0
+      let batchCount = 0
+      let isDone = false
+
+      while (!isDone) {
+        const response = runPagNormalize({ cursor, batchSize: 3 })
+        totalNormalized += response.normalized
+        batchCount++
+        isDone = response.isDone
+        cursor = response.continueCursor
+        expect(typeof response.continueCursor).toBe('string')
+        expect(typeof response.isDone).toBe('boolean')
+      }
+
+      // AC-1 MUST_OBSERVE
+      expect(totalNormalized).toBe(10)
+      expect(batchCount).toBeGreaterThanOrEqual(2)
+
+      // All 10 out-of-scale rows have compositeScore ≤ 1.0
+      for (let i = 1; i <= 10; i++) {
+        const num = String(i).padStart(2, '0')
+        const row = getRouteByRouteId(`test:hyg-pag-${num}`)
+        expect(row).not.toBeNull()
+        expect(row.compositeScore).toBeLessThanOrEqual(1.0)
+        expect(row.scoreScaleNormalizedAt).toBeDefined()
+        expect(typeof row.scoreScaleNormalizedAt).toBe('number')
+        expect(row.scoreScaleNormalizedAt).toBeGreaterThan(0)
+      }
+
+      // TC-6: in-scale control row compositeScore still 0.85 (not divided)
+      const inscale = getRouteByRouteId('test:hyg-pag-inscale')
+      expect(inscale).not.toBeNull()
+      expect(inscale.compositeScore).toBeCloseTo(0.85, 5)
+      expect(inscale.scoreScaleNormalizedAt).toBeUndefined()
+    }, 120_000)
+  })
+
+  // ───────────────────────────────────────────────────────────────────
+  // AC-2: cursor continuation — batch1 isDone:false, batch2 cursor advanced
+  // ───────────────────────────────────────────────────────────────────
+  describe('cursor-continuation', () => {
+    it('batch1 has isDone:false + non-empty cursor; batch2 advances', () => {
+      runConvexFn('curatedGeometryTestSupport:teardownPaginatedScoreRows', {}, { identity: true })
+      runConvexFn('curatedGeometryTestSupport:seedPaginatedScoreRows', {}, { identity: true })
+
+      const batch1 = runPagNormalize({ cursor: null, batchSize: 3 })
+
+      // 10 rows + 1 in-scale = 11 rows matching prefix; batchSize 3 → more remain
+      expect(batch1.isDone).toBe(false)
+      expect(batch1.continueCursor).toBeTruthy()
+      expect(typeof batch1.continueCursor).toBe('string')
+      expect(batch1.continueCursor).not.toBe('')
+
+      const batch2 = runPagNormalize({ cursor: batch1.continueCursor, batchSize: 3 })
+
+      // Cursor advanced
+      expect(batch2.continueCursor).not.toBe(batch1.continueCursor)
+
+      // batch1 + batch2 should not have processed everything yet (11 rows / 3 per batch → 4 batches)
+      // OR at least batch2 has a different cursor
+    }, 120_000)
+  })
+
+  // ───────────────────────────────────────────────────────────────────
+  // AC-4: dryRun/committed consistency across batch sizes
+  // ───────────────────────────────────────────────────────────────────
+  describe('dryrun-committed-consistency', () => {
+    it('dryRun multi-batch === committed multi-batch; dryRun writes nothing', () => {
+      runConvexFn('curatedGeometryTestSupport:teardownPaginatedScoreRows', {}, { identity: true })
+      runConvexFn('curatedGeometryTestSupport:seedPaginatedScoreRows', {}, { identity: true })
+
+      // DryRun multi-batch (batchSize:3)
+      let drCursor: string | null = null
+      let totalDryRun = 0
+      let drDone = false
+      while (!drDone) {
+        const res = runPagNormalize({ dryRun: true, cursor: drCursor, batchSize: 3 })
+        totalDryRun += res.normalized
+        drDone = res.isDone
+        drCursor = res.continueCursor
+      }
+
+      // DryRun wrote nothing — all rows still > 1.0
+      const row01 = getRouteByRouteId('test:hyg-pag-01')
+      expect(row01.compositeScore).toBe(95)
+
+      // Committed multi-batch (batchSize:3)
+      let cmCursor: string | null = null
+      let totalCommitted = 0
+      let cmDone = false
+      while (!cmDone) {
+        const res = runPagNormalize({ cursor: cmCursor, batchSize: 3 })
+        totalCommitted += res.normalized
+        cmDone = res.isDone
+        cmCursor = res.continueCursor
+      }
+
+      expect(totalDryRun).toBe(totalCommitted)
+      expect(totalCommitted).toBe(10)
+
+      // Now verify single-batch (batchSize:100) gives the same total
+      runConvexFn('curatedGeometryTestSupport:teardownPaginatedScoreRows', {}, { identity: true })
+      runConvexFn('curatedGeometryTestSupport:seedPaginatedScoreRows', {}, { identity: true })
+
+      const singleBatch = runPagNormalize({ batchSize: 100 })
+      expect(singleBatch.normalized).toBe(10)
+      expect(singleBatch.isDone).toBe(true)
+    }, 120_000)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// REDHAT-FIX-004: backward compatibility — bare {} call + existing S3-T1 ACs
+// ---------------------------------------------------------------------------
+
+describe('REDHAT-FIX-004: backward-compat', () => {
+  it('bare {} call returns {scanned, normalized, continueCursor, isDone} without error', () => {
+    // Teardown + seed the standard 3-row fixture
+    runConvexFn('curatedGeometryTestSupport:teardownHygieneScoreRows', {}, { identity: true })
+    runConvexFn('curatedGeometryTestSupport:seedEditorialScoreRows', {}, { identity: true })
+
+    // Bare call — no cursor, no batchSize
+    const response = parseResult(
+      runConvexFn('curatedGeometryHygiene:normalizeEditorialScores', {
+        routeIdPrefix: 'test:hyg-score-',
+      }),
+    )
+
+    // AC-5 MUST_OBSERVE: additive fields present
+    expect(response).toHaveProperty('scanned')
+    expect(response).toHaveProperty('normalized')
+    expect(response).toHaveProperty('continueCursor')
+    expect(response).toHaveProperty('isDone')
+    expect(typeof response.continueCursor).toBe('string')
+    expect(typeof response.isDone).toBe('boolean')
+    expect(response.normalized).toBe(3)
+    expect(response.isDone).toBe(true) // 3 rows < default batchSize of 100
+
+    // Idempotency: second call returns normalized === 0
+    const secondResponse = parseResult(
+      runConvexFn('curatedGeometryHygiene:normalizeEditorialScores', {
+        routeIdPrefix: 'test:hyg-score-',
+      }),
+    )
+    expect(secondResponse.normalized).toBe(0)
+
+    // Cleanup
+    runConvexFn('curatedGeometryTestSupport:teardownHygieneScoreRows', {}, { identity: true })
+  }, 120_000)
+})
