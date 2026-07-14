@@ -48,7 +48,12 @@ type DimensionScores = {
 /**
  * Compute the normalized scores for a single row.
  * Returns null if the row does not need normalization
- * (scoreScaleNormalizedAt present OR compositeScore ≤ 1).
+ * (scoreScaleNormalizedAt present OR ALL score fields ≤ 1).
+ *
+ * Per-dimension gate: ANY score field > 1 triggers normalization,
+ * not just compositeScore. This catches mixed-scale rows where
+ * compositeScore is already in-scale (≤1) but individual dimensions
+ * are on the 0–100 scale.
  */
 type NormalizeResult = {
   compositeScore: number
@@ -60,13 +65,26 @@ type NormalizeResult = {
   scoreScaleNormalizedAt: number
 } | null
 
+/** Score fields checked for out-of-scale values (> 1). */
+const SCORE_FIELDS = [
+  'compositeScore',
+  'curvatureScore',
+  'scenicScore',
+  'technicalScore',
+  'trafficScore',
+  'remotenessScore',
+] as const
+
 export function computeNormalizedScores(
   row: DimensionScores & { scoreScaleNormalizedAt?: number },
 ): NormalizeResult {
-  // Double idempotency gate: marker + value>1 guard
+  // Double idempotency gate: marker + per-dimension value>1 guard.
   // If scoreScaleNormalizedAt is already set, this row was already processed.
-  // If compositeScore ≤ 1, the row is already in-scale.
-  const needsNormalize = row.scoreScaleNormalizedAt == null && row.compositeScore > 1
+  // If NO score field is > 1, the row is entirely in-scale.
+  const hasAnyOutOfScale = SCORE_FIELDS.some(
+    (k) => typeof row[k] === 'number' && (row[k] as number) > 1,
+  )
+  const needsNormalize = row.scoreScaleNormalizedAt == null && hasAnyOutOfScale
   if (!needsNormalize) return null
 
   return {
@@ -95,25 +113,34 @@ export type HygieneChangeSet = {
 /**
  * Fetch candidate rows for score normalization.
  *
- * Uses the by_composite_score index to only read rows with compositeScore > 1
- * (avoids the 16MB read limit from scanning the full 5,654+ row catalog).
- * If `routeIdPrefix` is provided, further filters by routeId prefix.
+ * When `routeIdPrefix` is provided (test mode): performs a broad prefix-scoped
+ * scan to catch ALL matching rows regardless of compositeScore value — this
+ * catches mixed-scale rows where compositeScore ≤ 1 but some dimension is > 1.
+ *
+ * When no prefix (production): uses the by_composite_score index to only read
+ * rows with compositeScore > 1 (avoids the 16MB read limit on the 5,757-row
+ * catalog).
  */
 async function fetchOutOfScaleRows(
   ctx: MutationCtx,
   routeIdPrefix?: string,
 ): Promise<Doc<'curated_routes'>[]> {
-  // Use the by_composite_score index to only fetch out-of-scale rows (> 1).
-  // This dramatically reduces read volume vs. scanning the full catalog.
-  const rows = await ctx.db
+  if (routeIdPrefix) {
+    // Prefix-scoped index scan — catches ALL prefix-matching rows regardless
+    // of compositeScore (mixed-scale rows included). Uses by_routeId index
+    // range to avoid the 16MB read limit from a full table scan.
+    const upperBound = `${routeIdPrefix}\uffff`
+    return await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.gte('routeId', routeIdPrefix).lt('routeId', upperBound))
+      .collect()
+  }
+
+  // Production: use index for read efficiency on the full catalog
+  return await ctx.db
     .query('curated_routes')
     .withIndex('by_composite_score', (q) => q.gt('compositeScore', 1))
     .collect()
-
-  if (!routeIdPrefix) return rows
-
-  // In-memory filter by routeId prefix (for test isolation or scoped runs)
-  return rows.filter((row) => row.routeId.startsWith(routeIdPrefix))
 }
 
 // ---------------------------------------------------------------------------

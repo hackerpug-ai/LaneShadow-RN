@@ -7,7 +7,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { normalizeScore } from '../curatedGeometryHygiene'
+import { computeNormalizedScores, normalizeScore } from '../curatedGeometryHygiene'
 
 describe('TC-5: scale predicate (pure unit)', () => {
   describe('scale', () => {
@@ -35,6 +35,74 @@ describe('TC-5: scale predicate (pure unit)', () => {
 
     it('handles edge case: value just above 1', () => {
       expect(normalizeScore(1.001)).toBeCloseTo(0.01001, 10)
+    })
+  })
+})
+
+/**
+ * REDHAT-FIX-001 TC-4: Supplementary pure-unit test for computeNormalizedScores
+ * with mixed-scale input.
+ *
+ * UNIT_TEST_JUSTIFIED: pure number logic, zero I/O.
+ * Verifies that the per-dimension gate correctly identifies rows where ANY
+ * score field > 1 (not just compositeScore), and that in-scale dimensions
+ * within a mixed-scale row are left byte-for-byte unchanged.
+ */
+describe('TC-4: computeNormalizedScores mixed-scale (pure unit)', () => {
+  describe('mixed-scale', () => {
+    it('returns object with in-scale values unchanged and out-of-scale ÷100', () => {
+      const result = computeNormalizedScores({
+        compositeScore: 0.85,
+        curvatureScore: 88,
+        scenicScore: 0.84,
+        technicalScore: 75,
+        trafficScore: 0.76,
+        remotenessScore: 70,
+        // scoreScaleNormalizedAt absent
+      })
+
+      expect(result).not.toBeNull()
+
+      // In-scale dimensions — unchanged
+      expect(result!.compositeScore).toBe(0.85)
+      expect(result!.scenicScore).toBe(0.84)
+      expect(result!.trafficScore).toBe(0.76)
+
+      // Out-of-scale dimensions — ÷100
+      expect(result!.curvatureScore).toBeCloseTo(0.88, 10)
+      expect(result!.technicalScore).toBeCloseTo(0.75, 10)
+      expect(result!.remotenessScore).toBeCloseTo(0.7, 10)
+
+      // scoreScaleNormalizedAt stamped
+      expect(result!.scoreScaleNormalizedAt).toBeGreaterThan(0)
+    })
+
+    it('returns null when ALL score fields are in-scale (≤1)', () => {
+      const result = computeNormalizedScores({
+        compositeScore: 0.9,
+        curvatureScore: 0.88,
+        scenicScore: 0.84,
+        technicalScore: 0.8,
+        trafficScore: 0.76,
+        remotenessScore: 0.7,
+        // scoreScaleNormalizedAt absent
+      })
+
+      expect(result).toBeNull()
+    })
+
+    it('returns null when scoreScaleNormalizedAt is already set (idempotent)', () => {
+      const result = computeNormalizedScores({
+        compositeScore: 90,
+        curvatureScore: 88,
+        scenicScore: 84,
+        technicalScore: 80,
+        trafficScore: 76,
+        remotenessScore: 70,
+        scoreScaleNormalizedAt: Date.now(),
+      })
+
+      expect(result).toBeNull()
     })
   })
 })

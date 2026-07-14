@@ -272,4 +272,130 @@ describe('S3-T1: Score-scale ÷100 normalization at rest', () => {
       }
     }, 120_000)
   })
+
+  // ─────────────────────────────────────────────────────────────────────
+  // REDHAT-FIX-001: Mixed-scale dimension guards through the real handler
+  // ─────────────────────────────────────────────────────────────────────
+
+  /** Prefix that isolates mixed-scale hygiene test rows. */
+  const MIXED_PREFIX = 'test:hyg-mixed-'
+
+  /** Run normalizeEditorialScores scoped to mixed-scale test rows only. */
+  function runMixedNormalize(opts: { dryRun?: boolean } = {}): any {
+    return parseResult(
+      runConvexFn('curatedGeometryHygiene:normalizeEditorialScores', {
+        routeIdPrefix: MIXED_PREFIX,
+        ...(opts.dryRun ? { dryRun: true } : {}),
+      }),
+    )
+  }
+
+  describe('REDHAT-FIX-001: mixed-scale dimension guards', () => {
+    // Shared handler response — all 3 rows exercised by a single run
+    let response: any
+
+    beforeAll(() => {
+      // Clean slate + seed all 3 mixed-scale rows
+      runConvexFn('curatedGeometryTestSupport:teardownHygieneScoreRows', {}, { identity: true })
+      runConvexFn('curatedGeometryTestSupport:seedMixedScaleRows', {}, { identity: true })
+
+      // Run the REAL handler once — exercises all 3 rows in a single pass
+      response = runMixedNormalize()
+    }, 120_000)
+
+    afterAll(() => {
+      runConvexFn('curatedGeometryTestSupport:teardownHygieneScoreRows', {}, { identity: true })
+    })
+
+    // ───────────────────────────────────────────────────────────────────
+    // AC-1 [PRIMARY]: mixed-scale — only out-of-scale dimensions ÷100
+    // ───────────────────────────────────────────────────────────────────
+    describe('mixed-scale', () => {
+      it('only divides out-of-scale dimensions; in-scale dimensions stay byte-for-byte unchanged', () => {
+        const row = getRouteByRouteId('test:hyg-mixed-001')
+        expect(row).not.toBeNull()
+
+        // response.normalized >= 1 (the mixed-scale row was processed)
+        expect(response.normalized).toBeGreaterThanOrEqual(1)
+
+        // In-scale dimensions — STRICT equality (byte-for-byte unchanged)
+        expect(row.compositeScore).toBe(0.85)
+        expect(row.scenicScore).toBe(0.84)
+        expect(row.trafficScore).toBe(0.76)
+
+        // Out-of-scale dimensions — ÷100 (toBeCloseTo precision 5)
+        expect(row.curvatureScore).toBeCloseTo(0.88, 5)
+        expect(row.technicalScore).toBeCloseTo(0.75, 5)
+        expect(row.remotenessScore).toBeCloseTo(0.7, 5)
+
+        // scoreScaleNormalizedAt stamped
+        expect(row.scoreScaleNormalizedAt).toBeDefined()
+        expect(typeof row.scoreScaleNormalizedAt).toBe('number')
+        expect(row.scoreScaleNormalizedAt).toBeGreaterThan(0)
+
+        // MUST_NOT_OBSERVE: in-scale values divided (the bug)
+        expect(row.compositeScore).not.toBeCloseTo(0.0085, 6)
+        expect(row.scenicScore).not.toBeCloseTo(0.0084, 6)
+        expect(row.trafficScore).not.toBeCloseTo(0.0076, 6)
+
+        // MUST_NOT_OBSERVE: out-of-scale value unchanged (no normalization)
+        expect(row.curvatureScore).not.toBe(88)
+      }, 120_000)
+    })
+
+    // ───────────────────────────────────────────────────────────────────
+    // AC-2: all-in-scale control — completely untouched
+    // ───────────────────────────────────────────────────────────────────
+    describe('all-in-scale', () => {
+      it('row is scanned but NOT normalized — every score field unchanged, no stamp', () => {
+        const row = getRouteByRouteId('test:hyg-mixed-all-inscale')
+        expect(row).not.toBeNull()
+
+        // Every score field unchanged (strict equality)
+        expect(row.compositeScore).toBe(0.9)
+        expect(row.curvatureScore).toBe(0.88)
+        expect(row.scenicScore).toBe(0.84)
+        expect(row.technicalScore).toBe(0.8)
+        expect(row.trafficScore).toBe(0.76)
+        expect(row.remotenessScore).toBe(0.7)
+
+        // scoreScaleNormalizedAt NOT stamped (row was not normalized)
+        expect(row.scoreScaleNormalizedAt).toBeUndefined()
+      }, 120_000)
+    })
+
+    // ───────────────────────────────────────────────────────────────────
+    // AC-3: all-out-of-scale regression guard — all dimensions ÷100
+    // ───────────────────────────────────────────────────────────────────
+    describe('all-out-regression', () => {
+      it('all dimensions still ÷100 — regression guard for the original path', () => {
+        const row = getRouteByRouteId('test:hyg-mixed-all-out')
+        expect(row).not.toBeNull()
+
+        // ALL score fields ÷100 (toBeCloseTo precision 5)
+        expect(row.compositeScore).toBeCloseTo(0.9, 5)
+        expect(row.curvatureScore).toBeCloseTo(0.88, 5)
+        expect(row.scenicScore).toBeCloseTo(0.84, 5)
+        expect(row.technicalScore).toBeCloseTo(0.8, 5)
+        expect(row.trafficScore).toBeCloseTo(0.76, 5)
+        expect(row.remotenessScore).toBeCloseTo(0.7, 5)
+
+        // scoreScaleNormalizedAt stamped
+        expect(row.scoreScaleNormalizedAt).toBeDefined()
+        expect(typeof row.scoreScaleNormalizedAt).toBe('number')
+        expect(row.scoreScaleNormalizedAt).toBeGreaterThan(0)
+
+        // MUST_NOT_OBSERVE: any score still > 1.0
+        expect(row.compositeScore).toBeLessThanOrEqual(1.0)
+        expect(row.curvatureScore).toBeLessThanOrEqual(1.0)
+        expect(row.scenicScore).toBeLessThanOrEqual(1.0)
+        expect(row.technicalScore).toBeLessThanOrEqual(1.0)
+        expect(row.trafficScore).toBeLessThanOrEqual(1.0)
+        expect(row.remotenessScore).toBeLessThanOrEqual(1.0)
+
+        // MUST_NOT_OBSERVE: compositeScore unchanged at 90
+        expect(row.compositeScore).not.toBe(90)
+      }, 120_000)
+    })
+  })
 })

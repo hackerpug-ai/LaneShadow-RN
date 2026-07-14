@@ -493,6 +493,63 @@ export const seedInScaleControlRow = mutation({
   },
 })
 
+/**
+ * REDHAT-FIX-001: Seed 3 mixed-scale rows for the mixed-scale dimension guard tests.
+ *
+ * - test:hyg-mixed-001: compositeScore=0.85 (in-scale), curvatureScore=88 (out-of-scale),
+ *   scenicScore=0.84 (in-scale), technicalScore=75 (out-of-scale),
+ *   trafficScore=0.76 (in-scale), remotenessScore=70 (out-of-scale) — MIXED scale.
+ * - test:hyg-mixed-all-inscale: ALL score fields ≤1 — in-scale control, must be untouched.
+ * - test:hyg-mixed-all-out: ALL score fields >1 — out-of-scale regression guard.
+ */
+export const seedMixedScaleRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-mixed-001',
+        name: 'Mixed Scale Row',
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 0.85,
+          curvatureScore: 88,
+          scenicScore: 0.84,
+          technicalScore: 75,
+          trafficScore: 0.76,
+          remotenessScore: 70,
+        },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-mixed-all-inscale',
+        name: 'All In-Scale Control',
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 0.9,
+          curvatureScore: 0.88,
+          scenicScore: 0.84,
+          technicalScore: 0.8,
+          trafficScore: 0.76,
+          remotenessScore: 0.7,
+        },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-mixed-all-out',
+        name: 'All Out-Of-Scale Regression',
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 90,
+          curvatureScore: 88,
+          scenicScore: 84,
+          technicalScore: 80,
+          trafficScore: 76,
+          remotenessScore: 70,
+        },
+      }),
+    ]
+  },
+})
+
 /** Teardown all hygiene test rows and reset scoreScaleNormalizedAt. */
 export const teardownHygieneScoreRows = mutation({
   args: {},
@@ -503,6 +560,9 @@ export const teardownHygieneScoreRows = mutation({
       'test:hyg-score-72',
       'test:hyg-score-85',
       'test:hyg-score-inscale',
+      'test:hyg-mixed-001',
+      'test:hyg-mixed-all-inscale',
+      'test:hyg-mixed-all-out',
     ]
 
     let deleted = 0
