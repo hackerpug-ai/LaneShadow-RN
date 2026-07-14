@@ -146,10 +146,12 @@ export const findRoutesByIdentifier = query({
     // Query indexes in parallel
     const [byName, byHighway, allRoutes] = await Promise.all([
       // Index lookup for exact name match (case-insensitive)
+      // Filter out shadow rows (duplicateOf != null) so deduped routes don't surface
       ctx.db
         .query('curated_routes')
         .withIndex('by_name_lower', (q) => q.eq('name_lower', searchTermLower))
-        .take(limit),
+        .take(limit)
+        .then((rows) => rows.filter((r) => !r.duplicateOf)),
       // Index lookup for highway number
       ctx.db
         .query('curated_routes')
@@ -712,10 +714,12 @@ export const findCandidateRoutesHybrid = query({
     // Text search (identifier-based) - run all index lookups in parallel
     const textSearch = Promise.all([
       // Index lookup for exact name match (case-insensitive)
+      // Filter out shadow rows (duplicateOf != null) so deduped routes don't surface
       ctx.db
         .query('curated_routes')
         .withIndex('by_name_lower', (q) => q.eq('name_lower', searchTermLower))
-        .take(limit),
+        .take(limit)
+        .then((rows) => rows.filter((r) => !r.duplicateOf)),
       // Index lookup for highway number
       ctx.db
         .query('curated_routes')

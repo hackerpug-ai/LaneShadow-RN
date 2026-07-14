@@ -771,3 +771,142 @@ describe('REDHAT-FIX-004: backward-compat', () => {
     runConvexFn('curatedGeometryTestSupport:teardownHygieneScoreRows', {}, { identity: true })
   }, 120_000)
 })
+
+// ---------------------------------------------------------------------------
+// S3-T2: Duplicate route detection + reversible shadow-flagging (dedupeGroups)
+// ---------------------------------------------------------------------------
+
+/** Run dedupeGroups via the Convex CLI. */
+function runDedupe(opts: { dryRun?: boolean; routeIdPrefix?: string } = {}): any {
+  return parseResult(
+    runConvexFn(
+      'curatedGeometryHygiene:dedupeGroups',
+      {
+        ...(opts.dryRun ? { dryRun: true } : {}),
+        ...(opts.routeIdPrefix ? { routeIdPrefix: opts.routeIdPrefix } : {}),
+      },
+      // dedupeGroups is an internalMutation — no identity needed
+    ),
+  )
+}
+
+describe('S3-T2: dedupeGroups', () => {
+  afterEach(() => {
+    runConvexFn('curatedGeometryTestSupport:teardownDedupeRows', {}, { identity: true })
+  })
+
+  // ─────────────────────────────────────────────────────────────────────
+  // dedupe-detect: detect duplicate group, mark shadows, idempotent re-run
+  // ─────────────────────────────────────────────────────────────────────
+  describe('dedupe-detect', () => {
+    it('detects 1 group of 3 same-name proximity rows; canonical has duplicateOf==null; shadows marked; second run finds 0 new shadows', () => {
+      runConvexFn('curatedGeometryTestSupport:seedDedupeGroup', {}, { identity: true })
+
+      const result = runDedupe({ routeIdPrefix: 'test:cherohala-' })
+
+      // 1 group detected, 2 shadows marked
+      expect(result.groups).toBe(1)
+      expect(result.shadows).toBe(2)
+
+      // Canonical has duplicateOf falsy (not shadowed)
+      const canonical = getRouteByRouteId('test:cherohala-canonical')
+      expect(canonical).not.toBeNull()
+      expect(canonical.duplicateOf).toBeFalsy()
+
+      // Shadows have duplicateOf pointing to canonical
+      const shadowA = getRouteByRouteId('test:cherohala-shadow-a')
+      const shadowB = getRouteByRouteId('test:cherohala-shadow-b')
+      expect(shadowA.duplicateOf).toBe('test:cherohala-canonical')
+      expect(shadowB.duplicateOf).toBe('test:cherohala-canonical')
+
+      // Second run: idempotent — 0 new shadows
+      const secondRun = runDedupe({ routeIdPrefix: 'test:cherohala-' })
+      expect(secondRun.shadows).toBe(0)
+      expect(secondRun.groups).toBe(0)
+    }, 120_000)
+  })
+
+  // ─────────────────────────────────────────────────────────────────────
+  // dedupe-dryrun: dryRun returns plan, writes nothing; committed matches
+  // ─────────────────────────────────────────────────────────────────────
+  describe('dedupe-dryrun', () => {
+    it('dryRun returns plan with groups==1 shadows==2; writes nothing; committed run matches plan', () => {
+      runConvexFn('curatedGeometryTestSupport:seedDedupeGroup', {}, { identity: true })
+
+      const dryRunResult = runDedupe({ dryRun: true, routeIdPrefix: 'test:cherohala-' })
+
+      // Plan returned
+      expect(dryRunResult.groups).toBe(1)
+      expect(dryRunResult.shadows).toBe(2)
+      expect(dryRunResult.plan).toHaveLength(1)
+      expect(dryRunResult.plan[0].canonical).toBe('test:cherohala-canonical')
+      expect(dryRunResult.plan[0].shadows).toContain('test:cherohala-shadow-a')
+      expect(dryRunResult.plan[0].shadows).toContain('test:cherohala-shadow-b')
+
+      // DryRun wrote nothing — no row has duplicateOf set
+      const shadowAAfterDry = getRouteByRouteId('test:cherohala-shadow-a')
+      expect(shadowAAfterDry.duplicateOf).toBeFalsy()
+
+      // Committed run matches plan
+      const committedResult = runDedupe({ routeIdPrefix: 'test:cherohala-' })
+      expect(committedResult.groups).toBe(dryRunResult.groups)
+      expect(committedResult.shadows).toBe(dryRunResult.shadows)
+
+      // Now shadows are actually written
+      const shadowAAfterCommit = getRouteByRouteId('test:cherohala-shadow-a')
+      expect(shadowAAfterCommit.duplicateOf).toBe('test:cherohala-canonical')
+    }, 120_000)
+  })
+
+  // ─────────────────────────────────────────────────────────────────────
+  // canonical-precedence: gate-passing (generated) row preferred as canonical
+  // ─────────────────────────────────────────────────────────────────────
+  describe('canonical-precedence', () => {
+    it('gate-passing lower-score row is canonical over non-passing higher-score row', () => {
+      runConvexFn('curatedGeometryTestSupport:seedPrecedenceGroup', {}, { identity: true })
+
+      const result = runDedupe({ routeIdPrefix: 'test:deals-' })
+
+      expect(result.groups).toBe(1)
+      expect(result.shadows).toBe(1)
+
+      // The gate-passing (generated) lower-score row is canonical
+      const canonical = getRouteByRouteId('test:deals-lowscore-passing')
+      expect(canonical).not.toBeNull()
+      expect(canonical.duplicateOf).toBeFalsy()
+      expect(canonical.geometryStatus).toBe('generated')
+
+      // The higher-score non-passing row is shadowed
+      const shadow = getRouteByRouteId('test:deals-highscore-review')
+      expect(shadow.duplicateOf).toBe('test:deals-lowscore-passing')
+    }, 120_000)
+  })
+
+  // ─────────────────────────────────────────────────────────────────────
+  // no-overmerge: distinct names + far-apart same-name rows don't merge
+  // ─────────────────────────────────────────────────────────────────────
+  describe('no-overmerge', () => {
+    it('distinct names and far-apart same-name rows produce 0 groups and no duplicateOf', () => {
+      runConvexFn('curatedGeometryTestSupport:seedNoMergeControl', {}, { identity: true })
+
+      const result = runDedupe({ routeIdPrefix: 'test:' })
+
+      // 0 groups — nothing merged
+      expect(result.groups).toBe(0)
+      expect(result.shadows).toBe(0)
+
+      // No row has duplicateOf set
+      const routeIds = [
+        'test:distinct-blueridge',
+        'test:distinct-tail',
+        'test:cherohala-far-nc',
+        'test:cherohala-far-ca',
+      ]
+      for (const routeId of routeIds) {
+        const row = getRouteByRouteId(routeId)
+        expect(row).not.toBeNull()
+        expect(row.duplicateOf).toBeFalsy()
+      }
+    }, 120_000)
+  })
+})

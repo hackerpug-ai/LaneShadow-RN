@@ -13,6 +13,7 @@
  *
  * Subcommands:
  *   normalize-scores   ÷100 out-of-scale editorial scores at rest (S3-T1)
+ *   dedupe             Detect + shadow-flag duplicate routes by name + proximity (S3-T2)
  *
  * Flags:
  *   --dryRun           Preview the change-set without writing
@@ -64,6 +65,7 @@ Usage:
 
 Subcommands:
   normalize-scores   ÷100 out-of-scale editorial scores at rest (S3-T1)
+  dedupe             Detect + shadow-flag duplicate routes by name + proximity (S3-T2)
 
 Flags:
   --dryRun           Preview the change-set without writing
@@ -160,6 +162,67 @@ function normalizeScores(
 }
 
 // ---------------------------------------------------------------------------
+// Subcommand: dedupe (S3-T2) — detect + shadow-flag duplicate routes
+// ---------------------------------------------------------------------------
+
+type DedupeResult = {
+  groups: number
+  shadows: number
+  plan: Array<{
+    nameLower: string
+    canonical: string
+    shadows: string[]
+  }>
+}
+
+function runDedupeFn(fn: string, args: Record<string, unknown>): DedupeResult {
+  const argsJson = JSON.stringify(args)
+  const cmd = `npx convex run ${fn} '${argsJson.replace(/'/g, "'\"'\"'")}'`
+  process.stdout.write(`Running: ${cmd}\n`)
+
+  try {
+    const result = execSync(cmd, {
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+    return JSON.parse(result.trim()) as DedupeResult
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error)
+    throw new Error(`Dedupe action failed: ${msg}`)
+  }
+}
+
+function dedupe(dryRun: boolean): void {
+  const label = dryRun ? '[DRY RUN] ' : ''
+  process.stdout.write(`${label}Detecting duplicate routes by name + proximity...\n`)
+
+  const result = runDedupeFn('curatedGeometryHygiene:dedupeGroups', {
+    ...(dryRun ? { dryRun: true } : {}),
+  })
+
+  process.stdout.write(`\n${label}Duplicate groups detected: ${result.groups}\n`)
+  process.stdout.write(`${label}Shadow rows ${dryRun ? 'planned' : 'marked'}: ${result.shadows}\n`)
+
+  if (result.plan.length > 0) {
+    process.stdout.write(`\n${label}Plan:\n`)
+    for (const entry of result.plan) {
+      process.stdout.write(
+        `  ${entry.nameLower} → canonical: ${entry.canonical}, shadows: ${entry.shadows.join(', ')}\n`,
+      )
+    }
+  }
+
+  if (dryRun) {
+    process.stdout.write(`\nPreview only — no rows were modified.\n`)
+    process.stdout.write(`To apply: pnpm tsx scripts/hygiene-curated-routes.ts dedupe\n`)
+  } else if (result.shadows === 0) {
+    process.stdout.write(`\nNo duplicate rows found (catalog already deduped).\n`)
+  } else {
+    process.stdout.write(`\n${result.shadows} shadow rows marked via duplicateOf.\n`)
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -168,12 +231,16 @@ function main(): void {
 
   if (subcommand === 'normalize-scores') {
     normalizeScores(dryRun, batchSize, cursor)
+  } else if (subcommand === 'dedupe') {
+    dedupe(dryRun)
   } else if (subcommand === null) {
-    process.stderr.write('No subcommand specified. Use: normalize-scores. Run --help for usage.\n')
+    process.stderr.write(
+      'No subcommand specified. Use: normalize-scores or dedupe. Run --help for usage.\n',
+    )
     process.exit(1)
   } else {
     process.stderr.write(`Unknown subcommand: ${subcommand}\n`)
-    process.stderr.write('Available: normalize-scores. Run --help for usage.\n')
+    process.stderr.write('Available: normalize-scores, dedupe. Run --help for usage.\n')
     process.exit(1)
   }
 }

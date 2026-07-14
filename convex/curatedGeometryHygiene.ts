@@ -184,3 +184,199 @@ export const normalizeEditorialScores = internalMutation({
     }
   },
 })
+
+// ---------------------------------------------------------------------------
+// dedupeGroups: detect duplicate routes by name_lower + centroid proximity
+// ---------------------------------------------------------------------------
+
+/** Earth radius in miles for haversine. */
+const EARTH_RADIUS_MI = 3959
+
+/**
+ * Haversine great-circle distance between two lat/lng points in miles.
+ *
+ * Pure function — zero I/O — exported for unit testing.
+ */
+export function haversineMiles(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const toRad = (deg: number): number => (deg * Math.PI) / 180
+  const dLat = toRad(lat2 - lat1)
+  const dLng = toRad(lng2 - lng1)
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2
+  return 2 * EARTH_RADIUS_MI * Math.asin(Math.sqrt(a))
+}
+
+/** Maximum centroid distance (miles) for two same-name routes to be duplicates. */
+const DUPE_PROXIMITY_MI = 100
+
+/** Row shape needed for dedup planning. */
+type DedupeRow = {
+  _id: any
+  routeId: string
+  name_lower?: string
+  centroidLat?: number
+  centroidLng?: number
+  compositeScore: number
+  geometryStatus?: string | null
+  duplicateOf?: string | null
+}
+
+/** Result shape for dedupeGroups. */
+export type DedupeResult = {
+  groups: number
+  shadows: number
+  plan: Array<{
+    nameLower: string
+    canonical: string
+    shadows: string[]
+  }>
+}
+
+/**
+ * Select the canonical route from a group of same-name proximity-matched rows.
+ *
+ * Preference order:
+ *   1. geometryStatus === 'generated' (gate-passing geometry), highest compositeScore among those
+ *   2. Highest compositeScore overall
+ *
+ * Pure function — exported for unit testing.
+ */
+export function selectCanonical(rows: DedupeRow[]): DedupeRow {
+  const generated = rows.filter((r) => r.geometryStatus === 'generated')
+  const pool = generated.length > 0 ? generated : rows
+  return pool.reduce((best, r) => (r.compositeScore > best.compositeScore ? r : best))
+}
+
+/**
+ * S3-T2: Detect duplicate routes by name_lower + centroid proximity and
+ * reversibly shadow-flag non-canonical rows via `duplicateOf`.
+ *
+ * Algorithm:
+ *   1. Scan curated_routes (filtered by routeIdPrefix if provided)
+ *   2. Group by name_lower; skip rows that already have duplicateOf set (idempotent)
+ *   3. For each name group with >1 row, check pairwise centroid proximity (haversine ≤ 100mi)
+ *   4. Select canonical: prefer geometryStatus==='generated', then highest compositeScore
+ *   5. Set duplicateOf on shadow rows (dryRun returns the plan without writing)
+ *
+ * Idempotent: rows with duplicateOf already set are skipped; second run finds 0 new shadows.
+ */
+export const dedupeGroups = internalMutation({
+  args: {
+    dryRun: v.optional(v.boolean()),
+    routeIdPrefix: v.optional(v.string()),
+  },
+  handler: async (ctx, args): Promise<DedupeResult> => {
+    const dryRun = args.dryRun ?? false
+
+    // Fetch all candidate rows (filtered by prefix in test mode)
+    const rows: DedupeRow[] = args.routeIdPrefix
+      ? await ctx.db
+          .query('curated_routes')
+          .withIndex('by_routeId', (q) =>
+            q.gte('routeId', args.routeIdPrefix!).lt('routeId', `${args.routeIdPrefix!}\uffff`),
+          )
+          .collect()
+      : await ctx.db.query('curated_routes').collect()
+
+    // Group by name_lower; skip rows that already have duplicateOf set
+    const groupsByName = new Map<string, DedupeRow[]>()
+    for (const row of rows) {
+      const nameLower = row.name_lower ?? row.routeId
+      if (row.duplicateOf != null) continue // idempotent — skip already-shadowed rows
+      const group = groupsByName.get(nameLower)
+      if (group) {
+        group.push(row)
+      } else {
+        groupsByName.set(nameLower, [row])
+      }
+    }
+
+    const plan: DedupeResult['plan'] = []
+    let totalShadows = 0
+
+    for (const [nameLower, group] of groupsByName) {
+      if (group.length <= 1) continue
+
+      // Partition into proximity clusters using haversine distance ≤ 100mi
+      // Union-find approach: connect rows that are within proximity of each other
+      const clusterIds: number[] = group.map((_, i) => i)
+      const find = (i: number): number => {
+        while (clusterIds[i] !== i) {
+          clusterIds[i] = clusterIds[clusterIds[i]]
+          i = clusterIds[i]
+        }
+        return i
+      }
+      const union = (a: number, b: number): void => {
+        const ra = find(a)
+        const rb = find(b)
+        if (ra !== rb) clusterIds[ra] = rb
+      }
+
+      for (let i = 0; i < group.length; i++) {
+        for (let j = i + 1; j < group.length; j++) {
+          const ri = group[i]
+          const rj = group[j]
+          // Skip if either row is missing centroid
+          if (ri.centroidLat == null || ri.centroidLng == null) continue
+          if (rj.centroidLat == null || rj.centroidLng == null) continue
+          const dist = haversineMiles(
+            ri.centroidLat,
+            ri.centroidLng,
+            rj.centroidLat,
+            rj.centroidLng,
+          )
+          if (dist <= DUPE_PROXIMITY_MI) {
+            union(i, j)
+          }
+        }
+      }
+
+      // Collect clusters
+      const clusters = new Map<number, DedupeRow[]>()
+      for (let i = 0; i < group.length; i++) {
+        const root = find(i)
+        const cluster = clusters.get(root)
+        if (cluster) {
+          cluster.push(group[i])
+        } else {
+          clusters.set(root, [group[i]])
+        }
+      }
+
+      // Process each cluster with >1 row as a duplicate group
+      for (const cluster of clusters.values()) {
+        if (cluster.length <= 1) continue
+
+        const canonical = selectCanonical(cluster)
+        const shadowRouteIds = cluster
+          .filter((r) => r.routeId !== canonical.routeId)
+          .map((r) => r.routeId)
+
+        if (shadowRouteIds.length === 0) continue
+
+        plan.push({
+          nameLower,
+          canonical: canonical.routeId,
+          shadows: shadowRouteIds,
+        })
+        totalShadows += shadowRouteIds.length
+
+        if (!dryRun) {
+          for (const row of cluster) {
+            if (row.routeId !== canonical.routeId) {
+              await ctx.db.patch(row._id, { duplicateOf: canonical.routeId })
+            }
+          }
+        }
+      }
+    }
+
+    return {
+      groups: plan.length,
+      shadows: totalShadows,
+      plan,
+    }
+  },
+})

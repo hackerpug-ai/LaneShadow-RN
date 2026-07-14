@@ -25,6 +25,8 @@ async function insertTestRoute(
     lengthMiles: number
     centroidLat?: number
     centroidLng?: number
+    name_lower?: string
+    geometryStatus?: 'generated' | 'unresolved' | 'failed' | 'review'
     quarantine?: { reason: 'zero_length' | 'length_outlier' | 'test_row'; flaggedAt: number }
     rideWorthiness?: {
       verdict: 'ride' | 'marginal' | 'not_a_ride'
@@ -65,6 +67,8 @@ async function insertTestRoute(
       quarantine: row.quarantine,
       retiredAt: undefined,
       duplicateOf: undefined,
+      ...(row.name_lower != null ? { name_lower: row.name_lower } : {}),
+      ...(row.geometryStatus != null ? { geometryStatus: row.geometryStatus } : {}),
     })
     await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
       id: existing._id,
@@ -110,6 +114,8 @@ async function insertTestRoute(
       classifiedAt: nowMs,
     },
     quarantine: row.quarantine,
+    ...(row.name_lower != null ? { name_lower: row.name_lower } : {}),
+    ...(row.geometryStatus != null ? { geometryStatus: row.geometryStatus } : {}),
   })
 
   await geospatial.insert(
@@ -768,6 +774,173 @@ export const teardownHygieneScoreRows = mutation({
         .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
         .first()
       if (doc) {
+        await geospatial.remove(ctx, doc._id)
+        const geomRow = await ctx.db
+          .query('curated_route_geometry')
+          .withIndex('by_routeId', (q) => q.eq('routeId', doc.routeId))
+          .first()
+        if (geomRow) await ctx.db.delete(geomRow._id)
+        await ctx.db.delete(doc._id)
+        deleted++
+      }
+    }
+    return { status: 'deleted', count: deleted }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// S3-T2: Dedup group seed/teardown helpers
+// ---------------------------------------------------------------------------
+
+const CHEROHALA_LAT = 35.34
+const CHEROHALA_LNG = -83.93
+
+/**
+ * Seed 3 rows named 'Cherohala Skyway' at the same centroid (~35.34, -83.93).
+ * The highest-score row (0.91) has geometryStatus='generated' (gate-passing).
+ * RouteIds: test:cherohala-canonical, test:cherohala-shadow-a, test:cherohala-shadow-b
+ */
+export const seedDedupeGroup = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: 'test:cherohala-canonical',
+        name: 'Cherohala Skyway',
+        name_lower: 'cherohala skyway',
+        lengthMiles: 41,
+        centroidLat: CHEROHALA_LAT,
+        centroidLng: CHEROHALA_LNG,
+        geometryStatus: 'generated',
+        scores: { compositeScore: 0.91 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:cherohala-shadow-a',
+        name: 'Cherohala Skyway',
+        name_lower: 'cherohala skyway',
+        lengthMiles: 41,
+        centroidLat: CHEROHALA_LAT,
+        centroidLng: CHEROHALA_LNG,
+        scores: { compositeScore: 0.85 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:cherohala-shadow-b',
+        name: 'Cherohala Skyway',
+        name_lower: 'cherohala skyway',
+        lengthMiles: 41,
+        centroidLat: CHEROHALA_LAT,
+        centroidLng: CHEROHALA_LNG,
+        scores: { compositeScore: 0.8 },
+      }),
+    ]
+  },
+})
+
+/**
+ * Seed 2 rows named 'Deals Gap Loop' at the same centroid.
+ * One with compositeScore=0.88 + geometryStatus='review' (NOT gate-passing),
+ * one with compositeScore=0.80 + geometryStatus='generated' (gate-passing).
+ * The gate-passing lower-score row should be selected as canonical.
+ */
+export const seedPrecedenceGroup = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: 'test:deals-highscore-review',
+        name: 'Deals Gap Loop',
+        name_lower: 'deals gap loop',
+        lengthMiles: 41,
+        centroidLat: 35.35,
+        centroidLng: -83.94,
+        geometryStatus: 'review',
+        scores: { compositeScore: 0.88 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:deals-lowscore-passing',
+        name: 'Deals Gap Loop',
+        name_lower: 'deals gap loop',
+        lengthMiles: 41,
+        centroidLat: 35.35,
+        centroidLng: -83.94,
+        geometryStatus: 'generated',
+        scores: { compositeScore: 0.8 },
+      }),
+    ]
+  },
+})
+
+/**
+ * Seed 4 control rows that should NOT merge:
+ * - 2 distinct names ('Blue Ridge Parkway', 'Tail of the Dragon')
+ * - 2 same-name 'Cherohala Skyway' but >2000mi apart (NC vs CA)
+ */
+export const seedNoMergeControl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: 'test:distinct-blueridge',
+        name: 'Blue Ridge Parkway',
+        name_lower: 'blue ridge parkway',
+        lengthMiles: 41,
+        centroidLat: 35.5,
+        centroidLng: -82.5,
+        scores: { compositeScore: 0.9 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:distinct-tail',
+        name: 'Tail of the Dragon',
+        name_lower: 'tail of the dragon',
+        lengthMiles: 41,
+        centroidLat: 35.48,
+        centroidLng: -83.92,
+        scores: { compositeScore: 0.92 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:cherohala-far-nc',
+        name: 'Cherohala Skyway',
+        name_lower: 'cherohala skyway',
+        lengthMiles: 41,
+        centroidLat: 35.3,
+        centroidLng: -83.9,
+        scores: { compositeScore: 0.87 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:cherohala-far-ca',
+        name: 'Cherohala Skyway',
+        name_lower: 'cherohala skyway',
+        lengthMiles: 41,
+        centroidLat: 34.9,
+        centroidLng: -120.4,
+        scores: { compositeScore: 0.7 },
+      }),
+    ]
+  },
+})
+
+/**
+ * Teardown all dedupe test rows.
+ * Deletes rows whose routeId starts with test:cherohala-, test:deals-, test:distinct-.
+ */
+export const teardownDedupeRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const prefixes = ['test:cherohala-', 'test:deals-', 'test:distinct-']
+
+    let deleted = 0
+    for (const prefix of prefixes) {
+      const upperBound = `${prefix}\uffff`
+      const rows = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.gte('routeId', prefix).lt('routeId', upperBound))
+        .collect()
+
+      for (const doc of rows) {
         await geospatial.remove(ctx, doc._id)
         const geomRow = await ctx.db
           .query('curated_route_geometry')
