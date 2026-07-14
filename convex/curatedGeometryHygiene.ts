@@ -1,15 +1,19 @@
 /**
  * Curated Geometry Hygiene — Sprint 03 Catalog Hygiene
  *
- * This module hosts the at-rest catalog hygiene passes (UC-HYG-01):
+ * This module hosts the at-rest catalog hygiene passes:
  * - normalizeEditorialScores: ÷100 any 0–100 editorial score at rest,
  *   idempotent via scoreScaleNormalizedAt marker + value>1 guard.
+ * - dedupeGroups: detect duplicate routes by name_lower + centroid proximity,
+ *   reversible duplicateOf shadow flag with dry-run plan.
+ * - fixLengthOutliers: quarantine rows with lengthMiles ≤ 0 or > 1000.
+ * - quarantineTestRows: quarantine rows whose name matches test/seed patterns.
+ * - normalizeStates: canonicalize dirty state strings, preserve multi-state.
  *
- * S3-T2/S3-T3 will reuse the shared {dryRun?} preview/change-set helper
- * pattern established here.
- *
- * REDHAT-FIX-004: All handlers use .paginate({cursor, numItems}) so the
- * real 5,757-row catalog stays under Convex's per-transaction read limit.
+ * All handlers use .paginate({cursor, numItems}) so the real 5,757-row
+ * catalog stays under Convex's per-transaction read limit.
+ * dedupeGroups uses .collect() because cross-row grouping requires the full
+ * name-keyed set in one pass (5,757 rows fit within the mutation limit).
  *
  * CONVENTIONS (from backfill-curated-geometry.ts driver):
  *   --dryRun    Preview the change-set without writing
@@ -391,6 +395,8 @@ export const dedupeGroups = internalMutation({
 export type QuarantineResult = {
   scanned: number
   flagged: number
+  continueCursor: string
+  isDone: boolean
 }
 
 /** Maximum reasonable length in miles; routes above this are flagged as outliers. */
@@ -402,6 +408,9 @@ const LENGTH_OUTLIER_CEILING = 1000
  * - lengthMiles ≤ 0  → quarantine.reason = 'zero_length'
  * - lengthMiles > 1000 → quarantine.reason = 'length_outlier'
  *
+ * Uses Convex `.paginate({cursor, numItems})` to stay under the
+ * per-transaction read limit on the real 5,757-row catalog.
+ *
  * Idempotent: rows that already have a quarantine set are skipped.
  * dryRun returns preview counts without writing.
  * After patching, recomputeRiderReadyForRoute is called to hook quarantine → riderReady.
@@ -410,23 +419,27 @@ export const fixLengthOutliers = internalMutation({
   args: {
     dryRun: v.optional(v.boolean()),
     routeIdPrefix: v.optional(v.string()),
+    cursor: v.optional(v.union(v.string(), v.null())),
+    batchSize: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<QuarantineResult> => {
     const dryRun = args.dryRun ?? false
+    const cursor = args.cursor ?? null
+    const numItems = args.batchSize ?? 100
 
-    const rows = args.routeIdPrefix
+    const page = args.routeIdPrefix
       ? await ctx.db
           .query('curated_routes')
           .withIndex('by_routeId', (q) =>
             q.gte('routeId', args.routeIdPrefix!).lt('routeId', `${args.routeIdPrefix!}\uffff`),
           )
-          .collect()
-      : await ctx.db.query('curated_routes').collect()
+          .paginate({ cursor, numItems })
+      : await ctx.db.query('curated_routes').paginate({ cursor, numItems })
 
     let scanned = 0
     let flagged = 0
 
-    for (const row of rows) {
+    for (const row of page.page) {
       scanned++
 
       // Idempotent: skip rows already quarantined
@@ -452,7 +465,12 @@ export const fixLengthOutliers = internalMutation({
       flagged++
     }
 
-    return { scanned, flagged }
+    return {
+      scanned,
+      flagged,
+      continueCursor: page.continueCursor,
+      isDone: page.isDone,
+    }
   },
 })
 
@@ -466,6 +484,9 @@ export const fixLengthOutliers = internalMutation({
  * Matches: name starts with "Test " OR name (case-insensitive) contains "test route".
  * Sets quarantine.reason = 'test_row'.
  *
+ * Uses Convex `.paginate({cursor, numItems})` to stay under the
+ * per-transaction read limit on the real 5,757-row catalog.
+ *
  * Idempotent: rows that already have a quarantine set are skipped.
  * dryRun returns preview counts without writing.
  * After patching, recomputeRiderReadyForRoute is called to hook quarantine → riderReady.
@@ -474,23 +495,27 @@ export const quarantineTestRows = internalMutation({
   args: {
     dryRun: v.optional(v.boolean()),
     routeIdPrefix: v.optional(v.string()),
+    cursor: v.optional(v.union(v.string(), v.null())),
+    batchSize: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<QuarantineResult> => {
     const dryRun = args.dryRun ?? false
+    const cursor = args.cursor ?? null
+    const numItems = args.batchSize ?? 100
 
-    const rows = args.routeIdPrefix
+    const page = args.routeIdPrefix
       ? await ctx.db
           .query('curated_routes')
           .withIndex('by_routeId', (q) =>
             q.gte('routeId', args.routeIdPrefix!).lt('routeId', `${args.routeIdPrefix!}\uffff`),
           )
-          .collect()
-      : await ctx.db.query('curated_routes').collect()
+          .paginate({ cursor, numItems })
+      : await ctx.db.query('curated_routes').paginate({ cursor, numItems })
 
     let scanned = 0
     let flagged = 0
 
-    for (const row of rows) {
+    for (const row of page.page) {
       scanned++
 
       // Idempotent: skip rows already quarantined
@@ -513,7 +538,12 @@ export const quarantineTestRows = internalMutation({
       flagged++
     }
 
-    return { scanned, flagged }
+    return {
+      scanned,
+      flagged,
+      continueCursor: page.continueCursor,
+      isDone: page.isDone,
+    }
   },
 })
 
@@ -525,6 +555,8 @@ export const quarantineTestRows = internalMutation({
 export type StateNormalizationResult = {
   scanned: number
   changed: number
+  continueCursor: string
+  isDone: boolean
 }
 
 /**
@@ -565,6 +597,9 @@ export function canonicalizeStateString(raw: string): {
  *   - If multi-part: set statesAll = ordered array of all canonical parts, stateRaw = original raw string
  *   - If single-part: set state = canonical, stateRaw = original if different
  *
+ * Uses Convex `.paginate({cursor, numItems})` to stay under the
+ * per-transaction read limit on the real 5,757-row catalog.
+ *
  * Idempotency guard: if state already equals the canonical form AND is single-part, skip the row.
  * dryRun writes nothing.
  * After patching, recomputeRiderReadyForRoute is called.
@@ -573,23 +608,27 @@ export const normalizeStates = internalMutation({
   args: {
     dryRun: v.optional(v.boolean()),
     routeIdPrefix: v.optional(v.string()),
+    cursor: v.optional(v.union(v.string(), v.null())),
+    batchSize: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<StateNormalizationResult> => {
     const dryRun = args.dryRun ?? false
+    const cursor = args.cursor ?? null
+    const numItems = args.batchSize ?? 100
 
-    const rows = args.routeIdPrefix
+    const page = args.routeIdPrefix
       ? await ctx.db
           .query('curated_routes')
           .withIndex('by_routeId', (q) =>
             q.gte('routeId', args.routeIdPrefix!).lt('routeId', `${args.routeIdPrefix!}\uffff`),
           )
-          .collect()
-      : await ctx.db.query('curated_routes').collect()
+          .paginate({ cursor, numItems })
+      : await ctx.db.query('curated_routes').paginate({ cursor, numItems })
 
     let scanned = 0
     let changed = 0
 
-    for (const row of rows) {
+    for (const row of page.page) {
       scanned++
 
       const { primary, statesAll } = canonicalizeStateString(row.state)
@@ -615,6 +654,11 @@ export const normalizeStates = internalMutation({
       changed++
     }
 
-    return { scanned, changed }
+    return {
+      scanned,
+      changed,
+      continueCursor: page.continueCursor,
+      isDone: page.isDone,
+    }
   },
 })

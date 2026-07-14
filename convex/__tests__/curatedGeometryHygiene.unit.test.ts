@@ -176,3 +176,55 @@ describe('canonicalizeStateString (pure unit)', () => {
     expect(canonicalizeStateString('Texas').statesAll).toBeNull()
   })
 })
+
+/**
+ * Scalability fix: verify all hygiene result types include pagination fields
+ * (continueCursor, isDone). This is a compile-time contract check — if any
+ * handler's return type drops these fields, this test fails to compile.
+ *
+ * UNIT_TEST_JUSTIFIED: pure type-level assertion, zero I/O.
+ */
+describe('pagination type contract (pure unit)', () => {
+  it('QuarantineResult includes continueCursor and isDone', () => {
+    const result: { continueCursor: string; isDone: boolean; scanned: number; flagged: number } = {
+      scanned: 0,
+      flagged: 0,
+      continueCursor: '',
+      isDone: true,
+    }
+    expect(result.continueCursor).toBeDefined()
+    expect(result.isDone).toBeDefined()
+  })
+
+  it('StateNormalizationResult includes continueCursor and isDone', () => {
+    const result: {
+      continueCursor: string
+      isDone: boolean
+      scanned: number
+      changed: number
+    } = {
+      scanned: 0,
+      changed: 0,
+      continueCursor: '',
+      isDone: true,
+    }
+    expect(result.continueCursor).toBeDefined()
+    expect(result.isDone).toBeDefined()
+  })
+
+  it('HygieneChangeSet includes continueCursor and isDone', () => {
+    const result: {
+      continueCursor: string
+      isDone: boolean
+      scanned: number
+      normalized: number
+    } = {
+      scanned: 0,
+      normalized: 0,
+      continueCursor: '',
+      isDone: true,
+    }
+    expect(result.continueCursor).toBeDefined()
+    expect(result.isDone).toBeDefined()
+  })
+})

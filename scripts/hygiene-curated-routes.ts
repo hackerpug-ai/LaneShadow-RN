@@ -235,6 +235,8 @@ function dedupe(dryRun: boolean): void {
 type FlagResult = {
   scanned: number
   flagged: number
+  continueCursor: string
+  isDone: boolean
 }
 
 function runFlagFn(fn: string, args: Record<string, unknown>): FlagResult {
@@ -254,24 +256,51 @@ function runFlagFn(fn: string, args: Record<string, unknown>): FlagResult {
   }
 }
 
-function lengthOutliers(dryRun: boolean): void {
+function lengthOutliers(
+  dryRun: boolean,
+  requestedBatchSize: number | null,
+  resumeCursor: string | null,
+): void {
   const label = dryRun ? '[DRY RUN] ' : ''
   process.stdout.write(`${label}Quarantining length outlier rows...\n`)
 
-  const result = runFlagFn('curatedGeometryHygiene:fixLengthOutliers', {
-    ...(dryRun ? { dryRun: true } : {}),
-  })
+  let cursor: string | null = resumeCursor
+  const batchSize = requestedBatchSize ?? 100
+  let totalScanned = 0
+  let totalFlagged = 0
+  let batchCount = 0
 
-  process.stdout.write(`\n${label}Scanned: ${result.scanned}\n`)
-  process.stdout.write(`${label}Flagged:  ${result.flagged}\n`)
+  while (true) {
+    const result = runFlagFn('curatedGeometryHygiene:fixLengthOutliers', {
+      ...(dryRun ? { dryRun: true } : {}),
+      cursor,
+      batchSize,
+    })
+
+    totalScanned += result.scanned
+    totalFlagged += result.flagged
+    batchCount++
+
+    process.stdout.write(
+      `${label}Batch ${batchCount}: scanned=${result.scanned} flagged=${result.flagged}` +
+        ` isDone=${result.isDone}\n`,
+    )
+
+    if (result.isDone) break
+    cursor = result.continueCursor
+  }
+
+  process.stdout.write(`\n${label}Final totals (${batchCount} batch(es)):\n`)
+  process.stdout.write(`  Scanned: ${totalScanned}\n`)
+  process.stdout.write(`  Flagged: ${totalFlagged}\n`)
 
   if (dryRun) {
     process.stdout.write(`\nPreview only — no rows were modified.\n`)
     process.stdout.write(`To apply: pnpm tsx scripts/hygiene-curated-routes.ts length\n`)
-  } else if (result.flagged === 0) {
+  } else if (totalFlagged === 0) {
     process.stdout.write(`\nNo length outliers found.\n`)
   } else {
-    process.stdout.write(`\n${result.flagged} rows quarantined.\n`)
+    process.stdout.write(`\n${totalFlagged} rows quarantined.\n`)
   }
 }
 
@@ -279,24 +308,51 @@ function lengthOutliers(dryRun: boolean): void {
 // Subcommand: test-rows (S3-T3) — quarantine test/seed rows
 // ---------------------------------------------------------------------------
 
-function testRows(dryRun: boolean): void {
+function testRows(
+  dryRun: boolean,
+  requestedBatchSize: number | null,
+  resumeCursor: string | null,
+): void {
   const label = dryRun ? '[DRY RUN] ' : ''
   process.stdout.write(`${label}Quarantining test-row patterns...\n`)
 
-  const result = runFlagFn('curatedGeometryHygiene:quarantineTestRows', {
-    ...(dryRun ? { dryRun: true } : {}),
-  })
+  let cursor: string | null = resumeCursor
+  const batchSize = requestedBatchSize ?? 100
+  let totalScanned = 0
+  let totalFlagged = 0
+  let batchCount = 0
 
-  process.stdout.write(`\n${label}Scanned: ${result.scanned}\n`)
-  process.stdout.write(`${label}Flagged:  ${result.flagged}\n`)
+  while (true) {
+    const result = runFlagFn('curatedGeometryHygiene:quarantineTestRows', {
+      ...(dryRun ? { dryRun: true } : {}),
+      cursor,
+      batchSize,
+    })
+
+    totalScanned += result.scanned
+    totalFlagged += result.flagged
+    batchCount++
+
+    process.stdout.write(
+      `${label}Batch ${batchCount}: scanned=${result.scanned} flagged=${result.flagged}` +
+        ` isDone=${result.isDone}\n`,
+    )
+
+    if (result.isDone) break
+    cursor = result.continueCursor
+  }
+
+  process.stdout.write(`\n${label}Final totals (${batchCount} batch(es)):\n`)
+  process.stdout.write(`  Scanned: ${totalScanned}\n`)
+  process.stdout.write(`  Flagged: ${totalFlagged}\n`)
 
   if (dryRun) {
     process.stdout.write(`\nPreview only — no rows were modified.\n`)
     process.stdout.write(`To apply: pnpm tsx scripts/hygiene-curated-routes.ts test-rows\n`)
-  } else if (result.flagged === 0) {
+  } else if (totalFlagged === 0) {
     process.stdout.write(`\nNo test rows found.\n`)
   } else {
-    process.stdout.write(`\n${result.flagged} test rows quarantined.\n`)
+    process.stdout.write(`\n${totalFlagged} test rows quarantined.\n`)
   }
 }
 
@@ -307,6 +363,8 @@ function testRows(dryRun: boolean): void {
 type StateResult = {
   scanned: number
   changed: number
+  continueCursor: string
+  isDone: boolean
 }
 
 function runStateFn(fn: string, args: Record<string, unknown>): StateResult {
@@ -326,24 +384,51 @@ function runStateFn(fn: string, args: Record<string, unknown>): StateResult {
   }
 }
 
-function states(dryRun: boolean): void {
+function states(
+  dryRun: boolean,
+  requestedBatchSize: number | null,
+  resumeCursor: string | null,
+): void {
   const label = dryRun ? '[DRY RUN] ' : ''
   process.stdout.write(`${label}Normalizing state strings...\n`)
 
-  const result = runStateFn('curatedGeometryHygiene:normalizeStates', {
-    ...(dryRun ? { dryRun: true } : {}),
-  })
+  let cursor: string | null = resumeCursor
+  const batchSize = requestedBatchSize ?? 100
+  let totalScanned = 0
+  let totalChanged = 0
+  let batchCount = 0
 
-  process.stdout.write(`\n${label}Scanned: ${result.scanned}\n`)
-  process.stdout.write(`${label}Changed:  ${result.changed}\n`)
+  while (true) {
+    const result = runStateFn('curatedGeometryHygiene:normalizeStates', {
+      ...(dryRun ? { dryRun: true } : {}),
+      cursor,
+      batchSize,
+    })
+
+    totalScanned += result.scanned
+    totalChanged += result.changed
+    batchCount++
+
+    process.stdout.write(
+      `${label}Batch ${batchCount}: scanned=${result.scanned} changed=${result.changed}` +
+        ` isDone=${result.isDone}\n`,
+    )
+
+    if (result.isDone) break
+    cursor = result.continueCursor
+  }
+
+  process.stdout.write(`\n${label}Final totals (${batchCount} batch(es)):\n`)
+  process.stdout.write(`  Scanned: ${totalScanned}\n`)
+  process.stdout.write(`  Changed: ${totalChanged}\n`)
 
   if (dryRun) {
     process.stdout.write(`\nPreview only — no rows were modified.\n`)
     process.stdout.write(`To apply: pnpm tsx scripts/hygiene-curated-routes.ts states\n`)
-  } else if (result.changed === 0) {
+  } else if (totalChanged === 0) {
     process.stdout.write(`\nNo state strings needed normalization.\n`)
   } else {
-    process.stdout.write(`\n${result.changed} rows normalized.\n`)
+    process.stdout.write(`\n${totalChanged} rows normalized.\n`)
   }
 }
 
@@ -359,11 +444,11 @@ function main(): void {
   } else if (subcommand === 'dedupe') {
     dedupe(dryRun)
   } else if (subcommand === 'length') {
-    lengthOutliers(dryRun)
+    lengthOutliers(dryRun, batchSize, cursor)
   } else if (subcommand === 'test-rows') {
-    testRows(dryRun)
+    testRows(dryRun, batchSize, cursor)
   } else if (subcommand === 'states') {
-    states(dryRun)
+    states(dryRun, batchSize, cursor)
   } else if (subcommand === null) {
     process.stderr.write(
       'No subcommand specified. Use: normalize-scores, dedupe, length, test-rows, or states. Run --help for usage.\n',
