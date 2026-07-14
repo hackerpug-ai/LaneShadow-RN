@@ -1050,6 +1050,114 @@ export const seedDirtyStateRows = mutation({
 })
 
 /**
+ * Seed 2 rows that WOULD be rider-ready (gate-passing geometry + compositeScore
+ * on the 0–100 scale) so the quarantine→riderReady exclusion can be verified
+ * end-to-end. Without quarantine these rows recompute riderReady=true; after
+ * the hygiene handlers quarantine them, riderReady MUST flip to false.
+ *
+ * - test:hyg-rr-outlier: lengthMiles=5000 (>1000 → length_outlier quarantine)
+ * - test:hyg-rr-testrow: name='Test Route CO-04' (→ test_row quarantine)
+ *
+ * Each row gets a gate-passing curated_route_geometry side-table entry
+ * (verification.verdict='pass', geometryStatus='generated') so the predicate
+ * sees gatePass=true.
+ */
+export const seedRiderReadyCandidates = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+
+    const candidates = [
+      {
+        routeId: 'test:hyg-rr-outlier',
+        name: 'Rider Ready Outlier',
+        lengthMiles: 5000,
+        geometryStatus: 'generated' as const,
+      },
+      {
+        routeId: 'test:hyg-rr-testrow',
+        name: 'Test Route CO-04',
+        lengthMiles: 41,
+        geometryStatus: 'generated' as const,
+      },
+    ]
+
+    const results = []
+    for (const c of candidates) {
+      // insertTestRoute defaults compositeScore to 85 (>= 50 threshold)
+      const result = await insertTestRoute(ctx, {
+        routeId: c.routeId,
+        name: c.name,
+        lengthMiles: c.lengthMiles,
+        geometryStatus: c.geometryStatus,
+      })
+
+      // Insert gate-passing geometry in the side table
+      const existingGeom = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q: any) => q.eq('routeId', c.routeId))
+        .first()
+
+      const geomDoc = {
+        routeId: c.routeId,
+        format: 'polyline' as const,
+        encoding: 'utf-8',
+        precision: 5,
+        value: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+        verification: {
+          routeId: c.routeId,
+          verdict: 'pass' as const,
+          geometryStatus: 'generated' as const,
+          geometry: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+          anchorCount: 2,
+          anchors: [
+            { lat: 34.95, lng: -120.42, formatted: 'Start', distanceFromCentroid: 0 },
+            { lat: 34.96, lng: -120.43, formatted: 'End', distanceFromCentroid: 1 },
+          ],
+          pointCount: 5,
+          degenerate: false,
+          ratio: 1.0,
+          claimedMiles: c.lengthMiles,
+          routedMiles: c.lengthMiles,
+        },
+      }
+
+      if (existingGeom) {
+        await ctx.db.replace(existingGeom._id, geomDoc)
+      } else {
+        await ctx.db.insert('curated_route_geometry', geomDoc)
+      }
+
+      // Recompute riderReady — should be true (gate-passing, score≥50, etc.)
+      await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+        id: result.id,
+      })
+      results.push(result)
+    }
+    return results
+  },
+})
+
+/**
+ * Seed 1 row for the length-recovery test (S3-T3 AC-4).
+ * - test:hyg-len-recover: lengthMiles=0, not yet quarantined.
+ *
+ * The test runs fixLengthOutliers to quarantine it, then calls
+ * persistGeometryVerified with routedMiles=22.0 to verify the auto-clear.
+ */
+export const seedLengthRecoveryRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:hyg-len-recover',
+      name: 'Length Recovery Row',
+      lengthMiles: 0,
+    })
+  },
+})
+
+/**
  * Teardown all S3-T3 quarantine + state hygiene test rows.
  * Deletes rows whose routeId starts with test:hyg-len-, test:hyg-testrow, test:hyg-state-.
  */
@@ -1057,7 +1165,7 @@ export const teardownQuarantineStateRows = mutation({
   args: {},
   handler: async (ctx) => {
     await requireIdentity(ctx)
-    const prefixes = ['test:hyg-len-', 'test:hyg-testrow', 'test:hyg-state-']
+    const prefixes = ['test:hyg-len-', 'test:hyg-testrow', 'test:hyg-state-', 'test:hyg-rr-']
 
     let deleted = 0
     for (const prefix of prefixes) {

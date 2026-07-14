@@ -909,6 +909,61 @@ describe('S3-T2: dedupeGroups', () => {
       }
     }, 120_000)
   })
+
+  // ─────────────────────────────────────────────────────────────────────
+  // shadow-exclusion: committed shadows excluded from read paths
+  // ─────────────────────────────────────────────────────────────────────
+  describe('shadow-exclusion', () => {
+    it('after committed merge: no shadow in listCuratedRoutes; name search returns exactly 1 row (the canonical)', () => {
+      runConvexFn('curatedGeometryTestSupport:seedDedupeGroup', {}, { identity: true })
+
+      // Run committed dedupe scoped to the test rows
+      const result = runDedupe({ routeIdPrefix: 'test:cherohala-' })
+      expect(result.shadows).toBe(2)
+
+      // Verify the shadows actually have duplicateOf set
+      const shadowA = getRouteByRouteId('test:cherohala-shadow-a')
+      const shadowB = getRouteByRouteId('test:cherohala-shadow-b')
+      expect(shadowA.duplicateOf).toBe('test:cherohala-canonical')
+      expect(shadowB.duplicateOf).toBe('test:cherohala-canonical')
+
+      // Collect the _ids of the test rows for cross-referencing
+      const canonical = getRouteByRouteId('test:cherohala-canonical')
+      const canonicalId = canonical._id
+      const shadowAId = shadowA._id
+      const shadowBId = shadowB._id
+
+      // ── findRoutesByIdentifier: name search for 'Cherohala Skyway' ──
+      const searchResult = parseResult(
+        runConvexFn('semanticSearch:findRoutesByIdentifier', {
+          identifier: 'Cherohala Skyway',
+        }),
+      )
+
+      // The name search MUST NOT include shadow rows
+      const searchIds = searchResult.map((r: any) => r.routeId)
+      expect(searchIds).not.toContain(shadowAId)
+      expect(searchIds).not.toContain(shadowBId)
+
+      // The canonical MUST appear in the name search results
+      expect(searchIds).toContain(canonicalId)
+
+      // ── listCuratedRoutes: national-best mode ──
+      // listCuratedRoutes requires identity
+      const listResult = parseResult(
+        runConvexFn(
+          'curatedRoutes:listCuratedRoutes',
+          { sort: 'best', limit: 50 },
+          { identity: true },
+        ),
+      )
+
+      // No shadow routeId may appear in any listCuratedRoutes result
+      const listRouteIds = listResult.map((r: any) => r.routeId)
+      expect(listRouteIds).not.toContain('test:cherohala-shadow-a')
+      expect(listRouteIds).not.toContain('test:cherohala-shadow-b')
+    }, 120_000)
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -1111,5 +1166,127 @@ describe('state-idempotent', () => {
     const triRow = getRouteByRouteId('test:hyg-state-tri')
     expect(triRow.state).toBe('Alabama')
     expect(triRow.statesAll).toEqual(['Alabama', 'Mississippi', 'Tennessee'])
+  }, 120_000)
+})
+
+// ---------------------------------------------------------------------------
+// S3-T3 AC-3: rider-ready-exclusion — quarantined rows recompute riderReady=false
+// ---------------------------------------------------------------------------
+
+describe('rider-ready-exclusion', () => {
+  beforeAll(() => {
+    runHygieneFn('curatedGeometryTestSupport:teardownQuarantineStateRows')
+    runHygieneFn('curatedGeometryTestSupport:seedRiderReadyCandidates')
+  }, 120_000)
+
+  afterAll(() => {
+    runHygieneFn('curatedGeometryTestSupport:teardownQuarantineStateRows')
+  })
+
+  it('pre-quarantine both candidates are riderReady=true; post-quarantine riderReady=false; no rider-ready row has bad length', () => {
+    // ── Pre-quarantine: both rows should be rider-ready ──
+    const outlier = getRouteByRouteId('test:hyg-rr-outlier')
+    expect(outlier).not.toBeNull()
+    expect(outlier.riderReady).toBe(true)
+
+    const testrow = getRouteByRouteId('test:hyg-rr-testrow')
+    expect(testrow).not.toBeNull()
+    expect(testrow.riderReady).toBe(true)
+
+    // ── Run fixLengthOutliers (quarantines the 5000mi row as length_outlier) ──
+    const lenResult = runHygieneInternal('curatedGeometryHygiene:fixLengthOutliers', {
+      routeIdPrefix: 'test:hyg-rr-',
+    })
+    expect(lenResult.flagged).toBe(1)
+
+    // ── Run quarantineTestRows (quarantines 'Test Route CO-04' as test_row) ──
+    const testResult = runHygieneInternal('curatedGeometryHygiene:quarantineTestRows', {
+      routeIdPrefix: 'test:hyg-rr-',
+    })
+    expect(testResult.flagged).toBe(1)
+
+    // ── Post-quarantine: both rows MUST be riderReady=false ──
+    const outlierAfter = getRouteByRouteId('test:hyg-rr-outlier')
+    expect(outlierAfter.quarantine).not.toBeNull()
+    expect(outlierAfter.quarantine.reason).toBe('length_outlier')
+    expect(outlierAfter.riderReady).toBe(false)
+
+    const testrowAfter = getRouteByRouteId('test:hyg-rr-testrow')
+    expect(testrowAfter.quarantine).not.toBeNull()
+    expect(testrowAfter.quarantine.reason).toBe('test_row')
+    expect(testrowAfter.riderReady).toBe(false)
+
+    // ── Invariant: no rider-ready row has length ≤0 or >1000 ──
+    for (const row of [outlierAfter, testrowAfter]) {
+      if (row.riderReady) {
+        expect(row.lengthMiles).toBeGreaterThan(0)
+        expect(row.lengthMiles).toBeLessThanOrEqual(1000)
+      }
+    }
+  }, 120_000)
+})
+
+// ---------------------------------------------------------------------------
+// S3-T3 AC-4: length-recovery — zero_length quarantine auto-clears on sane geometry
+// ---------------------------------------------------------------------------
+
+describe('length-recovery', () => {
+  beforeAll(() => {
+    runHygieneFn('curatedGeometryTestSupport:teardownQuarantineStateRows')
+    runHygieneFn('curatedGeometryTestSupport:seedLengthRecoveryRow')
+  }, 120_000)
+
+  afterAll(() => {
+    runHygieneFn('curatedGeometryTestSupport:teardownQuarantineStateRows')
+  })
+
+  it('zero_length quarantine clears when persistGeometryVerified writes a sane routedMiles; lengthMiles == routedMiles', () => {
+    // ── Step 1: run fixLengthOutliers to quarantine the zero-length row ──
+    const fixResult = runHygieneInternal('curatedGeometryHygiene:fixLengthOutliers', {
+      routeIdPrefix: 'test:hyg-len-recover',
+    })
+    expect(fixResult.flagged).toBe(1)
+
+    const quarantined = getRouteByRouteId('test:hyg-len-recover')
+    expect(quarantined.quarantine).not.toBeNull()
+    expect(quarantined.quarantine.reason).toBe('zero_length')
+
+    // ── Step 2: write a sane 22.0-mi routed length via persistGeometryVerified ──
+    // persistGeometryVerified returns void, so we check success without parsing
+    const verification = {
+      routeId: 'test:hyg-len-recover',
+      verdict: 'pass',
+      geometryStatus: 'generated',
+      geometry: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+      anchorCount: 2,
+      anchors: [
+        { lat: 34.95, lng: -120.42, formatted: 'Start', distanceFromCentroid: 0 },
+        { lat: 34.96, lng: -120.43, formatted: 'End', distanceFromCentroid: 1 },
+      ],
+      pointCount: 5,
+      degenerate: false,
+      ratio: 1.0,
+      claimedMiles: null,
+      routedMiles: 22.0,
+    }
+
+    const persistResult = execNpx([
+      'convex',
+      'run',
+      'curatedGeometry:persistGeometryVerified',
+      JSON.stringify({
+        id: quarantined._id,
+        routeId: 'test:hyg-len-recover',
+        verification,
+      }),
+    ])
+    expect(persistResult.ok).toBe(true)
+
+    // ── Step 3: verify quarantine cleared and lengthMiles == routedMiles ──
+    const recovered = getRouteByRouteId('test:hyg-len-recover')
+    expect(recovered.quarantine).toBeFalsy()
+    expect(recovered.lengthMiles).toBe(22.0)
+    expect(recovered.lengthMiles).toBeGreaterThan(0)
+    expect(recovered.lengthMiles).toBeLessThanOrEqual(1000)
   }, 120_000)
 })

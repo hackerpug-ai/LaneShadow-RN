@@ -493,6 +493,22 @@ export const persistGeometryVerified = internalMutation({
     })
 
     if (verification.geometryStatus === 'generated') {
+      // S3-T3 AC-4 hook: auto-clear a zero_length quarantine when a sane routed
+      // length arrives through the persist/recompute path. The quarantine was
+      // set by fixLengthOutliers because lengthMiles was ≤0; now that a real
+      // measured routedMiles within [1, 1000] is available, store it as truth
+      // and clear the quarantine so recomputeRiderReady sees quarantine==null.
+      const route = await ctx.db.get(id)
+      if (
+        route?.quarantine?.reason === 'zero_length' &&
+        verification.routedMiles > 0 &&
+        verification.routedMiles <= 1000
+      ) {
+        await ctx.db.patch(id, {
+          quarantine: undefined,
+          lengthMiles: verification.routedMiles,
+        })
+      }
       await recomputeRiderReady(ctx, id)
     } else {
       await ctx.db.patch(id, { riderReady: false })
