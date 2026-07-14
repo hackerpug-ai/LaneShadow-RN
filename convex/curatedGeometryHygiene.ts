@@ -18,7 +18,9 @@
  */
 
 import { v } from 'convex/values'
+import { internal } from './_generated/api'
 import { internalMutation } from './_generated/server'
+import { normalizeState } from './util/dataNormalization'
 
 // ---------------------------------------------------------------------------
 // Pure helpers (exported for unit testing)
@@ -378,5 +380,241 @@ export const dedupeGroups = internalMutation({
       shadows: totalShadows,
       plan,
     }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// fixLengthOutliers: quarantine rows with lengthMiles ≤ 0 or > 1000 (S3-T3)
+// ---------------------------------------------------------------------------
+
+/** Result shape for quarantine-style hygiene passes. */
+export type QuarantineResult = {
+  scanned: number
+  flagged: number
+}
+
+/** Maximum reasonable length in miles; routes above this are flagged as outliers. */
+const LENGTH_OUTLIER_CEILING = 1000
+
+/**
+ * S3-T3: Quarantine rows with degenerate length values.
+ *
+ * - lengthMiles ≤ 0  → quarantine.reason = 'zero_length'
+ * - lengthMiles > 1000 → quarantine.reason = 'length_outlier'
+ *
+ * Idempotent: rows that already have a quarantine set are skipped.
+ * dryRun returns preview counts without writing.
+ * After patching, recomputeRiderReadyForRoute is called to hook quarantine → riderReady.
+ */
+export const fixLengthOutliers = internalMutation({
+  args: {
+    dryRun: v.optional(v.boolean()),
+    routeIdPrefix: v.optional(v.string()),
+  },
+  handler: async (ctx, args): Promise<QuarantineResult> => {
+    const dryRun = args.dryRun ?? false
+
+    const rows = args.routeIdPrefix
+      ? await ctx.db
+          .query('curated_routes')
+          .withIndex('by_routeId', (q) =>
+            q.gte('routeId', args.routeIdPrefix!).lt('routeId', `${args.routeIdPrefix!}\uffff`),
+          )
+          .collect()
+      : await ctx.db.query('curated_routes').collect()
+
+    let scanned = 0
+    let flagged = 0
+
+    for (const row of rows) {
+      scanned++
+
+      // Idempotent: skip rows already quarantined
+      if (row.quarantine != null) continue
+
+      let reason: 'zero_length' | 'length_outlier' | null = null
+      if (row.lengthMiles <= 0) {
+        reason = 'zero_length'
+      } else if (row.lengthMiles > LENGTH_OUTLIER_CEILING) {
+        reason = 'length_outlier'
+      }
+
+      if (reason === null) continue
+
+      if (!dryRun) {
+        await ctx.db.patch(row._id, {
+          quarantine: { reason, flaggedAt: Date.now() },
+        })
+        await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+          id: row._id,
+        })
+      }
+      flagged++
+    }
+
+    return { scanned, flagged }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// quarantineTestRows: quarantine rows whose name matches test/seed patterns (S3-T3)
+// ---------------------------------------------------------------------------
+
+/**
+ * S3-T3: Quarantine rows whose name matches test/seed patterns.
+ *
+ * Matches: name starts with "Test " OR name (case-insensitive) contains "test route".
+ * Sets quarantine.reason = 'test_row'.
+ *
+ * Idempotent: rows that already have a quarantine set are skipped.
+ * dryRun returns preview counts without writing.
+ * After patching, recomputeRiderReadyForRoute is called to hook quarantine → riderReady.
+ */
+export const quarantineTestRows = internalMutation({
+  args: {
+    dryRun: v.optional(v.boolean()),
+    routeIdPrefix: v.optional(v.string()),
+  },
+  handler: async (ctx, args): Promise<QuarantineResult> => {
+    const dryRun = args.dryRun ?? false
+
+    const rows = args.routeIdPrefix
+      ? await ctx.db
+          .query('curated_routes')
+          .withIndex('by_routeId', (q) =>
+            q.gte('routeId', args.routeIdPrefix!).lt('routeId', `${args.routeIdPrefix!}\uffff`),
+          )
+          .collect()
+      : await ctx.db.query('curated_routes').collect()
+
+    let scanned = 0
+    let flagged = 0
+
+    for (const row of rows) {
+      scanned++
+
+      // Idempotent: skip rows already quarantined
+      if (row.quarantine != null) continue
+
+      // Match test/seed patterns
+      const isTestRow =
+        row.name.startsWith('Test ') || row.name.toLowerCase().includes('test route')
+
+      if (!isTestRow) continue
+
+      if (!dryRun) {
+        await ctx.db.patch(row._id, {
+          quarantine: { reason: 'test_row' as const, flaggedAt: Date.now() },
+        })
+        await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+          id: row._id,
+        })
+      }
+      flagged++
+    }
+
+    return { scanned, flagged }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// normalizeStates: canonicalize state strings (split multi-state, normalize) (S3-T3)
+// ---------------------------------------------------------------------------
+
+/** Result shape for normalizeStates. */
+export type StateNormalizationResult = {
+  scanned: number
+  changed: number
+}
+
+/**
+ * Pure helper: canonicalize a raw state string into its parts.
+ * Splits multi-state strings by '/', applies normalizeState to each part.
+ *
+ * Returns { primary, statesAll } where statesAll is null for single-state strings.
+ *
+ * Pure function — zero I/O — exported for unit testing.
+ *
+ * Examples:
+ *   'New-York' → { primary: 'New York', statesAll: null }
+ *   'Alabama / Mississippi / Tennessee' → { primary: 'Alabama', statesAll: ['Alabama','Mississippi','Tennessee'] }
+ */
+export function canonicalizeStateString(raw: string): {
+  primary: string
+  statesAll: string[] | null
+} {
+  const parts = raw
+    .split('/')
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
+
+  const canonicalParts = parts.map(normalizeState)
+  const primary = canonicalParts[0] ?? normalizeState(raw)
+  const statesAll = canonicalParts.length > 1 ? canonicalParts : null
+
+  return { primary, statesAll }
+}
+
+/**
+ * S3-T3: Normalize state strings at rest.
+ *
+ * For each row:
+ *   - Parse the state field: split multi-state strings by '/'
+ *   - Apply normalizeState() to each part (handles dashes, underscores, whitespace, title-casing)
+ *   - Set state = first canonical part (primary state)
+ *   - If multi-part: set statesAll = ordered array of all canonical parts, stateRaw = original raw string
+ *   - If single-part: set state = canonical, stateRaw = original if different
+ *
+ * Idempotency guard: if state already equals the canonical form AND is single-part, skip the row.
+ * dryRun writes nothing.
+ * After patching, recomputeRiderReadyForRoute is called.
+ */
+export const normalizeStates = internalMutation({
+  args: {
+    dryRun: v.optional(v.boolean()),
+    routeIdPrefix: v.optional(v.string()),
+  },
+  handler: async (ctx, args): Promise<StateNormalizationResult> => {
+    const dryRun = args.dryRun ?? false
+
+    const rows = args.routeIdPrefix
+      ? await ctx.db
+          .query('curated_routes')
+          .withIndex('by_routeId', (q) =>
+            q.gte('routeId', args.routeIdPrefix!).lt('routeId', `${args.routeIdPrefix!}\uffff`),
+          )
+          .collect()
+      : await ctx.db.query('curated_routes').collect()
+
+    let scanned = 0
+    let changed = 0
+
+    for (const row of rows) {
+      scanned++
+
+      const { primary, statesAll } = canonicalizeStateString(row.state)
+      const isMulti = statesAll !== null
+
+      // Idempotency guard: state is already canonical and single-part → skip
+      if (row.state === primary && !isMulti) continue
+
+      if (!dryRun) {
+        const patch: Record<string, string | string[] | null> = { state: primary }
+        if (statesAll !== null) {
+          patch.statesAll = statesAll
+        }
+        // Preserve original raw whenever the state was changed
+        if (row.state !== primary) {
+          patch.stateRaw = row.state
+        }
+        await ctx.db.patch(row._id, patch)
+        await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+          id: row._id,
+        })
+      }
+      changed++
+    }
+
+    return { scanned, changed }
   },
 })

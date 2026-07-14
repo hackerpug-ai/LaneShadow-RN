@@ -28,6 +28,7 @@ async function insertTestRoute(
     name_lower?: string
     geometryStatus?: 'generated' | 'unresolved' | 'failed' | 'review'
     quarantine?: { reason: 'zero_length' | 'length_outlier' | 'test_row'; flaggedAt: number }
+    state?: string
     rideWorthiness?: {
       verdict: 'ride' | 'marginal' | 'not_a_ride'
       reason: string
@@ -69,6 +70,7 @@ async function insertTestRoute(
       duplicateOf: undefined,
       ...(row.name_lower != null ? { name_lower: row.name_lower } : {}),
       ...(row.geometryStatus != null ? { geometryStatus: row.geometryStatus } : {}),
+      ...(row.state != null ? { state: row.state } : {}),
     })
     await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
       id: existing._id,
@@ -83,7 +85,7 @@ async function insertTestRoute(
   const docId = await ctx.db.insert('curated_routes', {
     routeId: row.routeId,
     name: row.name,
-    state: 'California',
+    state: row.state ?? 'California',
     source: row.routeId.startsWith('motorcycleroads:') ? 'motorcycleroads' : 'editorial',
     primaryArchetype: 'twisties',
     secondaryTags: ['test'],
@@ -931,6 +933,131 @@ export const teardownDedupeRows = mutation({
   handler: async (ctx) => {
     await requireIdentity(ctx)
     const prefixes = ['test:cherohala-', 'test:deals-', 'test:distinct-']
+
+    let deleted = 0
+    for (const prefix of prefixes) {
+      const upperBound = `${prefix}\uffff`
+      const rows = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.gte('routeId', prefix).lt('routeId', upperBound))
+        .collect()
+
+      for (const doc of rows) {
+        await geospatial.remove(ctx, doc._id)
+        const geomRow = await ctx.db
+          .query('curated_route_geometry')
+          .withIndex('by_routeId', (q) => q.eq('routeId', doc.routeId))
+          .first()
+        if (geomRow) await ctx.db.delete(geomRow._id)
+        await ctx.db.delete(doc._id)
+        deleted++
+      }
+    }
+    return { status: 'deleted', count: deleted }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// S3-T3: Length-outlier, test-row, and dirty-state seed/teardown helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Seed 2 rows with length outliers for fixLengthOutliers tests.
+ * - test:hyg-len-zero: lengthMiles=0 (zero_length outlier)
+ * - test:hyg-len-5000: lengthMiles=5000 (length_outlier)
+ * Both with normal scores (compositeScore=0.85).
+ */
+export const seedLengthOutlierRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-len-zero',
+        name: 'Length Zero Route',
+        lengthMiles: 0,
+        scores: { compositeScore: 0.85 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-len-5000',
+        name: 'Length 5000 Route',
+        lengthMiles: 5000,
+        scores: { compositeScore: 0.85 },
+      }),
+    ]
+  },
+})
+
+/**
+ * Seed 1 test-named row for quarantineTestRows tests.
+ * - test:hyg-testrow: name='Test Route CO-04', lengthMiles=41
+ */
+export const seedTestRowForQuarantine = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:hyg-testrow',
+      name: 'Test Route CO-04',
+      lengthMiles: 41,
+      scores: { compositeScore: 0.85 },
+    })
+  },
+})
+
+/**
+ * Seed 4 rows with dirty state strings for normalizeStates tests.
+ * - test:hyg-state-ny: state='New-York' (dashed)
+ * - test:hyg-state-nc: state='North-Carolina' (dashed)
+ * - test:hyg-state-tri: state='Alabama / Mississippi / Tennessee' (multi-state)
+ * - test:hyg-state-canon: state='North Carolina' (already canonical control)
+ */
+export const seedDirtyStateRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-state-ny',
+        name: 'Dirty State NY',
+        lengthMiles: 41,
+        state: 'New-York',
+        scores: { compositeScore: 0.85 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-state-nc',
+        name: 'Dirty State NC',
+        lengthMiles: 41,
+        state: 'North-Carolina',
+        scores: { compositeScore: 0.85 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-state-tri',
+        name: 'Dirty State Tri',
+        lengthMiles: 41,
+        state: 'Alabama / Mississippi / Tennessee',
+        scores: { compositeScore: 0.85 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-state-canon',
+        name: 'Canonical State NC',
+        lengthMiles: 41,
+        state: 'North Carolina',
+        scores: { compositeScore: 0.85 },
+      }),
+    ]
+  },
+})
+
+/**
+ * Teardown all S3-T3 quarantine + state hygiene test rows.
+ * Deletes rows whose routeId starts with test:hyg-len-, test:hyg-testrow, test:hyg-state-.
+ */
+export const teardownQuarantineStateRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const prefixes = ['test:hyg-len-', 'test:hyg-testrow', 'test:hyg-state-']
 
     let deleted = 0
     for (const prefix of prefixes) {

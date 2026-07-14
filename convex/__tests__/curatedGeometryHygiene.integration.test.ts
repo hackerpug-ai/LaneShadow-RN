@@ -910,3 +910,206 @@ describe('S3-T2: dedupeGroups', () => {
     }, 120_000)
   })
 })
+
+// ---------------------------------------------------------------------------
+// S3-T3: Length-outlier quarantine, test-row quarantine, state normalization
+// ---------------------------------------------------------------------------
+
+/**
+ * Identity for S3-T3 hygiene tests.
+ */
+const HYGIENE_IDENTITY = JSON.stringify({
+  subject: 'hygiene-test',
+  issuer: 'https://laneshadow.test',
+})
+
+/** Run a convex function with the S3-T3 test identity. */
+function runHygieneFn(fn: string, args: Record<string, unknown> = {}): any {
+  const cmd = ['convex', 'run', fn, JSON.stringify(args), '--identity', HYGIENE_IDENTITY]
+  return parseResult(execNpx(cmd))
+}
+
+/** Run a quarantine/state hygiene internal mutation (no identity needed). */
+function runHygieneInternal(fn: string, args: Record<string, unknown> = {}): any {
+  const cmd = ['convex', 'run', fn, JSON.stringify(args)]
+  return parseResult(execNpx(cmd))
+}
+
+describe('length-quarantine', () => {
+  beforeAll(() => {
+    runHygieneFn('curatedGeometryTestSupport:teardownQuarantineStateRows')
+    runHygieneFn('curatedGeometryTestSupport:seedLengthOutlierRows')
+  }, 120_000)
+
+  afterAll(() => {
+    runHygieneFn('curatedGeometryTestSupport:teardownQuarantineStateRows')
+  })
+
+  it('dryRun previews counts without writing; committed quarantines zero + outlier; idempotent re-run', () => {
+    // DryRun — no writes
+    const dryResult = runHygieneInternal('curatedGeometryHygiene:fixLengthOutliers', {
+      dryRun: true,
+      routeIdPrefix: 'test:hyg-len-',
+    })
+    expect(dryResult.scanned).toBe(2)
+    expect(dryResult.flagged).toBe(2)
+
+    // Verify dryRun wrote nothing
+    const zeroRowAfterDry = getRouteByRouteId('test:hyg-len-zero')
+    expect(zeroRowAfterDry.quarantine).toBeFalsy()
+    const bigRowAfterDry = getRouteByRouteId('test:hyg-len-5000')
+    expect(bigRowAfterDry.quarantine).toBeFalsy()
+
+    // Committed run
+    const result = runHygieneInternal('curatedGeometryHygiene:fixLengthOutliers', {
+      routeIdPrefix: 'test:hyg-len-',
+    })
+    expect(result.scanned).toBe(2)
+    expect(result.flagged).toBe(2)
+
+    // Zero-length row quarantined with reason='zero_length'
+    const zeroRow = getRouteByRouteId('test:hyg-len-zero')
+    expect(zeroRow.quarantine).not.toBeNull()
+    expect(zeroRow.quarantine.reason).toBe('zero_length')
+
+    // 5000mi row quarantined with reason='length_outlier'
+    const bigRow = getRouteByRouteId('test:hyg-len-5000')
+    expect(bigRow.quarantine).not.toBeNull()
+    expect(bigRow.quarantine.reason).toBe('length_outlier')
+
+    // Second run — idempotent (0 new flags)
+    const secondResult = runHygieneInternal('curatedGeometryHygiene:fixLengthOutliers', {
+      routeIdPrefix: 'test:hyg-len-',
+    })
+    expect(secondResult.flagged).toBe(0)
+  }, 120_000)
+})
+
+describe('test-row-quarantine', () => {
+  beforeAll(() => {
+    runHygieneFn('curatedGeometryTestSupport:teardownQuarantineStateRows')
+    runHygieneFn('curatedGeometryTestSupport:seedTestRowForQuarantine')
+  }, 120_000)
+
+  afterAll(() => {
+    runHygieneFn('curatedGeometryTestSupport:teardownQuarantineStateRows')
+  })
+
+  it('dryRun previews without writing; committed quarantines test row; idempotent', () => {
+    // DryRun — no writes
+    const dryResult = runHygieneInternal('curatedGeometryHygiene:quarantineTestRows', {
+      dryRun: true,
+      routeIdPrefix: 'test:hyg-testrow',
+    })
+    expect(dryResult.flagged).toBe(1)
+
+    // Verify dryRun wrote nothing
+    const rowAfterDry = getRouteByRouteId('test:hyg-testrow')
+    expect(rowAfterDry.quarantine).toBeFalsy()
+
+    // Committed run
+    const result = runHygieneInternal('curatedGeometryHygiene:quarantineTestRows', {
+      routeIdPrefix: 'test:hyg-testrow',
+    })
+    expect(result.flagged).toBe(1)
+
+    // Test row quarantined with reason='test_row'
+    const row = getRouteByRouteId('test:hyg-testrow')
+    expect(row.quarantine).not.toBeNull()
+    expect(row.quarantine.reason).toBe('test_row')
+
+    // Second run — idempotent (0 new flags)
+    const secondResult = runHygieneInternal('curatedGeometryHygiene:quarantineTestRows', {
+      routeIdPrefix: 'test:hyg-testrow',
+    })
+    expect(secondResult.flagged).toBe(0)
+  }, 120_000)
+})
+
+describe('state-normalize', () => {
+  beforeAll(() => {
+    runHygieneFn('curatedGeometryTestSupport:teardownQuarantineStateRows')
+    runHygieneFn('curatedGeometryTestSupport:seedDirtyStateRows')
+  }, 120_000)
+
+  afterAll(() => {
+    runHygieneFn('curatedGeometryTestSupport:teardownQuarantineStateRows')
+  })
+
+  it('dryRun writes nothing; committed normalizes dashed + multi-state; preserves stateRaw', () => {
+    // DryRun — no writes
+    const dryResult = runHygieneInternal('curatedGeometryHygiene:normalizeStates', {
+      dryRun: true,
+      routeIdPrefix: 'test:hyg-state-',
+    })
+    expect(dryResult.changed).toBe(3) // ny, nc, tri — not the canonical control
+
+    // Verify dryRun wrote nothing — state still dirty
+    const nyAfterDry = getRouteByRouteId('test:hyg-state-ny')
+    expect(nyAfterDry.state).toBe('New-York')
+
+    // Committed run
+    const result = runHygieneInternal('curatedGeometryHygiene:normalizeStates', {
+      routeIdPrefix: 'test:hyg-state-',
+    })
+    expect(result.changed).toBe(3)
+
+    // 'New-York' → state='New York', stateRaw='New-York'
+    const nyRow = getRouteByRouteId('test:hyg-state-ny')
+    expect(nyRow.state).toBe('New York')
+    expect(nyRow.stateRaw).toBe('New-York')
+
+    // 'North-Carolina' → state='North Carolina', stateRaw='North-Carolina'
+    const ncRow = getRouteByRouteId('test:hyg-state-nc')
+    expect(ncRow.state).toBe('North Carolina')
+    expect(ncRow.stateRaw).toBe('North-Carolina')
+
+    // 'Alabama / Mississippi / Tennessee' → state='Alabama', statesAll ordered, stateRaw preserved
+    const triRow = getRouteByRouteId('test:hyg-state-tri')
+    expect(triRow.state).toBe('Alabama')
+    expect(triRow.statesAll).toEqual(['Alabama', 'Mississippi', 'Tennessee'])
+    expect(triRow.stateRaw).toBe('Alabama / Mississippi / Tennessee')
+
+    // Already-canonical control 'North Carolina' — NOT modified
+    const canonRow = getRouteByRouteId('test:hyg-state-canon')
+    expect(canonRow.state).toBe('North Carolina')
+    expect(canonRow.stateRaw).toBeUndefined()
+    expect(canonRow.statesAll).toBeUndefined()
+  }, 120_000)
+})
+
+describe('state-idempotent', () => {
+  beforeAll(() => {
+    runHygieneFn('curatedGeometryTestSupport:teardownQuarantineStateRows')
+    runHygieneFn('curatedGeometryTestSupport:seedDirtyStateRows')
+    // Run once to normalize
+    runHygieneInternal('curatedGeometryHygiene:normalizeStates', {
+      routeIdPrefix: 'test:hyg-state-',
+    })
+  }, 120_000)
+
+  afterAll(() => {
+    runHygieneFn('curatedGeometryTestSupport:teardownQuarantineStateRows')
+  })
+
+  it('second run changes 0 rows; canonical control still unmodified', () => {
+    const secondResult = runHygieneInternal('curatedGeometryHygiene:normalizeStates', {
+      routeIdPrefix: 'test:hyg-state-',
+    })
+    expect(secondResult.changed).toBe(0)
+
+    // Canonical control still unchanged
+    const canonRow = getRouteByRouteId('test:hyg-state-canon')
+    expect(canonRow.state).toBe('North Carolina')
+    expect(canonRow.stateRaw).toBeUndefined()
+
+    // Previously normalized rows still canonical
+    const nyRow = getRouteByRouteId('test:hyg-state-ny')
+    expect(nyRow.state).toBe('New York')
+    expect(nyRow.stateRaw).toBe('New-York')
+
+    const triRow = getRouteByRouteId('test:hyg-state-tri')
+    expect(triRow.state).toBe('Alabama')
+    expect(triRow.statesAll).toEqual(['Alabama', 'Mississippi', 'Tennessee'])
+  }, 120_000)
+})

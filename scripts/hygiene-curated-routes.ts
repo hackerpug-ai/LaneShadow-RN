@@ -14,6 +14,9 @@
  * Subcommands:
  *   normalize-scores   ÷100 out-of-scale editorial scores at rest (S3-T1)
  *   dedupe             Detect + shadow-flag duplicate routes by name + proximity (S3-T2)
+ *   length             Quarantine rows with lengthMiles ≤ 0 or > 1000 (S3-T3)
+ *   test-rows          Quarantine rows whose name matches test/seed patterns (S3-T3)
+ *   states             Canonicalize state strings (split multi-state, normalize) (S3-T3)
  *
  * Flags:
  *   --dryRun           Preview the change-set without writing
@@ -66,6 +69,9 @@ Usage:
 Subcommands:
   normalize-scores   ÷100 out-of-scale editorial scores at rest (S3-T1)
   dedupe             Detect + shadow-flag duplicate routes by name + proximity (S3-T2)
+  length             Quarantine rows with lengthMiles ≤ 0 or > 1000 (S3-T3)
+  test-rows          Quarantine rows whose name matches test/seed patterns (S3-T3)
+  states             Canonicalize state strings (split multi-state, normalize) (S3-T3)
 
 Flags:
   --dryRun           Preview the change-set without writing
@@ -223,6 +229,125 @@ function dedupe(dryRun: boolean): void {
 }
 
 // ---------------------------------------------------------------------------
+// Subcommand: length (S3-T3) — quarantine length outliers
+// ---------------------------------------------------------------------------
+
+type FlagResult = {
+  scanned: number
+  flagged: number
+}
+
+function runFlagFn(fn: string, args: Record<string, unknown>): FlagResult {
+  const argsJson = JSON.stringify(args)
+  const cmd = `npx convex run ${fn} '${argsJson.replace(/'/g, "'\"'\"'")}'`
+  process.stdout.write(`Running: ${cmd}\n`)
+
+  try {
+    const result = execSync(cmd, {
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+    return JSON.parse(result.trim()) as FlagResult
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error)
+    throw new Error(`Hygiene action failed: ${msg}`)
+  }
+}
+
+function lengthOutliers(dryRun: boolean): void {
+  const label = dryRun ? '[DRY RUN] ' : ''
+  process.stdout.write(`${label}Quarantining length outlier rows...\n`)
+
+  const result = runFlagFn('curatedGeometryHygiene:fixLengthOutliers', {
+    ...(dryRun ? { dryRun: true } : {}),
+  })
+
+  process.stdout.write(`\n${label}Scanned: ${result.scanned}\n`)
+  process.stdout.write(`${label}Flagged:  ${result.flagged}\n`)
+
+  if (dryRun) {
+    process.stdout.write(`\nPreview only — no rows were modified.\n`)
+    process.stdout.write(`To apply: pnpm tsx scripts/hygiene-curated-routes.ts length\n`)
+  } else if (result.flagged === 0) {
+    process.stdout.write(`\nNo length outliers found.\n`)
+  } else {
+    process.stdout.write(`\n${result.flagged} rows quarantined.\n`)
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Subcommand: test-rows (S3-T3) — quarantine test/seed rows
+// ---------------------------------------------------------------------------
+
+function testRows(dryRun: boolean): void {
+  const label = dryRun ? '[DRY RUN] ' : ''
+  process.stdout.write(`${label}Quarantining test-row patterns...\n`)
+
+  const result = runFlagFn('curatedGeometryHygiene:quarantineTestRows', {
+    ...(dryRun ? { dryRun: true } : {}),
+  })
+
+  process.stdout.write(`\n${label}Scanned: ${result.scanned}\n`)
+  process.stdout.write(`${label}Flagged:  ${result.flagged}\n`)
+
+  if (dryRun) {
+    process.stdout.write(`\nPreview only — no rows were modified.\n`)
+    process.stdout.write(`To apply: pnpm tsx scripts/hygiene-curated-routes.ts test-rows\n`)
+  } else if (result.flagged === 0) {
+    process.stdout.write(`\nNo test rows found.\n`)
+  } else {
+    process.stdout.write(`\n${result.flagged} test rows quarantined.\n`)
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Subcommand: states (S3-T3) — normalize state strings
+// ---------------------------------------------------------------------------
+
+type StateResult = {
+  scanned: number
+  changed: number
+}
+
+function runStateFn(fn: string, args: Record<string, unknown>): StateResult {
+  const argsJson = JSON.stringify(args)
+  const cmd = `npx convex run ${fn} '${argsJson.replace(/'/g, "'\"'\"'")}'`
+  process.stdout.write(`Running: ${cmd}\n`)
+
+  try {
+    const result = execSync(cmd, {
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+    return JSON.parse(result.trim()) as StateResult
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error)
+    throw new Error(`Hygiene action failed: ${msg}`)
+  }
+}
+
+function states(dryRun: boolean): void {
+  const label = dryRun ? '[DRY RUN] ' : ''
+  process.stdout.write(`${label}Normalizing state strings...\n`)
+
+  const result = runStateFn('curatedGeometryHygiene:normalizeStates', {
+    ...(dryRun ? { dryRun: true } : {}),
+  })
+
+  process.stdout.write(`\n${label}Scanned: ${result.scanned}\n`)
+  process.stdout.write(`${label}Changed:  ${result.changed}\n`)
+
+  if (dryRun) {
+    process.stdout.write(`\nPreview only — no rows were modified.\n`)
+    process.stdout.write(`To apply: pnpm tsx scripts/hygiene-curated-routes.ts states\n`)
+  } else if (result.changed === 0) {
+    process.stdout.write(`\nNo state strings needed normalization.\n`)
+  } else {
+    process.stdout.write(`\n${result.changed} rows normalized.\n`)
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -233,14 +358,22 @@ function main(): void {
     normalizeScores(dryRun, batchSize, cursor)
   } else if (subcommand === 'dedupe') {
     dedupe(dryRun)
+  } else if (subcommand === 'length') {
+    lengthOutliers(dryRun)
+  } else if (subcommand === 'test-rows') {
+    testRows(dryRun)
+  } else if (subcommand === 'states') {
+    states(dryRun)
   } else if (subcommand === null) {
     process.stderr.write(
-      'No subcommand specified. Use: normalize-scores or dedupe. Run --help for usage.\n',
+      'No subcommand specified. Use: normalize-scores, dedupe, length, test-rows, or states. Run --help for usage.\n',
     )
     process.exit(1)
   } else {
     process.stderr.write(`Unknown subcommand: ${subcommand}\n`)
-    process.stderr.write('Available: normalize-scores, dedupe. Run --help for usage.\n')
+    process.stderr.write(
+      'Available: normalize-scores, dedupe, length, test-rows, states. Run --help for usage.\n',
+    )
     process.exit(1)
   }
 }

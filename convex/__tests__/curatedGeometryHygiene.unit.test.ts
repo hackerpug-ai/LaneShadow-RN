@@ -7,7 +7,11 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { computeNormalizedScores, normalizeScore } from '../curatedGeometryHygiene'
+import {
+  canonicalizeStateString,
+  computeNormalizedScores,
+  normalizeScore,
+} from '../curatedGeometryHygiene'
 
 describe('TC-5: scale predicate (pure unit)', () => {
   describe('scale', () => {
@@ -104,5 +108,71 @@ describe('TC-4: computeNormalizedScores mixed-scale (pure unit)', () => {
 
       expect(result).toBeNull()
     })
+  })
+})
+
+/**
+ * S3-T3 TC: Pure unit test for canonicalizeStateString.
+ *
+ * UNIT_TEST_JUSTIFIED: pure string transformation, zero I/O.
+ * Verifies the state canonicalization logic (split + normalizeState + ordered set).
+ */
+describe('canonicalizeStateString (pure unit)', () => {
+  it('normalizes dashed single-state strings', () => {
+    expect(canonicalizeStateString('New-York')).toEqual({
+      primary: 'New York',
+      statesAll: null,
+    })
+    expect(canonicalizeStateString('North-Carolina')).toEqual({
+      primary: 'North Carolina',
+      statesAll: null,
+    })
+  })
+
+  it('passes through already-canonical single-state strings unchanged', () => {
+    expect(canonicalizeStateString('North Carolina')).toEqual({
+      primary: 'North Carolina',
+      statesAll: null,
+    })
+    expect(canonicalizeStateString('California')).toEqual({
+      primary: 'California',
+      statesAll: null,
+    })
+  })
+
+  it('splits multi-state strings and returns ordered canonical array', () => {
+    const result = canonicalizeStateString('Alabama / Mississippi / Tennessee')
+    expect(result.primary).toBe('Alabama')
+    expect(result.statesAll).toEqual(['Alabama', 'Mississippi', 'Tennessee'])
+  })
+
+  it('normalizes multi-state strings with dirty formatting', () => {
+    const result = canonicalizeStateString('north-carolina / south-carolina')
+    expect(result.primary).toBe('North Carolina')
+    expect(result.statesAll).toEqual(['North Carolina', 'South Carolina'])
+  })
+
+  it('handles lowercase input', () => {
+    expect(canonicalizeStateString('new york')).toEqual({
+      primary: 'New York',
+      statesAll: null,
+    })
+  })
+
+  it('handles underscores', () => {
+    expect(canonicalizeStateString('North_Carolina')).toEqual({
+      primary: 'North Carolina',
+      statesAll: null,
+    })
+  })
+
+  it('handles extra whitespace in multi-state', () => {
+    const result = canonicalizeStateString('  Alabama   /   Mississippi  ')
+    expect(result.primary).toBe('Alabama')
+    expect(result.statesAll).toEqual(['Alabama', 'Mississippi'])
+  })
+
+  it('returns null statesAll for single-state', () => {
+    expect(canonicalizeStateString('Texas').statesAll).toBeNull()
   })
 })
