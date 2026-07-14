@@ -180,6 +180,14 @@ export const normalizeEditorialScores = internalMutation({
 
       if (!dryRun) {
         await ctx.db.patch(row._id, normalizedScores)
+        // Recompute riderReady so the stored flag is consistent with the
+        // normalized score. The predicate is scale-aware (>= 0.5 on the 0–1
+        // scale), so normalizing 85 → 0.85 preserves riderReady=true. Without
+        // this, a subsequent normalizeStates pass would be the first to
+        // recompute and could flip the flag if the predicate weren't fixed.
+        await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+          id: row._id,
+        })
       }
       normalized++
     }

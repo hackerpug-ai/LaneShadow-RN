@@ -1182,6 +1182,77 @@ export const seedLengthRecoveryRow = mutation({
 })
 
 /**
+ * Seed 1 row for the score×state cross-pass regression test (REDHAT H-1).
+ *
+ * - test:hyg-cross-001: compositeScore=88 (0–100 scale, needs ÷100),
+ *   state='North-Carolina' (dirty, needs canonicalization),
+ *   geometryStatus='generated' + gate-passing geometry side-table entry.
+ *
+ * This row is designed to be processed by BOTH normalizeEditorialScores
+ * (÷100 → 0.88) AND normalizeStates (state canonicalization triggers
+ * recomputeRiderReadyForRoute). Without the scale-aware predicate fix,
+ * the recompute would evaluate 0.88 >= 50 → false → riderReady silently
+ * flipped to false. With the fix, 0.88 >= 0.5 → true → riderReady preserved.
+ */
+export const seedScoreStateCrossPassRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+
+    const routeId = 'test:hyg-cross-001'
+    const result = await insertTestRoute(ctx, {
+      routeId,
+      name: 'Cross Pass Regression Row',
+      lengthMiles: 41,
+      state: 'North-Carolina',
+      geometryStatus: 'generated' as const,
+      scores: { compositeScore: 88 },
+    })
+
+    // Insert gate-passing geometry in the side table
+    const existingGeom = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q: any) => q.eq('routeId', routeId))
+      .first()
+
+    const geomDoc = {
+      routeId,
+      format: 'polyline' as const,
+      encoding: 'utf-8',
+      precision: 5,
+      value: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+      verification: {
+        routeId,
+        verdict: 'pass' as const,
+        geometryStatus: 'generated' as const,
+        geometry: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+        anchorCount: 2,
+        anchors: [
+          { lat: 34.95, lng: -120.42, formatted: 'Start', distanceFromCentroid: 0 },
+          { lat: 34.96, lng: -120.43, formatted: 'End', distanceFromCentroid: 1 },
+        ],
+        pointCount: 5,
+        degenerate: false,
+        ratio: 1.0,
+        claimedMiles: 41,
+        routedMiles: 41,
+      },
+    }
+
+    if (existingGeom) {
+      await ctx.db.replace(existingGeom._id, geomDoc)
+    } else {
+      await ctx.db.insert('curated_route_geometry', geomDoc)
+    }
+
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: result.id,
+    })
+    return result
+  },
+})
+
+/**
  * Teardown all S3-T3 quarantine + state hygiene test rows.
  * Deletes rows whose routeId starts with test:hyg-len-, test:hyg-testrow, test:hyg-state-.
  */
@@ -1189,7 +1260,13 @@ export const teardownQuarantineStateRows = mutation({
   args: {},
   handler: async (ctx) => {
     await requireIdentity(ctx)
-    const prefixes = ['test:hyg-len-', 'test:hyg-testrow', 'test:hyg-state-', 'test:hyg-rr-']
+    const prefixes = [
+      'test:hyg-len-',
+      'test:hyg-testrow',
+      'test:hyg-state-',
+      'test:hyg-rr-',
+      'test:hyg-cross-',
+    ]
 
     let deleted = 0
     for (const prefix of prefixes) {

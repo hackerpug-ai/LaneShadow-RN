@@ -91,6 +91,10 @@ export const findCandidateRoutesByEmbedding = query({
         if (!doc) {
           return null
         }
+        // Skip shadow rows (duplicateOf != null) so deduped routes don't surface
+        if (doc.duplicateOf) {
+          return null
+        }
         return {
           routeId: _id,
           cosineSimilarity: _score,

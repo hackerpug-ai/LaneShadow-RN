@@ -7,6 +7,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
+import { computeRiderReadyFromDoc } from '../curatedGeometry'
 import {
   canonicalizeStateString,
   computeDedupePlan,
@@ -426,5 +427,92 @@ describe('computeDedupePlan (pure unit)', () => {
     expect(plan).toHaveLength(0)
     expect(totalShadows).toBe(0)
     expect(shadowPatches).toHaveLength(0)
+  })
+})
+
+/**
+ * REDHAT H-1: Scale-aware rider-ready score threshold (pure unit).
+ *
+ * UNIT_TEST_JUSTIFIED: pure predicate logic, zero I/O.
+ *
+ * computeRiderReadyFromDoc must accept both legacy 0–100 scores and normalized
+ * 0–1 scores. The threshold is >= 50 on the 0–100 scale, >= 0.5 on the 0–1
+ * scale. Without this, normalizing scores (÷100) then recomputing riderReady
+ * (via normalizeStates) silently flips legitimate routes to riderReady=false.
+ */
+describe('computeRiderReadyFromDoc: scale-aware score threshold (pure unit)', () => {
+  const gatePassingVerification = {
+    verdict: 'pass' as const,
+    geometryStatus: 'generated' as const,
+  }
+  const baseDoc = {
+    routeId: 'test-unit',
+    name: 'Unit Test Route',
+    lengthMiles: 41,
+    rideWorthiness: { verdict: 'ride' as const, reason: 'test', model: 'test', classifiedAt: 0 },
+    retiredAt: null,
+    duplicateOf: null,
+    quarantine: null,
+  }
+
+  it('passes on legacy 0–100 scale score >= 50', async () => {
+    const result = await computeRiderReadyFromDoc(
+      { ...baseDoc, compositeScore: 85 },
+      gatePassingVerification,
+    )
+    expect(result).toBe(true)
+  })
+
+  it('passes on normalized 0–1 scale score >= 0.5', async () => {
+    const result = await computeRiderReadyFromDoc(
+      { ...baseDoc, compositeScore: 0.85 },
+      gatePassingVerification,
+    )
+    expect(result).toBe(true)
+  })
+
+  it('fails on legacy 0–100 scale score < 50', async () => {
+    const result = await computeRiderReadyFromDoc(
+      { ...baseDoc, compositeScore: 30 },
+      gatePassingVerification,
+    )
+    expect(result).toBe(false)
+  })
+
+  it('fails on normalized 0–1 scale score < 0.5', async () => {
+    const result = await computeRiderReadyFromDoc(
+      { ...baseDoc, compositeScore: 0.3 },
+      gatePassingVerification,
+    )
+    expect(result).toBe(false)
+  })
+
+  it('boundary: exactly 50 on legacy scale passes', async () => {
+    const result = await computeRiderReadyFromDoc(
+      { ...baseDoc, compositeScore: 50 },
+      gatePassingVerification,
+    )
+    expect(result).toBe(true)
+  })
+
+  it('boundary: exactly 0.5 on normalized scale passes', async () => {
+    const result = await computeRiderReadyFromDoc(
+      { ...baseDoc, compositeScore: 0.5 },
+      gatePassingVerification,
+    )
+    expect(result).toBe(true)
+  })
+
+  it('cross-pass consistency: 88 (legacy) and 0.88 (normalized) produce the same verdict', async () => {
+    const legacyResult = await computeRiderReadyFromDoc(
+      { ...baseDoc, compositeScore: 88 },
+      gatePassingVerification,
+    )
+    const normalizedResult = await computeRiderReadyFromDoc(
+      { ...baseDoc, compositeScore: 0.88 },
+      gatePassingVerification,
+    )
+    expect(legacyResult).toBe(normalizedResult)
+    expect(legacyResult).toBe(true)
   })
 })
