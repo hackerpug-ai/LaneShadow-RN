@@ -89,6 +89,9 @@ function getRouteByRouteId(routeId: string): any | null {
     { identity: true },
   )
   if (!result.ok) return null
+  const trimmed = result.stdout.trim()
+  // Convex CLI outputs 'null' or empty when the query returns no doc
+  if (trimmed === '' || trimmed === 'null') return null
   return parseResult(result)
 }
 
@@ -397,5 +400,182 @@ describe('S3-T1: Score-scale ÷100 normalization at rest', () => {
         expect(row.compositeScore).not.toBe(90)
       }, 120_000)
     })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// REDHAT-FIX-003: runId-namespace isolation for concurrent-dev deployments
+// (F-4: concurrent test sessions don't collide on shared dev)
+// ---------------------------------------------------------------------------
+
+describe('REDHAT-FIX-003: concurrent-namespaces', () => {
+  beforeAll(() => {
+    // Clean slate for both namespaces
+    runConvexFn(
+      'curatedGeometryTestSupport:teardownHygieneScoreRowsByRunId',
+      { runId: 'alpha' },
+      { identity: true },
+    )
+    runConvexFn(
+      'curatedGeometryTestSupport:teardownHygieneScoreRowsByRunId',
+      { runId: 'beta' },
+      { identity: true },
+    )
+  }, 120_000)
+
+  afterAll(() => {
+    runConvexFn(
+      'curatedGeometryTestSupport:teardownHygieneScoreRowsByRunId',
+      { runId: 'alpha' },
+      { identity: true },
+    )
+    runConvexFn(
+      'curatedGeometryTestSupport:teardownHygieneScoreRowsByRunId',
+      { runId: 'beta' },
+      { identity: true },
+    )
+  }, 120_000)
+
+  // ───────────────────────────────────────────────────────────────────
+  // AC-1 [PRIMARY]: two namespaces coexist without collision
+  // ───────────────────────────────────────────────────────────────────
+  describe('concurrent-namespaces', () => {
+    it('seed alpha and beta rows coexist — all 4 rows exist with correct values', () => {
+      runConvexFn(
+        'curatedGeometryTestSupport:seedEditorialScoreRowsNamespaced',
+        { runId: 'alpha' },
+        { identity: true },
+      )
+      runConvexFn(
+        'curatedGeometryTestSupport:seedCustomScoreRowsNamespaced',
+        { runId: 'beta' },
+        { identity: true },
+      )
+
+      const alpha90 = getRouteByRouteId('test:hyg:alpha:score-90')
+      const alpha72 = getRouteByRouteId('test:hyg:alpha:score-72')
+      const beta85 = getRouteByRouteId('test:hyg:beta:score-85')
+      const beta70 = getRouteByRouteId('test:hyg:beta:score-70')
+
+      // AC-1 MUST_OBSERVE: all 4 rows exist with correct seeded values
+      expect(alpha90).not.toBeNull()
+      expect(alpha90.compositeScore).toBe(90)
+      expect(alpha72).not.toBeNull()
+      expect(alpha72.compositeScore).toBe(72)
+      expect(beta85).not.toBeNull()
+      expect(beta85.compositeScore).toBe(85)
+      expect(beta70).not.toBeNull()
+      expect(beta70.compositeScore).toBe(70)
+
+      // MUST_NOT_OBSERVE: any row null (collision)
+      for (const row of [alpha90, alpha72, beta85, beta70]) {
+        expect(row).not.toBeNull()
+      }
+    }, 120_000)
+  })
+
+  // ───────────────────────────────────────────────────────────────────
+  // AC-2: alpha teardown does not affect beta rows
+  // ───────────────────────────────────────────────────────────────────
+  describe('alpha-teardown-beta-safe', () => {
+    it('teardown alpha deletes only alpha rows — beta rows remain unchanged', () => {
+      // Seed both namespaces fresh
+      runConvexFn(
+        'curatedGeometryTestSupport:teardownHygieneScoreRowsByRunId',
+        { runId: 'alpha' },
+        { identity: true },
+      )
+      runConvexFn(
+        'curatedGeometryTestSupport:teardownHygieneScoreRowsByRunId',
+        { runId: 'beta' },
+        { identity: true },
+      )
+      runConvexFn(
+        'curatedGeometryTestSupport:seedEditorialScoreRowsNamespaced',
+        { runId: 'alpha' },
+        { identity: true },
+      )
+      runConvexFn(
+        'curatedGeometryTestSupport:seedCustomScoreRowsNamespaced',
+        { runId: 'beta' },
+        { identity: true },
+      )
+
+      // Teardown alpha only
+      const teardownResult = runConvexFn(
+        'curatedGeometryTestSupport:teardownHygieneScoreRowsByRunId',
+        { runId: 'alpha' },
+        { identity: true },
+      )
+      const teardownParsed = parseResult(teardownResult)
+      expect(teardownParsed.count).toBe(2)
+
+      // Alpha rows deleted
+      const alpha90after = getRouteByRouteId('test:hyg:alpha:score-90')
+      const alpha72after = getRouteByRouteId('test:hyg:alpha:score-72')
+      expect(alpha90after).toBeNull()
+      expect(alpha72after).toBeNull()
+
+      // Beta rows UNCHANGED
+      const beta85after = getRouteByRouteId('test:hyg:beta:score-85')
+      const beta70after = getRouteByRouteId('test:hyg:beta:score-70')
+      expect(beta85after).not.toBeNull()
+      expect(beta85after.compositeScore).toBe(85)
+      expect(beta70after).not.toBeNull()
+      expect(beta70after.compositeScore).toBe(70)
+    }, 120_000)
+  })
+
+  // ───────────────────────────────────────────────────────────────────
+  // AC-3: normalize scoped to namespace prefix; beta untouched
+  // ───────────────────────────────────────────────────────────────────
+  describe('normalize-scoped-namespace', () => {
+    it('normalize alpha prefix processes only alpha rows — beta rows untouched', () => {
+      // Seed both namespaces fresh
+      runConvexFn(
+        'curatedGeometryTestSupport:teardownHygieneScoreRowsByRunId',
+        { runId: 'alpha' },
+        { identity: true },
+      )
+      runConvexFn(
+        'curatedGeometryTestSupport:teardownHygieneScoreRowsByRunId',
+        { runId: 'beta' },
+        { identity: true },
+      )
+      runConvexFn(
+        'curatedGeometryTestSupport:seedEditorialScoreRowsNamespaced',
+        { runId: 'alpha' },
+        { identity: true },
+      )
+      runConvexFn(
+        'curatedGeometryTestSupport:seedCustomScoreRowsNamespaced',
+        { runId: 'beta' },
+        { identity: true },
+      )
+
+      // Normalize alpha namespace only (committed)
+      const result = parseResult(
+        runConvexFn('curatedGeometryHygiene:normalizeEditorialScores', {
+          routeIdPrefix: 'test:hyg:alpha:',
+        }),
+      )
+      expect(result.normalized).toBe(2)
+
+      // Alpha rows normalized
+      const alpha90 = getRouteByRouteId('test:hyg:alpha:score-90')
+      expect(alpha90.compositeScore).toBeCloseTo(0.9, 5)
+      expect(alpha90.scoreScaleNormalizedAt).toBeDefined()
+      expect(typeof alpha90.scoreScaleNormalizedAt).toBe('number')
+      expect(alpha90.scoreScaleNormalizedAt).toBeGreaterThan(0)
+
+      // Beta rows UNTOUCHED — still at original 0-100 scale
+      const beta85 = getRouteByRouteId('test:hyg:beta:score-85')
+      expect(beta85.compositeScore).toBe(85)
+      expect(beta85.scoreScaleNormalizedAt).toBeUndefined()
+
+      const beta70 = getRouteByRouteId('test:hyg:beta:score-70')
+      expect(beta70.compositeScore).toBe(70)
+      expect(beta70.scoreScaleNormalizedAt).toBeUndefined()
+    }, 120_000)
   })
 })

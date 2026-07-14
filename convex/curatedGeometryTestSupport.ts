@@ -550,6 +550,121 @@ export const seedMixedScaleRows = mutation({
   },
 })
 
+// ---------------------------------------------------------------------------
+// REDHAT-FIX-003: runId-namespaced seed/teardown for concurrent-dev isolation
+// (F-4: prevents concurrent test runs from colliding on shared dev deployment)
+// ---------------------------------------------------------------------------
+
+/**
+ * Seed 2 editorial rows namespaced by runId for concurrency-isolation tests.
+ * routeId pattern: test:hyg:{runId}:score-90 / test:hyg:{runId}:score-72
+ */
+export const seedEditorialScoreRowsNamespaced = mutation({
+  args: { runId: v.string() },
+  handler: async (ctx, { runId }) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: `test:hyg:${runId}:score-90`,
+        name: `Hygiene Score 90 (${runId})`,
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 90,
+          curvatureScore: 88,
+          scenicScore: 84,
+          technicalScore: 80,
+          trafficScore: 76,
+          remotenessScore: 70,
+        },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: `test:hyg:${runId}:score-72`,
+        name: `Hygiene Score 72 (${runId})`,
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 72,
+          curvatureScore: 70,
+          scenicScore: 65,
+          technicalScore: 60,
+          trafficScore: 55,
+          remotenessScore: 50,
+        },
+      }),
+    ]
+  },
+})
+
+/**
+ * Seed 2 editorial rows with custom scores namespaced by runId.
+ * Used by concurrency tests that need distinct values per namespace (alpha/beta).
+ * routeId pattern: test:hyg:{runId}:score-85 / test:hyg:{runId}:score-70
+ */
+export const seedCustomScoreRowsNamespaced = mutation({
+  args: { runId: v.string() },
+  handler: async (ctx, { runId }) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: `test:hyg:${runId}:score-85`,
+        name: `Hygiene Score 85 (${runId})`,
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 85,
+          curvatureScore: 82,
+          scenicScore: 78,
+          technicalScore: 74,
+          trafficScore: 70,
+          remotenessScore: 65,
+        },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: `test:hyg:${runId}:score-70`,
+        name: `Hygiene Score 70 (${runId})`,
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 70,
+          curvatureScore: 68,
+          scenicScore: 62,
+          technicalScore: 58,
+          trafficScore: 52,
+          remotenessScore: 48,
+        },
+      }),
+    ]
+  },
+})
+
+/**
+ * Teardown hygiene test rows for a specific runId namespace only.
+ * Deletes rows whose routeId starts with `test:hyg:{runId}:`.
+ * Does NOT touch rows from other runIds — safe for concurrent test runs.
+ */
+export const teardownHygieneScoreRowsByRunId = mutation({
+  args: { runId: v.string() },
+  handler: async (ctx, { runId }) => {
+    await requireIdentity(ctx)
+    const prefix = `test:hyg:${runId}:`
+    const upperBound = `${prefix}\uffff`
+    const rows = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.gte('routeId', prefix).lt('routeId', upperBound))
+      .collect()
+
+    let deleted = 0
+    for (const doc of rows) {
+      await geospatial.remove(ctx, doc._id)
+      const geomRow = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', doc.routeId))
+        .first()
+      if (geomRow) await ctx.db.delete(geomRow._id)
+      await ctx.db.delete(doc._id)
+      deleted++
+    }
+    return { status: 'deleted', count: deleted }
+  },
+})
+
 /** Teardown all hygiene test rows and reset scoreScaleNormalizedAt. */
 export const teardownHygieneScoreRows = mutation({
   args: {},
