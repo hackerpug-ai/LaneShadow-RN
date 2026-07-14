@@ -1,0 +1,35 @@
+{
+  "task_id": "S3-T1",
+  "verification_policy": {
+    "requires_tests": true,
+    "requires_red_evidence": true,
+    "requires_seeded_evidence": true
+  },
+  "project_commands": {
+    "typecheck": "pnpm type-check",
+    "lint": "pnpm exec biome check convex/curatedGeometryHygiene.ts convex/__tests__/curatedGeometryHygiene.unit.test.ts scripts/hygiene-curated-routes.ts",
+    "test": "pnpm test convex/__tests__/curatedGeometryHygiene.integration.test.ts"
+  },
+  "requirements": [
+    {
+      "id": "AC-1",
+      "verify": "pnpm test convex/__tests__/curatedGeometryHygiene.integration.test.ts -t normalize-at-rest"
+    },
+    {
+      "id": "AC-2",
+      "verify": "pnpm test convex/__tests__/curatedGeometryHygiene.integration.test.ts -t dry-run"
+    },
+    {
+      "id": "AC-3",
+      "verify": "pnpm test convex/__tests__/curatedGeometryHygiene.integration.test.ts -t idempotent"
+    },
+    {
+      "id": "AC-4",
+      "verify": "pnpm test convex/__tests__/curatedGeometryHygiene.integration.test.ts -t invariant"
+    },
+    {
+      "id": "TC-5",
+      "verify": "pnpm test convex/__tests__/curatedGeometryHygiene.unit.test.ts -t scale"
+    }
+  ]
+}

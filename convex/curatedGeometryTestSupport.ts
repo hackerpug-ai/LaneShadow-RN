@@ -1,12 +1,21 @@
 import { v } from 'convex/values'
 import { internal } from './_generated/api'
 import type { Doc } from './_generated/dataModel'
-import { mutation } from './_generated/server'
+import { mutation, query } from './_generated/server'
 import { geospatial } from './geospatialIndex'
 import { requireIdentity } from './guards'
 
 const TEPUSQUET_SUMMARY =
   'Highway 101 in Santa Maria, CA. Exit Betteravia Road heading East. Betteravia Road becomes Foxen Canyon Road. Foxen Canyon Road becomes Santa Maria Mesa Road. Santa Maria Mesa Road merges into Tepusquet Canyon Road. Head North on Tepusquet Canyon Road. Follow this all the way up the mountain and back down until you reach highway 166. Follow 166 West until you reach highway 101 again.'
+
+type ScoreOverrides = {
+  compositeScore?: number
+  curvatureScore?: number
+  scenicScore?: number
+  technicalScore?: number
+  trafficScore?: number
+  remotenessScore?: number
+}
 
 async function insertTestRoute(
   ctx: any,
@@ -23,6 +32,7 @@ async function insertTestRoute(
       model: string
       classifiedAt: number
     }
+    scores?: ScoreOverrides
   },
 ) {
   const existing = await ctx.db
@@ -34,12 +44,18 @@ async function insertTestRoute(
     const nowMs = Date.now()
     const centroidLat = row.centroidLat ?? 34.95
     const centroidLng = row.centroidLng ?? -120.42
+    const scores = row.scores ?? {}
     await ctx.db.patch(existing._id, {
       name: row.name,
       lengthMiles: row.lengthMiles,
       centroidLat,
       centroidLng,
-      compositeScore: 85,
+      compositeScore: scores.compositeScore ?? 85,
+      curvatureScore: scores.curvatureScore,
+      scenicScore: scores.scenicScore,
+      technicalScore: scores.technicalScore,
+      trafficScore: scores.trafficScore,
+      remotenessScore: scores.remotenessScore,
       rideWorthiness: row.rideWorthiness ?? {
         verdict: 'ride',
         reason: 'spike seed',
@@ -59,6 +75,7 @@ async function insertTestRoute(
   const centroidLat = row.centroidLat ?? 34.95
   const centroidLng = row.centroidLng ?? -120.42
   const nowMs = Date.now()
+  const scores = row.scores ?? {}
   const docId = await ctx.db.insert('curated_routes', {
     routeId: row.routeId,
     name: row.name,
@@ -73,12 +90,12 @@ async function insertTestRoute(
     boundsSwLat: centroidLat - 0.3,
     boundsSwLng: centroidLng - 0.3,
     lengthMiles: row.lengthMiles,
-    compositeScore: 85,
-    curvatureScore: 90,
-    scenicScore: 80,
-    technicalScore: 85,
-    trafficScore: 75,
-    remotenessScore: 70,
+    compositeScore: scores.compositeScore ?? 85,
+    curvatureScore: scores.curvatureScore ?? 90,
+    scenicScore: scores.scenicScore ?? 80,
+    technicalScore: scores.technicalScore ?? 85,
+    trafficScore: scores.trafficScore ?? 75,
+    remotenessScore: scores.remotenessScore ?? 70,
     oneLiner: row.routeId.includes('tepusquet') ? '' : 'Test route',
     summary: row.routeId.includes('tepusquet') ? TEPUSQUET_SUMMARY : 'Test route summary',
     badges: [],
@@ -100,7 +117,7 @@ async function insertTestRoute(
     docId,
     { latitude: centroidLat, longitude: centroidLng },
     { state: 'California', primaryArchetype: 'twisties' },
-    85,
+    scores.compositeScore ?? 85,
   )
 
   return { routeId: row.routeId, id: docId, created: true }
@@ -370,6 +387,126 @@ export const teardownAllTestRoutes = mutation({
 
     let deleted = 0
     for (const routeId of testRouteIds) {
+      const doc = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      if (doc) {
+        await geospatial.remove(ctx, doc._id)
+        const geomRow = await ctx.db
+          .query('curated_route_geometry')
+          .withIndex('by_routeId', (q) => q.eq('routeId', doc.routeId))
+          .first()
+        if (geomRow) await ctx.db.delete(geomRow._id)
+        await ctx.db.delete(doc._id)
+        deleted++
+      }
+    }
+    return { status: 'deleted', count: deleted }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// HYG (Sprint 03 catalog hygiene): editorial score-scale seeders
+// ---------------------------------------------------------------------------
+
+/** Query a test route by routeId for integration test verification. */
+export const getTestRoute = query({
+  args: { routeId: v.string() },
+  handler: async (ctx, { routeId }) => {
+    await requireIdentity(ctx)
+    const doc = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+    return doc
+  },
+})
+
+/** Seed 3 editorial rows with out-of-scale (0–100) composite + dimension scores. */
+export const seedEditorialScoreRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-score-90',
+        name: 'Hygiene Score 90',
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 90,
+          curvatureScore: 88,
+          scenicScore: 84,
+          technicalScore: 80,
+          trafficScore: 76,
+          remotenessScore: 70,
+        },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-score-72',
+        name: 'Hygiene Score 72',
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 72,
+          curvatureScore: 70,
+          scenicScore: 65,
+          technicalScore: 60,
+          trafficScore: 55,
+          remotenessScore: 50,
+        },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-score-85',
+        name: 'Hygiene Score 85',
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 85,
+          curvatureScore: 82,
+          scenicScore: 78,
+          technicalScore: 74,
+          trafficScore: 70,
+          remotenessScore: 65,
+        },
+      }),
+    ]
+  },
+})
+
+/** Seed 1 already-in-scale control row (compositeScore 0.85, all dimensions ≤ 1). */
+export const seedInScaleControlRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:hyg-score-inscale',
+      name: 'Hygiene In-Scale Control',
+      lengthMiles: 41,
+      scores: {
+        compositeScore: 0.85,
+        curvatureScore: 0.88,
+        scenicScore: 0.84,
+        technicalScore: 0.8,
+        trafficScore: 0.76,
+        remotenessScore: 0.7,
+      },
+    })
+  },
+})
+
+/** Teardown all hygiene test rows and reset scoreScaleNormalizedAt. */
+export const teardownHygieneScoreRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const hygieneRouteIds = [
+      'test:hyg-score-90',
+      'test:hyg-score-72',
+      'test:hyg-score-85',
+      'test:hyg-score-inscale',
+    ]
+
+    let deleted = 0
+    for (const routeId of hygieneRouteIds) {
       const doc = await ctx.db
         .query('curated_routes')
         .withIndex('by_routeId', (q) => q.eq('routeId', routeId))

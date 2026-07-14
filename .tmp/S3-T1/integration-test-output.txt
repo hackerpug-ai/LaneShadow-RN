@@ -1,0 +1,67 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s03-catalog-hygiene-20260713T000000Z
+> vitest "convex/__tests__/curatedGeometryHygiene.integration.test.ts"
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s03-catalog-hygiene-20260713T000000Z
+
+ ❯ convex/__tests__/curatedGeometryHygiene.integration.test.ts (4 tests | 3 failed) 40367ms
+   × S3-T1: Score-scale ÷100 normalization at rest > AC-1: normalize-at-rest > divides composite and every dimension score by 100 at rest, stamps scoreScaleNormalizedAt, counts normalized 6275ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   ✓ S3-T1: Score-scale ÷100 normalization at rest > AC-2: dry-run > returns the preview change-set and writes NOTHING; committed run matches preview  3669ms
+   × S3-T1: Score-scale ÷100 normalization at rest > AC-3: idempotent > first pass normalizes 3 rows; second pass is a no-op 5154ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+   × S3-T1: Score-scale ÷100 normalization at rest > AC-4: invariant > in-scale control row is unchanged; no seeded row has compositeScore > 1.0 after pass 7526ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  convex/__tests__/curatedGeometryHygiene.integration.test.ts > S3-T1: Score-scale ÷100 normalization at rest > AC-1: normalize-at-rest > divides composite and every dimension score by 100 at rest, stamps scoreScaleNormalizedAt, counts normalized
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ convex/__tests__/curatedGeometryHygiene.integration.test.ts:124:5
+    122|     }, 120_000)
+    123| 
+    124|     it('divides composite and every dimension score by 100 at rest, st…
+       |     ^
+    125|       const row90Before = getRouteByRouteId('test:hyg-score-90')
+    126|       expect(row90Before).not.toBeNull()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  convex/__tests__/curatedGeometryHygiene.integration.test.ts > S3-T1: Score-scale ÷100 normalization at rest > AC-3: idempotent > first pass normalizes 3 rows; second pass is a no-op
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ convex/__tests__/curatedGeometryHygiene.integration.test.ts:204:5
+    202|     }, 120_000)
+    203| 
+    204|     it('first pass normalizes 3 rows; second pass is a no-op', () => {
+       |     ^
+    205|       const firstResponse = runNormalize()
+    206| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  convex/__tests__/curatedGeometryHygiene.integration.test.ts > S3-T1: Score-scale ÷100 normalization at rest > AC-4: invariant > in-scale control row is unchanged; no seeded row has compositeScore > 1.0 after pass
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ convex/__tests__/curatedGeometryHygiene.integration.test.ts:237:5
+    235|     }, 120_000)
+    236| 
+    237|     it('in-scale control row is unchanged; no seeded row has composite…
+       |     ^
+    238|       // Run committed — note: the in-scale control row has routeId te…
+    239|       // which matches the prefix, so it will be scanned but NOT norma…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 1 passed (4)
+   Start at  19:58:43
+   Duration  41.15s (transform 32ms, setup 108ms, collect 12ms, tests 40.37s, environment 513ms, prepare 40ms)
+
+ ELIFECYCLE  Test failed. See above for more details.

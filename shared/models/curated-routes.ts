@@ -282,6 +282,12 @@ export const curatedRouteValidator = v.object({
   routePolyline: v.optional(v.string()), // Encoded polyline for map rendering
   waypointCount: v.optional(v.number()), // Number of waypoints from source
   geometrySource: v.optional(v.string()), // "scraped" | "nominatim" | "fhwa_existing" | "osrm"
+
+  // ========================================================================
+  // HYG: Score-scale normalization marker (Sprint 03 catalog hygiene)
+  // ÷100 idempotency guard — stamped when editorial scores are normalized at rest.
+  // ========================================================================
+  scoreScaleNormalizedAt: v.optional(v.number()),
 })
 
 /**
