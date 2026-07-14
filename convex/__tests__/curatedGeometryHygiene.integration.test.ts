@@ -791,6 +791,15 @@ function runDedupe(opts: { dryRun?: boolean; routeIdPrefix?: string } = {}): any
 }
 
 describe('S3-T2: dedupeGroups', () => {
+  // Clean stale test-prefixed rows before each test so seeding is deterministic
+  // against any leftover data from prior sessions or interrupted runs on the
+  // shared dev deployment. The no_merge_control fixture seeds
+  // 'test:cherohala-far-nc' (centroid near the Cherohala group) which would
+  // inflate the shadow count if it survived from a prior test.
+  beforeEach(() => {
+    runConvexFn('curatedGeometryTestSupport:teardownDedupeRows', {}, { identity: true })
+  })
+
   afterEach(() => {
     runConvexFn('curatedGeometryTestSupport:teardownDedupeRows', {}, { identity: true })
   })
@@ -1012,8 +1021,10 @@ describe('S3-T2: dedupeGroups', () => {
           { identity: true },
         ),
       )
+      // listCuratedRoutes returns routeId as the column string (not _id), so
+      // compare against canonical.routeId, not canonical._id.
       const stateListRouteIds = stateListResult.map((r: any) => r.routeId)
-      expect(stateListRouteIds).toContain(canonicalId)
+      expect(stateListRouteIds).toContain(canonical.routeId)
       expect(stateListRouteIds).not.toContain('test:cherohala-shadow-a')
       expect(stateListRouteIds).not.toContain('test:cherohala-shadow-b')
     }, 120_000)

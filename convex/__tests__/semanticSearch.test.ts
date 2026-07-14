@@ -141,16 +141,19 @@ describe('AC-1: findCandidateRoutesByEmbedding uses ctx.vectorSearch', () => {
     ]
 
     const vectorSearch = vi.fn().mockResolvedValue(vectorResults)
-    const dbGet = vi.fn((id) => {
-      if (id === ':route1') return mockRoutes[0]
-      if (id === ':route2') return mockRoutes[1]
-      return null
-    })
+    const runQuery = vi.fn().mockResolvedValue(
+      mockRoutes.map((r) => ({
+        _id: r._id,
+        name: r.name,
+        state: r.state,
+        candidateIdentifiers: r.candidateIdentifiers,
+      })),
+    )
 
     const ctx = {
-      db: { get: dbGet },
+      vectorSearch,
+      runQuery,
     } as any
-    ;(ctx as any).vectorSearch = vectorSearch
 
     const result = await callHandler(findCandidateRoutesByEmbedding, ctx, { embedding })
 
@@ -186,15 +189,17 @@ describe('AC-1: findCandidateRoutesByEmbedding uses ctx.vectorSearch', () => {
     ]
 
     const vectorSearch = vi.fn().mockResolvedValue(vectorResults)
-    const dbGet = vi.fn((id) => {
-      if (id === ':route1')
-        return createMockCuratedRoute({ _id: ':route1' as Id<'curated_routes'> })
-      if (id === ':deleted-route') return null // Deleted route
-      return null
-    })
+    // The internal query filters out deleted/null routes
+    const runQuery = vi.fn().mockResolvedValue([
+      {
+        _id: ':route1',
+        name: 'Tail of the Dragon',
+        state: 'TN',
+        candidateIdentifiers: ['The Dragon', 'Deals Gap'],
+      },
+    ])
 
-    const ctx = { db: { get: dbGet } } as any
-    ;(ctx as any).vectorSearch = vectorSearch
+    const ctx = { vectorSearch, runQuery } as any
 
     const result = await callHandler(findCandidateRoutesByEmbedding, ctx, { embedding })
 
@@ -213,12 +218,16 @@ describe('AC-2: findCandidateRoutesByEmbedding supports state filter', () => {
     const vectorResults = [createMockVectorSearchResult(':route1', 0.95)]
 
     const vectorSearch = vi.fn().mockResolvedValue(vectorResults)
-    const dbGet = vi.fn(() =>
-      createMockCuratedRoute({ _id: ':route1' as Id<'curated_routes'>, state: 'TN' }),
-    )
+    const runQuery = vi.fn().mockResolvedValue([
+      {
+        _id: ':route1',
+        name: 'Tail of the Dragon',
+        state: 'TN',
+        candidateIdentifiers: ['The Dragon'],
+      },
+    ])
 
-    const ctx = { db: { get: dbGet } } as any
-    ;(ctx as any).vectorSearch = vectorSearch
+    const ctx = { vectorSearch, runQuery } as any
 
     await callHandler(findCandidateRoutesByEmbedding, ctx, { embedding, stateFilter: 'TN' })
 
@@ -244,10 +253,16 @@ describe('AC-2: findCandidateRoutesByEmbedding supports state filter', () => {
     const vectorResults = [createMockVectorSearchResult(':route1', 0.95)]
 
     const vectorSearch = vi.fn().mockResolvedValue(vectorResults)
-    const dbGet = vi.fn(() => createMockCuratedRoute({ _id: ':route1' as Id<'curated_routes'> }))
+    const runQuery = vi.fn().mockResolvedValue([
+      {
+        _id: ':route1',
+        name: 'Tail of the Dragon',
+        state: 'TN',
+        candidateIdentifiers: ['The Dragon'],
+      },
+    ])
 
-    const ctx = { db: { get: dbGet } } as any
-    ;(ctx as any).vectorSearch = vectorSearch
+    const ctx = { vectorSearch, runQuery } as any
 
     await callHandler(findCandidateRoutesByEmbedding, ctx, { embedding })
 
