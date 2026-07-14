@@ -38,7 +38,7 @@ green the whole Saturday Bar (Richness R1/R2, Feel F1–F3, Proof P1–P3 are se
 |---|--------|------|-------|--------------|--------|
 | 1 | [Geometry reference-flow spike](#sprint-01-geometry-reference-spike) | Founder watches one recovered route plot its correct road line from a cold boot | 4 | — | In Progress |
 | 2 | [Mastra spike + z.ai proof + enrichment re-ratification](#sprint-02-mastra-reference-spike) | Turn-two "OK what's scenic" inherits the Ogden center on cloud dev | 8 | — | In Progress |
-| 3 | [Catalog hygiene](#sprint-03-catalog-hygiene) | Founder confirms canonical-vs-shadow per duplicate group before merge commits | 4 | — | Planned |
+| 3 | [Catalog hygiene](#sprint-03-catalog-hygiene) | Founder confirms canonical-vs-shadow per duplicate group before merge commits | 4 | — | In Progress |
 | 4 | [Trust pipeline](#sprint-04-trust-pipeline) | Founder reviews the ~25 couch-sample lines and records the pass that unlocks the batch | 7 | 1, 3 | Planned |
 | 5 | [Batch acceptance + retirement](#sprint-05-batch-acceptance) | Founder accepts the realized rider-ready count against the expected-yield table | 4 | 4 | Planned |
 | 6 | [Rider-ready surface](#sprint-06-rider-ready-surface) | Founder confirms the provenance caption reads as calm context, never a warning | 8 | 4 | Planned |
@@ -199,7 +199,12 @@ The eight capability chains (CAP-GEO-01…06, CAP-AGT-01/02) are each owned by �
 | S3-T3 | Length + test/seed-row quarantine with reasons; state-string normalization idempotent (UC-HYG-03, UC-HYG-04) | convex-implementer | 120 min |
 | S3-T4 | Review the dedupe dry-run plan on real data; confirm canonical-vs-shadow per group before commit | Founder-Operator | 30 min |
 
-**Next Sprint Tasks:** *(populated JIT by kb-sprint-tasks-plan)*
+**Next Sprint Tasks:** *(expanded by kb-sprint-tasks-plan on 2026-07-13 → [`tasks/sprint-03-catalog-hygiene/`](./tasks/sprint-03-catalog-hygiene/); specialist-authored convex-planner; avg 115/115; fakeability 15/15 green)*
+
+- S3-T1-score-scale-normalization-dry-run-preview.md
+- S3-T2-duplicate-group-reversible-merge-dry-run-plan.md
+- S3-T3-length-testrow-quarantine-state-normalization.md
+- S3-T4-review-dedupe-plan-confirm-canonical-vs-shadow.md
 
 #### Dependencies
 
