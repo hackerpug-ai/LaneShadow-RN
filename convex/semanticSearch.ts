@@ -153,10 +153,12 @@ export const findRoutesByIdentifier = query({
         .take(limit)
         .then((rows) => rows.filter((r) => !r.duplicateOf)),
       // Index lookup for highway number
+      // Filter out shadow rows (duplicateOf != null) so deduped routes don't surface
       ctx.db
         .query('curated_routes')
         .withIndex('by_highway_number', (q) => q.eq('highwayNumber', searchTermLower))
-        .take(limit),
+        .take(limit)
+        .then((rows) => rows.filter((r) => !r.duplicateOf)),
       // Scan for candidateIdentifiers (no array-contains index in Convex)
       // Use state filter if provided to reduce scan set
       stateFilter
@@ -204,6 +206,11 @@ export const findRoutesByIdentifier = query({
     for (const route of allRoutes) {
       // Skip if already matched by name or highway
       if (matchMap.has(route._id)) {
+        continue
+      }
+
+      // Skip shadow rows (duplicateOf != null) so deduped routes don't surface
+      if (route.duplicateOf) {
         continue
       }
 
@@ -721,10 +728,12 @@ export const findCandidateRoutesHybrid = query({
         .take(limit)
         .then((rows) => rows.filter((r) => !r.duplicateOf)),
       // Index lookup for highway number
+      // Filter out shadow rows (duplicateOf != null) so deduped routes don't surface
       ctx.db
         .query('curated_routes')
         .withIndex('by_highway_number', (q) => q.eq('highwayNumber', searchTermLower))
-        .take(limit),
+        .take(limit)
+        .then((rows) => rows.filter((r) => !r.duplicateOf)),
       // Scan for candidateIdentifiers (no array-contains index in Convex)
       // Use state filter if provided to reduce scan set
       stateFilter
@@ -746,6 +755,10 @@ export const findCandidateRoutesHybrid = query({
       vectorHits.map(async ({ _id, _score }: VectorSearchHit<'curated_routes'>) => {
         const doc = (await ctx.db.get(_id)) as CuratedRouteDoc | null
         if (!doc) {
+          return null
+        }
+        // Skip shadow rows (duplicateOf != null) so deduped routes don't surface
+        if (doc.duplicateOf) {
           return null
         }
         return {
@@ -797,6 +810,11 @@ export const findCandidateRoutesHybrid = query({
     for (const route of allRoutes) {
       // Skip if already matched by name or highway
       if (textMatchMap.has(route._id)) {
+        continue
+      }
+
+      // Skip shadow rows (duplicateOf != null) so deduped routes don't surface
+      if (route.duplicateOf) {
         continue
       }
 

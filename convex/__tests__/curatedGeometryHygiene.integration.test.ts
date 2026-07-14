@@ -914,7 +914,7 @@ describe('S3-T2: dedupeGroups', () => {
   // shadow-exclusion: committed shadows excluded from read paths
   // ─────────────────────────────────────────────────────────────────────
   describe('shadow-exclusion', () => {
-    it('after committed merge: no shadow in listCuratedRoutes; name search returns exactly 1 row (the canonical)', () => {
+    it('after committed merge: no shadow in any read path; name search returns exactly 1 row (the canonical)', () => {
       runConvexFn('curatedGeometryTestSupport:seedDedupeGroup', {}, { identity: true })
 
       // Run committed dedupe scoped to the test rows
@@ -934,19 +934,53 @@ describe('S3-T2: dedupeGroups', () => {
       const shadowBId = shadowB._id
 
       // ── findRoutesByIdentifier: name search for 'Cherohala Skyway' ──
-      const searchResult = parseResult(
+      // AC-4 MUST_OBSERVE: exactly 1 row, and it is the canonical
+      const nameResult = parseResult(
         runConvexFn('semanticSearch:findRoutesByIdentifier', {
           identifier: 'Cherohala Skyway',
         }),
       )
 
-      // The name search MUST NOT include shadow rows
-      const searchIds = searchResult.map((r: any) => r.routeId)
-      expect(searchIds).not.toContain(shadowAId)
-      expect(searchIds).not.toContain(shadowBId)
+      // The name search MUST return exactly 1 row (the canonical)
+      expect(nameResult).toHaveLength(1)
+      expect(nameResult[0].routeId).toBe(canonicalId)
 
-      // The canonical MUST appear in the name search results
-      expect(searchIds).toContain(canonicalId)
+      // ── findRoutesByIdentifier: highway-number search for 'us-129' ──
+      // Shadows share highwayNumber='us-129' — they MUST be excluded
+      const highwayResult = parseResult(
+        runConvexFn('semanticSearch:findRoutesByIdentifier', {
+          identifier: 'us-129',
+        }),
+      )
+      const highwayIds = highwayResult.map((r: any) => r.routeId)
+      expect(highwayIds).not.toContain(shadowAId)
+      expect(highwayIds).not.toContain(shadowBId)
+      // The canonical MUST appear in the highway search results
+      expect(highwayIds).toContain(canonicalId)
+
+      // ── findRoutesByIdentifier: candidateIdentifiers scan ──
+      // The unique state filter keeps this fixture inside the bounded scan.
+      const candidateResult = parseResult(
+        runConvexFn('semanticSearch:findRoutesByIdentifier', {
+          identifier: 'cherohala-candidate-unique',
+          stateFilter: 'Test Shadow State',
+        }),
+      )
+      expect(candidateResult).toHaveLength(1)
+      expect(candidateResult[0].routeId).toBe(canonicalId)
+
+      // The hybrid text path must apply the same shadow exclusion. A zero
+      // vector is sufficient here because the assertion targets text matches.
+      const hybridResult = parseResult(
+        runConvexFn('semanticSearch:findCandidateRoutesHybrid', {
+          embedding: Array.from({ length: 1536 }, () => 0),
+          identifier: 'cherohala-candidate-unique',
+          stateFilter: 'Test Shadow State',
+        }),
+      )
+      const hybridCandidateMatches = hybridResult.filter((r: any) => r.matchType === 'identifier')
+      expect(hybridCandidateMatches).toHaveLength(1)
+      expect(hybridCandidateMatches[0].routeId).toBe(canonicalId)
 
       // ── listCuratedRoutes: national-best mode ──
       // listCuratedRoutes requires identity
@@ -962,6 +996,20 @@ describe('S3-T2: dedupeGroups', () => {
       const listRouteIds = listResult.map((r: any) => r.routeId)
       expect(listRouteIds).not.toContain('test:cherohala-shadow-a')
       expect(listRouteIds).not.toContain('test:cherohala-shadow-b')
+
+      // ── listCuratedRoutes: state-only mode ──
+      // The state-only mode MUST also exclude shadows (residual finding #4 fix)
+      const stateListResult = parseResult(
+        runConvexFn(
+          'curatedRoutes:listCuratedRoutes',
+          { state: 'Test Shadow State', limit: 200 },
+          { identity: true },
+        ),
+      )
+      const stateListRouteIds = stateListResult.map((r: any) => r.routeId)
+      expect(stateListRouteIds).toContain(canonicalId)
+      expect(stateListRouteIds).not.toContain('test:cherohala-shadow-a')
+      expect(stateListRouteIds).not.toContain('test:cherohala-shadow-b')
     }, 120_000)
   })
 })
@@ -1183,8 +1231,8 @@ describe('rider-ready-exclusion', () => {
     runHygieneFn('curatedGeometryTestSupport:teardownQuarantineStateRows')
   })
 
-  it('pre-quarantine both candidates are riderReady=true; post-quarantine riderReady=false; no rider-ready row has bad length', () => {
-    // ── Pre-quarantine: both rows should be rider-ready ──
+  it('pre-quarantine all 3 candidates are riderReady=true; post-quarantine quarantined rows riderReady=false; control stays rider-ready with sane length', () => {
+    // ── Pre-quarantine: all 3 rows should be rider-ready ──
     const outlier = getRouteByRouteId('test:hyg-rr-outlier')
     expect(outlier).not.toBeNull()
     expect(outlier.riderReady).toBe(true)
@@ -1192,6 +1240,10 @@ describe('rider-ready-exclusion', () => {
     const testrow = getRouteByRouteId('test:hyg-rr-testrow')
     expect(testrow).not.toBeNull()
     expect(testrow.riderReady).toBe(true)
+
+    const control = getRouteByRouteId('test:hyg-rr-control')
+    expect(control).not.toBeNull()
+    expect(control.riderReady).toBe(true)
 
     // ── Run fixLengthOutliers (quarantines the 5000mi row as length_outlier) ──
     const lenResult = runHygieneInternal('curatedGeometryHygiene:fixLengthOutliers', {
@@ -1205,7 +1257,7 @@ describe('rider-ready-exclusion', () => {
     })
     expect(testResult.flagged).toBe(1)
 
-    // ── Post-quarantine: both rows MUST be riderReady=false ──
+    // ── Post-quarantine: quarantined rows MUST be riderReady=false ──
     const outlierAfter = getRouteByRouteId('test:hyg-rr-outlier')
     expect(outlierAfter.quarantine).not.toBeNull()
     expect(outlierAfter.quarantine.reason).toBe('length_outlier')
@@ -1216,12 +1268,29 @@ describe('rider-ready-exclusion', () => {
     expect(testrowAfter.quarantine.reason).toBe('test_row')
     expect(testrowAfter.riderReady).toBe(false)
 
-    // ── Invariant: no rider-ready row has length ≤0 or >1000 ──
-    for (const row of [outlierAfter, testrowAfter]) {
-      if (row.riderReady) {
-        expect(row.lengthMiles).toBeGreaterThan(0)
-        expect(row.lengthMiles).toBeLessThanOrEqual(1000)
-      }
+    // ── Control row MUST remain rider-ready with sane length ──
+    const controlAfter = getRouteByRouteId('test:hyg-rr-control')
+    expect(controlAfter.quarantine).toBeFalsy()
+    expect(controlAfter.riderReady).toBe(true)
+    expect(controlAfter.lengthMiles).toBeGreaterThan(0)
+    expect(controlAfter.lengthMiles).toBeLessThanOrEqual(1000)
+
+    // ── Non-vacuous invariant: every rider-ready row has sane length ──
+    // This loop now executes the riderReady branch for the control row,
+    // proving the invariant is not trivially satisfiable.
+    const allRows = [outlierAfter, testrowAfter, controlAfter]
+    const riderReadyRows = allRows.filter((r) => r.riderReady)
+    expect(riderReadyRows.length).toBeGreaterThanOrEqual(1)
+    for (const row of riderReadyRows) {
+      expect(row.lengthMiles).toBeGreaterThan(0)
+      expect(row.lengthMiles).toBeLessThanOrEqual(1000)
+    }
+
+    // ── Every quarantined row MUST be riderReady=false ──
+    const quarantinedRows = allRows.filter((r) => r.quarantine)
+    expect(quarantinedRows.length).toBe(2)
+    for (const row of quarantinedRows) {
+      expect(row.riderReady).toBe(false)
     }
   }, 120_000)
 })

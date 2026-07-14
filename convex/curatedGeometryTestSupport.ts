@@ -29,6 +29,8 @@ async function insertTestRoute(
     geometryStatus?: 'generated' | 'unresolved' | 'failed' | 'review'
     quarantine?: { reason: 'zero_length' | 'length_outlier' | 'test_row'; flaggedAt: number }
     state?: string
+    highwayNumber?: string
+    candidateIdentifiers?: string[]
     rideWorthiness?: {
       verdict: 'ride' | 'marginal' | 'not_a_ride'
       reason: string
@@ -71,6 +73,10 @@ async function insertTestRoute(
       ...(row.name_lower != null ? { name_lower: row.name_lower } : {}),
       ...(row.geometryStatus != null ? { geometryStatus: row.geometryStatus } : {}),
       ...(row.state != null ? { state: row.state } : {}),
+      ...(row.highwayNumber != null ? { highwayNumber: row.highwayNumber } : {}),
+      ...(row.candidateIdentifiers != null
+        ? { candidateIdentifiers: row.candidateIdentifiers }
+        : {}),
     })
     await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
       id: existing._id,
@@ -118,6 +124,8 @@ async function insertTestRoute(
     quarantine: row.quarantine,
     ...(row.name_lower != null ? { name_lower: row.name_lower } : {}),
     ...(row.geometryStatus != null ? { geometryStatus: row.geometryStatus } : {}),
+    ...(row.highwayNumber != null ? { highwayNumber: row.highwayNumber } : {}),
+    ...(row.candidateIdentifiers != null ? { candidateIdentifiers: row.candidateIdentifiers } : {}),
   })
 
   await geospatial.insert(
@@ -816,6 +824,9 @@ export const seedDedupeGroup = mutation({
         centroidLng: CHEROHALA_LNG,
         geometryStatus: 'generated',
         scores: { compositeScore: 0.91 },
+        highwayNumber: 'us-129',
+        state: 'Test Shadow State',
+        candidateIdentifiers: ['cherohala-candidate-unique', 'nc-143'],
       }),
       await insertTestRoute(ctx, {
         routeId: 'test:cherohala-shadow-a',
@@ -825,6 +836,9 @@ export const seedDedupeGroup = mutation({
         centroidLat: CHEROHALA_LAT,
         centroidLng: CHEROHALA_LNG,
         scores: { compositeScore: 0.85 },
+        highwayNumber: 'us-129',
+        state: 'Test Shadow State',
+        candidateIdentifiers: ['cherohala-candidate-unique', 'nc-143'],
       }),
       await insertTestRoute(ctx, {
         routeId: 'test:cherohala-shadow-b',
@@ -834,6 +848,9 @@ export const seedDedupeGroup = mutation({
         centroidLat: CHEROHALA_LAT,
         centroidLng: CHEROHALA_LNG,
         scores: { compositeScore: 0.8 },
+        highwayNumber: 'us-129',
+        state: 'Test Shadow State',
+        candidateIdentifiers: ['cherohala-candidate-unique', 'nc-143'],
       }),
     ]
   },
@@ -1050,13 +1067,14 @@ export const seedDirtyStateRows = mutation({
 })
 
 /**
- * Seed 2 rows that WOULD be rider-ready (gate-passing geometry + compositeScore
+ * Seed 3 rows that WOULD be rider-ready (gate-passing geometry + compositeScore
  * on the 0–100 scale) so the quarantine→riderReady exclusion can be verified
  * end-to-end. Without quarantine these rows recompute riderReady=true; after
  * the hygiene handlers quarantine them, riderReady MUST flip to false.
  *
  * - test:hyg-rr-outlier: lengthMiles=5000 (>1000 → length_outlier quarantine)
  * - test:hyg-rr-testrow: name='Test Route CO-04' (→ test_row quarantine)
+ * - test:hyg-rr-control: lengthMiles=41, normal name — stays rider-ready (control)
  *
  * Each row gets a gate-passing curated_route_geometry side-table entry
  * (verification.verdict='pass', geometryStatus='generated') so the predicate
@@ -1077,6 +1095,12 @@ export const seedRiderReadyCandidates = mutation({
       {
         routeId: 'test:hyg-rr-testrow',
         name: 'Test Route CO-04',
+        lengthMiles: 41,
+        geometryStatus: 'generated' as const,
+      },
+      {
+        routeId: 'test:hyg-rr-control',
+        name: 'Rider Ready Control',
         lengthMiles: 41,
         geometryStatus: 'generated' as const,
       },

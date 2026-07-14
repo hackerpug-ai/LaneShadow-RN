@@ -284,7 +284,12 @@ async function listCuratedRoutesHandler(ctx: any, args: any) {
       .filter((r) => {
         if (seen.has(r._id)) return false
         seen.add(r._id)
-        return matchesArchetype(r)
+        return (
+          matchesArchetype(r) &&
+          r.retiredAt == null &&
+          r.duplicateOf == null &&
+          r.quarantine == null
+        )
       })
       .map((r) => buildRouteCard(r))
       .sort((a, b) => b.compositeScore - a.compositeScore)
