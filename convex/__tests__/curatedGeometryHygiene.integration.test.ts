@@ -785,7 +785,7 @@ function runDedupe(opts: { dryRun?: boolean; routeIdPrefix?: string } = {}): any
         ...(opts.dryRun ? { dryRun: true } : {}),
         ...(opts.routeIdPrefix ? { routeIdPrefix: opts.routeIdPrefix } : {}),
       },
-      // dedupeGroups is an internalMutation — no identity needed
+      // dedupeGroups is an internalAction — no identity needed
     ),
   )
 }

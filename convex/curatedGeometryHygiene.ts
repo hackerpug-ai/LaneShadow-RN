@@ -12,8 +12,10 @@
  *
  * All handlers use .paginate({cursor, numItems}) so the real 5,757-row
  * catalog stays under Convex's per-transaction read limit.
- * dedupeGroups uses .collect() because cross-row grouping requires the full
- * name-keyed set in one pass (5,757 rows fit within the mutation limit).
+ * dedupeGroups is an internalAction that paginates reads via fetchDedupePage
+ * (internalQuery) and batches writes via applyDedupeShadows (internalMutation),
+ * because cross-row grouping requires the full catalog in memory — too large
+ * for a single mutation's 16MB read limit.
  *
  * CONVENTIONS (from backfill-curated-geometry.ts driver):
  *   --dryRun    Preview the change-set without writing
@@ -23,7 +25,7 @@
 
 import { v } from 'convex/values'
 import { internal } from './_generated/api'
-import { internalMutation } from './_generated/server'
+import { internalAction, internalMutation, internalQuery } from './_generated/server'
 import { normalizeState } from './util/dataNormalization'
 
 // ---------------------------------------------------------------------------
@@ -220,6 +222,7 @@ const DUPE_PROXIMITY_MI = 100
 type DedupeRow = {
   _id: any
   routeId: string
+  name?: string
   name_lower?: string
   centroidLat?: number
   centroidLng?: number
@@ -255,127 +258,242 @@ export function selectCanonical(rows: DedupeRow[]): DedupeRow {
 }
 
 /**
- * S3-T2: Detect duplicate routes by name_lower + centroid proximity and
- * reversibly shadow-flag non-canonical rows via `duplicateOf`.
+ * Pure function: compute the dedupe plan from an array of candidate rows.
  *
- * Algorithm:
- *   1. Scan curated_routes (filtered by routeIdPrefix if provided)
- *   2. Group by name_lower; skip rows that already have duplicateOf set (idempotent)
- *   3. For each name group with >1 row, check pairwise centroid proximity (haversine ≤ 100mi)
- *   4. Select canonical: prefer geometryStatus==='generated', then highest compositeScore
- *   5. Set duplicateOf on shadow rows (dryRun returns the plan without writing)
+ * Groups by name_lower (skipping rows with duplicateOf set),
+ * clusters by centroid proximity via union-find (haversine ≤ 100mi),
+ * selects canonical (prefer geometryStatus==='generated', then highest score),
+ * and returns the plan + shadow patches.
  *
- * Idempotent: rows with duplicateOf already set are skipped; second run finds 0 new shadows.
+ * Exported for unit testing — zero I/O.
  */
-export const dedupeGroups = internalMutation({
-  args: {
-    dryRun: v.optional(v.boolean()),
-    routeIdPrefix: v.optional(v.string()),
-  },
-  handler: async (ctx, args): Promise<DedupeResult> => {
-    const dryRun = args.dryRun ?? false
+export function computeDedupePlan(allRows: DedupeRow[]): {
+  plan: DedupeResult['plan']
+  totalShadows: number
+  shadowPatches: Array<{ id: DedupeRow['_id']; canonicalRouteId: string }>
+} {
+  const groupsByName = new Map<string, DedupeRow[]>()
+  for (const row of allRows) {
+    const nameLower = row.name_lower ?? row.name?.toLowerCase() ?? row.routeId
+    if (row.duplicateOf != null) continue
+    const group = groupsByName.get(nameLower)
+    if (group) {
+      group.push(row)
+    } else {
+      groupsByName.set(nameLower, [row])
+    }
+  }
 
-    // Fetch all candidate rows (filtered by prefix in test mode)
-    const rows: DedupeRow[] = args.routeIdPrefix
+  const plan: DedupeResult['plan'] = []
+  let totalShadows = 0
+  const shadowPatches: Array<{ id: DedupeRow['_id']; canonicalRouteId: string }> = []
+
+  for (const [nameLower, group] of groupsByName) {
+    if (group.length <= 1) continue
+
+    const clusterIds: number[] = group.map((_, i) => i)
+    const find = (i: number): number => {
+      while (clusterIds[i] !== i) {
+        clusterIds[i] = clusterIds[clusterIds[i]]
+        i = clusterIds[i]
+      }
+      return i
+    }
+    const union = (a: number, b: number): void => {
+      const ra = find(a)
+      const rb = find(b)
+      if (ra !== rb) clusterIds[ra] = rb
+    }
+
+    for (let i = 0; i < group.length; i++) {
+      for (let j = i + 1; j < group.length; j++) {
+        const ri = group[i]
+        const rj = group[j]
+        if (ri.centroidLat == null || ri.centroidLng == null) continue
+        if (rj.centroidLat == null || rj.centroidLng == null) continue
+        const dist = haversineMiles(ri.centroidLat, ri.centroidLng, rj.centroidLat, rj.centroidLng)
+        if (dist <= DUPE_PROXIMITY_MI) {
+          union(i, j)
+        }
+      }
+    }
+
+    const clusters = new Map<number, DedupeRow[]>()
+    for (let i = 0; i < group.length; i++) {
+      const root = find(i)
+      const cluster = clusters.get(root)
+      if (cluster) {
+        cluster.push(group[i])
+      } else {
+        clusters.set(root, [group[i]])
+      }
+    }
+
+    for (const cluster of clusters.values()) {
+      if (cluster.length <= 1) continue
+
+      const canonical = selectCanonical(cluster)
+      const shadowRouteIds = cluster
+        .filter((r) => r.routeId !== canonical.routeId)
+        .map((r) => r.routeId)
+
+      if (shadowRouteIds.length === 0) continue
+
+      plan.push({
+        nameLower,
+        canonical: canonical.routeId,
+        shadows: shadowRouteIds,
+      })
+      totalShadows += shadowRouteIds.length
+
+      for (const row of cluster) {
+        if (row.routeId !== canonical.routeId) {
+          shadowPatches.push({ id: row._id, canonicalRouteId: canonical.routeId })
+        }
+      }
+    }
+  }
+
+  return { plan, totalShadows, shadowPatches }
+}
+
+// ---------------------------------------------------------------------------
+// fetchDedupePage: paginated read of dedup-relevant fields (internalQuery)
+// ---------------------------------------------------------------------------
+
+/**
+ * Fetch one page of curated_routes rows with only the fields needed for dedup.
+ * Used by dedupeGroups (internalAction) to paginate the full catalog without
+ * exceeding the per-transaction 16MB read limit.
+ *
+ * Projects to {_id, routeId, name_lower, centroidLat, centroidLng,
+ * compositeScore, geometryStatus, duplicateOf} to minimize bytes per page.
+ */
+export const fetchDedupePage = internalQuery({
+  args: {
+    routeIdPrefix: v.optional(v.string()),
+    cursor: v.optional(v.union(v.string(), v.null())),
+    numItems: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const cursor = args.cursor ?? null
+    const numItems = args.numItems ?? 500
+
+    const page = args.routeIdPrefix
       ? await ctx.db
           .query('curated_routes')
           .withIndex('by_routeId', (q) =>
             q.gte('routeId', args.routeIdPrefix!).lt('routeId', `${args.routeIdPrefix!}\uffff`),
           )
-          .collect()
-      : await ctx.db.query('curated_routes').collect()
+          .paginate({ cursor, numItems })
+      : await ctx.db.query('curated_routes').paginate({ cursor, numItems })
 
-    // Group by name_lower; skip rows that already have duplicateOf set
-    const groupsByName = new Map<string, DedupeRow[]>()
-    for (const row of rows) {
-      const nameLower = row.name_lower ?? row.routeId
-      if (row.duplicateOf != null) continue // idempotent — skip already-shadowed rows
-      const group = groupsByName.get(nameLower)
-      if (group) {
-        group.push(row)
-      } else {
-        groupsByName.set(nameLower, [row])
-      }
+    return {
+      page: page.page.map((r) => ({
+        _id: r._id,
+        routeId: r.routeId,
+        name: r.name,
+        name_lower: r.name_lower,
+        centroidLat: r.centroidLat,
+        centroidLng: r.centroidLng,
+        compositeScore: r.compositeScore,
+        geometryStatus: r.geometryStatus,
+        duplicateOf: r.duplicateOf,
+      })),
+      continueCursor: page.continueCursor,
+      isDone: page.isDone,
+    }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// applyDedupeShadows: batch-write duplicateOf flags (internalMutation)
+// ---------------------------------------------------------------------------
+
+/**
+ * Batch-apply duplicateOf shadow flags. Called by dedupeGroups (internalAction)
+ * in batches of ≤50 to stay well under the per-transaction write limit.
+ */
+export const applyDedupeShadows = internalMutation({
+  args: {
+    shadows: v.array(
+      v.object({
+        id: v.id('curated_routes'),
+        canonicalRouteId: v.string(),
+      }),
+    ),
+  },
+  handler: async (ctx, args) => {
+    for (const s of args.shadows) {
+      await ctx.db.patch(s.id, { duplicateOf: s.canonicalRouteId })
+    }
+    return { applied: args.shadows.length }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// dedupeGroups: detect + shadow-flag duplicates (internalAction — paginated)
+// ---------------------------------------------------------------------------
+
+/**
+ * S3-T2: Detect duplicate routes by name_lower + centroid proximity and
+ * reversibly shadow-flag non-canonical rows via `duplicateOf`.
+ *
+ * Converted from internalMutation to internalAction to support the full
+ * 5,757-row catalog. The action paginates reads via fetchDedupePage
+ * (internalQuery, projected to dedup fields only) and batches writes via
+ * applyDedupeShadows (internalMutation, ≤50 per batch).
+ *
+ * Algorithm (unchanged from the mutation version):
+ *   1. Paginate through curated_routes collecting all rows (filtered by routeIdPrefix)
+ *   2. Group by name_lower; skip rows with duplicateOf set (idempotent)
+ *   3. Union-find cluster by haversine ≤ 100mi within each name group
+ *   4. Select canonical: prefer geometryStatus==='generated', then highest compositeScore
+ *   5. Set duplicateOf on shadow rows (dryRun returns the plan without writing)
+ *
+ * Idempotent: rows with duplicateOf already set are skipped; second run finds 0 new shadows.
+ * Reversible: shadow rows are marked with duplicateOf string, not deleted.
+ */
+export const dedupeGroups = internalAction({
+  args: {
+    dryRun: v.optional(v.boolean()),
+    routeIdPrefix: v.optional(v.string()),
+    pageSize: v.optional(v.number()),
+  },
+  handler: async (ctx, args): Promise<DedupeResult> => {
+    const dryRun = args.dryRun ?? false
+    const pageSize = args.pageSize ?? 500
+
+    // 1. Paginate through all rows collecting dedupe candidates
+    let cursor: string | null = null
+    let isDone = false
+    const allRows: DedupeRow[] = []
+
+    while (!isDone) {
+      const page: {
+        page: Array<Record<string, unknown>>
+        continueCursor: string
+        isDone: boolean
+      } = await ctx.runQuery(internal.curatedGeometryHygiene.fetchDedupePage, {
+        ...(args.routeIdPrefix ? { routeIdPrefix: args.routeIdPrefix } : {}),
+        cursor,
+        numItems: pageSize,
+      })
+      allRows.push(...(page.page as DedupeRow[]))
+      cursor = page.continueCursor
+      isDone = page.isDone
     }
 
-    const plan: DedupeResult['plan'] = []
-    let totalShadows = 0
+    // 2-4. Pure computation: group, cluster, select canonical, build plan
+    const { plan, totalShadows, shadowPatches } = computeDedupePlan(allRows)
 
-    for (const [nameLower, group] of groupsByName) {
-      if (group.length <= 1) continue
-
-      // Partition into proximity clusters using haversine distance ≤ 100mi
-      // Union-find approach: connect rows that are within proximity of each other
-      const clusterIds: number[] = group.map((_, i) => i)
-      const find = (i: number): number => {
-        while (clusterIds[i] !== i) {
-          clusterIds[i] = clusterIds[clusterIds[i]]
-          i = clusterIds[i]
-        }
-        return i
-      }
-      const union = (a: number, b: number): void => {
-        const ra = find(a)
-        const rb = find(b)
-        if (ra !== rb) clusterIds[ra] = rb
-      }
-
-      for (let i = 0; i < group.length; i++) {
-        for (let j = i + 1; j < group.length; j++) {
-          const ri = group[i]
-          const rj = group[j]
-          // Skip if either row is missing centroid
-          if (ri.centroidLat == null || ri.centroidLng == null) continue
-          if (rj.centroidLat == null || rj.centroidLng == null) continue
-          const dist = haversineMiles(
-            ri.centroidLat,
-            ri.centroidLng,
-            rj.centroidLat,
-            rj.centroidLng,
-          )
-          if (dist <= DUPE_PROXIMITY_MI) {
-            union(i, j)
-          }
-        }
-      }
-
-      // Collect clusters
-      const clusters = new Map<number, DedupeRow[]>()
-      for (let i = 0; i < group.length; i++) {
-        const root = find(i)
-        const cluster = clusters.get(root)
-        if (cluster) {
-          cluster.push(group[i])
-        } else {
-          clusters.set(root, [group[i]])
-        }
-      }
-
-      // Process each cluster with >1 row as a duplicate group
-      for (const cluster of clusters.values()) {
-        if (cluster.length <= 1) continue
-
-        const canonical = selectCanonical(cluster)
-        const shadowRouteIds = cluster
-          .filter((r) => r.routeId !== canonical.routeId)
-          .map((r) => r.routeId)
-
-        if (shadowRouteIds.length === 0) continue
-
-        plan.push({
-          nameLower,
-          canonical: canonical.routeId,
-          shadows: shadowRouteIds,
+    // 5. Apply shadow flags in batches (if not dryRun)
+    if (!dryRun && shadowPatches.length > 0) {
+      const BATCH_SIZE = 50
+      for (let i = 0; i < shadowPatches.length; i += BATCH_SIZE) {
+        await ctx.runMutation(internal.curatedGeometryHygiene.applyDedupeShadows, {
+          shadows: shadowPatches.slice(i, i + BATCH_SIZE),
         })
-        totalShadows += shadowRouteIds.length
-
-        if (!dryRun) {
-          for (const row of cluster) {
-            if (row.routeId !== canonical.routeId) {
-              await ctx.db.patch(row._id, { duplicateOf: canonical.routeId })
-            }
-          }
-        }
       }
     }
 

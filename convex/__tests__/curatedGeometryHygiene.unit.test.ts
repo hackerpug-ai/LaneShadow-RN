@@ -9,6 +9,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   canonicalizeStateString,
+  computeDedupePlan,
   computeNormalizedScores,
   normalizeScore,
 } from '../curatedGeometryHygiene'
@@ -226,5 +227,204 @@ describe('pagination type contract (pure unit)', () => {
     }
     expect(result.continueCursor).toBeDefined()
     expect(result.isDone).toBeDefined()
+  })
+})
+
+/**
+ * computeDedupePlan + selectCanonical: pure unit tests for the dedupe
+ * algorithm extracted from the internalAction.
+ *
+ * UNIT_TEST_JUSTIFIED: pure logic over in-memory row arrays, zero I/O.
+ */
+describe('computeDedupePlan (pure unit)', () => {
+  it('groups same-name proximity rows into 1 group with 2 shadows', () => {
+    const rows = [
+      {
+        _id: 'a',
+        routeId: 'r1',
+        name: 'Cherohala',
+        name_lower: 'cherohala',
+        centroidLat: 35.3,
+        centroidLng: -83.8,
+        compositeScore: 0.9,
+        geometryStatus: 'generated',
+      },
+      {
+        _id: 'b',
+        routeId: 'r2',
+        name: 'Cherohala',
+        name_lower: 'cherohala',
+        centroidLat: 35.31,
+        centroidLng: -83.81,
+        compositeScore: 0.7,
+        geometryStatus: 'review',
+      },
+      {
+        _id: 'c',
+        routeId: 'r3',
+        name: 'Cherohala',
+        name_lower: 'cherohala',
+        centroidLat: 35.29,
+        centroidLng: -83.79,
+        compositeScore: 0.5,
+        geometryStatus: 'review',
+      },
+    ]
+
+    const { plan, totalShadows, shadowPatches } = computeDedupePlan(rows)
+
+    expect(plan).toHaveLength(1)
+    expect(plan[0].canonical).toBe('r1')
+    expect(plan[0].shadows).toContain('r2')
+    expect(plan[0].shadows).toContain('r3')
+    expect(totalShadows).toBe(2)
+    expect(shadowPatches).toHaveLength(2)
+  })
+
+  it('groups by name.toLowerCase() when name_lower is absent (real-catalog mode)', () => {
+    const rows = [
+      {
+        _id: 'a',
+        routeId: 'r1',
+        name: 'Cherohala Skyway',
+        centroidLat: 35.3,
+        centroidLng: -83.8,
+        compositeScore: 0.9,
+      },
+      {
+        _id: 'b',
+        routeId: 'r2',
+        name: 'cherohala skyway',
+        centroidLat: 35.31,
+        centroidLng: -83.81,
+        compositeScore: 0.7,
+      },
+    ]
+
+    const { plan, totalShadows } = computeDedupePlan(rows)
+
+    expect(plan).toHaveLength(1)
+    expect(totalShadows).toBe(1)
+  })
+
+  it('prefers gate-passing (generated) lower-score row as canonical', () => {
+    const rows = [
+      {
+        _id: 'a',
+        routeId: 'high',
+        name: 'Deals Gap',
+        name_lower: 'dealsgap',
+        centroidLat: 35.3,
+        centroidLng: -83.8,
+        compositeScore: 0.9,
+        geometryStatus: 'review',
+      },
+      {
+        _id: 'b',
+        routeId: 'low-pass',
+        name: 'Deals Gap',
+        name_lower: 'dealsgap',
+        centroidLat: 35.31,
+        centroidLng: -83.81,
+        compositeScore: 0.7,
+        geometryStatus: 'generated',
+      },
+    ]
+
+    const { plan } = computeDedupePlan(rows)
+
+    expect(plan[0].canonical).toBe('low-pass')
+  })
+
+  it('skips rows that already have duplicateOf set (idempotent)', () => {
+    const rows = [
+      {
+        _id: 'a',
+        routeId: 'r1',
+        name: 'Dup',
+        name_lower: 'dup',
+        centroidLat: 35.3,
+        centroidLng: -83.8,
+        compositeScore: 0.9,
+      },
+      {
+        _id: 'b',
+        routeId: 'r2',
+        name: 'Dup',
+        name_lower: 'dup',
+        centroidLat: 35.31,
+        centroidLng: -83.81,
+        compositeScore: 0.7,
+        duplicateOf: 'r1',
+      },
+    ]
+
+    const { plan, totalShadows } = computeDedupePlan(rows)
+
+    expect(plan).toHaveLength(0)
+    expect(totalShadows).toBe(0)
+  })
+
+  it('does NOT merge far-apart same-name rows', () => {
+    const rows = [
+      {
+        _id: 'a',
+        routeId: 'nc',
+        name: 'SameRoute',
+        name_lower: 'sameroute',
+        centroidLat: 35.3,
+        centroidLng: -83.8,
+        compositeScore: 0.9,
+      },
+      {
+        _id: 'b',
+        routeId: 'ca',
+        name: 'SameRoute',
+        name_lower: 'sameroute',
+        centroidLat: 36.0,
+        centroidLng: -120.0,
+        compositeScore: 0.8,
+      },
+    ]
+
+    const { plan, totalShadows } = computeDedupePlan(rows)
+
+    expect(plan).toHaveLength(0)
+    expect(totalShadows).toBe(0)
+  })
+
+  it('does NOT merge distinct names', () => {
+    const rows = [
+      {
+        _id: 'a',
+        routeId: 'r1',
+        name: 'Blue Ridge',
+        name_lower: 'blueridge',
+        centroidLat: 35.3,
+        centroidLng: -83.8,
+        compositeScore: 0.9,
+      },
+      {
+        _id: 'b',
+        routeId: 'r2',
+        name: 'Tail',
+        name_lower: 'tail',
+        centroidLat: 35.31,
+        centroidLng: -83.81,
+        compositeScore: 0.8,
+      },
+    ]
+
+    const { plan, totalShadows } = computeDedupePlan(rows)
+
+    expect(plan).toHaveLength(0)
+    expect(totalShadows).toBe(0)
+  })
+
+  it('returns empty plan for empty input', () => {
+    const { plan, totalShadows, shadowPatches } = computeDedupePlan([])
+    expect(plan).toHaveLength(0)
+    expect(totalShadows).toBe(0)
+    expect(shadowPatches).toHaveLength(0)
   })
 })
