@@ -1,12 +1,21 @@
 import { v } from 'convex/values'
 import { internal } from './_generated/api'
 import type { Doc } from './_generated/dataModel'
-import { mutation } from './_generated/server'
+import { mutation, query } from './_generated/server'
 import { geospatial } from './geospatialIndex'
 import { requireIdentity } from './guards'
 
 const TEPUSQUET_SUMMARY =
   'Highway 101 in Santa Maria, CA. Exit Betteravia Road heading East. Betteravia Road becomes Foxen Canyon Road. Foxen Canyon Road becomes Santa Maria Mesa Road. Santa Maria Mesa Road merges into Tepusquet Canyon Road. Head North on Tepusquet Canyon Road. Follow this all the way up the mountain and back down until you reach highway 166. Follow 166 West until you reach highway 101 again.'
+
+type ScoreOverrides = {
+  compositeScore?: number
+  curvatureScore?: number
+  scenicScore?: number
+  technicalScore?: number
+  trafficScore?: number
+  remotenessScore?: number
+}
 
 async function insertTestRoute(
   ctx: any,
@@ -16,13 +25,19 @@ async function insertTestRoute(
     lengthMiles: number
     centroidLat?: number
     centroidLng?: number
+    name_lower?: string
+    geometryStatus?: 'generated' | 'unresolved' | 'failed' | 'review'
     quarantine?: { reason: 'zero_length' | 'length_outlier' | 'test_row'; flaggedAt: number }
+    state?: string
+    highwayNumber?: string
+    candidateIdentifiers?: string[]
     rideWorthiness?: {
       verdict: 'ride' | 'marginal' | 'not_a_ride'
       reason: string
       model: string
       classifiedAt: number
     }
+    scores?: ScoreOverrides
   },
 ) {
   const existing = await ctx.db
@@ -34,12 +49,18 @@ async function insertTestRoute(
     const nowMs = Date.now()
     const centroidLat = row.centroidLat ?? 34.95
     const centroidLng = row.centroidLng ?? -120.42
+    const scores = row.scores ?? {}
     await ctx.db.patch(existing._id, {
       name: row.name,
       lengthMiles: row.lengthMiles,
       centroidLat,
       centroidLng,
-      compositeScore: 85,
+      compositeScore: scores.compositeScore ?? 85,
+      curvatureScore: scores.curvatureScore,
+      scenicScore: scores.scenicScore,
+      technicalScore: scores.technicalScore,
+      trafficScore: scores.trafficScore,
+      remotenessScore: scores.remotenessScore,
       rideWorthiness: row.rideWorthiness ?? {
         verdict: 'ride',
         reason: 'spike seed',
@@ -49,6 +70,13 @@ async function insertTestRoute(
       quarantine: row.quarantine,
       retiredAt: undefined,
       duplicateOf: undefined,
+      ...(row.name_lower != null ? { name_lower: row.name_lower } : {}),
+      ...(row.geometryStatus != null ? { geometryStatus: row.geometryStatus } : {}),
+      ...(row.state != null ? { state: row.state } : {}),
+      ...(row.highwayNumber != null ? { highwayNumber: row.highwayNumber } : {}),
+      ...(row.candidateIdentifiers != null
+        ? { candidateIdentifiers: row.candidateIdentifiers }
+        : {}),
     })
     await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
       id: existing._id,
@@ -59,10 +87,11 @@ async function insertTestRoute(
   const centroidLat = row.centroidLat ?? 34.95
   const centroidLng = row.centroidLng ?? -120.42
   const nowMs = Date.now()
+  const scores = row.scores ?? {}
   const docId = await ctx.db.insert('curated_routes', {
     routeId: row.routeId,
     name: row.name,
-    state: 'California',
+    state: row.state ?? 'California',
     source: row.routeId.startsWith('motorcycleroads:') ? 'motorcycleroads' : 'editorial',
     primaryArchetype: 'twisties',
     secondaryTags: ['test'],
@@ -73,12 +102,12 @@ async function insertTestRoute(
     boundsSwLat: centroidLat - 0.3,
     boundsSwLng: centroidLng - 0.3,
     lengthMiles: row.lengthMiles,
-    compositeScore: 85,
-    curvatureScore: 90,
-    scenicScore: 80,
-    technicalScore: 85,
-    trafficScore: 75,
-    remotenessScore: 70,
+    compositeScore: scores.compositeScore ?? 85,
+    curvatureScore: scores.curvatureScore ?? 90,
+    scenicScore: scores.scenicScore ?? 80,
+    technicalScore: scores.technicalScore ?? 85,
+    trafficScore: scores.trafficScore ?? 75,
+    remotenessScore: scores.remotenessScore ?? 70,
     oneLiner: row.routeId.includes('tepusquet') ? '' : 'Test route',
     summary: row.routeId.includes('tepusquet') ? TEPUSQUET_SUMMARY : 'Test route summary',
     badges: [],
@@ -93,6 +122,10 @@ async function insertTestRoute(
       classifiedAt: nowMs,
     },
     quarantine: row.quarantine,
+    ...(row.name_lower != null ? { name_lower: row.name_lower } : {}),
+    ...(row.geometryStatus != null ? { geometryStatus: row.geometryStatus } : {}),
+    ...(row.highwayNumber != null ? { highwayNumber: row.highwayNumber } : {}),
+    ...(row.candidateIdentifiers != null ? { candidateIdentifiers: row.candidateIdentifiers } : {}),
   })
 
   await geospatial.insert(
@@ -100,7 +133,7 @@ async function insertTestRoute(
     docId,
     { latitude: centroidLat, longitude: centroidLng },
     { state: 'California', primaryArchetype: 'twisties' },
-    85,
+    scores.compositeScore ?? 85,
   )
 
   return { routeId: row.routeId, id: docId, created: true }
@@ -375,6 +408,875 @@ export const teardownAllTestRoutes = mutation({
         .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
         .first()
       if (doc) {
+        await geospatial.remove(ctx, doc._id)
+        const geomRow = await ctx.db
+          .query('curated_route_geometry')
+          .withIndex('by_routeId', (q) => q.eq('routeId', doc.routeId))
+          .first()
+        if (geomRow) await ctx.db.delete(geomRow._id)
+        await ctx.db.delete(doc._id)
+        deleted++
+      }
+    }
+    return { status: 'deleted', count: deleted }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// HYG (Sprint 03 catalog hygiene): editorial score-scale seeders
+// ---------------------------------------------------------------------------
+
+/** Query a test route by routeId for integration test verification. */
+export const getTestRoute = query({
+  args: { routeId: v.string() },
+  handler: async (ctx, { routeId }) => {
+    await requireIdentity(ctx)
+    const doc = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+    return doc
+  },
+})
+
+/** Seed 3 editorial rows with out-of-scale (0–100) composite + dimension scores. */
+export const seedEditorialScoreRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-score-90',
+        name: 'Hygiene Score 90',
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 90,
+          curvatureScore: 88,
+          scenicScore: 84,
+          technicalScore: 80,
+          trafficScore: 76,
+          remotenessScore: 70,
+        },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-score-72',
+        name: 'Hygiene Score 72',
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 72,
+          curvatureScore: 70,
+          scenicScore: 65,
+          technicalScore: 60,
+          trafficScore: 55,
+          remotenessScore: 50,
+        },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-score-85',
+        name: 'Hygiene Score 85',
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 85,
+          curvatureScore: 82,
+          scenicScore: 78,
+          technicalScore: 74,
+          trafficScore: 70,
+          remotenessScore: 65,
+        },
+      }),
+    ]
+  },
+})
+
+/** Seed 1 already-in-scale control row (compositeScore 0.85, all dimensions ≤ 1). */
+export const seedInScaleControlRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:hyg-score-inscale',
+      name: 'Hygiene In-Scale Control',
+      lengthMiles: 41,
+      scores: {
+        compositeScore: 0.85,
+        curvatureScore: 0.88,
+        scenicScore: 0.84,
+        technicalScore: 0.8,
+        trafficScore: 0.76,
+        remotenessScore: 0.7,
+      },
+    })
+  },
+})
+
+/**
+ * REDHAT-FIX-001: Seed 3 mixed-scale rows for the mixed-scale dimension guard tests.
+ *
+ * - test:hyg-mixed-001: compositeScore=0.85 (in-scale), curvatureScore=88 (out-of-scale),
+ *   scenicScore=0.84 (in-scale), technicalScore=75 (out-of-scale),
+ *   trafficScore=0.76 (in-scale), remotenessScore=70 (out-of-scale) — MIXED scale.
+ * - test:hyg-mixed-all-inscale: ALL score fields ≤1 — in-scale control, must be untouched.
+ * - test:hyg-mixed-all-out: ALL score fields >1 — out-of-scale regression guard.
+ */
+export const seedMixedScaleRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-mixed-001',
+        name: 'Mixed Scale Row',
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 0.85,
+          curvatureScore: 88,
+          scenicScore: 0.84,
+          technicalScore: 75,
+          trafficScore: 0.76,
+          remotenessScore: 70,
+        },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-mixed-all-inscale',
+        name: 'All In-Scale Control',
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 0.9,
+          curvatureScore: 0.88,
+          scenicScore: 0.84,
+          technicalScore: 0.8,
+          trafficScore: 0.76,
+          remotenessScore: 0.7,
+        },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-mixed-all-out',
+        name: 'All Out-Of-Scale Regression',
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 90,
+          curvatureScore: 88,
+          scenicScore: 84,
+          technicalScore: 80,
+          trafficScore: 76,
+          remotenessScore: 70,
+        },
+      }),
+    ]
+  },
+})
+
+// ---------------------------------------------------------------------------
+// REDHAT-FIX-003: runId-namespaced seed/teardown for concurrent-dev isolation
+// (F-4: prevents concurrent test runs from colliding on shared dev deployment)
+// ---------------------------------------------------------------------------
+
+/**
+ * Seed 2 editorial rows namespaced by runId for concurrency-isolation tests.
+ * routeId pattern: test:hyg:{runId}:score-90 / test:hyg:{runId}:score-72
+ */
+export const seedEditorialScoreRowsNamespaced = mutation({
+  args: { runId: v.string() },
+  handler: async (ctx, { runId }) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: `test:hyg:${runId}:score-90`,
+        name: `Hygiene Score 90 (${runId})`,
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 90,
+          curvatureScore: 88,
+          scenicScore: 84,
+          technicalScore: 80,
+          trafficScore: 76,
+          remotenessScore: 70,
+        },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: `test:hyg:${runId}:score-72`,
+        name: `Hygiene Score 72 (${runId})`,
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 72,
+          curvatureScore: 70,
+          scenicScore: 65,
+          technicalScore: 60,
+          trafficScore: 55,
+          remotenessScore: 50,
+        },
+      }),
+    ]
+  },
+})
+
+/**
+ * Seed 2 editorial rows with custom scores namespaced by runId.
+ * Used by concurrency tests that need distinct values per namespace (alpha/beta).
+ * routeId pattern: test:hyg:{runId}:score-85 / test:hyg:{runId}:score-70
+ */
+export const seedCustomScoreRowsNamespaced = mutation({
+  args: { runId: v.string() },
+  handler: async (ctx, { runId }) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: `test:hyg:${runId}:score-85`,
+        name: `Hygiene Score 85 (${runId})`,
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 85,
+          curvatureScore: 82,
+          scenicScore: 78,
+          technicalScore: 74,
+          trafficScore: 70,
+          remotenessScore: 65,
+        },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: `test:hyg:${runId}:score-70`,
+        name: `Hygiene Score 70 (${runId})`,
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 70,
+          curvatureScore: 68,
+          scenicScore: 62,
+          technicalScore: 58,
+          trafficScore: 52,
+          remotenessScore: 48,
+        },
+      }),
+    ]
+  },
+})
+
+/**
+ * Teardown hygiene test rows for a specific runId namespace only.
+ * Deletes rows whose routeId starts with `test:hyg:{runId}:`.
+ * Does NOT touch rows from other runIds — safe for concurrent test runs.
+ */
+export const teardownHygieneScoreRowsByRunId = mutation({
+  args: { runId: v.string() },
+  handler: async (ctx, { runId }) => {
+    await requireIdentity(ctx)
+    const prefix = `test:hyg:${runId}:`
+    const upperBound = `${prefix}\uffff`
+    const rows = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.gte('routeId', prefix).lt('routeId', upperBound))
+      .collect()
+
+    let deleted = 0
+    for (const doc of rows) {
+      await geospatial.remove(ctx, doc._id)
+      const geomRow = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', doc.routeId))
+        .first()
+      if (geomRow) await ctx.db.delete(geomRow._id)
+      await ctx.db.delete(doc._id)
+      deleted++
+    }
+    return { status: 'deleted', count: deleted }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// REDHAT-FIX-004: paginated seed helpers for multi-batch cursor-loop tests
+// ---------------------------------------------------------------------------
+
+/**
+ * Seed 10 out-of-scale rows + 1 in-scale control for multi-batch pagination tests.
+ * routeId prefix: test:hyg-pag-*
+ * With batchSize=3, ceil(10/3)=4 batches are needed.
+ */
+export const seedPaginatedScoreRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const scores = [95, 88, 92, 76, 84, 98, 70, 82, 94, 86]
+    const results = []
+    for (let i = 0; i < scores.length; i++) {
+      const num = String(i + 1).padStart(2, '0')
+      const composite = scores[i]
+      const results_item = await insertTestRoute(ctx, {
+        routeId: `test:hyg-pag-${num}`,
+        name: `Paginated Score ${composite}`,
+        lengthMiles: 41,
+        scores: {
+          compositeScore: composite,
+          curvatureScore: composite - 2,
+          scenicScore: composite - 4,
+          technicalScore: composite - 6,
+          trafficScore: composite - 8,
+          remotenessScore: composite - 10,
+        },
+      })
+      results.push(results_item)
+    }
+    // In-scale control row — scanned but NOT normalized across batches
+    results.push(
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-pag-inscale',
+        name: 'Paginated In-Scale Control',
+        lengthMiles: 41,
+        scores: {
+          compositeScore: 0.85,
+          curvatureScore: 0.88,
+          scenicScore: 0.84,
+          technicalScore: 0.8,
+          trafficScore: 0.76,
+          remotenessScore: 0.7,
+        },
+      }),
+    )
+    return results
+  },
+})
+
+/** Teardown all paginated test rows (test:hyg-pag-*). */
+export const teardownPaginatedScoreRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const prefix = 'test:hyg-pag-'
+    const upperBound = `${prefix}\uffff`
+    const rows = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.gte('routeId', prefix).lt('routeId', upperBound))
+      .collect()
+
+    let deleted = 0
+    for (const doc of rows) {
+      await geospatial.remove(ctx, doc._id)
+      const geomRow = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', doc.routeId))
+        .first()
+      if (geomRow) await ctx.db.delete(geomRow._id)
+      await ctx.db.delete(doc._id)
+      deleted++
+    }
+    return { status: 'deleted', count: deleted }
+  },
+})
+
+/** Teardown all hygiene test rows and reset scoreScaleNormalizedAt. */
+export const teardownHygieneScoreRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const hygieneRouteIds = [
+      'test:hyg-score-90',
+      'test:hyg-score-72',
+      'test:hyg-score-85',
+      'test:hyg-score-inscale',
+      'test:hyg-mixed-001',
+      'test:hyg-mixed-all-inscale',
+      'test:hyg-mixed-all-out',
+      'test:hyg-pag-inscale',
+    ]
+
+    let deleted = 0
+    for (const routeId of hygieneRouteIds) {
+      const doc = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      if (doc) {
+        await geospatial.remove(ctx, doc._id)
+        const geomRow = await ctx.db
+          .query('curated_route_geometry')
+          .withIndex('by_routeId', (q) => q.eq('routeId', doc.routeId))
+          .first()
+        if (geomRow) await ctx.db.delete(geomRow._id)
+        await ctx.db.delete(doc._id)
+        deleted++
+      }
+    }
+    return { status: 'deleted', count: deleted }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// S3-T2: Dedup group seed/teardown helpers
+// ---------------------------------------------------------------------------
+
+const CHEROHALA_LAT = 35.34
+const CHEROHALA_LNG = -83.93
+
+/**
+ * Seed 3 rows named 'Cherohala Skyway' at the same centroid (~35.34, -83.93).
+ * The highest-score row (0.91) has geometryStatus='generated' (gate-passing).
+ * RouteIds: test:cherohala-canonical, test:cherohala-shadow-a, test:cherohala-shadow-b
+ */
+export const seedDedupeGroup = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: 'test:cherohala-canonical',
+        name: 'Cherohala Skyway',
+        name_lower: 'cherohala skyway',
+        lengthMiles: 41,
+        centroidLat: CHEROHALA_LAT,
+        centroidLng: CHEROHALA_LNG,
+        geometryStatus: 'generated',
+        scores: { compositeScore: 0.91 },
+        highwayNumber: 'us-129',
+        state: 'Test Shadow State',
+        candidateIdentifiers: ['cherohala-candidate-unique', 'nc-143'],
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:cherohala-shadow-a',
+        name: 'Cherohala Skyway',
+        name_lower: 'cherohala skyway',
+        lengthMiles: 41,
+        centroidLat: CHEROHALA_LAT,
+        centroidLng: CHEROHALA_LNG,
+        scores: { compositeScore: 0.85 },
+        highwayNumber: 'us-129',
+        state: 'Test Shadow State',
+        candidateIdentifiers: ['cherohala-candidate-unique', 'nc-143'],
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:cherohala-shadow-b',
+        name: 'Cherohala Skyway',
+        name_lower: 'cherohala skyway',
+        lengthMiles: 41,
+        centroidLat: CHEROHALA_LAT,
+        centroidLng: CHEROHALA_LNG,
+        scores: { compositeScore: 0.8 },
+        highwayNumber: 'us-129',
+        state: 'Test Shadow State',
+        candidateIdentifiers: ['cherohala-candidate-unique', 'nc-143'],
+      }),
+    ]
+  },
+})
+
+/**
+ * Seed 2 rows named 'Deals Gap Loop' at the same centroid.
+ * One with compositeScore=0.88 + geometryStatus='review' (NOT gate-passing),
+ * one with compositeScore=0.80 + geometryStatus='generated' (gate-passing).
+ * The gate-passing lower-score row should be selected as canonical.
+ */
+export const seedPrecedenceGroup = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: 'test:deals-highscore-review',
+        name: 'Deals Gap Loop',
+        name_lower: 'deals gap loop',
+        lengthMiles: 41,
+        centroidLat: 35.35,
+        centroidLng: -83.94,
+        geometryStatus: 'review',
+        scores: { compositeScore: 0.88 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:deals-lowscore-passing',
+        name: 'Deals Gap Loop',
+        name_lower: 'deals gap loop',
+        lengthMiles: 41,
+        centroidLat: 35.35,
+        centroidLng: -83.94,
+        geometryStatus: 'generated',
+        scores: { compositeScore: 0.8 },
+      }),
+    ]
+  },
+})
+
+/**
+ * Seed 4 control rows that should NOT merge:
+ * - 2 distinct names ('Blue Ridge Parkway', 'Tail of the Dragon')
+ * - 2 same-name 'Cherohala Skyway' but >2000mi apart (NC vs CA)
+ */
+export const seedNoMergeControl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: 'test:distinct-blueridge',
+        name: 'Blue Ridge Parkway',
+        name_lower: 'blue ridge parkway',
+        lengthMiles: 41,
+        centroidLat: 35.5,
+        centroidLng: -82.5,
+        scores: { compositeScore: 0.9 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:distinct-tail',
+        name: 'Tail of the Dragon',
+        name_lower: 'tail of the dragon',
+        lengthMiles: 41,
+        centroidLat: 35.48,
+        centroidLng: -83.92,
+        scores: { compositeScore: 0.92 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:cherohala-far-nc',
+        name: 'Cherohala Skyway',
+        name_lower: 'cherohala skyway',
+        lengthMiles: 41,
+        centroidLat: 35.3,
+        centroidLng: -83.9,
+        scores: { compositeScore: 0.87 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:cherohala-far-ca',
+        name: 'Cherohala Skyway',
+        name_lower: 'cherohala skyway',
+        lengthMiles: 41,
+        centroidLat: 34.9,
+        centroidLng: -120.4,
+        scores: { compositeScore: 0.7 },
+      }),
+    ]
+  },
+})
+
+/**
+ * Teardown all dedupe test rows.
+ * Deletes rows whose routeId starts with test:cherohala-, test:deals-, test:distinct-.
+ */
+export const teardownDedupeRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const prefixes = ['test:cherohala-', 'test:deals-', 'test:distinct-']
+
+    let deleted = 0
+    for (const prefix of prefixes) {
+      const upperBound = `${prefix}\uffff`
+      const rows = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.gte('routeId', prefix).lt('routeId', upperBound))
+        .collect()
+
+      for (const doc of rows) {
+        await geospatial.remove(ctx, doc._id)
+        const geomRow = await ctx.db
+          .query('curated_route_geometry')
+          .withIndex('by_routeId', (q) => q.eq('routeId', doc.routeId))
+          .first()
+        if (geomRow) await ctx.db.delete(geomRow._id)
+        await ctx.db.delete(doc._id)
+        deleted++
+      }
+    }
+    return { status: 'deleted', count: deleted }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// S3-T3: Length-outlier, test-row, and dirty-state seed/teardown helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Seed 2 rows with length outliers for fixLengthOutliers tests.
+ * - test:hyg-len-zero: lengthMiles=0 (zero_length outlier)
+ * - test:hyg-len-5000: lengthMiles=5000 (length_outlier)
+ * Both with normal scores (compositeScore=0.85).
+ */
+export const seedLengthOutlierRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-len-zero',
+        name: 'Length Zero Route',
+        lengthMiles: 0,
+        scores: { compositeScore: 0.85 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-len-5000',
+        name: 'Length 5000 Route',
+        lengthMiles: 5000,
+        scores: { compositeScore: 0.85 },
+      }),
+    ]
+  },
+})
+
+/**
+ * Seed 1 test-named row for quarantineTestRows tests.
+ * - test:hyg-testrow: name='Test Route CO-04', lengthMiles=41
+ */
+export const seedTestRowForQuarantine = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:hyg-testrow',
+      name: 'Test Route CO-04',
+      lengthMiles: 41,
+      scores: { compositeScore: 0.85 },
+    })
+  },
+})
+
+/**
+ * Seed 4 rows with dirty state strings for normalizeStates tests.
+ * - test:hyg-state-ny: state='New-York' (dashed)
+ * - test:hyg-state-nc: state='North-Carolina' (dashed)
+ * - test:hyg-state-tri: state='Alabama / Mississippi / Tennessee' (multi-state)
+ * - test:hyg-state-canon: state='North Carolina' (already canonical control)
+ */
+export const seedDirtyStateRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-state-ny',
+        name: 'Dirty State NY',
+        lengthMiles: 41,
+        state: 'New-York',
+        scores: { compositeScore: 0.85 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-state-nc',
+        name: 'Dirty State NC',
+        lengthMiles: 41,
+        state: 'North-Carolina',
+        scores: { compositeScore: 0.85 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-state-tri',
+        name: 'Dirty State Tri',
+        lengthMiles: 41,
+        state: 'Alabama / Mississippi / Tennessee',
+        scores: { compositeScore: 0.85 },
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:hyg-state-canon',
+        name: 'Canonical State NC',
+        lengthMiles: 41,
+        state: 'North Carolina',
+        scores: { compositeScore: 0.85 },
+      }),
+    ]
+  },
+})
+
+/**
+ * Seed 3 rows that WOULD be rider-ready (gate-passing geometry + compositeScore
+ * on the 0–100 scale) so the quarantine→riderReady exclusion can be verified
+ * end-to-end. Without quarantine these rows recompute riderReady=true; after
+ * the hygiene handlers quarantine them, riderReady MUST flip to false.
+ *
+ * - test:hyg-rr-outlier: lengthMiles=5000 (>1000 → length_outlier quarantine)
+ * - test:hyg-rr-testrow: name='Test Route CO-04' (→ test_row quarantine)
+ * - test:hyg-rr-control: lengthMiles=41, normal name — stays rider-ready (control)
+ *
+ * Each row gets a gate-passing curated_route_geometry side-table entry
+ * (verification.verdict='pass', geometryStatus='generated') so the predicate
+ * sees gatePass=true.
+ */
+export const seedRiderReadyCandidates = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+
+    const candidates = [
+      {
+        routeId: 'test:hyg-rr-outlier',
+        name: 'Rider Ready Outlier',
+        lengthMiles: 5000,
+        geometryStatus: 'generated' as const,
+      },
+      {
+        routeId: 'test:hyg-rr-testrow',
+        name: 'Test Route CO-04',
+        lengthMiles: 41,
+        geometryStatus: 'generated' as const,
+      },
+      {
+        routeId: 'test:hyg-rr-control',
+        name: 'Rider Ready Control',
+        lengthMiles: 41,
+        geometryStatus: 'generated' as const,
+      },
+    ]
+
+    const results = []
+    for (const c of candidates) {
+      // insertTestRoute defaults compositeScore to 85 (>= 50 threshold)
+      const result = await insertTestRoute(ctx, {
+        routeId: c.routeId,
+        name: c.name,
+        lengthMiles: c.lengthMiles,
+        geometryStatus: c.geometryStatus,
+      })
+
+      // Insert gate-passing geometry in the side table
+      const existingGeom = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q: any) => q.eq('routeId', c.routeId))
+        .first()
+
+      const geomDoc = {
+        routeId: c.routeId,
+        format: 'polyline' as const,
+        encoding: 'utf-8',
+        precision: 5,
+        value: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+        verification: {
+          routeId: c.routeId,
+          verdict: 'pass' as const,
+          geometryStatus: 'generated' as const,
+          geometry: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+          anchorCount: 2,
+          anchors: [
+            { lat: 34.95, lng: -120.42, formatted: 'Start', distanceFromCentroid: 0 },
+            { lat: 34.96, lng: -120.43, formatted: 'End', distanceFromCentroid: 1 },
+          ],
+          pointCount: 5,
+          degenerate: false,
+          ratio: 1.0,
+          claimedMiles: c.lengthMiles,
+          routedMiles: c.lengthMiles,
+        },
+      }
+
+      if (existingGeom) {
+        await ctx.db.replace(existingGeom._id, geomDoc)
+      } else {
+        await ctx.db.insert('curated_route_geometry', geomDoc)
+      }
+
+      // Recompute riderReady — should be true (gate-passing, score≥50, etc.)
+      await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+        id: result.id,
+      })
+      results.push(result)
+    }
+    return results
+  },
+})
+
+/**
+ * Seed 1 row for the length-recovery test (S3-T3 AC-4).
+ * - test:hyg-len-recover: lengthMiles=0, not yet quarantined.
+ *
+ * The test runs fixLengthOutliers to quarantine it, then calls
+ * persistGeometryVerified with routedMiles=22.0 to verify the auto-clear.
+ */
+export const seedLengthRecoveryRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:hyg-len-recover',
+      name: 'Length Recovery Row',
+      lengthMiles: 0,
+    })
+  },
+})
+
+/**
+ * Seed 1 row for the score×state cross-pass regression test (REDHAT H-1).
+ *
+ * - test:hyg-cross-001: compositeScore=88 (0–100 scale, needs ÷100),
+ *   state='North-Carolina' (dirty, needs canonicalization),
+ *   geometryStatus='generated' + gate-passing geometry side-table entry.
+ *
+ * This row is designed to be processed by BOTH normalizeEditorialScores
+ * (÷100 → 0.88) AND normalizeStates (state canonicalization triggers
+ * recomputeRiderReadyForRoute). Without the scale-aware predicate fix,
+ * the recompute would evaluate 0.88 >= 50 → false → riderReady silently
+ * flipped to false. With the fix, 0.88 >= 0.5 → true → riderReady preserved.
+ */
+export const seedScoreStateCrossPassRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+
+    const routeId = 'test:hyg-cross-001'
+    const result = await insertTestRoute(ctx, {
+      routeId,
+      name: 'Cross Pass Regression Row',
+      lengthMiles: 41,
+      state: 'North-Carolina',
+      geometryStatus: 'generated' as const,
+      scores: { compositeScore: 88 },
+    })
+
+    // Insert gate-passing geometry in the side table
+    const existingGeom = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q: any) => q.eq('routeId', routeId))
+      .first()
+
+    const geomDoc = {
+      routeId,
+      format: 'polyline' as const,
+      encoding: 'utf-8',
+      precision: 5,
+      value: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+      verification: {
+        routeId,
+        verdict: 'pass' as const,
+        geometryStatus: 'generated' as const,
+        geometry: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+        anchorCount: 2,
+        anchors: [
+          { lat: 34.95, lng: -120.42, formatted: 'Start', distanceFromCentroid: 0 },
+          { lat: 34.96, lng: -120.43, formatted: 'End', distanceFromCentroid: 1 },
+        ],
+        pointCount: 5,
+        degenerate: false,
+        ratio: 1.0,
+        claimedMiles: 41,
+        routedMiles: 41,
+      },
+    }
+
+    if (existingGeom) {
+      await ctx.db.replace(existingGeom._id, geomDoc)
+    } else {
+      await ctx.db.insert('curated_route_geometry', geomDoc)
+    }
+
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: result.id,
+    })
+    return result
+  },
+})
+
+/**
+ * Teardown all S3-T3 quarantine + state hygiene test rows.
+ * Deletes rows whose routeId starts with test:hyg-len-, test:hyg-testrow, test:hyg-state-.
+ */
+export const teardownQuarantineStateRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const prefixes = [
+      'test:hyg-len-',
+      'test:hyg-testrow',
+      'test:hyg-state-',
+      'test:hyg-rr-',
+      'test:hyg-cross-',
+    ]
+
+    let deleted = 0
+    for (const prefix of prefixes) {
+      const upperBound = `${prefix}\uffff`
+      const rows = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.gte('routeId', prefix).lt('routeId', upperBound))
+        .collect()
+
+      for (const doc of rows) {
         await geospatial.remove(ctx, doc._id)
         const geomRow = await ctx.db
           .query('curated_route_geometry')

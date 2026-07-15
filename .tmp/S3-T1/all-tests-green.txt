@@ -1,0 +1,19 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s03-catalog-hygiene-20260713T000000Z
+> vitest "convex/__tests__/curatedGeometryHygiene.unit.test.ts" "convex/__tests__/curatedGeometryHygiene.integration.test.ts"
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s03-catalog-hygiene-20260713T000000Z
+
+ ✓ convex/__tests__/curatedGeometryHygiene.integration.test.ts (4 tests) 38670ms
+   ✓ S3-T1: Score-scale ÷100 normalization at rest > AC-1: normalize-at-rest > divides composite and every dimension score by 100 at rest, stamps scoreScaleNormalizedAt, counts normalized  6228ms
+   ✓ S3-T1: Score-scale ÷100 normalization at rest > AC-2: dry-run > returns the preview change-set and writes NOTHING; committed run matches preview  3718ms
+   ✓ S3-T1: Score-scale ÷100 normalization at rest > AC-3: idempotent > first pass normalizes 3 rows; second pass is a no-op  4710ms
+   ✓ S3-T1: Score-scale ÷100 normalization at rest > AC-4: invariant > in-scale control row is unchanged; no seeded row has compositeScore > 1.0 after pass  7420ms
+ ✓ convex/__tests__/curatedGeometryHygiene.unit.test.ts (4 tests) 0ms
+
+ Test Files  2 passed (2)
+      Tests  8 passed (8)
+   Start at  20:02:00
+   Duration  39.50s (transform 46ms, setup 123ms, collect 30ms, tests 38.67s, environment 522ms, prepare 37ms)
+

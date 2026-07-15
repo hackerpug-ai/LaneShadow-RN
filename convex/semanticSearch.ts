@@ -12,9 +12,9 @@
 
 import { v } from 'convex/values'
 
+import { api, internal } from './_generated/api'
 import type { Doc, Id, TableNames } from './_generated/dataModel'
-import { mutation, query } from './_generated/server'
-import { withVectorSearch } from './types'
+import { action, internalQuery, mutation, query } from './_generated/server'
 
 const EMBEDDING_DIMENSIONS = 1536
 
@@ -24,8 +24,6 @@ const EMBEDDING_DIMENSIONS = 1536
 
 // Proper Convex types for our document tables
 type CuratedRouteDoc = Doc<'curated_routes'>
-type RouteMatchDoc = Doc<'route_matches'>
-type RoutePostRawDoc = Doc<'route_posts_raw'>
 
 // Vector search result types
 type VectorSearchHit<TTableName extends TableNames> = {
@@ -33,8 +31,62 @@ type VectorSearchHit<TTableName extends TableNames> = {
   _score: number
 }
 
+// Return types for the vector-search actions (explicit annotations needed
+// because the api/internal imports create a circular type reference through
+// the generated API, preventing inference).
+type EmbeddingSearchResult = Array<{
+  routeId: Id<'curated_routes'>
+  cosineSimilarity: number
+  name: string
+  state: string
+  candidateIdentifiers: string[] | undefined
+}>
+
+type HybridSearchResult = Array<{
+  routeId: Id<'curated_routes'>
+  name: string
+  state: string
+  cosineSimilarity?: number
+  matchType?: 'name' | 'highway' | 'identifier'
+}>
+
 // ---------------------------------------------------------------------------
-// Query: findCandidateRoutesByEmbedding
+// Internal query: fetchVisibleRoutesByVectorIds
+// ---------------------------------------------------------------------------
+
+/**
+ * Internal query: fetch curated_routes documents by _id array and filter out
+ * shadow rows (duplicateOf != null). Used by the vector-search actions to
+ * hydrate vectorSearch hits through a real database reader — actions cannot
+ * use ctx.db directly.
+ */
+export const fetchVisibleRoutesByVectorIds = internalQuery({
+  args: { ids: v.array(v.id('curated_routes')) },
+  handler: async (ctx, args) => {
+    const docs = await Promise.all(
+      args.ids.map(async (id) => {
+        const doc = (await ctx.db.get(id)) as CuratedRouteDoc | null
+        if (!doc) {
+          return null
+        }
+        // Skip shadow rows (duplicateOf != null) so deduped routes don't surface
+        if (doc.duplicateOf) {
+          return null
+        }
+        return {
+          _id: id,
+          name: doc.name,
+          state: doc.state,
+          candidateIdentifiers: doc.candidateIdentifiers,
+        }
+      }),
+    )
+    return docs.filter((d): d is NonNullable<typeof d> => d !== null)
+  },
+})
+
+// ---------------------------------------------------------------------------
+// Action: findCandidateRoutesByEmbedding
 // ---------------------------------------------------------------------------
 
 /**
@@ -43,12 +95,18 @@ type VectorSearchHit<TTableName extends TableNames> = {
  * Uses curated_routes.by_embedding vectorIndex to find semantically similar routes.
  * Returns route documents with cosine similarity scores, sorted by similarity.
  *
+ * Implemented as an action because Convex 1.34.x only exposes vectorSearch on
+ * the action context (GenericActionCtx), not on the query context. The action
+ * calls ctx.vectorSearch for the vector index, then hydrates the hit documents
+ * via the fetchVisibleRoutesByVectorIds internal query (which also filters
+ * shadow rows with duplicateOf != null).
+ *
  * @param embedding - OpenAI text-embedding-3-small vector (1536 dimensions)
  * @param limit - Maximum number of results (default: 10)
  * @param stateFilter - Optional state filter for vectorIndex (e.g., "CA", "CO")
  * @returns List of routes with { routeId, cosineSimilarity, name, state, candidateIdentifiers }
  */
-export const findCandidateRoutesByEmbedding = query({
+export const findCandidateRoutesByEmbedding = action({
   args: {
     embedding: v.array(v.number()),
     limit: v.optional(v.number()),
@@ -63,7 +121,7 @@ export const findCandidateRoutesByEmbedding = query({
       candidateIdentifiers: v.optional(v.array(v.string())),
     }),
   ),
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<EmbeddingSearchResult> => {
     const { embedding, limit = 10, stateFilter } = args
 
     // Validate embedding dimensions
@@ -76,33 +134,41 @@ export const findCandidateRoutesByEmbedding = query({
     // Build vector filter
     const filter = stateFilter ? (q: any) => q.eq('state', stateFilter) : undefined
 
-    // Execute vector search
-    const vectorCtx = withVectorSearch(ctx)
-    const results = await vectorCtx.vectorSearch('curated_routes', 'by_embedding', {
-      vector: embedding,
-      limit,
-      filter,
+    // Execute vector search (available on ActionCtx)
+    const hits: VectorSearchHit<'curated_routes'>[] = await ctx.vectorSearch(
+      'curated_routes',
+      'by_embedding',
+      {
+        vector: embedding,
+        limit,
+        filter,
+      },
+    )
+
+    // Hydrate documents via internal query (also filters shadow rows)
+    const docs: Array<{
+      _id: Id<'curated_routes'>
+      name: string
+      state: string
+      candidateIdentifiers: string[] | undefined
+    }> = await ctx.runQuery(internal.semanticSearch.fetchVisibleRoutesByVectorIds, {
+      ids: hits.map((h: VectorSearchHit<'curated_routes'>) => h._id),
     })
 
-    // Fetch full documents and join with _score
-    const routes = await Promise.all(
-      results.map(async ({ _id, _score }: VectorSearchHit<'curated_routes'>) => {
-        const doc = (await ctx.db.get(_id)) as CuratedRouteDoc | null
-        if (!doc) {
-          return null
-        }
+    // Join docs with scores, preserving vector rank order
+    const docById = new Map<string, (typeof docs)[0]>(docs.map((d) => [d._id as string, d]))
+    return hits
+      .filter((h: VectorSearchHit<'curated_routes'>) => docById.has(h._id as string))
+      .map((h: VectorSearchHit<'curated_routes'>) => {
+        const doc = docById.get(h._id as string)!
         return {
-          routeId: _id,
-          cosineSimilarity: _score,
+          routeId: h._id,
+          cosineSimilarity: h._score,
           name: doc.name,
           state: doc.state,
           candidateIdentifiers: doc.candidateIdentifiers,
         }
-      }),
-    )
-
-    // Filter out nulls
-    return routes.filter((route): route is NonNullable<typeof route> => route !== null)
+      })
   },
 })
 
@@ -146,15 +212,19 @@ export const findRoutesByIdentifier = query({
     // Query indexes in parallel
     const [byName, byHighway, allRoutes] = await Promise.all([
       // Index lookup for exact name match (case-insensitive)
+      // Filter out shadow rows (duplicateOf != null) so deduped routes don't surface
       ctx.db
         .query('curated_routes')
         .withIndex('by_name_lower', (q) => q.eq('name_lower', searchTermLower))
-        .take(limit),
+        .take(limit)
+        .then((rows) => rows.filter((r) => !r.duplicateOf)),
       // Index lookup for highway number
+      // Filter out shadow rows (duplicateOf != null) so deduped routes don't surface
       ctx.db
         .query('curated_routes')
         .withIndex('by_highway_number', (q) => q.eq('highwayNumber', searchTermLower))
-        .take(limit),
+        .take(limit)
+        .then((rows) => rows.filter((r) => !r.duplicateOf)),
       // Scan for candidateIdentifiers (no array-contains index in Convex)
       // Use state filter if provided to reduce scan set
       stateFilter
@@ -202,6 +272,11 @@ export const findRoutesByIdentifier = query({
     for (const route of allRoutes) {
       // Skip if already matched by name or highway
       if (matchMap.has(route._id)) {
+        continue
+      }
+
+      // Skip shadow rows (duplicateOf != null) so deduped routes don't surface
+      if (route.duplicateOf) {
         continue
       }
 
@@ -659,7 +734,7 @@ export const getRawPostsForRoute = query({
 })
 
 // ---------------------------------------------------------------------------
-// Query: findCandidateRoutesHybrid (B3)
+// Action: findCandidateRoutesHybrid (B3)
 // ---------------------------------------------------------------------------
 
 /**
@@ -669,13 +744,21 @@ export const getRawPostsForRoute = query({
  * without duplicates. This provides the best of both semantic similarity and
  * exact identifier matching.
  *
+ * Implemented as an action because Convex 1.34.x only exposes vectorSearch on
+ * the action context. The action calls:
+ *   - ctx.vectorSearch for the vector leg
+ *   - ctx.runQuery(api.semanticSearch.findRoutesByIdentifier) for the text leg
+ *     (which already excludes duplicateOf shadows via by_name_lower filtering)
+ *   - ctx.runQuery(internal.semanticSearch.fetchVisibleRoutesByVectorIds) to
+ *     hydrate vector hits and filter shadow rows
+ *
  * @param embedding - OpenAI text-embedding-3-small vector (1536 dimensions)
  * @param identifier - Search string for text fallback
  * @param stateFilter - Optional state filter for both searches
  * @param limit - Maximum number of results (default: 20)
  * @returns List of routes with { routeId, name, state, cosineSimilarity?, matchType? }
  */
-export const findCandidateRoutesHybrid = query({
+export const findCandidateRoutesHybrid = action({
   args: {
     embedding: v.array(v.number()),
     identifier: v.string(),
@@ -693,154 +776,82 @@ export const findCandidateRoutesHybrid = query({
       ),
     }),
   ),
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<HybridSearchResult> => {
     const { embedding, identifier, stateFilter, limit = 20 } = args
 
-    // Execute vector and text searches in parallel
+    // Build vector filter
     const filter = stateFilter ? (q: any) => q.eq('state', stateFilter) : undefined
 
-    const searchTermLower = identifier.toLowerCase()
-
-    // Vector search
-    const vectorCtx = withVectorSearch(ctx)
-    const vectorSearch = vectorCtx.vectorSearch('curated_routes', 'by_embedding', {
-      vector: embedding,
-      limit,
-      filter,
-    })
-
-    // Text search (identifier-based) - run all index lookups in parallel
-    const textSearch = Promise.all([
-      // Index lookup for exact name match (case-insensitive)
-      ctx.db
-        .query('curated_routes')
-        .withIndex('by_name_lower', (q) => q.eq('name_lower', searchTermLower))
-        .take(limit),
-      // Index lookup for highway number
-      ctx.db
-        .query('curated_routes')
-        .withIndex('by_highway_number', (q) => q.eq('highwayNumber', searchTermLower))
-        .take(limit),
-      // Scan for candidateIdentifiers (no array-contains index in Convex)
-      // Use state filter if provided to reduce scan set
-      stateFilter
-        ? ctx.db
-            .query('curated_routes')
-            .withIndex('by_state', (q) => q.eq('state', stateFilter))
-            .take(limit * 2)
-        : ctx.db.query('curated_routes').take(limit * 2),
-    ])
-
-    // Run vector and text searches in parallel
-    const [vectorHits, [byName, byHighway, allRoutes]] = await Promise.all([
-      vectorSearch,
-      textSearch,
-    ])
-
-    // Fetch full documents for vector results
-    const vectorRoutes = await Promise.all(
-      vectorHits.map(async ({ _id, _score }: VectorSearchHit<'curated_routes'>) => {
-        const doc = (await ctx.db.get(_id)) as CuratedRouteDoc | null
-        if (!doc) {
-          return null
-        }
-        return {
-          routeId: _id,
-          name: doc.name,
-          state: doc.state,
-          cosineSimilarity: _score,
-        }
-      }),
-    )
-
-    // Collect and deduplicate text matches by _id
-    const textMatchMap = new Map<
-      Id<'curated_routes'>,
-      {
+    // Run vector search (ActionCtx) and text search (query) in parallel
+    const [vectorHits, textResults]: [
+      VectorSearchHit<'curated_routes'>[],
+      Array<{
         routeId: Id<'curated_routes'>
         name: string
         state: string
-        cosineSimilarity: undefined
         matchType: 'name' | 'highway' | 'identifier'
-      }
-    >()
+      }>,
+    ] = await Promise.all([
+      ctx.vectorSearch('curated_routes', 'by_embedding', {
+        vector: embedding,
+        limit,
+        filter,
+      }),
+      ctx.runQuery(api.semanticSearch.findRoutesByIdentifier, {
+        identifier,
+        stateFilter,
+        limit,
+      }),
+    ])
 
-    // Add name matches (highest priority)
-    for (const route of byName) {
-      textMatchMap.set(route._id, {
-        routeId: route._id,
-        name: route.name,
-        state: route.state,
-        cosineSimilarity: undefined,
-        matchType: 'name',
-      })
-    }
+    // Hydrate vector-hit documents and filter shadows via internal query
+    const vectorDocs: Array<{
+      _id: Id<'curated_routes'>
+      name: string
+      state: string
+      candidateIdentifiers: string[] | undefined
+    }> = await ctx.runQuery(internal.semanticSearch.fetchVisibleRoutesByVectorIds, {
+      ids: vectorHits.map((h: VectorSearchHit<'curated_routes'>) => h._id),
+    })
 
-    // Add highway matches (second priority)
-    for (const route of byHighway) {
-      if (!textMatchMap.has(route._id)) {
-        textMatchMap.set(route._id, {
-          routeId: route._id,
-          name: route.name,
-          state: route.state,
-          cosineSimilarity: undefined,
-          matchType: 'highway',
-        })
-      }
-    }
-
-    // Add candidateIdentifiers matches (lowest priority - requires scan)
-    for (const route of allRoutes) {
-      // Skip if already matched by name or highway
-      if (textMatchMap.has(route._id)) {
-        continue
-      }
-
-      // Match by candidateIdentifiers
-      if (route.candidateIdentifiers) {
-        const identifierMatch = route.candidateIdentifiers.find((id) =>
-          id.toLowerCase().includes(searchTermLower),
-        )
-        if (identifierMatch) {
-          textMatchMap.set(route._id, {
-            routeId: route._id,
-            name: route.name,
-            state: route.state,
-            cosineSimilarity: undefined,
-            matchType: 'identifier',
-          })
+    // Build vector routes with similarity scores (preserving vector rank)
+    const docById = new Map<string, (typeof vectorDocs)[0]>(
+      vectorDocs.map((d) => [d._id as string, d]),
+    )
+    const vectorRoutes = vectorHits
+      .filter((h: VectorSearchHit<'curated_routes'>) => docById.has(h._id as string))
+      .map((h: VectorSearchHit<'curated_routes'>) => {
+        const doc = docById.get(h._id as string)!
+        return {
+          routeId: h._id,
+          name: doc.name,
+          state: doc.state,
+          cosineSimilarity: h._score,
         }
-      }
-
-      // Stop if we've hit the limit
-      if (textMatchMap.size >= limit) {
-        break
-      }
-    }
+      })
 
     // Union results without duplicates (deduplicate by routeId)
     const seen = new Set<Id<'curated_routes'>>()
-    const results: Array<{
-      routeId: Id<'curated_routes'>
-      name: string
-      state: string
-      cosineSimilarity?: number
-      matchType?: 'name' | 'highway' | 'identifier'
-    }> = []
+    const results: HybridSearchResult = []
 
     // Add vector results first (they have similarity scores)
     for (const route of vectorRoutes) {
-      if (route && !seen.has(route.routeId)) {
+      if (!seen.has(route.routeId)) {
         seen.add(route.routeId)
         results.push(route)
       }
     }
 
     // Add text results that aren't already in the set
-    for (const route of textMatchMap.values()) {
+    for (const route of textResults) {
       if (!seen.has(route.routeId)) {
         seen.add(route.routeId)
-        results.push(route)
+        results.push({
+          routeId: route.routeId,
+          name: route.name,
+          state: route.state,
+          matchType: route.matchType,
+        })
       }
     }
 

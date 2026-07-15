@@ -1,0 +1,32 @@
+[
+  {
+    "id": "AC-1",
+    "verify": "pnpm test convex/__tests__/curatedGeometryHygiene.integration.test.ts -t normalize-at-rest",
+    "exit_code": 0,
+    "output_file": ".tmp/S3-T1/ac-1-output.txt"
+  },
+  {
+    "id": "AC-2",
+    "verify": "pnpm test convex/__tests__/curatedGeometryHygiene.integration.test.ts -t dry-run",
+    "exit_code": 0,
+    "output_file": ".tmp/S3-T1/ac-2-output.txt"
+  },
+  {
+    "id": "AC-3",
+    "verify": "pnpm test convex/__tests__/curatedGeometryHygiene.integration.test.ts -t idempotent",
+    "exit_code": 0,
+    "output_file": ".tmp/S3-T1/ac-3-output.txt"
+  },
+  {
+    "id": "AC-4",
+    "verify": "pnpm test convex/__tests__/curatedGeometryHygiene.integration.test.ts -t invariant",
+    "exit_code": 0,
+    "output_file": ".tmp/S3-T1/ac-4-output.txt"
+  },
+  {
+    "id": "TC-5",
+    "verify": "pnpm test convex/__tests__/curatedGeometryHygiene.unit.test.ts -t scale",
+    "exit_code": 0,
+    "output_file": ".tmp/S3-T1/tc-5-output.txt"
+  }
+]

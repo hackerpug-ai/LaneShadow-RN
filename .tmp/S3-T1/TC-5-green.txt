@@ -1,0 +1,14 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s03-catalog-hygiene-20260713T000000Z
+> vitest "convex/__tests__/curatedGeometryHygiene.unit.test.ts"
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s03-catalog-hygiene-20260713T000000Z
+
+ ✓ convex/__tests__/curatedGeometryHygiene.unit.test.ts (4 tests) 2ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  19:46:03
+   Duration  553ms (transform 37ms, setup 93ms, collect 26ms, tests 2ms, environment 292ms, prepare 34ms)
+

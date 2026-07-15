@@ -1,0 +1,3 @@
+RED EVIDENCE: Integration test cannot run — convex/curatedGeometryHygiene.ts module does not exist yet.
+npx convex run curatedGeometryHygiene:normalizeEditorialScores would fail with 'Function not found'.
+Module file does not exist at this point — confirmed by TC-5 RED: 'Failed to resolve import ../curatedGeometryHygiene'

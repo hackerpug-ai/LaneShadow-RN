@@ -1,0 +1,131 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s03-catalog-hygiene-20260713T000000Z
+> vitest "convex/__tests__/curatedGeometryHygiene.integration.test.ts"
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s03-catalog-hygiene-20260713T000000Z
+
+ ❯ convex/__tests__/curatedGeometryHygiene.integration.test.ts (7 tests | 6 failed) 33545ms
+   × S3-T1: Score-scale ÷100 normalization at rest > AC-1: normalize-at-rest > divides composite and every dimension score by 100 at rest, stamps scoreScaleNormalizedAt, counts normalized 2809ms
+     → expected +0 to be 3 // Object.is equality
+   × S3-T1: Score-scale ÷100 normalization at rest > AC-2: dry-run > returns the preview change-set and writes NOTHING; committed run matches preview 1623ms
+     → expected +0 to be 3 // Object.is equality
+   × S3-T1: Score-scale ÷100 normalization at rest > AC-3: idempotent > first pass normalizes 3 rows; second pass is a no-op 1243ms
+     → expected +0 to be 3 // Object.is equality
+   × S3-T1: Score-scale ÷100 normalization at rest > AC-4: invariant > in-scale control row is unchanged; no seeded row has compositeScore > 1.0 after pass 1209ms
+     → expected +0 to be 3 // Object.is equality
+   × S3-T1: Score-scale ÷100 normalization at rest > REDHAT-FIX-001: mixed-scale dimension guards > mixed-scale > only divides out-of-scale dimensions; in-scale dimensions stay byte-for-byte unchanged 1201ms
+     → expected 0 to be greater than or equal to 1
+   ✓ S3-T1: Score-scale ÷100 normalization at rest > REDHAT-FIX-001: mixed-scale dimension guards > all-in-scale > row is scanned but NOT normalized — every score field unchanged, no stamp  1199ms
+   × S3-T1: Score-scale ÷100 normalization at rest > REDHAT-FIX-001: mixed-scale dimension guards > all-out-regression > all dimensions still ÷100 — regression guard for the original path 1159ms
+     → expected 90 to be close to 0.9, received difference is 89.1, but expected 0.000005
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  convex/__tests__/curatedGeometryHygiene.integration.test.ts > S3-T1: Score-scale ÷100 normalization at rest > AC-1: normalize-at-rest > divides composite and every dimension score by 100 at rest, stamps scoreScaleNormalizedAt, counts normalized
+AssertionError: expected +0 to be 3 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 3[39m
+[31m+ 0[39m
+
+ ❯ convex/__tests__/curatedGeometryHygiene.integration.test.ts:133:35
+    131| 
+    132|       const response = runNormalize()
+    133|       expect(response.normalized).toBe(3)
+       |                                   ^
+    134| 
+    135|       const row90 = getRouteByRouteId('test:hyg-score-90')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  convex/__tests__/curatedGeometryHygiene.integration.test.ts > S3-T1: Score-scale ÷100 normalization at rest > AC-2: dry-run > returns the preview change-set and writes NOTHING; committed run matches preview
+AssertionError: expected +0 to be 3 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 3[39m
+[31m+ 0[39m
+
+ ❯ convex/__tests__/curatedGeometryHygiene.integration.test.ts:182:41
+    180| 
+    181|       // dry-run response normalized == 3
+    182|       expect(dryRunResponse.normalized).toBe(3)
+       |                                         ^
+    183| 
+    184|       // after the dry-run, compositeScore == 90 (still unwritten)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  convex/__tests__/curatedGeometryHygiene.integration.test.ts > S3-T1: Score-scale ÷100 normalization at rest > AC-3: idempotent > first pass normalizes 3 rows; second pass is a no-op
+AssertionError: expected +0 to be 3 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 3[39m
+[31m+ 0[39m
+
+ ❯ convex/__tests__/curatedGeometryHygiene.integration.test.ts:211:40
+    209| 
+    210|       // first-pass normalized == 3 (non-degenerate)
+    211|       expect(firstResponse.normalized).toBe(3)
+       |                                        ^
+    212| 
+    213|       // Verify compositeScore is now 0.90
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  convex/__tests__/curatedGeometryHygiene.integration.test.ts > S3-T1: Score-scale ÷100 normalization at rest > AC-4: invariant > in-scale control row is unchanged; no seeded row has compositeScore > 1.0 after pass
+AssertionError: expected +0 to be 3 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 3[39m
+[31m+ 0[39m
+
+ ❯ convex/__tests__/curatedGeometryHygiene.integration.test.ts:246:35
+    244| 
+    245|       // 3 out-of-scale rows normalized (the in-scale row is scanned b…
+    246|       expect(response.normalized).toBe(3)
+       |                                   ^
+    247| 
+    248|       const inScaleRow = getRouteByRouteId('test:hyg-score-inscale')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  convex/__tests__/curatedGeometryHygiene.integration.test.ts > S3-T1: Score-scale ÷100 normalization at rest > REDHAT-FIX-001: mixed-scale dimension guards > mixed-scale > only divides out-of-scale dimensions; in-scale dimensions stay byte-for-byte unchanged
+AssertionError: expected 0 to be greater than or equal to 1
+ ❯ convex/__tests__/curatedGeometryHygiene.integration.test.ts:319:37
+    317| 
+    318|         // response.normalized >= 1 (the mixed-scale row was processed)
+    319|         expect(response.normalized).toBeGreaterThanOrEqual(1)
+       |                                     ^
+    320| 
+    321|         // In-scale dimensions — STRICT equality (byte-for-byte unchan…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  convex/__tests__/curatedGeometryHygiene.integration.test.ts > S3-T1: Score-scale ÷100 normalization at rest > REDHAT-FIX-001: mixed-scale dimension guards > all-out-regression > all dimensions still ÷100 — regression guard for the original path
+AssertionError: expected 90 to be close to 0.9, received difference is 89.1, but expected 0.000005
+ ❯ convex/__tests__/curatedGeometryHygiene.integration.test.ts:376:36
+    374| 
+    375|         // ALL score fields ÷100 (toBeCloseTo precision 5)
+    376|         expect(row.compositeScore).toBeCloseTo(0.9, 5)
+       |                                    ^
+    377|         expect(row.curvatureScore).toBeCloseTo(0.88, 5)
+    378|         expect(row.scenicScore).toBeCloseTo(0.84, 5)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 1 passed (7)
+   Start at  22:52:47
+   Duration  34.22s (transform 27ms, setup 94ms, collect 12ms, tests 33.55s, environment 445ms, prepare 33ms)
+
+ ELIFECYCLE  Test failed. See above for more details.

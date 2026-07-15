@@ -426,10 +426,19 @@ export async function computeRiderReadyFromDoc(
   const rideWorthinessOk =
     rideVerdict === 'ride' || rideVerdict === 'marginal' || rideVerdict === undefined
 
+  // Scale-aware score threshold: the catalog may contain rows on the legacy
+  // 0–100 scale (compositeScore > 1, pre-S3-T1 normalization) or the normalized
+  // 0–1 scale (≤ 1, post-S3-T1). The read-path norm() helper
+  // (curatedRoutes.ts:129) uses the same >1 discriminator. Without this, the
+  // state-normalization pass (which calls recomputeRiderReadyForRoute) would
+  // silently flip score-normalized rows to riderReady=false (0.88 >= 50 → false).
+  const passesScoreGate =
+    doc.compositeScore > 1 ? doc.compositeScore >= 50 : doc.compositeScore >= 0.5
+
   return (
     gatePass &&
     doc.name.length > 0 &&
-    doc.compositeScore >= 50 &&
+    passesScoreGate &&
     doc.lengthMiles > 0 &&
     rideWorthinessOk &&
     doc.retiredAt == null &&
@@ -493,6 +502,22 @@ export const persistGeometryVerified = internalMutation({
     })
 
     if (verification.geometryStatus === 'generated') {
+      // S3-T3 AC-4 hook: auto-clear a zero_length quarantine when a sane routed
+      // length arrives through the persist/recompute path. The quarantine was
+      // set by fixLengthOutliers because lengthMiles was ≤0; now that a real
+      // measured routedMiles within [1, 1000] is available, store it as truth
+      // and clear the quarantine so recomputeRiderReady sees quarantine==null.
+      const route = await ctx.db.get(id)
+      if (
+        route?.quarantine?.reason === 'zero_length' &&
+        verification.routedMiles > 0 &&
+        verification.routedMiles <= 1000
+      ) {
+        await ctx.db.patch(id, {
+          quarantine: undefined,
+          lengthMiles: verification.routedMiles,
+        })
+      }
       await recomputeRiderReady(ctx, id)
     } else {
       await ctx.db.patch(id, { riderReady: false })

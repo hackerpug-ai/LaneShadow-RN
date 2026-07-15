@@ -29,6 +29,7 @@ import type * as actions_agent_lib_reliability from "../actions/agent/lib/reliab
 import type * as actions_agent_lib_summarizeForContext from "../actions/agent/lib/summarizeForContext.js";
 import type * as actions_agent_lib_summarizeToolResult from "../actions/agent/lib/summarizeToolResult.js";
 import type * as actions_agent_lib_tracing from "../actions/agent/lib/tracing.js";
+import type * as actions_agent_lib_zaiProvider from "../actions/agent/lib/zaiProvider.js";
 import type * as actions_agent_loopDetector from "../actions/agent/loopDetector.js";
 import type * as actions_agent_planRide from "../actions/agent/planRide.js";
 import type * as actions_agent_providers_geocodingProvider from "../actions/agent/providers/geocodingProvider.js";
@@ -42,6 +43,10 @@ import type * as actions_agent_ridePlanningAgent from "../actions/agent/ridePlan
 import type * as actions_agent_runAgent from "../actions/agent/runAgent.js";
 import type * as actions_agent_sendMessage from "../actions/agent/sendMessage.js";
 import type * as actions_agent_sessionContext from "../actions/agent/sessionContext.js";
+import type * as actions_agent_spike_rideAgentSpike from "../actions/agent/spike/rideAgentSpike.js";
+import type * as actions_agent_spike_rideAgentSpikeAction from "../actions/agent/spike/rideAgentSpikeAction.js";
+import type * as actions_agent_spike_spikeObservability from "../actions/agent/spike/spikeObservability.js";
+import type * as actions_agent_spike_spikeTools from "../actions/agent/spike/spikeTools.js";
 import type * as actions_agent_tools_checkSurface from "../actions/agent/tools/checkSurface.js";
 import type * as actions_agent_tools_compileSketch from "../actions/agent/tools/compileSketch.js";
 import type * as actions_agent_tools_computeRouteIndex from "../actions/agent/tools/computeRouteIndex.js";
@@ -73,6 +78,7 @@ import type * as actions_weather from "../actions/weather.js";
 import type * as crons from "../crons.js";
 import type * as curatedGeometry from "../curatedGeometry.js";
 import type * as curatedGeometryGate from "../curatedGeometryGate.js";
+import type * as curatedGeometryHygiene from "../curatedGeometryHygiene.js";
 import type * as curatedGeometryQa from "../curatedGeometryQa.js";
 import type * as curatedGeometryReconstruct from "../curatedGeometryReconstruct.js";
 import type * as curatedGeometryTestSupport from "../curatedGeometryTestSupport.js";
@@ -146,6 +152,7 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/lib/summarizeForContext": typeof actions_agent_lib_summarizeForContext;
   "actions/agent/lib/summarizeToolResult": typeof actions_agent_lib_summarizeToolResult;
   "actions/agent/lib/tracing": typeof actions_agent_lib_tracing;
+  "actions/agent/lib/zaiProvider": typeof actions_agent_lib_zaiProvider;
   "actions/agent/loopDetector": typeof actions_agent_loopDetector;
   "actions/agent/planRide": typeof actions_agent_planRide;
   "actions/agent/providers/geocodingProvider": typeof actions_agent_providers_geocodingProvider;
@@ -159,6 +166,10 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/runAgent": typeof actions_agent_runAgent;
   "actions/agent/sendMessage": typeof actions_agent_sendMessage;
   "actions/agent/sessionContext": typeof actions_agent_sessionContext;
+  "actions/agent/spike/rideAgentSpike": typeof actions_agent_spike_rideAgentSpike;
+  "actions/agent/spike/rideAgentSpikeAction": typeof actions_agent_spike_rideAgentSpikeAction;
+  "actions/agent/spike/spikeObservability": typeof actions_agent_spike_spikeObservability;
+  "actions/agent/spike/spikeTools": typeof actions_agent_spike_spikeTools;
   "actions/agent/tools/checkSurface": typeof actions_agent_tools_checkSurface;
   "actions/agent/tools/compileSketch": typeof actions_agent_tools_compileSketch;
   "actions/agent/tools/computeRouteIndex": typeof actions_agent_tools_computeRouteIndex;
@@ -190,6 +201,7 @@ declare const fullApi: ApiFromModules<{
   crons: typeof crons;
   curatedGeometry: typeof curatedGeometry;
   curatedGeometryGate: typeof curatedGeometryGate;
+  curatedGeometryHygiene: typeof curatedGeometryHygiene;
   curatedGeometryQa: typeof curatedGeometryQa;
   curatedGeometryReconstruct: typeof curatedGeometryReconstruct;
   curatedGeometryTestSupport: typeof curatedGeometryTestSupport;
