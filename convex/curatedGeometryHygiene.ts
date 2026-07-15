@@ -9,6 +9,7 @@
  * - fixLengthOutliers: quarantine rows with lengthMiles ≤ 0 or > 1000.
  * - quarantineTestRows: quarantine rows whose name matches test/seed patterns.
  * - normalizeStates: canonicalize dirty state strings, preserve multi-state.
+ * - backfillNameLower: set name_lower = name.toLowerCase() for rows missing it.
  *
  * All handlers use .paginate({cursor, numItems}) so the real 5,757-row
  * catalog stays under Convex's per-transaction read limit.
@@ -783,6 +784,92 @@ export const normalizeStates = internalMutation({
     return {
       scanned,
       changed,
+      continueCursor: page.continueCursor,
+      isDone: page.isDone,
+    }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// backfillNameLower: set name_lower = name.toLowerCase() for rows missing it
+// ---------------------------------------------------------------------------
+
+/**
+ * Pure helper: compute the correct name_lower for a row.
+ *
+ * Returns the lowercase name, or null if the row already has the correct
+ * name_lower (idempotency guard).
+ *
+ * Pure function — zero I/O — exported for unit testing.
+ */
+export function computeNameLower(row: { name: string; name_lower?: string }): string | null {
+  const expected = row.name.toLowerCase()
+  if (row.name_lower === expected) return null
+  return expected
+}
+
+/** Result shape for backfillNameLower. */
+export type NameLowerResult = {
+  scanned: number
+  backfilled: number
+  continueCursor: string
+  isDone: boolean
+}
+
+/**
+ * Backfill name_lower = name.toLowerCase() for rows that are missing it
+ * (or have an incorrect value).
+ *
+ * Legacy rows that pre-date the by_name_lower index lack the field entirely
+ * and are absent from that index, making them invisible to exact-name search
+ * via findRoutesByIdentifier.
+ *
+ * Uses Convex `.paginate({cursor, numItems})` to stay under the
+ * per-transaction read limit on the real 5,757-row catalog.
+ *
+ * Idempotency guard: rows where name_lower already equals name.toLowerCase()
+ * are skipped — the pass is safe to re-run.
+ * dryRun writes nothing.
+ */
+export const backfillNameLower = internalMutation({
+  args: {
+    dryRun: v.optional(v.boolean()),
+    routeIdPrefix: v.optional(v.string()),
+    cursor: v.optional(v.union(v.string(), v.null())),
+    batchSize: v.optional(v.number()),
+  },
+  handler: async (ctx, args): Promise<NameLowerResult> => {
+    const dryRun = args.dryRun ?? false
+    const cursor = args.cursor ?? null
+    const numItems = args.batchSize ?? 100
+
+    const page = args.routeIdPrefix
+      ? await ctx.db
+          .query('curated_routes')
+          .withIndex('by_routeId', (q) =>
+            q.gte('routeId', args.routeIdPrefix!).lt('routeId', `${args.routeIdPrefix!}\uffff`),
+          )
+          .paginate({ cursor, numItems })
+      : await ctx.db.query('curated_routes').paginate({ cursor, numItems })
+
+    let scanned = 0
+    let backfilled = 0
+
+    for (const row of page.page) {
+      scanned++
+
+      const expected = computeNameLower(row)
+      if (expected === null) continue
+
+      if (!dryRun) {
+        await ctx.db.patch(row._id, { name_lower: expected })
+      }
+      backfilled++
+    }
+
+    return {
+      scanned,
+      backfilled,
       continueCursor: page.continueCursor,
       isDone: page.isDone,
     }

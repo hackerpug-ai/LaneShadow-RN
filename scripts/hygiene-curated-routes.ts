@@ -13,6 +13,7 @@
  *
  * Subcommands:
  *   normalize-scores   ÷100 out-of-scale editorial scores at rest (S3-T1)
+ *   backfill-name-lower Set name_lower for legacy exact-name search (S3-T4)
  *   dedupe             Detect + shadow-flag duplicate routes by name + proximity (S3-T2)
  *   length             Quarantine rows with lengthMiles ≤ 0 or > 1000 (S3-T3)
  *   test-rows          Quarantine rows whose name matches test/seed patterns (S3-T3)
@@ -164,6 +165,74 @@ function normalizeScores(
     process.stdout.write(`\nNo rows needed normalization (catalog already in-scale).\n`)
   } else {
     process.stdout.write(`\n${totalNormalized} rows normalized at rest.\n`)
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Subcommand: backfill-name-lower — repair legacy exact-name search keys
+// ---------------------------------------------------------------------------
+
+type NameLowerResult = {
+  scanned: number
+  backfilled: number
+  continueCursor: string
+  isDone: boolean
+}
+
+function runNameLowerFn(fn: string, args: Record<string, unknown>): NameLowerResult {
+  const argsJson = JSON.stringify(args)
+  const cmd = `npx convex run ${fn} '${argsJson.replace(/'/g, "'\"'\"'")}'`
+  try {
+    const result = execSync(cmd, { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'] })
+    return JSON.parse(result.trim()) as NameLowerResult
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error)
+    throw new Error(`Hygiene action failed: ${msg}`)
+  }
+}
+
+function backfillNameLower(
+  dryRun: boolean,
+  requestedBatchSize: number | null,
+  resumeCursor: string | null,
+): void {
+  const label = dryRun ? '[DRY RUN] ' : ''
+  process.stdout.write(`${label}Backfilling name_lower search keys...\n`)
+  let cursor: string | null = resumeCursor
+  const batchSize = requestedBatchSize ?? 100
+  let totalScanned = 0
+  let totalBackfilled = 0
+  let batchCount = 0
+
+  while (true) {
+    const result = runNameLowerFn('curatedGeometryHygiene:backfillNameLower', {
+      ...(dryRun ? { dryRun: true } : {}),
+      cursor,
+      batchSize,
+    })
+    totalScanned += result.scanned
+    totalBackfilled += result.backfilled
+    batchCount++
+    process.stdout.write(
+      `${label}Batch ${batchCount}: scanned=${result.scanned} backfilled=${result.backfilled}` +
+        ` isDone=${result.isDone}\n`,
+    )
+    if (result.isDone) break
+    cursor = result.continueCursor
+  }
+
+  process.stdout.write(`\n${label}Final totals (${batchCount} batch(es)):\n`)
+  process.stdout.write(`  Scanned:    ${totalScanned}\n`)
+  process.stdout.write(`  Backfilled: ${totalBackfilled}\n`)
+  if (dryRun) {
+    process.stdout.write(`\nPreview only — no rows were modified.\n`)
+    process.stdout.write(
+      `To apply: pnpm tsx scripts/hygiene-curated-routes.ts backfill-name-lower\n`,
+    )
+  } else if (totalBackfilled === 0) {
+    process.stdout.write(`\nNo name_lower values needed backfilling.\n`)
+  } else {
+    process.stdout.write(`\n${totalBackfilled} name_lower values backfilled.\n`)
   }
 }
 
@@ -441,6 +510,8 @@ function main(): void {
 
   if (subcommand === 'normalize-scores') {
     normalizeScores(dryRun, batchSize, cursor)
+  } else if (subcommand === 'backfill-name-lower') {
+    backfillNameLower(dryRun, batchSize, cursor)
   } else if (subcommand === 'dedupe') {
     dedupe(dryRun)
   } else if (subcommand === 'length') {
@@ -451,13 +522,13 @@ function main(): void {
     states(dryRun, batchSize, cursor)
   } else if (subcommand === null) {
     process.stderr.write(
-      'No subcommand specified. Use: normalize-scores, dedupe, length, test-rows, or states. Run --help for usage.\n',
+      'No subcommand specified. Use: normalize-scores, backfill-name-lower, dedupe, length, test-rows, or states. Run --help for usage.\n',
     )
     process.exit(1)
   } else {
     process.stderr.write(`Unknown subcommand: ${subcommand}\n`)
     process.stderr.write(
-      'Available: normalize-scores, dedupe, length, test-rows, states. Run --help for usage.\n',
+      'Available: normalize-scores, backfill-name-lower, dedupe, length, test-rows, states. Run --help for usage.\n',
     )
     process.exit(1)
   }

@@ -11,6 +11,7 @@ import { computeRiderReadyFromDoc } from '../curatedGeometry'
 import {
   canonicalizeStateString,
   computeDedupePlan,
+  computeNameLower,
   computeNormalizedScores,
   normalizeScore,
 } from '../curatedGeometryHygiene'
@@ -514,5 +515,38 @@ describe('computeRiderReadyFromDoc: scale-aware score threshold (pure unit)', ()
     )
     expect(legacyResult).toBe(normalizedResult)
     expect(legacyResult).toBe(true)
+  })
+})
+
+/**
+ * Unit tests for computeNameLower (pure helper for backfillNameLower pass).
+ *
+ * UNIT_TEST_JUSTIFIED: pure string logic, zero I/O.
+ */
+describe('computeNameLower (pure unit)', () => {
+  it('returns name.toLowerCase() when name_lower is absent', () => {
+    expect(computeNameLower({ name: 'Cherohala Skyway' })).toBe('cherohala skyway')
+    expect(computeNameLower({ name: 'TAIL OF THE DRAGON' })).toBe('tail of the dragon')
+  })
+
+  it('returns null when name_lower already equals name.toLowerCase() (idempotency)', () => {
+    expect(computeNameLower({ name: 'Dragon', name_lower: 'dragon' })).toBeNull()
+    expect(
+      computeNameLower({ name: 'Blue Ridge Parkway', name_lower: 'blue ridge parkway' }),
+    ).toBeNull()
+  })
+
+  it('returns corrected value when name_lower is stale/incorrect', () => {
+    expect(computeNameLower({ name: 'New Name', name_lower: 'old name' })).toBe('new name')
+    expect(computeNameLower({ name: 'Route 66', name_lower: '' })).toBe('route 66')
+  })
+
+  it('is idempotent: applying the result produces null on second call', () => {
+    const row = { name: 'Cherohala Skyway' }
+    const result = computeNameLower(row)
+    expect(result).toBe('cherohala skyway')
+    // Simulate the patch
+    const patched = { ...row, name_lower: result! }
+    expect(computeNameLower(patched)).toBeNull()
   })
 })
