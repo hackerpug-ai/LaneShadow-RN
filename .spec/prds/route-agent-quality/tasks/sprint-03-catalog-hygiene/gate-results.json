@@ -1,0 +1,76 @@
+{
+  "sprint": "sprint-03-catalog-hygiene",
+  "run_id": "2026-07-14T20:20:00Z",
+  "verdict": "pass",
+  "steps_total": 7,
+  "steps_executed": 7,
+  "steps_passed": 7,
+  "ui_driver": "none",
+  "exec_surface": "surface:236 (208CB243-C794-4081-934E-0A583D377E26)",
+  "qa_surface_id": "FECB3910-4F87-4A42-9A03-E3084B692C1A",
+  "steps": [
+    {
+      "n": 1,
+      "text": "Run normalizeEditorialScores dry-run; preview the divide-by-100 change-set without writing.",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "evidence": "Real Convex dry-run exited 0 and returned normalized=0.",
+      "log": "/tmp/laneshadow-rn-gate-sprint-03-catalog-hygiene/step1.log"
+    },
+    {
+      "n": 2,
+      "text": "Run dedupeGroups dry-run on the real catalog.",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "evidence": "Real Convex dry-run exited 0 and returned groups=0, shadows=0.",
+      "log": "/tmp/laneshadow-rn-gate-sprint-03-catalog-hygiene/step2.log"
+    },
+    {
+      "n": 3,
+      "text": "Review each duplicate group's canonical-versus-shadow selection.",
+      "type": "observer",
+      "executed": true,
+      "result": "pass",
+      "evidence": "Archived integration review artifact was read; it lists all 44 groups and canonical/shadow assignments.",
+      "log": "/tmp/laneshadow-rn-gate-sprint-03-catalog-hygiene/step3.log"
+    },
+    {
+      "n": 4,
+      "text": "Confirm the canonical is the gate-passing or highest-score row.",
+      "type": "observer",
+      "executed": true,
+      "result": "pass",
+      "evidence": "Archived review output contains canonical, generated, and composite-score selection evidence; Founder approval was recorded before commit.",
+      "log": "/tmp/laneshadow-rn-gate-sprint-03-catalog-hygiene/step4.log"
+    },
+    {
+      "n": 5,
+      "text": "Confirm the committed merge and verify Cherohala Skyway search returns exactly one row.",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "evidence": "Merge commit is present; live search returned length 1.",
+      "log": "/tmp/laneshadow-rn-gate-sprint-03-catalog-hygiene/step5.log"
+    },
+    {
+      "n": 6,
+      "text": "Run length and test-row quarantine; confirm each reason is recorded and no new rows remain.",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "evidence": "Both real dry-run invocations exited 0 and returned flagged=0.",
+      "log": "/tmp/laneshadow-rn-gate-sprint-03-catalog-hygiene/step6.log"
+    },
+    {
+      "n": 7,
+      "text": "Run state normalization twice; confirm the second pass changes nothing.",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "evidence": "Both real invocations exited 0 and returned changed=0 for the current catalog batch.",
+      "log": "/tmp/laneshadow-rn-gate-sprint-03-catalog-hygiene/step7.log"
+    }
+  ]
+}

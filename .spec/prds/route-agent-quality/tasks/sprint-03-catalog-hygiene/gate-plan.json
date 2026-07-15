@@ -1,0 +1,63 @@
+{
+  "sprint": "sprint-03-catalog-hygiene",
+  "planned_at": "2026-07-14T20:20:00Z",
+  "planned_steps": 7,
+  "steps": [
+    {
+      "n": 1,
+      "text": "Run normalizeEditorialScores dry-run; preview the divide-by-100 change-set without writing.",
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "npx convex run curatedGeometryHygiene:normalizeEditorialScores '{\"dryRun\":true}'",
+      "assertion": {"kind": "exit_and_log_regex", "expected_exit": 0, "expect_log_regex": "\\\"normalized\\\"[[:space:]]*:[[:space:]]*0", "expect_not_log_regex": "Error|Exception"}
+    },
+    {
+      "n": 2,
+      "text": "Run dedupeGroups dry-run on the real catalog.",
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "npx convex run curatedGeometryHygiene:dedupeGroups '{\"dryRun\":true}'",
+      "assertion": {"kind": "exit_and_log_regex", "expected_exit": 0, "expect_log_regex": "\\\"groups\\\"[[:space:]]*:[[:space:]]*0|\\\"shadows\\\"[[:space:]]*:[[:space:]]*0", "expect_not_log_regex": "Error|Exception"}
+    },
+    {
+      "n": 3,
+      "text": "Review each duplicate group's canonical-versus-shadow selection.",
+      "type": "observer",
+      "method": "real-cli",
+      "literal_cmd": "sed -n '1,220p' .kb-orchestrate/worktrees/orch-route-agent-quality-s03-catalog-hygiene-20260713T000000Z/.tmp/sprint-03-catalog-hygiene/gate-evidence/dedupe-canonical-review.md",
+      "assertion": {"kind": "exit_and_log_regex", "expected_exit": 0, "expect_log_regex": "cherohala skyway|canonical", "expect_not_log_regex": "No such file|Error"}
+    },
+    {
+      "n": 4,
+      "text": "Confirm the canonical is the gate-passing or highest-score row.",
+      "type": "observer",
+      "method": "real-cli",
+      "literal_cmd": "rg -n 'canonical|generated|compositeScore|gate-passing' .kb-orchestrate/worktrees/orch-route-agent-quality-s03-catalog-hygiene-20260713T000000Z/.tmp/sprint-03-catalog-hygiene/gate-evidence/dedupe-canonical-review.md",
+      "assertion": {"kind": "exit_and_log_regex", "expected_exit": 0, "expect_log_regex": "canonical|generated|compositeScore|gate-passing", "expect_not_log_regex": "No such file|Error"}
+    },
+    {
+      "n": 5,
+      "text": "Confirm the committed merge and verify Cherohala Skyway search returns exactly one row.",
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "git log -1 --format=%s; npx convex run semanticSearch:findRoutesByIdentifier '{\"identifier\":\"Cherohala Skyway\"}' | jq 'length'",
+      "assertion": {"kind": "exit_and_log_regex", "expected_exit": 0, "expect_log_regex": "(^|[[:space:]])1($|[[:space:]])", "expect_not_log_regex": "Error|Exception"}
+    },
+    {
+      "n": 6,
+      "text": "Run length and test-row quarantine; confirm each reason is recorded and no new rows remain.",
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "npx convex run curatedGeometryHygiene:fixLengthOutliers '{\"dryRun\":true}' && npx convex run curatedGeometryHygiene:quarantineTestRows '{\"dryRun\":true}'",
+      "assertion": {"kind": "exit_and_log_regex", "expected_exit": 0, "expect_log_regex": "\\\"flagged\\\"[[:space:]]*:[[:space:]]*0", "expect_not_log_regex": "Error|Exception"}
+    },
+    {
+      "n": 7,
+      "text": "Run state normalization twice; confirm the second pass changes nothing.",
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "npx convex run curatedGeometryHygiene:normalizeStates '{}' && npx convex run curatedGeometryHygiene:normalizeStates '{\"dryRun\":true}'",
+      "assertion": {"kind": "exit_and_log_regex", "expected_exit": 0, "expect_log_regex": "\\\"changed\\\"[[:space:]]*:[[:space:]]*0", "expect_not_log_regex": "Error|Exception"}
+    }
+  ]
+}
