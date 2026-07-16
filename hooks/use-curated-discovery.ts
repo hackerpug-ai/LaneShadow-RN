@@ -43,11 +43,16 @@ export interface UseCuratedDiscoveryResult {
  *
  * DERIVED from the server's own return validator, not hand-copied: `Pick<...>`
  * over `Infer<typeof listCuratedRoutesReturnValidator>` means this type IS the
- * server contract, narrowed to the fields read below. Drift in those fields is
- * therefore a compile error — a renamed/removed field fails the `Pick`
- * constraint, and a changed field type fails the mapping into `DiscoveryRoute`.
- * (Both verified by mutating the validator and watching `tsc` fail.) Adding new
- * server fields stays compatible, which is the intended asymmetry.
+ * server contract, narrowed to the fields read below.
+ *
+ * What that actually catches, precisely: renames/removals of any picked field
+ * are a compile error universally (the `Pick` constraint fails, TS2344). Type
+ * changes are caught only for the fields that flow into `DiscoveryRoute` (the
+ * mapping fails, TS2322) — NOT for `state`, which is picked but never read, nor
+ * for `primaryArchetype`, which reaches the mapping only through
+ * `isValidArchetype`'s `unknown` param; retyping either of those compiles clean.
+ * (All four cases verified by mutating the validator and measuring `tsc`.)
+ * Adding new server fields stays compatible, which is the intended asymmetry.
  *
  * The import is `import type`, so it is erased at build time — no server module
  * is pulled into the RN bundle.
