@@ -1,4 +1,0 @@
-# GREEN against seeded start (real Convex dev deployment)
-# command: npx vitest run convex/__tests__/S4T1-gate-ratio-band.integration.test.ts
- Test Files  1 passed (1)
-      Tests  12 passed (12)
