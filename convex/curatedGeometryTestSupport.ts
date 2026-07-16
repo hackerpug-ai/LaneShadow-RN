@@ -1,7 +1,7 @@
 import { v } from 'convex/values'
 import { internal } from './_generated/api'
 import type { Doc } from './_generated/dataModel'
-import { mutation, query } from './_generated/server'
+import { action, mutation, query } from './_generated/server'
 import { geospatial } from './geospatialIndex'
 import { requireIdentity } from './guards'
 
@@ -1277,6 +1277,212 @@ export const teardownQuarantineStateRows = mutation({
         .collect()
 
       for (const doc of rows) {
+        await geospatial.remove(ctx, doc._id)
+        const geomRow = await ctx.db
+          .query('curated_route_geometry')
+          .withIndex('by_routeId', (q) => q.eq('routeId', doc.routeId))
+          .first()
+        if (geomRow) await ctx.db.delete(geomRow._id)
+        await ctx.db.delete(doc._id)
+        deleted++
+      }
+    }
+    return { status: 'deleted', count: deleted }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// S4-T1: Deterministic geometry gate — seed/teardown helpers
+// ---------------------------------------------------------------------------
+
+/** Haversine distance helper for seed data (mirrors curatedGeometryGate). */
+function haversineHelper(
+  p1: { lat: number; lng: number },
+  p2: { lat: number; lng: number },
+): number {
+  const R = 3958.8
+  const toRad = (deg: number) => (deg * Math.PI) / 180
+  const dLat = toRad(p2.lat - p1.lat)
+  const dLng = toRad(p2.lng - p1.lng)
+  const la1 = toRad(p1.lat)
+  const la2 = toRad(p2.lat)
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2
+  const c = 2 * Math.asin(Math.sqrt(a))
+  return R * c
+}
+
+/**
+ * Seed a route for the bounded repair round test (AC-5).
+ * Route has claimedMiles=100 so first attempt at routedMiles=50 → ratio=0.5 (fails gate),
+ * and second attempt at routedMiles=90 → ratio=0.9 (passes or closer to 1.0).
+ */
+export const seedRepairRoundRoute = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:repair-round',
+      name: 'Repair Round Test',
+      lengthMiles: 100,
+    })
+  },
+})
+
+/**
+ * Seed a route for the exhausted-to-review repair round test (AC-5 CASE 2).
+ * Both attempts fail the ratio gate: first=0.3, second=0.4 → verdict='review'.
+ */
+export const seedRepairExhaustedRoute = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:repair-exhausted',
+      name: 'Repair Exhausted Test',
+      lengthMiles: 100,
+    })
+  },
+})
+
+/**
+ * Seed a pre-existing geometry row with verdict='pass' but OFF-REGION anchors
+ * for the AC-6 sweep test. The anchors are >300mi from the route centroid,
+ * so the enhanced gate should flip this row to verdict='review'.
+ */
+export const seedPreexistingOffRegionGeometry = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+
+    const routeId = 'test:preexisting-offregion'
+    const result = await insertTestRoute(ctx, {
+      routeId,
+      name: 'Pre-existing Off Region',
+      lengthMiles: 41,
+      centroidLat: 34.95,
+      centroidLng: -120.42,
+      geometryStatus: 'generated',
+    })
+
+    // Insert geometry with verdict='pass' but anchors 300mi from centroid
+    const existingGeom = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q: any) => q.eq('routeId', routeId))
+      .first()
+
+    // Anchors at ~300mi from centroid (off-region, >150mi threshold)
+    const farPoint1 = { lat: 39.2, lng: -120.42 } // ~300mi north
+    const farPoint2 = { lat: 39.3, lng: -120.42 } // ~307mi north
+    const dist1 = haversineHelper({ lat: 34.95, lng: -120.42 }, farPoint1)
+    const dist2 = haversineHelper({ lat: 34.95, lng: -120.42 }, farPoint2)
+
+    const geomDoc = {
+      routeId,
+      format: 'polyline' as const,
+      encoding: 'utf-8',
+      precision: 5,
+      value: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+      verification: {
+        routeId,
+        verdict: 'pass' as const,
+        geometryStatus: 'generated' as const,
+        geometry: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+        anchorCount: 2,
+        anchors: [
+          {
+            lat: farPoint1.lat,
+            lng: farPoint1.lng,
+            formatted: 'Off-region 1',
+            distanceFromCentroid: dist1,
+          },
+          {
+            lat: farPoint2.lat,
+            lng: farPoint2.lng,
+            formatted: 'Off-region 2',
+            distanceFromCentroid: dist2,
+          },
+        ],
+        pointCount: 50,
+        degenerate: false,
+        ratio: 1.0,
+        claimedMiles: 41,
+        routedMiles: 41,
+      },
+    }
+
+    if (existingGeom) {
+      await ctx.db.replace(existingGeom._id, geomDoc)
+    } else {
+      await ctx.db.insert('curated_route_geometry', geomDoc)
+    }
+
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: result.id,
+    })
+
+    return { ...result, routeId }
+  },
+})
+
+/** Query the verification block for a route by routeId. */
+export const getGeometryVerification = query({
+  args: { routeId: v.string() },
+  handler: async (ctx, { routeId }) => {
+    await requireIdentity(ctx)
+    const geomRow = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+    return geomRow?.verification ?? null
+  },
+})
+
+import type { ReconstructPersistResult } from './actions/curatedGeometryReconstruct'
+
+/**
+ * Public wrapper for the internal simulated repair action (AC-5).
+ * Needed because internal actions can't be called via `npx convex run`.
+ */
+export const runSimulatedRepair = action({
+  args: {
+    routeId: v.string(),
+    firstAttemptRoutedMiles: v.number(),
+    secondAttemptRoutedMiles: v.number(),
+    claimedMiles: v.number(),
+    pointCount: v.optional(v.number()),
+  },
+  handler: async (
+    ctx,
+    args,
+  ): Promise<
+    ReconstructPersistResult & {
+      firstAttemptRatio: number
+      secondAttemptRatio: number | null
+      storedRatio: number
+    }
+  > => {
+    await requireIdentity(ctx)
+    return ctx.runAction(
+      internal.actions.curatedGeometryReconstruct.reconstructForRouteWithSimulatedRepair,
+      args,
+    )
+  },
+})
+
+/** Teardown all S4-T1 test rows. */
+export const teardownS4T1TestRoutes = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const routeIds = ['test:repair-round', 'test:repair-exhausted', 'test:preexisting-offregion']
+
+    let deleted = 0
+    for (const routeId of routeIds) {
+      const doc = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      if (doc) {
         await geospatial.remove(ctx, doc._id)
         const geomRow = await ctx.db
           .query('curated_route_geometry')

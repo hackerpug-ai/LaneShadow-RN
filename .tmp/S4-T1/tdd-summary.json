@@ -1,0 +1,50 @@
+{
+  "task_id": "S4-T1",
+  "base_sha": "1b4314533a06d1a3cec8899af710fe65d188ffa1",
+  "ac_summary": {
+    "AC-1": {
+      "description": "Gate enforces ratio band 0.6-1.6 for non-quarantined routes",
+      "test_file": "convex/__tests__/S4T1-gate-ratio-band.integration.test.ts",
+      "test_count": 12,
+      "status": "PASS",
+      "note": "Behavior pre-existed from prior sprint (gate functions already implemented). Tests provide regression coverage."
+    },
+    "AC-2": {
+      "description": "Gate requires >=2 anchors within 150mi of centroid",
+      "test_file": "convex/__tests__/S4T1-gate-anchors-region.integration.test.ts",
+      "test_count": 9,
+      "status": "PASS",
+      "note": "Behavior pre-existed from prior sprint. Tests provide regression coverage."
+    },
+    "AC-3": {
+      "description": "Gate rejects degenerate geometry (<=4 points OR <1 pt/mi)",
+      "test_file": "convex/__tests__/S4T1-gate-degenerate.integration.test.ts",
+      "test_count": 12,
+      "status": "PASS",
+      "note": "Behavior pre-existed from prior sprint. Tests provide regression coverage."
+    },
+    "AC-4": {
+      "description": "Quarantine flag skips ratio check but applies degenerate + region checks",
+      "test_file": "convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts",
+      "test_count": 6,
+      "status": "PASS",
+      "note": "Added explicit quarantine param to determineGateVerdict. Existing ratio=null path already worked but explicit flag makes intent clear."
+    },
+    "AC-5": {
+      "description": "Bounded repair round limits attempts to 2 and keeps better attempt by ratio distance",
+      "test_file": "convex/__tests__/S4T1-repair-round-bounded.integration.test.ts",
+      "test_count": 14,
+      "status": "PASS",
+      "note": "New: reconstructForRouteWithSimulatedRepair action + runSimulatedRepair wrapper. Repair round logic reuses same |log(ratio)| comparison as production reconstructForRoute."
+    },
+    "AC-6": {
+      "description": "Pre-existing geometry rows are re-evaluated against the full gate",
+      "test_file": "convex/__tests__/S4T1-preexisting-sweep.integration.test.ts",
+      "test_count": 8,
+      "status": "PASS",
+      "note": "New: reevaluateExistingGeometry function + reevaluatePreexistingGeometry action + listGeometryWithVerification query + flipGeometryVerdict mutation."
+    }
+  },
+  "total_tests": 61,
+  "all_passing": true
+}

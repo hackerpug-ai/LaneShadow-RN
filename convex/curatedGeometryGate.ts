@@ -75,6 +75,7 @@ export function determineGateVerdict(args: {
   pointCount: number
   routedMiles: number
   anchorCount: number
+  quarantine?: boolean
 }): {
   verdict: 'pass' | 'review'
   failedCondition?: 'ratio' | 'anchors' | 'degenerate'
@@ -85,6 +86,53 @@ export function determineGateVerdict(args: {
 
   if (isDegenerate({ pointCount: args.pointCount, routedMiles: args.routedMiles })) {
     return { verdict: 'review', failedCondition: 'degenerate' }
+  }
+
+  // AC-4: Quarantine flag skips ratio check — routed length becomes truth
+  if (args.quarantine) {
+    return { verdict: 'pass' }
+  }
+
+  const ratioResult = evaluateRatioBoundary(args.ratio)
+  if (!ratioResult.passes) {
+    return { verdict: 'review', failedCondition: 'ratio' }
+  }
+
+  return { verdict: 'pass' }
+}
+
+/**
+ * AC-6: Re-evaluate pre-existing geometry rows against the enhanced gate.
+ *
+ * Unlike `determineGateVerdict` (which only checks anchorCount), this function
+ * ALSO checks that every stored anchor is within 150mi of the centroid via
+ * `distanceFromCentroid`. Legacy rows that passed the old gate may have
+ * off-region anchors that the enhanced gate rejects.
+ */
+export function reevaluateExistingGeometry(args: {
+  ratio: number | null
+  pointCount: number
+  routedMiles: number
+  anchorCount: number
+  anchors: Array<{ distanceFromCentroid: number }>
+  quarantine: boolean
+}): {
+  verdict: 'pass' | 'review'
+  failedCondition?: 'ratio' | 'anchors' | 'degenerate'
+} {
+  // Enhanced region check: count only in-region anchors (≤150mi from centroid)
+  const inRegionCount = args.anchors.filter((a) => a.distanceFromCentroid <= 150).length
+  if (inRegionCount < 2) {
+    return { verdict: 'review', failedCondition: 'anchors' }
+  }
+
+  if (isDegenerate({ pointCount: args.pointCount, routedMiles: args.routedMiles })) {
+    return { verdict: 'review', failedCondition: 'degenerate' }
+  }
+
+  // AC-4: Quarantine flag skips ratio check
+  if (args.quarantine) {
+    return { verdict: 'pass' }
   }
 
   const ratioResult = evaluateRatioBoundary(args.ratio)

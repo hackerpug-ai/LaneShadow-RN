@@ -312,6 +312,7 @@ async function evaluateRoutedAnchors(
     pointCount: decodedPoints.length,
     routedMiles,
     anchorCount: geocodedAnchors.length,
+    quarantine: claimedMiles == null,
   })
   return {
     gateResult,
@@ -451,6 +452,7 @@ export const reconstructForRouteWithFixedGeometry = internalAction({
       pointCount,
       routedMiles: args.routedMiles,
       anchorCount,
+      quarantine: claimedMiles == null,
     })
 
     return persistGateResult(ctx, route, {
@@ -489,6 +491,7 @@ export const reconstructForRouteWithFixedAnchors = internalAction({
         pointCount: 0,
         routedMiles: 0,
         anchorCount: geocodedAnchors.length,
+        quarantine: false,
       })
       return persistGateResult(ctx, route, {
         gateResult,
@@ -543,6 +546,7 @@ export const reconstructForRouteWithMixedAnchors = internalAction({
         pointCount: 0,
         routedMiles: 0,
         anchorCount: surviving.length,
+        quarantine: false,
       })
       return persistGateResult(ctx, route, {
         gateResult,
@@ -565,5 +569,116 @@ export const reconstructForRouteWithMixedAnchors = internalAction({
       ratio: routed.ratio,
       claimedMiles: route.lengthMiles,
     })
+  },
+})
+
+/**
+ * AC-5 (VER-02): Bounded repair round with simulated fixed geometry.
+ *
+ * Exercises the same repair-round logic as `reconstructForRoute` but with
+ * deterministic fixed geometries (no external LLM/Google API calls). This allows
+ * integration tests to verify:
+ * - routingCallCount is bounded to exactly 2 attempts max
+ * - The better attempt is kept by ratio distance |log(ratio)|
+ * - Both attempts failing → verdict='review'
+ *
+ * The repair-round budget is enforced: 1 initial attempt + 1 repair attempt = 2 total.
+ */
+export const reconstructForRouteWithSimulatedRepair = internalAction({
+  args: {
+    routeId: v.string(),
+    firstAttemptRoutedMiles: v.number(),
+    secondAttemptRoutedMiles: v.number(),
+    claimedMiles: v.number(),
+    pointCount: v.optional(v.number()),
+  },
+  handler: async (
+    ctx,
+    args,
+  ): Promise<
+    ReconstructPersistResult & {
+      firstAttemptRatio: number
+      secondAttemptRatio: number | null
+      storedRatio: number
+    }
+  > => {
+    resetRoutingInvocationCount()
+    const route = await loadRouteForReconstruct(ctx, args.routeId)
+    if (!route) throw new Error(`Route not found: ${args.routeId}`)
+
+    const centroid = { lat: route.centroidLat, lng: route.centroidLng }
+    const pc = args.pointCount ?? 50
+    const anchors = makeInRegionAnchors(2, centroid)
+
+    type SimAttempt = {
+      ratio: number
+      routedMiles: number
+      gateResult: ReturnType<typeof determineGateVerdict>
+      encodedPolyline: string
+      geocodedAnchors: GeocodedAnchor[]
+    }
+
+    // First attempt (simulated routing call #1)
+    routingInvocationCount += 1
+    const firstRatio = args.firstAttemptRoutedMiles / args.claimedMiles
+    const firstAttempt: SimAttempt = {
+      ratio: Math.round(firstRatio * 100) / 100,
+      routedMiles: args.firstAttemptRoutedMiles,
+      gateResult: determineGateVerdict({
+        ratio: firstRatio,
+        pointCount: pc,
+        routedMiles: args.firstAttemptRoutedMiles,
+        anchorCount: 2,
+      }),
+      encodedPolyline: buildCannedPolyline(pc, centroid),
+      geocodedAnchors: anchors,
+    }
+
+    let bestAttempt = firstAttempt
+    let secondAttemptRatio: number | null = null
+
+    // Repair round: bounded to 1 repair attempt (2 total max)
+    if (firstAttempt.gateResult.verdict !== 'pass') {
+      // Simulated routing call #2 (repair)
+      routingInvocationCount += 1
+      const secondRatio = args.secondAttemptRoutedMiles / args.claimedMiles
+      secondAttemptRatio = Math.round(secondRatio * 100) / 100
+      const secondAttempt: SimAttempt = {
+        ratio: secondAttemptRatio,
+        routedMiles: args.secondAttemptRoutedMiles,
+        gateResult: determineGateVerdict({
+          ratio: secondRatio,
+          pointCount: pc,
+          routedMiles: args.secondAttemptRoutedMiles,
+          anchorCount: 2,
+        }),
+        encodedPolyline: buildCannedPolyline(pc, centroid),
+        geocodedAnchors: anchors,
+      }
+
+      // Keep better by ratio distance |log(ratio)|
+      const aScore = Math.abs(Math.log(firstAttempt.ratio))
+      const bScore = Math.abs(Math.log(secondAttempt.ratio))
+      if (secondAttempt.gateResult.verdict === 'pass' || bScore < aScore) {
+        bestAttempt = secondAttempt
+      }
+    }
+
+    const result = await persistGateResult(ctx, route, {
+      gateResult: bestAttempt.gateResult,
+      geocodedAnchors: bestAttempt.geocodedAnchors,
+      encodedPolyline: bestAttempt.encodedPolyline,
+      pointCount: pc,
+      routedMiles: bestAttempt.routedMiles,
+      ratio: bestAttempt.ratio,
+      claimedMiles: args.claimedMiles,
+    })
+
+    return {
+      ...result,
+      firstAttemptRatio: firstAttempt.ratio,
+      secondAttemptRatio,
+      storedRatio: bestAttempt.ratio,
+    }
   },
 })

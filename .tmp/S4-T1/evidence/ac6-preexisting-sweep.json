@@ -1,0 +1,61 @@
+{
+  "capturedAt": "2026-07-16T03:49:46.847Z",
+  "preSweep": {
+    "anchorCount": 2,
+    "anchors": [
+      {
+        "distanceFromCentroid": 293.649901318794,
+        "formatted": "Off-region 1",
+        "lat": 39.2,
+        "lng": -120.42
+      },
+      {
+        "distanceFromCentroid": 300.55931076158873,
+        "formatted": "Off-region 2",
+        "lat": 39.3,
+        "lng": -120.42
+      }
+    ],
+    "claimedMiles": 41,
+    "degenerate": false,
+    "geometry": "_p~iF~ps|U_ulLnnqC_mqNvxq`@",
+    "geometryStatus": "generated",
+    "pointCount": 50,
+    "ratio": 1,
+    "routeId": "test:preexisting-offregion",
+    "routedMiles": 41,
+    "verdict": "pass"
+  },
+  "postSweep": {
+    "anchorCount": 2,
+    "anchors": [
+      {
+        "distanceFromCentroid": 293.649901318794,
+        "formatted": "Off-region 1",
+        "lat": 39.2,
+        "lng": -120.42
+      },
+      {
+        "distanceFromCentroid": 300.55931076158873,
+        "formatted": "Off-region 2",
+        "lat": 39.3,
+        "lng": -120.42
+      }
+    ],
+    "claimedMiles": 41,
+    "degenerate": false,
+    "failedCondition": "anchors",
+    "geometry": "_p~iF~ps|U_ulLnnqC_mqNvxq`@",
+    "geometryStatus": "review",
+    "pointCount": 50,
+    "ratio": 1,
+    "routeId": "test:preexisting-offregion",
+    "routedMiles": 41,
+    "verdict": "review"
+  },
+  "sweepReport": {
+    "flipped": 1,
+    "scanned": 2,
+    "unchanged": 1
+  }
+}
