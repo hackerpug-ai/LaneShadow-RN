@@ -15,6 +15,24 @@ import { getMapbox } from '../lib/mapbox/native'
 
 const { offlineManager } = getMapbox() || { offlineManager: null }
 
+/**
+ * The slice of an @rnmapbox/maps OfflinePack this store actually reads.
+ *
+ * `getMapbox()` lives in an untyped JS module (lib/mapbox/native.js) that
+ * `require`s @rnmapbox/maps, so `offlineManager.getPacks()` resolves to `any`
+ * and pack callbacks below get no contextual type. The library's own
+ * `OfflinePack` is not re-exported from its entrypoint and types `name` as
+ * `any`, so importing it would restore nothing. Naming the one field we depend
+ * on documents the real contract and type-checks the reconciliation logic.
+ */
+type MapboxOfflinePack = {
+  name: string
+  /** Raw native bounds; `convertPackBounds` validates the shape at runtime. */
+  bounds: unknown
+  /** Written by createPack below as `{ name, downloadedAt }` (ISO8601). */
+  metadata?: { downloadedAt?: string }
+}
+
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { DownloadQueue } from '../lib/mapbox/download-queue'
@@ -166,7 +184,7 @@ export const useOfflineStore = create<OfflineRegionState>()(
        */
       hydrateFromMapbox: async () => {
         try {
-          const packs = await offlineManager.getPacks()
+          const packs: MapboxOfflinePack[] = await offlineManager.getPacks()
           const regions = get().regions
 
           // Build lookup of persisted regions by packName
@@ -196,7 +214,7 @@ export const useOfflineStore = create<OfflineRegionState>()(
               packName: pack.name,
               bounds,
               size: 0,
-              downloadedAt: (pack.metadata?.downloadedAt as string) ?? new Date().toISOString(),
+              downloadedAt: pack.metadata?.downloadedAt ?? new Date().toISOString(),
               state: 'complete',
             })
           }
@@ -256,7 +274,7 @@ export const useOfflineStore = create<OfflineRegionState>()(
 
         // Check for existing Mapbox pack with this name
         try {
-          const existingPacks = await offlineManager.getPacks()
+          const existingPacks: MapboxOfflinePack[] = await offlineManager.getPacks()
           if (existingPacks.some((p) => p.name === params.name)) {
             throw new Error(`Offline pack with name ${params.name} already exists.`)
           }

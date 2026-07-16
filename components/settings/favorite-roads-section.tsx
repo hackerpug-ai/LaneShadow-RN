@@ -34,6 +34,13 @@ const SavedRouteCardWithDelete: React.FC<{
 }> = ({ item, onDelete }) => {
   const { semantic } = useSemanticTheme()
 
+  // `preview` (distance/duration/bounds) is only computed for rows that carry a
+  // planned route snapshot; a curated bookmark has none. Reading through it
+  // unconditionally crashed the whole section. SavedRouteCard already treats
+  // these stats as optional and omits the row when they are absent, so degrade
+  // to name + path + date rather than taking the list down.
+  const preview = item.preview
+
   return (
     <View style={styles.cardRow}>
       <View style={styles.cardWrapper}>
@@ -45,12 +52,16 @@ const SavedRouteCardWithDelete: React.FC<{
               : item.startLabel || item.endLabel || 'Unknown route'
           }
           dateSaved={formatDate(item.createdAt)}
-          distance={`${(item.preview.distanceMeters / 1609.344).toFixed(1)} mi`}
-          duration={(() => {
-            const minutes = Math.round(item.preview.durationSeconds / 60)
-            if (minutes < 60) return `${minutes} min`
-            return `${Math.floor(minutes / 60)}h ${minutes % 60}m`
-          })()}
+          distance={preview ? `${(preview.distanceMeters / 1609.344).toFixed(1)} mi` : undefined}
+          duration={
+            preview
+              ? (() => {
+                  const minutes = Math.round(preview.durationSeconds / 60)
+                  if (minutes < 60) return `${minutes} min`
+                  return `${Math.floor(minutes / 60)}h ${minutes % 60}m`
+                })()
+              : undefined
+          }
           thumbnailRotation={0}
           onPress={() => {
             /* TODO: Navigate to route detail */

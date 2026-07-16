@@ -36,6 +36,28 @@ export interface UseCuratedDiscoveryResult {
   isEmpty: boolean
 }
 
+/**
+ * Row shape returned by `api.curatedRoutes.listCuratedRoutes`.
+ *
+ * Mirrors that query's `returnValidator` (convex/curatedRoutes.ts). It is
+ * declared by hand because the generated Convex api degrades this query's
+ * `FunctionReturnType` to `any`, so the rows arrive untyped and every field
+ * read below would silently be `any`. Naming the contract restores real
+ * checking on the mapping code — if the server's validator changes, the
+ * mapping stops compiling instead of producing `undefined` fields at runtime.
+ */
+type CuratedRouteListRow = {
+  routeId: string
+  name: string
+  state: string
+  primaryArchetype: string
+  centroidLat: number
+  centroidLng: number
+  compositeScore: number
+  distanceMi?: number
+  geometryStatus?: 'generated' | 'unresolved' | 'failed' | 'review'
+}
+
 // Validate that a value is a valid DiscoveryArchetype
 function isValidArchetype(value: unknown): value is DiscoveryArchetype {
   const validArchetypes: DiscoveryArchetype[] = [
@@ -123,7 +145,12 @@ export function useCuratedDiscovery(
     nearestNeedsCenter,
   ])
 
-  const data = useQuery(api.curatedRoutes.listCuratedRoutes, queryArgs)
+  // Annotated (not cast): useQuery's inferred type is `any` here, so naming the
+  // real row contract is what gives the filter/map callbacks below a type.
+  const data: CuratedRouteListRow[] | undefined = useQuery(
+    api.curatedRoutes.listCuratedRoutes,
+    queryArgs,
+  )
 
   const routes = useMemo(() => {
     if (waitingForNearestCenter) return undefined

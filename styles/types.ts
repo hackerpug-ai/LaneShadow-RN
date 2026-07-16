@@ -51,9 +51,16 @@ export type SemanticColors = {
   background: SemanticColorSet
 
   // On-surface text colors
+  //
+  // `muted` and `subtle` are REQUIRED: every theme (styles/theme.ts light+dark)
+  // defines both, and callers pass them straight into style props that demand a
+  // real color. Marking them optional forced call sites into `?? ''` fallbacks —
+  // an empty string is not a valid color and silently renders the platform
+  // default, so the "safety" was illusory. Keep them required so a theme that
+  // omits one fails at compile time, where it is cheap to fix.
   onSurface: SemanticColorSet & {
-    muted?: string
-    subtle?: string
+    muted: string
+    subtle: string
   }
   onPrimary: SemanticColorSet
   onSecondary: SemanticColorSet

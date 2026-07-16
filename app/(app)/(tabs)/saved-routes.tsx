@@ -177,6 +177,14 @@ const SavedRoutesScreen = () => {
           </SwipeableRouteCard>
         )
       }
+      // `preview` is only present on rows the server classified as planned. A row
+      // that is neither planned nor curated (e.g. a legacy/partial row whose
+      // routeIndex is missing, so isCuratedSavedItem returns false) reaches here
+      // with no preview — reading through it threw and took down the entire list,
+      // not just the offending card. SavedRouteCard's stats are optional, so omit
+      // them and still render an openable card.
+      const preview = item.preview
+
       return (
         <SwipeableRouteCard onDelete={() => handleSwipeDelete(item)} onSwipeOpen={handleSwipeOpen}>
           <SavedRouteCard
@@ -184,12 +192,12 @@ const SavedRoutesScreen = () => {
             path={
               item.startLabel && item.endLabel
                 ? `${item.startLabel} → ${item.endLabel}`
-                : item.startLabel || item.endLabel
+                : item.startLabel || item.endLabel || ''
             }
             dateSaved={formatDate(item.createdAt)}
-            distance={formatDistance(item.preview.distanceMeters)}
-            duration={formatDuration(item.preview.durationSeconds)}
-            bounds={item.preview.bounds}
+            distance={preview ? formatDistance(preview.distanceMeters) : undefined}
+            duration={preview ? formatDuration(preview.durationSeconds) : undefined}
+            bounds={preview?.bounds}
             thumbnailRotation={THUMBNAIL_ROTATIONS[index % THUMBNAIL_ROTATIONS.length]}
             onPress={() => handlePress(item.savedRouteId)}
           />
