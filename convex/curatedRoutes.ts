@@ -34,7 +34,7 @@ const argsValidator = v.object({
   limit: v.optional(v.number()),
 })
 
-const returnValidator = v.array(
+export const listCuratedRoutesReturnValidator = v.array(
   v.object({
     routeId: v.string(),
     name: v.string(),
@@ -314,7 +314,7 @@ async function listCuratedRoutesHandler(ctx: any, args: any) {
 
 export const listCuratedRoutes = query({
   args: argsValidator,
-  returns: returnValidator,
+  returns: listCuratedRoutesReturnValidator,
   handler: async (ctx, args) => {
     await requireIdentity(ctx)
     return listCuratedRoutesHandler(ctx, args)
@@ -323,7 +323,7 @@ export const listCuratedRoutes = query({
 
 export const listCuratedRoutesInternal = internalQuery({
   args: argsValidator,
-  returns: returnValidator,
+  returns: listCuratedRoutesReturnValidator,
   handler: listCuratedRoutesHandler,
 })
 

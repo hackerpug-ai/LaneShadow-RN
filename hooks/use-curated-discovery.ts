@@ -1,6 +1,8 @@
 import { useQuery } from 'convex/react'
+import type { Infer } from 'convex/values'
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../convex/_generated/api'
+import type { listCuratedRoutesReturnValidator } from '../convex/curatedRoutes'
 import { useCurrentLocation } from './use-current-location'
 
 export type DiscoveryArchetype =
@@ -37,26 +39,37 @@ export interface UseCuratedDiscoveryResult {
 }
 
 /**
- * Row shape returned by `api.curatedRoutes.listCuratedRoutes`.
+ * The slice of `api.curatedRoutes.listCuratedRoutes` rows this hook consumes.
  *
- * Mirrors that query's `returnValidator` (convex/curatedRoutes.ts). It is
- * declared by hand because the generated Convex api degrades this query's
- * `FunctionReturnType` to `any`, so the rows arrive untyped and every field
- * read below would silently be `any`. Naming the contract restores real
- * checking on the mapping code — if the server's validator changes, the
- * mapping stops compiling instead of producing `undefined` fields at runtime.
+ * DERIVED from the server's own return validator, not hand-copied: `Pick<...>`
+ * over `Infer<typeof listCuratedRoutesReturnValidator>` means this type IS the
+ * server contract, narrowed to the fields read below. Drift in those fields is
+ * therefore a compile error — a renamed/removed field fails the `Pick`
+ * constraint, and a changed field type fails the mapping into `DiscoveryRoute`.
+ * (Both verified by mutating the validator and watching `tsc` fail.) Adding new
+ * server fields stays compatible, which is the intended asymmetry.
+ *
+ * The import is `import type`, so it is erased at build time — no server module
+ * is pulled into the RN bundle.
+ *
+ * LIMIT — the annotation on `useQuery` below is NOT checked by this. The
+ * generated Convex api degrades this query's `FunctionReturnType` to `any`, and
+ * `any` satisfies any annotation, so a wrong annotation there would still
+ * compile. The safety here comes from deriving the type, never from the act of
+ * annotating. Do not read that annotation as a verified server contract.
  */
-type CuratedRouteListRow = {
-  routeId: string
-  name: string
-  state: string
-  primaryArchetype: string
-  centroidLat: number
-  centroidLng: number
-  compositeScore: number
-  distanceMi?: number
-  geometryStatus?: 'generated' | 'unresolved' | 'failed' | 'review'
-}
+type CuratedRouteListRow = Pick<
+  Infer<typeof listCuratedRoutesReturnValidator>[number],
+  | 'routeId'
+  | 'name'
+  | 'state'
+  | 'primaryArchetype'
+  | 'centroidLat'
+  | 'centroidLng'
+  | 'compositeScore'
+  | 'distanceMi'
+  | 'geometryStatus'
+>
 
 // Validate that a value is a valid DiscoveryArchetype
 function isValidArchetype(value: unknown): value is DiscoveryArchetype {
@@ -145,8 +158,10 @@ export function useCuratedDiscovery(
     nearestNeedsCenter,
   ])
 
-  // Annotated (not cast): useQuery's inferred type is `any` here, so naming the
-  // real row contract is what gives the filter/map callbacks below a type.
+  // Annotated (not cast): useQuery's inferred type is `any` here, so this
+  // annotation is what gives the filter/map callbacks below a type. It is NOT
+  // itself a contract check — `any` would accept any annotation written here.
+  // The server bond lives in CuratedRouteListRow's derivation above.
   const data: CuratedRouteListRow[] | undefined = useQuery(
     api.curatedRoutes.listCuratedRoutes,
     queryArgs,

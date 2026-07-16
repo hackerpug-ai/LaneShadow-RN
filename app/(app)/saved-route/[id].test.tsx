@@ -145,7 +145,10 @@ describe('SAVE-001 / AC-3: reopen pure helper — getSavedRouteReopenTarget', ()
       curatedRouteId: null,
       name: 'Deleted Curated Route',
     } as never)
-    expect(target).not.toEqual({ kind: 'curated', routeId: 'k97f3ab2c1d4e5f6g7h8i9j0' })
+    // Pins the exact value rather than merely excluding the internal-_id
+    // redirect: a `not.toEqual` here would also pass for an unrelated wrong
+    // target, so assert the planned fallback the impl actually returns.
+    expect(target).toEqual({ kind: 'planned' })
   })
 
   it('returns planned target when planInput is present (no curatedRouteRef)', () => {
