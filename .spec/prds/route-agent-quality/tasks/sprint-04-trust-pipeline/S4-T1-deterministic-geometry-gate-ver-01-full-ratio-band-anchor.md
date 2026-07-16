@@ -59,11 +59,12 @@ Every lever calls ONE gate module; pre-existing geometry re-evaluated; repair ro
 - AC-2 [Gate requires ≥2 anchors within 150mi of centroid]: Verdict is 'review' with failedCondition='anchors' because anchorCount < 2
 - AC-3 [Gate rejects degenerate geometry (≤4 points OR <1 pt/mi)]: Verdict is 'review' with failedCondition='degenerate' because pointCount ≤ 4
 - AC-4 [Quarantine flag skips ratio check but applies degenerate + region checks]: A quarantined route and its unquarantined twin — same real ratio 0.22 — split: 'pass' with `ratio=0.22` + `ratioSkipped=true` vs 'review' with failedCondition='ratio'; a quarantined 3-point route still returns 'review'/'degenerate'
-- AC-5 [Bounded repair round limits attempts to 2 and keeps better attempt by ratio distance]: Second attempt is stored (ratio distance |log(0.9)|=0.11 is closer to 0 than |log(0.5)|=0.69)
+- AC-5 [Bounded repair round limits attempts to 2 and keeps better attempt by ratio distance]: driven through production `reconstructForRoute` against a cassette recorded from the real Google Routes API — the repair attempt is stored because |log(repair ratio)| < |log(first ratio)|, asserted against the cassette's **recorded** values (never ratio literals), with the 2-attempt budget capped and every routing increment originating at the real client boundary `routeWithInvocationCount`
 - AC-6 [Pre-existing geometry rows are re-evaluated against the full gate]: Rows failing the enhanced gate are flipped to verdict='review'
 - Every behavioral AC scenario passes `validate_scenario` (exit 0 — run the extract-and-pipe command in VERIFICATION GATES); RED-against-start recorded before GREEN; seeded-value EVIDENCE artifact captured
 - `npx tsc --noEmit -p convex/tsconfig.json` → 0 errors (the in-scope surface) + `pnpm exec biome check` clean + `pnpm convex:dev --once` clean
-- NO-REGRESSION: `pnpm type-check` reports **zero new errors vs. a baseline captured at task start** (capture with `pnpm type-check 2>&1 | grep -c 'error TS'` before the first edit; compare at the end). Repo-wide `pnpm type-check` exit 0 is **NOT** an S4-T1 deliverable — `package.json`'s `type-check` runs two passes (`tsc -p convex/tsconfig.json && tsc -p tsconfig.json`); the convex pass is already clean and the **root** pass carries 10 pre-existing RN errors that are unsatisfiable from `convex/` scope. That debt is discharged by prerequisite **TYPEFIX-001** (a separate user-approved task that sets `strict: true` at the root tsconfig and fixes the ~26 revealed RN null-safety bugs).
+- NO-REGRESSION: `pnpm type-check` reports **zero new errors vs. a baseline captured at task start** (capture with `pnpm type-check 2>&1 | grep -c 'error TS'` before the first edit; compare at the end). Repo-wide `pnpm type-check` exit 0 is **NOT** an S4-T1 deliverable — `package.json`'s `type-check` runs two passes (`tsc -p convex/tsconfig.json && tsc -p tsconfig.json`). The **convex** pass is clean (measured: exit 0, 0 errors). The **root** pass (measured: exit 2, 10 errors) carries 10 pre-existing errors in **`convex/actions/agent/**`** — `spike/rideAgentSpike.ts` (8 × TS2345), `lib/zaiProvider.ts` (1 × TS2339), `spike/spikeTools.ts` (1 × TS2322). **None are React Native**; all 10 are Convex agent code that sits **outside S4-T1's `SCOPE.writeAllowed`**, so they are unsatisfiable from this task's scope. They surface only because the **root** tsconfig applies **non-strict** options to the same `convex/` tree: without `strictNullChecks`, zod's `requiredKeys<T>` (`{[k in keyof T]: undefined extends T[k] ? never : k}`, `zod/v3/helpers/util.d.ts:34`) collapses to `never` for every key — hence "Argument of type `'sessionId'` is not assignable to parameter of type `never`". The root config **excludes** `convex/actions/**`, but `exclude` cannot drop files pulled in transitively: `convex/_generated/api.d.ts` (lines 32/46/49) imports all three offending modules.
+- This debt is **owned and discharged**, not unowned: prerequisite **TYPEFIX-001** (real, user-approved; branch `task/TYPEFIX-001` @ `0f79ce63`) sets `"strict": true` at the root tsconfig (`tsconfig.json:7`) — **measured** to take `pnpm type-check` from 10 errors to **exit 0, 0 errors**. Enabling strict *clears* these 10 (it restores zod's conditional types); it does not add any. **Separately**, TYPEFIX-001 repairs the ~26 latent **RN** null-safety bugs that enabling strict newly reveals — that is TYPEFIX-001's own additional work and must **not** be conflated with these 10 errors.
 - Only SCOPE.writeAllowed files modified (`git diff --name-only`)
 
 ## SPECIFICATION
@@ -75,7 +76,7 @@ Every lever calls ONE gate module; pre-existing geometry re-evaluated; repair ro
 **Required API seam (AC-4 — the quarantine skip must be OBSERVABLE):**
 
 ```
-determineGateVerdict({ ratio, pointCount, routedMiles, anchorCount, quarantined })
+determineGateVerdict({ ratio, pointCount, routedMiles, anchorCount, quarantine })
   → { verdict, failedCondition?, ratio: number | null, ratioSkipped: boolean }
 ```
 
@@ -107,10 +108,15 @@ The current return type carries only `{ verdict, failedCondition? }`. Because `e
     - routeId: 'test:unquarantined-ratio-022', name: 'Unquarantined ratio 0.22', lengthMiles: 100, quarantine: undefined, compositeScore: 0.85 — new seeder `seedUnquarantinedOutOfBandRatioRow`
 - `quarantined-row-degenerate-geometry` (seed_method: `public_api`): Quarantined route with 3-point geometry — proves quarantine does NOT bypass the degenerate check
     - routeId: 'test:quarantined-degenerate-3pt', name: 'Quarantined degenerate 3pt', lengthMiles: 100, pointCount: 3, quarantine: {reason: 'length_outlier', flaggedAt: DATE_NOW}, compositeScore: 0.85 — new seeder `seedQuarantinedDegenerateRow`
-- `repair-round-two-attempts-better-second` (seed_method: `recorded_external`): Route driving a real 2-attempt repair round through production `reconstructForRoute`, with RECORDED routing responses pinning attempt#1 to 50mi (ratio 0.50, fails band) and attempt#2 to 90mi (ratio 0.90, passes)
-    - routeId: 'test:repair-round-better-second', name: 'Repair round better second', lengthMiles: 100, compositeScore: 0.85 — new seeder `seedRepairRoundRoute`; recorded routing cassette: attempt#1 routedMiles=50, attempt#2 routedMiles=90
-- `repair-round-exhausted-to-review` (seed_method: `recorded_external`): Route where BOTH recorded attempts fail the band (40mi → ratio 0.40, 45mi → ratio 0.45), exhausting the 2-attempt budget to verdict='review'
-    - routeId: 'test:repair-round-exhausted', name: 'Repair round exhausted', lengthMiles: 100, compositeScore: 0.85 — new seeder `seedRepairRoundRoute` (exhausted variant); recorded routing cassette: attempt#1 routedMiles=40, attempt#2 routedMiles=45
+> **Recording honesty (AC-5).** The two repair-round fixtures below are `recorded_external`: their routed lengths are **whatever the real provider returned**, captured once and committed. The contract does **not** prescribe them — a genuine Google Routes response is a value like `51.38`, never a designed `50.0000`. Round decimals in a file labelled "cassette" would be a mock in disguise, so every AC-5 assertion is expressed as a **property of the recording** (band membership, `|log(ratio)|` ordering, equality with the cassette's own value) and **never as a literal**. The route for each fixture is **selected because its real behaviour exhibits the property**; the property is not dictated onto the recording. If no recording of a candidate route exhibits it, **the fixture does not exist** and the case must be re-derived from a recording that does — it must never be hand-authored to fit.
+
+- `repair-round-two-attempts-better-second` (seed_method: `recorded_external`): Route driving a real 2-attempt repair round through production `reconstructForRoute`, selected because its **real** first attempt lands **outside** the 0.6–1.6 band and its **real** repair attempt lands **inside** it
+    - routeId: 'test:repair-round', name: 'Repair Round Test', lengthMiles: 100 — seeded by the **EXISTING** `seedRepairRoundRoute` mutation (`convex/curatedGeometryTestSupport.ts:1319`). **No new seeder** — round 1 wrongly described this as new and invented routeId 'test:repair-round-better-second'.
+    - cassette: `convex/__tests__/fixtures/S4T1-repair-round-better-second.cassette.json` — recorded ONCE from the **Google Routes API v2** (`https://routes.googleapis.com/directions/v2:computeRoutes`) and the **Google Geocoding API** (`https://maps.googleapis.com/maps/api/geocode/json`) reached via `defaultRoute` (`convex/actions/curatedGeometryReconstruct.ts:173`, fetch at :192 / :159)
+    - recording procedure: with a live `GOOGLE_MAPS_API_KEY`, run `reconstructForRoute` once for this route with cassette recording enabled; `routeWithInvocationCount` (`:78-83`) persists each request/response pair **in call order** with the provider's verbatim body (routed distance + encoded polyline). Commit the cassette. Replay is byte-exact and offline; re-recording requires deleting the file, never editing it.
+- `repair-round-exhausted-to-review` (seed_method: `recorded_external`): Route selected because **BOTH** of its real attempts land outside the band, exhausting the 2-attempt budget to verdict='review'
+    - routeId: 'test:repair-exhausted', name: 'Repair Exhausted Test', lengthMiles: 100 — seeded by the **EXISTING** `seedRepairExhaustedRoute` mutation (`convex/curatedGeometryTestSupport.ts:1335`), which round 1's contract ignored entirely. **No new seeder.**
+    - cassette: `convex/__tests__/fixtures/S4T1-repair-round-exhausted.cassette.json` — same provider, same recording procedure as above
 - `preexisting-row-needs-region-check` (seed_method: `public_api`): Legacy geometry row with verification.verdict='pass' but off-region anchors
     - curatedRouteGeometry doc with routeId, verification.verdict='pass', anchors ~211mi from centroid (beyond the 150mi region bound)
 
@@ -152,9 +158,9 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 - NEGATIVE_CONTROL — would fail if: isAnchorInRegion always returns true; anchor count check is skipped; region check is mocked out
 - EVIDENCE: `db_query` (required_capture: true)
 - CASE 1 — start_ref `anchors-sufficient-in-region`
-    - ACTION (api_client): Call determineGateVerdict({anchorCount:2, pointCount:50, routedMiles:41, ratio:1.0}); Verify returns {verdict:'pass'}
-    - MUST_OBSERVE: verdict == 'pass'
-    - MUST_NOT_OBSERVE: failedCondition == 'anchors', verdict is empty or absent — the gate returned no verdict at all
+    - ACTION (api_client): Call determineGateVerdict({anchorCount:2, pointCount:50, routedMiles:41, ratio:1.0}); Verify returns {verdict:'pass', ratio:1.0}
+    - MUST_OBSERVE: verdict == 'pass', ratio == 1.0 (the seeded in-band ratio is echoed back on the verdict — pins `ratio` provenance so a stub hardcoding `ratio: 0.22` for AC-4 cannot also satisfy this case)
+    - MUST_NOT_OBSERVE: failedCondition == 'anchors', verdict is empty or absent — the gate returned no verdict at all, ratio == 0.22 or any value other than the seeded 1.0 — the verdict carries a hardcoded ratio rather than the computed one
 - CASE 2 — start_ref `anchors-insufficient-count`
     - ACTION (api_client): Call determineGateVerdict({anchorCount:1, pointCount:50, routedMiles:41, ratio:1.0}); Verify returns {verdict:'review', failedCondition:'anchors'}
     - MUST_OBSERVE: verdict == 'review', failedCondition == 'anchors'
@@ -202,37 +208,39 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 - NEGATIVE_CONTROL — would fail if: the quarantine branch is **deleted** from `determineGateVerdict` (both twins collapse to verdict='review'); quarantine is implemented as an unconditional early `return {verdict:'pass'}` **stub** that bypasses the degenerate + anchor checks (Case C would wrongly pass); the test seeds a null/**empty** claimed length so ratio==null and the pass verdict comes from the `evaluateRatioBoundary` null early-return instead of the quarantine branch; the quarantine flag is **hardcod**ed true for all routes (the unquarantined twin would wrongly pass)
 - EVIDENCE: `db_query` (required_capture: true)
 - CASE A — start_ref `quarantined-row-out-of-band-ratio`
-    - ACTION (api_client): Seed quarantined route (lengthMiles=100, quarantine.reason='length_outlier'); Call determineGateVerdict({ratio:0.22, pointCount:50, routedMiles:22, anchorCount:2, quarantined:true}); Verify returns {verdict:'pass', ratio:0.22, ratioSkipped:true}
+    - ACTION (api_client): Seed quarantined route (lengthMiles=100, quarantine.reason='length_outlier'); Call determineGateVerdict({ratio:0.22, pointCount:50, routedMiles:22, anchorCount:2, quarantine:true}); Verify returns {verdict:'pass', ratio:0.22, ratioSkipped:true}
     - MUST_OBSERVE: verdict == 'pass', ratio == 0.22, ratioSkipped == true
     - MUST_NOT_OBSERVE: verdict == 'review', failedCondition == 'ratio', ratioSkipped == false, ratio == null or the ratio field is empty — proves the null early-return fired, not the quarantine branch
 - CASE B — start_ref `unquarantined-row-out-of-band-ratio`
-    - ACTION (api_client): Seed the identical twin WITHOUT a quarantine flag (lengthMiles=100, quarantine undefined); Call determineGateVerdict({ratio:0.22, pointCount:50, routedMiles:22, anchorCount:2, quarantined:false}); Verify returns {verdict:'review', failedCondition:'ratio'}
+    - ACTION (api_client): Seed the identical twin WITHOUT a quarantine flag (lengthMiles=100, quarantine undefined); Call determineGateVerdict({ratio:0.22, pointCount:50, routedMiles:22, anchorCount:2, quarantine:false}); Verify returns {verdict:'review', failedCondition:'ratio'}
     - MUST_OBSERVE: verdict == 'review', failedCondition == 'ratio', ratio == 0.22, ratioSkipped == false
     - MUST_NOT_OBSERVE: verdict == 'pass', ratioSkipped == true, ratio == null or empty — the unquarantined twin must carry the same real computed 0.22 as Case A
 - CASE C — start_ref `quarantined-row-degenerate-geometry`
-    - ACTION (api_client): Seed quarantined route with 3-point geometry (lengthMiles=100, quarantine.reason='length_outlier'); Call determineGateVerdict({ratio:0.22, pointCount:3, routedMiles:22, anchorCount:2, quarantined:true}); Verify quarantine does NOT bypass the degenerate check
+    - ACTION (api_client): Seed quarantined route with 3-point geometry (lengthMiles=100, quarantine.reason='length_outlier'); Call determineGateVerdict({ratio:0.22, pointCount:3, routedMiles:22, anchorCount:2, quarantine:true}); Verify quarantine does NOT bypass the degenerate check
     - MUST_OBSERVE: verdict == 'review', failedCondition == 'degenerate'
     - MUST_NOT_OBSERVE: verdict == 'pass', failedCondition == 'ratio', failedCondition is empty or absent — the degenerate reason must be recorded even under quarantine
 
 ### AC-5 — Bounded repair round limits attempts to 2 and keeps better attempt by ratio distance
 
-**Requirement:** GIVEN A reconstruction with first attempt ratio=0.5 (fails gate), second attempt ratio=0.9 WHEN Repair round runs with geocode log feedback and selects better attempt THEN Second attempt is stored (ratio distance |log(0.9)|=0.11 is closer to 0 than |log(0.5)|=0.69)
+**Requirement:** GIVEN a reconstruction whose **recorded** first attempt ratio falls **outside** the 0.6–1.6 band and whose **recorded** repair attempt falls **inside** it (illustratively 0.5 then 0.9 — but the binding values are whatever the Google Routes recording returned, never literals in the test) WHEN the repair round runs with geocode-log feedback and selects the better attempt by ratio distance THEN the repair attempt is stored because |log(repair)| < |log(first)|, and the routing budget is capped at 2
 
-- TEST_TIER: `integration`  ·  VERIFICATION_SERVICE: Convex dev deployment (real reconstructForRoute with repair round)
+> **Why this shape:** round 1 declared this fixture `recorded_external` while prescribing the cassette's contents in advance (50/90/40/45 against a claimed 100 → ratios of exactly 0.50/0.90/0.40/0.45). You cannot specify what a real recording returns; designed values wearing a cassette label are the dishonesty this repair exists to kill. Two further holes are closed here: (1) `routingCallCount` is **hand-incremented** in the current simulation (`curatedGeometryReconstruct.ts:622,643`) without any provider call, so `routingCallCount == 2` was satisfiable by a stub doing `+= 1` twice — the count is now trustworthy **only** if every increment originates inside `routeWithInvocationCount` (`:78-83`), the sole wrapper that delegates to `defaultRoute` → Google Routes; (2) the prose "routing calls originate from production `reconstructForRoute`" was unverifiable by the declared evidence type — it is replaced by a **db-observable** barrier: the stored `encodedPolyline` must equal the polyline carried in the cassette's recorded provider response, which locally-fabricated `buildCannedPolyline` geometry cannot match.
+
+- TEST_TIER: `integration`  ·  VERIFICATION_SERVICE: Google Routes API v2 (`routes.googleapis.com/directions/v2:computeRoutes`) + Google Geocoding API, recorded once and replayed byte-exact; production `reconstructForRoute` on the Convex dev deployment
 - FLOW_REF: UC-VER-02
 - VERIFY: `npx vitest run convex/__tests__/S4T1-repair-round-bounded.integration.test.ts`
 
 SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0):
-- NEGATIVE_CONTROL — would fail if: repair round runs more than 2 attempts; attempt selection logic is stubbed; geocode log feedback is not passed to LLM
-- EVIDENCE: `db_query` (required_capture: true)
+- NEGATIVE_CONTROL — would fail if: repair round runs more than 2 attempts; attempt selection logic is stubbed; geocode log feedback is not passed to LLM; `routingInvocationCount` is hand-incremented outside `routeWithInvocationCount` (the `:622`/`:643` simulation pattern) so the count reaches 2 with zero provider traffic; the stored polyline is `buildCannedPolyline` output rather than the recorded provider geometry; the cassette is hand-authored with designed round values instead of recorded from Google Routes; the test asserts ratio literals instead of comparing against the cassette's own recorded values
+- EVIDENCE: `api_response` (required_capture: true) — the recorded Google Routes request/response pairs **in call order**, plus `reconstructForRoute`'s own returned `{routingCallCount, ratio, routedMiles}`
 - CASE 1 — start_ref `repair-round-two-attempts-better-second`
-    - ACTION (api_client): Seed route with description triggering reconstruction; Call production `reconstructForRoute` against the recorded routing cassette (attempt#1 50mi → ratio 0.50 fails band); Verify repair round runs with feedback; Verify attempt#2 (90mi → ratio 0.90) is stored as the better attempt
-    - MUST_OBSERVE: routingCallCount == 2, stored ratio == 0.90 (the better of the two attempts by |log(ratio)|), routing calls originate from production `reconstructForRoute` (`convex/actions/curatedGeometryReconstruct.ts`), not a test-local simulation
-    - MUST_NOT_OBSERVE: routingCallCount > 2, stored ratio == worse attempt (0.50), routingCallCount == 0 — `reconstructForRoute` never invoked the real routing client
+    - ACTION (api_client): Seed via the EXISTING `seedRepairRoundRoute` (routeId `test:repair-round`, claimed 100mi); Call production `reconstructForRoute` with the cassette replaying the recorded Google Routes exchanges; Verify the repair round re-prompts with geocode-log feedback after attempt#1 fails the band; Verify the better attempt is stored by |log(ratio)|
+    - MUST_OBSERVE: routingCallCount == 2 AND every increment originated inside `routeWithInvocationCount` (`curatedGeometryReconstruct.ts:78-83`) — the only path to `defaultRoute` → Google Routes; recorded attempt#1 ratio < 0.6 (outside band, as recorded); recorded attempt#2 ratio within 0.6–1.6 (as recorded); |log(attempt#2 ratio)| < |log(attempt#1 ratio)|; stored ratio == the cassette's recorded attempt#2 ratio (read from the cassette, not a literal); stored encodedPolyline == the polyline in the cassette's recorded attempt#2 response
+    - MUST_NOT_OBSERVE: routingCallCount > 2, stored ratio == the recorded attempt#1 ratio, routingCallCount == 0, `routingInvocationCount` incremented anywhere other than `routeWithInvocationCount` — a hand-incremented counter satisfies a bare count assertion while no provider call happened, stored encodedPolyline == `buildCannedPolyline(...)` output — geometry fabricated locally instead of replayed from the recorded response
 - CASE 2 — start_ref `repair-round-exhausted-to-review`
-    - ACTION (api_client): Seed route where both recorded attempts fail the band (40mi → 0.40, 45mi → 0.45); Call production `reconstructForRoute`; Verify the 2-attempt budget is exhausted and the final verdict is 'review'
-    - MUST_OBSERVE: routingCallCount == 2, verdict == 'review', failedCondition == "ratio" (specific failure recorded)
-    - MUST_NOT_OBSERVE: routingCallCount > 2, verdict == 'pass', routingCallCount == 0 — no real routing attempt was made
+    - ACTION (api_client): Seed via the EXISTING `seedRepairExhaustedRoute` (routeId `test:repair-exhausted`, claimed 100mi) — a route selected because BOTH real attempts fall outside the band; Call production `reconstructForRoute` against its cassette; Verify the 2-attempt budget is exhausted and the final verdict is 'review'
+    - MUST_OBSERVE: routingCallCount == 2 AND every increment originated inside `routeWithInvocationCount`; both recorded attempt ratios outside 0.6–1.6 (as recorded); verdict == 'review'; failedCondition == "ratio" (specific failure recorded)
+    - MUST_NOT_OBSERVE: routingCallCount > 2, verdict == 'pass', routingCallCount == 0, a third recorded provider exchange is replayed — the budget was exceeded, `routingInvocationCount` incremented outside `routeWithInvocationCount`
 
 ### AC-6 — Pre-existing geometry rows are re-evaluated against the full gate
 
@@ -274,7 +282,9 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 - convex/actions/curatedGeometryReconstruct.ts (MODIFY) - repair round logic, 2-attempt budget
 - convex/curatedGeometry.ts (MODIFY) - recomputeRiderReady integration
 - convex/__tests__/S4T1-*.integration.test.ts (NEW) - gate + repair round integration tests
-- convex/curatedGeometryTestSupport.ts (MODIFY) - extend seed helpers for gate boundary cases
+- convex/curatedGeometryTestSupport.ts (MODIFY) - extend seed helpers for gate boundary cases. AC-5 REUSES the existing `seedRepairRoundRoute` (:1319) and `seedRepairExhaustedRoute` (:1335) — do not add repair-round seeders.
+- convex/__tests__/fixtures/S4T1-repair-round-better-second.cassette.json (NEW) - AC-5 Case 1 cassette: Google Routes API v2 + Geocoding request/response pairs in call order, recorded ONCE from the live provider. Values are the provider's, never authored.
+- convex/__tests__/fixtures/S4T1-repair-round-exhausted.cassette.json (NEW) - AC-5 Case 2 cassette: same provider and procedure, for the both-attempts-fail route.
 
 **writeProhibited:**
 - convex/schema.ts internals - only additive deltas for new fields
@@ -282,11 +292,17 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 - Re-implementing gate logic per lever - must reuse curatedGeometryGate.ts
 - Bypassing ratio check without quarantine flag - quarantine is the ONLY skip condition
 - Exceeding 2 reconstruction attempts - repair budget is enforced at orchestrator level
+- Hand-authoring or editing an AC-5 cassette - every value must come from a real recorded Google Routes response; re-record by deleting the file and re-running against the live provider, NEVER by editing values into it
+- Incrementing `routingInvocationCount` outside `routeWithInvocationCount` (`curatedGeometryReconstruct.ts:78-83`) - the count is trustworthy only at the real client boundary; the simulation hand-increments at :622/:643 must be deleted, not preserved
+- Asserting AC-5 ratio literals - compare against the cassette's recorded values; a literal reintroduces the designed-value fiction this contract exists to remove
 
 ## READING LIST
 
-- `convex/curatedGeometryGate.ts` (1-145) — Pure gate functions: evaluateRatioBoundary (5-20, note the `null` early-return at 10-12 that made AC-4 tautological), isDegenerate (22-26), isAnchorInRegion (66-71), determineGateVerdict (73-102, `quarantine?` param at 78 / branch at 92-94 — the return type must gain `ratio` + `ratioSkipped`), reevaluateExistingGeometry (112-144)
+- `convex/curatedGeometryGate.ts` (1-144) — Pure gate functions: evaluateRatioBoundary (5-20, note the `null` early-return at 10-12 that made AC-4 tautological), isDegenerate (22-26), isAnchorInRegion (66-71), determineGateVerdict (73-102, `quarantine?` param at 78 / branch at 92-94 — the return type must gain `ratio` + `ratioSkipped`), reevaluateExistingGeometry (112-144)
 - `convex/actions/curatedGeometryReconstruct.ts` (340-420) — Repair round logic in reconstructForRoute
+- `convex/actions/curatedGeometryReconstruct.ts` (78-83) — `routeWithInvocationCount`: the ONLY real routing-client boundary. It increments `routingInvocationCount` (:81) and delegates to `defaultRoute` (:173), which calls the **Google Routes API v2** (`https://routes.googleapis.com/directions/v2:computeRoutes`, fetch at :192). Geocoding is the **Google Geocoding API** (`https://maps.googleapis.com/maps/api/geocode/json`, :151/:159). AC-5 requires every routing increment to originate here.
+- `convex/actions/curatedGeometryReconstruct.ts` (615-660) — the CURRENT simulated repair round: `SimAttempt` + `buildCannedPolyline` with **hand-incremented** `routingInvocationCount` at :622 and :643 that never calls a router. This is the fake AC-5 must replace — a bare `routingCallCount == 2` assertion passes against it with zero provider traffic.
+- `convex/curatedGeometryTestSupport.ts` (1319, 1335) — the **EXISTING** repair-round seeders: `seedRepairRoundRoute` (:1319, seeds routeId `test:repair-round`) and `seedRepairExhaustedRoute` (:1335, seeds routeId `test:repair-exhausted`). AC-5 REUSES both — do not author new seeders.
 - `convex/curatedGeometryHygiene.ts` (520-602) — Quarantine flag structure and fixLengthOutliers pattern
 - `convex/schema.ts` (216-218) — curatedRouteGeometry side table schema
 - `brain/docs/TESTING-HIERARCHY.md` (11-23) — Integration test tier is PRIMARY for Convex backend
@@ -301,7 +317,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 - test: `npx vitest run convex/__tests__/S4T1-*.integration.test.ts` → Exit 0
 - typecheck (in-scope): `npx tsc --noEmit -p convex/tsconfig.json` → Exit 0
-- typecheck (no-regression): `pnpm type-check 2>&1 | grep -c 'error TS'` → **no greater than the baseline captured at task start** (the root pass carries 10 pre-existing RN errors owned by TYPEFIX-001; repo-wide exit 0 is not an S4-T1 deliverable)
+- typecheck (no-regression): `pnpm type-check 2>&1 | grep -c 'error TS'` → **no greater than the baseline captured at task start** (the root pass carries 10 pre-existing errors in `convex/actions/agent/**` — `rideAgentSpike.ts` ×8, `zaiProvider.ts` ×1, `spikeTools.ts` ×1 — Convex code outside this task's `SCOPE.writeAllowed`, surfaced by the root tsconfig's non-strict options collapsing zod's conditional types to `never`; owned and discharged by TYPEFIX-001 @ `0f79ce63`, which sets root `strict: true` and is measured to take `pnpm type-check` to exit 0. Repo-wide exit 0 is not an S4-T1 deliverable)
 - lint: `pnpm exec biome check` → Exit 0
 - convex build: `pnpm convex:dev --once` → Exit 0
 - scenario validator → Exit 0, zero CRITICAL/HIGH violations. The contract lives **embedded in this .md file**, not at a `.json` path, and the validator reads stdin when given no argv — so extract and pipe (verified working):
@@ -438,21 +454,22 @@ python3 -c "import re,sys;print(re.search(r'<!-- REQUIREMENT-CONTRACT v1 -->\n<!
       ]
     },
     "repair-round-two-attempts-better-second": {
-      "description": "Route driving a real 2-attempt repair round through production reconstructForRoute, with RECORDED routing responses pinning attempt#1 to 50mi (ratio 0.50, fails band) and attempt#2 to 90mi (ratio 0.90, passes)",
+      "description": "Route driving a real 2-attempt repair round through production reconstructForRoute, SELECTED because its real first attempt lands outside the 0.6-1.6 band and its real repair attempt lands inside it. The routed lengths are whatever the Google Routes API returned - the contract does NOT prescribe them (a genuine response is a value like 51.38, never a designed 50.0000). Every assertion is a property of the recording (band membership, |log(ratio)| ordering, equality with the cassette's own value), never a literal. If no recording of a candidate route exhibits the property, this fixture does not exist and the case must be re-derived from a recording that does - it must never be hand-authored to fit.",
       "seed_method": "recorded_external",
       "records": [
-        "routeId: 'test:repair-round-better-second', name: 'Repair round better second', lengthMiles: 100, compositeScore: 0.85",
-        "new seeder seedRepairRoundRoute in convex/curatedGeometryTestSupport.ts",
-        "recorded routing cassette: attempt#1 routedMiles=50 (ratio 0.50), attempt#2 routedMiles=90 (ratio 0.90)"
+        "routeId: 'test:repair-round', name: 'Repair Round Test', lengthMiles: 100",
+        "seeded by the EXISTING seedRepairRoundRoute mutation at convex/curatedGeometryTestSupport.ts:1319 - NOT a new seeder (round 1 wrongly described it as new and invented routeId 'test:repair-round-better-second')",
+        "cassette: convex/__tests__/fixtures/S4T1-repair-round-better-second.cassette.json - recorded ONCE from the Google Routes API v2 (https://routes.googleapis.com/directions/v2:computeRoutes) and the Google Geocoding API (https://maps.googleapis.com/maps/api/geocode/json), reached via defaultRoute (convex/actions/curatedGeometryReconstruct.ts:173, fetch at :192 / :159)",
+        "recording procedure: with a live GOOGLE_MAPS_API_KEY, run reconstructForRoute once for this route with cassette recording enabled; routeWithInvocationCount (:78-83) persists each request/response pair in call order with the provider's verbatim body (routed distance + encoded polyline); commit the cassette; replay is byte-exact and offline; re-recording requires deleting the file, never editing it"
       ]
     },
     "repair-round-exhausted-to-review": {
-      "description": "Route where BOTH recorded attempts fail the band (40mi -> ratio 0.40, 45mi -> ratio 0.45), exhausting the 2-attempt budget to verdict='review'",
+      "description": "Route SELECTED because BOTH of its real attempts land outside the 0.6-1.6 band, exhausting the 2-attempt budget to verdict='review'. As with the better-second fixture, the recorded routed lengths are the provider's own values and are never prescribed by this contract.",
       "seed_method": "recorded_external",
       "records": [
-        "routeId: 'test:repair-round-exhausted', name: 'Repair round exhausted', lengthMiles: 100, compositeScore: 0.85",
-        "new seeder seedRepairRoundRoute (exhausted variant) in convex/curatedGeometryTestSupport.ts",
-        "recorded routing cassette: attempt#1 routedMiles=40 (ratio 0.40), attempt#2 routedMiles=45 (ratio 0.45)"
+        "routeId: 'test:repair-exhausted', name: 'Repair Exhausted Test', lengthMiles: 100",
+        "seeded by the EXISTING seedRepairExhaustedRoute mutation at convex/curatedGeometryTestSupport.ts:1335 - NOT a new seeder (round 1's contract ignored this existing seeder entirely)",
+        "cassette: convex/__tests__/fixtures/S4T1-repair-round-exhausted.cassette.json - same provider and same recording procedure as repair-round-two-attempts-better-second"
       ]
     },
     "preexisting-row-needs-region-check": {
@@ -582,16 +599,18 @@ python3 -c "import re,sys;print(re.search(r'<!-- REQUIREMENT-CONTRACT v1 -->\n<!
               "actor": "api_client",
               "steps": [
                 "Call determineGateVerdict({anchorCount:2, pointCount:50, routedMiles:41, ratio:1.0})",
-                "Verify returns {verdict:'pass'}"
+                "Verify returns {verdict:'pass', ratio:1.0}"
               ]
             },
             "end_state": {
               "must_observe": [
-                "verdict == 'pass'"
+                "verdict == 'pass'",
+                "ratio == 1.0 — the seeded in-band ratio is echoed back on the verdict, pinning `ratio` provenance so a stub hardcoding `ratio: 0.22` for AC-4 cannot also satisfy this case"
               ],
               "must_not_observe": [
                 "failedCondition == 'anchors'",
-                "verdict is empty or absent — the gate returned no verdict at all"
+                "verdict is empty or absent — the gate returned no verdict at all",
+                "ratio == 0.22 or any value other than the seeded 1.0 — the verdict carries a hardcoded ratio rather than the computed one"
               ]
             }
           },
@@ -753,7 +772,7 @@ python3 -c "import re,sys;print(re.search(r'<!-- REQUIREMENT-CONTRACT v1 -->\n<!
               "actor": "api_client",
               "steps": [
                 "Seed quarantined route (lengthMiles=100, quarantine.reason='length_outlier') via seedQuarantinedOutOfBandRatioRow",
-                "Call determineGateVerdict({ratio:0.22, pointCount:50, routedMiles:22, anchorCount:2, quarantined:true})",
+                "Call determineGateVerdict({ratio:0.22, pointCount:50, routedMiles:22, anchorCount:2, quarantine:true})",
                 "Verify returns {verdict:'pass', ratio:0.22, ratioSkipped:true}"
               ]
             },
@@ -777,7 +796,7 @@ python3 -c "import re,sys;print(re.search(r'<!-- REQUIREMENT-CONTRACT v1 -->\n<!
               "actor": "api_client",
               "steps": [
                 "Seed the identical twin WITHOUT a quarantine flag (lengthMiles=100, quarantine undefined) via seedUnquarantinedOutOfBandRatioRow",
-                "Call determineGateVerdict({ratio:0.22, pointCount:50, routedMiles:22, anchorCount:2, quarantined:false})",
+                "Call determineGateVerdict({ratio:0.22, pointCount:50, routedMiles:22, anchorCount:2, quarantine:false})",
                 "Verify returns {verdict:'review', failedCondition:'ratio'}"
               ]
             },
@@ -801,7 +820,7 @@ python3 -c "import re,sys;print(re.search(r'<!-- REQUIREMENT-CONTRACT v1 -->\n<!
               "actor": "api_client",
               "steps": [
                 "Seed quarantined route with 3-point geometry (lengthMiles=100, quarantine.reason='length_outlier') via seedQuarantinedDegenerateRow",
-                "Call determineGateVerdict({ratio:0.22, pointCount:3, routedMiles:22, anchorCount:2, quarantined:true})",
+                "Call determineGateVerdict({ratio:0.22, pointCount:3, routedMiles:22, anchorCount:2, quarantine:true})",
                 "Verify quarantine does NOT bypass the degenerate check"
               ]
             },
@@ -824,22 +843,26 @@ python3 -c "import re,sys;print(re.search(r'<!-- REQUIREMENT-CONTRACT v1 -->\n<!
       "id": "AC-5",
       "type": "acceptance_criterion",
       "primary": false,
-      "description": "GIVEN a reconstruction with first attempt ratio=0.5 (fails gate), second attempt ratio=0.9 WHEN repair round runs with geocode log feedback and selects better attempt THEN second attempt is stored (ratio distance |log(0.9)|=0.11 is closer to 0 than |log(0.5)|=0.69)",
+      "description": "GIVEN a reconstruction whose RECORDED first attempt ratio falls outside the 0.6-1.6 band and whose RECORDED repair attempt falls inside it (illustratively 0.5 then 0.9 - but the binding values are whatever the Google Routes recording returned, never literals in the test) WHEN the repair round runs with geocode-log feedback and selects the better attempt by ratio distance THEN the repair attempt is stored because |log(repair)| < |log(first)|, and the routing budget is capped at 2",
       "verify": "npx vitest run convex/__tests__/S4T1-repair-round-bounded.integration.test.ts",
       "maps_to_ac": null,
       "scenario": {
         "tier": "visible",
         "test_tier": "integration",
-        "verification_service": "Convex dev deployment (real reconstructForRoute with repair round)",
+        "verification_service": "Google Routes API v2 (routes.googleapis.com/directions/v2:computeRoutes) + Google Geocoding API, recorded once and replayed byte-exact; production reconstructForRoute on the Convex dev deployment",
         "negative_control": {
           "would_fail_if": [
             "repair round runs more than 2 attempts",
             "attempt selection logic is stubbed",
-            "geocode log feedback is not passed to LLM"
+            "geocode log feedback is not passed to LLM",
+            "routingInvocationCount is hand-incremented outside routeWithInvocationCount (the :622/:643 simulation pattern) so the count reaches 2 with zero provider traffic",
+            "the stored polyline is buildCannedPolyline output rather than the recorded provider geometry",
+            "the cassette is hand-authored with designed round values instead of recorded from Google Routes",
+            "the test asserts ratio literals instead of comparing against the cassette's own recorded values"
           ]
         },
         "evidence": {
-          "artifact_type": "db_query",
+          "artifact_type": "api_response",
           "required_capture": true
         },
         "cases": [
@@ -848,22 +871,27 @@ python3 -c "import re,sys;print(re.search(r'<!-- REQUIREMENT-CONTRACT v1 -->\n<!
             "action": {
               "actor": "api_client",
               "steps": [
-                "Seed route with description triggering reconstruction",
-                "Call production reconstructForRoute against the recorded routing cassette (attempt#1 50mi -> ratio 0.50 fails band)",
-                "Verify repair round runs with geocode log feedback",
-                "Verify attempt#2 (90mi -> ratio 0.90) is stored as the better attempt"
+                "Seed via the EXISTING seedRepairRoundRoute mutation (routeId 'test:repair-round', claimed 100mi)",
+                "Call production reconstructForRoute with the cassette replaying the recorded Google Routes exchanges in call order",
+                "Verify the repair round re-prompts with geocode-log feedback after attempt#1 fails the band",
+                "Verify the better attempt is stored by |log(ratio)|, comparing against the cassette's recorded values rather than literals"
               ]
             },
             "end_state": {
               "must_observe": [
-                "routingCallCount == 2",
-                "stored ratio == 0.90 (the better of the two attempts by |log(ratio)|)",
-                "routing calls originate from production `reconstructForRoute` (`convex/actions/curatedGeometryReconstruct.ts`), not a test-local simulation"
+                "routingCallCount == 2 AND every increment originated inside routeWithInvocationCount (convex/actions/curatedGeometryReconstruct.ts:78-83) — the only path to defaultRoute -> Google Routes",
+                "recorded attempt#1 ratio < 0.6 (outside the band, as recorded — not as designed)",
+                "recorded attempt#2 ratio within 0.6-1.6 (as recorded)",
+                "|log(attempt#2 ratio)| < |log(attempt#1 ratio)| — the repair attempt is strictly closer to 1.0",
+                "stored ratio == the cassette's recorded attempt#2 ratio (read from the cassette, not a literal in the test)",
+                "stored encodedPolyline == the polyline carried in the cassette's recorded attempt#2 response"
               ],
               "must_not_observe": [
                 "routingCallCount > 2",
-                "stored ratio == worse attempt (0.50)",
-                "routingCallCount == 0 — `reconstructForRoute` never invoked the real routing client"
+                "stored ratio == the recorded attempt#1 ratio",
+                "routingCallCount == 0",
+                "routingInvocationCount incremented anywhere other than routeWithInvocationCount — a hand-incremented counter satisfies a bare count assertion while no provider call happened",
+                "stored encodedPolyline == buildCannedPolyline(...) output — geometry fabricated locally instead of replayed from the recorded provider response"
               ]
             }
           },
@@ -872,21 +900,24 @@ python3 -c "import re,sys;print(re.search(r'<!-- REQUIREMENT-CONTRACT v1 -->\n<!
             "action": {
               "actor": "api_client",
               "steps": [
-                "Seed route where both recorded attempts fail the band (40mi -> 0.40, 45mi -> 0.45)",
-                "Call production reconstructForRoute",
+                "Seed via the EXISTING seedRepairExhaustedRoute mutation (routeId 'test:repair-exhausted', claimed 100mi) — a route selected because BOTH real attempts fall outside the band",
+                "Call production reconstructForRoute against its cassette",
                 "Verify the 2-attempt budget is exhausted and the final verdict is 'review'"
               ]
             },
             "end_state": {
               "must_observe": [
-                "routingCallCount == 2",
+                "routingCallCount == 2 AND every increment originated inside routeWithInvocationCount",
+                "both recorded attempt ratios outside 0.6-1.6 (as recorded — not as designed)",
                 "verdict == 'review'",
                 "failedCondition == \"ratio\" (specific failure recorded)"
               ],
               "must_not_observe": [
                 "routingCallCount > 2",
                 "verdict == 'pass'",
-                "routingCallCount == 0 — no real routing attempt was made"
+                "routingCallCount == 0",
+                "a third recorded provider exchange is replayed — the budget was exceeded",
+                "routingInvocationCount incremented outside routeWithInvocationCount"
               ]
             }
           }
