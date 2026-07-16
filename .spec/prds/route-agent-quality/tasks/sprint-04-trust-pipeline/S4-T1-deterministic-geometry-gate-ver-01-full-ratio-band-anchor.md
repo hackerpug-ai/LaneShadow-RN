@@ -18,9 +18,11 @@
 | BLOCKS | S4-T2, S4-T3, S4-T4, S4-T5, S4-T6 |
 
 RUNTIME_COMMANDS:
-- test: `pnpm test convex/__tests__/<FILE>.integration.test.ts`
-- typecheck: `pnpm type-check`
+- test: `npx vitest run convex/__tests__/<FILE>.integration.test.ts`
+- typecheck: `npx tsc --noEmit -p convex/tsconfig.json` (in-scope surface; see DONE WHEN for the repo-wide no-regression clause)
 - lint: `pnpm exec biome check`
+
+> **Command note:** `pnpm test` maps to bare `vitest` (watch mode) and HANGS in an agent shell — always use `npx vitest run`. vitest has no `--grep`; the single-test filter is `-t '<name>'`.
 
 ## OUTCOME
 
@@ -33,7 +35,7 @@ Every lever calls ONE gate module; pre-existing geometry re-evaluated; repair ro
 - MUST reuse curatedGeometryGate.ts pure functions - never re-implement per lever
 - MUST apply gate to ALL geometry (new and pre-existing)
 - MUST limit reconstruction attempts to 2 per route (repair round budget)
-- MUST skip ratio check when quarantine flag is set (null claimed length)
+- MUST skip the ratio check ONLY when the quarantine flag is set — the real computed ratio MUST still be recorded on the verdict (never nulled) so the skip is observable
 
 **NEVER**
 - NEVER store geometry that fails the gate
@@ -41,6 +43,8 @@ Every lever calls ONE gate module; pre-existing geometry re-evaluated; repair ro
 - NEVER bypass anchor/region checks for reconstructed routes
 - NEVER allow a not_a_ride verdict to reach rider-ready surface
 - NEVER let the couch gate pass without a recorded verdict
+- NEVER let quarantine short-circuit the degenerate or anchor/region checks
+- NEVER conflate `ratio==null` (unknown claimed length) with quarantine — distinct code paths, each needs its own verdict evidence
 
 **STRICTLY**
 - STRICTLY enforce ratio band 0.6–1.6 for non-quarantined routes
@@ -54,11 +58,12 @@ Every lever calls ONE gate module; pre-existing geometry re-evaluated; repair ro
 - AC-1 [Gate enforces ratio band 0.6–1.6 for non-quarantined routes] [PRIMARY]: Verdict is 'review' with failedCondition='ratio' because 0.75 < 0.6
 - AC-2 [Gate requires ≥2 anchors within 150mi of centroid]: Verdict is 'review' with failedCondition='anchors' because anchorCount < 2
 - AC-3 [Gate rejects degenerate geometry (≤4 points OR <1 pt/mi)]: Verdict is 'review' with failedCondition='degenerate' because pointCount ≤ 4
-- AC-4 [Quarantine flag skips ratio check but applies degenerate + region checks]: Verdict is 'pass' (ratio skipped) because degenerate + region checks pass
+- AC-4 [Quarantine flag skips ratio check but applies degenerate + region checks]: A quarantined route and its unquarantined twin — same real ratio 0.22 — split: 'pass' with `ratio=0.22` + `ratioSkipped=true` vs 'review' with failedCondition='ratio'; a quarantined 3-point route still returns 'review'/'degenerate'
 - AC-5 [Bounded repair round limits attempts to 2 and keeps better attempt by ratio distance]: Second attempt is stored (ratio distance |log(0.9)|=0.11 is closer to 0 than |log(0.5)|=0.69)
 - AC-6 [Pre-existing geometry rows are re-evaluated against the full gate]: Rows failing the enhanced gate are flipped to verdict='review'
-- Every behavioral AC scenario passes `validate_scenario` (exit 0); RED-against-start recorded before GREEN; seeded-value EVIDENCE artifact captured
-- `pnpm type-check` clean + `pnpm exec biome check` clean + `pnpm convex:dev --once` clean
+- Every behavioral AC scenario passes `validate_scenario` (exit 0 — run the extract-and-pipe command in VERIFICATION GATES); RED-against-start recorded before GREEN; seeded-value EVIDENCE artifact captured
+- `npx tsc --noEmit -p convex/tsconfig.json` → 0 errors (the in-scope surface) + `pnpm exec biome check` clean + `pnpm convex:dev --once` clean
+- NO-REGRESSION: `pnpm type-check` reports **zero new errors vs. a baseline captured at task start** (capture with `pnpm type-check 2>&1 | grep -c 'error TS'` before the first edit; compare at the end). Repo-wide `pnpm type-check` exit 0 is **NOT** an S4-T1 deliverable — `package.json`'s `type-check` runs two passes (`tsc -p convex/tsconfig.json && tsc -p tsconfig.json`); the convex pass is already clean and the **root** pass carries 10 pre-existing RN errors that are unsatisfiable from `convex/` scope. That debt is discharged by prerequisite **TYPEFIX-001** (a separate user-approved task that sets `strict: true` at the root tsconfig and fixes the ~26 revealed RN null-safety bugs).
 - Only SCOPE.writeAllowed files modified (`git diff --name-only`)
 
 ## SPECIFICATION
@@ -66,6 +71,15 @@ Every lever calls ONE gate module; pre-existing geometry re-evaluated; repair ro
 **Objective:** Harden curatedGeometryGate.ts to full VER-01 deterministic gate (ratio, anchors, degeneracy, pre-existing sweep, quarantine ratio-skip) and implement VER-02 bounded repair round (max 2 attempts, keep better by ratio distance)
 
 **Success state:** Every lever calls ONE gate module; pre-existing geometry re-evaluated; repair round bounded to 2 attempts; quarantine rows skip ratio; all stored geometry is gate-passing
+
+**Required API seam (AC-4 — the quarantine skip must be OBSERVABLE):**
+
+```
+determineGateVerdict({ ratio, pointCount, routedMiles, anchorCount, quarantined })
+  → { verdict, failedCondition?, ratio: number | null, ratioSkipped: boolean }
+```
+
+The current return type carries only `{ verdict, failedCondition? }`. Because `evaluateRatioBoundary(null)` early-returns `{passes:true, ratio:null}`, a test that seeds a null claimed length gets `verdict='pass'` from the **null path**, not the quarantine branch — the two are indistinguishable from outside, and deleting the quarantine branch leaves such a test green (independently proven). Recording the **real computed `ratio`** plus a `ratioSkipped` boolean on the verdict is what makes the skip falsifiable: `verdict=='pass'` co-occurring with an out-of-band `ratio==0.22` is reachable ONLY through the quarantine branch. `reevaluateExistingGeometry` (AC-6) returns the same shape.
 
 ## FIXTURES (shared seed data — referenced by scenario `start_ref`; seeded via `curatedGeometryTestSupport`)
 
@@ -83,10 +97,22 @@ Every lever calls ONE gate module; pre-existing geometry re-evaluated; repair ro
     - routeId: 'test:degenerate-2pt', name: 'Degenerate 2pt', lengthMiles: 40, compositeScore: 0.85
 - `degenerate-low-density` (seed_method: `public_api`): Route with 10 points but 50mi (fails <1 pt/mi check)
     - routeId: 'test:degenerate-10pt-50mi', name: 'Degenerate 10pt/50mi', lengthMiles: 50, compositeScore: 0.85
-- `quarantined-row-ratio-skip` (seed_method: `public_api`): Quarantined route (lengthMiles=0) - ratio check skipped
-    - routeId: 'test:quarantined-null-length', name: 'Quarantined null length', lengthMiles: 0, quarantine: {reason: 'zero_length', flaggedAt: DATE_NOW}, compositeScore: 0.85
+- `anchors-off-region-rejected` (seed_method: `public_api`): Route whose anchors straddle the 150mi region boundary around centroid (34.95, -120.42) — seeded by the EXISTING `seedAnchorTestRoutes` mutation
+    - routeId: 'test:mixed-anchors', name: 'Mixed anchors', lengthMiles: 41, centroidLat: 34.95, centroidLng: -120.42, compositeScore: 0.85
+- `non-degenerate-valid` (seed_method: `public_api`): Healthy route — 50 points over 41mi (passes both degenerate checks) — seeded by the EXISTING `seedPoCRoute` mutation
+    - routeId: 'motorcycleroads:twist-of-tepusquet-loop', name: 'Twist of Tepusquet Loop', lengthMiles: 41, pointCount: 50, compositeScore: 0.85
+- `quarantined-row-out-of-band-ratio` (seed_method: `public_api`): Quarantined route with a REAL out-of-band ratio 0.22 (claimed 100mi, routed 22mi) — the ratio is computed and non-null; quarantine is what skips the band check
+    - routeId: 'test:quarantined-ratio-022', name: 'Quarantined ratio 0.22', lengthMiles: 100, quarantine: {reason: 'length_outlier', flaggedAt: DATE_NOW}, compositeScore: 0.85 — new seeder `seedQuarantinedOutOfBandRatioRow`
+- `unquarantined-row-out-of-band-ratio` (seed_method: `public_api`): Discriminating twin — IDENTICAL geometry and claimed length to `quarantined-row-out-of-band-ratio` (real ratio 0.22) but with NO quarantine flag
+    - routeId: 'test:unquarantined-ratio-022', name: 'Unquarantined ratio 0.22', lengthMiles: 100, quarantine: undefined, compositeScore: 0.85 — new seeder `seedUnquarantinedOutOfBandRatioRow`
+- `quarantined-row-degenerate-geometry` (seed_method: `public_api`): Quarantined route with 3-point geometry — proves quarantine does NOT bypass the degenerate check
+    - routeId: 'test:quarantined-degenerate-3pt', name: 'Quarantined degenerate 3pt', lengthMiles: 100, pointCount: 3, quarantine: {reason: 'length_outlier', flaggedAt: DATE_NOW}, compositeScore: 0.85 — new seeder `seedQuarantinedDegenerateRow`
+- `repair-round-two-attempts-better-second` (seed_method: `recorded_external`): Route driving a real 2-attempt repair round through production `reconstructForRoute`, with RECORDED routing responses pinning attempt#1 to 50mi (ratio 0.50, fails band) and attempt#2 to 90mi (ratio 0.90, passes)
+    - routeId: 'test:repair-round-better-second', name: 'Repair round better second', lengthMiles: 100, compositeScore: 0.85 — new seeder `seedRepairRoundRoute`; recorded routing cassette: attempt#1 routedMiles=50, attempt#2 routedMiles=90
+- `repair-round-exhausted-to-review` (seed_method: `recorded_external`): Route where BOTH recorded attempts fail the band (40mi → ratio 0.40, 45mi → ratio 0.45), exhausting the 2-attempt budget to verdict='review'
+    - routeId: 'test:repair-round-exhausted', name: 'Repair round exhausted', lengthMiles: 100, compositeScore: 0.85 — new seeder `seedRepairRoundRoute` (exhausted variant); recorded routing cassette: attempt#1 routedMiles=40, attempt#2 routedMiles=45
 - `preexisting-row-needs-region-check` (seed_method: `public_api`): Legacy geometry row with verification.verdict='pass' but off-region anchors
-    - curatedRouteGeometry doc with routeId, verification.verdict='pass', anchors with lat/lng > 300mi from centroid
+    - curatedRouteGeometry doc with routeId, verification.verdict='pass', anchors ~211mi from centroid (beyond the 150mi region bound)
 
 ## ACCEPTANCE CRITERIA (TDD beads — RED → GREEN → REFACTOR per AC)
 
@@ -96,7 +122,7 @@ Every lever calls ONE gate module; pre-existing geometry re-evaluated; repair ro
 
 - TEST_TIER: `integration`  ·  VERIFICATION_SERVICE: Convex dev deployment (real curatedGeometryGate.ts module)
 - FLOW_REF: UC-VER-01
-- VERIFY: `pnpm test convex/__tests__/S4T1-gate-ratio-band.integration.test.ts`
+- VERIFY: `npx vitest run convex/__tests__/S4T1-gate-ratio-band.integration.test.ts`
 
 SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0):
 - NEGATIVE_CONTROL — would fail if: evaluateRatioBoundary returns passes=true for all values; ratio check is bypassed or mocked; gate always returns verdict='pass'
@@ -104,15 +130,15 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 - CASE 1 — start_ref `ratio-boundary-passing`
     - ACTION (api_client): Call evaluateRatioBoundary({ratio: 1.0}); Verify returns {passes:true, ratio:1.0}
     - MUST_OBSERVE: passes == true, ratio == 1.0
-    - MUST_NOT_OBSERVE: passes == false, failedCondition == 'ratio'
+    - MUST_NOT_OBSERVE: passes == false, failedCondition == 'ratio', ratio == null or the ratio field is empty — the seeded input was never echoed back through the real boundary check
 - CASE 2 — start_ref `ratio-boundary-failing-low`
     - ACTION (api_client): Call evaluateRatioBoundary({ratio: 0.59}); Verify returns {passes:false, ratio:0.59, failedCondition:'ratio'}
     - MUST_OBSERVE: passes == false, failedCondition == 'ratio', ratio == 0.59
-    - MUST_NOT_OBSERVE: passes == true
+    - MUST_NOT_OBSERVE: passes == true, ratio == null or empty — evaluateRatioBoundary returned no computed ratio alongside the failure
 - CASE 3 — start_ref `ratio-boundary-failing-high`
     - ACTION (api_client): Call evaluateRatioBoundary({ratio: 1.61}); Verify returns {passes:false, failedCondition:'ratio'}
     - MUST_OBSERVE: passes == false, failedCondition == 'ratio', ratio == 1.61
-    - MUST_NOT_OBSERVE: passes == true
+    - MUST_NOT_OBSERVE: passes == true, failedCondition is empty or absent — the specific band failure was not recorded
 
 ### AC-2 — Gate requires ≥2 anchors within 150mi of centroid
 
@@ -120,7 +146,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 - TEST_TIER: `integration`  ·  VERIFICATION_SERVICE: Convex dev deployment (real curatedGeometryGate.ts + isAnchorInRegion)
 - FLOW_REF: UC-VER-01
-- VERIFY: `pnpm test convex/__tests__/S4T1-gate-anchors-region.integration.test.ts`
+- VERIFY: `npx vitest run convex/__tests__/S4T1-gate-anchors-region.integration.test.ts`
 
 SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0):
 - NEGATIVE_CONTROL — would fail if: isAnchorInRegion always returns true; anchor count check is skipped; region check is mocked out
@@ -128,15 +154,15 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 - CASE 1 — start_ref `anchors-sufficient-in-region`
     - ACTION (api_client): Call determineGateVerdict({anchorCount:2, pointCount:50, routedMiles:41, ratio:1.0}); Verify returns {verdict:'pass'}
     - MUST_OBSERVE: verdict == 'pass'
-    - MUST_NOT_OBSERVE: failedCondition == 'anchors'
+    - MUST_NOT_OBSERVE: failedCondition == 'anchors', verdict is empty or absent — the gate returned no verdict at all
 - CASE 2 — start_ref `anchors-insufficient-count`
     - ACTION (api_client): Call determineGateVerdict({anchorCount:1, pointCount:50, routedMiles:41, ratio:1.0}); Verify returns {verdict:'review', failedCondition:'anchors'}
     - MUST_OBSERVE: verdict == 'review', failedCondition == 'anchors'
-    - MUST_NOT_OBSERVE: verdict == 'pass'
+    - MUST_NOT_OBSERVE: verdict == 'pass', failedCondition is empty or absent while verdict == 'review' — the specific failure reason was not recorded
 - CASE 3 — start_ref `anchors-off-region-rejected`
-    - ACTION (api_client): Seed route with centroid (34.95, -120.42); Call isAnchorInRegion({lat:38.0, lng:-120.42}, centroid) - 300mi away; Verify returns false
-    - MUST_OBSERVE: isAnchorInRegion == false
-    - MUST_NOT_OBSERVE: isAnchorInRegion == true
+    - ACTION (api_client): Seed route with centroid (34.95, -120.42) via `seedAnchorTestRoutes`; Call isAnchorInRegion({lat:38.0, lng:-120.42}, centroid) — a real haversine distance of 211mi (3.05° of latitude × 3958.8mi radius), beyond the 150mi bound; Verify returns false
+    - MUST_OBSERVE: isAnchorInRegion == false, haversineDistance({lat:38.0, lng:-120.42}, centroid) rounds to 211 (mi)
+    - MUST_NOT_OBSERVE: isAnchorInRegion == true, haversineDistance == 0 (centroid never read — a hardcoded/placeholder region check)
 
 ### AC-3 — Gate rejects degenerate geometry (≤4 points OR <1 pt/mi)
 
@@ -144,39 +170,49 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 - TEST_TIER: `integration`  ·  VERIFICATION_SERVICE: Convex dev deployment (real isDegenerate + determineGateVerdict)
 - FLOW_REF: UC-VER-01
-- VERIFY: `pnpm test convex/__tests__/S4T1-gate-degenerate.integration.test.ts`
+- VERIFY: `npx vitest run convex/__tests__/S4T1-gate-degenerate.integration.test.ts`
 
 SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0):
-- NEGATIVE_CONTROL — would fail if: isDegenerate always returns false; point count check is skipped; density check is bypassed
+- NEGATIVE_CONTROL — would fail if: isDegenerate always returns false; point count check is skipped; density check is bypassed; isDegenerate is a stub that returns a hardcoded constant regardless of pointCount
 - EVIDENCE: `db_query` (required_capture: true)
 - CASE 1 — start_ref `degenerate-low-point-count`
     - ACTION (api_client): Call isDegenerate({pointCount:3, routedMiles:10}); Verify returns true
     - MUST_OBSERVE: isDegenerate == true
-    - MUST_NOT_OBSERVE: isDegenerate == false
+    - MUST_NOT_OBSERVE: isDegenerate == false, isDegenerate returns undefined or empty — the point-count check never executed
 - CASE 2 — start_ref `degenerate-low-density`
     - ACTION (api_client): Call isDegenerate({pointCount:5, routedMiles:10}); Verify returns true (5 pts < 10 mi)
     - MUST_OBSERVE: isDegenerate == true
-    - MUST_NOT_OBSERVE: isDegenerate == false
+    - MUST_NOT_OBSERVE: isDegenerate == false, pointCount read as 0 or a default instead of the seeded 5 — the density comparison ran on empty input
 - CASE 3 — start_ref `non-degenerate-valid`
     - ACTION (api_client): Call isDegenerate({pointCount:50, routedMiles:41}); Verify returns false
     - MUST_OBSERVE: isDegenerate == false
-    - MUST_NOT_OBSERVE: isDegenerate == true
+    - MUST_NOT_OBSERVE: isDegenerate == true, pointCount or routedMiles read as 0 / empty instead of the seeded 50 and 41
 
 ### AC-4 — Quarantine flag skips ratio check but applies degenerate + region checks
 
-**Requirement:** GIVEN A quarantined route (quarantine.reason='zero_length') with routedMiles=22, pointCount=50 WHEN The gate evaluates with ratio=null due to quarantine THEN Verdict is 'pass' (ratio skipped) because degenerate + region checks pass
+**Requirement:** GIVEN two routes with **identical** routed geometry (routedMiles=22, pointCount=50, anchorCount=2 in-region) and **identical** claimed length (claimedMiles=100 → **real ratio 0.22**, far outside the 0.6–1.6 band) — one carrying `quarantine.reason='length_outlier'`, one with **no quarantine flag** — WHEN the gate evaluates both with the **same real ratio 0.22 (never null)** THEN the quarantined route returns `verdict='pass'` with the out-of-band `ratio=0.22` **still recorded** and `ratioSkipped=true`, while the unquarantined twin returns `verdict='review'` with `failedCondition='ratio'` — a pair satisfiable **only** by a live quarantine branch, since deleting it collapses both twins to `'review'`.
+
+> **Why this shape:** the previous contract required `ratio == null`, which routed the `pass` verdict through `evaluateRatioBoundary`'s null early-return (`{passes:true, ratio:null}`) rather than the quarantine branch — the test echoed its own input, and deleting the quarantine branch entirely left 6/6 tests green. The load-bearing property now is that **`verdict=='pass'` AND `ratio==0.22` co-occurring is impossible without the quarantine branch.** Case C additionally proves the "*but applies degenerate + region checks*" half of the AC title, which no prior case covered.
 
 - TEST_TIER: `integration`  ·  VERIFICATION_SERVICE: Convex dev deployment (real curatedGeometryGate.ts + quarantine flag)
 - FLOW_REF: UC-VER-01
-- VERIFY: `pnpm test convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts`
+- VERIFY: `npx vitest run convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts`
 
 SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0):
-- NEGATIVE_CONTROL — would fail if: quarantine flag is ignored; ratio check runs despite quarantine; evaluateRatioBoundary is called with ratio=null and returns passes:false
+- NEGATIVE_CONTROL — would fail if: the quarantine branch is **deleted** from `determineGateVerdict` (both twins collapse to verdict='review'); quarantine is implemented as an unconditional early `return {verdict:'pass'}` **stub** that bypasses the degenerate + anchor checks (Case C would wrongly pass); the test seeds a null/**empty** claimed length so ratio==null and the pass verdict comes from the `evaluateRatioBoundary` null early-return instead of the quarantine branch; the quarantine flag is **hardcod**ed true for all routes (the unquarantined twin would wrongly pass)
 - EVIDENCE: `db_query` (required_capture: true)
-- CASE 1 — start_ref `quarantined-row-ratio-skip`
-    - ACTION (api_client): Seed quarantined route (lengthMiles=0, quarantine.reason='zero_length'); Call determineGateVerdict({ratio:null, pointCount:50, routedMiles:22, anchorCount:2}); Verify returns {verdict:'pass'}
-    - MUST_OBSERVE: verdict == 'pass', ratio == null
-    - MUST_NOT_OBSERVE: failedCondition == 'ratio', verdict == 'review'
+- CASE A — start_ref `quarantined-row-out-of-band-ratio`
+    - ACTION (api_client): Seed quarantined route (lengthMiles=100, quarantine.reason='length_outlier'); Call determineGateVerdict({ratio:0.22, pointCount:50, routedMiles:22, anchorCount:2, quarantined:true}); Verify returns {verdict:'pass', ratio:0.22, ratioSkipped:true}
+    - MUST_OBSERVE: verdict == 'pass', ratio == 0.22, ratioSkipped == true
+    - MUST_NOT_OBSERVE: verdict == 'review', failedCondition == 'ratio', ratioSkipped == false, ratio == null or the ratio field is empty — proves the null early-return fired, not the quarantine branch
+- CASE B — start_ref `unquarantined-row-out-of-band-ratio`
+    - ACTION (api_client): Seed the identical twin WITHOUT a quarantine flag (lengthMiles=100, quarantine undefined); Call determineGateVerdict({ratio:0.22, pointCount:50, routedMiles:22, anchorCount:2, quarantined:false}); Verify returns {verdict:'review', failedCondition:'ratio'}
+    - MUST_OBSERVE: verdict == 'review', failedCondition == 'ratio', ratio == 0.22, ratioSkipped == false
+    - MUST_NOT_OBSERVE: verdict == 'pass', ratioSkipped == true, ratio == null or empty — the unquarantined twin must carry the same real computed 0.22 as Case A
+- CASE C — start_ref `quarantined-row-degenerate-geometry`
+    - ACTION (api_client): Seed quarantined route with 3-point geometry (lengthMiles=100, quarantine.reason='length_outlier'); Call determineGateVerdict({ratio:0.22, pointCount:3, routedMiles:22, anchorCount:2, quarantined:true}); Verify quarantine does NOT bypass the degenerate check
+    - MUST_OBSERVE: verdict == 'review', failedCondition == 'degenerate'
+    - MUST_NOT_OBSERVE: verdict == 'pass', failedCondition == 'ratio', failedCondition is empty or absent — the degenerate reason must be recorded even under quarantine
 
 ### AC-5 — Bounded repair round limits attempts to 2 and keeps better attempt by ratio distance
 
@@ -184,19 +220,19 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 - TEST_TIER: `integration`  ·  VERIFICATION_SERVICE: Convex dev deployment (real reconstructForRoute with repair round)
 - FLOW_REF: UC-VER-02
-- VERIFY: `pnpm test convex/__tests__/S4T1-repair-round-bounded.integration.test.ts`
+- VERIFY: `npx vitest run convex/__tests__/S4T1-repair-round-bounded.integration.test.ts`
 
 SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0):
 - NEGATIVE_CONTROL — would fail if: repair round runs more than 2 attempts; attempt selection logic is stubbed; geocode log feedback is not passed to LLM
 - EVIDENCE: `db_query` (required_capture: true)
 - CASE 1 — start_ref `repair-round-two-attempts-better-second`
-    - ACTION (api_client): Seed route with description triggering reconstruction; Call reconstructForRoute (first attempt fails ratio); Verify repair round runs with feedback; Verify second attempt is stored if better
-    - MUST_OBSERVE: routingCallCount == 2, stored ratio == better of two attempts
-    - MUST_NOT_OBSERVE: routingCallCount > 2, stored ratio == worse attempt
+    - ACTION (api_client): Seed route with description triggering reconstruction; Call production `reconstructForRoute` against the recorded routing cassette (attempt#1 50mi → ratio 0.50 fails band); Verify repair round runs with feedback; Verify attempt#2 (90mi → ratio 0.90) is stored as the better attempt
+    - MUST_OBSERVE: routingCallCount == 2, stored ratio == 0.90 (the better of the two attempts by |log(ratio)|), routing calls originate from production `reconstructForRoute` (`convex/actions/curatedGeometryReconstruct.ts`), not a test-local simulation
+    - MUST_NOT_OBSERVE: routingCallCount > 2, stored ratio == worse attempt (0.50), routingCallCount == 0 — `reconstructForRoute` never invoked the real routing client
 - CASE 2 — start_ref `repair-round-exhausted-to-review`
-    - ACTION (api_client): Seed route where both attempts fail gate; Call reconstructForRoute; Verify final verdict is 'review'
+    - ACTION (api_client): Seed route where both recorded attempts fail the band (40mi → 0.40, 45mi → 0.45); Call production `reconstructForRoute`; Verify the 2-attempt budget is exhausted and the final verdict is 'review'
     - MUST_OBSERVE: routingCallCount == 2, verdict == 'review', failedCondition == "ratio" (specific failure recorded)
-    - MUST_NOT_OBSERVE: routingCallCount > 2, verdict == 'pass'
+    - MUST_NOT_OBSERVE: routingCallCount > 2, verdict == 'pass', routingCallCount == 0 — no real routing attempt was made
 
 ### AC-6 — Pre-existing geometry rows are re-evaluated against the full gate
 
@@ -204,30 +240,32 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 - TEST_TIER: `integration`  ·  VERIFICATION_SERVICE: Convex dev deployment (real pre-existing sweep over curated_route_geometry)
 - FLOW_REF: UC-VER-01
-- VERIFY: `pnpm test convex/__tests__/S4T1-preexisting-sweep.integration.test.ts`
+- VERIFY: `npx vitest run convex/__tests__/S4T1-preexisting-sweep.integration.test.ts`
 
 SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0):
-- NEGATIVE_CONTROL — would fail if: sweep only processes new geometry; pre-existing verification objects are skipped; gate is bypassed for legacy rows
+- NEGATIVE_CONTROL — would fail if: sweep only processes new geometry; pre-existing verification objects are skipped; gate is bypassed for legacy rows; the sweep is a no-op that leaves pre-existing verification objects unchanged
 - EVIDENCE: `db_query` (required_capture: true)
 - CASE 1 — start_ref `preexisting-row-needs-region-check`
-    - ACTION (api_client): Insert geometry row with verification.verdict='pass' but off-region anchors; Run pre-existing sweep; Query verification - should be flipped to 'review'
+    - ACTION (api_client): Insert geometry row with verification.verdict='pass' but anchors ~211mi from centroid; Run pre-existing sweep; Query verification - should be flipped to 'review'
     - MUST_OBSERVE: verification.verdict == 'review', verification.failedCondition == 'anchors'
-    - MUST_NOT_OBSERVE: verification.verdict == 'pass'
+    - MUST_NOT_OBSERVE: verification.verdict == 'pass', verification.failedCondition is empty or absent — the sweep flipped the verdict with no recorded reason
 
 ## TEST CRITERIA
 
 | TC | Statement | Maps to | Verify |
 |----|-----------|---------|--------|
-| TC-1 | evaluateRatioBoundary passes for ratio 0.6–1.6 | AC-1 | `pnpm test convex/__tests__/S4T1-gate-ratio-band.integration.test.ts --grep 'TC-1'` |
-| TC-2 | evaluateRatioBoundary fails for ratio below 0.6 | AC-1 | `pnpm test convex/__tests__/S4T1-gate-ratio-band.integration.test.ts --grep 'TC-2'` |
-| TC-3 | evaluateRatioBoundary fails for ratio above 1.6 | AC-1 | `pnpm test convex/__tests__/S4T1-gate-ratio-band.integration.test.ts --grep 'TC-3'` |
-| TC-4 | determineGateVerdict requires at least 2 anchors | AC-2 | `pnpm test convex/__tests__/S4T1-gate-anchors-region.integration.test.ts --grep 'TC-4'` |
-| TC-5 | isAnchorInRegion rejects points beyond 150mi | AC-2 | `pnpm test convex/__tests__/S4T1-gate-anchors-region.integration.test.ts --grep 'TC-5'` |
-| TC-6 | isDegenerate returns true for pointCount <= 4 | AC-3 | `pnpm test convex/__tests__/S4T1-gate-degenerate.integration.test.ts --grep 'TC-6'` |
-| TC-7 | isDegenerate returns true for pointCount < routedMiles | AC-3 | `pnpm test convex/__tests__/S4T1-gate-degenerate.integration.test.ts --grep 'TC-7'` |
-| TC-8 | Quarantined routes skip ratio check | AC-4 | `pnpm test convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts --grep 'TC-8'` |
-| TC-9 | Repair round limits to 2 attempts total | AC-5 | `pnpm test convex/__tests__/S4T1-repair-round-bounded.integration.test.ts --grep 'TC-9'` |
-| TC-10 | Repair round keeps better attempt by ratio distance | AC-5 | `pnpm test convex/__tests__/S4T1-repair-round-bounded.integration.test.ts --grep 'TC-10'` |
+| TC-1 | evaluateRatioBoundary passes for ratio 0.6–1.6 | AC-1 | `npx vitest run convex/__tests__/S4T1-gate-ratio-band.integration.test.ts -t 'TC-1'` |
+| TC-2 | evaluateRatioBoundary fails for ratio below 0.6 | AC-1 | `npx vitest run convex/__tests__/S4T1-gate-ratio-band.integration.test.ts -t 'TC-2'` |
+| TC-3 | evaluateRatioBoundary fails for ratio above 1.6 | AC-1 | `npx vitest run convex/__tests__/S4T1-gate-ratio-band.integration.test.ts -t 'TC-3'` |
+| TC-4 | determineGateVerdict requires at least 2 anchors | AC-2 | `npx vitest run convex/__tests__/S4T1-gate-anchors-region.integration.test.ts -t 'TC-4'` |
+| TC-5 | isAnchorInRegion rejects points beyond 150mi (211mi anchor → false) | AC-2 | `npx vitest run convex/__tests__/S4T1-gate-anchors-region.integration.test.ts -t 'TC-5'` |
+| TC-6 | isDegenerate returns true for pointCount <= 4 | AC-3 | `npx vitest run convex/__tests__/S4T1-gate-degenerate.integration.test.ts -t 'TC-6'` |
+| TC-7 | isDegenerate returns true for pointCount < routedMiles | AC-3 | `npx vitest run convex/__tests__/S4T1-gate-degenerate.integration.test.ts -t 'TC-7'` |
+| TC-8 | Quarantined route with out-of-band ratio 0.22 returns verdict='pass' with ratio=0.22 recorded and ratioSkipped=true | AC-4 | `npx vitest run convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts -t 'TC-8'` |
+| TC-9 | Repair round limits to 2 attempts total | AC-5 | `npx vitest run convex/__tests__/S4T1-repair-round-bounded.integration.test.ts -t 'TC-9'` |
+| TC-10 | Repair round keeps better attempt by ratio distance | AC-5 | `npx vitest run convex/__tests__/S4T1-repair-round-bounded.integration.test.ts -t 'TC-10'` |
+| TC-11 | Unquarantined twin with the IDENTICAL real ratio 0.22 returns verdict='review' with failedCondition='ratio' (the discriminator: deleting the quarantine branch collapses TC-8 onto this) | AC-4 | `npx vitest run convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts -t 'TC-11'` |
+| TC-12 | Quarantined route with 3-point geometry still returns verdict='review' with failedCondition='degenerate' (quarantine does not bypass degenerate/region checks) | AC-4 | `npx vitest run convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts -t 'TC-12'` |
 
 ## SCOPE (file-level write permissions)
 
@@ -247,7 +285,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 ## READING LIST
 
-- `convex/curatedGeometryGate.ts` (1-97) — Pure gate functions: evaluateRatioBoundary, isDegenerate, isAnchorInRegion, determineGateVerdict
+- `convex/curatedGeometryGate.ts` (1-145) — Pure gate functions: evaluateRatioBoundary (5-20, note the `null` early-return at 10-12 that made AC-4 tautological), isDegenerate (22-26), isAnchorInRegion (66-71), determineGateVerdict (73-102, `quarantine?` param at 78 / branch at 92-94 — the return type must gain `ratio` + `ratioSkipped`), reevaluateExistingGeometry (112-144)
 - `convex/actions/curatedGeometryReconstruct.ts` (340-420) — Repair round logic in reconstructForRoute
 - `convex/curatedGeometryHygiene.ts` (520-602) — Quarantine flag structure and fixLengthOutliers pattern
 - `convex/schema.ts` (216-218) — curatedRouteGeometry side table schema
@@ -256,16 +294,23 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 ## CODE PATTERN
 
 - Pattern: Pure function gate with structured verdict return
-- Pattern source: `convex/curatedGeometryGate.ts:73-96`
-- Anti-pattern: Per-lever gate implementations, ratio skip without quarantine, unbounded repair loops
+- Pattern source: `convex/curatedGeometryGate.ts:73-102`
+- Anti-pattern: Per-lever gate implementations, ratio skip without quarantine, unbounded repair loops, a verdict that drops the computed `ratio` (makes the quarantine skip unobservable and the AC untestable)
 
 ## VERIFICATION GATES
 
-- test: `pnpm test convex/__tests__/S4T1-*.integration.test.ts` → Exit 0
-- typecheck: `pnpm type-check` → Exit 0
+- test: `npx vitest run convex/__tests__/S4T1-*.integration.test.ts` → Exit 0
+- typecheck (in-scope): `npx tsc --noEmit -p convex/tsconfig.json` → Exit 0
+- typecheck (no-regression): `pnpm type-check 2>&1 | grep -c 'error TS'` → **no greater than the baseline captured at task start** (the root pass carries 10 pre-existing RN errors owned by TYPEFIX-001; repo-wide exit 0 is not an S4-T1 deliverable)
 - lint: `pnpm exec biome check` → Exit 0
 - convex build: `pnpm convex:dev --once` → Exit 0
-- scenario validator: `python3 ~/Projects/brain/tools/validate-scenario/validate_scenario.py .spec/tasks/sprint-04/S4-T1.json` → Exit 0, zero CRITICAL violations
+- scenario validator → Exit 0, zero CRITICAL/HIGH violations. The contract lives **embedded in this .md file**, not at a `.json` path, and the validator reads stdin when given no argv — so extract and pipe (verified working):
+
+```bash
+python3 -c "import re,sys;print(re.search(r'<!-- REQUIREMENT-CONTRACT v1 -->\n<!--\n(.*?)\n-->',open(sys.argv[1]).read(),re.S).group(1))" \
+  .spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/S4-T1-*.md \
+  | python3 ~/Projects/brain/tools/validate-scenario/validate_scenario.py; echo "EXIT:$?"
+```
 
 ## AGENT ASSIGNMENT
 
@@ -354,18 +399,67 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
         "routeId: 'test:degenerate-10pt-50mi', name: 'Degenerate 10pt/50mi', lengthMiles: 50, compositeScore: 0.85"
       ]
     },
-    "quarantined-row-ratio-skip": {
-      "description": "Quarantined route (lengthMiles=0) - ratio check skipped",
+    "anchors-off-region-rejected": {
+      "description": "Route whose anchors straddle the 150mi region boundary around centroid (34.95, -120.42) - seeded by the EXISTING seedAnchorTestRoutes mutation",
       "seed_method": "public_api",
       "records": [
-        "routeId: 'test:quarantined-null-length', name: 'Quarantined null length', lengthMiles: 0, quarantine: {reason: 'zero_length', flaggedAt: DATE_NOW}, compositeScore: 0.85"
+        "routeId: 'test:mixed-anchors', name: 'Mixed anchors', lengthMiles: 41, centroidLat: 34.95, centroidLng: -120.42, compositeScore: 0.85"
+      ]
+    },
+    "non-degenerate-valid": {
+      "description": "Healthy route - 50 points over 41mi (passes both degenerate checks) - seeded by the EXISTING seedPoCRoute mutation",
+      "seed_method": "public_api",
+      "records": [
+        "routeId: 'motorcycleroads:twist-of-tepusquet-loop', name: 'Twist of Tepusquet Loop', lengthMiles: 41, pointCount: 50, compositeScore: 0.85"
+      ]
+    },
+    "quarantined-row-out-of-band-ratio": {
+      "description": "Quarantined route with a REAL out-of-band ratio 0.22 (claimed 100mi, routed 22mi) - the ratio is computed and non-null; quarantine is what skips the band check",
+      "seed_method": "public_api",
+      "records": [
+        "routeId: 'test:quarantined-ratio-022', name: 'Quarantined ratio 0.22', lengthMiles: 100, quarantine: {reason: 'length_outlier', flaggedAt: DATE_NOW}, compositeScore: 0.85",
+        "new seeder seedQuarantinedOutOfBandRatioRow in convex/curatedGeometryTestSupport.ts"
+      ]
+    },
+    "unquarantined-row-out-of-band-ratio": {
+      "description": "Discriminating twin - IDENTICAL geometry and claimed length to quarantined-row-out-of-band-ratio (real ratio 0.22) but with NO quarantine flag",
+      "seed_method": "public_api",
+      "records": [
+        "routeId: 'test:unquarantined-ratio-022', name: 'Unquarantined ratio 0.22', lengthMiles: 100, quarantine: undefined, compositeScore: 0.85",
+        "new seeder seedUnquarantinedOutOfBandRatioRow in convex/curatedGeometryTestSupport.ts"
+      ]
+    },
+    "quarantined-row-degenerate-geometry": {
+      "description": "Quarantined route with 3-point geometry - proves quarantine does NOT bypass the degenerate check",
+      "seed_method": "public_api",
+      "records": [
+        "routeId: 'test:quarantined-degenerate-3pt', name: 'Quarantined degenerate 3pt', lengthMiles: 100, pointCount: 3, quarantine: {reason: 'length_outlier', flaggedAt: DATE_NOW}, compositeScore: 0.85",
+        "new seeder seedQuarantinedDegenerateRow in convex/curatedGeometryTestSupport.ts"
+      ]
+    },
+    "repair-round-two-attempts-better-second": {
+      "description": "Route driving a real 2-attempt repair round through production reconstructForRoute, with RECORDED routing responses pinning attempt#1 to 50mi (ratio 0.50, fails band) and attempt#2 to 90mi (ratio 0.90, passes)",
+      "seed_method": "recorded_external",
+      "records": [
+        "routeId: 'test:repair-round-better-second', name: 'Repair round better second', lengthMiles: 100, compositeScore: 0.85",
+        "new seeder seedRepairRoundRoute in convex/curatedGeometryTestSupport.ts",
+        "recorded routing cassette: attempt#1 routedMiles=50 (ratio 0.50), attempt#2 routedMiles=90 (ratio 0.90)"
+      ]
+    },
+    "repair-round-exhausted-to-review": {
+      "description": "Route where BOTH recorded attempts fail the band (40mi -> ratio 0.40, 45mi -> ratio 0.45), exhausting the 2-attempt budget to verdict='review'",
+      "seed_method": "recorded_external",
+      "records": [
+        "routeId: 'test:repair-round-exhausted', name: 'Repair round exhausted', lengthMiles: 100, compositeScore: 0.85",
+        "new seeder seedRepairRoundRoute (exhausted variant) in convex/curatedGeometryTestSupport.ts",
+        "recorded routing cassette: attempt#1 routedMiles=40 (ratio 0.40), attempt#2 routedMiles=45 (ratio 0.45)"
       ]
     },
     "preexisting-row-needs-region-check": {
       "description": "Legacy geometry row with verification.verdict='pass' but off-region anchors",
       "seed_method": "public_api",
       "records": [
-        "curatedRouteGeometry doc with routeId, verification.verdict='pass', anchors with lat/lng > 300mi from centroid"
+        "curatedRouteGeometry doc with routeId, verification.verdict='pass', anchors ~211mi from centroid (beyond the 150mi region bound)"
       ]
     }
   },
@@ -375,7 +469,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
       "type": "acceptance_criterion",
       "primary": true,
       "description": "GIVEN a route with claimedMiles=100, routedMiles=75, and no quarantine flag WHEN the gate evaluates the ratio routedMiles/claimedMiles THEN verdict is 'review' with failedCondition='ratio' because 0.75 < 0.6",
-      "verify": "pnpm test convex/__tests__/S4T1-gate-ratio-band.integration.test.ts",
+      "verify": "npx vitest run convex/__tests__/S4T1-gate-ratio-band.integration.test.ts",
       "maps_to_ac": null,
       "scenario": {
         "tier": "visible",
@@ -409,7 +503,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
               ],
               "must_not_observe": [
                 "passes == false",
-                "failedCondition == 'ratio'"
+                "failedCondition == 'ratio'",
+                "ratio == null or the ratio field is empty — the seeded input was never echoed back through the real boundary check"
               ]
             }
           },
@@ -429,7 +524,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
                 "ratio == 0.59"
               ],
               "must_not_observe": [
-                "passes == true"
+                "passes == true",
+                "ratio == null or empty — evaluateRatioBoundary returned no computed ratio alongside the failure"
               ]
             }
           },
@@ -449,7 +545,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
                 "ratio == 1.61"
               ],
               "must_not_observe": [
-                "passes == true"
+                "passes == true",
+                "failedCondition is empty or absent — the specific band failure was not recorded"
               ]
             }
           }
@@ -461,7 +558,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
       "type": "acceptance_criterion",
       "primary": false,
       "description": "GIVEN a reconstruction with 1 geocoded anchor within 150mi and 2 off-region WHEN the gate evaluates anchor count and region compliance THEN verdict is 'review' with failedCondition='anchors' because anchorCount < 2",
-      "verify": "pnpm test convex/__tests__/S4T1-gate-anchors-region.integration.test.ts",
+      "verify": "npx vitest run convex/__tests__/S4T1-gate-anchors-region.integration.test.ts",
       "maps_to_ac": null,
       "scenario": {
         "tier": "visible",
@@ -493,7 +590,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
                 "verdict == 'pass'"
               ],
               "must_not_observe": [
-                "failedCondition == 'anchors'"
+                "failedCondition == 'anchors'",
+                "verdict is empty or absent — the gate returned no verdict at all"
               ]
             }
           },
@@ -512,7 +610,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
                 "failedCondition == 'anchors'"
               ],
               "must_not_observe": [
-                "verdict == 'pass'"
+                "verdict == 'pass'",
+                "failedCondition is empty or absent while verdict == 'review' — the specific failure reason was not recorded"
               ]
             }
           },
@@ -521,17 +620,19 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
             "action": {
               "actor": "api_client",
               "steps": [
-                "Seed route with centroid (34.95, -120.42)",
-                "Call isAnchorInRegion({lat:38.0, lng:-120.42}, centroid) - 300mi away",
+                "Seed route with centroid (34.95, -120.42) via the existing seedAnchorTestRoutes mutation",
+                "Call isAnchorInRegion({lat:38.0, lng:-120.42}, centroid) - a real haversine distance of 211mi (3.05 degrees of latitude x 3958.8mi radius), beyond the 150mi bound",
                 "Verify returns false"
               ]
             },
             "end_state": {
               "must_observe": [
-                "isAnchorInRegion == false"
+                "isAnchorInRegion == false",
+                "haversineDistance({lat:38.0, lng:-120.42}, centroid) rounds to 211 (mi)"
               ],
               "must_not_observe": [
-                "isAnchorInRegion == true"
+                "isAnchorInRegion == true",
+                "haversineDistance == 0 (centroid never read — a hardcoded/placeholder region check)"
               ]
             }
           }
@@ -543,7 +644,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
       "type": "acceptance_criterion",
       "primary": false,
       "description": "GIVEN a routed polyline with 3 points and routedMiles=10 WHEN the gate evaluates point count and density THEN verdict is 'review' with failedCondition='degenerate' because pointCount <= 4",
-      "verify": "pnpm test convex/__tests__/S4T1-gate-degenerate.integration.test.ts",
+      "verify": "npx vitest run convex/__tests__/S4T1-gate-degenerate.integration.test.ts",
       "maps_to_ac": null,
       "scenario": {
         "tier": "visible",
@@ -553,7 +654,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
           "would_fail_if": [
             "isDegenerate always returns false",
             "point count check is skipped",
-            "density check is bypassed"
+            "density check is bypassed",
+            "isDegenerate is a stub that returns a hardcoded constant regardless of pointCount"
           ]
         },
         "evidence": {
@@ -575,7 +677,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
                 "isDegenerate == true"
               ],
               "must_not_observe": [
-                "isDegenerate == false"
+                "isDegenerate == false",
+                "isDegenerate returns undefined or empty — the point-count check never executed"
               ]
             }
           },
@@ -593,7 +696,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
                 "isDegenerate == true"
               ],
               "must_not_observe": [
-                "isDegenerate == false"
+                "isDegenerate == false",
+                "pointCount read as 0 or a default instead of the seeded 5 — the density comparison ran on empty input"
               ]
             }
           },
@@ -611,7 +715,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
                 "isDegenerate == false"
               ],
               "must_not_observe": [
-                "isDegenerate == true"
+                "isDegenerate == true",
+                "pointCount or routedMiles read as 0 / empty instead of the seeded 50 and 41"
               ]
             }
           }
@@ -622,8 +727,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
       "id": "AC-4",
       "type": "acceptance_criterion",
       "primary": false,
-      "description": "GIVEN a quarantined route (quarantine.reason='zero_length') with routedMiles=22, pointCount=50 WHEN the gate evaluates with ratio=null due to quarantine THEN verdict is 'pass' (ratio skipped) because degenerate + region checks pass",
-      "verify": "pnpm test convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts",
+      "description": "GIVEN two routes with IDENTICAL routed geometry (routedMiles=22, pointCount=50, anchorCount=2 in-region) and IDENTICAL claimed length (claimedMiles=100 -> real ratio 0.22, far outside the 0.6-1.6 band) - one carrying quarantine.reason='length_outlier', one with NO quarantine flag - WHEN the gate evaluates both with the SAME real ratio 0.22 (never null) THEN the quarantined route returns verdict='pass' with the out-of-band ratio=0.22 still recorded and ratioSkipped=true, while the unquarantined twin returns verdict='review' with failedCondition='ratio' - a pair satisfiable ONLY by a live quarantine branch, since deleting it collapses both twins to 'review'",
+      "verify": "npx vitest run convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts",
       "maps_to_ac": null,
       "scenario": {
         "tier": "visible",
@@ -631,9 +736,10 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
         "verification_service": "Convex dev deployment (real curatedGeometryGate.ts + quarantine flag)",
         "negative_control": {
           "would_fail_if": [
-            "quarantine flag is ignored",
-            "ratio check runs despite quarantine",
-            "evaluateRatioBoundary is called with ratio=null and returns passes:false"
+            "the quarantine branch is deleted from determineGateVerdict (both twins collapse to verdict='review')",
+            "quarantine is implemented as an unconditional early return {verdict:'pass'} stub that bypasses the degenerate + anchor checks (Case C would wrongly pass)",
+            "the test seeds a null/empty claimed length so ratio==null and the pass verdict comes from the evaluateRatioBoundary null early-return instead of the quarantine branch",
+            "the quarantine flag is hardcoded true for all routes (the unquarantined twin would wrongly pass)"
           ]
         },
         "evidence": {
@@ -642,23 +748,72 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
         },
         "cases": [
           {
-            "start_ref": "quarantined-row-ratio-skip",
+            "start_ref": "quarantined-row-out-of-band-ratio",
             "action": {
               "actor": "api_client",
               "steps": [
-                "Seed quarantined route (lengthMiles=0, quarantine.reason='zero_length')",
-                "Call determineGateVerdict({ratio:null, pointCount:50, routedMiles:22, anchorCount:2})",
-                "Verify returns {verdict:'pass'}"
+                "Seed quarantined route (lengthMiles=100, quarantine.reason='length_outlier') via seedQuarantinedOutOfBandRatioRow",
+                "Call determineGateVerdict({ratio:0.22, pointCount:50, routedMiles:22, anchorCount:2, quarantined:true})",
+                "Verify returns {verdict:'pass', ratio:0.22, ratioSkipped:true}"
               ]
             },
             "end_state": {
               "must_observe": [
                 "verdict == 'pass'",
-                "ratio == null"
+                "ratio == 0.22",
+                "ratioSkipped == true"
               ],
               "must_not_observe": [
+                "verdict == 'review'",
                 "failedCondition == 'ratio'",
-                "verdict == 'review'"
+                "ratioSkipped == false",
+                "ratio == null or the ratio field is empty — proves the null early-return fired, not the quarantine branch"
+              ]
+            }
+          },
+          {
+            "start_ref": "unquarantined-row-out-of-band-ratio",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "Seed the identical twin WITHOUT a quarantine flag (lengthMiles=100, quarantine undefined) via seedUnquarantinedOutOfBandRatioRow",
+                "Call determineGateVerdict({ratio:0.22, pointCount:50, routedMiles:22, anchorCount:2, quarantined:false})",
+                "Verify returns {verdict:'review', failedCondition:'ratio'}"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "verdict == 'review'",
+                "failedCondition == 'ratio'",
+                "ratio == 0.22",
+                "ratioSkipped == false"
+              ],
+              "must_not_observe": [
+                "verdict == 'pass'",
+                "ratioSkipped == true",
+                "ratio == null or empty — the unquarantined twin must carry the same real computed 0.22 as Case A"
+              ]
+            }
+          },
+          {
+            "start_ref": "quarantined-row-degenerate-geometry",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "Seed quarantined route with 3-point geometry (lengthMiles=100, quarantine.reason='length_outlier') via seedQuarantinedDegenerateRow",
+                "Call determineGateVerdict({ratio:0.22, pointCount:3, routedMiles:22, anchorCount:2, quarantined:true})",
+                "Verify quarantine does NOT bypass the degenerate check"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "verdict == 'review'",
+                "failedCondition == 'degenerate'"
+              ],
+              "must_not_observe": [
+                "verdict == 'pass'",
+                "failedCondition == 'ratio'",
+                "failedCondition is empty or absent — the degenerate reason must be recorded even under quarantine"
               ]
             }
           }
@@ -670,7 +825,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
       "type": "acceptance_criterion",
       "primary": false,
       "description": "GIVEN a reconstruction with first attempt ratio=0.5 (fails gate), second attempt ratio=0.9 WHEN repair round runs with geocode log feedback and selects better attempt THEN second attempt is stored (ratio distance |log(0.9)|=0.11 is closer to 0 than |log(0.5)|=0.69)",
-      "verify": "pnpm test convex/__tests__/S4T1-repair-round-bounded.integration.test.ts",
+      "verify": "npx vitest run convex/__tests__/S4T1-repair-round-bounded.integration.test.ts",
       "maps_to_ac": null,
       "scenario": {
         "tier": "visible",
@@ -694,19 +849,21 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
               "actor": "api_client",
               "steps": [
                 "Seed route with description triggering reconstruction",
-                "Call reconstructForRoute (first attempt fails ratio)",
-                "Verify repair round runs with feedback",
-                "Verify second attempt is stored if better"
+                "Call production reconstructForRoute against the recorded routing cassette (attempt#1 50mi -> ratio 0.50 fails band)",
+                "Verify repair round runs with geocode log feedback",
+                "Verify attempt#2 (90mi -> ratio 0.90) is stored as the better attempt"
               ]
             },
             "end_state": {
               "must_observe": [
                 "routingCallCount == 2",
-                "stored ratio == better of two attempts"
+                "stored ratio == 0.90 (the better of the two attempts by |log(ratio)|)",
+                "routing calls originate from production `reconstructForRoute` (`convex/actions/curatedGeometryReconstruct.ts`), not a test-local simulation"
               ],
               "must_not_observe": [
                 "routingCallCount > 2",
-                "stored ratio == worse attempt"
+                "stored ratio == worse attempt (0.50)",
+                "routingCallCount == 0 — `reconstructForRoute` never invoked the real routing client"
               ]
             }
           },
@@ -715,9 +872,9 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
             "action": {
               "actor": "api_client",
               "steps": [
-                "Seed route where both attempts fail gate",
-                "Call reconstructForRoute",
-                "Verify final verdict is 'review'"
+                "Seed route where both recorded attempts fail the band (40mi -> 0.40, 45mi -> 0.45)",
+                "Call production reconstructForRoute",
+                "Verify the 2-attempt budget is exhausted and the final verdict is 'review'"
               ]
             },
             "end_state": {
@@ -728,7 +885,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
               ],
               "must_not_observe": [
                 "routingCallCount > 2",
-                "verdict == 'pass'"
+                "verdict == 'pass'",
+                "routingCallCount == 0 — no real routing attempt was made"
               ]
             }
           }
@@ -740,7 +898,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
       "type": "acceptance_criterion",
       "primary": false,
       "description": "GIVEN a curated_route_geometry row with verification from before gate hardening (missing region check) WHEN a re-evaluation sweep runs over pre-existing geometry THEN rows failing the enhanced gate are flipped to verdict='review'",
-      "verify": "pnpm test convex/__tests__/S4T1-preexisting-sweep.integration.test.ts",
+      "verify": "npx vitest run convex/__tests__/S4T1-preexisting-sweep.integration.test.ts",
       "maps_to_ac": null,
       "scenario": {
         "tier": "visible",
@@ -750,7 +908,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
           "would_fail_if": [
             "sweep only processes new geometry",
             "pre-existing verification objects are skipped",
-            "gate is bypassed for legacy rows"
+            "gate is bypassed for legacy rows",
+            "the sweep is a no-op that leaves pre-existing verification objects unchanged"
           ]
         },
         "evidence": {
@@ -763,7 +922,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
             "action": {
               "actor": "api_client",
               "steps": [
-                "Insert geometry row with verification.verdict='pass' but off-region anchors",
+                "Insert geometry row with verification.verdict='pass' but anchors ~211mi from centroid",
                 "Run pre-existing sweep",
                 "Query verification - should be flipped to 'review'"
               ]
@@ -774,7 +933,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
                 "verification.failedCondition == 'anchors'"
               ],
               "must_not_observe": [
-                "verification.verdict == 'pass'"
+                "verification.verdict == 'pass'",
+                "verification.failedCondition is empty or absent — the sweep flipped the verdict with no recorded reason"
               ]
             }
           }
@@ -785,71 +945,85 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
       "id": "TC-1",
       "type": "test_criterion",
       "description": "evaluateRatioBoundary passes for ratio 0.6–1.6",
-      "verify": "pnpm test convex/__tests__/S4T1-gate-ratio-band.integration.test.ts --grep 'TC-1'",
+      "verify": "npx vitest run convex/__tests__/S4T1-gate-ratio-band.integration.test.ts -t 'TC-1'",
       "maps_to_ac": "AC-1"
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "evaluateRatioBoundary fails for ratio below 0.6",
-      "verify": "pnpm test convex/__tests__/S4T1-gate-ratio-band.integration.test.ts --grep 'TC-2'",
+      "verify": "npx vitest run convex/__tests__/S4T1-gate-ratio-band.integration.test.ts -t 'TC-2'",
       "maps_to_ac": "AC-1"
     },
     {
       "id": "TC-3",
       "type": "test_criterion",
       "description": "evaluateRatioBoundary fails for ratio above 1.6",
-      "verify": "pnpm test convex/__tests__/S4T1-gate-ratio-band.integration.test.ts --grep 'TC-3'",
+      "verify": "npx vitest run convex/__tests__/S4T1-gate-ratio-band.integration.test.ts -t 'TC-3'",
       "maps_to_ac": "AC-1"
     },
     {
       "id": "TC-4",
       "type": "test_criterion",
       "description": "determineGateVerdict requires at least 2 anchors",
-      "verify": "pnpm test convex/__tests__/S4T1-gate-anchors-region.integration.test.ts --grep 'TC-4'",
+      "verify": "npx vitest run convex/__tests__/S4T1-gate-anchors-region.integration.test.ts -t 'TC-4'",
       "maps_to_ac": "AC-2"
     },
     {
       "id": "TC-5",
       "type": "test_criterion",
       "description": "isAnchorInRegion rejects points beyond 150mi",
-      "verify": "pnpm test convex/__tests__/S4T1-gate-anchors-region.integration.test.ts --grep 'TC-5'",
+      "verify": "npx vitest run convex/__tests__/S4T1-gate-anchors-region.integration.test.ts -t 'TC-5'",
       "maps_to_ac": "AC-2"
     },
     {
       "id": "TC-6",
       "type": "test_criterion",
       "description": "isDegenerate returns true for pointCount <= 4",
-      "verify": "pnpm test convex/__tests__/S4T1-gate-degenerate.integration.test.ts --grep 'TC-6'",
+      "verify": "npx vitest run convex/__tests__/S4T1-gate-degenerate.integration.test.ts -t 'TC-6'",
       "maps_to_ac": "AC-3"
     },
     {
       "id": "TC-7",
       "type": "test_criterion",
       "description": "isDegenerate returns true for pointCount < routedMiles",
-      "verify": "pnpm test convex/__tests__/S4T1-gate-degenerate.integration.test.ts --grep 'TC-7'",
+      "verify": "npx vitest run convex/__tests__/S4T1-gate-degenerate.integration.test.ts -t 'TC-7'",
       "maps_to_ac": "AC-3"
     },
     {
       "id": "TC-8",
       "type": "test_criterion",
-      "description": "Quarantined routes skip ratio check",
-      "verify": "pnpm test convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts --grep 'TC-8'",
+      "description": "Quarantined route with out-of-band ratio 0.22 returns verdict='pass' with ratio=0.22 recorded and ratioSkipped=true",
+      "verify": "npx vitest run convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts -t 'TC-8'",
       "maps_to_ac": "AC-4"
     },
     {
       "id": "TC-9",
       "type": "test_criterion",
       "description": "Repair round limits to 2 attempts total",
-      "verify": "pnpm test convex/__tests__/S4T1-repair-round-bounded.integration.test.ts --grep 'TC-9'",
+      "verify": "npx vitest run convex/__tests__/S4T1-repair-round-bounded.integration.test.ts -t 'TC-9'",
       "maps_to_ac": "AC-5"
     },
     {
       "id": "TC-10",
       "type": "test_criterion",
       "description": "Repair round keeps better attempt by ratio distance",
-      "verify": "pnpm test convex/__tests__/S4T1-repair-round-bounded.integration.test.ts --grep 'TC-10'",
+      "verify": "npx vitest run convex/__tests__/S4T1-repair-round-bounded.integration.test.ts -t 'TC-10'",
       "maps_to_ac": "AC-5"
+    },
+    {
+      "id": "TC-11",
+      "type": "test_criterion",
+      "description": "Unquarantined twin with the IDENTICAL real ratio 0.22 returns verdict='review' with failedCondition='ratio' (the discriminator: deleting the quarantine branch collapses TC-8 onto this)",
+      "verify": "npx vitest run convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts -t 'TC-11'",
+      "maps_to_ac": "AC-4"
+    },
+    {
+      "id": "TC-12",
+      "type": "test_criterion",
+      "description": "Quarantined route with 3-point geometry still returns verdict='review' with failedCondition='degenerate' (quarantine does not bypass degenerate/region checks)",
+      "verify": "npx vitest run convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts -t 'TC-12'",
+      "maps_to_ac": "AC-4"
     }
   ]
 }
