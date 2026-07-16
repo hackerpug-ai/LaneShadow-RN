@@ -76,12 +76,178 @@ function resetRoutingInvocationCount(): void {
   routingInvocationCount = 0
 }
 
+/**
+ * The ONLY real routing-client boundary, and therefore the ONLY place
+ * `routingInvocationCount` may ever be incremented. It delegates to
+ * `defaultRoute`, which is the sole caller of the Google Routes API v2.
+ *
+ * A counter incremented anywhere else would report provider traffic that never
+ * happened, making `routingCallCount == 2` satisfiable by a stub. Do not add
+ * increments outside this function.
+ */
 async function routeWithInvocationCount(
   coords: Array<{ lat: number; lng: number }>,
 ): Promise<RouteResult> {
   routingInvocationCount += 1
   return defaultRoute(coords)
 }
+
+// ---------------------------------------------------------------------------
+// Cassette transport (AC-5): record ONCE from the live providers, replay
+// byte-exact and offline.
+//
+// Recording wraps `globalThis.fetch` for the duration of one reconstruction, so
+// every external exchange — Anthropic (anchor extraction), Google Geocoding and
+// Google Routes — is captured verbatim, in call order. Replay returns those
+// recorded responses in the same order, which makes the whole pipeline
+// deterministic without any code re-implementing what production does.
+//
+// Credentials are never captured: the `key` query parameter is redacted and
+// request headers (which carry X-Goog-Api-Key / x-api-key) are not recorded.
+// ---------------------------------------------------------------------------
+
+export type CassetteExchange = {
+  seq: number
+  provider: 'google_routes' | 'google_geocoding' | 'anthropic' | 'other'
+  url: string
+  method: string
+  requestBody?: string
+  status: number
+  responseBody: string
+}
+
+export type Cassette = { exchanges: CassetteExchange[] }
+
+/**
+ * What the cassette actually served during a run. `routingConsumed` is the
+ * number of Google Routes exchanges genuinely replayed, which is the runtime
+ * counterpart to `routingCallCount`: if a counter were incremented without a
+ * provider call, the two would disagree.
+ */
+export type CassettePlayback = {
+  totalConsumed: number
+  routingConsumed: number
+  geocodingConsumed: number
+  anthropicConsumed: number
+}
+
+type ActiveCassette = {
+  mode: 'record' | 'replay'
+  exchanges: CassetteExchange[]
+  cursor: number
+  /** Exchanges actually served, by provider — evidence of real replayed traffic. */
+  consumed: CassetteExchange[]
+}
+
+function summarizePlayback(cassette: ActiveCassette): CassettePlayback {
+  const served = cassette.mode === 'replay' ? cassette.consumed : cassette.exchanges
+  const count = (provider: CassetteExchange['provider']) =>
+    served.filter((e) => e.provider === provider).length
+  return {
+    totalConsumed: served.length,
+    routingConsumed: count('google_routes'),
+    geocodingConsumed: count('google_geocoding'),
+    anthropicConsumed: count('anthropic'),
+  }
+}
+
+function classifyProvider(url: string): CassetteExchange['provider'] {
+  if (url.includes('routes.googleapis.com')) return 'google_routes'
+  if (url.includes('maps.googleapis.com/maps/api/geocode')) return 'google_geocoding'
+  if (url.includes('api.anthropic.com')) return 'anthropic'
+  return 'other'
+}
+
+/** Strip provider credentials so a committed cassette carries no secrets. */
+function redactUrl(url: string): string {
+  try {
+    const parsed = new URL(url)
+    if (parsed.searchParams.has('key')) parsed.searchParams.set('key', 'REDACTED')
+    return parsed.toString()
+  } catch {
+    return url
+  }
+}
+
+function requestUrlOf(input: RequestInfo | URL): string {
+  if (typeof input === 'string') return input
+  if (input instanceof URL) return input.toString()
+  return input.url
+}
+
+function requestMethodOf(input: RequestInfo | URL, init?: RequestInit): string {
+  if (init?.method) return init.method
+  if (typeof input !== 'string' && !(input instanceof URL)) return input.method
+  return 'GET'
+}
+
+async function withCassette<T>(cassette: ActiveCassette | null, fn: () => Promise<T>): Promise<T> {
+  if (!cassette) return fn()
+
+  const realFetch = globalThis.fetch
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = requestUrlOf(input)
+    const redacted = redactUrl(url)
+
+    if (cassette.mode === 'replay') {
+      const next = cassette.exchanges[cassette.cursor]
+      if (!next) {
+        throw new Error(
+          `Cassette exhausted at call #${cassette.cursor + 1} (${redacted}): the recording carries no further exchanges. A call beyond the recording means the pipeline exceeded its recorded budget.`,
+        )
+      }
+      if (next.url !== redacted) {
+        throw new Error(
+          `Cassette drift at call #${cassette.cursor + 1}: recorded ${next.url} but the pipeline requested ${redacted}. Replay is byte-exact; re-record rather than edit.`,
+        )
+      }
+      cassette.cursor += 1
+      cassette.consumed.push(next)
+      return new Response(next.responseBody, {
+        status: next.status,
+        headers: { 'content-type': 'application/json' },
+      })
+    }
+
+    const res = await realFetch(input as RequestInfo, init)
+    const responseBody = await res.clone().text()
+    cassette.exchanges.push({
+      seq: cassette.exchanges.length + 1,
+      provider: classifyProvider(url),
+      url: redacted,
+      method: requestMethodOf(input, init),
+      requestBody: typeof init?.body === 'string' ? init.body : undefined,
+      status: res.status,
+      responseBody,
+    })
+    return res
+  }) as typeof globalThis.fetch
+
+  try {
+    return await fn()
+  } finally {
+    globalThis.fetch = realFetch
+  }
+}
+
+const cassetteValidator = v.object({
+  exchanges: v.array(
+    v.object({
+      seq: v.number(),
+      provider: v.union(
+        v.literal('google_routes'),
+        v.literal('google_geocoding'),
+        v.literal('anthropic'),
+        v.literal('other'),
+      ),
+      url: v.string(),
+      method: v.string(),
+      requestBody: v.optional(v.string()),
+      status: v.number(),
+      responseBody: v.string(),
+    }),
+  ),
+})
 
 function buildCannedPolyline(pointCount: number, centroid: { lat: number; lng: number }): string {
   const points: [number, number][] = []
@@ -335,8 +501,19 @@ async function evaluateRoutedAnchors(
 }
 
 export const reconstructForRoute = internalAction({
-  args: { routeId: v.string() },
-  handler: async (ctx, { routeId }): Promise<ReconstructPersistResult> => {
+  args: {
+    routeId: v.string(),
+    /** Replay a previously recorded provider exchange log (AC-5). */
+    cassette: v.optional(cassetteValidator),
+    /** Capture the live provider exchanges and return them for commit (AC-5). */
+    recordCassette: v.optional(v.boolean()),
+  },
+  handler: async (
+    ctx,
+    { routeId, cassette, recordCassette },
+  ): Promise<
+    ReconstructPersistResult & { recordedCassette?: Cassette; cassettePlayback?: CassettePlayback }
+  > => {
     resetRoutingInvocationCount()
     const route = await loadRouteForReconstruct(ctx, routeId)
     if (!route) throw new Error(`Route not found: ${routeId}`)
@@ -395,9 +572,44 @@ export const reconstructForRoute = internalAction({
       return { ...routed, geocodeLog }
     }
 
-    let bestAttempt = await runPipelineAttempt()
+    // Only the provider pipeline runs inside the cassette window — Convex's own
+    // ctx.runQuery/runMutation traffic must never land in a provider recording.
+    const active: ActiveCassette | null = cassette
+      ? { mode: 'replay', exchanges: cassette.exchanges, cursor: 0, consumed: [] }
+      : recordCassette
+        ? { mode: 'record', exchanges: [], cursor: 0, consumed: [] }
+        : null
+
+    const bestAttempt = await withCassette(active, async () => {
+      let attempt = await runPipelineAttempt()
+      if (!attempt) return null
+
+      // VER-02 repair round: bounded to ONE repair (1 initial + 1 repair = 2
+      // routing calls max), re-prompted with the geocode log as feedback.
+      if (attempt.gateResult.verdict !== 'pass') {
+        const feedback = `Routed length came out ${attempt.routedMiles.toFixed(1)} miles but the ride is claimed to be ${route.lengthMiles} miles.
+Geocoding results were:
+${attempt.geocodeLog.join('\n')}`
+        const repairAttempt = await runPipelineAttempt(feedback)
+        if (repairAttempt) {
+          const aRatio = attempt.ratio ?? 100
+          const bRatio = repairAttempt.ratio ?? 100
+          const aScore = Math.abs(Math.log(aRatio))
+          const bScore = Math.abs(Math.log(bRatio))
+          // Keep the better attempt by ratio distance |log(ratio)|.
+          if (repairAttempt.gateResult.verdict === 'pass' || bScore < aScore) {
+            attempt = repairAttempt
+          }
+        }
+      }
+      return attempt
+    })
+
+    const recordedCassette = active?.mode === 'record' ? { exchanges: active.exchanges } : undefined
+    const cassettePlayback = active ? summarizePlayback(active) : undefined
+
     if (!bestAttempt) {
-      return persistGateResult(ctx, route, {
+      const persisted = await persistGateResult(ctx, route, {
         gateResult: {
           verdict: 'review',
           failedCondition: 'anchors',
@@ -411,25 +623,10 @@ export const reconstructForRoute = internalAction({
         ratio: null,
         claimedMiles,
       })
+      return { ...persisted, recordedCassette, cassettePlayback }
     }
 
-    if (bestAttempt.gateResult.verdict !== 'pass') {
-      const feedback = `Routed length came out ${bestAttempt.routedMiles.toFixed(1)} miles but the ride is claimed to be ${route.lengthMiles} miles.
-Geocoding results were:
-${bestAttempt.geocodeLog.join('\n')}`
-      const repairAttempt = await runPipelineAttempt(feedback)
-      if (repairAttempt) {
-        const aRatio = bestAttempt.ratio ?? 100
-        const bRatio = repairAttempt.ratio ?? 100
-        const aScore = Math.abs(Math.log(aRatio))
-        const bScore = Math.abs(Math.log(bRatio))
-        if (repairAttempt.gateResult.verdict === 'pass' || bScore < aScore) {
-          bestAttempt = repairAttempt
-        }
-      }
-    }
-
-    return persistGateResult(ctx, route, {
+    const persisted = await persistGateResult(ctx, route, {
       gateResult: bestAttempt.gateResult,
       geocodedAnchors: bestAttempt.geocodedAnchors,
       encodedPolyline: bestAttempt.encodedPolyline,
@@ -438,6 +635,7 @@ ${bestAttempt.geocodeLog.join('\n')}`
       ratio: bestAttempt.ratio,
       claimedMiles,
     })
+    return { ...persisted, recordedCassette, cassettePlayback }
   },
 })
 
@@ -594,116 +792,5 @@ export const reconstructForRouteWithMixedAnchors = internalAction({
       ratio: routed.ratio,
       claimedMiles: route.lengthMiles,
     })
-  },
-})
-
-/**
- * AC-5 (VER-02): Bounded repair round with simulated fixed geometry.
- *
- * Exercises the same repair-round logic as `reconstructForRoute` but with
- * deterministic fixed geometries (no external LLM/Google API calls). This allows
- * integration tests to verify:
- * - routingCallCount is bounded to exactly 2 attempts max
- * - The better attempt is kept by ratio distance |log(ratio)|
- * - Both attempts failing → verdict='review'
- *
- * The repair-round budget is enforced: 1 initial attempt + 1 repair attempt = 2 total.
- */
-export const reconstructForRouteWithSimulatedRepair = internalAction({
-  args: {
-    routeId: v.string(),
-    firstAttemptRoutedMiles: v.number(),
-    secondAttemptRoutedMiles: v.number(),
-    claimedMiles: v.number(),
-    pointCount: v.optional(v.number()),
-  },
-  handler: async (
-    ctx,
-    args,
-  ): Promise<
-    ReconstructPersistResult & {
-      firstAttemptRatio: number
-      secondAttemptRatio: number | null
-      storedRatio: number
-    }
-  > => {
-    resetRoutingInvocationCount()
-    const route = await loadRouteForReconstruct(ctx, args.routeId)
-    if (!route) throw new Error(`Route not found: ${args.routeId}`)
-
-    const centroid = { lat: route.centroidLat, lng: route.centroidLng }
-    const pc = args.pointCount ?? 50
-    const anchors = makeInRegionAnchors(2, centroid)
-
-    type SimAttempt = {
-      ratio: number
-      routedMiles: number
-      gateResult: ReturnType<typeof determineGateVerdict>
-      encodedPolyline: string
-      geocodedAnchors: GeocodedAnchor[]
-    }
-
-    // First attempt (simulated routing call #1)
-    routingInvocationCount += 1
-    const firstRatio = args.firstAttemptRoutedMiles / args.claimedMiles
-    const firstAttempt: SimAttempt = {
-      ratio: Math.round(firstRatio * 100) / 100,
-      routedMiles: args.firstAttemptRoutedMiles,
-      gateResult: determineGateVerdict({
-        ratio: firstRatio,
-        pointCount: pc,
-        routedMiles: args.firstAttemptRoutedMiles,
-        anchorCount: 2,
-      }),
-      encodedPolyline: buildCannedPolyline(pc, centroid),
-      geocodedAnchors: anchors,
-    }
-
-    let bestAttempt = firstAttempt
-    let secondAttemptRatio: number | null = null
-
-    // Repair round: bounded to 1 repair attempt (2 total max)
-    if (firstAttempt.gateResult.verdict !== 'pass') {
-      // Simulated routing call #2 (repair)
-      routingInvocationCount += 1
-      const secondRatio = args.secondAttemptRoutedMiles / args.claimedMiles
-      secondAttemptRatio = Math.round(secondRatio * 100) / 100
-      const secondAttempt: SimAttempt = {
-        ratio: secondAttemptRatio,
-        routedMiles: args.secondAttemptRoutedMiles,
-        gateResult: determineGateVerdict({
-          ratio: secondRatio,
-          pointCount: pc,
-          routedMiles: args.secondAttemptRoutedMiles,
-          anchorCount: 2,
-        }),
-        encodedPolyline: buildCannedPolyline(pc, centroid),
-        geocodedAnchors: anchors,
-      }
-
-      // Keep better by ratio distance |log(ratio)|
-      const aScore = Math.abs(Math.log(firstAttempt.ratio))
-      const bScore = Math.abs(Math.log(secondAttempt.ratio))
-      if (secondAttempt.gateResult.verdict === 'pass' || bScore < aScore) {
-        bestAttempt = secondAttempt
-      }
-    }
-
-    const result = await persistGateResult(ctx, route, {
-      gateResult: bestAttempt.gateResult,
-      geocodedAnchors: bestAttempt.geocodedAnchors,
-      encodedPolyline: bestAttempt.encodedPolyline,
-      pointCount: pc,
-      routedMiles: bestAttempt.routedMiles,
-      ratio: bestAttempt.ratio,
-      claimedMiles: args.claimedMiles,
-    })
-
-    return {
-      ...result,
-      firstAttemptRatio: firstAttempt.ratio,
-      secondAttemptRatio,
-      storedRatio: bestAttempt.ratio,
-    }
   },
 })

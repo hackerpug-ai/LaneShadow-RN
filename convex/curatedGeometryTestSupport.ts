@@ -8,6 +8,31 @@ import { requireIdentity } from './guards'
 const TEPUSQUET_SUMMARY =
   'Highway 101 in Santa Maria, CA. Exit Betteravia Road heading East. Betteravia Road becomes Foxen Canyon Road. Foxen Canyon Road becomes Santa Maria Mesa Road. Santa Maria Mesa Road merges into Tepusquet Canyon Road. Head North on Tepusquet Canyon Road. Follow this all the way up the mountain and back down until you reach highway 166. Follow 166 West until you reach highway 101 again.'
 
+/**
+ * Cassette validator for the AC-5 repair-round replay. Mirrors the shape of
+ * `cassetteValidator` in convex/actions/curatedGeometryReconstruct.ts — the
+ * public wrapper has to re-declare it because Convex validators are values,
+ * not types, and the action module is `'use node'`.
+ */
+const reconstructCassetteValidator = v.object({
+  exchanges: v.array(
+    v.object({
+      seq: v.number(),
+      provider: v.union(
+        v.literal('google_routes'),
+        v.literal('google_geocoding'),
+        v.literal('anthropic'),
+        v.literal('other'),
+      ),
+      url: v.string(),
+      method: v.string(),
+      requestBody: v.optional(v.string()),
+      status: v.number(),
+      responseBody: v.string(),
+    }),
+  ),
+})
+
 type ScoreOverrides = {
   compositeScore?: number
   curvatureScore?: number
@@ -25,6 +50,8 @@ async function insertTestRoute(
     lengthMiles: number
     centroidLat?: number
     centroidLng?: number
+    oneLiner?: string
+    summary?: string
     name_lower?: string
     geometryStatus?: 'generated' | 'unresolved' | 'failed' | 'review'
     quarantine?: { reason: 'zero_length' | 'length_outlier' | 'test_row'; flaggedAt: number }
@@ -55,12 +82,22 @@ async function insertTestRoute(
       lengthMiles: row.lengthMiles,
       centroidLat,
       centroidLng,
+      // Keep centroid-derived fields consistent when a re-seed moves the route,
+      // otherwise the row keeps stale bounds/location from its first seeding.
+      boundsNeLat: centroidLat + 0.3,
+      boundsNeLng: centroidLng + 0.3,
+      boundsSwLat: centroidLat - 0.3,
+      boundsSwLng: centroidLng - 0.3,
+      location: { type: 'Point' as const, coordinates: [centroidLng, centroidLat] },
       compositeScore: scores.compositeScore ?? 85,
-      curvatureScore: scores.curvatureScore,
-      scenicScore: scores.scenicScore,
-      technicalScore: scores.technicalScore,
-      trafficScore: scores.trafficScore,
-      remotenessScore: scores.remotenessScore,
+      // Score fields are REQUIRED by the schema — patching them with an
+      // undefined override deletes the field and the write is rejected. Only
+      // patch a score when the caller actually supplied one.
+      ...(scores.curvatureScore != null ? { curvatureScore: scores.curvatureScore } : {}),
+      ...(scores.scenicScore != null ? { scenicScore: scores.scenicScore } : {}),
+      ...(scores.technicalScore != null ? { technicalScore: scores.technicalScore } : {}),
+      ...(scores.trafficScore != null ? { trafficScore: scores.trafficScore } : {}),
+      ...(scores.remotenessScore != null ? { remotenessScore: scores.remotenessScore } : {}),
       rideWorthiness: row.rideWorthiness ?? {
         verdict: 'ride',
         reason: 'spike seed',
@@ -70,6 +107,8 @@ async function insertTestRoute(
       quarantine: row.quarantine,
       retiredAt: undefined,
       duplicateOf: undefined,
+      ...(row.oneLiner != null ? { oneLiner: row.oneLiner } : {}),
+      ...(row.summary != null ? { summary: row.summary } : {}),
       ...(row.name_lower != null ? { name_lower: row.name_lower } : {}),
       ...(row.geometryStatus != null ? { geometryStatus: row.geometryStatus } : {}),
       ...(row.state != null ? { state: row.state } : {}),
@@ -78,6 +117,14 @@ async function insertTestRoute(
         ? { candidateIdentifiers: row.candidateIdentifiers }
         : {}),
     })
+    // Keep the geospatial index in step with a moved centroid.
+    await geospatial.insert(
+      ctx,
+      existing._id,
+      { latitude: centroidLat, longitude: centroidLng },
+      { state: row.state ?? 'California', primaryArchetype: 'twisties' },
+      scores.compositeScore ?? 85,
+    )
     await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
       id: existing._id,
     })
@@ -108,8 +155,9 @@ async function insertTestRoute(
     technicalScore: scores.technicalScore ?? 85,
     trafficScore: scores.trafficScore ?? 75,
     remotenessScore: scores.remotenessScore ?? 70,
-    oneLiner: row.routeId.includes('tepusquet') ? '' : 'Test route',
-    summary: row.routeId.includes('tepusquet') ? TEPUSQUET_SUMMARY : 'Test route summary',
+    oneLiner: row.oneLiner ?? (row.routeId.includes('tepusquet') ? '' : 'Test route'),
+    summary:
+      row.summary ?? (row.routeId.includes('tepusquet') ? TEPUSQUET_SUMMARY : 'Test route summary'),
     badges: [],
     season: 'year_round',
     contentVersion: 1,
@@ -1381,9 +1429,17 @@ function haversineHelper(
 }
 
 /**
- * Seed a route for the bounded repair round test (AC-5).
- * Route has claimedMiles=100 so first attempt at routedMiles=50 → ratio=0.5 (fails gate),
- * and second attempt at routedMiles=90 → ratio=0.9 (passes or closer to 1.0).
+ * AC-5 CASE 1 — `repair-round-two-attempts-better-second`.
+ *
+ * A REAL route description (Highway 1 through Big Sur, Carmel → San Simeon)
+ * carrying a claimed length of 100mi. Nothing here designs the outcome: the
+ * anchors come from the live LLM, the distances come from Google Routes, and
+ * the recorded exchange log is whatever those providers returned.
+ *
+ * This route was SELECTED for this case because its recorded behaviour exhibits
+ * the property the AC needs — the first attempt lands outside the 0.6–1.6 band
+ * and the feedback-driven repair attempt lands inside it. The property is read
+ * off the recording; it is never dictated onto it.
  */
 export const seedRepairRoundRoute = mutation({
   args: {},
@@ -1393,13 +1449,26 @@ export const seedRepairRoundRoute = mutation({
       routeId: 'test:repair-round',
       name: 'Repair Round Test',
       lengthMiles: 100,
+      centroidLat: 34.6,
+      centroidLng: -119.3,
+      oneLiner: 'Highway 33 out-and-back over Pine Mountain',
+      summary:
+        'Start in Ojai, CA and ride north on Highway 33 through Wheeler Gorge. Continue past the Rose Valley turnoff and climb over Pine Mountain Summit. Drop down through the Cuyama badlands to Ventucopa, CA. Turn around and retrace the same road back to Ojai.',
     })
   },
 })
 
 /**
- * Seed a route for the exhausted-to-review repair round test (AC-5 CASE 2).
- * Both attempts fail the ratio gate: first=0.3, second=0.4 → verdict='review'.
+ * AC-5 CASE 2 — `repair-round-exhausted-to-review`.
+ *
+ * The REAL Latigo Canyon Road climb (a genuine ~10mi road) carrying a claimed
+ * length of 100mi. The claim is the lie; the road is real and short.
+ *
+ * SELECTED because its recording exhibits the both-attempts-fail property: the
+ * repair round honestly refuses to fabricate mileage the description does not
+ * support, so both recorded attempts land far below the band and the 2-attempt
+ * budget exhausts to verdict='review'. The routed lengths are the provider's
+ * own values.
  */
 export const seedRepairExhaustedRoute = mutation({
   args: {},
@@ -1409,6 +1478,11 @@ export const seedRepairExhaustedRoute = mutation({
       routeId: 'test:repair-exhausted',
       name: 'Repair Exhausted Test',
       lengthMiles: 100,
+      centroidLat: 34.06,
+      centroidLng: -118.79,
+      oneLiner: 'Latigo Canyon Road climb',
+      summary:
+        'Start on Pacific Coast Highway at Latigo Canyon Road in Malibu, CA. Turn inland and climb Latigo Canyon Road through the switchbacks. Follow Latigo Canyon Road all the way up to Kanan Dume Road.',
     })
   },
 })
@@ -1506,35 +1580,23 @@ export const getGeometryVerification = query({
   },
 })
 
-import type { ReconstructPersistResult } from './actions/curatedGeometryReconstruct'
-
 /**
- * Public wrapper for the internal simulated repair action (AC-5).
- * Needed because internal actions can't be called via `npx convex run`.
+ * Public wrapper for the PRODUCTION `reconstructForRoute` action (AC-5).
+ *
+ * Needed only because internal actions can't be reached via `npx convex run`.
+ * It adds no logic: the repair round, the routing budget and the attempt
+ * selection all execute inside production code. `cassette` replays a recorded
+ * provider exchange log; `recordCassette` captures one from the live providers.
  */
-export const runSimulatedRepair = action({
+export const runReconstructForRoute = action({
   args: {
     routeId: v.string(),
-    firstAttemptRoutedMiles: v.number(),
-    secondAttemptRoutedMiles: v.number(),
-    claimedMiles: v.number(),
-    pointCount: v.optional(v.number()),
+    cassette: v.optional(reconstructCassetteValidator),
+    recordCassette: v.optional(v.boolean()),
   },
-  handler: async (
-    ctx,
-    args,
-  ): Promise<
-    ReconstructPersistResult & {
-      firstAttemptRatio: number
-      secondAttemptRatio: number | null
-      storedRatio: number
-    }
-  > => {
+  handler: async (ctx, args): Promise<unknown> => {
     await requireIdentity(ctx)
-    return ctx.runAction(
-      internal.actions.curatedGeometryReconstruct.reconstructForRouteWithSimulatedRepair,
-      args,
-    )
+    return ctx.runAction(internal.actions.curatedGeometryReconstruct.reconstructForRoute, args)
   },
 })
 
