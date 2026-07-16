@@ -202,6 +202,62 @@ export const seedQuarantinedLengthRow = mutation({
   },
 })
 
+/**
+ * AC-4 CASE A: quarantined route carrying a REAL out-of-band ratio.
+ *
+ * claimed 100mi vs routed 22mi → real ratio 0.22 (far outside the 0.6–1.6 band).
+ * The ratio is computed and non-null; the quarantine flag is what skips the band
+ * check. Twinned with `seedUnquarantinedOutOfBandRatioRow` below — the two rows
+ * are IDENTICAL except for the quarantine flag, which is the only variable.
+ */
+export const seedQuarantinedOutOfBandRatioRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:quarantined-ratio-022',
+      name: 'Quarantined ratio 0.22',
+      lengthMiles: 100,
+      quarantine: { reason: 'length_outlier', flaggedAt: Date.now() },
+    })
+  },
+})
+
+/**
+ * AC-4 CASE B: the discriminating twin — IDENTICAL geometry and claimed length
+ * to `seedQuarantinedOutOfBandRatioRow` (real ratio 0.22) but with NO quarantine
+ * flag. Deleting the quarantine branch collapses CASE A onto this row.
+ */
+export const seedUnquarantinedOutOfBandRatioRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:unquarantined-ratio-022',
+      name: 'Unquarantined ratio 0.22',
+      lengthMiles: 100,
+      // quarantine intentionally omitted — this is the discriminator
+    })
+  },
+})
+
+/**
+ * AC-4 CASE C: quarantined route with 3-point geometry — proves quarantine does
+ * NOT bypass the degenerate check.
+ */
+export const seedQuarantinedDegenerateRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:quarantined-degenerate-3pt',
+      name: 'Quarantined degenerate 3pt',
+      lengthMiles: 100,
+      quarantine: { reason: 'length_outlier', flaggedAt: Date.now() },
+    })
+  },
+})
+
 export const seedAnchorTestRoutes = mutation({
   args: {},
   handler: async (ctx) => {
@@ -216,6 +272,15 @@ export const seedAnchorTestRoutes = mutation({
         routeId: 'test:mixed-anchors',
         name: 'Mixed anchors',
         lengthMiles: 41,
+      }),
+      // AC-2 CASE 1 fixture `anchors-sufficient-in-region`: 2 anchors within
+      // 150mi of centroid (34.95, -120.42), claimed 41mi routed 41mi → ratio 1.0.
+      await insertTestRoute(ctx, {
+        routeId: 'test:anchors-sufficient',
+        name: 'Sufficient Anchors',
+        lengthMiles: 41,
+        centroidLat: 34.95,
+        centroidLng: -120.42,
       }),
     ]
   },
@@ -399,6 +464,10 @@ export const teardownAllTestRoutes = mutation({
       'test:quarantined-null-length',
       'test:single-anchor',
       'test:mixed-anchors',
+      'test:anchors-sufficient',
+      'test:quarantined-ratio-022',
+      'test:unquarantined-ratio-022',
+      'test:quarantined-degenerate-3pt',
     ]
 
     let deleted = 0

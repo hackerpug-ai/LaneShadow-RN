@@ -66,35 +66,60 @@ describe('AC-2: Gate requires ≥2 anchors within 150mi', () => {
     runConvexFn('curatedGeometryTestSupport:teardownAllTestRoutes', {}, { identity: true })
   })
 
-  // CASE 1: sufficient anchors (2 in region) → verdict pass
+  // CASE 1: sufficient anchors (2 in region) → verdict pass, ratio 1.0
+  // start_ref: `anchors-sufficient-in-region` (test:anchors-sufficient, claimed 41mi)
   describe('CASE 1: 2 in-region anchors → pass', () => {
     let verificationData: any
+    let actionResult: any
 
     beforeAll(() => {
-      runConvexFn(
+      const reconstruct = runConvexFn(
         'curatedGeometryReconstruct:reconstructForRouteWithFixedGeometry',
         {
-          routeId: 'test:mixed-anchors',
-          routedMiles: 41,
+          routeId: 'test:anchors-sufficient',
+          routedMiles: 41, // against the row's claimed 41mi → real ratio 1.0
           anchorCount: 2,
           pointCount: 50,
         },
         { identity: true },
       )
+      // A failed reconstruct must not be silently swallowed into a null verdict.
+      expect(reconstruct.ok, `reconstruct failed: ${reconstruct.stderr}`).toBe(true)
+      actionResult = JSON.parse(reconstruct.stdout)
+
       const verify = runConvexFn(
         'curatedGeometryReconstruct:getVerificationForRoute',
-        { routeId: 'test:mixed-anchors' },
+        { routeId: 'test:anchors-sufficient' },
         { identity: true },
       )
-      if (verify.ok) verificationData = JSON.parse(verify.stdout)
+      expect(verify.ok, `verify failed: ${verify.stderr}`).toBe(true)
+      verificationData = JSON.parse(verify.stdout)
     })
 
     it('MUST_OBSERVE: verdict == "pass"', () => {
       expect(verificationData?.verdict).toBe('pass')
     })
 
+    // Pins `ratio` provenance: the verdict must echo the SEEDED in-band ratio.
+    // A stub hardcoding `ratio: 0.22` to satisfy AC-4 cannot also satisfy this.
+    it('MUST_OBSERVE: ratio == 1.0 (the seeded in-band ratio, echoed on the verdict)', () => {
+      expect(verificationData?.ratio).toBeCloseTo(1.0, 2)
+    })
+
+    it('MUST_OBSERVE: ratioSkipped == false (unquarantined row — band check really ran)', () => {
+      expect(actionResult?.ratioSkipped).toBe(false)
+    })
+
+    it('MUST_NOT_OBSERVE: ratio == 0.22 or any value other than the seeded 1.0', () => {
+      expect(verificationData?.ratio).not.toBeCloseTo(0.22, 2)
+    })
+
     it('MUST_NOT_OBSERVE: failedCondition == "anchors"', () => {
       expect(verificationData?.failedCondition).not.toBe('anchors')
+    })
+
+    it('MUST_NOT_OBSERVE: verdict is empty or absent', () => {
+      expect(verificationData?.verdict).toBeTruthy()
     })
   })
 

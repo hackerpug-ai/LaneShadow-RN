@@ -70,35 +70,61 @@ export function isAnchorInRegion(
   return haversineDistance(anchor, centroid) <= 150.0
 }
 
+/**
+ * The structured gate verdict.
+ *
+ * `ratio` carries the REAL computed ratio on every path (never dropped, never
+ * nulled by quarantine) and `ratioSkipped` records whether the band check was
+ * bypassed by the quarantine branch. Together they make the quarantine skip
+ * OBSERVABLE: `verdict=='pass'` co-occurring with an out-of-band `ratio` is
+ * reachable ONLY through the quarantine branch, so deleting that branch is
+ * detectable from outside the module.
+ *
+ * `ratio` is null ONLY when the claimed length is genuinely unknown — a distinct
+ * code path from quarantine, never a substitute for it.
+ */
+export type GateVerdict = {
+  verdict: 'pass' | 'review'
+  failedCondition?: 'ratio' | 'anchors' | 'degenerate'
+  ratio: number | null
+  ratioSkipped: boolean
+}
+
+/** Normalize an incoming claimed-length ratio to the verdict's `number | null`. */
+function normalizeRatio(ratio: number | undefined | null): number | null {
+  return ratio === undefined || ratio === null ? null : ratio
+}
+
 export function determineGateVerdict(args: {
   ratio: number | undefined | null
   pointCount: number
   routedMiles: number
   anchorCount: number
   quarantine?: boolean
-}): {
-  verdict: 'pass' | 'review'
-  failedCondition?: 'ratio' | 'anchors' | 'degenerate'
-} {
+}): GateVerdict {
+  const ratio = normalizeRatio(args.ratio)
+
   if (args.anchorCount < 2) {
-    return { verdict: 'review', failedCondition: 'anchors' }
+    return { verdict: 'review', failedCondition: 'anchors', ratio, ratioSkipped: false }
   }
 
+  // Quarantine must NEVER short-circuit the degenerate check.
   if (isDegenerate({ pointCount: args.pointCount, routedMiles: args.routedMiles })) {
-    return { verdict: 'review', failedCondition: 'degenerate' }
+    return { verdict: 'review', failedCondition: 'degenerate', ratio, ratioSkipped: false }
   }
 
-  // AC-4: Quarantine flag skips ratio check — routed length becomes truth
+  // AC-4: Quarantine flag skips the ratio check — routed length becomes truth.
+  // The real computed ratio is still recorded so the skip stays observable.
   if (args.quarantine) {
-    return { verdict: 'pass' }
+    return { verdict: 'pass', ratio, ratioSkipped: true }
   }
 
   const ratioResult = evaluateRatioBoundary(args.ratio)
   if (!ratioResult.passes) {
-    return { verdict: 'review', failedCondition: 'ratio' }
+    return { verdict: 'review', failedCondition: 'ratio', ratio, ratioSkipped: false }
   }
 
-  return { verdict: 'pass' }
+  return { verdict: 'pass', ratio, ratioSkipped: false }
 }
 
 /**
@@ -116,29 +142,28 @@ export function reevaluateExistingGeometry(args: {
   anchorCount: number
   anchors: Array<{ distanceFromCentroid: number }>
   quarantine: boolean
-}): {
-  verdict: 'pass' | 'review'
-  failedCondition?: 'ratio' | 'anchors' | 'degenerate'
-} {
+}): GateVerdict {
+  const ratio = normalizeRatio(args.ratio)
+
   // Enhanced region check: count only in-region anchors (≤150mi from centroid)
   const inRegionCount = args.anchors.filter((a) => a.distanceFromCentroid <= 150).length
   if (inRegionCount < 2) {
-    return { verdict: 'review', failedCondition: 'anchors' }
+    return { verdict: 'review', failedCondition: 'anchors', ratio, ratioSkipped: false }
   }
 
   if (isDegenerate({ pointCount: args.pointCount, routedMiles: args.routedMiles })) {
-    return { verdict: 'review', failedCondition: 'degenerate' }
+    return { verdict: 'review', failedCondition: 'degenerate', ratio, ratioSkipped: false }
   }
 
-  // AC-4: Quarantine flag skips ratio check
+  // AC-4: Quarantine flag skips the ratio check — the real ratio is still recorded.
   if (args.quarantine) {
-    return { verdict: 'pass' }
+    return { verdict: 'pass', ratio, ratioSkipped: true }
   }
 
   const ratioResult = evaluateRatioBoundary(args.ratio)
   if (!ratioResult.passes) {
-    return { verdict: 'review', failedCondition: 'ratio' }
+    return { verdict: 'review', failedCondition: 'ratio', ratio, ratioSkipped: false }
   }
 
-  return { verdict: 'pass' }
+  return { verdict: 'pass', ratio, ratioSkipped: false }
 }

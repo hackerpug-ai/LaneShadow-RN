@@ -53,6 +53,7 @@ export type ReconstructPersistResult = {
   pointCount: number
   degenerate: boolean
   ratio: number | null
+  ratioSkipped: boolean
   claimedMiles: number | null
   routedMiles: number
   riderReady: boolean
@@ -274,6 +275,12 @@ async function persistGateResult(
     pointCount: verification.pointCount,
     degenerate: verification.degenerate,
     ratio: verification.ratio,
+    // `ratioSkipped` is carried on the action result rather than the persisted
+    // verification: the stored shape is defined by `curatedRouteGeometryValidator`
+    // in shared/models/curated-routes.ts, which is outside this task's write scope.
+    // The db-observable half of the quarantine skip is `verdict=='pass'` co-occurring
+    // with an out-of-band `ratio`, which the stored row already carries.
+    ratioSkipped: args.gateResult.ratioSkipped,
     claimedMiles: verification.claimedMiles,
     routedMiles: verification.routedMiles,
     riderReady: stored?.riderReady ?? false,
@@ -294,6 +301,7 @@ function thinAnchorsForRouting(anchors: GeocodedAnchor[], maxPoints = 8): Geocod
 async function evaluateRoutedAnchors(
   geocodedAnchors: GeocodedAnchor[],
   claimedMiles: number | null,
+  quarantined: boolean,
 ): Promise<{
   gateResult: ReturnType<typeof determineGateVerdict>
   geocodedAnchors: GeocodedAnchor[]
@@ -312,7 +320,9 @@ async function evaluateRoutedAnchors(
     pointCount: decodedPoints.length,
     routedMiles,
     anchorCount: geocodedAnchors.length,
-    quarantine: claimedMiles == null,
+    // Quarantine is a DISTINCT input from an unknown claimed length: a quarantined
+    // route still computes its real ratio, and the flag alone skips the band check.
+    quarantine: quarantined,
   })
   return {
     gateResult,
@@ -332,7 +342,12 @@ export const reconstructForRoute = internalAction({
     if (!route) throw new Error(`Route not found: ${routeId}`)
 
     const centroid = { lat: route.centroidLat, lng: route.centroidLng }
-    const claimedMiles = route.quarantine ? null : route.lengthMiles
+    // The claimed length stays REAL even under quarantine — quarantine skips the
+    // band check via its own flag, it never nulls the claimed length. Conflating
+    // the two would route a quarantined 'pass' through evaluateRatioBoundary's
+    // null early-return, making the skip unobservable.
+    const claimedMiles = route.lengthMiles
+    const quarantined = route.quarantine != null
 
     type PipelineAttempt = Awaited<ReturnType<typeof evaluateRoutedAnchors>> & {
       geocodeLog: string[]
@@ -376,14 +391,19 @@ export const reconstructForRoute = internalAction({
         return null
       }
 
-      const routed = await evaluateRoutedAnchors(geocodedAnchors, claimedMiles)
+      const routed = await evaluateRoutedAnchors(geocodedAnchors, claimedMiles, quarantined)
       return { ...routed, geocodeLog }
     }
 
     let bestAttempt = await runPipelineAttempt()
     if (!bestAttempt) {
       return persistGateResult(ctx, route, {
-        gateResult: { verdict: 'review', failedCondition: 'anchors' },
+        gateResult: {
+          verdict: 'review',
+          failedCondition: 'anchors',
+          ratio: null,
+          ratioSkipped: false,
+        },
         geocodedAnchors: [],
         encodedPolyline: undefined,
         pointCount: 0,
@@ -439,12 +459,8 @@ export const reconstructForRouteWithFixedGeometry = internalAction({
     const anchorCount = args.anchorCount ?? 2
     const encodedPolyline = buildCannedPolyline(pointCount, centroid)
     const geocodedAnchors = makeInRegionAnchors(anchorCount, centroid)
-    const claimedMiles =
-      args.claimedMiles !== undefined
-        ? args.claimedMiles
-        : route.quarantine
-          ? null
-          : route.lengthMiles
+    // Default to the row's REAL claimed length — quarantine no longer nulls it.
+    const claimedMiles = args.claimedMiles !== undefined ? args.claimedMiles : route.lengthMiles
     const ratio = claimedMiles != null && claimedMiles > 0 ? args.routedMiles / claimedMiles : null
 
     const gateResult = determineGateVerdict({
@@ -452,7 +468,8 @@ export const reconstructForRouteWithFixedGeometry = internalAction({
       pointCount,
       routedMiles: args.routedMiles,
       anchorCount,
-      quarantine: claimedMiles == null,
+      // The DB quarantine flag is the ONLY skip condition — never a null claimed length.
+      quarantine: route.quarantine != null,
     })
 
     return persistGateResult(ctx, route, {
@@ -504,7 +521,11 @@ export const reconstructForRouteWithFixedAnchors = internalAction({
       })
     }
 
-    const routed = await evaluateRoutedAnchors(geocodedAnchors, resolvedClaimedMiles)
+    const routed = await evaluateRoutedAnchors(
+      geocodedAnchors,
+      resolvedClaimedMiles,
+      route.quarantine != null,
+    )
     return persistGateResult(ctx, route, {
       gateResult: routed.gateResult,
       geocodedAnchors: routed.geocodedAnchors,
@@ -559,7 +580,11 @@ export const reconstructForRouteWithMixedAnchors = internalAction({
       })
     }
 
-    const routed = await evaluateRoutedAnchors(surviving, route.lengthMiles)
+    const routed = await evaluateRoutedAnchors(
+      surviving,
+      route.lengthMiles,
+      route.quarantine != null,
+    )
     return persistGateResult(ctx, route, {
       gateResult: routed.gateResult,
       geocodedAnchors: routed.geocodedAnchors,

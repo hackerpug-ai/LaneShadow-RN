@@ -71,7 +71,7 @@ describe('AC-1: Gate enforces ratio band 0.6–1.6', () => {
     let verificationData: any
 
     beforeAll(() => {
-      const result = runConvexFn(
+      const reconstruct = runConvexFn(
         'curatedGeometryReconstruct:reconstructForRouteWithFixedGeometry',
         {
           routeId: 'test:ratio-100',
@@ -81,6 +81,8 @@ describe('AC-1: Gate enforces ratio band 0.6–1.6', () => {
         },
         { identity: true },
       )
+      // A failed reconstruct must surface, not silently leave verificationData null.
+      expect(reconstruct.ok, `reconstruct failed: ${reconstruct.stderr}`).toBe(true)
       const verify = runConvexFn(
         'curatedGeometryReconstruct:getVerificationForRoute',
         { routeId: 'test:ratio-100' },
