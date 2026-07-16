@@ -1,0 +1,3 @@
+# RED against disconnected start (real Convex data path unreachable)
+# method: CONVEX_DEPLOYMENT overridden to an inaccessible deployment
+# command: npx vitest run convex/__tests__/S4T1-gate-ratio-band S4T1-gate-anchors-region S4T1-gate-degenerate S4T1-gate-quarantine-ratio-skip S4T1-repair-round-bounded S4T1-preexisting-sweep.integration.test.ts
