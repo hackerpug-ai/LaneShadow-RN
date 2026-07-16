@@ -1,5 +1,70 @@
-# RED against disconnected start (real Convex data path unreachable)
-# method: CONVEX_DEPLOYMENT overridden to an inaccessible deployment
-# command: npx vitest run convex/__tests__/S4T1-gate-anchors-region.integration.test.ts
+=== AC-2 RED-AGAINST-START (feature-absent negative control) ===
+Date: 2026-07-16T06:38:19Z
+Deployment: REAL Convex dev deployment (functions pushed, reachable).
+Negative control exercised, quoted from AC-2's own would_fail_if:
+  'isAnchorInRegion always returns true' AND 'anchor count check is skipped'
+Both region and anchor-count checks are ABSENT; the deployment is fully reachable.
+
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T1
+
+stdout | convex/__tests__/S4T1-gate-anchors-region.integration.test.ts > AC-2: Gate requires ≥2 anchors within 150mi
+🌱 Seeding anchor test routes...
+
+stdout | convex/__tests__/S4T1-gate-anchors-region.integration.test.ts > AC-2: Gate requires ≥2 anchors within 150mi
+🧹 Cleaning up...
+
+ ❯ convex/__tests__/S4T1-gate-anchors-region.integration.test.ts (13 tests | 2 failed) 10896ms
+   ✓ AC-2: Gate requires ≥2 anchors within 150mi > CASE 1: 2 in-region anchors → pass > MUST_OBSERVE: verdict == "pass" 0ms
+   ✓ AC-2: Gate requires ≥2 anchors within 150mi > CASE 1: 2 in-region anchors → pass > MUST_OBSERVE: ratio == 1.0 (the seeded in-band ratio, echoed on the verdict) 0ms
+   ✓ AC-2: Gate requires ≥2 anchors within 150mi > CASE 1: 2 in-region anchors → pass > MUST_OBSERVE: ratioSkipped == false (unquarantined row — band check really ran) 0ms
+   ✓ AC-2: Gate requires ≥2 anchors within 150mi > CASE 1: 2 in-region anchors → pass > MUST_NOT_OBSERVE: ratio == 0.22 or any value other than the seeded 1.0 0ms
+   ✓ AC-2: Gate requires ≥2 anchors within 150mi > CASE 1: 2 in-region anchors → pass > MUST_NOT_OBSERVE: failedCondition == "anchors" 0ms
+   ✓ AC-2: Gate requires ≥2 anchors within 150mi > CASE 1: 2 in-region anchors → pass > MUST_NOT_OBSERVE: verdict is empty or absent 0ms
+   ✓ AC-2: Gate requires ≥2 anchors within 150mi > TC-4: 1 anchor → review with failedCondition "anchors" > MUST_OBSERVE: routingCallCount == 0 (no routing when anchors < 2) 0ms
+   ✓ AC-2: Gate requires ≥2 anchors within 150mi > TC-4: 1 anchor → review with failedCondition "anchors" > MUST_OBSERVE: verdict == "review" 0ms
+   × AC-2: Gate requires ≥2 anchors within 150mi > TC-4: 1 anchor → review with failedCondition "anchors" > MUST_OBSERVE: failedCondition == "anchors" 2ms
+     → expected 'degenerate' to be 'anchors' // Object.is equality
+   ✓ AC-2: Gate requires ≥2 anchors within 150mi > TC-4: 1 anchor → review with failedCondition "anchors" > MUST_NOT_OBSERVE: verdict == "pass" 0ms
+   × AC-2: Gate requires ≥2 anchors within 150mi > TC-5: off-region anchor (300mi) excluded > MUST_OBSERVE: all stored anchors have distanceFromCentroid <= 150 1ms
+     → expected 299.9999999999996 to be less than or equal to 150
+   ✓ AC-2: Gate requires ≥2 anchors within 150mi > TC-5: off-region anchor (300mi) excluded > MUST_OBSERVE: anchorCount >= 2 (only in-region survive) 0ms
+   ✓ AC-2: Gate requires ≥2 anchors within 150mi > EVIDENCE: capture anchor verification data  960ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  convex/__tests__/S4T1-gate-anchors-region.integration.test.ts > AC-2: Gate requires ≥2 anchors within 150mi > TC-4: 1 anchor → review with failedCondition "anchors" > MUST_OBSERVE: failedCondition == "anchors"
+AssertionError: expected 'degenerate' to be 'anchors' // Object.is equality
+
+Expected: [32m"anchors"[39m
+Received: [31m"degenerate"[39m
+
+ ❯ convex/__tests__/S4T1-gate-anchors-region.integration.test.ts:155:49
+    153| 
+    154|     it('MUST_OBSERVE: failedCondition == "anchors"', () => {
+    155|       expect(verificationData?.failedCondition).toBe('anchors')
+       |                                                 ^
+    156|     })
+    157| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  convex/__tests__/S4T1-gate-anchors-region.integration.test.ts > AC-2: Gate requires ≥2 anchors within 150mi > TC-5: off-region anchor (300mi) excluded > MUST_OBSERVE: all stored anchors have distanceFromCentroid <= 150
+AssertionError: expected 299.9999999999996 to be less than or equal to 150
+ ❯ convex/__tests__/S4T1-gate-anchors-region.integration.test.ts:183:45
+    181|     it('MUST_OBSERVE: all stored anchors have distanceFromCentroid <= …
+    182|       for (const anchor of verificationData?.anchors ?? []) {
+    183|         expect(anchor.distanceFromCentroid).toBeLessThanOrEqual(150)
+       |                                             ^
+    184|       }
+    185|     })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
  Test Files  1 failed (1)
-      Tests  5 failed | 4 passed (9)
+      Tests  2 failed | 11 passed (13)
+   Start at  00:38:19
+   Duration  11.30s (transform 24ms, setup 61ms, collect 9ms, tests 10.90s, environment 216ms, prepare 29ms)
+

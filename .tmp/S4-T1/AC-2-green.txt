@@ -1,4 +1,23 @@
-# GREEN against seeded start (real Convex dev deployment)
-# command: npx vitest run convex/__tests__/S4T1-gate-anchors-region.integration.test.ts
+=== AC-2 GREEN (feature restored) ===
+Date: 2026-07-16T06:39:24Z
+Deployment: REAL Convex dev deployment
+Paired with .tmp/S4-T1/AC-2-red-against-start.txt (feature-absent negative control)
+
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T1
+
+stdout | convex/__tests__/S4T1-gate-anchors-region.integration.test.ts > AC-2: Gate requires ≥2 anchors within 150mi
+🌱 Seeding anchor test routes...
+
+stdout | convex/__tests__/S4T1-gate-anchors-region.integration.test.ts > AC-2: Gate requires ≥2 anchors within 150mi
+🧹 Cleaning up...
+
+ ✓ convex/__tests__/S4T1-gate-anchors-region.integration.test.ts (13 tests) 10487ms
+   ✓ AC-2: Gate requires ≥2 anchors within 150mi > EVIDENCE: capture anchor verification data  890ms
+
  Test Files  1 passed (1)
-      Tests  9 passed (9)
+      Tests  13 passed (13)
+   Start at  00:39:25
+   Duration  10.89s (transform 25ms, setup 63ms, collect 9ms, tests 10.49s, environment 225ms, prepare 25ms)
+

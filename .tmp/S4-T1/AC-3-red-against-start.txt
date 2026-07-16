@@ -1,5 +1,113 @@
-# RED against disconnected start (real Convex data path unreachable)
-# method: CONVEX_DEPLOYMENT overridden to an inaccessible deployment
-# command: npx vitest run convex/__tests__/S4T1-gate-degenerate.integration.test.ts
+=== AC-3 RED-AGAINST-START (feature-absent negative control) ===
+Date: 2026-07-16T06:37:44Z
+Deployment: REAL Convex dev deployment (functions pushed, reachable).
+Negative control exercised, quoted from AC-3's own would_fail_if:
+  'isDegenerate always returns false' / 'point count check is skipped'
+The degenerate check is ABSENT; the deployment is fully reachable.
+
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T1
+
+stdout | convex/__tests__/S4T1-gate-degenerate.integration.test.ts > AC-3: Gate rejects degenerate geometry
+🌱 Seeding degenerate rows...
+
+stdout | convex/__tests__/S4T1-gate-degenerate.integration.test.ts > AC-3: Gate rejects degenerate geometry
+🧹 Cleaning up...
+
+ ❯ convex/__tests__/S4T1-gate-degenerate.integration.test.ts (12 tests | 4 failed) 9612ms
+   × AC-3: Gate rejects degenerate geometry > TC-6: 3-point line is degenerate → review > MUST_OBSERVE: degenerate == true 3ms
+     → expected false to be true // Object.is equality
+   ✓ AC-3: Gate rejects degenerate geometry > TC-6: 3-point line is degenerate → review > MUST_OBSERVE: verdict == "review" 0ms
+   × AC-3: Gate rejects degenerate geometry > TC-6: 3-point line is degenerate → review > MUST_OBSERVE: failedCondition == "degenerate" 1ms
+     → expected 'ratio' to be 'degenerate' // Object.is equality
+   ✓ AC-3: Gate rejects degenerate geometry > TC-6: 3-point line is degenerate → review > MUST_NOT_OBSERVE: verdict == "pass" 0ms
+   × AC-3: Gate rejects degenerate geometry > TC-7: 5 points over 10 miles (<1 pt/mi) is degenerate → review > MUST_OBSERVE: degenerate == true 0ms
+     → expected false to be true // Object.is equality
+   ✓ AC-3: Gate rejects degenerate geometry > TC-7: 5 points over 10 miles (<1 pt/mi) is degenerate → review > MUST_OBSERVE: verdict == "review" 0ms
+   × AC-3: Gate rejects degenerate geometry > TC-7: 5 points over 10 miles (<1 pt/mi) is degenerate → review > MUST_OBSERVE: failedCondition == "degenerate" 0ms
+     → expected 'ratio' to be 'degenerate' // Object.is equality
+   ✓ AC-3: Gate rejects degenerate geometry > TC-7: 5 points over 10 miles (<1 pt/mi) is degenerate → review > MUST_NOT_OBSERVE: verdict == "pass" 0ms
+   ✓ AC-3: Gate rejects degenerate geometry > CASE 3: 50 points over 41 miles is NOT degenerate > MUST_OBSERVE: degenerate == false 0ms
+   ✓ AC-3: Gate rejects degenerate geometry > CASE 3: 50 points over 41 miles is NOT degenerate > MUST_OBSERVE: verdict == "pass" 0ms
+   ✓ AC-3: Gate rejects degenerate geometry > CASE 3: 50 points over 41 miles is NOT degenerate > MUST_NOT_OBSERVE: failedCondition == "degenerate" 0ms
+   ✓ AC-3: Gate rejects degenerate geometry > EVIDENCE: capture degenerate verification data  902ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  convex/__tests__/S4T1-gate-degenerate.integration.test.ts > AC-3: Gate rejects degenerate geometry > TC-6: 3-point line is degenerate → review > MUST_OBSERVE: degenerate == true
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ convex/__tests__/S4T1-gate-degenerate.integration.test.ts:92:44
+     90| 
+     91|     it('MUST_OBSERVE: degenerate == true', () => {
+     92|       expect(verificationData?.degenerate).toBe(true)
+       |                                            ^
+     93|     })
+     94| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  convex/__tests__/S4T1-gate-degenerate.integration.test.ts > AC-3: Gate rejects degenerate geometry > TC-6: 3-point line is degenerate → review > MUST_OBSERVE: failedCondition == "degenerate"
+AssertionError: expected 'ratio' to be 'degenerate' // Object.is equality
+
+Expected: [32m"[7mdegene[27mrat[7me[27m"[39m
+Received: [31m"rat[7mio[27m"[39m
+
+ ❯ convex/__tests__/S4T1-gate-degenerate.integration.test.ts:100:49
+     98| 
+     99|     it('MUST_OBSERVE: failedCondition == "degenerate"', () => {
+    100|       expect(verificationData?.failedCondition).toBe('degenerate')
+       |                                                 ^
+    101|     })
+    102| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  convex/__tests__/S4T1-gate-degenerate.integration.test.ts > AC-3: Gate rejects degenerate geometry > TC-7: 5 points over 10 miles (<1 pt/mi) is degenerate → review > MUST_OBSERVE: degenerate == true
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ convex/__tests__/S4T1-gate-degenerate.integration.test.ts:131:44
+    129| 
+    130|     it('MUST_OBSERVE: degenerate == true', () => {
+    131|       expect(verificationData?.degenerate).toBe(true)
+       |                                            ^
+    132|     })
+    133| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  convex/__tests__/S4T1-gate-degenerate.integration.test.ts > AC-3: Gate rejects degenerate geometry > TC-7: 5 points over 10 miles (<1 pt/mi) is degenerate → review > MUST_OBSERVE: failedCondition == "degenerate"
+AssertionError: expected 'ratio' to be 'degenerate' // Object.is equality
+
+Expected: [32m"[7mdegene[27mrat[7me[27m"[39m
+Received: [31m"rat[7mio[27m"[39m
+
+ ❯ convex/__tests__/S4T1-gate-degenerate.integration.test.ts:139:49
+    137| 
+    138|     it('MUST_OBSERVE: failedCondition == "degenerate"', () => {
+    139|       expect(verificationData?.failedCondition).toBe('degenerate')
+       |                                                 ^
+    140|     })
+    141| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
  Test Files  1 failed (1)
-      Tests  8 failed | 4 passed (12)
+      Tests  4 failed | 8 passed (12)
+   Start at  00:37:44
+   Duration  10.22s (transform 27ms, setup 92ms, collect 11ms, tests 9.61s, environment 376ms, prepare 33ms)
+

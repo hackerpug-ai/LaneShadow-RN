@@ -1,5 +1,97 @@
-# RED against disconnected start (real Convex data path unreachable)
-# method: CONVEX_DEPLOYMENT overridden to an inaccessible deployment
-# command: npx vitest run convex/__tests__/S4T1-repair-round-bounded.integration.test.ts
+=== AC-5 RED-AGAINST-START (feature-absent negative control) ===
+Date: 2026-07-16T06:30:34Z
+Deployment: REAL Convex dev deployment (functions pushed, reachable).
+Negative control exercised, quoted from AC-5's own would_fail_if:
+  'routingInvocationCount is hand-incremented outside routeWithInvocationCount
+   (the :622/:643 simulation pattern) so the count reaches 2 with zero provider traffic'
+This is FEATURE-ABSENT (the real client boundary no longer counts), NOT a
+disconnected deployment. The OLD test asserted a bare routingCallCount == 2 and
+PASSED against exactly this pattern; the repaired test must not.
+
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T1
+
+ ❯ convex/__tests__/S4T1-repair-round-bounded.integration.test.ts (27 tests | 2 failed) 10200ms
+   × AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > routing counter originates ONLY at the real client boundary > MUST_OBSERVE: exactly one routingInvocationCount increment exists in production 3ms
+     → expected [ 'routingInvocationCount += 1', …(1) ] to have a length of 1 but got 2
+   × AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > routing counter originates ONLY at the real client boundary > MUST_OBSERVE: that increment sits inside routeWithInvocationCount, which delegates to defaultRoute 1ms
+     → expected 'async function routeWithInvocationCou…' to contain 'routingInvocationCount += 1'
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > routing counter originates ONLY at the real client boundary > MUST_OBSERVE: defaultRoute is the sole caller of the Google Routes API 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > routing counter originates ONLY at the real client boundary > MUST_NOT_OBSERVE: the deleted simulation re-implements the repair round 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 1: repair-round-two-attempts-better-second > TC-9: MUST_OBSERVE: routingCallCount == 2 3ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 1: repair-round-two-attempts-better-second > MUST_OBSERVE: every routing increment came from a real replayed provider exchange 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 1: repair-round-two-attempts-better-second > MUST_OBSERVE: the repair round re-prompted the LLM with geocode-log feedback 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 1: repair-round-two-attempts-better-second > MUST_NOT_OBSERVE: routingCallCount > 2 (budget exceeded) 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 1: repair-round-two-attempts-better-second > MUST_NOT_OBSERVE: routingCallCount == 0 (no provider traffic at all) 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 1: repair-round-two-attempts-better-second > MUST_OBSERVE: recorded attempt#1 ratio outside the 0.6–1.6 band (as recorded) 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 1: repair-round-two-attempts-better-second > MUST_OBSERVE: recorded attempt#2 ratio within 0.6–1.6 (as recorded) 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 1: repair-round-two-attempts-better-second > TC-10: MUST_OBSERVE: |log(attempt#2)| < |log(attempt#1)| — repair is strictly closer to 1.0 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 1: repair-round-two-attempts-better-second > TC-10: MUST_OBSERVE: stored ratio == the cassette's recorded attempt#2 ratio 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 1: repair-round-two-attempts-better-second > MUST_NOT_OBSERVE: stored ratio == the recorded attempt#1 ratio 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 1: repair-round-two-attempts-better-second > MUST_OBSERVE: stored encodedPolyline == the cassette's recorded attempt#2 polyline 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 1: repair-round-two-attempts-better-second > MUST_NOT_OBSERVE: stored encodedPolyline is buildCannedPolyline output (fabricated locally) 3ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 1: repair-round-two-attempts-better-second > MUST_OBSERVE: verdict == "pass" (the repair attempt cleared the band) 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 1: repair-round-two-attempts-better-second > sanity: the recording carries exactly 2 routing exchanges (a 3rd would exhaust the cassette) 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 2: repair-round-exhausted-to-review > TC-9: MUST_OBSERVE: routingCallCount == 2 (budget exhausted, not exceeded) 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 2: repair-round-exhausted-to-review > MUST_OBSERVE: both recorded attempt ratios outside 0.6–1.6 (as recorded) 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 2: repair-round-exhausted-to-review > MUST_OBSERVE: verdict == "review" 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 2: repair-round-exhausted-to-review > MUST_OBSERVE: failedCondition == "ratio" (specific failure recorded) 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 2: repair-round-exhausted-to-review > MUST_NOT_OBSERVE: verdict == "pass" 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 2: repair-round-exhausted-to-review > MUST_NOT_OBSERVE: routingCallCount > 2 or == 0 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 2: repair-round-exhausted-to-review > MUST_OBSERVE: the better attempt by |log(ratio)| is the one stored 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > CASE 2: repair-round-exhausted-to-review > sanity: no third recorded provider exchange exists to replay 0ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > EVIDENCE: capture recorded provider exchanges + action result (api_response)  2104ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  convex/__tests__/S4T1-repair-round-bounded.integration.test.ts > AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > routing counter originates ONLY at the real client boundary > MUST_OBSERVE: exactly one routingInvocationCount increment exists in production
+AssertionError: expected [ 'routingInvocationCount += 1', …(1) ] to have a length of 1 but got 2
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 2[39m
+
+ ❯ convex/__tests__/S4T1-repair-round-bounded.integration.test.ts:207:26
+    205|     it('MUST_OBSERVE: exactly one routingInvocationCount increment exi…
+    206|       const increments = source.match(/routingInvocationCount\s*\+=\s*…
+    207|       expect(increments).toHaveLength(1)
+       |                          ^
+    208|     })
+    209| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  convex/__tests__/S4T1-repair-round-bounded.integration.test.ts > AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > routing counter originates ONLY at the real client boundary > MUST_OBSERVE: that increment sits inside routeWithInvocationCount, which delegates to defaultRoute
+AssertionError: expected 'async function routeWithInvocationCou…' to contain 'routingInvocationCount += 1'
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- routingInvocationCount += 1[39m
+[31m+ async function routeWithInvocationCount([39m
+[31m+   coords: Array<{ lat: number; lng: number }>,[39m
+[31m+ ): Promise<RouteResult> {[39m
+[31m+   return defaultRoute(coords)[39m
+[31m+ }[39m
+[31m+[39m
+[31m+[39m
+
+ ❯ convex/__tests__/S4T1-repair-round-bounded.integration.test.ts:215:18
+    213|         source.indexOf('// ---', source.indexOf('async function routeW…
+    214|       )
+    215|       expect(fn).toContain('routingInvocationCount += 1')
+       |                  ^
+    216|       expect(fn).toContain('return defaultRoute(coords)')
+    217|     })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
  Test Files  1 failed (1)
-      Tests  11 failed | 3 passed (14)
+      Tests  2 failed | 25 passed (27)
+   Start at  00:30:37
+   Duration  10.76s (transform 32ms, setup 75ms, collect 13ms, tests 10.20s, environment 300ms, prepare 38ms)
+

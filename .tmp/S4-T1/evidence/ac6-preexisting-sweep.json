@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-07-16T04:19:22.680Z",
+  "capturedAt": "2026-07-16T06:43:08.702Z",
   "preSweep": {
     "anchorCount": 2,
     "anchors": [
@@ -55,7 +55,7 @@
   },
   "sweepReport": {
     "flipped": 1,
-    "scanned": 2,
-    "unchanged": 1
+    "scanned": 3,
+    "unchanged": 2
   }
 }

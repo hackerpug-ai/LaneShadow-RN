@@ -1,4 +1,23 @@
-# GREEN against seeded start (real Convex dev deployment)
-# command: npx vitest run convex/__tests__/S4T1-gate-ratio-band.integration.test.ts
+=== AC-1 GREEN (feature restored) ===
+Date: 2026-07-16T06:39:14Z
+Deployment: REAL Convex dev deployment
+Paired with .tmp/S4-T1/AC-1-red-against-start.txt (feature-absent negative control)
+
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T1
+
+stdout | convex/__tests__/S4T1-gate-ratio-band.integration.test.ts > AC-1: Gate enforces ratio band 0.6–1.6
+🌱 Seeding boundary ratio rows...
+
+stdout | convex/__tests__/S4T1-gate-ratio-band.integration.test.ts > AC-1: Gate enforces ratio band 0.6–1.6
+🧹 Cleaning up...
+
+ ✓ convex/__tests__/S4T1-gate-ratio-band.integration.test.ts (12 tests) 9649ms
+   ✓ AC-1: Gate enforces ratio band 0.6–1.6 > EVIDENCE: capture seeded verification data  971ms
+
  Test Files  1 passed (1)
       Tests  12 passed (12)
+   Start at  00:39:14
+   Duration  10.07s (transform 27ms, setup 69ms, collect 8ms, tests 9.65s, environment 225ms, prepare 28ms)
+

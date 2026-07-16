@@ -1,4 +1,23 @@
-# GREEN against seeded start (real Convex dev deployment)
-# command: npx vitest run convex/__tests__/S4T1-preexisting-sweep.integration.test.ts
+=== AC-6 GREEN (feature restored) ===
+Date: 2026-07-16T06:39:46Z
+Deployment: REAL Convex dev deployment
+Paired with .tmp/S4-T1/AC-6-red-against-start.txt (feature-absent negative control)
+
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T1
+
+stdout | convex/__tests__/S4T1-preexisting-sweep.integration.test.ts > AC-6: Pre-existing geometry re-evaluated against full gate
+🌱 Seeding pre-existing off-region geometry...
+🔍 Running pre-existing sweep...
+
+stdout | convex/__tests__/S4T1-preexisting-sweep.integration.test.ts > AC-6: Pre-existing geometry re-evaluated against full gate
+🧹 Cleaning up...
+
+ ✓ convex/__tests__/S4T1-preexisting-sweep.integration.test.ts (8 tests) 5775ms
+
  Test Files  1 passed (1)
       Tests  8 passed (8)
+   Start at  00:39:46
+   Duration  6.17s (transform 23ms, setup 61ms, collect 7ms, tests 5.78s, environment 210ms, prepare 29ms)
+
