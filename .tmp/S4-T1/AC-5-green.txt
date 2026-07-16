@@ -1,0 +1,4 @@
+# GREEN against seeded start (real Convex dev deployment)
+# command: npx vitest run convex/__tests__/S4T1-repair-round-bounded.integration.test.ts
+ Test Files  1 passed (1)
+      Tests  14 passed (14)

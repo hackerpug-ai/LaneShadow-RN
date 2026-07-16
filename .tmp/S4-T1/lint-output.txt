@@ -1,0 +1,295 @@
+app/(app)/(tabs)/index.card-loading.integration.test.tsx plugin ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i no-dynamic-import errored: regex pattern matched 1 variables, but expected 0
+  
+
+app/(app)/(tabs)/index.carousel.integration.test.tsx plugin ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i no-dynamic-import errored: regex pattern matched 1 variables, but expected 0
+  
+
+app/(app)/(tabs)/index.discovery.integration.test.tsx plugin ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i no-dynamic-import errored: regex pattern matched 1 variables, but expected 0
+  
+
+app/(app)/(tabs)/index.finished-route-fit.integration.test.tsx plugin ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i no-dynamic-import errored: regex pattern matched 1 variables, but expected 0
+  
+
+app/(app)/(tabs)/index.footer-visibility-simple.test.tsx:58:19 lint/complexity/useLiteralKeys  FIXABLE  ━━━━━━━━━━
+
+  i The computed expression can be simplified to a string literal.
+  
+    56 │     space: { sm: 8, md: 16 },
+    57 │     typography: { label: { fontSize: 14, fontWeight: '500', lineHeight: 20 }, caption: { fontSize: 12, fontWeight: '400', lineHeight: 16 } },
+  > 58 │     elevation: { [3]: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 } },
+       │                   ^
+    59 │   }),
+    60 │   useThemePreference: () => ({ isDark: false }),
+  
+  i Unsafe fix: Use a literal key instead.
+  
+    58 │ ····elevation:·{·[3]:·{·shadowColor:·'#000',·shadowOffset:·{·width:·0,·height:·2·},·shadowOpacity:·0.1,·shadowRadius:·4,·elevation:·3·}·},
+       │                  - -                                                                                                                      
+
+app/(app)/(tabs)/index.one-route.integration.test.tsx plugin ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i no-dynamic-import errored: regex pattern matched 1 variables, but expected 0
+  
+
+app/(app)/(tabs)/index.route-tag.integration.test.tsx plugin ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i no-dynamic-import errored: regex pattern matched 1 variables, but expected 0
+  
+
+app/(app)/(tabs)/index.route-tap.integration.test.tsx plugin ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i no-dynamic-import errored: regex pattern matched 1 variables, but expected 0
+  
+
+app/(app)/curated-route/[id].actions.integration.test.tsx plugin ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i no-dynamic-import errored: regex pattern matched 1 variables, but expected 0
+  
+
+app/(app)/curated-route/[id].fallback.integration.test.tsx plugin ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i no-dynamic-import errored: regex pattern matched 1 variables, but expected 0
+  
+
+app/(app)/curated-route/[id].geometry-degradation.integration.test.tsx plugin ━━━━━━━━━━━━━━━━━━━━━━
+
+  i no-dynamic-import errored: regex pattern matched 1 variables, but expected 0
+  
+
+app/(app)/curated-route/[id].six-section.integration.test.tsx plugin ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i no-dynamic-import errored: regex pattern matched 1 variables, but expected 0
+  
+
+components/chat/chat-input.test.tsx plugin ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i no-dynamic-import errored: regex pattern matched 1 variables, but expected 0
+  
+
+vitest.env.js plugin ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i no-dynamic-import errored: regex pattern matched 1 variables, but expected 0
+  
+
+.review/runs/sprint-02-route-detail-close-the-loop/report.html:74:3 lint/style/noDescendingSpecificity ━━━━━━━━━━
+
+  ! Descending specificity selector found. This selector specificity is (0, 2, 0)
+  
+    72 │   }
+    73 │   .shot img { width: 100%; height: auto; border-radius: 4px; display: block; }
+  > 74 │   .shot .label { font-size: 12px; color: var(--ink-500); margin-top: 6px; text-align: center; }
+       │   ^^^^^^^^^^^^
+    75 │   .pair {
+    76 │     display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 8px 0 18px;
+  
+  i This selector specificity is (0, 3, 0)
+  
+    42 │     padding: 14px 16px;
+    43 │   }
+  > 44 │   .scorecard .card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-500); }
+       │   ^^^^^^^^^^^^^^^^^^^^^^^
+    45 │   .scorecard .card .value { font-size: 26px; font-weight: 600; margin-top: 4px; }
+    46 │   .scorecard .card .value small { font-size: 14px; color: var(--ink-500); font-weight: 400; }
+  
+  i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+  
+
+app/(app)/(tabs)/index.footer-visibility-simple.test.tsx:5:18 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━
+
+  ! Several of these imports are unused.
+  
+    3 │  */
+    4 │ 
+  > 5 │ import { render, screen } from '@testing-library/react-native'
+      │                  ^^^^^^
+    6 │ import { describe, expect, it } from 'vitest'
+    7 │ import { View, Text, TouchableOpacity } from 'react-native'
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+    5 │ import·{·render,·screen·}·from·'@testing-library/react-native'
+      │                  -------                                      
+
+app/index.tsx:25:3 lint/correctness/useExhaustiveDependencies  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This hook specifies more dependencies than necessary: sessions.
+  
+    23 │   // - If Clerk is loaded but user is not signed in, go to auth (tabs will handle this)
+    24 │   // - If Clerk is loaded and user is signed in, wait for sessions then redirect
+  > 25 │   useEffect(() => {
+       │   ^^^^^^^^^
+    26 │     // Skip if already set redirect
+    27 │     if (redirectTarget !== null) {
+  
+  i This dependency can be removed from the list.
+  
+    47 │     // Discovery is the default landing. Sessions are accessible from the drawer.
+    48 │     setRedirectTarget('/(app)/(tabs)')
+  > 49 │   }, [clerkLoaded, isSignedIn, isLoading, sessions, redirectTarget])
+       │                                           ^^^^^^^^
+    50 │ 
+    51 │   // While determining redirect, show nothing
+  
+  i React relies on hook dependencies to determine when to re-compute Effects.
+    Specifying more dependencies than required can lead to unnecessary re-rendering
+    and degraded performance.
+  
+  i Unsafe fix: Remove the extra dependencies from the list.
+  
+    49 │ ··},·[clerkLoaded,·isSignedIn,·isLoading,·sessions,·redirectTarget])
+       │                                           ----------                
+
+app/(app)/(tabs)/index.footer-visibility-simple.test.tsx:5:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━
+
+  × Sort these imports.
+  
+    3 │  */
+    4 │ 
+  > 5 │ import { render, screen } from '@testing-library/react-native'
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 6 │ import { describe, expect, it } from 'vitest'
+  > 7 │ import { View, Text, TouchableOpacity } from 'react-native'
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    8 │ 
+    9 │ // Mock convex/react first
+  
+  i Safe fix: Organize imports and exports (Biome)
+  
+      4   4 │   
+      5   5 │   import { render, screen } from '@testing-library/react-native'
+      6     │ - import·{·describe,·expect,·it·}·from·'vitest'
+      7     │ - import·{·View,·Text,·TouchableOpacity·}·from·'react-native'
+          6 │ + import·{·Text,·TouchableOpacity,·View·}·from·'react-native'
+          7 │ + import·{·describe,·expect,·it·}·from·'vitest'
+      8   8 │   
+      9   9 │   // Mock convex/react first
+  
+
+app/(app)/(tabs)/index.footer-visibility-simple.test.tsx format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     42  42 │   vi.mock('../../../contexts/auth-context', () => ({
+     43  43 │     AuthProvider: ({ children }) => children,
+     44     │ - ··useAuth:·()·=>·({·isLoaded:·true,·isSignedIn:·true,·user:·{·id:·'test-user',·name:·'Test·User',·email:·'test@example.com'·}·}),
+         44 │ + ··useAuth:·()·=>·({
+         45 │ + ····isLoaded:·true,
+         46 │ + ····isSignedIn:·true,
+         47 │ + ····user:·{·id:·'test-user',·name:·'Test·User',·email:·'test@example.com'·},
+         48 │ + ··}),
+     45  49 │   }))
+     46  50 │   
+    ······· │ 
+     48  52 │     ThemeProvider: ({ children }) => children,
+     49  53 │     useSemanticTheme: () => ({
+     50     │ - ····colors:·{·
+     51     │ - ······text:·{·primary:·'#000',·secondary:·'#666'·},·
+     52     │ - ······surface:·{·primary:·'#fff',·secondary:·'#f5f5f5',·glass:·'rgba(255,·255,·255,·0.72)',·background:·'#fff'·},
+         54 │ + ····colors:·{
+         55 │ + ······text:·{·primary:·'#000',·secondary:·'#666'·},
+         56 │ + ······surface:·{
+         57 │ + ········primary:·'#fff',
+         58 │ + ········secondary:·'#f5f5f5',
+         59 │ + ········glass:·'rgba(255,·255,·255,·0.72)',
+         60 │ + ········background:·'#fff',
+         61 │ + ······},
+     53  62 │         primary: { default: '#007AFF' },
+     54     │ - ······border:·{·default:·'#E5E5E5'·}
+         63 │ + ······border:·{·default:·'#E5E5E5'·},
+     55  64 │       },
+     56  65 │       space: { sm: 8, md: 16 },
+     57     │ - ····typography:·{·label:·{·fontSize:·14,·fontWeight:·'500',·lineHeight:·20·},·caption:·{·fontSize:·12,·fontWeight:·'400',·lineHeight:·16·}·},
+     58     │ - ····elevation:·{·[3]:·{·shadowColor:·'#000',·shadowOffset:·{·width:·0,·height:·2·},·shadowOpacity:·0.1,·shadowRadius:·4,·elevation:·3·}·},
+         66 │ + ····typography:·{
+         67 │ + ······label:·{·fontSize:·14,·fontWeight:·'500',·lineHeight:·20·},
+         68 │ + ······caption:·{·fontSize:·12,·fontWeight:·'400',·lineHeight:·16·},
+         69 │ + ····},
+         70 │ + ····elevation:·{
+         71 │ + ······[3]:·{
+         72 │ + ········shadowColor:·'#000',
+         73 │ + ········shadowOffset:·{·width:·0,·height:·2·},
+         74 │ + ········shadowOpacity:·0.1,
+         75 │ + ········shadowRadius:·4,
+         76 │ + ········elevation:·3,
+         77 │ + ······},
+         78 │ + ····},
+     59  79 │     }),
+     60  80 │     useThemePreference: () => ({ isDark: false }),
+    ······· │ 
+     93 113 │       <View testID="chat-input">
+     94 114 │         {/* Send button */}
+     95     │ - ······<TouchableOpacity·
+     96     │ - ········testID="chat-input-send-button"
+     97     │ - ········style={{·width:·42,·height:·42·}}
+     98     │ - ······>
+        115 │ + ······<TouchableOpacity·testID="chat-input-send-button"·style={{·width:·42,·height:·42·}}>
+     99 116 │           <Text>Send</Text>
+    100 117 │         </TouchableOpacity>
+    101     │ - ······
+        118 │ + 
+    102 119 │         {/* Chat view button */}
+    103 120 │         {onToggleChatMode && (
+    104     │ - ········<TouchableOpacity·
+        121 │ + ········<TouchableOpacity
+    105 122 │             onPress={onToggleChatMode}
+    106 123 │             testID="chat-input-chat-view-button"
+    ······· │ 
+    110 127 │           </TouchableOpacity>
+    111 128 │         )}
+    112     │ - ······
+        129 │ + 
+    113 130 │         {/* Suggestion chips when idle AND no active route */}
+    114 131 │         {isIdle && !hasActiveRoute && suggestions.length > 0 && !isPlanning && !chatMode && (
+    ······· │ 
+    158 175 │       // GIVEN
+    159 176 │       render(<HomeMapScreen />)
+    160     │ - ····
+        177 │ + 
+    161 178 │       // WHEN
+    162 179 │       // THEN - should not throw error
+    163 180 │       expect(true).toBe(true)
+    164 181 │     })
+    165     │ - })
+        182 │ + })
+        183 │ + 
+  
+
+biome-plugins/no-dynamic-import.grit format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+    13 13 │   // runtime call form `import(...)`, so they are not matched.
+    14 14 │   `import($source)` as $imp where {
+    15    │ - ····$filename·<:·not·r".*(\.test\.|\.spec\.|__tests__|__mocks__|vitest\.).*",
+    16    │ - ····register_diagnostic(
+    17    │ - ········span·=·$imp,
+    18    │ - ········message·=·"Dynamic·import()·(lazy·loading)·is·banned·in·production·code·—·use·a·static·top-of-file·import.·Lazy-loading·the·Convex·generated·API·hid·a·wrong-path·bug·that·only·tsc·caught·(vitest's·alias·masks·wrong-depth·paths).·If·you·genuinely·need·deferral,·raise·it·in·review.",
+    19    │ - ········severity·=·"error"
+    20    │ - ····)
+       15 │ + ··$filename·<:·not·r".*(\.test\.|\.spec\.|__tests__|__mocks__|vitest\.).*",
+       16 │ + ··register_diagnostic(span=$imp,·message="Dynamic·import()·(lazy·loading)·is·banned·in·production·code·—·use·a·static·top-of-file·import.·Lazy-loading·the·Convex·generated·API·hid·a·wrong-path·bug·that·only·tsc·caught·(vitest's·alias·masks·wrong-depth·paths).·If·you·genuinely·need·deferral,·raise·it·in·review.",·severity="error")
+    21 17 │   }
+    22 18 │   
+  
+
+The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
+Diagnostics not shown: 309.
+Checked 859 files in 165ms. No fixes applied.
+Found 19 errors.
+Found 249 warnings.
+Found 61 infos.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

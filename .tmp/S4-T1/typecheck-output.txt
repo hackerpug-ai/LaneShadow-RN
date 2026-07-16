@@ -1,0 +1,17 @@
+
+> laneshadow@1.0.0 type-check /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T1
+> tsc --noEmit -p convex/tsconfig.json && tsc --noEmit -p tsconfig.json
+
+convex/actions/agent/lib/zaiProvider.ts(204,40): error TS2339: Property 'reason' does not exist on type 'ParseZaiFallbackResult<{ summary?: string; confidence?: "medium" | "high" | "low"; }>'.
+  Property 'reason' does not exist on type '{ ok: true; object: { summary?: string; confidence?: "medium" | "high" | "low"; }; }'.
+convex/actions/agent/spike/rideAgentSpike.ts(197,40): error TS2345: Argument of type '"sessionId"' is not assignable to parameter of type 'never'.
+convex/actions/agent/spike/rideAgentSpike.ts(198,45): error TS2345: Argument of type '"resolvedCenter"' is not assignable to parameter of type 'never'.
+convex/actions/agent/spike/rideAgentSpike.ts(252,22): error TS2345: Argument of type '"sessionId"' is not assignable to parameter of type 'never'.
+convex/actions/agent/spike/rideAgentSpike.ts(254,24): error TS2345: Argument of type '"resolvedCenter"' is not assignable to parameter of type 'never'.
+convex/actions/agent/spike/rideAgentSpike.ts(405,22): error TS2345: Argument of type '"sessionId"' is not assignable to parameter of type 'never'.
+convex/actions/agent/spike/rideAgentSpike.ts(406,22): error TS2345: Argument of type '"promptVersion"' is not assignable to parameter of type 'never'.
+convex/actions/agent/spike/rideAgentSpike.ts(407,22): error TS2345: Argument of type '"tier"' is not assignable to parameter of type 'never'.
+convex/actions/agent/spike/rideAgentSpike.ts(409,24): error TS2345: Argument of type '"resolvedCenter"' is not assignable to parameter of type 'never'.
+convex/actions/agent/spike/spikeTools.ts(229,11): error TS2322: Type '{ lat?: number; lng?: number; }' is not assignable to type '{ lat: number; lng: number; }'.
+  Property 'lat' is optional in type '{ lat?: number; lng?: number; }' but required in type '{ lat: number; lng: number; }'.
+ ELIFECYCLE  Command failed with exit code 2.
