@@ -74,6 +74,7 @@ import type * as actions_mapData from "../actions/mapData.js";
 import type * as actions_monitoring from "../actions/monitoring.js";
 import type * as actions_osm from "../actions/osm.js";
 import type * as actions_places from "../actions/places.js";
+import type * as actions_rideWorthinessClassifier from "../actions/rideWorthinessClassifier.js";
 import type * as actions_users from "../actions/users.js";
 import type * as actions_weather from "../actions/weather.js";
 import type * as crons from "../crons.js";
@@ -199,6 +200,7 @@ declare const fullApi: ApiFromModules<{
   "actions/monitoring": typeof actions_monitoring;
   "actions/osm": typeof actions_osm;
   "actions/places": typeof actions_places;
+  "actions/rideWorthinessClassifier": typeof actions_rideWorthinessClassifier;
   "actions/users": typeof actions_users;
   "actions/weather": typeof actions_weather;
   crons: typeof crons;

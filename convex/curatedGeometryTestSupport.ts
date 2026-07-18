@@ -42,6 +42,22 @@ type ScoreOverrides = {
   remotenessScore?: number
 }
 
+type CuratedSource =
+  | 'fhwa'
+  | 'scenic_byways'
+  | 'motorcycleroads'
+  | 'bestbikingroads'
+  | 'rider_mag'
+  | 'bdr'
+  | 'editorial'
+
+type RideWorthinessSeed = {
+  verdict: 'ride' | 'marginal' | 'not_a_ride'
+  reason: string
+  model: string
+  classifiedAt: number
+}
+
 async function insertTestRoute(
   ctx: any,
   row: {
@@ -56,17 +72,37 @@ async function insertTestRoute(
     geometryStatus?: 'generated' | 'unresolved' | 'failed' | 'review'
     quarantine?: { reason: 'zero_length' | 'length_outlier' | 'test_row'; flaggedAt: number }
     state?: string
+    source?: CuratedSource
     highwayNumber?: string
     candidateIdentifiers?: string[]
-    rideWorthiness?: {
-      verdict: 'ride' | 'marginal' | 'not_a_ride'
-      reason: string
-      model: string
-      classifiedAt: number
-    }
+    /**
+     * When true, omit/clear rideWorthiness so the classifier can write first
+     * verdict. When false/undefined and rideWorthiness is also undefined, seed
+     * a default 'ride' spike verdict (legacy test behavior).
+     */
+    clearRideWorthiness?: boolean
+    rideWorthiness?: RideWorthinessSeed
+    retiredAt?: number | null
     scores?: ScoreOverrides
   },
 ) {
+  const resolveSource = (): CuratedSource => {
+    if (row.source) return row.source
+    if (row.routeId.startsWith('motorcycleroads:')) return 'motorcycleroads'
+    return 'editorial'
+  }
+
+  const resolveRideWorthiness = (nowMs: number): RideWorthinessSeed | undefined => {
+    if (row.clearRideWorthiness) return undefined
+    if (row.rideWorthiness) return row.rideWorthiness
+    return {
+      verdict: 'ride',
+      reason: 'spike seed',
+      model: 'test',
+      classifiedAt: nowMs,
+    }
+  }
+
   const existing = await ctx.db
     .query('curated_routes')
     .withIndex('by_routeId', (q: any) => q.eq('routeId', row.routeId))
@@ -77,6 +113,7 @@ async function insertTestRoute(
     const centroidLat = row.centroidLat ?? 34.95
     const centroidLng = row.centroidLng ?? -120.42
     const scores = row.scores ?? {}
+    const rideWorthiness = resolveRideWorthiness(nowMs)
     await ctx.db.patch(existing._id, {
       name: row.name,
       lengthMiles: row.lengthMiles,
@@ -98,15 +135,12 @@ async function insertTestRoute(
       ...(scores.technicalScore != null ? { technicalScore: scores.technicalScore } : {}),
       ...(scores.trafficScore != null ? { trafficScore: scores.trafficScore } : {}),
       ...(scores.remotenessScore != null ? { remotenessScore: scores.remotenessScore } : {}),
-      rideWorthiness: row.rideWorthiness ?? {
-        verdict: 'ride',
-        reason: 'spike seed',
-        model: 'test',
-        classifiedAt: nowMs,
-      },
+      // undefined clears the field (classifier tests need unclassified rows)
+      rideWorthiness,
       quarantine: row.quarantine,
-      retiredAt: undefined,
+      retiredAt: row.retiredAt === null ? undefined : row.retiredAt,
       duplicateOf: undefined,
+      source: resolveSource(),
       ...(row.oneLiner != null ? { oneLiner: row.oneLiner } : {}),
       ...(row.summary != null ? { summary: row.summary } : {}),
       ...(row.name_lower != null ? { name_lower: row.name_lower } : {}),
@@ -135,11 +169,12 @@ async function insertTestRoute(
   const centroidLng = row.centroidLng ?? -120.42
   const nowMs = Date.now()
   const scores = row.scores ?? {}
+  const rideWorthiness = resolveRideWorthiness(nowMs)
   const docId = await ctx.db.insert('curated_routes', {
     routeId: row.routeId,
     name: row.name,
     state: row.state ?? 'California',
-    source: row.routeId.startsWith('motorcycleroads:') ? 'motorcycleroads' : 'editorial',
+    source: resolveSource(),
     primaryArchetype: 'twisties',
     secondaryTags: ['test'],
     centroidLat,
@@ -163,13 +198,9 @@ async function insertTestRoute(
     contentVersion: 1,
     seededAt: nowMs,
     location: { type: 'Point', coordinates: [centroidLng, centroidLat] },
-    rideWorthiness: row.rideWorthiness ?? {
-      verdict: 'ride',
-      reason: 'spike seed',
-      model: 'test',
-      classifiedAt: nowMs,
-    },
+    ...(rideWorthiness != null ? { rideWorthiness } : {}),
     quarantine: row.quarantine,
+    ...(row.retiredAt != null ? { retiredAt: row.retiredAt } : {}),
     ...(row.name_lower != null ? { name_lower: row.name_lower } : {}),
     ...(row.geometryStatus != null ? { geometryStatus: row.geometryStatus } : {}),
     ...(row.highwayNumber != null ? { highwayNumber: row.highwayNumber } : {}),
@@ -180,7 +211,7 @@ async function insertTestRoute(
     ctx,
     docId,
     { latitude: centroidLat, longitude: centroidLng },
-    { state: 'California', primaryArchetype: 'twisties' },
+    { state: row.state ?? 'California', primaryArchetype: 'twisties' },
     scores.compositeScore ?? 85,
   )
 
@@ -1609,6 +1640,332 @@ export const teardownS4T1TestRoutes = mutation({
 
     let deleted = 0
     for (const routeId of routeIds) {
+      const doc = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      if (doc) {
+        await geospatial.remove(ctx, doc._id)
+        const geomRow = await ctx.db
+          .query('curated_route_geometry')
+          .withIndex('by_routeId', (q) => q.eq('routeId', doc.routeId))
+          .first()
+        if (geomRow) await ctx.db.delete(geomRow._id)
+        await ctx.db.delete(doc._id)
+        deleted++
+      }
+    }
+    return { status: 'deleted', count: deleted }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// S4-T4 / UC-VER-03: ride-worthiness classifier fixtures
+// ---------------------------------------------------------------------------
+
+const S4T4_ROUTE_IDS = [
+  'test:ver-twisty-1',
+  'test:ver-twisty-2',
+  'test:ver-freeway-fhwa',
+  'test:ver-recovered-row',
+  'test:ver-freeway-i40',
+  'test:ver-geom-good-not-ride',
+  'test:ver-error-1',
+  'test:ver-error-2',
+  'test:ver-error-3',
+  'test:ver-error-4',
+  'test:ver-error-5',
+  'test:ver-marginal-no-retire',
+  'test:ver-decorrelate-1',
+] as const
+
+/** AC-1: 2 twisties + 1 FHWA freeway + 1 recovered row (unclassified). */
+export const seedCatalogWithMixedRows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return [
+      await insertTestRoute(ctx, {
+        routeId: 'test:ver-twisty-1',
+        name: 'Twisty Canyon Road',
+        source: 'motorcycleroads',
+        lengthMiles: 41,
+        geometryStatus: 'generated',
+        state: 'California',
+        oneLiner: 'Legendary canyon twisties for motorcycles',
+        summary:
+          'A classic motorcycle canyon road with tight switchbacks, elevation changes, and almost no straight freeway segments.',
+        clearRideWorthiness: true,
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:ver-twisty-2',
+        name: 'Pacific Coast Highway Segment',
+        source: 'editorial',
+        lengthMiles: 28,
+        geometryStatus: 'generated',
+        state: 'California',
+        oneLiner: 'Coastal motorcycle highway segment',
+        summary:
+          'A scenic Pacific Coast Highway stretch favored by motorcyclists for ocean views and sweeping curves.',
+        clearRideWorthiness: true,
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:ver-freeway-fhwa',
+        name: 'I-40 Arizona Segment',
+        source: 'fhwa',
+        lengthMiles: 245,
+        geometryStatus: 'unresolved',
+        state: 'Arizona',
+        highwayNumber: 'i-40',
+        oneLiner: 'Interstate freeway corridor',
+        summary:
+          'FHWA interstate freeway segment of I-40 across Arizona — long-haul limited-access freeway, not a motorcycle ride destination.',
+        clearRideWorthiness: true,
+      }),
+      await insertTestRoute(ctx, {
+        routeId: 'test:ver-recovered-row',
+        name: 'Recovered Mountain Pass',
+        source: 'scenic_byways',
+        lengthMiles: 35,
+        geometryStatus: 'review',
+        state: 'Colorado',
+        oneLiner: 'Recovered scenic mountain pass',
+        summary:
+          'A recovered scenic-byways mountain pass with elevation and curves suitable for motorcycle touring.',
+        clearRideWorthiness: true,
+      }),
+    ]
+  },
+})
+
+/** AC-2: FHWA freeway segment for not_a_ride classification. */
+export const seedFHWAFreewayRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:ver-freeway-i40',
+      name: 'I-40 Arizona',
+      source: 'fhwa',
+      highwayNumber: 'i-40',
+      lengthMiles: 245,
+      geometryStatus: 'unresolved',
+      state: 'Arizona',
+      oneLiner: 'Interstate 40 freeway',
+      summary:
+        'FHWA I-40 Arizona interstate freeway — limited-access long-haul corridor, not a motorcycle recreation ride.',
+      clearRideWorthiness: true,
+    })
+  },
+})
+
+/**
+ * AC-3: gate-passing geometry + pre-seeded not_a_ride verdict.
+ * Seeds geometry side-table with pass verification so riderReady depends on verdict.
+ */
+export const seedValidGeometryNotARide = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const result = await insertTestRoute(ctx, {
+      routeId: 'test:ver-geom-good-not-ride',
+      name: 'Valid Geometry Not A Ride',
+      lengthMiles: 41,
+      geometryStatus: 'generated',
+      state: 'Arizona',
+      oneLiner: 'Valid geometry non-ride',
+      summary: 'A road with gate-passing geometry that is not a motorcycle ride.',
+      rideWorthiness: {
+        verdict: 'not_a_ride',
+        reason: 'Classified as non-motorcycle road',
+        model: 'z.ai-glm-5.2',
+        classifiedAt: 1_718_000_000_000,
+      },
+      scores: { compositeScore: 85 },
+    })
+
+    const existingGeom = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q) => q.eq('routeId', result.routeId))
+      .first()
+
+    const geomDoc = {
+      routeId: result.routeId,
+      format: 'polyline' as const,
+      encoding: 'utf-8',
+      precision: 5,
+      value: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+      verification: {
+        routeId: result.routeId,
+        verdict: 'pass' as const,
+        geometryStatus: 'generated' as const,
+        geometry: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+        anchorCount: 2,
+        anchors: [
+          { lat: 34.95, lng: -120.42, formatted: 'A', distanceFromCentroid: 1 },
+          { lat: 34.96, lng: -120.41, formatted: 'B', distanceFromCentroid: 2 },
+        ],
+        pointCount: 50,
+        degenerate: false,
+        ratio: 1.0,
+        claimedMiles: 41,
+        routedMiles: 41,
+      },
+    }
+
+    if (existingGeom) {
+      await ctx.db.replace(existingGeom._id, geomDoc)
+    } else {
+      await ctx.db.insert('curated_route_geometry', geomDoc)
+    }
+
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: result.id,
+    })
+
+    const refreshed = (await ctx.db.get(result.id)) as Doc<'curated_routes'> | null
+    return {
+      ...result,
+      riderReady: refreshed?.riderReady ?? false,
+      rideWorthiness: refreshed?.rideWorthiness ?? null,
+    }
+  },
+})
+
+/** AC-4: five routes for classifier error isolation (route 3 forced to fail). */
+export const seedRoutesForErrorTesting = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const rows = [
+      { routeId: 'test:ver-error-1', name: 'Error Test Route 1' },
+      { routeId: 'test:ver-error-2', name: 'Error Test Route 2' },
+      { routeId: 'test:ver-error-3', name: 'Error Test Route 3 (will fail)' },
+      { routeId: 'test:ver-error-4', name: 'Error Test Route 4' },
+      { routeId: 'test:ver-error-5', name: 'Error Test Route 5' },
+    ]
+    const results = []
+    for (const row of rows) {
+      results.push(
+        await insertTestRoute(ctx, {
+          routeId: row.routeId,
+          name: row.name,
+          lengthMiles: 41,
+          geometryStatus: 'generated',
+          oneLiner: 'Classifier error-isolation fixture',
+          summary: 'Twisty canyon-style motorcycle test road used for classifier error handling.',
+          clearRideWorthiness: true,
+        }),
+      )
+    }
+    return results
+  },
+})
+
+/** AC-6: single twisty route for cross-provider decorrelation (isolated from AC-1). */
+export const seedDecorrelationRoute = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:ver-decorrelate-1',
+      name: 'Decorrelation Canyon Road',
+      source: 'motorcycleroads',
+      lengthMiles: 41,
+      geometryStatus: 'generated',
+      state: 'California',
+      oneLiner: 'Twisty canyon for provider decorrelation check',
+      summary:
+        'A classic motorcycle canyon road used to verify the ride-worthiness classifier stamps z.ai GLM-5.2 rather than the anchor extraction gpt-4.1 provider.',
+      clearRideWorthiness: true,
+    })
+  },
+})
+
+/** AC-5: marginal verdict + low score must never auto-retire. */
+export const seedMarginalVerdictRoute = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:ver-marginal-no-retire',
+      name: 'Marginal Verdict Route',
+      lengthMiles: 41,
+      scores: { compositeScore: 0.45 },
+      retiredAt: null,
+      rideWorthiness: {
+        verdict: 'marginal',
+        reason: 'Borderline motorcycle road',
+        model: 'z.ai-glm-5.2',
+        classifiedAt: 1_718_000_000_000,
+      },
+    })
+  },
+})
+
+/**
+ * Public wrapper for recomputeRiderReadyForRoute (AC-5).
+ * Confirms marginal verdict paths recompute riderReady without setting retiredAt.
+ */
+export const recomputeRiderReadyForRoutePublic = mutation({
+  args: { routeId: v.string() },
+  handler: async (ctx, { routeId }) => {
+    await requireIdentity(ctx)
+    const doc = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+    if (!doc) throw new Error(`Route not found: ${routeId}`)
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, { id: doc._id })
+    const refreshed = (await ctx.db.get(doc._id)) as Doc<'curated_routes'> | null
+    return {
+      routeId,
+      riderReady: refreshed?.riderReady ?? false,
+      retiredAt: refreshed?.retiredAt ?? null,
+      rideWorthiness: refreshed?.rideWorthiness ?? null,
+      compositeScore: refreshed?.compositeScore ?? null,
+    }
+  },
+})
+
+/** Query recent classifier performance rows (error logs) for AC-4. */
+export const listClassifierPerformanceLogs = query({
+  args: {
+    routeId: v.optional(v.string()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, { routeId, limit }) => {
+    await requireIdentity(ctx)
+    const take = Math.min(limit ?? 50, 100)
+    const rows = await ctx.db.query('performance').order('desc').take(200)
+    return rows
+      .filter((r) => r.agent === 'ride_worthiness_classifier')
+      .filter((r) => (routeId ? r.input === routeId : true))
+      .slice(0, take)
+      .map((r) => ({
+        agent: r.agent,
+        model: r.model,
+        input: r.input ?? null,
+        success: r.success,
+        error: r.error ?? null,
+        createdAt: r.createdAt,
+      }))
+  },
+})
+
+/**
+ * Teardown S4-T4 ride-worthiness classifier fixtures.
+ * Pass routeIds to limit cleanup (avoids cross-file races when vitest runs files in parallel).
+ */
+export const teardownS4T4TestRoutes = mutation({
+  args: {
+    routeIds: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, { routeIds }) => {
+    await requireIdentity(ctx)
+    const targets = routeIds && routeIds.length > 0 ? routeIds : [...S4T4_ROUTE_IDS]
+    let deleted = 0
+    for (const routeId of targets) {
       const doc = await ctx.db
         .query('curated_routes')
         .withIndex('by_routeId', (q) => q.eq('routeId', routeId))

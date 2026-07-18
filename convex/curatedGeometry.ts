@@ -533,6 +533,57 @@ export const recomputeRiderReadyForRoute = internalMutation({
   },
 })
 
+/**
+ * S4-T4 / UC-VER-03: persist a stored ride-worthiness verdict as at-rest evidence.
+ * Verdict is never computed at read-time — this is the only write path for classifier output.
+ * After patch, recompute riderReady so not_a_ride immediately withholds rider-ready.
+ */
+export const persistRideWorthiness = internalMutation({
+  args: {
+    id: v.id('curated_routes'),
+    rideWorthiness: v.object({
+      verdict: v.union(v.literal('ride'), v.literal('marginal'), v.literal('not_a_ride')),
+      reason: v.string(),
+      model: v.string(),
+      classifiedAt: v.number(),
+    }),
+  },
+  handler: async (ctx, { id, rideWorthiness }) => {
+    await ctx.db.patch(id, { rideWorthiness })
+    await recomputeRiderReady(ctx, id)
+  },
+})
+
+/** Load fields needed by the ride-worthiness classifier (S4-T4). */
+export const getRouteForClassification = internalQuery({
+  args: { routeId: v.string() },
+  handler: async (ctx, { routeId }) => {
+    const doc = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+    if (!doc) return null
+    return {
+      id: doc._id,
+      routeId: doc.routeId,
+      name: doc.name,
+      state: doc.state,
+      source: doc.source,
+      lengthMiles: doc.lengthMiles,
+      highwayNumber: doc.highwayNumber ?? null,
+      primaryArchetype: doc.primaryArchetype,
+      oneLiner: doc.oneLiner,
+      summary: doc.summary,
+      description: doc.description ?? null,
+      geometryStatus: doc.geometryStatus ?? null,
+      compositeScore: doc.compositeScore,
+      rideWorthiness: doc.rideWorthiness ?? null,
+      riderReady: doc.riderReady ?? false,
+      retiredAt: doc.retiredAt ?? null,
+    }
+  },
+})
+
 export const getVerificationForRoute = internalQuery({
   args: { routeId: v.string() },
   handler: async (ctx, { routeId }) => {
