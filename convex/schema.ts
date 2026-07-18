@@ -291,4 +291,31 @@ export default defineSchema({
   curation_artifact_shards: defineTable(curationArtifactShardValidator)
     .index('by_source_and_releaseId', ['source', 'releaseId'])
     .index('by_source_and_releaseId_and_state', ['source', 'releaseId', 'state']),
+
+  /**
+   * Curation artifacts (S4-T5) — waterfall terminal records, REVIEW candidates,
+   * and founder disposition audit trail. Distinct from file-storage release/shard tables.
+   */
+  curation_artifacts: defineTable({
+    routeId: v.string(),
+    artifactType: v.union(
+      v.literal('review_candidate'),
+      v.literal('disposition'),
+      v.literal('waterfall_result'),
+    ),
+    terminalState: v.optional(
+      v.union(v.literal('recovered'), v.literal('queued'), v.literal('retirement_eligible')),
+    ),
+    provenance: v.optional(v.string()),
+    failedCondition: v.optional(v.string()),
+    bestCandidateGeometry: v.optional(v.string()),
+    disposition: v.optional(v.union(v.literal('approve'), v.literal('retry'), v.literal('retire'))),
+    lever: v.optional(v.number()),
+    leversRun: v.optional(v.array(v.number())),
+    costUsd: v.optional(v.number()),
+    attemptedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index('by_routeId', ['routeId'])
+    .index('by_artifactType', ['artifactType']),
 })

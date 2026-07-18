@@ -120,12 +120,14 @@ import type * as lib_logger from "../lib/logger.js";
 import type * as migrations_backfillSessionMessageKindStatus from "../migrations/backfillSessionMessageKindStatus.js";
 import type * as migrations_deleteEmptyAssistantMessages from "../migrations/deleteEmptyAssistantMessages.js";
 import type * as queries_osm from "../queries/osm.js";
+import type * as reviewQueue from "../reviewQueue.js";
 import type * as seedGeospatialTest from "../seedGeospatialTest.js";
 import type * as semanticSearch from "../semanticSearch.js";
 import type * as types from "../types.js";
 import type * as users from "../users.js";
 import type * as util_archetypeMap from "../util/archetypeMap.js";
 import type * as util_dataNormalization from "../util/dataNormalization.js";
+import type * as waterfallOrchestrator from "../waterfallOrchestrator.js";
 
 import type {
   ApiFromModules,
@@ -246,12 +248,14 @@ declare const fullApi: ApiFromModules<{
   "migrations/backfillSessionMessageKindStatus": typeof migrations_backfillSessionMessageKindStatus;
   "migrations/deleteEmptyAssistantMessages": typeof migrations_deleteEmptyAssistantMessages;
   "queries/osm": typeof queries_osm;
+  reviewQueue: typeof reviewQueue;
   seedGeospatialTest: typeof seedGeospatialTest;
   semanticSearch: typeof semanticSearch;
   types: typeof types;
   users: typeof users;
   "util/archetypeMap": typeof util_archetypeMap;
   "util/dataNormalization": typeof util_dataNormalization;
+  waterfallOrchestrator: typeof waterfallOrchestrator;
 }>;
 
 /**
