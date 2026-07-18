@@ -1,0 +1,67 @@
+{
+  "capturedAt": "2026-07-18T04:15:00.780Z",
+  "rerouteResult": {
+    "anchorCount": 1,
+    "anchors": [
+      {
+        "distanceFromCentroid": 122.72194596833273,
+        "formatted": "Los Angeles, CA, USA",
+        "lat": 34.0549076,
+        "lng": -118.242643
+      }
+    ],
+    "claimedMiles": 10,
+    "disposition": "review",
+    "failedCondition": "anchors",
+    "geocodeUrls": [
+      "https://maps.googleapis.com/maps/api/geocode/json?address=San+Francisco%2C+California&bounds=34.3%2C-120.7%7C36.7%2C-118.3&key=REDACTED",
+      "https://maps.googleapis.com/maps/api/geocode/json?address=Los+Angeles%2C+California&bounds=34.3%2C-120.7%7C36.7%2C-118.3&key=REDACTED"
+    ],
+    "geometryStatus": "review",
+    "llmCallCount": 0,
+    "pointCount": 0,
+    "queuedForLever2": false,
+    "queuedForReview": true,
+    "ratio": null,
+    "routeId": "test:lever3-fail",
+    "routedMiles": 0,
+    "verdict": "review"
+  },
+  "verificationData": {
+    "anchorCount": 1,
+    "anchors": [
+      {
+        "distanceFromCentroid": 122.72194596833273,
+        "formatted": "Los Angeles, CA, USA",
+        "lat": 34.0549076,
+        "lng": -118.242643
+      }
+    ],
+    "claimedMiles": 10,
+    "degenerate": true,
+    "failedCondition": "anchors",
+    "geometryStatus": "review",
+    "pointCount": 0,
+    "ratio": null,
+    "riderReady": false,
+    "routeId": "test:lever3-fail",
+    "routedMiles": 0,
+    "sideTableProvenance": null,
+    "verdict": "review"
+  },
+  "reviewQueue": {
+    "length": 1,
+    "reviewQueue": [
+      {
+        "claimedMiles": 10,
+        "failedCondition": "anchors",
+        "geometryStatus": "review",
+        "name": "San Francisco to Los Angeles — Long Route Short Name",
+        "ratio": null,
+        "routeId": "test:lever3-fail",
+        "routedMiles": 0,
+        "verdict": "review"
+      }
+    ]
+  }
+}

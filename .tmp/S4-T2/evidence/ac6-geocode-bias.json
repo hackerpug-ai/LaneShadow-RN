@@ -1,0 +1,20 @@
+{
+  "capturedAt": "2026-07-18T04:15:11.608Z",
+  "geocodeResult": {
+    "bounds": "33.75,-121.62|36.15,-119.22",
+    "boundsCenteredOn": {
+      "lat": 34.95,
+      "lng": -120.42
+    },
+    "containsBoundsParam": true,
+    "deltaDegrees": 1.2,
+    "geocodeUrl": "https://maps.googleapis.com/maps/api/geocode/json?address=Santa+Maria%2C+California&bounds=33.75%2C-121.62%7C36.15%2C-119.22&key=REDACTED",
+    "result": {
+      "distanceFromCentroid": 0.9145503234498215,
+      "formatted": "Santa Maria, CA, USA",
+      "lat": 34.9530337,
+      "lng": -120.4357191
+    }
+  },
+  "expectedBounds": "33.75,-121.62|36.15,-119.22"
+}

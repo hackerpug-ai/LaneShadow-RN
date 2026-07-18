@@ -1,0 +1,21 @@
+{
+  "local": {
+    "kind": "ato_b",
+    "endpoints": [
+      "San Francisco",
+      "Santa Cruz"
+    ],
+    "usedLlm": false
+  },
+  "remote": {
+    "endpoints": [
+      "San Francisco",
+      "Santa Cruz"
+    ],
+    "highwayNumber": null,
+    "kind": "ato_b",
+    "llmCallCount": 0,
+    "region": null,
+    "usedLlm": false
+  }
+}

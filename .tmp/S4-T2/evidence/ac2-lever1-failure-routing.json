@@ -1,0 +1,45 @@
+{
+  "capturedAt": "2026-07-18T04:14:55.441Z",
+  "promoteResult": {
+    "anchorCount": 2,
+    "anchors": [
+      {
+        "distanceFromCentroid": 0,
+        "formatted": "polyline-start",
+        "lat": 34.95,
+        "lng": -120.42
+      },
+      {
+        "distanceFromCentroid": 199.99062440160353,
+        "formatted": "polyline-end",
+        "lat": 37.3816,
+        "lng": -118.47472
+      }
+    ],
+    "claimedMiles": 100,
+    "disposition": "next_lever",
+    "failedCondition": "degenerate",
+    "geometryStatus": "unresolved",
+    "llmCallCount": 0,
+    "nextLever": 2,
+    "pointCount": 100,
+    "queuedForLever2": true,
+    "queuedForReview": false,
+    "ratio": 2,
+    "routeId": "test:lever1-fail",
+    "routedMiles": 200.0003589433746,
+    "verdict": "review"
+  },
+  "routeReading": {
+    "geometryStatus": "unresolved",
+    "lengthMiles": 100,
+    "name": "Lever 1 Failing",
+    "riderReady": false,
+    "routeId": "test:lever1-fail",
+    "routePolyline": "oditE~o~}UoxCyyBoxCyyBoxCyyBqxCyyBoxCyyBoxCyyBoxCwyBoxCyyBoxCyyBqxCyyBoxCyyBoxCyyBoxCyyBoxCyyBoxCyyBqxCyyBoxCyyBoxCyyBoxCyyBoxCyyBoxCwyBoxCyyBqxCyyBoxCyyBoxCyyBoxCyyBoxCyyBoxCyyBqxCyyBoxCyyBoxCyyBoxCyyBoxCyyBoxCwyBqxCyyBoxCyyBoxCyyBoxCyyBoxCyyBoxCyyBoxCyyBqxCyyBoxCyyBoxCyyBoxCyyBoxCyyBoxCyyBqxCwyBoxCyyBoxCyyBoxCyyBoxCyyBoxCyyBoxCyyBqxCyyBoxCyyBoxCyyBoxCyyBoxCyyBoxCyyBqxCwyBoxCyyBoxCyyBoxCyyBoxCyyBoxCyyBqxCyyBoxCyyBoxCyyBoxCyyBoxCyyBoxCyyBoxCyyBqxCyyBoxCwyBoxCyyBoxCyyBoxCyyBoxCyyBqxCyyBoxCyyBoxCyyBoxCyyBoxCyyBoxCyyBqxCyyBoxCyyBoxCwyBoxCyyBoxCyyBoxCyyBoxCyyBqxCyyBoxCyyBoxCyyBoxCyyBoxCyyBoxCyyBqxCyyB"
+  },
+  "reviewQueue": {
+    "length": 0,
+    "reviewQueue": []
+  }
+}

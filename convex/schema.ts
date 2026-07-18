@@ -193,6 +193,8 @@ export default defineSchema({
     .index('by_routeId', ['routeId'])
     .index('by_name_lower', ['name_lower'])
     .index('by_highway_number', ['highwayNumber'])
+    // REVIEW queue (status-field pattern): geometryStatus='review' — no separate table.
+    .index('by_geometry_status', ['geometryStatus'])
     .vectorIndex('by_embedding', {
       vectorField: 'searchEmbedding',
       dimensions: 1536,

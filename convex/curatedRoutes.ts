@@ -3,6 +3,9 @@
  *
  * listCuratedRoutes: Clerk-gated query supporting bbox, nearest-center,
  * state, and archetype filtering over the 5,654-row curated catalog.
+ *
+ * Also re-exports the Lever-3 deterministic name parser (UC-REC-03) so callers
+ * can resolve A-to-B / road-name structure without an LLM.
  */
 
 import { v } from 'convex/values'
@@ -11,12 +14,21 @@ import { internalQuery, query } from './_generated/server'
 import { geospatial } from './geospatialIndex'
 import { requireIdentity } from './guards'
 import {
+  type ParseRouteNameResult,
+  parseRouteEndpoints,
+  parseRouteName,
+} from './lib/endpointParser'
+import {
   type DbArchetype,
   dbArchetypeToUi,
   type UiArchetype,
   uiArchetypeToDbSet,
 } from './util/archetypeMap'
 import { clampLength, normalizeState, stateVariants } from './util/dataNormalization'
+
+export type { ParseRouteNameResult }
+/** Deterministic A-to-B / highway-ref parser (Lever 3). Named export for CAP-GEO-06. */
+export { parseRouteEndpoints, parseRouteName }
 
 const argsValidator = v.object({
   bbox: v.optional(
