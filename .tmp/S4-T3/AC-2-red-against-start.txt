@@ -1,0 +1,42 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T3
+
+ ❯ convex/__tests__/S4T3-lever2-geocode-region.integration.test.ts (2 tests | 2 failed) 2ms
+   × S4-T3 AC-2: Lever 2 geocode with region bias > CASE 1 — lever2-geocode-with-bias > TC-2: geocodes Santa Maria, CA within 150mi of centroid (34.95, -120.42) 1ms
+     → (0 , geocodeAnchorsInRegion) is not a function
+   × S4-T3 AC-2: Lever 2 geocode with region bias > CASE 2 — lever2-geocode-off-region-filtered > TC-3: off-region anchor (~300mi) is rejected by isAnchorInRegion and filtered from routing set 0ms
+     → (0 , isGeocodedAnchorInRegion) is not a function
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  convex/__tests__/S4T3-lever2-geocode-region.integration.test.ts > S4-T3 AC-2: Lever 2 geocode with region bias > CASE 1 — lever2-geocode-with-bias > TC-2: geocodes Santa Maria, CA within 150mi of centroid (34.95, -120.42)
+TypeError: (0 , geocodeAnchorsInRegion) is not a function
+ ❯ convex/__tests__/S4T3-lever2-geocode-region.integration.test.ts:35:37
+     33| 
+     34|     it('TC-2: geocodes Santa Maria, CA within 150mi of centroid (34.95…
+     35|       const geocodedAnchors = await geocodeAnchorsInRegion(
+       |                                     ^
+     36|         ['Santa Maria, CA', 'Los Olivos, CA'],
+     37|         CENTROID,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  convex/__tests__/S4T3-lever2-geocode-region.integration.test.ts > S4-T3 AC-2: Lever 2 geocode with region bias > CASE 2 — lever2-geocode-off-region-filtered > TC-3: off-region anchor (~300mi) is rejected by isAnchorInRegion and filtered from routing set
+TypeError: (0 , isGeocodedAnchorInRegion) is not a function
+ ❯ convex/__tests__/S4T3-lever2-geocode-region.integration.test.ts:68:14
+     66|       const isInRegion = isAnchorInRegion(offRegion, CENTROID)
+     67|       expect(isInRegion).toBe(false)
+     68|       expect(isGeocodedAnchorInRegion(offRegion, CENTROID, MAX_REGION_…
+       |              ^
+     69| 
+     70|       // When geocoding a far-away place name with region filter, it m…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  22:05:58
+   Duration  557ms (transform 53ms, setup 99ms, collect 30ms, tests 2ms, environment 290ms, prepare 34ms)
+

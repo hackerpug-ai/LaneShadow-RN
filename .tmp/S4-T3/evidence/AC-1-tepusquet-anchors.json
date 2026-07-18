@@ -1,0 +1,42 @@
+{
+  "capturedAt": "2026-07-18T04:39:02.516Z",
+  "routeId": "motorcycleroads:twist-of-tepusquet-loop",
+  "anchorsLength": 6,
+  "anchors": [
+    {
+      "query": "Highway 101 & Betteravia Road, Santa Maria, CA",
+      "why": "Described start point: exit Hwy 101 at Betteravia Road heading east",
+      "order": 0
+    },
+    {
+      "query": "Betteravia Road & Foxen Canyon Road, Santa Maria, CA",
+      "why": "Described road name transition: Betteravia Road becomes Foxen Canyon Road",
+      "order": 1
+    },
+    {
+      "query": "Foxen Canyon Road & Santa Maria Mesa Road, Santa Maria, CA",
+      "why": "Described road name transition: Foxen Canyon Road becomes Santa Maria Mesa Road",
+      "order": 2
+    },
+    {
+      "query": "Santa Maria Mesa Road & Tepusquet Canyon Road, Santa Barbara County, CA",
+      "why": "Described road name transition/merge: Santa Maria Mesa Road merges into Tepusquet Canyon Road",
+      "order": 3
+    },
+    {
+      "query": "Tepusquet Canyon Road & Highway 166, Santa Barbara County, CA",
+      "why": "Described junction: north end of Tepusquet Canyon Road reaches Hwy 166",
+      "order": 4
+    },
+    {
+      "query": "Highway 166 & Highway 101, Santa Maria, CA",
+      "why": "Described end of loop: Hwy 166 west back to Hwy 101, completing the loop",
+      "order": 5
+    }
+  ],
+  "confidence": "medium",
+  "modelInfo": {
+    "provider": "openai",
+    "model": "gpt-4.1"
+  }
+}

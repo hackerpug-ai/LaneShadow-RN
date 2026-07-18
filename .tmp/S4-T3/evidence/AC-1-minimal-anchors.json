@@ -1,0 +1,18 @@
+{
+  "capturedAt": "2026-07-18T04:39:04.754Z",
+  "routeId": "test:lever2-minimal",
+  "anchorsLength": 2,
+  "anchors": [
+    {
+      "query": "Highway 1 & 19th Ave, San Francisco, CA",
+      "why": "Start of route on Highway 1 in San Francisco",
+      "order": 0
+    },
+    {
+      "query": "Highway 1 & Water Street, Santa Cruz, CA",
+      "why": "End of route on Highway 1 in Santa Cruz",
+      "order": 1
+    }
+  ],
+  "contractMustObserve": "anchors.length == 2"
+}

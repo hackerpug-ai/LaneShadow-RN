@@ -1,0 +1,17 @@
+AC-3 RED-against-start evidence
+================================
+At task start (base SHA aca1343f), curatedGeometryReconstruct.ts had:
+- thinAnchorsForRouting as a PRIVATE function (not exported)
+- no buildViaIntermediates export
+- no routeViaWaypoints export
+
+Importing { thinAnchorsForRouting, buildViaIntermediates, routeViaWaypoints }
+from '../actions/curatedGeometryReconstruct' would fail with:
+  TypeError: thinAnchorsForRouting is not a function / export not found
+
+Source verification at start (grep):
+  function thinAnchorsForRouting  (private, not "export function")
+  no matches for buildViaIntermediates
+  no matches for routeViaWaypoints
+
+GREEN added exports + via=true intermediates + real Google Routes routeViaWaypoints.

@@ -1,4 +1,5 @@
 'use node'
+import { haversineDistance } from '../../../curatedGeometryGate'
 import { GOOGLE_MAPS_API_KEY } from '../../../lib/env'
 import { normalizePlaceQueryForGeocode } from '../lib/placeAliases'
 import { withTimeout } from '../lib/reliability'
@@ -10,6 +11,18 @@ export type GeocodeResult = {
   placeId: string
   types: string[]
 }
+
+/** Region-filtered geocode result used by Lever 2 reconstruct. */
+export type RegionGeocodedAnchor = {
+  lat: number
+  lng: number
+  formatted: string
+  distanceFromCentroid: number
+  placeId?: string
+}
+
+/** Default Lever-2 region radius (miles) — must match isAnchorInRegion gate. */
+export const DEFAULT_REGION_RADIUS_MI = 150
 
 const GEOCODING_ENDPOINT = 'https://maps.googleapis.com/maps/api/geocode/json'
 const GEOCODING_TIMEOUT_MS = 5_000
@@ -121,4 +134,86 @@ export const createGeocodingProvider = (apiKeyParam?: string) => {
     geocode: async (query: string, bias?: GeocodeBias): Promise<GeocodeResult[]> =>
       geocodeWithKey(apiKey, query, bias),
   }
+}
+
+/**
+ * True when the point lies within `maxDistanceMi` of the route centroid.
+ * Mirrors curatedGeometryGate.isAnchorInRegion (default 150mi).
+ */
+export const isGeocodedAnchorInRegion = (
+  anchor: { lat: number; lng: number },
+  centroid: { lat: number; lng: number },
+  maxDistanceMi: number = DEFAULT_REGION_RADIUS_MI,
+): boolean => haversineDistance(anchor, centroid) <= maxDistanceMi
+
+/**
+ * Geocode a single query with viewport bounds centered on the route centroid
+ * (region bias), then reject results outside maxDistanceMi.
+ *
+ * Uses Google Geocoding `bounds` so results prefer the route's region; the
+ * hard 150mi fence is applied after geocode (gate-identical filter).
+ */
+export const geocodeWithRegionBias = async (
+  query: string,
+  centroid: { lat: number; lng: number },
+  maxDistanceMi: number = DEFAULT_REGION_RADIUS_MI,
+  apiKeyParam?: string,
+): Promise<RegionGeocodedAnchor | null> => {
+  const apiKey = apiKeyParam !== undefined ? apiKeyParam : GOOGLE_MAPS_API_KEY
+  if (!apiKey) {
+    throw new Error('Missing required environment variable: GOOGLE_MAPS_API_KEY')
+  }
+
+  // ~1.2° ≈ 80–90mi at CA latitudes — bounds bias, not a hard fence.
+  // The hard fence is maxDistanceMi below.
+  const delta = 1.2
+  const url = new URL(GEOCODING_ENDPOINT)
+  url.searchParams.set('address', normalizePlaceQueryForGeocode(query))
+  url.searchParams.set('key', apiKey)
+  url.searchParams.set(
+    'bounds',
+    `${centroid.lat - delta},${centroid.lng - delta}|${centroid.lat + delta},${centroid.lng + delta}`,
+  )
+
+  // Plain fetch (no withTimeout AbortSignal) — matches reconstruct defaultGeocode
+  // and avoids jsdom AbortSignal instanceof mismatches in integration tests.
+  const response = await fetch(url.toString())
+  const data: any = await response.json()
+
+  if (data?.status !== 'OK' || !Array.isArray(data?.results) || data.results.length === 0) {
+    return null
+  }
+
+  const loc = data.results[0].geometry.location
+  const point = { lat: loc.lat as number, lng: loc.lng as number }
+  const distanceFromCentroid = haversineDistance(point, centroid)
+  if (distanceFromCentroid > maxDistanceMi) {
+    return null
+  }
+
+  return {
+    lat: point.lat,
+    lng: point.lng,
+    formatted: data.results[0].formatted_address as string,
+    distanceFromCentroid,
+    placeId: data.results[0].place_id as string | undefined,
+  }
+}
+
+/**
+ * Geocode an ordered list of anchor queries with region bias, dropping misses
+ * and off-region results. Surviving anchors are the routing intermediate set.
+ */
+export const geocodeAnchorsInRegion = async (
+  queries: string[],
+  centroid: { lat: number; lng: number },
+  maxDistanceMi: number = DEFAULT_REGION_RADIUS_MI,
+  apiKeyParam?: string,
+): Promise<RegionGeocodedAnchor[]> => {
+  const results: RegionGeocodedAnchor[] = []
+  for (const query of queries) {
+    const geocoded = await geocodeWithRegionBias(query, centroid, maxDistanceMi, apiKeyParam)
+    if (geocoded) results.push(geocoded)
+  }
+  return results
 }
