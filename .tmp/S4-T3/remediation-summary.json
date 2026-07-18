@@ -1,0 +1,18 @@
+{
+  "task_id": "S4-T3",
+  "fix_for": ["AC-1", "AC-5"],
+  "status": "completed",
+  "changes": {
+    "AC-1": {
+      "issue": "Softened oracle anchors.length >= 2 while contract requires == 2; live returned 6",
+      "fix": "Prompt constraint for sparse start→end + keepEndpointsOnlyWhenSparse post-normalize; test asserts exactly 2",
+      "evidence": ".tmp/S4-T3/evidence/AC-1-minimal-anchors.json (anchorsLength: 2)"
+    },
+    "AC-5": {
+      "issue": "Test theatre: asserted on static cassette requestBody not live prompt",
+      "fix": "Production returns llmPromptsUsed[] (prompt built by extractAnchors) + cassettePlayback.anthropicLiveRequestBodies[] (live fetch bodies). Test asserts on actionResult live capture after pushing this worktree.",
+      "evidence": ".tmp/S4-T3/evidence/AC-5-repair-feedback.json (source: llmPromptsUsed, containsRoutedLength: true)"
+    }
+  },
+  "tests": "27/27 S4T3 integration tests passed"
+}

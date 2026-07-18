@@ -1,8 +1,11 @@
 {
-  "capturedAt": "2026-07-18T04:12:12.411Z",
+  "capturedAt": "2026-07-18T04:38:57.493Z",
+  "source": "llmPromptsUsed",
   "attempt1RoutedMiles": 297.3896131333342,
-  "repairPromptSnippet": "{\"model\":\"claude-sonnet-4-6\",\"max_tokens\":128000,\"output_config\":{\"format\":{\"type\":\"json_schema\",\"schema\":{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"type\":\"object\",\"properties\":{\"anchors\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"query\":{\"type\":\"string\",\"description\":\"min length: 1.\"},\"why\":{\"type\":\"string\",\"description\":\"min length: 1.\"}},\"additionalProperties\":false,\"required\":[\"query\",\"why\"]},\"description\":\"min items: 1.\"},\"confidence\":{\"enum\":[\"high\",\"medium\",\"low\"],\"type\":\"string\"},\"roadChain\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"description\":\"min length: 1.\"}}},\"additionalProperties\":false,\"required\":[\"anchors\",\"confidence\",\"roadChain\"]}}},\"messages\":[{\"role\":\"user\",\"content\":[{\"type\":\"text\",\"text\":\"You reconstruct motorcycle route geometry from ride des",
+  "liveRepairPromptSnippet": "You reconstruct motorcycle route geometry from ride descriptions.\n\nROUTE: \"Repair Round Test\" in California\nCLAIMED LENGTH: 100 miles\nAPPROX CENTER: lat 34.6, lng -119.3\nDESCRIPTION:\nHighway 33 out-and-back over Pine Mountain\nStart in Ojai, CA and ride north on Highway 33 through Wheeler Gorge. Continue past the Rose Valley turnoff and climb over Pine Mountain Summit. Drop down through the Cuyama badlands to Ventucopa, CA. Turn around and retrace the same road back to Ojai.\n\nExtract an ORDERED list of geocodable anchor points tracing this exact route, start to end.\nRules:\n- Use road-intersection queries (\"Redwood Rd & Pinehurst Rd, Castro Valley, CA\") or \"place, city, state\" queries a geocoder can resolve.\n- One anchor at the start, one at each described turn/junction (so the router is for",
   "containsRoutedLength": true,
   "containsGeocodeLog": true,
-  "anthropicConsumed": 2
+  "anthropicConsumed": 2,
+  "llmPromptsUsedCount": 2,
+  "liveBodiesCount": 2
 }

@@ -39,6 +39,12 @@ export type ExtractAnchorsOptions = {
   intelligenceLevel?: 'high' | 'low'
 }
 
+/** extractAnchors result includes the exact prompt sent to the model (for repair-feedback verification). */
+export type ExtractAnchorsResult = EmitAnchors & {
+  /** Full user prompt built for this call (includes repair feedback when present). */
+  promptUsed: string
+}
+
 /** @deprecated Prefer getAgentLanguageModel('high') from models.ts */
 export const createDefaultAnchorExtractionModel = (): LanguageModel => {
   return getAgentLanguageModel('high')
@@ -81,7 +87,8 @@ Rules:
 - Always append city/region + state abbreviation to every query.
 - If the description says a road "turns into" another, add the transition point as an anchor.
 - For loops, the last anchor must return to the first.
-- Only use points the description supports. Do not invent scenic detours.
+- Only use points the description supports. Do not invent scenic detours, intermediate towns, or highway junctions the text never names.
+- If the description only names a start place and an end place (no intermediate exits/turns/junctions/road transitions), emit EXACTLY 2 anchors: start then end.
 - Assign each anchor an integer "order" field starting at 0 and increasing by 1 (0 = start, last = end).
 - Respond as JSON matching: {"anchors":[{"query":"...","why":"...","order":0}],"confidence":"high"|"medium"|"low","roadChain":["..."]}${feedbackBlock}`
 }
@@ -93,6 +100,43 @@ Rules:
 export const normalizeAnchorOrder = (anchors: EmitAnchors['anchors']): EmitAnchors['anchors'] => {
   const sorted = [...anchors].sort((a, b) => a.order - b.order)
   return sorted.map((anchor, index) => ({ ...anchor, order: index }))
+}
+
+/**
+ * Turn / intermediate language that justifies more than start+end anchors.
+ * Sparse "from A to B" descriptions without these keep only the endpoints.
+ */
+const INTERMEDIATE_LANGUAGE =
+  /\b(exit|turn|turns into|becomes|junction|merge|merges|onto|via|left|right|head (north|south|east|west)|continue|follow .+ until|after|before)\b/i
+
+/**
+ * When the description is a minimal start→end ride with no intermediate
+ * turn/junction language, keep only the first and last anchors. Prevents the
+ * model from inventing scenic detours on two-endpoint descriptions (AC-1 CASE 2)
+ * while leaving rich turn-by-turn lists (e.g. Tepusquet) untouched.
+ */
+export const keepEndpointsOnlyWhenSparse = (
+  description: string,
+  anchors: EmitAnchors['anchors'],
+): EmitAnchors['anchors'] => {
+  if (anchors.length <= 2) return anchors
+  const text = description.trim()
+  if (text.length === 0) return anchors
+  if (INTERMEDIATE_LANGUAGE.test(text)) return anchors
+  const ordered = normalizeAnchorOrder(anchors)
+  return [
+    { ...ordered[0], order: 0 },
+    { ...ordered[ordered.length - 1], order: 1 },
+  ]
+}
+
+/** Apply order normalize + sparse-description endpoint trim. */
+export const finalizeAnchors = (
+  route: AnchorExtractionRouteInput,
+  anchors: EmitAnchors['anchors'],
+): EmitAnchors['anchors'] => {
+  const description = formatDescription(route)
+  return keepEndpointsOnlyWhenSparse(description, normalizeAnchorOrder(anchors))
 }
 
 /**
@@ -129,10 +173,20 @@ const coercePartialAnchors = (raw: unknown): EmitAnchors | null => {
   }
 }
 
+const withFinalizedAnchors = (
+  route: AnchorExtractionRouteInput,
+  result: EmitAnchors,
+  promptUsed: string,
+): ExtractAnchorsResult => ({
+  ...result,
+  anchors: finalizeAnchors(route, result.anchors),
+  promptUsed,
+})
+
 export const extractAnchors = async (
   route: AnchorExtractionRouteInput,
   options?: ExtractAnchorsOptions,
-): Promise<EmitAnchors> => {
+): Promise<ExtractAnchorsResult> => {
   const level = options?.intelligenceLevel ?? 'high'
   // Resolve through the model layer — never hardcode provider/model at call sites.
   const modelInfo = getAgentLanguageModelInfo(level)
@@ -152,14 +206,11 @@ export const extractAnchors = async (
     if (result.output) {
       const validated = emitAnchorsSchema.safeParse(result.output)
       if (validated.success) {
-        return {
-          ...validated.data,
-          anchors: normalizeAnchorOrder(validated.data.anchors),
-        }
+        return withFinalizedAnchors(route, validated.data, prompt)
       }
       // Structured path produced output that failed re-validation — try coerce.
       const coerced = coercePartialAnchors(result.output)
-      if (coerced) return coerced
+      if (coerced) return withFinalizedAnchors(route, coerced, prompt)
     }
 
     rawText = result.text
@@ -174,10 +225,7 @@ export const extractAnchors = async (
   // Text-mode JSON fallback ladder — never silently return an empty anchor array.
   const fallback = parseZaiFallback(rawText ?? '', emitAnchorsSchema)
   if (fallback.ok) {
-    return {
-      ...fallback.object,
-      anchors: normalizeAnchorOrder(fallback.object.anchors),
-    }
+    return withFinalizedAnchors(route, fallback.object, prompt)
   }
 
   // Last chance: coerce partial JSON without full schema compliance on order.
@@ -185,7 +233,7 @@ export const extractAnchors = async (
     try {
       const parsed = JSON.parse(rawText)
       const coerced = coercePartialAnchors(parsed)
-      if (coerced) return coerced
+      if (coerced) return withFinalizedAnchors(route, coerced, prompt)
     } catch {
       // fall through to typed error
     }

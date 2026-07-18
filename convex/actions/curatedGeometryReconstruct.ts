@@ -59,6 +59,12 @@ export type ReconstructPersistResult = {
   routedMiles: number
   riderReady: boolean
   routingCallCount: number
+  /**
+   * Exact anchor-extraction prompts production built for each attempt (index 0 =
+   * first try, index 1 = repair). Used by AC-5 to assert the repair prompt
+   * carries "Routed length" + geocode log without theatre-asserting on fixtures.
+   */
+  llmPromptsUsed?: string[]
 }
 
 const TEPUSQUET_GEOCODE_QUERIES = [
@@ -130,6 +136,14 @@ export type CassettePlayback = {
   routingConsumed: number
   geocodingConsumed: number
   anthropicConsumed: number
+  /**
+   * Request bodies production actually sent to Anthropic during this run, in
+   * call order. On replay these are the LIVE bodies built by the pipeline
+   * (including repair feedback), not the static cassette fixture text — so
+   * tests can assert the second prompt carries "Routed length" + geocode log
+   * without theatre-asserting on the fixture file.
+   */
+  anthropicLiveRequestBodies: string[]
 }
 
 type ActiveCassette = {
@@ -149,7 +163,22 @@ function summarizePlayback(cassette: ActiveCassette): CassettePlayback {
     routingConsumed: count('google_routes'),
     geocodingConsumed: count('google_geocoding'),
     anthropicConsumed: count('anthropic'),
+    anthropicLiveRequestBodies: served
+      .filter((e) => e.provider === 'anthropic')
+      .map((e) => e.requestBody ?? ''),
   }
+}
+
+/** Best-effort sync extraction of the body production is about to send. */
+function liveRequestBodyOf(_input: RequestInfo | URL, init?: RequestInit): string | undefined {
+  if (typeof init?.body === 'string') return init.body
+  if (init?.body instanceof ArrayBuffer) {
+    return new TextDecoder().decode(init.body)
+  }
+  if (init?.body instanceof Uint8Array) {
+    return new TextDecoder().decode(init.body)
+  }
+  return undefined
 }
 
 function classifyProvider(url: string): CassetteExchange['provider'] {
@@ -203,7 +232,14 @@ async function withCassette<T>(cassette: ActiveCassette | null, fn: () => Promis
         )
       }
       cassette.cursor += 1
-      cassette.consumed.push(next)
+      // Capture the LIVE request body the pipeline built for this call.
+      // Do NOT fall back to the recorded fixture requestBody — that would make
+      // AC-5 assertions theatre (fixture text, not production output).
+      const liveBody = liveRequestBodyOf(input, init)
+      cassette.consumed.push({
+        ...next,
+        requestBody: liveBody,
+      })
       return new Response(next.responseBody, {
         status: next.status,
         headers: { 'content-type': 'application/json' },
@@ -217,7 +253,7 @@ async function withCassette<T>(cassette: ActiveCassette | null, fn: () => Promis
       provider: classifyProvider(url),
       url: redacted,
       method: requestMethodOf(input, init),
-      requestBody: typeof init?.body === 'string' ? init.body : undefined,
+      requestBody: liveRequestBodyOf(input, init),
       status: res.status,
       responseBody,
     })
@@ -578,6 +614,9 @@ export const reconstructForRoute = internalAction({
       geocodeLog: string[]
     }
 
+    /** Production-built prompts for each extractAnchors attempt (AC-5 evidence). */
+    const llmPromptsUsed: string[] = []
+
     const runPipelineAttempt = async (feedback?: string): Promise<PipelineAttempt | null> => {
       const anchorResult = await extractAnchors(
         {
@@ -593,6 +632,7 @@ export const reconstructForRoute = internalAction({
         },
         feedback ? { feedback } : undefined,
       )
+      llmPromptsUsed.push(anchorResult.promptUsed)
 
       const geocodedAnchors: GeocodedAnchor[] = []
       const geocodeLog: string[] = []
@@ -673,7 +713,7 @@ export const reconstructForRoute = internalAction({
         ratio: null,
         claimedMiles,
       })
-      return { ...persisted, recordedCassette, cassettePlayback }
+      return { ...persisted, recordedCassette, cassettePlayback, llmPromptsUsed }
     }
 
     const persisted = await persistGateResult(ctx, route, {
@@ -685,7 +725,7 @@ export const reconstructForRoute = internalAction({
       ratio: bestAttempt.ratio,
       claimedMiles,
     })
-    return { ...persisted, recordedCassette, cassettePlayback }
+    return { ...persisted, recordedCassette, cassettePlayback, llmPromptsUsed }
   },
 })
 
