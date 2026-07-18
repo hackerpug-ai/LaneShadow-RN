@@ -15,6 +15,7 @@
 import { v } from 'convex/values'
 import { internal } from './_generated/api'
 import { internalAction, internalMutation, internalQuery } from './_generated/server'
+import { reevaluateExistingGeometry } from './curatedGeometryGate'
 
 // ---------------------------------------------------------------------------
 // Validators (shared with actions/curatedGeometry.ts via re-export)
@@ -674,5 +675,173 @@ export const migrateGeometryToSideTable = internalAction({
       isDone = page.isDone
     }
     return { scanned, moved, skipped }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// AC-6: Pre-existing geometry re-evaluation sweep
+// ---------------------------------------------------------------------------
+
+type SweepPage = {
+  rows: Array<{
+    routeId: string
+    verification: {
+      routeId: string
+      verdict: 'pass' | 'review'
+      failedCondition?: 'ratio' | 'anchors' | 'degenerate'
+      geometryStatus: 'generated' | 'review'
+      anchorCount: number
+      anchors: Array<{ lat: number; lng: number; formatted: string; distanceFromCentroid: number }>
+      pointCount: number
+      degenerate: boolean
+      ratio: number | null
+      claimedMiles: number | null
+      routedMiles: number
+    }
+  }>
+  continueCursor: string
+  isDone: boolean
+}
+
+/**
+ * Internal query: paginated scan of curated_route_geometry rows that HAVE a
+ * verification block. Used by the pre-existing sweep to re-evaluate legacy rows
+ * against the enhanced gate.
+ */
+export const listGeometryWithVerification = internalQuery({
+  args: {
+    cursor: v.union(v.string(), v.null()),
+    batchSize: v.number(),
+  },
+  handler: async (ctx, { cursor, batchSize }): Promise<SweepPage> => {
+    const page = await ctx.db
+      .query('curated_route_geometry')
+      .paginate({ cursor, numItems: batchSize })
+    return {
+      rows: page.page
+        .filter((r) => r.verification !== undefined)
+        .map((r) => ({
+          routeId: r.routeId,
+          verification: r.verification!,
+        })),
+      continueCursor: page.continueCursor,
+      isDone: page.isDone,
+    }
+  },
+})
+
+/**
+ * Internal mutation: flip a geometry row's verification verdict.
+ * Used by the pre-existing sweep to downgrade rows that fail the enhanced gate.
+ */
+export const flipGeometryVerdict = internalMutation({
+  args: {
+    routeId: v.string(),
+    verdict: v.union(v.literal('pass'), v.literal('review')),
+    failedCondition: v.optional(
+      v.union(v.literal('ratio'), v.literal('anchors'), v.literal('degenerate')),
+    ),
+  },
+  handler: async (ctx, { routeId, verdict, failedCondition }) => {
+    const geomRow = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+
+    if (!geomRow?.verification) return false
+
+    const geometryStatus = verdict === 'pass' ? 'generated' : 'review'
+    await ctx.db.patch(geomRow._id, {
+      verification: {
+        ...geomRow.verification,
+        verdict,
+        failedCondition,
+        geometryStatus,
+      },
+    })
+
+    // Also update the route doc geometryStatus + riderReady
+    const route = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+
+    if (route) {
+      await ctx.db.patch(route._id, { geometryStatus })
+      if (geometryStatus !== 'generated') {
+        await ctx.db.patch(route._id, { riderReady: false })
+      } else {
+        await recomputeRiderReady(ctx, route._id)
+      }
+    }
+
+    return true
+  },
+})
+
+type SweepReport = { scanned: number; flipped: number; unchanged: number }
+
+/**
+ * AC-6: Pre-existing geometry re-evaluation sweep.
+ *
+ * Scans ALL curated_route_geometry rows with a verification block and
+ * re-evaluates them against the enhanced gate (including anchor-region check).
+ * Rows that fail the enhanced gate are flipped to verdict='review'.
+ *
+ *   npx convex run curatedGeometry:reevaluatePreexistingGeometry '{}'
+ */
+export const reevaluatePreexistingGeometry = internalAction({
+  args: { batchSize: v.optional(v.number()) },
+  handler: async (ctx, { batchSize }): Promise<SweepReport> => {
+    const size = batchSize ?? 50
+    let cursor: string | null = null
+    let isDone = false
+    let scanned = 0
+    let flipped = 0
+    let unchanged = 0
+
+    while (!isDone) {
+      const page: SweepPage = await ctx.runQuery(
+        internal.curatedGeometry.listGeometryWithVerification,
+        { cursor, batchSize: size },
+      )
+
+      for (const row of page.rows) {
+        scanned++
+        const verification = row.verification
+
+        // Get route to check quarantine status
+        const route = await ctx.runQuery(internal.curatedGeometry.getRouteForReconstruct, {
+          routeId: row.routeId,
+        })
+
+        const isQuarantined = route?.quarantine != null
+
+        const newVerdict = reevaluateExistingGeometry({
+          ratio: verification.ratio,
+          pointCount: verification.pointCount,
+          routedMiles: verification.routedMiles,
+          anchorCount: verification.anchorCount,
+          anchors: verification.anchors,
+          quarantine: isQuarantined,
+        })
+
+        if (newVerdict.verdict !== verification.verdict) {
+          await ctx.runMutation(internal.curatedGeometry.flipGeometryVerdict, {
+            routeId: row.routeId,
+            verdict: newVerdict.verdict,
+            failedCondition: newVerdict.failedCondition,
+          })
+          flipped++
+        } else {
+          unchanged++
+        }
+      }
+
+      cursor = page.continueCursor
+      isDone = page.isDone
+    }
+
+    return { scanned, flipped, unchanged }
   },
 })

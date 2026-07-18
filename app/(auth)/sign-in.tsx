@@ -160,12 +160,24 @@ export const SignInScreen = () => {
       showError('Auth is not ready. Please try again.')
       return
     }
+    // Both credentials come from optional EXPO_PUBLIC_* env vars. The button
+    // that calls this is gated on E2E_TEST_EMAIL only, so a build that sets the
+    // email but not the password would reach Clerk with `password: undefined`
+    // and fail with an opaque API error. Check both and say which is missing.
+    const e2eEmail = env.E2E_TEST_EMAIL
+    const e2ePassword = env.E2E_TEST_PASSWORD
+    if (!e2eEmail || !e2ePassword) {
+      showError(
+        'E2E test credentials are not configured. Set EXPO_PUBLIC_E2E_TEST_EMAIL and EXPO_PUBLIC_E2E_TEST_PASSWORD.',
+      )
+      return
+    }
     setLoading(true)
     try {
-      await signIn.create({ identifier: env.E2E_TEST_EMAIL })
+      await signIn.create({ identifier: e2eEmail })
       const result = await signIn.attemptFirstFactor({
         strategy: 'password',
-        password: env.E2E_TEST_PASSWORD,
+        password: e2ePassword,
       })
       if (result.status === 'complete' && result.createdSessionId) {
         await setSignInActive({ session: result.createdSessionId })
@@ -175,7 +187,7 @@ export const SignInScreen = () => {
       }
     } catch (err) {
       const message = isClerkAPIResponseError(err)
-        ? err.errors?.[0]?.message ?? 'E2E test login failed.'
+        ? (err.errors?.[0]?.message ?? 'E2E test login failed.')
         : err instanceof Error
           ? err.message
           : 'E2E test login failed.'

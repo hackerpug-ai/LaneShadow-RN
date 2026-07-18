@@ -122,12 +122,33 @@ vi.mock('../saved-route.utils/utils', () => ({
 import SavedRouteDetailScreen, { getSavedRouteReopenTarget } from './[id]'
 
 describe('SAVE-001 / AC-3: reopen pure helper — getSavedRouteReopenTarget', () => {
-  it('returns curated target when curatedRouteRef is present', () => {
+  // Identifier contract (established by 6958b6b5 "resolve public routeId for
+  // saved curated route reopen"): `curatedRouteRef` is the INTERNAL
+  // Id<'curated_routes'>, while `curatedRouteId` is the PUBLIC slug that the
+  // curated detail screen dereferences by. The redirect must use the slug — the
+  // fixtures below keep the two distinct so they cannot be conflated again.
+  it('returns a curated target keyed on the public slug (curatedRouteId)', () => {
     const target = getSavedRouteReopenTarget({
-      curatedRouteRef: 'wasatch-ridge-traverse',
+      curatedRouteRef: 'k97f3ab2c1d4e5f6g7h8i9j0',
+      curatedRouteId: 'wasatch-ridge-traverse',
       name: 'Wasatch Ridge Loop',
     } as never)
     expect(target).toEqual({ kind: 'curated', routeId: 'wasatch-ridge-traverse' })
+  })
+
+  it('never redirects using the internal _id when the public slug is unresolved', () => {
+    // The server sets curatedRouteId to null when the referenced curated route
+    // no longer exists. Redirecting with curatedRouteRef here would send the user
+    // to /curated-route/{internal _id}, which cannot be dereferenced.
+    const target = getSavedRouteReopenTarget({
+      curatedRouteRef: 'k97f3ab2c1d4e5f6g7h8i9j0',
+      curatedRouteId: null,
+      name: 'Deleted Curated Route',
+    } as never)
+    // Pins the exact value rather than merely excluding the internal-_id
+    // redirect: a `not.toEqual` here would also pass for an unrelated wrong
+    // target, so assert the planned fallback the impl actually returns.
+    expect(target).toEqual({ kind: 'planned' })
   })
 
   it('returns planned target when planInput is present (no curatedRouteRef)', () => {
@@ -152,12 +173,14 @@ describe('SAVE-001 / AC-3: saved-route/[id] redirects curated rows', () => {
     mockParamsId = 'sr-curated-1'
   })
 
-  it('redirects to /(app)/curated-route/{routeId} when the saved row has curatedRouteRef', () => {
+  it('redirects to /(app)/curated-route/{publicSlug} when the saved row has curatedRouteRef', () => {
     mockDetail = {
       data: {
         savedRouteId: 'sr-curated-1',
         name: 'Wasatch Ridge Loop',
-        curatedRouteRef: 'wasatch-ridge-traverse',
+        // Internal _id + the public slug the server resolved from it.
+        curatedRouteRef: 'k97f3ab2c1d4e5f6g7h8i9j0',
+        curatedRouteId: 'wasatch-ridge-traverse',
       },
       isLoading: false,
     }
@@ -166,8 +189,36 @@ describe('SAVE-001 / AC-3: saved-route/[id] redirects curated rows', () => {
       renderer.create(React.createElement(SavedRouteDetailScreen))
     })
 
-    // ── must observe: redirect to the curated detail screen ──
+    // ── must observe: redirect to the curated detail screen, by public slug ──
     expect(mockReplace).toHaveBeenCalledWith('/(app)/curated-route/wasatch-ridge-traverse')
+  })
+
+  it('shows not-found (no crash, no redirect) for a bookmark whose curated route was deleted', () => {
+    // Regression: the server returns curatedRouteId: null when the referenced
+    // curated route is gone. Such a row is not classified 'curated', so it fell
+    // through to the planned path and threw "Cannot read property
+    // 'overviewGeometry' of undefined" — a red screen instead of an empty state.
+    mockDetail = {
+      data: {
+        savedRouteId: 'sr-curated-dangling',
+        name: 'Deleted Curated Route',
+        curatedRouteRef: 'k97f3ab2c1d4e5f6g7h8i9j0',
+        curatedRouteId: null,
+        // No planInput/routeSnapshot/routeIndex — this row has no planned payload.
+      },
+      isLoading: false,
+    }
+
+    let tree: renderer.ReactTestRenderer
+    act(() => {
+      tree = renderer.create(React.createElement(SavedRouteDetailScreen))
+    })
+
+    expect(tree!.root.findAllByProps({ testID: 'route-not-found-message' }).length).toBeGreaterThan(
+      0,
+    )
+    expect(mockReplace).not.toHaveBeenCalled()
+    expect(tree!.root.findAllByType('MapboxMapView' as never)).toHaveLength(0)
   })
 
   it('does NOT render the planned-path map/legs for a curated row (no planInput read)', () => {

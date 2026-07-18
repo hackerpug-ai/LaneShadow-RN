@@ -1,12 +1,37 @@
 import { v } from 'convex/values'
 import { internal } from './_generated/api'
 import type { Doc } from './_generated/dataModel'
-import { mutation, query } from './_generated/server'
+import { action, mutation, query } from './_generated/server'
 import { geospatial } from './geospatialIndex'
 import { requireIdentity } from './guards'
 
 const TEPUSQUET_SUMMARY =
   'Highway 101 in Santa Maria, CA. Exit Betteravia Road heading East. Betteravia Road becomes Foxen Canyon Road. Foxen Canyon Road becomes Santa Maria Mesa Road. Santa Maria Mesa Road merges into Tepusquet Canyon Road. Head North on Tepusquet Canyon Road. Follow this all the way up the mountain and back down until you reach highway 166. Follow 166 West until you reach highway 101 again.'
+
+/**
+ * Cassette validator for the AC-5 repair-round replay. Mirrors the shape of
+ * `cassetteValidator` in convex/actions/curatedGeometryReconstruct.ts — the
+ * public wrapper has to re-declare it because Convex validators are values,
+ * not types, and the action module is `'use node'`.
+ */
+const reconstructCassetteValidator = v.object({
+  exchanges: v.array(
+    v.object({
+      seq: v.number(),
+      provider: v.union(
+        v.literal('google_routes'),
+        v.literal('google_geocoding'),
+        v.literal('anthropic'),
+        v.literal('other'),
+      ),
+      url: v.string(),
+      method: v.string(),
+      requestBody: v.optional(v.string()),
+      status: v.number(),
+      responseBody: v.string(),
+    }),
+  ),
+})
 
 type ScoreOverrides = {
   compositeScore?: number
@@ -25,6 +50,8 @@ async function insertTestRoute(
     lengthMiles: number
     centroidLat?: number
     centroidLng?: number
+    oneLiner?: string
+    summary?: string
     name_lower?: string
     geometryStatus?: 'generated' | 'unresolved' | 'failed' | 'review'
     quarantine?: { reason: 'zero_length' | 'length_outlier' | 'test_row'; flaggedAt: number }
@@ -55,12 +82,22 @@ async function insertTestRoute(
       lengthMiles: row.lengthMiles,
       centroidLat,
       centroidLng,
+      // Keep centroid-derived fields consistent when a re-seed moves the route,
+      // otherwise the row keeps stale bounds/location from its first seeding.
+      boundsNeLat: centroidLat + 0.3,
+      boundsNeLng: centroidLng + 0.3,
+      boundsSwLat: centroidLat - 0.3,
+      boundsSwLng: centroidLng - 0.3,
+      location: { type: 'Point' as const, coordinates: [centroidLng, centroidLat] },
       compositeScore: scores.compositeScore ?? 85,
-      curvatureScore: scores.curvatureScore,
-      scenicScore: scores.scenicScore,
-      technicalScore: scores.technicalScore,
-      trafficScore: scores.trafficScore,
-      remotenessScore: scores.remotenessScore,
+      // Score fields are REQUIRED by the schema — patching them with an
+      // undefined override deletes the field and the write is rejected. Only
+      // patch a score when the caller actually supplied one.
+      ...(scores.curvatureScore != null ? { curvatureScore: scores.curvatureScore } : {}),
+      ...(scores.scenicScore != null ? { scenicScore: scores.scenicScore } : {}),
+      ...(scores.technicalScore != null ? { technicalScore: scores.technicalScore } : {}),
+      ...(scores.trafficScore != null ? { trafficScore: scores.trafficScore } : {}),
+      ...(scores.remotenessScore != null ? { remotenessScore: scores.remotenessScore } : {}),
       rideWorthiness: row.rideWorthiness ?? {
         verdict: 'ride',
         reason: 'spike seed',
@@ -70,6 +107,8 @@ async function insertTestRoute(
       quarantine: row.quarantine,
       retiredAt: undefined,
       duplicateOf: undefined,
+      ...(row.oneLiner != null ? { oneLiner: row.oneLiner } : {}),
+      ...(row.summary != null ? { summary: row.summary } : {}),
       ...(row.name_lower != null ? { name_lower: row.name_lower } : {}),
       ...(row.geometryStatus != null ? { geometryStatus: row.geometryStatus } : {}),
       ...(row.state != null ? { state: row.state } : {}),
@@ -78,6 +117,14 @@ async function insertTestRoute(
         ? { candidateIdentifiers: row.candidateIdentifiers }
         : {}),
     })
+    // Keep the geospatial index in step with a moved centroid.
+    await geospatial.insert(
+      ctx,
+      existing._id,
+      { latitude: centroidLat, longitude: centroidLng },
+      { state: row.state ?? 'California', primaryArchetype: 'twisties' },
+      scores.compositeScore ?? 85,
+    )
     await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
       id: existing._id,
     })
@@ -108,8 +155,9 @@ async function insertTestRoute(
     technicalScore: scores.technicalScore ?? 85,
     trafficScore: scores.trafficScore ?? 75,
     remotenessScore: scores.remotenessScore ?? 70,
-    oneLiner: row.routeId.includes('tepusquet') ? '' : 'Test route',
-    summary: row.routeId.includes('tepusquet') ? TEPUSQUET_SUMMARY : 'Test route summary',
+    oneLiner: row.oneLiner ?? (row.routeId.includes('tepusquet') ? '' : 'Test route'),
+    summary:
+      row.summary ?? (row.routeId.includes('tepusquet') ? TEPUSQUET_SUMMARY : 'Test route summary'),
     badges: [],
     season: 'year_round',
     contentVersion: 1,
@@ -202,6 +250,62 @@ export const seedQuarantinedLengthRow = mutation({
   },
 })
 
+/**
+ * AC-4 CASE A: quarantined route carrying a REAL out-of-band ratio.
+ *
+ * claimed 100mi vs routed 22mi → real ratio 0.22 (far outside the 0.6–1.6 band).
+ * The ratio is computed and non-null; the quarantine flag is what skips the band
+ * check. Twinned with `seedUnquarantinedOutOfBandRatioRow` below — the two rows
+ * are IDENTICAL except for the quarantine flag, which is the only variable.
+ */
+export const seedQuarantinedOutOfBandRatioRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:quarantined-ratio-022',
+      name: 'Quarantined ratio 0.22',
+      lengthMiles: 100,
+      quarantine: { reason: 'length_outlier', flaggedAt: Date.now() },
+    })
+  },
+})
+
+/**
+ * AC-4 CASE B: the discriminating twin — IDENTICAL geometry and claimed length
+ * to `seedQuarantinedOutOfBandRatioRow` (real ratio 0.22) but with NO quarantine
+ * flag. Deleting the quarantine branch collapses CASE A onto this row.
+ */
+export const seedUnquarantinedOutOfBandRatioRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:unquarantined-ratio-022',
+      name: 'Unquarantined ratio 0.22',
+      lengthMiles: 100,
+      // quarantine intentionally omitted — this is the discriminator
+    })
+  },
+})
+
+/**
+ * AC-4 CASE C: quarantined route with 3-point geometry — proves quarantine does
+ * NOT bypass the degenerate check.
+ */
+export const seedQuarantinedDegenerateRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:quarantined-degenerate-3pt',
+      name: 'Quarantined degenerate 3pt',
+      lengthMiles: 100,
+      quarantine: { reason: 'length_outlier', flaggedAt: Date.now() },
+    })
+  },
+})
+
 export const seedAnchorTestRoutes = mutation({
   args: {},
   handler: async (ctx) => {
@@ -216,6 +320,15 @@ export const seedAnchorTestRoutes = mutation({
         routeId: 'test:mixed-anchors',
         name: 'Mixed anchors',
         lengthMiles: 41,
+      }),
+      // AC-2 CASE 1 fixture `anchors-sufficient-in-region`: 2 anchors within
+      // 150mi of centroid (34.95, -120.42), claimed 41mi routed 41mi → ratio 1.0.
+      await insertTestRoute(ctx, {
+        routeId: 'test:anchors-sufficient',
+        name: 'Sufficient Anchors',
+        lengthMiles: 41,
+        centroidLat: 34.95,
+        centroidLng: -120.42,
       }),
     ]
   },
@@ -399,6 +512,10 @@ export const teardownAllTestRoutes = mutation({
       'test:quarantined-null-length',
       'test:single-anchor',
       'test:mixed-anchors',
+      'test:anchors-sufficient',
+      'test:quarantined-ratio-022',
+      'test:unquarantined-ratio-022',
+      'test:quarantined-degenerate-3pt',
     ]
 
     let deleted = 0
@@ -1277,6 +1394,226 @@ export const teardownQuarantineStateRows = mutation({
         .collect()
 
       for (const doc of rows) {
+        await geospatial.remove(ctx, doc._id)
+        const geomRow = await ctx.db
+          .query('curated_route_geometry')
+          .withIndex('by_routeId', (q) => q.eq('routeId', doc.routeId))
+          .first()
+        if (geomRow) await ctx.db.delete(geomRow._id)
+        await ctx.db.delete(doc._id)
+        deleted++
+      }
+    }
+    return { status: 'deleted', count: deleted }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// S4-T1: Deterministic geometry gate — seed/teardown helpers
+// ---------------------------------------------------------------------------
+
+/** Haversine distance helper for seed data (mirrors curatedGeometryGate). */
+function haversineHelper(
+  p1: { lat: number; lng: number },
+  p2: { lat: number; lng: number },
+): number {
+  const R = 3958.8
+  const toRad = (deg: number) => (deg * Math.PI) / 180
+  const dLat = toRad(p2.lat - p1.lat)
+  const dLng = toRad(p2.lng - p1.lng)
+  const la1 = toRad(p1.lat)
+  const la2 = toRad(p2.lat)
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2
+  const c = 2 * Math.asin(Math.sqrt(a))
+  return R * c
+}
+
+/**
+ * AC-5 CASE 1 — `repair-round-two-attempts-better-second`.
+ *
+ * A REAL route description (Highway 1 through Big Sur, Carmel → San Simeon)
+ * carrying a claimed length of 100mi. Nothing here designs the outcome: the
+ * anchors come from the live LLM, the distances come from Google Routes, and
+ * the recorded exchange log is whatever those providers returned.
+ *
+ * This route was SELECTED for this case because its recorded behaviour exhibits
+ * the property the AC needs — the first attempt lands outside the 0.6–1.6 band
+ * and the feedback-driven repair attempt lands inside it. The property is read
+ * off the recording; it is never dictated onto it.
+ */
+export const seedRepairRoundRoute = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:repair-round',
+      name: 'Repair Round Test',
+      lengthMiles: 100,
+      centroidLat: 34.6,
+      centroidLng: -119.3,
+      oneLiner: 'Highway 33 out-and-back over Pine Mountain',
+      summary:
+        'Start in Ojai, CA and ride north on Highway 33 through Wheeler Gorge. Continue past the Rose Valley turnoff and climb over Pine Mountain Summit. Drop down through the Cuyama badlands to Ventucopa, CA. Turn around and retrace the same road back to Ojai.',
+    })
+  },
+})
+
+/**
+ * AC-5 CASE 2 — `repair-round-exhausted-to-review`.
+ *
+ * The REAL Latigo Canyon Road climb (a genuine ~10mi road) carrying a claimed
+ * length of 100mi. The claim is the lie; the road is real and short.
+ *
+ * SELECTED because its recording exhibits the both-attempts-fail property: the
+ * repair round honestly refuses to fabricate mileage the description does not
+ * support, so both recorded attempts land far below the band and the 2-attempt
+ * budget exhausts to verdict='review'. The routed lengths are the provider's
+ * own values.
+ */
+export const seedRepairExhaustedRoute = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:repair-exhausted',
+      name: 'Repair Exhausted Test',
+      lengthMiles: 100,
+      centroidLat: 34.06,
+      centroidLng: -118.79,
+      oneLiner: 'Latigo Canyon Road climb',
+      summary:
+        'Start on Pacific Coast Highway at Latigo Canyon Road in Malibu, CA. Turn inland and climb Latigo Canyon Road through the switchbacks. Follow Latigo Canyon Road all the way up to Kanan Dume Road.',
+    })
+  },
+})
+
+/**
+ * Seed a pre-existing geometry row with verdict='pass' but OFF-REGION anchors
+ * for the AC-6 sweep test. The anchors are >300mi from the route centroid,
+ * so the enhanced gate should flip this row to verdict='review'.
+ */
+export const seedPreexistingOffRegionGeometry = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+
+    const routeId = 'test:preexisting-offregion'
+    const result = await insertTestRoute(ctx, {
+      routeId,
+      name: 'Pre-existing Off Region',
+      lengthMiles: 41,
+      centroidLat: 34.95,
+      centroidLng: -120.42,
+      geometryStatus: 'generated',
+    })
+
+    // Insert geometry with verdict='pass' but anchors 300mi from centroid
+    const existingGeom = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q: any) => q.eq('routeId', routeId))
+      .first()
+
+    // Anchors at ~300mi from centroid (off-region, >150mi threshold)
+    const farPoint1 = { lat: 39.2, lng: -120.42 } // ~300mi north
+    const farPoint2 = { lat: 39.3, lng: -120.42 } // ~307mi north
+    const dist1 = haversineHelper({ lat: 34.95, lng: -120.42 }, farPoint1)
+    const dist2 = haversineHelper({ lat: 34.95, lng: -120.42 }, farPoint2)
+
+    const geomDoc = {
+      routeId,
+      format: 'polyline' as const,
+      encoding: 'utf-8',
+      precision: 5,
+      value: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+      verification: {
+        routeId,
+        verdict: 'pass' as const,
+        geometryStatus: 'generated' as const,
+        geometry: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+        anchorCount: 2,
+        anchors: [
+          {
+            lat: farPoint1.lat,
+            lng: farPoint1.lng,
+            formatted: 'Off-region 1',
+            distanceFromCentroid: dist1,
+          },
+          {
+            lat: farPoint2.lat,
+            lng: farPoint2.lng,
+            formatted: 'Off-region 2',
+            distanceFromCentroid: dist2,
+          },
+        ],
+        pointCount: 50,
+        degenerate: false,
+        ratio: 1.0,
+        claimedMiles: 41,
+        routedMiles: 41,
+      },
+    }
+
+    if (existingGeom) {
+      await ctx.db.replace(existingGeom._id, geomDoc)
+    } else {
+      await ctx.db.insert('curated_route_geometry', geomDoc)
+    }
+
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: result.id,
+    })
+
+    return { ...result, routeId }
+  },
+})
+
+/** Query the verification block for a route by routeId. */
+export const getGeometryVerification = query({
+  args: { routeId: v.string() },
+  handler: async (ctx, { routeId }) => {
+    await requireIdentity(ctx)
+    const geomRow = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+    return geomRow?.verification ?? null
+  },
+})
+
+/**
+ * Public wrapper for the PRODUCTION `reconstructForRoute` action (AC-5).
+ *
+ * Needed only because internal actions can't be reached via `npx convex run`.
+ * It adds no logic: the repair round, the routing budget and the attempt
+ * selection all execute inside production code. `cassette` replays a recorded
+ * provider exchange log; `recordCassette` captures one from the live providers.
+ */
+export const runReconstructForRoute = action({
+  args: {
+    routeId: v.string(),
+    cassette: v.optional(reconstructCassetteValidator),
+    recordCassette: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args): Promise<unknown> => {
+    await requireIdentity(ctx)
+    return ctx.runAction(internal.actions.curatedGeometryReconstruct.reconstructForRoute, args)
+  },
+})
+
+/** Teardown all S4-T1 test rows. */
+export const teardownS4T1TestRoutes = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const routeIds = ['test:repair-round', 'test:repair-exhausted', 'test:preexisting-offregion']
+
+    let deleted = 0
+    for (const routeId of routeIds) {
+      const doc = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      if (doc) {
         await geospatial.remove(ctx, doc._id)
         const geomRow = await ctx.db
           .query('curated_route_geometry')

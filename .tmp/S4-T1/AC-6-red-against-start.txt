@@ -1,0 +1,100 @@
+=== AC-6 RED-AGAINST-START (feature-absent negative control) ===
+Date: 2026-07-16T06:38:48Z
+Deployment: REAL Convex dev deployment (functions pushed, reachable).
+Negative control exercised, quoted from AC-6's own would_fail_if:
+  'gate is bypassed for legacy rows' / 'the sweep is a no-op that leaves
+   pre-existing verification objects unchanged'
+The enhanced region re-evaluation is ABSENT; the deployment is fully reachable.
+
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T1
+
+stdout | convex/__tests__/S4T1-preexisting-sweep.integration.test.ts > AC-6: Pre-existing geometry re-evaluated against full gate
+🌱 Seeding pre-existing off-region geometry...
+🔍 Running pre-existing sweep...
+
+stdout | convex/__tests__/S4T1-preexisting-sweep.integration.test.ts > AC-6: Pre-existing geometry re-evaluated against full gate
+🧹 Cleaning up...
+
+ ❯ convex/__tests__/S4T1-preexisting-sweep.integration.test.ts (8 tests | 4 failed) 8492ms
+   ✓ AC-6: Pre-existing geometry re-evaluated against full gate > PRE-CONDITION: seed row has verdict == "pass" before sweep 1ms
+   ✓ AC-6: Pre-existing geometry re-evaluated against full gate > PRE-CONDITION: seed row has off-region anchors (distanceFromCentroid > 150) 0ms
+   × AC-6: Pre-existing geometry re-evaluated against full gate > MUST_OBSERVE: verification.verdict == "review" after sweep 2ms
+     → expected 'pass' to be 'review' // Object.is equality
+   × AC-6: Pre-existing geometry re-evaluated against full gate > MUST_OBSERVE: verification.failedCondition == "anchors" 0ms
+     → expected undefined to be 'anchors' // Object.is equality
+   ✓ AC-6: Pre-existing geometry re-evaluated against full gate > MUST_OBSERVE: sweep report scanned >= 1 rows 0ms
+   × AC-6: Pre-existing geometry re-evaluated against full gate > MUST_OBSERVE: sweep report flipped >= 1 rows 0ms
+     → expected 0 to be greater than or equal to 1
+   × AC-6: Pre-existing geometry re-evaluated against full gate > MUST_NOT_OBSERVE: verification.verdict == "pass" after sweep 0ms
+     → expected 'pass' not to be 'pass' // Object.is equality
+   ✓ AC-6: Pre-existing geometry re-evaluated against full gate > EVIDENCE: capture pre and post sweep data 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  convex/__tests__/S4T1-preexisting-sweep.integration.test.ts > AC-6: Pre-existing geometry re-evaluated against full gate > MUST_OBSERVE: verification.verdict == "review" after sweep
+AssertionError: expected 'pass' to be 'review' // Object.is equality
+
+Expected: [32m"review"[39m
+Received: [31m"pass"[39m
+
+ ❯ convex/__tests__/S4T1-preexisting-sweep.integration.test.ts:112:36
+    110|   // CASE 1: sweep flips off-region rows to review
+    111|   it('MUST_OBSERVE: verification.verdict == "review" after sweep', () …
+    112|     expect(postSweepData?.verdict).toBe('review')
+       |                                    ^
+    113|   })
+    114| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  convex/__tests__/S4T1-preexisting-sweep.integration.test.ts > AC-6: Pre-existing geometry re-evaluated against full gate > MUST_OBSERVE: verification.failedCondition == "anchors"
+AssertionError: expected undefined to be 'anchors' // Object.is equality
+
+[32m- Expected:[39m 
+"anchors"
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ convex/__tests__/S4T1-preexisting-sweep.integration.test.ts:116:44
+    114| 
+    115|   it('MUST_OBSERVE: verification.failedCondition == "anchors"', () => {
+    116|     expect(postSweepData?.failedCondition).toBe('anchors')
+       |                                            ^
+    117|   })
+    118| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  convex/__tests__/S4T1-preexisting-sweep.integration.test.ts > AC-6: Pre-existing geometry re-evaluated against full gate > MUST_OBSERVE: sweep report flipped >= 1 rows
+AssertionError: expected 0 to be greater than or equal to 1
+ ❯ convex/__tests__/S4T1-preexisting-sweep.integration.test.ts:124:34
+    122| 
+    123|   it('MUST_OBSERVE: sweep report flipped >= 1 rows', () => {
+    124|     expect(sweepReport?.flipped).toBeGreaterThanOrEqual(1)
+       |                                  ^
+    125|   })
+    126| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  convex/__tests__/S4T1-preexisting-sweep.integration.test.ts > AC-6: Pre-existing geometry re-evaluated against full gate > MUST_NOT_OBSERVE: verification.verdict == "pass" after sweep
+AssertionError: expected 'pass' not to be 'pass' // Object.is equality
+ ❯ convex/__tests__/S4T1-preexisting-sweep.integration.test.ts:128:40
+    126| 
+    127|   it('MUST_NOT_OBSERVE: verification.verdict == "pass" after sweep', (…
+    128|     expect(postSweepData?.verdict).not.toBe('pass')
+       |                                        ^
+    129|   })
+    130| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 4 passed (8)
+   Start at  00:38:48
+   Duration  8.89s (transform 23ms, setup 62ms, collect 10ms, tests 8.49s, environment 216ms, prepare 27ms)
+

@@ -1,0 +1,94 @@
+{
+  "capturedAt": "2026-07-16T06:42:25.805Z",
+  "note": "Twins seeded identically; the ONLY variable is the quarantine flag on the DB row.",
+  "caseA_quarantined": {
+    "stored": {
+      "anchorCount": 2,
+      "anchors": [
+        {
+          "distanceFromCentroid": 0,
+          "formatted": "Anchor 1, CA",
+          "lat": 34.95,
+          "lng": -120.42
+        },
+        {
+          "distanceFromCentroid": 4.466359929577385,
+          "formatted": "Anchor 2, CA",
+          "lat": 35,
+          "lng": -120.37
+        }
+      ],
+      "claimedMiles": 100,
+      "degenerate": false,
+      "geometry": "oditE~o~}Uo}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@",
+      "geometryStatus": "generated",
+      "pointCount": 50,
+      "provenance": "ai_reconstructed",
+      "ratio": 0.22,
+      "routeId": "test:quarantined-ratio-022",
+      "routedMiles": 22,
+      "verdict": "pass"
+    },
+    "ratioSkipped": true
+  },
+  "caseB_unquarantined_twin": {
+    "stored": {
+      "anchorCount": 2,
+      "anchors": [
+        {
+          "distanceFromCentroid": 0,
+          "formatted": "Anchor 1, CA",
+          "lat": 34.95,
+          "lng": -120.42
+        },
+        {
+          "distanceFromCentroid": 4.466359929577385,
+          "formatted": "Anchor 2, CA",
+          "lat": 35,
+          "lng": -120.37
+        }
+      ],
+      "claimedMiles": 100,
+      "degenerate": false,
+      "failedCondition": "ratio",
+      "geometry": "oditE~o~}Uo}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@",
+      "geometryStatus": "review",
+      "pointCount": 50,
+      "ratio": 0.22,
+      "routeId": "test:unquarantined-ratio-022",
+      "routedMiles": 22,
+      "verdict": "review"
+    },
+    "ratioSkipped": false
+  },
+  "caseC_quarantined_degenerate": {
+    "stored": {
+      "anchorCount": 2,
+      "anchors": [
+        {
+          "distanceFromCentroid": 0,
+          "formatted": "Anchor 1, CA",
+          "lat": 34.95,
+          "lng": -120.42
+        },
+        {
+          "distanceFromCentroid": 4.466359929577385,
+          "formatted": "Anchor 2, CA",
+          "lat": 35,
+          "lng": -120.37
+        }
+      ],
+      "claimedMiles": 100,
+      "degenerate": true,
+      "failedCondition": "degenerate",
+      "geometry": "oditE~o~}Uo}@o}@o}@o}@",
+      "geometryStatus": "review",
+      "pointCount": 3,
+      "ratio": 0.22,
+      "routeId": "test:quarantined-degenerate-3pt",
+      "routedMiles": 22,
+      "verdict": "review"
+    },
+    "ratioSkipped": false
+  }
+}

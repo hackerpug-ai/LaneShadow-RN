@@ -1,0 +1,32 @@
+{
+  "capturedAt": "2026-07-16T06:42:54.548Z",
+  "verifyOk": true,
+  "data": {
+    "anchorCount": 2,
+    "anchors": [
+      {
+        "distanceFromCentroid": 0,
+        "formatted": "Anchor 1, CA",
+        "lat": 34.95,
+        "lng": -120.42
+      },
+      {
+        "distanceFromCentroid": 4.466359929577385,
+        "formatted": "Anchor 2, CA",
+        "lat": 35,
+        "lng": -120.37
+      }
+    ],
+    "claimedMiles": 40,
+    "degenerate": false,
+    "geometry": "oditE~o~}Uo}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@",
+    "geometryStatus": "generated",
+    "pointCount": 50,
+    "provenance": "ai_reconstructed",
+    "ratio": 1.02,
+    "riderReady": true,
+    "routeId": "test:degenerate-2pt",
+    "routedMiles": 41,
+    "verdict": "pass"
+  }
+}

@@ -1,0 +1,142 @@
+=== AC-1 RED-AGAINST-START (feature-absent negative control) ===
+Date: 2026-07-16T06:37:13Z
+Deployment: REAL Convex dev deployment (functions pushed, reachable).
+Negative control exercised, quoted from AC-1's own would_fail_if:
+  'evaluateRatioBoundary returns passes=true for all values'
+The ratio band check is ABSENT; the deployment is fully reachable.
+(This replaces the prior artifact, which merely pointed CONVEX_DEPLOYMENT at an
+ inaccessible deployment — a network outage that an always-pass gate reproduces
+ identically, and therefore proves nothing.)
+
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T1
+
+stdout | convex/__tests__/S4T1-gate-ratio-band.integration.test.ts > AC-1: Gate enforces ratio band 0.6–1.6
+🌱 Seeding boundary ratio rows...
+
+stdout | convex/__tests__/S4T1-gate-ratio-band.integration.test.ts > AC-1: Gate enforces ratio band 0.6–1.6
+🧹 Cleaning up...
+
+ ❯ convex/__tests__/S4T1-gate-ratio-band.integration.test.ts (12 tests | 6 failed) 13524ms
+   ✓ AC-1: Gate enforces ratio band 0.6–1.6 > TC-1: ratio 1.00 passes gate > MUST_OBSERVE: verdict == "pass" 0ms
+   ✓ AC-1: Gate enforces ratio band 0.6–1.6 > TC-1: ratio 1.00 passes gate > MUST_OBSERVE: ratio == 1.0 0ms
+   ✓ AC-1: Gate enforces ratio band 0.6–1.6 > TC-1: ratio 1.00 passes gate > MUST_NOT_OBSERVE: failedCondition == "ratio" 0ms
+   × AC-1: Gate enforces ratio band 0.6–1.6 > TC-2: ratio 0.59 (below 0.6) fails gate > MUST_OBSERVE: verdict == "review" 2ms
+     → expected 'pass' to be 'review' // Object.is equality
+   × AC-1: Gate enforces ratio band 0.6–1.6 > TC-2: ratio 0.59 (below 0.6) fails gate > MUST_OBSERVE: failedCondition == "ratio" 0ms
+     → expected undefined to be 'ratio' // Object.is equality
+   ✓ AC-1: Gate enforces ratio band 0.6–1.6 > TC-2: ratio 0.59 (below 0.6) fails gate > MUST_OBSERVE: ratio == 0.59 0ms
+   × AC-1: Gate enforces ratio band 0.6–1.6 > TC-2: ratio 0.59 (below 0.6) fails gate > MUST_NOT_OBSERVE: verdict == "pass" 0ms
+     → expected 'pass' not to be 'pass' // Object.is equality
+   × AC-1: Gate enforces ratio band 0.6–1.6 > TC-3: ratio 1.61 (above 1.6) fails gate > MUST_OBSERVE: verdict == "review" 2ms
+     → expected 'pass' to be 'review' // Object.is equality
+   × AC-1: Gate enforces ratio band 0.6–1.6 > TC-3: ratio 1.61 (above 1.6) fails gate > MUST_OBSERVE: failedCondition == "ratio" 0ms
+     → expected undefined to be 'ratio' // Object.is equality
+   ✓ AC-1: Gate enforces ratio band 0.6–1.6 > TC-3: ratio 1.61 (above 1.6) fails gate > MUST_OBSERVE: ratio == 1.61 0ms
+   × AC-1: Gate enforces ratio band 0.6–1.6 > TC-3: ratio 1.61 (above 1.6) fails gate > MUST_NOT_OBSERVE: verdict == "pass" 0ms
+     → expected 'pass' not to be 'pass' // Object.is equality
+   ✓ AC-1: Gate enforces ratio band 0.6–1.6 > EVIDENCE: capture seeded verification data  957ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  convex/__tests__/S4T1-gate-ratio-band.integration.test.ts > AC-1: Gate enforces ratio band 0.6–1.6 > TC-2: ratio 0.59 (below 0.6) fails gate > MUST_OBSERVE: verdict == "review"
+AssertionError: expected 'pass' to be 'review' // Object.is equality
+
+Expected: [32m"review"[39m
+Received: [31m"pass"[39m
+
+ ❯ convex/__tests__/S4T1-gate-ratio-band.integration.test.ts:132:41
+    130| 
+    131|     it('MUST_OBSERVE: verdict == "review"', () => {
+    132|       expect(verificationData?.verdict).toBe('review')
+       |                                         ^
+    133|     })
+    134| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  convex/__tests__/S4T1-gate-ratio-band.integration.test.ts > AC-1: Gate enforces ratio band 0.6–1.6 > TC-2: ratio 0.59 (below 0.6) fails gate > MUST_OBSERVE: failedCondition == "ratio"
+AssertionError: expected undefined to be 'ratio' // Object.is equality
+
+[32m- Expected:[39m 
+"ratio"
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ convex/__tests__/S4T1-gate-ratio-band.integration.test.ts:136:49
+    134| 
+    135|     it('MUST_OBSERVE: failedCondition == "ratio"', () => {
+    136|       expect(verificationData?.failedCondition).toBe('ratio')
+       |                                                 ^
+    137|     })
+    138| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  convex/__tests__/S4T1-gate-ratio-band.integration.test.ts > AC-1: Gate enforces ratio band 0.6–1.6 > TC-2: ratio 0.59 (below 0.6) fails gate > MUST_NOT_OBSERVE: verdict == "pass"
+AssertionError: expected 'pass' not to be 'pass' // Object.is equality
+ ❯ convex/__tests__/S4T1-gate-ratio-band.integration.test.ts:144:45
+    142| 
+    143|     it('MUST_NOT_OBSERVE: verdict == "pass"', () => {
+    144|       expect(verificationData?.verdict).not.toBe('pass')
+       |                                             ^
+    145|     })
+    146|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  convex/__tests__/S4T1-gate-ratio-band.integration.test.ts > AC-1: Gate enforces ratio band 0.6–1.6 > TC-3: ratio 1.61 (above 1.6) fails gate > MUST_OBSERVE: verdict == "review"
+AssertionError: expected 'pass' to be 'review' // Object.is equality
+
+Expected: [32m"review"[39m
+Received: [31m"pass"[39m
+
+ ❯ convex/__tests__/S4T1-gate-ratio-band.integration.test.ts:173:41
+    171| 
+    172|     it('MUST_OBSERVE: verdict == "review"', () => {
+    173|       expect(verificationData?.verdict).toBe('review')
+       |                                         ^
+    174|     })
+    175| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  convex/__tests__/S4T1-gate-ratio-band.integration.test.ts > AC-1: Gate enforces ratio band 0.6–1.6 > TC-3: ratio 1.61 (above 1.6) fails gate > MUST_OBSERVE: failedCondition == "ratio"
+AssertionError: expected undefined to be 'ratio' // Object.is equality
+
+[32m- Expected:[39m 
+"ratio"
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ convex/__tests__/S4T1-gate-ratio-band.integration.test.ts:177:49
+    175| 
+    176|     it('MUST_OBSERVE: failedCondition == "ratio"', () => {
+    177|       expect(verificationData?.failedCondition).toBe('ratio')
+       |                                                 ^
+    178|     })
+    179| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  convex/__tests__/S4T1-gate-ratio-band.integration.test.ts > AC-1: Gate enforces ratio band 0.6–1.6 > TC-3: ratio 1.61 (above 1.6) fails gate > MUST_NOT_OBSERVE: verdict == "pass"
+AssertionError: expected 'pass' not to be 'pass' // Object.is equality
+ ❯ convex/__tests__/S4T1-gate-ratio-band.integration.test.ts:185:45
+    183| 
+    184|     it('MUST_NOT_OBSERVE: verdict == "pass"', () => {
+    185|       expect(verificationData?.verdict).not.toBe('pass')
+       |                                             ^
+    186|     })
+    187|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 6 passed (12)
+   Start at  00:37:13
+   Duration  14.01s (transform 25ms, setup 76ms, collect 12ms, tests 13.52s, environment 281ms, prepare 28ms)
+

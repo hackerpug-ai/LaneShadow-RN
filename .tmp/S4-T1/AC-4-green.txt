@@ -1,0 +1,21 @@
+=== AC-4 GREEN (after implementing the seam) ===
+Date: 2026-07-16T06:07:42Z
+Deployment: REAL Convex dev deployment
+
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T1
+
+stdout | convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts > AC-4: Quarantine flag skips ratio check but applies degenerate + region checks
+🌱 Seeding quarantined/unquarantined twins + degenerate quarantined row...
+
+stdout | convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts > AC-4: Quarantine flag skips ratio check but applies degenerate + region checks
+🧹 Cleaning up...
+
+ ✓ convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts (22 tests) 11871ms
+
+ Test Files  1 passed (1)
+      Tests  22 passed (22)
+   Start at  00:07:42
+   Duration  12.34s (transform 26ms, setup 77ms, collect 10ms, tests 11.87s, environment 269ms, prepare 28ms)
+

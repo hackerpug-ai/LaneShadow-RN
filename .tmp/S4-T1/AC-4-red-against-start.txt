@@ -1,0 +1,162 @@
+=== AC-4 RED-AGAINST-START ===
+Date: 2026-07-16T06:05:30Z
+Deployment: REAL Convex dev deployment (functions pushed, reachable)
+Feature absent: determineGateVerdict does not return ratio/ratioSkipped;
+  reconstructForRoute* nulls claimedMiles under quarantine so ratio==null.
+This is a FEATURE-ABSENT negative control, not a disconnected deployment.
+Command: npx vitest run convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts
+
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T1
+
+stdout | convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts > AC-4: Quarantine flag skips ratio check but applies degenerate + region checks
+🌱 Seeding quarantined/unquarantined twins + degenerate quarantined row...
+
+stdout | convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts > AC-4: Quarantine flag skips ratio check but applies degenerate + region checks
+🧹 Cleaning up...
+
+ ❯ convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts (22 tests | 7 failed) 18439ms
+   ✓ AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-8: CASE A — quarantined route, real out-of-band ratio 0.22 > MUST_OBSERVE: verdict == "pass" 1ms
+   × AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-8: CASE A — quarantined route, real out-of-band ratio 0.22 > MUST_OBSERVE: ratio == 0.22 (the REAL computed ratio, still recorded) 2ms
+     → expected null to be close to 0.22, received difference is 0.22, but expected 0.005
+   × AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-8: CASE A — quarantined route, real out-of-band ratio 0.22 > MUST_OBSERVE: ratioSkipped == true 1ms
+     → expected undefined to be true // Object.is equality
+   × AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-8: CASE A — quarantined route, real out-of-band ratio 0.22 > MUST_OBSERVE: claimedMiles == 100 (real claimed length, never nulled by quarantine) 0ms
+     → expected null to be 100 // Object.is equality
+   × AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-8: CASE A — quarantined route, real out-of-band ratio 0.22 > MUST_NOT_OBSERVE: ratio == null — proves the null early-return fired, not the quarantine branch 0ms
+     → expected null not to be null
+   ✓ AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-8: CASE A — quarantined route, real out-of-band ratio 0.22 > MUST_NOT_OBSERVE: verdict == "review" 0ms
+   ✓ AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-8: CASE A — quarantined route, real out-of-band ratio 0.22 > MUST_NOT_OBSERVE: failedCondition == "ratio" 0ms
+   ✓ AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-8: CASE A — quarantined route, real out-of-band ratio 0.22 > MUST_NOT_OBSERVE: ratioSkipped == false 0ms
+   ✓ AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-11: CASE B — unquarantined twin, IDENTICAL real ratio 0.22 > MUST_OBSERVE: verdict == "review" 0ms
+   ✓ AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-11: CASE B — unquarantined twin, IDENTICAL real ratio 0.22 > MUST_OBSERVE: failedCondition == "ratio" 0ms
+   ✓ AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-11: CASE B — unquarantined twin, IDENTICAL real ratio 0.22 > MUST_OBSERVE: ratio == 0.22 (same real computed ratio as CASE A) 0ms
+   × AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-11: CASE B — unquarantined twin, IDENTICAL real ratio 0.22 > MUST_OBSERVE: ratioSkipped == false 0ms
+     → expected undefined to be false // Object.is equality
+   ✓ AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-11: CASE B — unquarantined twin, IDENTICAL real ratio 0.22 > MUST_NOT_OBSERVE: verdict == "pass" 0ms
+   ✓ AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-11: CASE B — unquarantined twin, IDENTICAL real ratio 0.22 > MUST_NOT_OBSERVE: ratioSkipped == true 0ms
+   ✓ AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-11: CASE B — unquarantined twin, IDENTICAL real ratio 0.22 > MUST_NOT_OBSERVE: ratio == null — the twin must carry the same real 0.22 as CASE A 0ms
+   × AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-11: CASE B — unquarantined twin, IDENTICAL real ratio 0.22 > DISCRIMINATOR: twins share the identical real ratio but diverge on verdict 0ms
+     → expected null to be close to 0.22, received difference is 0.22, but expected 0.000005
+   ✓ AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-12: CASE C — quarantined 3-point route still fails degenerate > MUST_OBSERVE: verdict == "review" 0ms
+   ✓ AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-12: CASE C — quarantined 3-point route still fails degenerate > MUST_OBSERVE: failedCondition == "degenerate" 0ms
+   ✓ AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-12: CASE C — quarantined 3-point route still fails degenerate > MUST_NOT_OBSERVE: verdict == "pass" 0ms
+   ✓ AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-12: CASE C — quarantined 3-point route still fails degenerate > MUST_NOT_OBSERVE: failedCondition == "ratio" 0ms
+   ✓ AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-12: CASE C — quarantined 3-point route still fails degenerate > MUST_NOT_OBSERVE: failedCondition is empty or absent 0ms
+   × AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > EVIDENCE: capture quarantine twin verdicts (db_query) 1ms
+     → expected null to be close to 0.22, received difference is 0.22, but expected 0.005
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts > AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-8: CASE A — quarantined route, real out-of-band ratio 0.22 > MUST_OBSERVE: ratio == 0.22 (the REAL computed ratio, still recorded)
+AssertionError: expected null to be close to 0.22, received difference is 0.22, but expected 0.005
+ ❯ convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts:145:34
+    143| 
+    144|     it('MUST_OBSERVE: ratio == 0.22 (the REAL computed ratio, still re…
+    145|       expect(caseA.stored.ratio).toBeCloseTo(0.22, 2)
+       |                                  ^
+    146|     })
+    147| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts > AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-8: CASE A — quarantined route, real out-of-band ratio 0.22 > MUST_OBSERVE: ratioSkipped == true
+AssertionError: expected undefined to be true // Object.is equality
+
+[32m- Expected:[39m 
+true
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts:149:47
+    147| 
+    148|     it('MUST_OBSERVE: ratioSkipped == true', () => {
+    149|       expect(caseA.actionResult.ratioSkipped).toBe(true)
+       |                                               ^
+    150|     })
+    151| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts > AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-8: CASE A — quarantined route, real out-of-band ratio 0.22 > MUST_OBSERVE: claimedMiles == 100 (real claimed length, never nulled by quarantine)
+AssertionError: expected null to be 100 // Object.is equality
+
+[32m- Expected:[39m 
+100
+
+[31m+ Received:[39m 
+null
+
+ ❯ convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts:153:41
+    151| 
+    152|     it('MUST_OBSERVE: claimedMiles == 100 (real claimed length, never …
+    153|       expect(caseA.stored.claimedMiles).toBe(100)
+       |                                         ^
+    154|     })
+    155| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts > AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-8: CASE A — quarantined route, real out-of-band ratio 0.22 > MUST_NOT_OBSERVE: ratio == null — proves the null early-return fired, not the quarantine branch
+AssertionError: expected null not to be null
+ ❯ convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts:157:38
+    155| 
+    156|     it('MUST_NOT_OBSERVE: ratio == null — proves the null early-return…
+    157|       expect(caseA.stored.ratio).not.toBeNull()
+       |                                      ^
+    158|     })
+    159| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts > AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-11: CASE B — unquarantined twin, IDENTICAL real ratio 0.22 > MUST_OBSERVE: ratioSkipped == false
+AssertionError: expected undefined to be false // Object.is equality
+
+[32m- Expected:[39m 
+false
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts:190:47
+    188| 
+    189|     it('MUST_OBSERVE: ratioSkipped == false', () => {
+    190|       expect(caseB.actionResult.ratioSkipped).toBe(false)
+       |                                               ^
+    191|     })
+    192| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts > AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > TC-11: CASE B — unquarantined twin, IDENTICAL real ratio 0.22 > DISCRIMINATOR: twins share the identical real ratio but diverge on verdict
+AssertionError: expected null to be close to 0.22, received difference is 0.22, but expected 0.000005
+ ❯ convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts:209:34
+    207|     // these two verdicts equal and this assertion fails.
+    208|     it('DISCRIMINATOR: twins share the identical real ratio but diverg…
+    209|       expect(caseA.stored.ratio).toBeCloseTo(caseB.stored.ratio, 5)
+       |                                  ^
+    210|       expect(caseA.stored.claimedMiles).toBe(caseB.stored.claimedMiles)
+    211|       expect(caseA.stored.routedMiles).toBe(caseB.stored.routedMiles)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts > AC-4: Quarantine flag skips ratio check but applies degenerate + region checks > EVIDENCE: capture quarantine twin verdicts (db_query)
+AssertionError: expected null to be close to 0.22, received difference is 0.22, but expected 0.005
+ ❯ convex/__tests__/S4T1-gate-quarantine-ratio-skip.integration.test.ts:267:32
+    265|       ),
+    266|     )
+    267|     expect(caseA.stored.ratio).toBeCloseTo(0.22, 2)
+       |                                ^
+    268|   })
+    269| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 15 passed (22)
+   Start at  00:05:30
+   Duration  18.89s (transform 26ms, setup 65ms, collect 9ms, tests 18.44s, environment 254ms, prepare 31ms)
+

@@ -1,6 +1,8 @@
 import { useQuery } from 'convex/react'
+import type { Infer } from 'convex/values'
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../convex/_generated/api'
+import type { listCuratedRoutesReturnValidator } from '../convex/curatedRoutes'
 import { useCurrentLocation } from './use-current-location'
 
 export type DiscoveryArchetype =
@@ -35,6 +37,44 @@ export interface UseCuratedDiscoveryResult {
   isLoading: boolean
   isEmpty: boolean
 }
+
+/**
+ * The slice of `api.curatedRoutes.listCuratedRoutes` rows this hook consumes.
+ *
+ * DERIVED from the server's own return validator, not hand-copied: `Pick<...>`
+ * over `Infer<typeof listCuratedRoutesReturnValidator>` means this type IS the
+ * server contract, narrowed to the fields read below.
+ *
+ * What that actually catches, precisely: renames/removals of any picked field
+ * are a compile error universally (the `Pick` constraint fails, TS2344). Type
+ * changes are caught only for the fields that flow into `DiscoveryRoute` (the
+ * mapping fails, TS2322) — NOT for `state`, which is picked but never read, nor
+ * for `primaryArchetype`, which reaches the mapping only through
+ * `isValidArchetype`'s `unknown` param; retyping either of those compiles clean.
+ * (All four cases verified by mutating the validator and measuring `tsc`.)
+ * Adding new server fields stays compatible, which is the intended asymmetry.
+ *
+ * The import is `import type`, so it is erased at build time — no server module
+ * is pulled into the RN bundle.
+ *
+ * LIMIT — the annotation on `useQuery` below is NOT checked by this. The
+ * generated Convex api degrades this query's `FunctionReturnType` to `any`, and
+ * `any` satisfies any annotation, so a wrong annotation there would still
+ * compile. The safety here comes from deriving the type, never from the act of
+ * annotating. Do not read that annotation as a verified server contract.
+ */
+type CuratedRouteListRow = Pick<
+  Infer<typeof listCuratedRoutesReturnValidator>[number],
+  | 'routeId'
+  | 'name'
+  | 'state'
+  | 'primaryArchetype'
+  | 'centroidLat'
+  | 'centroidLng'
+  | 'compositeScore'
+  | 'distanceMi'
+  | 'geometryStatus'
+>
 
 // Validate that a value is a valid DiscoveryArchetype
 function isValidArchetype(value: unknown): value is DiscoveryArchetype {
@@ -123,7 +163,14 @@ export function useCuratedDiscovery(
     nearestNeedsCenter,
   ])
 
-  const data = useQuery(api.curatedRoutes.listCuratedRoutes, queryArgs)
+  // Annotated (not cast): useQuery's inferred type is `any` here, so this
+  // annotation is what gives the filter/map callbacks below a type. It is NOT
+  // itself a contract check — `any` would accept any annotation written here.
+  // The server bond lives in CuratedRouteListRow's derivation above.
+  const data: CuratedRouteListRow[] | undefined = useQuery(
+    api.curatedRoutes.listCuratedRoutes,
+    queryArgs,
+  )
 
   const routes = useMemo(() => {
     if (waitingForNearestCenter) return undefined

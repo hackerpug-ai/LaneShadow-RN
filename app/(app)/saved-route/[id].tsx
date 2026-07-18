@@ -41,9 +41,17 @@ import { useRouteActions } from './use-route-actions'
 // (which dereferences via getCuratedRouteDetail), avoiding the legs/PlanInput
 // error entirely.
 //
-// `curatedRouteRef` is optional on the detail view today (the DATA-003 planned
-// read-path returns null for curated rows); the narrow cast below is forward-
-// compatible with the curated read-path extension.
+// Structural (not nominal) input so the helper stays a pure function over the
+// few fields it reads; SavedRouteDetailView satisfies it directly, so the call
+// site needs no cast.
+//
+// NOTE: 'curated' is NOT the complement of 'planned'. The redirect requires the
+// PUBLIC slug (`curatedRouteId`), which the server resolves to null when the
+// referenced curated route has been deleted. Such a dangling bookmark reports
+// 'planned' here even though it carries no planned payload — so the screen must
+// still verify the payload before rendering the planned surface. Redirecting on
+// `curatedRouteRef` instead is not the fix: that is the internal
+// Id<'curated_routes'>, and the curated screen dereferences by slug.
 type SavedRouteDetailMaybeCurated = {
   curatedRouteRef?: string
   curatedRouteId?: string | null
@@ -80,7 +88,7 @@ const SavedRouteDetailScreen = () => {
   // NOT enter the planned path below (it reads data.routeSnapshot.legs /
   // data.planInput, which are absent for curated rows). Redirect to the
   // curated detail screen, which dereferences via getCuratedRouteDetail.
-  const reopenTarget = getSavedRouteReopenTarget(data as SavedRouteDetailMaybeCurated | null)
+  const reopenTarget = getSavedRouteReopenTarget(data)
   const isCuratedBookmark = reopenTarget.kind === 'curated'
   useEffect(() => {
     if (reopenTarget.kind === 'curated') {
@@ -89,13 +97,17 @@ const SavedRouteDetailScreen = () => {
   }, [reopenTarget, router])
 
   const polylines = useMemo(() => {
-    // Guard: do NOT touch data.routeSnapshot for a curated row (absent → throw).
-    if (!data || isCuratedBookmark) return []
+    // Guard: do NOT touch routeSnapshot for a curated row (absent → throw).
+    // The snapshot check is what actually makes this safe — `isCuratedBookmark`
+    // is false for a curated bookmark whose target route was deleted (see the
+    // planned-payload guard below), so it cannot be relied on alone.
+    const snapshot = data?.routeSnapshot
+    if (!snapshot || isCuratedBookmark) return []
     return buildRoutePolylines({
       route: {
-        overviewGeometry: data.routeSnapshot.overviewGeometry,
-        legs: data.routeSnapshot.legs,
-        overlays: data.routeSnapshot.overlays,
+        overviewGeometry: snapshot.overviewGeometry,
+        legs: snapshot.legs,
+        overlays: snapshot.overlays,
       },
       variant: 'selected',
       showLegs: true,
@@ -149,46 +161,33 @@ const SavedRouteDetailScreen = () => {
   }
 
   if (!data) {
-    return (
-      <SubpageLayout title="Route Detail" size="compact" testID="route-detail-not-found">
-        <View style={styles.centered}>
-          <IconSymbol
-            name="map-marker-question"
-            size={48}
-            color={semantic.color.onSurface.subtle ?? ''}
-          />
-          <Text
-            variant="bodyLarge"
-            style={[
-              styles.notFoundText,
-              {
-                color: semantic.color.onSurface.default,
-                marginTop: semantic.space.md,
-                marginBottom: semantic.space.xs,
-              },
-            ]}
-            testID="route-not-found-message"
-          >
-            Route not found
-          </Text>
-          <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.subtle }}>
-            This route may have been deleted.
-          </Text>
-        </View>
-      </SubpageLayout>
-    )
+    return <RouteNotFound semantic={semantic} />
   }
 
-  const overlays: RouteOverlays = data.routeSnapshot.overlays
+  // SAVE-001 hardening: every branch below reads the planned payload
+  // (routeSnapshot / snapshotMeta / planInput). The server only ever returns
+  // those four fields together, so a genuine planned row always clears this
+  // guard and its behaviour is unchanged. What the guard catches is the row that
+  // used to crash here: a curated bookmark whose curated_routes target has been
+  // deleted resolves `curatedRouteId` to null, so it is NOT classified 'curated'
+  // above and fell through into the planned path with no snapshot — a
+  // "Cannot read property 'overviewGeometry' of undefined" red screen. The
+  // not-found surface states precisely the right thing for that case.
+  const { routeSnapshot, snapshotMeta, planInput } = data
+  if (!routeSnapshot || !snapshotMeta || !planInput) {
+    return <RouteNotFound semantic={semantic} />
+  }
+
+  const overlays: RouteOverlays = routeSnapshot.overlays
   const overlayAvailability = {
     wind: Boolean(overlays.wind),
     rain: Boolean(overlays.rain),
     temperature: Boolean(overlays.temperature),
   }
-  const totalDistance = data.routeSnapshot.legs.reduce((s, l) => s + l.distanceMeters, 0)
-  const totalDuration = data.routeSnapshot.legs.reduce((s, l) => s + l.durationSeconds, 0)
-  const legsCount = data.routeSnapshot.legs.length
-  const annotations = data.routeSnapshot.annotations
+  const totalDistance = routeSnapshot.legs.reduce((s, l) => s + l.distanceMeters, 0)
+  const totalDuration = routeSnapshot.legs.reduce((s, l) => s + l.durationSeconds, 0)
+  const legsCount = routeSnapshot.legs.length
+  const annotations = routeSnapshot.annotations
   const routeProvenance = data.routeProvenance
 
   return (
@@ -244,7 +243,7 @@ const SavedRouteDetailScreen = () => {
             style={{ color: semantic.color.onSurface.subtle, marginBottom: semantic.space.md }}
             testID="route-detail-saved-date"
           >
-            Saved {formatSavedDate(data.snapshotMeta.savedAt)}
+            Saved {formatSavedDate(snapshotMeta.savedAt)}
           </Text>
 
           {/* Stats section */}
@@ -337,12 +336,12 @@ const SavedRouteDetailScreen = () => {
           )}
 
           {/* Route Segments timeline section */}
-          {data.routeSnapshot.legs.length > 0 && (
+          {routeSnapshot.legs.length > 0 && (
             <>
               <SectionHeader label="Route Segments" semantic={semantic} />
               <RouteLegTimeline
-                legs={data.routeSnapshot.legs}
-                planInput={data.planInput}
+                legs={routeSnapshot.legs}
+                planInput={planInput}
                 overlays={overlays}
                 testID="route-leg-timeline"
               />
@@ -378,9 +377,43 @@ export default SavedRouteDetailScreen
 // Sub-components
 // ---------------------------------------------------------------------------
 
+type SemanticTheme = ReturnType<typeof useSemanticTheme>['semantic']
+
+/**
+ * Shared "this route isn't renderable" surface.
+ *
+ * Rendered both when the row is genuinely absent (deleted / bad id) and when a
+ * row arrives without the planned payload it needs — from the user's side those
+ * are the same situation, and the copy is accurate for both.
+ */
+const RouteNotFound = ({ semantic }: { semantic: SemanticTheme }) => (
+  <SubpageLayout title="Route Detail" size="compact" testID="route-detail-not-found">
+    <View style={styles.centered}>
+      <IconSymbol name="map-marker-question" size={48} color={semantic.color.onSurface.subtle} />
+      <Text
+        variant="bodyLarge"
+        style={[
+          styles.notFoundText,
+          {
+            color: semantic.color.onSurface.default,
+            marginTop: semantic.space.md,
+            marginBottom: semantic.space.xs,
+          },
+        ]}
+        testID="route-not-found-message"
+      >
+        Route not found
+      </Text>
+      <Text variant="bodyMedium" style={{ color: semantic.color.onSurface.subtle }}>
+        This route may have been deleted.
+      </Text>
+    </View>
+  </SubpageLayout>
+)
+
 type SectionHeaderProps = {
   label: string
-  semantic: ReturnType<typeof useSemanticTheme>['semantic']
+  semantic: SemanticTheme
 }
 
 const SectionHeader = ({ label, semantic }: SectionHeaderProps) => (

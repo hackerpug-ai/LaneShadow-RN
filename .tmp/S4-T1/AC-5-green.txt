@@ -1,0 +1,18 @@
+=== AC-5 GREEN (real client boundary restored) ===
+Date: 2026-07-16T06:31:12Z
+Driven through PRODUCTION reconstructForRoute replaying cassettes recorded from
+Google Routes API v2 + Google Geocoding + Anthropic. No ratio literals asserted;
+every expected value is derived from the cassette's own recorded distanceMeters.
+
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T1
+
+ ✓ convex/__tests__/S4T1-repair-round-bounded.integration.test.ts (27 tests) 10310ms
+   ✓ AC-5: Bounded repair round (2 attempts max, keep better by ratio distance) > EVIDENCE: capture recorded provider exchanges + action result (api_response)  2014ms
+
+ Test Files  1 passed (1)
+      Tests  27 passed (27)
+   Start at  00:31:13
+   Duration  11.00s (transform 34ms, setup 108ms, collect 14ms, tests 10.31s, environment 434ms, prepare 38ms)
+
