@@ -10,8 +10,17 @@
 import { ConvexError, v } from 'convex/values'
 import { api } from './_generated/api'
 import { action, mutation, query } from './_generated/server'
+import { buildFixturePolyline } from './couchRouteMapPng'
 import { geospatial } from './geospatialIndex'
 import { requireIdentity } from './guards'
+
+// Re-export fixture polyline builder for callers/tests.
+export {
+  buildFixturePolyline,
+  MAP_PNG_HEIGHT,
+  MAP_PNG_WIDTH,
+  MIN_PNG_BASE64,
+} from './couchRouteMapPng'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -37,14 +46,6 @@ export type CouchSampleRoute = {
 }
 
 const PROVENANCES: Provenance[] = ['scraped_promoted', 'ai_reconstructed', 'name_routed']
-
-/** Gate-passing ~41mi polyline (same as S4-T5 waterfall fixtures). */
-const POLY_41MI =
-  'oditE~o~}Uk~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@sq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@i~@uq@k~@sq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@i~@uq@k~@sq@k~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@sq@k~@uq@'
-
-/** 1×1 red PNG (valid). Used as map placeholder when geometry is abstract. */
-const MIN_PNG_BASE64 =
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
 
 // ---------------------------------------------------------------------------
 // Pure stratification helpers (unit-testable)
@@ -236,10 +237,15 @@ async function upsertCouchRoute(
     .withIndex('by_routeId', (q: any) => q.eq('routeId', spec.routeId))
     .first()
 
-  const centroidLat = 34.95 + (spec.anchorCount % 10) * 0.01
-  const centroidLng = -120.42 - (spec.anchorCount % 10) * 0.01
+  // Distinct centroid + polyline per routeId so rendered map PNGs differ.
+  const centroidLat = 34.95 + (spec.anchorCount % 10) * 0.01 + (spec.routeId.length % 7) * 0.003
+  const centroidLng =
+    -120.42 -
+    (spec.anchorCount % 10) * 0.01 -
+    (spec.routeId.charCodeAt(spec.routeId.length - 1) % 5) * 0.004
   const nowMs = Date.now()
   const difficulty = classifyDifficulty(spec.anchorCount, spec.summary.length)
+  const routePolyline = buildFixturePolyline(spec.routeId, centroidLat, centroidLng)
 
   const base = {
     name: spec.name,
@@ -257,7 +263,7 @@ async function upsertCouchRoute(
     technicalScore: 85,
     trafficScore: 75,
     remotenessScore: 70,
-    routePolyline: POLY_41MI,
+    routePolyline,
     geometryStatus: 'generated' as const,
     geometryProvenance: spec.provenance,
     riderReady: true,
@@ -304,13 +310,13 @@ async function upsertCouchRoute(
     format: 'polyline' as const,
     encoding: 'utf-8',
     precision: 5,
-    value: POLY_41MI,
+    value: routePolyline,
     provenance: spec.provenance,
     verification: {
       routeId: spec.routeId,
       verdict: 'pass' as const,
       provenance: spec.provenance,
-      geometry: POLY_41MI,
+      geometry: routePolyline,
       geometryStatus: 'generated' as const,
       anchorCount: spec.anchorCount,
       anchors,
@@ -632,84 +638,36 @@ export const assembleCouchSample = action({
 })
 
 /**
- * Build a tiny map PNG for a route. Uses a valid PNG header + payload;
- * metadata carries provenance + lengths for founder review.
+ * Look up encoded polylines for export rendering.
+ * Prefers curated_route_geometry.value, falls back to curated_routes.routePolyline.
  */
-export function renderRouteMapPngBase64(route: {
-  routeId: string
-  provenance: string
-  routedMiles: number
-  claimedMiles: number | null
-}): string {
-  // Distinct PNG per provenance via palette comment in base64 suffix is not
-  // needed for validity — emit the same structural map PNG. Founders review
-  // metadata alongside the file; AC-3 checks file existence + metadata fields.
-  void route
-  return MIN_PNG_BASE64
-}
-
-type CouchExportRoute = {
-  routeId: string
-  pngBase64: string
-  metadata: {
-    routeId: string
-    provenance: Provenance
-    routedMiles: number
-    claimedMiles: number | null
-    anchorCount: number
-    difficulty: Difficulty
-    descriptionLength: number
-  }
-}
-
-type CouchExportResult = {
-  sampleId: string
-  size: number
-  routes: CouchExportRoute[]
-}
-
-export const exportCouchSample = action({
+export const getGeometriesForRoutes = query({
   args: {
-    sampleId: v.string(),
+    routeIds: v.array(v.string()),
   },
-  handler: async (ctx, { sampleId }): Promise<CouchExportResult> => {
+  handler: async (ctx, { routeIds }) => {
     await requireIdentity(ctx)
-    const sample = await ctx.runQuery(api.couchSampleAssembler.getCouchSample, {
-      sampleId,
-    })
-    if (!sample) {
-      throw new ConvexError({
-        code: 'SAMPLE_NOT_FOUND',
-        message: `No couch sample for sampleId=${sampleId}`,
-      })
-    }
-
-    const routes: CouchExportRoute[] = sample.routes.map((r: CouchSampleRoute) => {
-      const metadata = {
-        routeId: r.routeId,
-        provenance: r.provenance,
-        routedMiles: r.routedMiles,
-        claimedMiles: r.claimedMiles,
-        anchorCount: r.anchorCount,
-        difficulty: r.difficulty,
-        descriptionLength: r.descriptionLength,
+    const out: Record<string, string> = {}
+    for (const routeId of routeIds) {
+      const geom = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      if (geom?.value && typeof geom.value === 'string' && geom.value.length > 0) {
+        out[routeId] = geom.value
+        continue
       }
-      return {
-        routeId: r.routeId,
-        pngBase64: renderRouteMapPngBase64({
-          routeId: r.routeId,
-          provenance: r.provenance,
-          routedMiles: r.routedMiles,
-          claimedMiles: r.claimedMiles,
-        }),
-        metadata,
+      const route = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      if (route?.routePolyline && typeof route.routePolyline === 'string') {
+        out[routeId] = route.routePolyline
       }
-    })
-
-    return {
-      sampleId,
-      size: routes.length,
-      routes,
     }
+    return out
   },
 })
+
+// exportCouchSample lives in couchSampleExport.ts ("use node") so Node zlib can
+// compress PNG IDAT — uncompressed 25×240² RGBA maps OOM the 64MB isolate.
