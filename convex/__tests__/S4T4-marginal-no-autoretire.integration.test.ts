@@ -103,7 +103,11 @@ describe('AC-5: Marginal verdict never auto-retires a route', () => {
   }, 120_000)
 
   afterAll(() => {
-    runConvexFn('curatedGeometryTestSupport:teardownS4T4TestRoutes', {}, { identity: true })
+    runConvexFn(
+      'curatedGeometryTestSupport:teardownS4T4TestRoutes',
+      { routeIds: [ROUTE_ID] },
+      { identity: true },
+    )
   })
 
   it('MUST_OBSERVE: retiredAt == null (no auto-retirement)', () => {

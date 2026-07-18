@@ -17,7 +17,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 const PROJECT_ROOT = resolve(__dirname, '..', '..')
 const EVIDENCE_DIR = resolve(PROJECT_ROOT, '.tmp/S4-T4/evidence')
-const ROUTE_ID = 'test:ver-twisty-1'
+const ROUTE_ID = 'test:ver-decorrelate-1'
 
 const TEST_IDENTITY = JSON.stringify({
   subject: 's4t4-cross-provider-decorrelation-test',
@@ -74,9 +74,9 @@ describe('AC-6: Cross-provider decorrelation (z.ai vs gpt-4.1 anchors)', () => {
       'utf-8',
     )
 
-    console.log('🌱 Seeding twisty route for decorrelation check...')
+    console.log('🌱 Seeding dedicated decorrelation route...')
     const seed = runConvexFn(
-      'curatedGeometryTestSupport:seedCatalogWithMixedRows',
+      'curatedGeometryTestSupport:seedDecorrelationRoute',
       {},
       { identity: true },
     )
@@ -115,7 +115,11 @@ describe('AC-6: Cross-provider decorrelation (z.ai vs gpt-4.1 anchors)', () => {
   }, 240_000)
 
   afterAll(() => {
-    runConvexFn('curatedGeometryTestSupport:teardownS4T4TestRoutes', {}, { identity: true })
+    runConvexFn(
+      'curatedGeometryTestSupport:teardownS4T4TestRoutes',
+      { routeIds: [ROUTE_ID] },
+      { identity: true },
+    )
   })
 
   it('MUST_OBSERVE: anchor extraction high tier is gpt-4.1', () => {

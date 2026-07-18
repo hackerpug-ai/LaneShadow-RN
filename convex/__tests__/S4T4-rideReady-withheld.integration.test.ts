@@ -96,7 +96,11 @@ describe('AC-3: not_a_ride withholds riderReady despite valid geometry', () => {
   }, 120_000)
 
   afterAll(() => {
-    runConvexFn('curatedGeometryTestSupport:teardownS4T4TestRoutes', {}, { identity: true })
+    runConvexFn(
+      'curatedGeometryTestSupport:teardownS4T4TestRoutes',
+      { routeIds: [ROUTE_ID] },
+      { identity: true },
+    )
   })
 
   it('MUST_OBSERVE: geometry gate is pass / generated', () => {

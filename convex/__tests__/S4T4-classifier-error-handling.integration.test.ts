@@ -126,40 +126,64 @@ describe('AC-4: Classifier failures isolated; pipeline continues', () => {
   }, 420_000)
 
   afterAll(() => {
-    runConvexFn('curatedGeometryTestSupport:teardownS4T4TestRoutes', {}, { identity: true })
+    runConvexFn(
+      'curatedGeometryTestSupport:teardownS4T4TestRoutes',
+      { routeIds: [...ALL_IDS] },
+      { identity: true },
+    )
   })
 
-  it('MUST_OBSERVE: action completes without throwing (graceful handling)', () => {
-    expect(classifyResult).toBeTruthy()
-    expect(classifyResult.failed).toBeGreaterThanOrEqual(1)
-    expect(classifyResult.classified).toBe(4)
-  })
+  it(
+    'MUST_OBSERVE: action completes without throwing (graceful handling)',
+    () => {
+      expect(classifyResult).toBeTruthy()
+      expect(classifyResult.failed).toBeGreaterThanOrEqual(1)
+      expect(classifyResult.classified).toBe(4)
+    },
+    30_000,
+  )
 
-  it('MUST_OBSERVE: routes 1,2,4,5 have rideWorthiness verdicts', () => {
-    for (const routeId of SUCCESS_IDS) {
-      const doc = getRoute(routeId)
-      expect(doc.rideWorthiness, `missing verdict on ${routeId}`).toBeTruthy()
-      expect(['ride', 'marginal', 'not_a_ride']).toContain(doc.rideWorthiness.verdict)
-    }
-  })
+  it(
+    'MUST_OBSERVE: routes 1,2,4,5 have rideWorthiness verdicts',
+    () => {
+      for (const routeId of SUCCESS_IDS) {
+        const doc = getRoute(routeId)
+        expect(doc.rideWorthiness, `missing verdict on ${routeId}`).toBeTruthy()
+        expect(['ride', 'marginal', 'not_a_ride']).toContain(doc.rideWorthiness.verdict)
+      }
+    },
+    60_000,
+  )
 
-  it('MUST_OBSERVE: route 3 has rideWorthiness == null (no verdict due to error)', () => {
-    const doc = getRoute(FAIL_ID)
-    expect(doc.rideWorthiness == null).toBe(true)
-  })
+  it(
+    'MUST_OBSERVE: route 3 has rideWorthiness == null (no verdict due to error)',
+    () => {
+      const doc = getRoute(FAIL_ID)
+      expect(doc.rideWorthiness == null).toBe(true)
+    },
+    30_000,
+  )
 
-  it('MUST_OBSERVE: performance table contains error log for route 3 failure', () => {
-    const failLogs = errorLogs.filter((l) => l.success === false && l.input === FAIL_ID)
-    expect(failLogs.length).toBeGreaterThanOrEqual(1)
-    expect(failLogs[0].error).toBeTruthy()
-    expect(String(failLogs[0].error)).toMatch(/fail|error|Simulated/i)
-  })
+  it(
+    'MUST_OBSERVE: performance table contains error log for route 3 failure',
+    () => {
+      const failLogs = errorLogs.filter((l) => l.success === false && l.input === FAIL_ID)
+      expect(failLogs.length).toBeGreaterThanOrEqual(1)
+      expect(failLogs[0].error).toBeTruthy()
+      expect(String(failLogs[0].error)).toMatch(/fail|error|Simulated/i)
+    },
+    30_000,
+  )
 
-  it('MUST_NOT_OBSERVE: entire catalog aborted at route 3', () => {
-    // Routes after the failure still classified
-    const route4 = getRoute('test:ver-error-4')
-    const route5 = getRoute('test:ver-error-5')
-    expect(route4.rideWorthiness).toBeTruthy()
-    expect(route5.rideWorthiness).toBeTruthy()
-  })
+  it(
+    'MUST_NOT_OBSERVE: entire catalog aborted at route 3',
+    () => {
+      // Routes after the failure still classified
+      const route4 = getRoute('test:ver-error-4')
+      const route5 = getRoute('test:ver-error-5')
+      expect(route4.rideWorthiness).toBeTruthy()
+      expect(route5.rideWorthiness).toBeTruthy()
+    },
+    30_000,
+  )
 })

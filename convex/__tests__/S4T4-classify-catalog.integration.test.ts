@@ -105,68 +105,96 @@ describe('AC-1: Classifier runs on catalog routes and stores verdict as evidence
 
   afterAll(() => {
     console.log('🧹 Cleaning up S4-T4 classifier test rows...')
-    runConvexFn('curatedGeometryTestSupport:teardownS4T4TestRoutes', {}, { identity: true })
-  })
-
-  it('MUST_OBSERVE: all 4 routes have rideWorthiness.verdict in ride|marginal|not_a_ride', () => {
-    const rows = MIXED_ROUTE_IDS.map((routeId) => {
-      const doc = getRoute(routeId)
-      expect(doc, `missing route ${routeId}`).toBeTruthy()
-      expect(doc.rideWorthiness, `missing rideWorthiness on ${routeId}`).toBeTruthy()
-      expect(VERDICTS).toContain(doc.rideWorthiness.verdict)
-      return {
-        routeId,
-        verdict: doc.rideWorthiness.verdict,
-        reason: doc.rideWorthiness.reason,
-        model: doc.rideWorthiness.model,
-        classifiedAt: doc.rideWorthiness.classifiedAt,
-      }
-    })
-
-    writeFileSync(
-      resolve(EVIDENCE_DIR, 'AC-1-catalog-verdicts.json'),
-      JSON.stringify({ ac: 'AC-1', classifyResult, rows }, null, 2),
+    runConvexFn(
+      'curatedGeometryTestSupport:teardownS4T4TestRoutes',
+      { routeIds: [...MIXED_ROUTE_IDS] },
+      { identity: true },
     )
   })
 
-  it('MUST_OBSERVE: all rideWorthiness.model == z.ai-glm-5.2 (decorrelated provider stamp)', () => {
-    for (const routeId of MIXED_ROUTE_IDS) {
-      const doc = getRoute(routeId)
-      expect(doc.rideWorthiness?.model).toBe(PROVIDER_STAMP)
-      // Provider stamp must NOT be the anchor extraction model
-      expect(doc.rideWorthiness?.model).not.toBe('gpt-4.1')
-    }
-  })
+  it(
+    'MUST_OBSERVE: all 4 routes have rideWorthiness.verdict in ride|marginal|not_a_ride',
+    () => {
+      const rows = MIXED_ROUTE_IDS.map((routeId) => {
+        const doc = getRoute(routeId)
+        expect(doc, `missing route ${routeId}`).toBeTruthy()
+        expect(doc.rideWorthiness, `missing rideWorthiness on ${routeId}`).toBeTruthy()
+        expect(VERDICTS).toContain(doc.rideWorthiness.verdict)
+        return {
+          routeId,
+          verdict: doc.rideWorthiness.verdict,
+          reason: doc.rideWorthiness.reason,
+          model: doc.rideWorthiness.model,
+          classifiedAt: doc.rideWorthiness.classifiedAt,
+        }
+      })
 
-  it('MUST_OBSERVE: all rideWorthiness.classifiedAt > 0 (stored timestamp evidence)', () => {
-    const oneHourAgo = Date.now() - 60 * 60 * 1000
-    for (const routeId of MIXED_ROUTE_IDS) {
-      const doc = getRoute(routeId)
-      expect(doc.rideWorthiness?.classifiedAt).toBeGreaterThan(0)
-      expect(doc.rideWorthiness?.classifiedAt).toBeGreaterThan(oneHourAgo)
-      expect(typeof doc.rideWorthiness?.reason).toBe('string')
-      expect(doc.rideWorthiness.reason.length).toBeGreaterThan(0)
-    }
-  })
+      writeFileSync(
+        resolve(EVIDENCE_DIR, 'AC-1-catalog-verdicts.json'),
+        JSON.stringify({ ac: 'AC-1', classifyResult, rows }, null, 2),
+      )
+    },
+    60_000,
+  )
 
-  it('MUST_OBSERVE: FHWA freeway segment has a verdict (classification not skipped)', () => {
-    const freeway = getRoute(FREEWAY_ROUTE_ID)
-    expect(freeway?.rideWorthiness).toBeTruthy()
-    expect(VERDICTS).toContain(freeway.rideWorthiness.verdict)
-  })
+  it(
+    'MUST_OBSERVE: all rideWorthiness.model == z.ai-glm-5.2 (decorrelated provider stamp)',
+    () => {
+      for (const routeId of MIXED_ROUTE_IDS) {
+        const doc = getRoute(routeId)
+        expect(doc.rideWorthiness?.model).toBe(PROVIDER_STAMP)
+        // Provider stamp must NOT be the anchor extraction model
+        expect(doc.rideWorthiness?.model).not.toBe('gpt-4.1')
+      }
+    },
+    60_000,
+  )
 
-  it("MUST_OBSERVE: twisty motorcycle routes have verdict='ride'", () => {
-    for (const routeId of TWISTY_ROUTE_IDS) {
-      const doc = getRoute(routeId)
-      expect(doc.rideWorthiness?.verdict).toBe('ride')
-    }
-  })
+  it(
+    'MUST_OBSERVE: all rideWorthiness.classifiedAt > 0 (stored timestamp evidence)',
+    () => {
+      const oneHourAgo = Date.now() - 60 * 60 * 1000
+      for (const routeId of MIXED_ROUTE_IDS) {
+        const doc = getRoute(routeId)
+        expect(doc.rideWorthiness?.classifiedAt).toBeGreaterThan(0)
+        expect(doc.rideWorthiness?.classifiedAt).toBeGreaterThan(oneHourAgo)
+        expect(typeof doc.rideWorthiness?.reason).toBe('string')
+        expect(doc.rideWorthiness.reason.length).toBeGreaterThan(0)
+      }
+    },
+    60_000,
+  )
 
-  it('MUST_NOT_OBSERVE: any route with rideWorthiness == null', () => {
-    for (const routeId of MIXED_ROUTE_IDS) {
-      const doc = getRoute(routeId)
-      expect(doc.rideWorthiness).not.toBeNull()
-      expect(doc.rideWorthiness).not.toBeUndefined()
-    }
-  })
+  it(
+    'MUST_OBSERVE: FHWA freeway segment has a verdict (classification not skipped)',
+    () => {
+      const freeway = getRoute(FREEWAY_ROUTE_ID)
+      expect(freeway?.rideWorthiness).toBeTruthy()
+      expect(VERDICTS).toContain(freeway.rideWorthiness.verdict)
+    },
+    30_000,
+  )
+
+  it(
+    "MUST_OBSERVE: twisty motorcycle routes have verdict='ride'",
+    () => {
+      for (const routeId of TWISTY_ROUTE_IDS) {
+        const doc = getRoute(routeId)
+        expect(doc.rideWorthiness?.verdict).toBe('ride')
+      }
+    },
+    30_000,
+  )
+
+  it(
+    'MUST_NOT_OBSERVE: any route with rideWorthiness == null',
+    () => {
+      for (const routeId of MIXED_ROUTE_IDS) {
+        const doc = getRoute(routeId)
+        expect(doc.rideWorthiness).not.toBeNull()
+        expect(doc.rideWorthiness).not.toBeUndefined()
+      }
+    },
+    60_000,
+  )
 })

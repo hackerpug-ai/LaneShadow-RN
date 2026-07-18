@@ -1676,6 +1676,7 @@ const S4T4_ROUTE_IDS = [
   'test:ver-error-4',
   'test:ver-error-5',
   'test:ver-marginal-no-retire',
+  'test:ver-decorrelate-1',
 ] as const
 
 /** AC-1: 2 twisties + 1 FHWA freeway + 1 recovered row (unclassified). */
@@ -1861,6 +1862,26 @@ export const seedRoutesForErrorTesting = mutation({
   },
 })
 
+/** AC-6: single twisty route for cross-provider decorrelation (isolated from AC-1). */
+export const seedDecorrelationRoute = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    return insertTestRoute(ctx, {
+      routeId: 'test:ver-decorrelate-1',
+      name: 'Decorrelation Canyon Road',
+      source: 'motorcycleroads',
+      lengthMiles: 41,
+      geometryStatus: 'generated',
+      state: 'California',
+      oneLiner: 'Twisty canyon for provider decorrelation check',
+      summary:
+        'A classic motorcycle canyon road used to verify the ride-worthiness classifier stamps z.ai GLM-5.2 rather than the anchor extraction gpt-4.1 provider.',
+      clearRideWorthiness: true,
+    })
+  },
+})
+
 /** AC-5: marginal verdict + low score must never auto-retire. */
 export const seedMarginalVerdictRoute = mutation({
   args: {},
@@ -1932,13 +1953,19 @@ export const listClassifierPerformanceLogs = query({
   },
 })
 
-/** Teardown all S4-T4 ride-worthiness classifier fixtures. */
+/**
+ * Teardown S4-T4 ride-worthiness classifier fixtures.
+ * Pass routeIds to limit cleanup (avoids cross-file races when vitest runs files in parallel).
+ */
 export const teardownS4T4TestRoutes = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    routeIds: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, { routeIds }) => {
     await requireIdentity(ctx)
+    const targets = routeIds && routeIds.length > 0 ? routeIds : [...S4T4_ROUTE_IDS]
     let deleted = 0
-    for (const routeId of S4T4_ROUTE_IDS) {
+    for (const routeId of targets) {
       const doc = await ctx.db
         .query('curated_routes')
         .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
