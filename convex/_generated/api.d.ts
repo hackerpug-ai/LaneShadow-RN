@@ -18,6 +18,7 @@ import type * as actions_agent_budgetTracker from "../actions/agent/budgetTracke
 import type * as actions_agent_enrichment_runEnrichmentJob from "../actions/agent/enrichment/runEnrichmentJob.js";
 import type * as actions_agent_generateTripPlan from "../actions/agent/generateTripPlan.js";
 import type * as actions_agent_lib_anchorExtraction from "../actions/agent/lib/anchorExtraction.js";
+import type * as actions_agent_lib_endpointParser from "../actions/agent/lib/endpointParser.js";
 import type * as actions_agent_lib_enrichmentCache from "../actions/agent/lib/enrichmentCache.js";
 import type * as actions_agent_lib_geo from "../actions/agent/lib/geo.js";
 import type * as actions_agent_lib_models from "../actions/agent/lib/models.js";
@@ -111,6 +112,7 @@ import type * as geospatialValidation from "../geospatialValidation.js";
 import type * as guards from "../guards.js";
 import type * as http from "../http.js";
 import type * as lib_conversationalErrors from "../lib/conversationalErrors.js";
+import type * as lib_endpointParser from "../lib/endpointParser.js";
 import type * as lib_env from "../lib/env.js";
 import type * as lib_errors_protomaps from "../lib/errors/protomaps.js";
 import type * as lib_logger from "../lib/logger.js";
@@ -141,6 +143,7 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/enrichment/runEnrichmentJob": typeof actions_agent_enrichment_runEnrichmentJob;
   "actions/agent/generateTripPlan": typeof actions_agent_generateTripPlan;
   "actions/agent/lib/anchorExtraction": typeof actions_agent_lib_anchorExtraction;
+  "actions/agent/lib/endpointParser": typeof actions_agent_lib_endpointParser;
   "actions/agent/lib/enrichmentCache": typeof actions_agent_lib_enrichmentCache;
   "actions/agent/lib/geo": typeof actions_agent_lib_geo;
   "actions/agent/lib/models": typeof actions_agent_lib_models;
@@ -234,6 +237,7 @@ declare const fullApi: ApiFromModules<{
   guards: typeof guards;
   http: typeof http;
   "lib/conversationalErrors": typeof lib_conversationalErrors;
+  "lib/endpointParser": typeof lib_endpointParser;
   "lib/env": typeof lib_env;
   "lib/errors/protomaps": typeof lib_errors_protomaps;
   "lib/logger": typeof lib_logger;

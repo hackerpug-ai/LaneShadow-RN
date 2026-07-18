@@ -1,0 +1,23 @@
+{
+  "local": {
+    "kind": "highway",
+    "highwayNumber": "680",
+    "region": "Alameda County",
+    "endpoints": [
+      "Route 680 south, Alameda County",
+      "Route 680 north, Alameda County"
+    ],
+    "usedLlm": false
+  },
+  "remote": {
+    "endpoints": [
+      "Route 680 south, Alameda County",
+      "Route 680 north, Alameda County"
+    ],
+    "highwayNumber": "680",
+    "kind": "highway",
+    "llmCallCount": 0,
+    "region": "Alameda County",
+    "usedLlm": false
+  }
+}

@@ -1,0 +1,21 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T2
+> vitest "convex/__tests__/S4T2-lever1-failure-routing.integration.test.ts" "convex/__tests__/S4T2-lever1-promote.integration.test.ts" "convex/__tests__/S4T2-lever3-failure-to-review.integration.test.ts" "convex/__tests__/S4T2-lever3-geocode-bias.integration.test.ts" "convex/__tests__/S4T2-lever3-parser-deterministic.integration.test.ts" "convex/__tests__/S4T2-lever3-reroute.integration.test.ts"
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T2
+
+ ✓ convex/__tests__/S4T2-lever3-reroute.integration.test.ts (10 tests) 9886ms
+ ✓ convex/__tests__/S4T2-lever1-promote.integration.test.ts (9 tests) 7866ms
+ ✓ convex/__tests__/S4T2-lever1-failure-routing.integration.test.ts (4 tests) 7672ms
+ ✓ convex/__tests__/S4T2-lever3-failure-to-review.integration.test.ts (4 tests) 8883ms
+ ✓ convex/__tests__/S4T2-lever3-parser-deterministic.integration.test.ts (4 tests) 2133ms
+   ✓ AC-5: Lever 3 deterministic parser (no LLM) > TC-7: parser does not call LLM > CASE from-to: endpoints are [San Francisco, Santa Cruz]  1071ms
+   ✓ AC-5: Lever 3 deterministic parser (no LLM) > TC-7: parser does not call LLM > CASE highway: highwayNumber=680, region=Alameda County  1061ms
+ ✓ convex/__tests__/S4T2-lever3-geocode-bias.integration.test.ts (4 tests) 1226ms
+
+ Test Files  6 passed (6)
+      Tests  35 passed (35)
+   Start at  22:14:30
+   Duration  41.31s (transform 2.87s, setup 127ms, collect 2.90s, tests 37.67s, environment 452ms, prepare 40ms)
+

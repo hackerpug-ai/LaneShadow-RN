@@ -1,0 +1,62 @@
+{
+  "capturedAt": "2026-07-18T04:14:44.176Z",
+  "promoteResult": {
+    "anchorCount": 2,
+    "anchors": [
+      {
+        "distanceFromCentroid": 0,
+        "formatted": "polyline-start",
+        "lat": 34.95,
+        "lng": -120.42
+      },
+      {
+        "distanceFromCentroid": 40.99984849911209,
+        "formatted": "polyline-end",
+        "lat": 35.44668,
+        "lng": -120.02266
+      }
+    ],
+    "claimedMiles": 41,
+    "disposition": "generated",
+    "geometry": "oditE~o~}Uk~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@sq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@i~@uq@k~@sq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@i~@uq@k~@sq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@sq@k~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@sq@k~@uq@",
+    "geometryStatus": "generated",
+    "llmCallCount": 0,
+    "pointCount": 50,
+    "provenance": "scraped_promoted",
+    "queuedForLever2": false,
+    "queuedForReview": false,
+    "ratio": 1,
+    "routeId": "test:lever1-pass",
+    "routedMiles": 40.99992959188756,
+    "verdict": "pass"
+  },
+  "verificationData": {
+    "anchorCount": 2,
+    "anchors": [
+      {
+        "distanceFromCentroid": 0,
+        "formatted": "polyline-start",
+        "lat": 34.95,
+        "lng": -120.42
+      },
+      {
+        "distanceFromCentroid": 40.99984849911209,
+        "formatted": "polyline-end",
+        "lat": 35.44668,
+        "lng": -120.02266
+      }
+    ],
+    "claimedMiles": 41,
+    "degenerate": false,
+    "geometry": "oditE~o~}Uk~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@sq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@i~@uq@k~@sq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@i~@uq@k~@sq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@sq@k~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@sq@k~@uq@",
+    "geometryStatus": "generated",
+    "pointCount": 50,
+    "provenance": "scraped_promoted",
+    "ratio": 1,
+    "riderReady": true,
+    "routeId": "test:lever1-pass",
+    "routedMiles": 40.99992959188756,
+    "sideTableProvenance": "scraped_promoted",
+    "verdict": "pass"
+  }
+}
