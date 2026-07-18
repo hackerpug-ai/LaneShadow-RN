@@ -1,0 +1,4 @@
+AC-6 RED-against-start
+No S4T3-lever2-exhausted-to-review.integration.test.ts at task start.
+Behavior existed via S4-T1 cassette path; this task adds Lever-2-named coverage asserting
+routingCallCount==2, verdict==review, geometryStatus==review after budget exhaust.

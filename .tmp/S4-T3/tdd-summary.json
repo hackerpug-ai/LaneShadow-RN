@@ -1,0 +1,43 @@
+{
+  "task_id": "S4-T3",
+  "base_sha": "aca1343f19cf030302c38289e8d7922e4dd76598",
+  "ac_summary": {
+    "AC-1": {
+      "description": "Lever 2 extracts ordered intersection anchors via LLM structured outputs",
+      "test_file": "convex/__tests__/S4T3-lever2-anchor-extraction.integration.test.ts",
+      "status": "PASS",
+      "note": "Added order field to emitAnchorsSchema; getAgentLanguageModel('high') via model layer; text-mode JSON fallback ladder"
+    },
+    "AC-2": {
+      "description": "Geocode with region bias, filter >150mi",
+      "test_file": "convex/__tests__/S4T3-lever2-geocode-region.integration.test.ts",
+      "status": "PASS",
+      "note": "geocodeAnchorsInRegion + isGeocodedAnchorInRegion; reconstruct delegates to geocodeWithRegionBias"
+    },
+    "AC-3": {
+      "description": "Via-waypoint routing + thin ≤8",
+      "test_file": "convex/__tests__/S4T3-lever2-waypoint-routing.integration.test.ts",
+      "status": "PASS",
+      "note": "Exported thinAnchorsForRouting, buildViaIntermediates, routeViaWaypoints; real Google Routes"
+    },
+    "AC-4": {
+      "description": "Gate + persist provenance=ai_reconstructed; repair on fail",
+      "test_file": "convex/__tests__/S4T3-lever2-gate-persist.integration.test.ts",
+      "status": "PASS",
+      "note": "Live PoC + S4-T1 repair cassette through production reconstructForRoute"
+    },
+    "AC-5": {
+      "description": "Repair feedback includes geocode log + Routed length",
+      "test_file": "convex/__tests__/S4T3-lever2-repair-feedback.integration.test.ts",
+      "status": "PASS",
+      "note": "buildRepairFeedback exported; cassette second Anthropic body verified"
+    },
+    "AC-6": {
+      "description": "REVIEW after 2 failed attempts",
+      "test_file": "convex/__tests__/S4T3-lever2-exhausted-to-review.integration.test.ts",
+      "status": "PASS",
+      "note": "Exhausted cassette: routingCallCount==2, verdict==review, geometryStatus==review"
+    }
+  },
+  "all_passing": true
+}

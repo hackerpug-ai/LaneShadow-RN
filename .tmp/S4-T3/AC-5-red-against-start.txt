@@ -1,0 +1,4 @@
+AC-5 RED-against-start
+buildRepairFeedback was not exported at task start — feedback was an inline template string.
+Importing buildRepairFeedback from curatedGeometryReconstruct would fail (not exported).
+GREEN: exported buildRepairFeedback + cassette asserts second Anthropic body contains "Routed length" + geocode log.

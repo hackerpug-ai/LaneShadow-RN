@@ -1,0 +1,23 @@
+{
+  "capturedAt": "2026-07-18T04:12:12.784Z",
+  "centroid": {
+    "lat": 34.95,
+    "lng": -120.42
+  },
+  "geocodedAnchors": [
+    {
+      "lat": 34.9530337,
+      "lng": -120.4357191,
+      "formatted": "Santa Maria, CA, USA",
+      "distanceFromCentroid": 0.9145503234498215,
+      "placeId": "ChIJCcZUDKoP7IARjjRaimVS_Qs"
+    },
+    {
+      "lat": 34.6677172,
+      "lng": -120.1150067,
+      "formatted": "Los Olivos, CA, USA",
+      "distanceFromCentroid": 26.07260327961518,
+      "placeId": "ChIJg5xJBnpV6YARG_SRJXRb-yw"
+    }
+  ]
+}

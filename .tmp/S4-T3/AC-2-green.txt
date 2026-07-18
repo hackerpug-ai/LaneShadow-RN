@@ -1,0 +1,12 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T3
+
+ ✓ convex/__tests__/S4T3-lever2-geocode-region.integration.test.ts (2 tests) 634ms
+   ✓ S4-T3 AC-2: Lever 2 geocode with region bias > CASE 1 — lever2-geocode-with-bias > TC-2: geocodes Santa Maria, CA within 150mi of centroid (34.95, -120.42)  427ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  22:06:45
+   Duration  1.03s (transform 33ms, setup 58ms, collect 23ms, tests 634ms, environment 209ms, prepare 25ms)
+

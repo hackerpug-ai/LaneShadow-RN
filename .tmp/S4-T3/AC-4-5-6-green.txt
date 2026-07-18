@@ -1,0 +1,13 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T3
+
+ ✓ convex/__tests__/S4T3-lever2-gate-persist.integration.test.ts (5 tests) 16169ms
+ ✓ convex/__tests__/S4T3-lever2-repair-feedback.integration.test.ts (5 tests) 2365ms
+ ✓ convex/__tests__/S4T3-lever2-exhausted-to-review.integration.test.ts (6 tests) 9691ms
+
+ Test Files  3 passed (3)
+      Tests  16 passed (16)
+   Start at  22:08:28
+   Duration  29.19s (transform 88ms, setup 106ms, collect 403ms, tests 28.23s, environment 317ms, prepare 33ms)
+

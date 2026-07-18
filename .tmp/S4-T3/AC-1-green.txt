@@ -1,0 +1,13 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T3
+
+ ✓ convex/__tests__/S4T3-lever2-anchor-extraction.integration.test.ts (4 tests) 13199ms
+   ✓ S4-T3 AC-1: Lever 2 ordered intersection anchors via model-layer structured outputs > CASE 1 — lever2-anchor-extraction-tepusquet > TC-1: extracts >=3 ordered anchors; first contains Santa Maria; order ascending from 0  7332ms
+   ✓ S4-T3 AC-1: Lever 2 ordered intersection anchors via model-layer structured outputs > CASE 2 — lever2-anchor-extraction-minimal > TC-1b: extracts exactly 2 anchors for minimal 2-endpoint description  5865ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  22:05:26
+   Duration  13.98s (transform 49ms, setup 86ms, collect 188ms, tests 13.20s, environment 357ms, prepare 32ms)
+

@@ -1,0 +1,91 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T3
+
+ ❯ convex/__tests__/S4T3-lever2-anchor-extraction.integration.test.ts (4 tests | 4 failed) 13508ms
+   × S4-T3 AC-1: Lever 2 ordered intersection anchors via model-layer structured outputs > MUST_OBSERVE: model layer exposes getAgentLanguageModel(high) for structured extraction 1ms
+     → (0 , getAgentLanguageModel) is not a function
+   × S4-T3 AC-1: Lever 2 ordered intersection anchors via model-layer structured outputs > MUST_OBSERVE: emitAnchorsSchema requires ordered anchors (order field) 2ms
+     → expected undefined to be +0 // Object.is equality
+   × S4-T3 AC-1: Lever 2 ordered intersection anchors via model-layer structured outputs > CASE 1 — lever2-anchor-extraction-tepusquet > TC-1: extracts >=3 ordered anchors; first contains Santa Maria; order ascending from 0 6814ms
+     → expected undefined to be +0 // Object.is equality
+   × S4-T3 AC-1: Lever 2 ordered intersection anchors via model-layer structured outputs > CASE 2 — lever2-anchor-extraction-minimal > TC-1b: extracts exactly 2 anchors for minimal 2-endpoint description 6691ms
+     → expected undefined to be +0 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  convex/__tests__/S4T3-lever2-anchor-extraction.integration.test.ts > S4-T3 AC-1: Lever 2 ordered intersection anchors via model-layer structured outputs > MUST_OBSERVE: model layer exposes getAgentLanguageModel(high) for structured extraction
+TypeError: (0 , getAgentLanguageModel) is not a function
+ ❯ convex/__tests__/S4T3-lever2-anchor-extraction.integration.test.ts:55:27
+     53|     expect(info.model).toBeTruthy()
+     54|     // Language model factory must exist and return a model object (no…
+     55|     const languageModel = getAgentLanguageModel('high')
+       |                           ^
+     56|     expect(languageModel).toBeTruthy()
+     57|     expect(typeof languageModel).toBe('object')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  convex/__tests__/S4T3-lever2-anchor-extraction.integration.test.ts > S4-T3 AC-1: Lever 2 ordered intersection anchors via model-layer structured outputs > MUST_OBSERVE: emitAnchorsSchema requires ordered anchors (order field)
+AssertionError: expected undefined to be +0 // Object.is equality
+
+- Expected: 
+0
+
++ Received: 
+undefined
+
+ ❯ convex/__tests__/S4T3-lever2-anchor-extraction.integration.test.ts:76:47
+     74|     expect(withOrder.success).toBe(true)
+     75|     if (withOrder.success) {
+     76|       expect(withOrder.data.anchors[0].order).toBe(0)
+       |                                               ^
+     77|     }
+     78|     // Empty anchors must never pass structured-output validation
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  convex/__tests__/S4T3-lever2-anchor-extraction.integration.test.ts > S4-T3 AC-1: Lever 2 ordered intersection anchors via model-layer structured outputs > CASE 1 — lever2-anchor-extraction-tepusquet > TC-1: extracts >=3 ordered anchors; first contains Santa Maria; order ascending from 0
+AssertionError: expected undefined to be +0 // Object.is equality
+
+- Expected: 
+0
+
++ Received: 
+undefined
+
+ ❯ convex/__tests__/S4T3-lever2-anchor-extraction.integration.test.ts:97:39
+     95| 
+     96|       expect(result.anchors.length).toBeGreaterThanOrEqual(3)
+     97|       expect(result.anchors[0].order).toBe(0)
+       |                                       ^
+     98|       // Sorted ascending by order
+     99|       for (let i = 1; i < result.anchors.length; i++) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  convex/__tests__/S4T3-lever2-anchor-extraction.integration.test.ts > S4-T3 AC-1: Lever 2 ordered intersection anchors via model-layer structured outputs > CASE 2 — lever2-anchor-extraction-minimal > TC-1b: extracts exactly 2 anchors for minimal 2-endpoint description
+AssertionError: expected undefined to be +0 // Object.is equality
+
+- Expected: 
+0
+
++ Received: 
+undefined
+
+ ❯ convex/__tests__/S4T3-lever2-anchor-extraction.integration.test.ts:136:39
+    134|       // Models sometimes add an intermediate; require >= 2 and that b…
+    135|       expect(result.anchors.length).toBeGreaterThanOrEqual(2)
+    136|       expect(result.anchors[0].order).toBe(0)
+       |                                       ^
+    137|       const queries = result.anchors.map((a) => a.query.toLowerCase())…
+    138|       expect(queries).toMatch(/san francisco|sf\b/)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  22:04:31
+   Duration  14.94s (transform 48ms, setup 162ms, collect 441ms, tests 13.51s, environment 643ms, prepare 66ms)
+

@@ -1,0 +1,32 @@
+{
+  "capturedAt": "2026-07-18T04:12:06.213Z",
+  "routeId": "test:lever2-minimal",
+  "anchorsLength": 5,
+  "anchors": [
+    {
+      "query": "Highway 1 & 19th Ave, San Francisco, CA",
+      "why": "Starting point of the route on Highway 1 in San Francisco",
+      "order": 0
+    },
+    {
+      "query": "Half Moon Bay, CA",
+      "why": "Intermediate point on Highway 1 along the coast between San Francisco and Santa Cruz",
+      "order": 1
+    },
+    {
+      "query": "Pescadero, CA",
+      "why": "Intermediate coastal point on Highway 1 between Half Moon Bay and Santa Cruz",
+      "order": 2
+    },
+    {
+      "query": "Davenport, CA",
+      "why": "Intermediate coastal point on Highway 1 just north of Santa Cruz",
+      "order": 3
+    },
+    {
+      "query": "Santa Cruz, CA",
+      "why": "End point of the route as described",
+      "order": 4
+    }
+  ]
+}

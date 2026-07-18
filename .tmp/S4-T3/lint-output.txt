@@ -1,0 +1,252 @@
+convex/__tests__/S4T3-lever2-anchor-extraction.integration.test.ts:61:11 lint/correctness/noUnusedVariables  FIXABLE  ━━━━━━━━━━
+
+  ! This variable withoutOrder is unused.
+  
+    60 │   it('MUST_OBSERVE: emitAnchorsSchema requires ordered anchors (order field)', () => {
+  > 61 │     const withoutOrder = emitAnchorsSchema.safeParse({
+       │           ^^^^^^^^^^^^
+    62 │       anchors: [{ query: 'Santa Maria, CA', why: 'start' }],
+    63 │       confidence: 'high',
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+  i Unsafe fix: If this is intentional, prepend withoutOrder with an underscore.
+  
+     59  59 │   
+     60  60 │     it('MUST_OBSERVE: emitAnchorsSchema requires ordered anchors (order field)', () => {
+     61     │ - ····const·withoutOrder·=·emitAnchorsSchema.safeParse({
+         61 │ + ····const·_withoutOrder·=·emitAnchorsSchema.safeParse({
+     62  62 │         anchors: [{ query: 'Santa Maria, CA', why: 'start' }],
+     63  63 │         confidence: 'high',
+  
+
+convex/__tests__/S4T3-lever2-anchor-extraction.integration.test.ts:12:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━
+
+  × Sort these imports.
+  
+    10 │  */
+    11 │ 
+  > 12 │ import { mkdirSync, writeFileSync } from 'node:fs'
+       │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 13 │ import { resolve } from 'node:path'
+        ...
+  > 20 │ } from '../actions/agent/lib/anchorExtraction'
+  > 21 │ import { getAgentLanguageModel, getAgentModelInfo } from '../actions/agent/lib/models'
+       │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    22 │ 
+    23 │ const PROJECT_ROOT = resolve(__dirname, '..', '..')
+  
+  i Safe fix: Organize imports and exports (Biome)
+  
+     13  13 │   import { resolve } from 'node:path'
+     14  14 │   import { describe, expect, it } from 'vitest'
+     15     │ - import·{·ANTHROPIC_API_KEY,·OPENAI_API_KEY·}·from·'../lib/env'
+     16     │ - import·{
+     17     │ - ··type·AnchorExtractionRouteInput,
+     18     │ - ··emitAnchorsSchema,
+     19     │ - ··extractAnchors,
+     20     │ - }·from·'../actions/agent/lib/anchorExtraction'
+     21     │ - import·{·getAgentLanguageModel,·getAgentModelInfo·}·from·'../actions/agent/lib/models'
+         15 │ + import·{
+         16 │ + ··type·AnchorExtractionRouteInput,
+         17 │ + ··emitAnchorsSchema,
+         18 │ + ··extractAnchors,
+         19 │ + }·from·'../actions/agent/lib/anchorExtraction'
+         20 │ + import·{·getAgentLanguageModel,·getAgentModelInfo·}·from·'../actions/agent/lib/models'
+         21 │ + import·{·ANTHROPIC_API_KEY,·OPENAI_API_KEY·}·from·'../lib/env'
+     22  22 │   
+     23  23 │   const PROJECT_ROOT = resolve(__dirname, '..', '..')
+  
+
+convex/__tests__/S4T3-lever2-gate-persist.integration.test.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     91  91 │   
+     92  92 │       beforeAll(() => {
+     93     │ - ······const·seed·=·runConvexFn(
+     94     │ - ········'curatedGeometryTestSupport:seedPoCRoute',
+     95     │ - ········{},
+     96     │ - ········{·identity:·true·},
+     97     │ - ······)
+         93 │ + ······const·seed·=·runConvexFn('curatedGeometryTestSupport:seedPoCRoute',·{},·{·identity:·true·})
+     98  94 │         if (!seed.ok) {
+     99  95 │           skipped = true
+  
+
+convex/__tests__/S4T3-lever2-geocode-region.integration.test.ts:9:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━
+
+  × Sort these imports.
+  
+     7 │  */
+     8 │ 
+   > 9 │ import { mkdirSync, writeFileSync } from 'node:fs'
+       │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 10 │ import { resolve } from 'node:path'
+        ...
+  > 16 │ } from '../actions/agent/providers/geocodingProvider'
+  > 17 │ import { destinationPointMi, isAnchorInRegion } from '../curatedGeometryGate'
+       │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    18 │ 
+    19 │ const PROJECT_ROOT = resolve(__dirname, '..', '..')
+  
+  i Safe fix: Organize imports and exports (Biome)
+  
+     10  10 │   import { resolve } from 'node:path'
+     11  11 │   import { describe, expect, it } from 'vitest'
+     12     │ - import·{·GOOGLE_MAPS_API_KEY·}·from·'../lib/env'
+     13     │ - import·{
+     14     │ - ··geocodeAnchorsInRegion,
+     15     │ - ··isGeocodedAnchorInRegion,
+     16     │ - }·from·'../actions/agent/providers/geocodingProvider'
+     17     │ - import·{·destinationPointMi,·isAnchorInRegion·}·from·'../curatedGeometryGate'
+         12 │ + import·{
+         13 │ + ··geocodeAnchorsInRegion,
+         14 │ + ··isGeocodedAnchorInRegion,
+         15 │ + }·from·'../actions/agent/providers/geocodingProvider'
+         16 │ + import·{·destinationPointMi,·isAnchorInRegion·}·from·'../curatedGeometryGate'
+         17 │ + import·{·GOOGLE_MAPS_API_KEY·}·from·'../lib/env'
+     18  18 │   
+     19  19 │   const PROJECT_ROOT = resolve(__dirname, '..', '..')
+  
+
+convex/__tests__/S4T3-lever2-geocode-region.integration.test.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     95  95 │         const offRegionInResult = result.some(
+     96  96 │           (a) =>
+     97     │ - ··········a.formatted.toLowerCase().includes('boston')·||
+     98     │ - ··········a.distanceFromCentroid·>·MAX_REGION_MI,
+         97 │ + ··········a.formatted.toLowerCase().includes('boston')·||·a.distanceFromCentroid·>·MAX_REGION_MI,
+     99  98 │         )
+    100  99 │         expect(offRegionInResult).toBe(false)
+  
+
+convex/__tests__/S4T3-lever2-waypoint-routing.integration.test.ts:9:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━
+
+  × Sort these imports.
+  
+     7 │  */
+     8 │ 
+   > 9 │ import { mkdirSync, writeFileSync } from 'node:fs'
+       │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 10 │ import { resolve } from 'node:path'
+        ...
+  > 16 │   thinAnchorsForRouting,
+  > 17 │ } from '../actions/curatedGeometryReconstruct'
+       │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    18 │ 
+    19 │ const PROJECT_ROOT = resolve(__dirname, '..', '..')
+  
+  i Safe fix: Organize imports and exports (Biome)
+  
+     10  10 │   import { resolve } from 'node:path'
+     11  11 │   import { describe, expect, it } from 'vitest'
+     12     │ - import·{·GOOGLE_MAPS_API_KEY·}·from·'../lib/env'
+     13     │ - import·{
+     14     │ - ··buildViaIntermediates,
+     15     │ - ··routeViaWaypoints,
+     16     │ - ··thinAnchorsForRouting,
+     17     │ - }·from·'../actions/curatedGeometryReconstruct'
+         12 │ + import·{
+         13 │ + ··buildViaIntermediates,
+         14 │ + ··routeViaWaypoints,
+         15 │ + ··thinAnchorsForRouting,
+         16 │ + }·from·'../actions/curatedGeometryReconstruct'
+         17 │ + import·{·GOOGLE_MAPS_API_KEY·}·from·'../lib/env'
+     18  18 │   
+     19  19 │   const PROJECT_ROOT = resolve(__dirname, '..', '..')
+  
+
+convex/actions/agent/lib/models.ts:3:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━
+
+  × Sort these imports.
+  
+    1 │ 'use node'
+    2 │ 
+  > 3 │ import { anthropic } from '@ai-sdk/anthropic'
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 4 │ import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
+  > 5 │ import type { LanguageModel } from 'ai'
+  > 6 │ import { getModel } from '@mariozechner/pi-ai'
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    7 │ import { ANTHROPIC_API_KEY, OPENAI_API_KEY } from '../../../lib/env'
+    8 │ 
+  
+  i Safe fix: Organize imports and exports (Biome)
+  
+      3   3 │   import { anthropic } from '@ai-sdk/anthropic'
+      4   4 │   import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
+      5     │ - import·type·{·LanguageModel·}·from·'ai'
+      6     │ - import·{·getModel·}·from·'@mariozechner/pi-ai'
+          5 │ + import·{·getModel·}·from·'@mariozechner/pi-ai'
+          6 │ + import·type·{·LanguageModel·}·from·'ai'
+      7   7 │   import { ANTHROPIC_API_KEY, OPENAI_API_KEY } from '../../../lib/env'
+      8   8 │   
+  
+
+convex/actions/agent/providers/geocodingProvider.ts:2:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━
+
+  × Sort these imports.
+  
+    1 │ 'use node'
+  > 2 │ import { GOOGLE_MAPS_API_KEY } from '../../../lib/env'
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 3 │ import { haversineDistance } from '../../../curatedGeometryGate'
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │ import { normalizePlaceQueryForGeocode } from '../lib/placeAliases'
+    5 │ import { withTimeout } from '../lib/reliability'
+  
+  i Safe fix: Organize imports and exports (Biome)
+  
+      1   1 │   'use node'
+      2     │ - import·{·GOOGLE_MAPS_API_KEY·}·from·'../../../lib/env'
+      3     │ - import·{·haversineDistance·}·from·'../../../curatedGeometryGate'
+          2 │ + import·{·haversineDistance·}·from·'../../../curatedGeometryGate'
+          3 │ + import·{·GOOGLE_MAPS_API_KEY·}·from·'../../../lib/env'
+      4   4 │   import { normalizePlaceQueryForGeocode } from '../lib/placeAliases'
+      5   5 │   import { withTimeout } from '../lib/reliability'
+  
+
+convex/actions/curatedGeometryReconstruct.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+    451 451 │    * Evenly samples intermediates. Used before Google Routes (≤8 via-waypoints).
+    452 452 │    */
+    453     │ - export·function·thinAnchorsForRouting(
+    454     │ - ··anchors:·GeocodedAnchor[],
+    455     │ - ··maxPoints·=·8,
+    456     │ - ):·GeocodedAnchor[]·{
+        453 │ + export·function·thinAnchorsForRouting(anchors:·GeocodedAnchor[],·maxPoints·=·8):·GeocodedAnchor[]·{
+    457 454 │     if (anchors.length <= maxPoints) return anchors
+    458 455 │     const picked: GeocodedAnchor[] = []
+    ······· │ 
+    468 465 │    * Origin/destination are separate; intermediates never include endpoints.
+    469 466 │    */
+    470     │ - export·function·buildViaIntermediates(
+    471     │ - ··coords:·Array<{·lat:·number;·lng:·number·}>,
+    472     │ - ):·Array<{
+        467 │ + export·function·buildViaIntermediates(coords:·Array<{·lat:·number;·lng:·number·}>):·Array<{
+    473 468 │     location: { latLng: { latitude: number; longitude: number } }
+    474 469 │     via: true
+    ······· │ 
+    487 482 │    * polyline, distance, and the intermediates that were sent (for verification).
+    488 483 │    */
+    489     │ - export·async·function·routeViaWaypoints(
+    490     │ - ··coords:·Array<{·lat:·number;·lng:·number·}>,
+    491     │ - ):·Promise<{
+        484 │ + export·async·function·routeViaWaypoints(coords:·Array<{·lat:·number;·lng:·number·}>):·Promise<{
+    492 485 │     encodedPolyline: string
+    493 486 │     distanceMeters: number
+  
+
+Checked 10 files in 37ms. No fixes applied.
+Found 8 errors.
+Found 1 warning.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

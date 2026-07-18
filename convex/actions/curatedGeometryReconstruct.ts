@@ -14,6 +14,7 @@ import {
   isDegenerate,
 } from '../curatedGeometryGate'
 import { extractAnchors } from './agent/lib/anchorExtraction'
+import { geocodeWithRegionBias } from './agent/providers/geocodingProvider'
 
 type GeocodedAnchor = {
   lat: number
@@ -308,32 +309,21 @@ function makeInRegionAnchors(
   return anchors
 }
 
+/**
+ * Region-biased geocode for Lever 2. Delegates to geocodingProvider so the
+ * bounds bias + 150mi fence live in one place (never bypassed).
+ */
 async function defaultGeocode(
   query: string,
   bias: { lat: number; lng: number },
 ): Promise<GeocodedAnchor | null> {
-  const GOOGLE_KEY = process.env.GOOGLE_MAPS_API_KEY
-  if (!GOOGLE_KEY) throw new Error('GOOGLE_MAPS_API_KEY not set')
-
-  const url = new URL('https://maps.googleapis.com/maps/api/geocode/json')
-  url.searchParams.set('address', query)
-  url.searchParams.set('key', GOOGLE_KEY)
-  url.searchParams.set(
-    'bounds',
-    `${bias.lat - 1.2},${bias.lng - 1.2}|${bias.lat + 1.2},${bias.lng + 1.2}`,
-  )
-
-  const res = await fetch(url.toString())
-  const data = await res.json()
-  if (data.status !== 'OK' || !data.results?.length) return null
-
-  const loc = data.results[0].geometry.location
-  const distance = haversineDistance({ lat: loc.lat, lng: loc.lng }, bias)
+  const result = await geocodeWithRegionBias(query, bias)
+  if (!result) return null
   return {
-    lat: loc.lat,
-    lng: loc.lng,
-    formatted: data.results[0].formatted_address,
-    distanceFromCentroid: distance,
+    lat: result.lat,
+    lng: result.lng,
+    formatted: result.formatted,
+    distanceFromCentroid: result.distanceFromCentroid,
   }
 }
 
@@ -343,15 +333,17 @@ async function defaultRoute(coords: Array<{ lat: number; lng: number }>): Promis
 
   const [origin, ...rest] = coords
   const destination = rest.pop()!
+  // STRICTLY: all intermediates use via=true (pass-through waypoints)
+  const intermediates = rest.map((c) => ({
+    location: { latLng: { latitude: c.lat, longitude: c.lng } },
+    via: true as const,
+  }))
   const body = {
     origin: { location: { latLng: { latitude: origin.lat, longitude: origin.lng } } },
     destination: {
       location: { latLng: { latitude: destination.lat, longitude: destination.lng } },
     },
-    intermediates: rest.map((c) => ({
-      location: { latLng: { latitude: c.lat, longitude: c.lng } },
-      via: true,
-    })),
+    intermediates,
     travelMode: 'DRIVE',
     polylineQuality: 'HIGH_QUALITY',
   }
@@ -454,7 +446,11 @@ async function persistGateResult(
   }
 }
 
-function thinAnchorsForRouting(anchors: GeocodedAnchor[], maxPoints = 8): GeocodedAnchor[] {
+/**
+ * Thin an ordered anchor list to ≤ maxPoints, always keeping first and last.
+ * Evenly samples intermediates. Used before Google Routes (≤8 via-waypoints).
+ */
+export function thinAnchorsForRouting(anchors: GeocodedAnchor[], maxPoints = 8): GeocodedAnchor[] {
   if (anchors.length <= maxPoints) return anchors
   const picked: GeocodedAnchor[] = []
   for (let i = 0; i < maxPoints; i++) {
@@ -462,6 +458,58 @@ function thinAnchorsForRouting(anchors: GeocodedAnchor[], maxPoints = 8): Geocod
     picked.push(anchors[idx])
   }
   return picked
+}
+
+/**
+ * Build Google Routes intermediates with via=true for every middle anchor.
+ * Origin/destination are separate; intermediates never include endpoints.
+ */
+export function buildViaIntermediates(coords: Array<{ lat: number; lng: number }>): Array<{
+  location: { latLng: { latitude: number; longitude: number } }
+  via: true
+}> {
+  if (coords.length < 3) return []
+  const middle = coords.slice(1, -1)
+  return middle.map((c) => ({
+    location: { latLng: { latitude: c.lat, longitude: c.lng } },
+    via: true as const,
+  }))
+}
+
+/**
+ * Production via-waypoint routing entry (Lever 2). Routes origin→destination
+ * through middle anchors as via=true intermediates. Returns the encoded
+ * polyline, distance, and the intermediates that were sent (for verification).
+ */
+export async function routeViaWaypoints(coords: Array<{ lat: number; lng: number }>): Promise<{
+  encodedPolyline: string
+  distanceMeters: number
+  intermediates: Array<{ via: boolean }>
+}> {
+  if (coords.length < 2) {
+    throw new Error('routeViaWaypoints requires at least 2 coordinates')
+  }
+  const intermediates = buildViaIntermediates(coords)
+  const routeResult = await routeWithInvocationCount(coords)
+  return {
+    encodedPolyline: routeResult.polyline.encodedPolyline,
+    distanceMeters: routeResult.distanceMeters,
+    intermediates,
+  }
+}
+
+/**
+ * Build the repair-round feedback string passed to the second LLM call.
+ * MUST include the literal "Routed length" and the geocode log.
+ */
+export function buildRepairFeedback(args: {
+  routedMiles: number
+  claimedMiles: number
+  geocodeLog: string[]
+}): string {
+  return `Routed length came out ${args.routedMiles.toFixed(1)} miles but the ride is claimed to be ${args.claimedMiles} miles.
+Geocoding results were:
+${args.geocodeLog.join('\n')}`
 }
 
 async function evaluateRoutedAnchors(
@@ -587,9 +635,11 @@ export const reconstructForRoute = internalAction({
       // VER-02 repair round: bounded to ONE repair (1 initial + 1 repair = 2
       // routing calls max), re-prompted with the geocode log as feedback.
       if (attempt.gateResult.verdict !== 'pass') {
-        const feedback = `Routed length came out ${attempt.routedMiles.toFixed(1)} miles but the ride is claimed to be ${route.lengthMiles} miles.
-Geocoding results were:
-${attempt.geocodeLog.join('\n')}`
+        const feedback = buildRepairFeedback({
+          routedMiles: attempt.routedMiles,
+          claimedMiles: route.lengthMiles,
+          geocodeLog: attempt.geocodeLog,
+        })
         const repairAttempt = await runPipelineAttempt(feedback)
         if (repairAttempt) {
           const aRatio = attempt.ratio ?? 100

@@ -1,6 +1,10 @@
 'use node'
 
+import { anthropic } from '@ai-sdk/anthropic'
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 import { getModel } from '@mariozechner/pi-ai'
+import type { LanguageModel } from 'ai'
+import { ANTHROPIC_API_KEY, OPENAI_API_KEY } from '../../../lib/env'
 
 /**
  * Intelligence levels for agent model selection.
@@ -31,6 +35,25 @@ const MODEL_MAP: Record<IntelligenceLevel, { provider: 'openai'; model: string }
 }
 
 /**
+ * Structured-output model map for AI SDK generateText + Output.object.
+ *
+ * Separate from the pi-ai MODEL_MAP: tool-calling (trip planning) and
+ * structured JSON extraction (anchor reconstruction) have different reliability
+ * profiles. Anchor extraction is proven on Anthropic Claude Sonnet (S1-T1) and
+ * S4-T1 cassettes record Anthropic exchanges — keep that production path.
+ *
+ * Intelligence level still flows through the model layer so callers request
+ * capability tier, never a hard-coded provider string.
+ */
+const STRUCTURED_OUTPUT_MODEL_MAP: Record<
+  IntelligenceLevel,
+  { provider: 'anthropic' | 'openai'; model: string }
+> = {
+  high: { provider: 'anthropic', model: 'claude-sonnet-4-6' },
+  low: { provider: 'openai', model: 'gpt-4o-mini' },
+}
+
+/**
  * Get a pi-ai model for the given intelligence level.
  * Wraps getModel() so agents never import from pi-ai directly.
  */
@@ -45,6 +68,42 @@ export function getAgentModel(level: IntelligenceLevel) {
  */
 export function getAgentModelInfo(level: IntelligenceLevel) {
   return MODEL_MAP[level]
+}
+
+/**
+ * AI SDK LanguageModel for structured-output completions (REC-02 Lever 2
+ * anchor extraction). Resolves intelligence level through the model layer —
+ * callers request 'high' / 'low', never a provider string.
+ *
+ * Uses STRUCTURED_OUTPUT_MODEL_MAP (Anthropic for high) so production
+ * reconstructForRoute stays cassette-compatible with S4-T1 Anthropic recordings.
+ */
+export function getAgentLanguageModel(level: IntelligenceLevel): LanguageModel {
+  const { provider, model } = STRUCTURED_OUTPUT_MODEL_MAP[level]
+
+  if (provider === 'anthropic') {
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error('Missing required environment variable: ANTHROPIC_API_KEY')
+    }
+    return anthropic(model)
+  }
+
+  if (!OPENAI_API_KEY) {
+    throw new Error('Missing required environment variable: OPENAI_API_KEY')
+  }
+  const openai = createOpenAICompatible({
+    name: 'openai',
+    baseURL: 'https://api.openai.com/v1',
+    apiKey: OPENAI_API_KEY,
+  })
+  return openai(model)
+}
+
+/**
+ * Metadata for the structured-output model tier (anchor extraction).
+ */
+export function getAgentLanguageModelInfo(level: IntelligenceLevel) {
+  return STRUCTURED_OUTPUT_MODEL_MAP[level]
 }
 
 /**

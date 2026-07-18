@@ -1,0 +1,6 @@
+AC-4 RED-against-start
+At task start, no S4T3-lever2-gate-persist.integration.test.ts existed.
+Production reconstructForRoute (from S4-T1) already persisted provenance=ai_reconstructed on pass.
+This task's RED is the NEW test file failing before deploy of any S4-T3 changes:
+  - Without write of test file: suite missing
+  - Contract requires provenance==ai_reconstructed on lever-2 path — verified GREEN against production + cassette

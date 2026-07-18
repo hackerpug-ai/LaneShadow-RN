@@ -1,0 +1,38 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm.
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow-RN/.kb-run-sprint/worktrees/S4-T3
+
+stdout | convex/actions/agent/lib/__tests__/anchorExtraction.integration.test.ts > anchorExtraction > AC-1: extracts ordered anchors from the real Twist of Tepusquet Loop description > returns >=5 ordered non-empty anchors validated against emitAnchorsSchema
+{"ac":"AC-1","anchorsLength":6,"firstQuery":"Highway 101 & Betteravia Road, Santa Maria, CA","confidence":"medium"}
+
+stdout | convex/actions/agent/lib/__tests__/anchorExtraction.integration.test.ts > anchorExtraction > AC-2: generalizes to the real Old Hwy 40 point-to-point description > returns >=3 ordered non-empty anchors validated against emitAnchorsSchema
+{"ac":"AC-2","anchorsLength":6,"queries":["Cisco Grove exit, I-80, Cisco Grove, CA","Old Highway 40 & I-80 overpass, Cisco Grove, CA","Rainbow Lodge, Old Highway 40, Soda Springs, CA","Rainbow Bridge, Old Highway 40, Soda Springs, CA","Donner Lake Vista Point, Old Highway 40, Truckee, CA","Donner Lake, Truckee, CA"],"confidence":"medium"}
+
+stdout | convex/actions/agent/lib/__tests__/anchorExtraction.integration.test.ts > anchorExtraction > AC-3: prompt assembly is deterministic and includes the real description text > returns byte-identical prompts containing the route summary verbatim
+{"ac":"AC-3","promptLength":1486,"containsFoxenCanyon":true,"containsRouteName":true}
+
+stdout | convex/actions/agent/lib/__tests__/anchorExtraction.integration.test.ts > anchorExtraction > AC-4: emitAnchorsSchema rejects malformed model responses > rejects an empty anchors array
+{"ac":"AC-4-case-1","success":false,"issueCount":2,"anchorsIssue":true}
+
+stdout | convex/actions/agent/lib/__tests__/anchorExtraction.integration.test.ts > anchorExtraction > AC-4: emitAnchorsSchema rejects malformed model responses > rejects a response missing the confidence field
+{"ac":"AC-4-case-2","success":false,"confidenceIssue":true}
+
+ ✓ convex/actions/agent/lib/__tests__/anchorExtraction.integration.test.ts (5 tests) 11417ms
+   ✓ anchorExtraction > AC-1: extracts ordered anchors from the real Twist of Tepusquet Loop description > returns >=5 ordered non-empty anchors validated against emitAnchorsSchema  4870ms
+   ✓ anchorExtraction > AC-2: generalizes to the real Old Hwy 40 point-to-point description > returns >=3 ordered non-empty anchors validated against emitAnchorsSchema  6546ms
+ ✓ convex/__tests__/S4T3-lever2-gate-persist.integration.test.ts (5 tests) 26552ms
+ ✓ convex/__tests__/S4T3-lever2-anchor-extraction.integration.test.ts (4 tests) 12023ms
+   ✓ S4-T3 AC-1: Lever 2 ordered intersection anchors via model-layer structured outputs > CASE 1 — lever2-anchor-extraction-tepusquet > TC-1: extracts >=3 ordered anchors; first contains Santa Maria; order ascending from 0  5593ms
+   ✓ S4-T3 AC-1: Lever 2 ordered intersection anchors via model-layer structured outputs > CASE 2 — lever2-anchor-extraction-minimal > TC-1b: extracts exactly 2 anchors for minimal 2-endpoint description  6430ms
+ ✓ convex/__tests__/S4T3-lever2-exhausted-to-review.integration.test.ts (6 tests) 4211ms
+ ✓ convex/__tests__/S4T3-lever2-repair-feedback.integration.test.ts (5 tests) 3402ms
+ ✓ convex/__tests__/S4T3-lever2-geocode-region.integration.test.ts (2 tests) 497ms
+   ✓ S4-T3 AC-2: Lever 2 geocode with region bias > CASE 1 — lever2-geocode-with-bias > TC-2: geocodes Santa Maria, CA within 150mi of centroid (34.95, -120.42)  328ms
+ ✓ convex/__tests__/S4T3-lever2-waypoint-routing.integration.test.ts (3 tests) 367ms
+   ✓ S4-T3 AC-3: Lever 2 via-waypoint routing + thinning > CASE 1 — lever2-route-via-waypoints > TC-4: routes through 7 anchors with via=true; polyline length > 100; distanceMeters > 0  366ms
+
+ Test Files  7 passed (7)
+      Tests  30 passed (30)
+   Start at  22:09:07
+   Duration  59.74s (transform 120ms, setup 150ms, collect 466ms, tests 58.47s, environment 485ms, prepare 50ms)
+
