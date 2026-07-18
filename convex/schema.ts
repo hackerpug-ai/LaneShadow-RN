@@ -318,4 +318,48 @@ export default defineSchema({
   })
     .index('by_routeId', ['routeId'])
     .index('by_artifactType', ['artifactType']),
+
+  /**
+   * S4-T6 / VER-05: Stratified couch-sample (~25 routes) for founder visual review.
+   * Routes carry provenance + difficulty so stratification can be re-queried.
+   */
+  couch_samples: defineTable({
+    sampleId: v.string(),
+    size: v.number(),
+    routes: v.array(
+      v.object({
+        routeId: v.string(),
+        provenance: v.union(
+          v.literal('scraped_promoted'),
+          v.literal('ai_reconstructed'),
+          v.literal('name_routed'),
+        ),
+        anchorCount: v.number(),
+        claimedMiles: v.union(v.number(), v.null()),
+        routedMiles: v.number(),
+        difficulty: v.union(v.literal('easy'), v.literal('medium'), v.literal('hard')),
+        descriptionLength: v.number(),
+      }),
+    ),
+    createdAt: v.number(),
+  }).index('by_sampleId', ['sampleId']),
+
+  /**
+   * S4-T6 / VER-05: Founder couch verdicts. Overall pass unblocks waterfall --all.
+   * Per-route verdict is true | off | wrong; a single wrong forces overall fail.
+   */
+  couch_verdicts: defineTable({
+    sampleId: v.string(),
+    overallVerdict: v.union(v.literal('pass'), v.literal('fail')),
+    routeVerdicts: v.array(
+      v.object({
+        routeId: v.string(),
+        verdict: v.union(v.literal('true'), v.literal('off'), v.literal('wrong')),
+      }),
+    ),
+    recordedAt: v.number(),
+    recordedBy: v.optional(v.string()),
+  })
+    .index('by_sampleId', ['sampleId'])
+    .index('by_overallVerdict', ['overallVerdict']),
 })
