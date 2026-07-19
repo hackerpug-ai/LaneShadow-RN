@@ -38,7 +38,7 @@ green the whole Saturday Bar (Richness R1/R2, Feel F1–F3, Proof P1–P3 are se
 |---|--------|------|-------|--------------|--------|
 | 1 | [Geometry reference-flow spike](#sprint-01-geometry-reference-spike) | Founder watches one recovered route plot its correct road line from a cold boot | 4 | — | In Progress |
 | 2 | [Mastra spike + z.ai proof + enrichment re-ratification](#sprint-02-mastra-reference-spike) | Turn-two "OK what's scenic" inherits the Ogden center on cloud dev | 8 | — | In Progress |
-| 3 | [Catalog hygiene](#sprint-03-catalog-hygiene) | Founder confirms canonical-vs-shadow per duplicate group before merge commits | 4 | — | In Progress |
+| 3 | [Catalog hygiene](#sprint-03-catalog-hygiene) | Founder confirms canonical-vs-shadow per duplicate group before merge commits | 4 | — | Planned |
 | 4 | [Trust pipeline](#sprint-04-trust-pipeline) | Founder reviews the ~25 couch-sample lines and records the pass that unlocks the batch | 7 | 1, 3 | In Progress |
 | 5 | [Batch acceptance + retirement](#sprint-05-batch-acceptance) | Founder accepts the realized rider-ready count against the expected-yield table | 4 | 4 | Planned |
 | 6 | [Rider-ready surface](#sprint-06-rider-ready-surface) | Founder confirms the provenance caption reads as calm context, never a warning | 8 | 4 | Planned |
