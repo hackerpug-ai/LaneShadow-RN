@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-07-16T06:42:54.548Z",
+  "capturedAt": "2026-07-18T06:01:30.897Z",
   "verifyOk": true,
   "data": {
     "anchorCount": 2,
@@ -27,6 +27,7 @@
     "riderReady": true,
     "routeId": "test:degenerate-2pt",
     "routedMiles": 41,
+    "sideTableProvenance": "ai_reconstructed",
     "verdict": "pass"
   }
 }

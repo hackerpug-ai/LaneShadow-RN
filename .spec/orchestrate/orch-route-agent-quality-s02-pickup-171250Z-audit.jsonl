@@ -1,0 +1,11 @@
+{"ts":"2026-07-13T17:43:25Z","surface_id":"E2123EA8-1ECB-41A8-956E-6B09ECB64FDD","role":"run","action":"STALL_LADDER_RUNG_0","detail":"No pending feed item; sent Enter to resume the existing implementation surface."}
+{"ts":"2026-07-13T17:43:47Z","surface_id":"E2123EA8-1ECB-41A8-956E-6B09ECB64FDD","role":"run","action":"STALL_LADDER_RUNG_1","detail":"Sent explicit continuation to the existing implementation surface and submitted it."}
+{"ts":"2026-07-13T17:44:21Z","surface_id":"E2123EA8-1ECB-41A8-956E-6B09ECB64FDD","role":"run","action":"STALL_LADDER_RUNG_2","detail":"Re-armed the full pickup goal on the existing RUN surface after two resume nudges."}
+{"ts":"2026-07-13T17:45:33Z","surface_id":"E2123EA8-1ECB-41A8-956E-6B09ECB64FDD","role":"run","action":"STALL_CAP_BLOCKED","detail":"Three stall-ladder rungs applied; progress.landed=0; no durable artifact or commit. Surface blocked and will be reaped."}
+{
+  "ts": "2026-07-13T17:45:35Z",
+  "surface_id": "E2123EA8-1ECB-41A8-956E-6B09ECB64FDD",
+  "role": "run",
+  "action": "TERMINAL_SURFACE_REAPED",
+  "outcome": "blocked-stall-cap"
+}

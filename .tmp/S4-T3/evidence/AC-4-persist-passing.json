@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-07-18T04:38:29.031Z",
+  "capturedAt": "2026-07-18T06:16:32.664Z",
   "actionResult": {
     "anchorCount": 5,
     "anchors": [
@@ -10,10 +10,10 @@
         "lng": -120.4359049
       },
       {
-        "distanceFromCentroid": 7.053590797016316,
-        "formatted": "Foxen Canyon Rd & Santa Maria Mesa Rd, California 93454, USA",
-        "lat": 34.8956032,
-        "lng": -120.3146404
+        "distanceFromCentroid": 3.1865313133176794,
+        "formatted": "Betteravia Rd & Foxen Canyon Rd, California 93454, USA",
+        "lat": 34.9234172,
+        "lng": -120.3740285
       },
       {
         "distanceFromCentroid": 7.552509308620393,
@@ -41,7 +41,7 @@
     "geometryStatus": "review",
     "llmPromptsUsed": [
       "You reconstruct motorcycle route geometry from ride descriptions.\n\nROUTE: \"Twist of Tepusquet Loop\" in California\nCLAIMED LENGTH: 41 miles\nAPPROX CENTER: lat 34.95, lng -120.42\nDESCRIPTION:\nHighway 101 in Santa Maria, CA. Exit Betteravia Road heading East. Betteravia Road becomes Foxen Canyon Road. Foxen Canyon Road becomes Santa Maria Mesa Road. Santa Maria Mesa Road merges into Tepusquet Canyon Road. Head North on Tepusquet Canyon Road. Follow this all the way up the mountain and back down until you reach highway 166. Follow 166 West until you reach highway 101 again.\n\nExtract an ORDERED list of geocodable anchor points tracing this exact route, start to end.\nRules:\n- Use road-intersection queries (\"Redwood Rd & Pinehurst Rd, Castro Valley, CA\") or \"place, city, state\" queries a geocoder can resolve.\n- One anchor at the start, one at each described turn/junction (so the router is forced onto the described roads), one at the end.\n- Always append city/region + state abbreviation to every query.\n- If the description says a road \"turns into\" another, add the transition point as an anchor.\n- For loops, the last anchor must return to the first.\n- Only use points the description supports. Do not invent scenic detours, intermediate towns, or highway junctions the text never names.\n- If the description only names a start place and an end place (no intermediate exits/turns/junctions/road transitions), emit EXACTLY 2 anchors: start then end.\n- Assign each anchor an integer \"order\" field starting at 0 and increasing by 1 (0 = start, last = end).\n- Respond as JSON matching: {\"anchors\":[{\"query\":\"...\",\"why\":\"...\",\"order\":0}],\"confidence\":\"high\"|\"medium\"|\"low\",\"roadChain\":[\"...\"]}",
-      "You reconstruct motorcycle route geometry from ride descriptions.\n\nROUTE: \"Twist of Tepusquet Loop\" in California\nCLAIMED LENGTH: 41 miles\nAPPROX CENTER: lat 34.95, lng -120.42\nDESCRIPTION:\nHighway 101 in Santa Maria, CA. Exit Betteravia Road heading East. Betteravia Road becomes Foxen Canyon Road. Foxen Canyon Road becomes Santa Maria Mesa Road. Santa Maria Mesa Road merges into Tepusquet Canyon Road. Head North on Tepusquet Canyon Road. Follow this all the way up the mountain and back down until you reach highway 166. Follow 166 West until you reach highway 101 again.\n\nExtract an ORDERED list of geocodable anchor points tracing this exact route, start to end.\nRules:\n- Use road-intersection queries (\"Redwood Rd & Pinehurst Rd, Castro Valley, CA\") or \"place, city, state\" queries a geocoder can resolve.\n- One anchor at the start, one at each described turn/junction (so the router is forced onto the described roads), one at the end.\n- Always append city/region + state abbreviation to every query.\n- If the description says a road \"turns into\" another, add the transition point as an anchor.\n- For loops, the last anchor must return to the first.\n- Only use points the description supports. Do not invent scenic detours, intermediate towns, or highway junctions the text never names.\n- If the description only names a start place and an end place (no intermediate exits/turns/junctions/road transitions), emit EXACTLY 2 anchors: start then end.\n- Assign each anchor an integer \"order\" field starting at 0 and increasing by 1 (0 = start, last = end).\n- Respond as JSON matching: {\"anchors\":[{\"query\":\"...\",\"why\":\"...\",\"order\":0}],\"confidence\":\"high\"|\"medium\"|\"low\",\"roadChain\":[\"...\"]}\n\nPREVIOUS ATTEMPT FAILED VALIDATION — fix it:\nRouted length came out 90.1 miles but the ride is claimed to be 41 miles.\nGeocoding results were:\nOK: Highway 101 & Betteravia Road, Santa Maria, CA\nOK: Betteravia Road & Foxen Canyon Road, Santa Maria, CA\nOK: Foxen Canyon Road & Santa Maria Mesa Road, Santa Maria, CA\nOK: Santa Maria Mesa Road & Tepusquet Canyon Road, Santa Barbara County, CA\nOK: Tepusquet Canyon Road & Highway 166, Santa Barbara County, CA\nOK: Highway 166 & Highway 101, Santa Maria, CA\nDiagnose which anchors are wrong (bad geocode, wrong place, causes detour/backtrack) and emit a corrected anchor list. Prefer plain road-intersection queries over business/POI names. Drop anchors that add ambiguity."
+      "You reconstruct motorcycle route geometry from ride descriptions.\n\nROUTE: \"Twist of Tepusquet Loop\" in California\nCLAIMED LENGTH: 41 miles\nAPPROX CENTER: lat 34.95, lng -120.42\nDESCRIPTION:\nHighway 101 in Santa Maria, CA. Exit Betteravia Road heading East. Betteravia Road becomes Foxen Canyon Road. Foxen Canyon Road becomes Santa Maria Mesa Road. Santa Maria Mesa Road merges into Tepusquet Canyon Road. Head North on Tepusquet Canyon Road. Follow this all the way up the mountain and back down until you reach highway 166. Follow 166 West until you reach highway 101 again.\n\nExtract an ORDERED list of geocodable anchor points tracing this exact route, start to end.\nRules:\n- Use road-intersection queries (\"Redwood Rd & Pinehurst Rd, Castro Valley, CA\") or \"place, city, state\" queries a geocoder can resolve.\n- One anchor at the start, one at each described turn/junction (so the router is forced onto the described roads), one at the end.\n- Always append city/region + state abbreviation to every query.\n- If the description says a road \"turns into\" another, add the transition point as an anchor.\n- For loops, the last anchor must return to the first.\n- Only use points the description supports. Do not invent scenic detours, intermediate towns, or highway junctions the text never names.\n- If the description only names a start place and an end place (no intermediate exits/turns/junctions/road transitions), emit EXACTLY 2 anchors: start then end.\n- Assign each anchor an integer \"order\" field starting at 0 and increasing by 1 (0 = start, last = end).\n- Respond as JSON matching: {\"anchors\":[{\"query\":\"...\",\"why\":\"...\",\"order\":0}],\"confidence\":\"high\"|\"medium\"|\"low\",\"roadChain\":[\"...\"]}\n\nPREVIOUS ATTEMPT FAILED VALIDATION — fix it:\nRouted length came out 90.1 miles but the ride is claimed to be 41 miles.\nGeocoding results were:\nOK: Highway 101 & Betteravia Road, Santa Maria, CA\nOK: Betteravia Road & Foxen Canyon Road, Santa Maria, CA\nOK: Foxen Canyon Road & Santa Maria Mesa Road, Santa Barbara County, CA\nOK: Santa Maria Mesa Road & Tepusquet Canyon Road, Santa Barbara County, CA\nOK: Tepusquet Canyon Road & Highway 166, Santa Barbara County, CA\nOK: Highway 166 & Highway 101, Santa Maria, CA\nDiagnose which anchors are wrong (bad geocode, wrong place, causes detour/backtrack) and emit a corrected anchor list. Prefer plain road-intersection queries over business/POI names. Drop anchors that add ambiguity."
     ],
     "pointCount": 6542,
     "ratio": 2.16,
@@ -62,10 +62,10 @@
         "lng": -120.4359049
       },
       {
-        "distanceFromCentroid": 7.053590797016316,
-        "formatted": "Foxen Canyon Rd & Santa Maria Mesa Rd, California 93454, USA",
-        "lat": 34.8956032,
-        "lng": -120.3146404
+        "distanceFromCentroid": 3.1865313133176794,
+        "formatted": "Betteravia Rd & Foxen Canyon Rd, California 93454, USA",
+        "lat": 34.9234172,
+        "lng": -120.3740285
       },
       {
         "distanceFromCentroid": 7.552509308620393,

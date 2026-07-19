@@ -1,0 +1,1 @@
+Run /kb-run-sprint /Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline until GATE-GOAL: ACHIEVED

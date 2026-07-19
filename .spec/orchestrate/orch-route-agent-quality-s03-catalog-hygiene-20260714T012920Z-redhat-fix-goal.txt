@@ -1,0 +1,9 @@
+Continue sprint-03-catalog-hygiene from HEAD 12392fe8 and remediate the fresh independent red-hat HIGH findings in .spec/reviews/red-hat-2026-07-14T1609Z.md.
+
+Implement, test, review, and commit all required fixes. Do not run destructive production/dev catalog mutations or claim the Founder-Operator gate complete.
+
+Required HIGH remediation:
+1. S3-T2 AC-4: add a real integration test for committed dedupe shadow exclusion. Seed a duplicate group, run the committed merge only in isolated test namespace, verify listCuratedRoutes contains no duplicateOf shadows and findRoutesByIdentifier/name search returns exactly the canonical row. Keep the test reversible and isolated.
+2. S3-T3 AC-3/AC-4: add integration coverage proving quarantined rows are not rider-ready and sane length recovery clears the applicable zero_length quarantine while preserving the routed length. Inspect the actual persistence/recompute path and implement the missing auto-clear behavior if the task spec requires it; do not merely weaken the test or descope the acceptance criterion without explicit product authorization.
+
+Read convex/_generated/ai/guidelines.md first (or the documented fallback if unavailable). Preserve idempotency, pagination, reversibility, and existing test isolation. Run focused tests, lint, and type checks; capture evidence. Commit product/test changes on the integration branch and report the commit SHA and any remaining blockers.

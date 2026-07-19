@@ -1,4 +1,8 @@
 # S4-T5 — Resumable --sample waterfall + cost circuit-breaker + rate-limit/backoff + REVIEW queue with dispositions (REC-04 sample, T-REC-019, VER-04) (UC-REC-04, UC-VER-04)
+> Status: ✅ Completed
+> Commit: 6c97272335d9d6fbf0828d00a34147b8b39c0a55
+> Reviewer: convex-reviewer
+> Completed: 2026-07-18T05:05:24Z
 
 | Field | Value |
 |-------|-------|

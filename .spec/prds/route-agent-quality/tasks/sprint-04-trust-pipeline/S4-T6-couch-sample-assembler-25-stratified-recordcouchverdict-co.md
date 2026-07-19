@@ -1,4 +1,8 @@
 # S4-T6 — Couch-sample assembler (~25 stratified) + recordCouchVerdict + couchGateStatus --all block (VER-05 AC-1..5) (UC-VER-05)
+> Status: ✅ Completed
+> Commit: 3271846b
+> Reviewer: convex-reviewer
+> Completed: 2026-07-18T06:11:31Z
 
 | Field | Value |
 |-------|-------|

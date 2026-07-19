@@ -1,0 +1,164 @@
+{
+  "run_id": "orch-route-agent-quality-s02-pickup-grok-174609Z",
+  "project": "/Users/justinrich/Projects/LaneShadow-RN",
+  "sprint": "/Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s02-pickup-grok-174609Z/.spec/prds/route-agent-quality/tasks/sprint-02-mastra-reference-spike",
+  "workspace": "workspace:5",
+  "workspace_id": "554890DC-B175-4685-A53A-0E2ABC0182CC",
+  "max_cycles": 3,
+  "max_recover": 2,
+  "cycle": 0,
+  "implement": "kb-run-sprint",
+  "cycle_stages": "implement:review:plan:qa",
+  "models": {
+    "run": {
+      "primary": {
+        "harness": "grok",
+        "model": "grok-4.5"
+      },
+      "fallback": null,
+      "last_resort": null
+    },
+    "review": {
+      "primary": {
+        "harness": "opencode",
+        "model": "zai-coding-plan/glm-5.1"
+      }
+    },
+    "plan": {
+      "primary": {
+        "harness": "opencode",
+        "model": "zai-coding-plan/glm-5.1"
+      }
+    },
+    "qa": {
+      "primary": {
+        "harness": "opencode",
+        "model": "zai-coding-plan/glm-5.1"
+      }
+    }
+  },
+  "status": "running",
+  "phase": "run",
+  "created_ts": "2026-07-13T17:46:40Z",
+  "updated_at": "2026-07-13T18:39:05Z",
+  "stall_window": 600,
+  "tick": 30,
+  "orch_worktree": "/Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s02-pickup-grok-174609Z",
+  "integration_branch": "integration/orch-route-agent-quality-s02-pickup-grok-174609Z",
+  "protected_branch": "integration/orch-route-agent-quality-s02-pickup-grok-174609Z",
+  "failover": {
+    "from": "opencode:zai-coding-plan/glm-5.1",
+    "to": "grok:grok-4.5",
+    "trigger": "stall-cap"
+  },
+  "surfaces": [
+    {
+      "surface_ref": "surface:8",
+      "surface_id": "FECB3910-4F87-4A42-9A03-E3084B692C1A",
+      "origin": "adopted",
+      "spawner": null,
+      "driver": "orch-self",
+      "role": "orch-self",
+      "sprint": "",
+      "cwd": "/Users/justinrich/Projects/LaneShadow-RN",
+      "harness": "claude-code",
+      "model": "unknown",
+      "provider": "anthropic",
+      "session_id": "",
+      "commands_or_skills": [],
+      "base_prompt_excerpt": "unknown",
+      "base_prompt_sha256": "",
+      "goal": {
+        "text": "⠇ LaneShadow-RN",
+        "verification": {
+          "kind": "none",
+          "signal": "",
+          "status": "needs-human"
+        }
+      },
+      "active": false,
+      "status": "orch-self",
+      "state_label": "ORCH",
+      "nudge_count": 0,
+      "recover_count": 0
+    },
+    {
+      "surface_ref": "surface:30",
+      "surface_id": "C9ACE01B-D1CF-4C1D-BA8F-FB945BF10F64",
+      "origin": "spawned",
+      "spawner": "spawn-stage.sh",
+      "driver": "orch",
+      "role": "run",
+      "sprint": "/Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s02-pickup-grok-174609Z/.spec/prds/route-agent-quality/tasks/sprint-02-mastra-reference-spike",
+      "cwd": "/Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s02-pickup-grok-174609Z",
+      "harness": "grok",
+      "model": "grok-4.5",
+      "provider": "xai",
+      "session_id": "unknown",
+      "commands_or_skills": [
+        "/kb-run-sprint"
+      ],
+      "base_prompt_excerpt": "pickup failover goal",
+      "base_prompt_sha256": "unknown",
+      "goal": {
+        "text": "Run kb-run-sprint until GATE-GOAL: ACHIEVED",
+        "verification": {
+          "kind": "sentinel_grep",
+          "signal": "/Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s02-pickup-grok-174609Z/.tmp/sprint-02-mastra-reference-spike/sprint-goal-state.json state complete",
+          "status": "derived"
+        }
+      },
+      "active": false,
+      "status": "reaped",
+      "cycle": 0,
+      "state_label": "reaped_after_stall_with_wip",
+      "last_observed_ts": "2026-07-13T18:05:31Z",
+      "nudge_count": 0,
+      "recover_count": 0,
+      "watch_glob": "/Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s02-pickup-grok-174609Z/.tmp/sprint-02-mastra-reference-spike/sprint-goal-state.json",
+      "verdict_kind": "grep",
+      "verdict_grep": "\\\"state\\\"[[:space:]]*:[[:space:]]*\\\"complete\\\"",
+      "blocked_grep": "\\\"state\\\"[[:space:]]*:[[:space:]]*\\\"blocked\\\"",
+      "baseline_count": 0
+    },
+    {
+      "surface_ref": "surface:37",
+      "surface_id": "FA2FBD31-BAF9-4346-87F0-FA9E2B3097DE",
+      "origin": "spawned",
+      "spawner": "spawn-stage.sh",
+      "driver": "orch",
+      "role": "run",
+      "sprint": "/Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s02-pickup-grok-174609Z/.spec/prds/route-agent-quality/tasks/sprint-02-mastra-reference-spike",
+      "cwd": "/Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s02-pickup-grok-174609Z",
+      "harness": "opencode",
+      "model": "zai-coding-plan/glm-5.1",
+      "provider": "zai",
+      "session_id": "unknown",
+      "commands_or_skills": [
+        "/kb-run-sprint"
+      ],
+      "base_prompt_excerpt": "preserved-WIP failover after Grok stall",
+      "base_prompt_sha256": "unknown",
+      "goal": {
+        "text": "Run kb-run-sprint until GATE-GOAL: ACHIEVED",
+        "verification": {
+          "kind": "sentinel_grep",
+          "signal": "/Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s02-pickup-grok-174609Z/.tmp/sprint-02-mastra-reference-spike/sprint-goal-state.json state complete",
+          "status": "derived"
+        }
+      },
+      "active": true,
+      "status": "running",
+      "cycle": 0,
+      "state_label": "running_after_land",
+      "last_observed_ts": "2026-07-13T18:39:05Z",
+      "nudge_count": 0,
+      "recover_count": 0,
+      "watch_glob": "/Users/justinrich/Projects/LaneShadow-RN/.kb-orchestrate/worktrees/orch-route-agent-quality-s02-pickup-grok-174609Z/.tmp/sprint-02-mastra-reference-spike/sprint-goal-state.json",
+      "verdict_kind": "grep",
+      "verdict_grep": "\\\"state\\\"[[:space:]]*:[[:space:]]*\\\"complete\\\"",
+      "blocked_grep": "\\\"state\\\"[[:space:]]*:[[:space:]]*\\\"blocked\\\"",
+      "baseline_count": 0
+    }
+  ]
+}

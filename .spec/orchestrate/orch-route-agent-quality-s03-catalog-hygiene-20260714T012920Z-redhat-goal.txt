@@ -1,0 +1,10 @@
+Perform a fresh independent red-hat review of sprint-03-catalog-hygiene at current HEAD in the integration worktree.
+
+Review scope:
+- commits through 12392fe8, especially the Convex catalog-wide hygiene handlers and scripts;
+- REDHAT-FIX-001 through REDHAT-FIX-004 and their evidence;
+- S3-T1, S3-T2, S3-T3 implementation and the safe S3-T4 dry-run evidence;
+- the new dedupeGroups internalAction/paginated-query/batched-mutation design;
+- correctness, idempotency, reversibility, pagination, real-deployment behavior, tests, and task acceptance criteria.
+
+Act as an adversarial independent reviewer. Do not modify product code and do not run destructive database mutations. Write a new timestamped report under .spec/reviews/red-hat-*.md with severity-tiered findings, exact file/line evidence, and a clear severity-clean verdict only if no HIGH or CRITICAL findings remain. Review the actual current HEAD, not prior review claims.

@@ -1,0 +1,65 @@
+{
+  "run_id": "orch-route-agent-quality-s02-resume-20260713T012500Z",
+  "project": "/Users/justinrich/Projects/LaneShadow-RN",
+  "sprint": "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-02-mastra-reference-spike",
+  "workspace": "workspace:3",
+  "max_cycles": 3,
+  "cycle": 0,
+  "implement": "kb-run-sprint",
+  "cycle_stages": "implement:review:plan:qa",
+  "models": {
+    "run": {
+      "harness": "opencode",
+      "model": "zai-coding-plan/glm-5.2"
+    },
+    "review": {
+      "harness": "grok",
+      "model": "grok-4.5"
+    },
+    "plan": {
+      "harness": "grok",
+      "model": "grok-4.5"
+    },
+    "qa": {
+      "harness": "grok",
+      "model": "grok-4.5"
+    }
+  },
+  "status": "blocked",
+  "phase": "blocked",
+  "created_ts": "2026-07-13T01:25:00Z",
+  "updated_at": "2026-07-13T07:52:02Z",
+  "stall_window": 600,
+  "surfaces": [
+    {
+      "surface_ref": "surface:29",
+      "surface_id": "FECB3910-4F87-4A42-9A03-E3084B692C1A",
+      "origin": "adopted",
+      "spawner": null,
+      "driver": "orch-self",
+      "role": "orch-self",
+      "sprint": "",
+      "cwd": "/Users/justinrich/Projects/LaneShadow-RN",
+      "harness": "codex",
+      "model": "unknown",
+      "provider": "openai",
+      "session_id": "",
+      "commands_or_skills": [],
+      "base_prompt_excerpt": "unknown",
+      "base_prompt_sha256": "",
+      "goal": {
+        "text": "LaneShadow-RN sprint conductor",
+        "verification": {
+          "kind": "none",
+          "signal": "",
+          "status": "needs-human"
+        }
+      },
+      "active": true,
+      "status": "orch-self",
+      "state_label": "ORCH",
+      "nudge_count": 0,
+      "recover_count": 0
+    }
+  ]
+}

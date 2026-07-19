@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-07-16T06:42:35.469Z",
+  "capturedAt": "2026-07-18T06:00:41.479Z",
   "verifyOk": true,
   "data": {
     "anchorCount": 1,
@@ -20,6 +20,7 @@
     "riderReady": false,
     "routeId": "test:single-anchor",
     "routedMiles": 0,
+    "sideTableProvenance": null,
     "verdict": "review"
   }
 }

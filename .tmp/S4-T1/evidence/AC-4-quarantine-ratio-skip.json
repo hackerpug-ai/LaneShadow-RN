@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-07-16T06:42:25.805Z",
+  "capturedAt": "2026-07-18T06:00:52.630Z",
   "note": "Twins seeded identically; the ONLY variable is the quarantine flag on the DB row.",
   "caseA_quarantined": {
     "stored": {

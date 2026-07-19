@@ -1,0 +1,114 @@
+{
+  "audit": "/Users/justinrich/.config/brain/kb-run-prd-state/prd-20260718T034448Z-b2654cf6-audit.jsonl",
+  "audit_mirror": "/Users/justinrich/Projects/LaneShadow-RN/.spec/orchestrate/prd-prd-20260718T034448Z-b2654cf6-audit.jsonl",
+  "block_governor": {
+    "attempt": 0,
+    "class": null,
+    "fingerprint": null,
+    "first_seen_at": null,
+    "fresh_conductor_used": false,
+    "last_progress_sha256": null,
+    "last_seen_at": null,
+    "last_unblock_applied_at": null,
+    "last_unblock_packet": null,
+    "last_unblock_route": null,
+    "max_unblock": 0,
+    "reason": null,
+    "trajectory": []
+  },
+  "cleanup": {
+    "child_surfaces_remaining": [],
+    "conductor_cleanup": "pending",
+    "last_result": null
+  },
+  "closeout": {
+    "authorization": null,
+    "evaluation": null,
+    "request": null,
+    "verified_at": null
+  },
+  "conductor_watch": {
+    "anchor_epoch": 1784346288,
+    "first_conductor_deadline_seconds": 600,
+    "planning_surface_id": null
+  },
+  "created_at": "2026-07-18T03:44:48Z",
+  "current_sprint": {
+    "child_registry": "/Users/justinrich/.config/brain/kb-orchestrate-state/orch-route-agent-quality-s04-trust-pipeline-20260718T034728Z-parent-b2654cf6.json",
+    "child_run_id": "orch-route-agent-quality-s04-trust-pipeline-20260718T034728Z-parent-b2654cf6",
+    "close_request": null,
+    "conductor_harness": "pi",
+    "conductor_model": "openai-codex/gpt-5.6-luna",
+    "conductor_reasoning_effort": "high",
+    "conductor_surface_id": "C3D9D2F3-3D09-4A1D-914D-6358D321FCF8",
+    "name": "Sprint 04: Trust pipeline",
+    "number": 4,
+    "path": "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline"
+  },
+  "cycles": {
+    "qa": 0,
+    "replan": 0,
+    "steer": 0,
+    "unblock": 0
+  },
+  "goal": {
+    "active": true,
+    "command": "/goal kb-run-prd /Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/ROADMAP.md",
+    "scope_ok": true
+  },
+  "invocation_display": "kb-run-prd /Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/ROADMAP.md",
+  "kind": "kb-run-prd-state",
+  "lock": {
+    "directory": "/Users/justinrich/.config/brain/kb-run-prd-state/fcb85f71c5f7e068fd456efe95f18dfc0bac33e971f0a305e8daef6dd25e61a5.lock",
+    "key": "fcb85f71c5f7e068fd456efe95f18dfc0bac33e971f0a305e8daef6dd25e61a5"
+  },
+  "lookahead_sprint": null,
+  "mirror": "/Users/justinrich/Projects/LaneShadow-RN/.spec/orchestrate/prd-prd-20260718T034448Z-b2654cf6.json",
+  "orchestrator_runtime": {
+    "chain": [
+      {
+        "arming_mode": "goal-native-pi",
+        "harness": "pi",
+        "model": "openai-codex/gpt-5.6-luna",
+        "reasoning_effort": "high",
+        "tier": 1
+      },
+      {
+        "arming_mode": "goal-native-pi",
+        "harness": "pi",
+        "model": "zai/glm-5.2",
+        "reasoning_effort": "high",
+        "tier": 2
+      }
+    ],
+    "chain_evidence_dir": null,
+    "fallback_evidence": null,
+    "selected": null
+  },
+  "parent_session_id": "019f7226-c996-7943-9c42-85d84145b973",
+  "parent_surface_id": "EE335F9A-E92C-4296-9A25-806C26FF5C71",
+  "project": "/Users/justinrich/Projects/LaneShadow-RN",
+  "resume": {
+    "accepted_at": null,
+    "adoption_request": null,
+    "mode": "fresh",
+    "phase": null,
+    "source_run_id": null
+  },
+  "roadmap": "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/ROADMAP.md",
+  "roadmap_sha256": "9ae25455db66a368b48ebc505e89ce2e5b839f8a90c41716f4f5475fd855aef8",
+  "run_id": "prd-20260718T034448Z-b2654cf6",
+  "schema_version": 1,
+  "specialist_override_display": "",
+  "specialist_override_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "state": "/Users/justinrich/.config/brain/kb-run-prd-state/prd-20260718T034448Z-b2654cf6.json",
+  "status": "running",
+  "status_sync": {
+    "last_synced_at": null,
+    "pending_transaction": null,
+    "snapshot": null,
+    "snapshot_sha256": null,
+    "tracker_parity": "unknown"
+  },
+  "updated_at": "2026-07-18T04:29:26Z"
+}

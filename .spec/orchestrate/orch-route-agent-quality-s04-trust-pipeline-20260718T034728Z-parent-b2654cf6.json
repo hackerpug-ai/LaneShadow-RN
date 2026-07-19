@@ -1,0 +1,184 @@
+{
+  "audit_log": "/Users/justinrich/Projects/LaneShadow-RN/.spec/orchestrate/orch-route-agent-quality-s04-trust-pipeline-20260718T034728Z-parent-b2654cf6-audit.jsonl",
+  "close_authority": "prd-20260718T034448Z-b2654cf6",
+  "created_at": "2026-07-18T03:47:28Z",
+  "cycle": [
+    "implement",
+    "review",
+    "plan",
+    "qa"
+  ],
+  "cycle_number": 0,
+  "implement": "kb-run-sprint",
+  "invocation": "/kb-orchestrate /Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline --parent-run-id prd-20260718T034448Z-b2654cf6 --close-authority prd-20260718T034448Z-b2654cf6 --roadmap /Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/ROADMAP.md",
+  "main_sha_before_run": "1b4314533a06d1a3cec8899af710fe65d188ffa1",
+  "max_cycles": 0,
+  "max_recover": 2,
+  "mirror_path": "/Users/justinrich/Projects/LaneShadow-RN/.spec/orchestrate/orch-route-agent-quality-s04-trust-pipeline-20260718T034728Z-parent-b2654cf6.json",
+  "parent_run_id": "prd-20260718T034448Z-b2654cf6",
+  "project": "/Users/justinrich/Projects/LaneShadow-RN",
+  "qa_surface_id": null,
+  "roadmap": "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/ROADMAP.md",
+  "run_id": "orch-route-agent-quality-s04-trust-pipeline-20260718T034728Z-parent-b2654cf6",
+  "schema_version": 1,
+  "self_surface": "surface:957",
+  "self_surface_id": "C3D9D2F3-3D09-4A1D-914D-6358D321FCF8",
+  "sprint": "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
+  "stage_index": 0,
+  "stages": {
+    "plan": {
+      "chain": [
+        "grok:grok-4.5@high",
+        "pi:xai-auth/grok-4.5@high",
+        "claude-code:sonnet-5@high",
+        "pi:zai/glm-5.2@high"
+      ],
+      "harness": "grok",
+      "model": "grok-4.5@high",
+      "provider": "",
+      "source": "default"
+    },
+    "qa": {
+      "chain": [
+        "opencode:zai-coding-plan/glm-5.2@high"
+      ],
+      "harness": "opencode",
+      "model": "zai-coding-plan/glm-5.2@high",
+      "provider": "zai-coding-plan",
+      "source": "default"
+    },
+    "review": {
+      "chain": [
+        "pi:openai-codex/gpt-5.6-terra@high",
+        "pi:zai/glm-5.2@high"
+      ],
+      "harness": "pi",
+      "model": "openai-codex/gpt-5.6-terra@high",
+      "provider": "openai-codex",
+      "source": "default"
+    },
+    "run": {
+      "chain": [
+        "grok:grok-4.5@high",
+        "pi:xai-auth/grok-4.5@high",
+        "opencode:zai-coding-plan/glm-5.2@high"
+      ],
+      "harness": "grok",
+      "model": "grok-4.5@high",
+      "provider": "",
+      "source": "default"
+    }
+  },
+  "stall_window_seconds": 600,
+  "status": "running",
+  "surfaces": [
+    {
+      "active": false,
+      "base_prompt_excerpt": "unknown",
+      "base_prompt_sha256": "",
+      "baseline_count": 0,
+      "blocked_grep": "",
+      "commands_or_skills": [],
+      "cwd": "/Users/justinrich/Projects/LaneShadow-RN",
+      "cycle": 0,
+      "driver": "orch-self",
+      "focused": false,
+      "goal": {
+        "text": "Conduct Sprint 04 under parent authority until awaiting-close",
+        "verification": {
+          "kind": "none",
+          "signal": "",
+          "status": "needs-human"
+        }
+      },
+      "harness": "unknown",
+      "is_self": true,
+      "last_observed_ts": "2026-07-18T03:51:08Z",
+      "last_verdict_artifact": "",
+      "model": "unknown",
+      "nudge_count": 0,
+      "origin": "adopted",
+      "provider": "unknown",
+      "reaped": false,
+      "recover_count": 0,
+      "role": "orch-self",
+      "session_id": "",
+      "spawner": null,
+      "sprint": "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
+      "state_label": "starting",
+      "status": "orch-self",
+      "surface_id": "C3D9D2F3-3D09-4A1D-914D-6358D321FCF8",
+      "surface_ref": "surface:957",
+      "verdict_grep": "",
+      "verdict_kind": "none",
+      "watch_glob": "",
+      "tty": "ttys007",
+      "pid": "61693"
+    },
+    {
+      "surface_ref": "surface:1020",
+      "surface_id": "AD423015-E254-4719-A00D-A8B0D7FADC08",
+      "origin": "spawned",
+      "spawner": "spawn-stage.sh",
+      "driver": "orch",
+      "role": "run",
+      "sprint": "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
+      "cwd": "/Users/justinrich/Projects/LaneShadow-RN",
+      "harness": "opencode",
+      "model": "glm-5.2",
+      "provider": "zai-coding-plan",
+      "session_id": "ses_08c28d513ffeGwJiUJgRMp0Gr1",
+      "commands_or_skills": [
+        "/kb-run-sprint"
+      ],
+      "base_prompt_excerpt": "unknown",
+      "base_prompt_sha256": "",
+      "active": true,
+      "focused": false,
+      "is_self": false,
+      "status": "running",
+      "cycle": 0,
+      "state_label": "failover-run-glm52",
+      "last_verdict_artifact": "",
+      "last_observed_ts": "2026-07-18T06:09:57Z",
+      "nudge_count": 0,
+      "recover_count": 0,
+      "watch_glob": "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/sprint-goal-state.json",
+      "verdict_kind": "grep",
+      "verdict_grep": "goal:complete",
+      "blocked_grep": "goal:blocked",
+      "baseline_count": 0,
+      "reaped": false,
+      "spawned_at": "2026-07-18T06:08:59Z",
+      "created_at": "2026-07-18T06:08:59Z",
+      "goal": {
+        "text": "Resume /kb-run-sprint /Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline until GATE-GOAL: ACHIEVED",
+        "verification": {
+          "kind": "sentinel_grep",
+          "signal": "sprint-goal-state.json:goal:complete",
+          "status": "derived"
+        }
+      },
+      "failover": [
+        {
+          "from": "grok:grok-4.5@high",
+          "to": "pi:xai-auth/grok-4.5@high",
+          "trigger": "harness-stall",
+          "result": "spawn-exit-8-model-mismatch"
+        },
+        {
+          "from": "pi:xai-auth/grok-4.5@high",
+          "to": "opencode:zai-coding-plan/glm-5.2@high",
+          "trigger": "spawn-failover",
+          "result": "spawned"
+        }
+      ]
+    }
+  ],
+  "target": "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
+  "tick_seconds": 30,
+  "updated_at": "2026-07-18T06:08:59Z",
+  "workspace": "workspace:6",
+  "current_stage": "run",
+  "active_stage": "run"
+}

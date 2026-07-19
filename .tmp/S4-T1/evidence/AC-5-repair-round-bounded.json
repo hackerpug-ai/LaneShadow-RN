@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-07-16T06:43:02.668Z",
+  "capturedAt": "2026-07-18T06:01:48.570Z",
   "note": "Values are the Google Routes API v2 provider responses, recorded once and replayed byte-exact through production reconstructForRoute.",
   "caseA_betterSecond": {
     "routeId": "test:repair-round",

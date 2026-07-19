@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-07-18T04:38:57.493Z",
+  "capturedAt": "2026-07-18T06:17:26.640Z",
   "source": "llmPromptsUsed",
   "attempt1RoutedMiles": 297.3896131333342,
   "liveRepairPromptSnippet": "You reconstruct motorcycle route geometry from ride descriptions.\n\nROUTE: \"Repair Round Test\" in California\nCLAIMED LENGTH: 100 miles\nAPPROX CENTER: lat 34.6, lng -119.3\nDESCRIPTION:\nHighway 33 out-and-back over Pine Mountain\nStart in Ojai, CA and ride north on Highway 33 through Wheeler Gorge. Continue past the Rose Valley turnoff and climb over Pine Mountain Summit. Drop down through the Cuyama badlands to Ventucopa, CA. Turn around and retrace the same road back to Ojai.\n\nExtract an ORDERED list of geocodable anchor points tracing this exact route, start to end.\nRules:\n- Use road-intersection queries (\"Redwood Rd & Pinehurst Rd, Castro Valley, CA\") or \"place, city, state\" queries a geocoder can resolve.\n- One anchor at the start, one at each described turn/junction (so the router is for",

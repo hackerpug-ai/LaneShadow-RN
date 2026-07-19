@@ -1,4 +1,8 @@
 # S4-T2 — Lever 1 promote (scraped_promoted, $0) + Lever 3 re-route (name_routed) deterministic paths (REC-01, REC-03) (UC-REC-01, UC-REC-03)
+> Status: ✅ Completed
+> Commit: 0ff2e06f7f25de1683f75bc2be1c097a774b65c2
+> Reviewer: convex-reviewer
+> Completed: 2026-07-18T04:28:59Z
 
 | Field | Value |
 |-------|-------|

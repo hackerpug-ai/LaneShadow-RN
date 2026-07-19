@@ -1,0 +1,289 @@
+{
+  "run_id": "orch-route-agent-quality-s04-trust-pipeline-20260716T030415Z",
+  "created_at": "2026-07-16T03:04:24Z",
+  "updated_at": "2026-07-16T03:27:42Z",
+  "project": "/Users/justinrich/Projects/LaneShadow-RN",
+  "workspace": "workspace:6",
+  "target": "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
+  "implement": "kb-run-sprint",
+  "cycle": [
+    "implement",
+    "review",
+    "plan",
+    "qa"
+  ],
+  "status": "running",
+  "max_cycles": 3,
+  "tick_seconds": 30,
+  "stall_window_seconds": 600,
+  "stages": {
+    "run": {
+      "harness": "opencode",
+      "model": "zai-coding-plan/glm-5.1",
+      "source": "default"
+    },
+    "review": {
+      "harness": "opencode",
+      "model": "zai-coding-plan/glm-5.1",
+      "source": "default"
+    },
+    "plan": {
+      "harness": "opencode",
+      "model": "zai-coding-plan/glm-5.1",
+      "source": "default"
+    },
+    "qa": {
+      "harness": "opencode",
+      "model": "zai-coding-plan/glm-5.1",
+      "source": "default"
+    }
+  },
+  "surfaces": [
+    {
+      "surface_ref": "surface:15",
+      "surface_id": "FECB3910-4F87-4A42-9A03-E3084B692C1A",
+      "origin": "adopted",
+      "spawner": null,
+      "driver": "orch-self",
+      "role": "orch-self",
+      "sprint": "",
+      "cwd": "",
+      "harness": "unknown",
+      "model": "unknown",
+      "provider": "unknown",
+      "session_id": "",
+      "commands_or_skills": [],
+      "base_prompt_excerpt": "unknown",
+      "base_prompt_sha256": "",
+      "active": false,
+      "status": "needs-human",
+      "cycle": 0,
+      "state_label": "needs-human",
+      "last_verdict_artifact": "",
+      "last_observed_ts": 1784171064.488829,
+      "nudge_count": 0,
+      "recover_count": 0,
+      "watch_glob": "",
+      "verdict_kind": "none",
+      "verdict_grep": "",
+      "blocked_grep": "",
+      "baseline_count": 0,
+      "reaped": false,
+      "goal": {
+        "text": "⠙ LaneShadow-RN",
+        "verification": {
+          "kind": "none",
+          "signal": "",
+          "status": "needs-human"
+        }
+      }
+    },
+    {
+      "surface_ref": "surface:151",
+      "surface_id": "D18245CE-EBF0-4C88-B8B3-03B2C6D1D36D",
+      "origin": "adopted",
+      "spawner": null,
+      "driver": "orch",
+      "role": "adopted",
+      "sprint": "",
+      "cwd": "",
+      "harness": "unknown",
+      "model": "unknown",
+      "provider": "unknown",
+      "session_id": "",
+      "commands_or_skills": [],
+      "base_prompt_excerpt": "unknown",
+      "base_prompt_sha256": "",
+      "active": false,
+      "status": "blocked",
+      "cycle": 0,
+      "state_label": "needs-human",
+      "last_verdict_artifact": "",
+      "last_observed_ts": 1784171064.488836,
+      "nudge_count": 0,
+      "recover_count": 0,
+      "watch_glob": "",
+      "verdict_kind": "none",
+      "verdict_grep": "",
+      "blocked_grep": "",
+      "baseline_count": 0,
+      "reaped": false,
+      "goal": {
+        "text": "🔎 REVIEW s03 · running · glm-5.2",
+        "verification": {
+          "kind": "none",
+          "signal": "",
+          "status": "needs-human"
+        }
+      }
+    },
+    {
+      "surface_ref": "surface:147",
+      "surface_id": "C716C888-5F90-4424-8B82-FA7957C5C605",
+      "origin": "adopted",
+      "spawner": null,
+      "driver": "orch",
+      "role": "adopted",
+      "sprint": "",
+      "cwd": "",
+      "harness": "unknown",
+      "model": "unknown",
+      "provider": "unknown",
+      "session_id": "",
+      "commands_or_skills": [],
+      "base_prompt_excerpt": "unknown",
+      "base_prompt_sha256": "",
+      "active": false,
+      "status": "blocked",
+      "cycle": 0,
+      "state_label": "needs-human",
+      "last_verdict_artifact": "",
+      "last_observed_ts": 1784171064.488842,
+      "nudge_count": 0,
+      "recover_count": 0,
+      "watch_glob": "",
+      "verdict_kind": "none",
+      "verdict_grep": "",
+      "blocked_grep": "",
+      "baseline_count": 0,
+      "reaped": false,
+      "goal": {
+        "text": "🏃 RUN orch-route · running · glm-5.2",
+        "verification": {
+          "kind": "none",
+          "signal": "",
+          "status": "needs-human"
+        }
+      }
+    },
+    {
+      "surface_ref": "surface:157",
+      "surface_id": "E99929BC-D430-4532-A2DC-20B81176BBD2",
+      "origin": "adopted",
+      "spawner": null,
+      "driver": "orch",
+      "role": "adopted",
+      "sprint": "",
+      "cwd": "",
+      "harness": "unknown",
+      "model": "unknown",
+      "provider": "unknown",
+      "session_id": "",
+      "commands_or_skills": [],
+      "base_prompt_excerpt": "unknown",
+      "base_prompt_sha256": "",
+      "active": false,
+      "status": "blocked",
+      "cycle": 0,
+      "state_label": "needs-human",
+      "last_verdict_artifact": "",
+      "last_observed_ts": 1784171064.488848,
+      "nudge_count": 0,
+      "recover_count": 0,
+      "watch_glob": "",
+      "verdict_kind": "none",
+      "verdict_grep": "",
+      "blocked_grep": "",
+      "baseline_count": 0,
+      "reaped": false,
+      "goal": {
+        "text": "✅ QA orch-route · running · glm-5.2",
+        "verification": {
+          "kind": "none",
+          "signal": "",
+          "status": "needs-human"
+        }
+      }
+    },
+    {
+      "surface_ref": "surface:235",
+      "surface_id": "98A31985-F07B-43FA-A499-845A3D77673B",
+      "origin": "adopted",
+      "spawner": null,
+      "driver": "orch",
+      "role": "adopted",
+      "sprint": "",
+      "cwd": "",
+      "harness": "claude-code",
+      "model": "glm-5.2",
+      "provider": "anthropic",
+      "session_id": "6fc59cc2-e236-4c49-8b8c-57aaf109fd55",
+      "commands_or_skills": [
+        "/kb-sprint-tasks-plan"
+      ],
+      "base_prompt_excerpt": "<command-message>kb-sprint-tasks-plan</command-message>\n<command-name>/kb-sprint-tasks-plan</command-name>\n<command-args>sprint-4</command-args>",
+      "base_prompt_sha256": "482ec40253ab382eb8fbbebba93192518bb1c708e343dba76456a313360a2428",
+      "active": false,
+      "status": "blocked",
+      "cycle": 0,
+      "state_label": "needs-human",
+      "last_verdict_artifact": "",
+      "last_observed_ts": 1784171064.488853,
+      "nudge_count": 0,
+      "recover_count": 0,
+      "watch_glob": "",
+      "verdict_kind": "none",
+      "verdict_grep": "",
+      "blocked_grep": "",
+      "baseline_count": 0,
+      "reaped": false,
+      "goal": {
+        "text": "complete /kb-sprint-tasks-plan",
+        "verification": {
+          "kind": "none",
+          "signal": "",
+          "status": "needs-human"
+        }
+      }
+    },
+    {
+      "surface_ref": "surface:486",
+      "surface_id": "7CBC0547-EA49-461A-99E6-147F1D3BBFC4",
+      "origin": "spawned",
+      "spawner": "spawn-stage.sh",
+      "driver": "orch",
+      "role": "run",
+      "sprint": "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
+      "cwd": "/Users/justinrich/Projects/LaneShadow-RN",
+      "harness": "claude-code",
+      "model": "opus",
+      "provider": "anthropic",
+      "session_id": "ses_0971d5acdffe2vQ1B51WWIEW3A",
+      "commands_or_skills": [
+        "/kb-run-sprint"
+      ],
+      "base_prompt_excerpt": "unknown",
+      "base_prompt_sha256": "",
+      "active": true,
+      "status": "running",
+      "cycle": 0,
+      "state_label": "t6-recovery-running",
+      "last_verdict_artifact": "",
+      "last_observed_ts": 1784171143,
+      "nudge_count": 2,
+      "recover_count": 4,
+      "watch_glob": ".tmp/sprint-04-trust-pipeline/sprint-goal-state.json",
+      "verdict_kind": "grep",
+      "verdict_grep": "goal:complete",
+      "blocked_grep": "goal:blocked",
+      "baseline_count": 0,
+      "reaped": false,
+      "goal": {
+        "text": "Run /kb-run-sprint /Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline until GATE-GOAL: ACHIEVED",
+        "verification": {
+          "kind": "sentinel_grep",
+          "signal": "sprint-goal-state.json:goal:complete",
+          "status": "derived"
+        }
+      },
+      "governance_alert": {
+        "kind": "prime-write-detected",
+        "main_baseline": "1b4314533a06d1a3cec8899af710fe65d188ffa1",
+        "ts": "2026-07-16T03:27:42Z"
+      }
+    }
+  ],
+  "sprint": "/Users/justinrich/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
+  "orch_worktree": "/Users/justinrich/Projects/LaneShadow-RN",
+  "integration_branch": "main"
+}

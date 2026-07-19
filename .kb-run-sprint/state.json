@@ -1,181 +1,596 @@
 {
   "version": 1,
-  "sprint_id": "sprint-01-geometry-reference-spike",
-  "sprint_path": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike",
-  "batch_id": "sprint-01-redhat-remediation-20260712T081500Z",
+  "sprint_id": "sprint-04-trust-pipeline",
+  "sprint_path": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
+  "batch_id": "sprint-04-trust-pipeline-2026-07-18T035230Z",
   "harness": "grok",
   "protected_branch": "main",
-  "base_sha": "20e8a445c0a0c048198440875b6779f2b3ad4d55",
-  "goal": "Run /kb-run-sprint sprint-01-geometry-reference-spike until GATE-GOAL: ACHIEVED. Preserve S1-T1..T4; execute REDHAT-FIX-001..007.",
-  "created_at": "2026-07-12T08:15:00Z",
-  "phase": "done",
+  "base_sha": "1b4314533a06d1a3cec8899af710fe65d188ffa1",
+  "goal": "Run /kb-run-sprint sprint-04-trust-pipeline until GATE-GOAL: ACHIEVED",
+  "created_at": "2026-07-18T03:52:30Z",
+  "phase": "gates",
   "e2e_framework": "maestro",
+  "e2e_coverage_available": true,
+  "max_concurrent": 2,
+  "worktree_flag": true,
   "tasks": {
-    "S1-T1": {
+    "S4-T1": {
+      "id": "S4-T1",
       "status": "completed",
-      "phase": "done_preexisting",
-      "assignee": "aisdk-implementer",
-      "reviewer": "aisdk-reviewer",
-      "commit": "5730b550",
-      "preserve_history": true
+      "subject": "S4-T1: Deterministic geometry gate VER-01 full + repair VER-02 [convex-implementer]",
+      "description": "Reuse existing task/S4-T1 WIP; review then land",
+      "owner": "convex-implementer",
+      "blocked_by": [],
+      "metadata": {
+        "source": "sprint-file",
+        "sprint_id": "sprint-04-trust-pipeline",
+        "task_id": "S4-T1",
+        "assignee": "convex-implementer",
+        "reviewer": "convex-reviewer",
+        "file_path": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/S4-T1-deterministic-geometry-gate-ver-01-full-ratio-band-anchor.md",
+        "wave": 0,
+        "phase": "done",
+        "tdd_mode": "red_first",
+        "worktree": ".kb-run-sprint/worktrees/S4-T1",
+        "branch": "task/S4-T1",
+        "last_commit_sha": "786177e482bee3c1d98211924f1a0180763925d9",
+        "verification_policy": {
+          "requires_tests": true,
+          "requires_red_evidence": true,
+          "requires_seeded_evidence": true
+        },
+        "requirements": [
+          {
+            "id": "AC-1",
+            "satisfied": true,
+            "evidence": "convex-reviewer APPROVED 2026-07-18; 94/94 real Convex",
+            "remediation": null,
+            "verify": "see task file AC AC-1",
+            "description": "AC-1"
+          },
+          {
+            "id": "AC-2",
+            "satisfied": true,
+            "evidence": "convex-reviewer APPROVED 2026-07-18; 94/94 real Convex",
+            "remediation": null,
+            "verify": "see task file AC AC-2",
+            "description": "AC-2"
+          },
+          {
+            "id": "AC-3",
+            "satisfied": true,
+            "evidence": "convex-reviewer APPROVED 2026-07-18; 94/94 real Convex",
+            "remediation": null,
+            "verify": "see task file AC AC-3",
+            "description": "AC-3"
+          },
+          {
+            "id": "AC-4",
+            "satisfied": true,
+            "evidence": "convex-reviewer APPROVED 2026-07-18; 94/94 real Convex",
+            "remediation": null,
+            "verify": "see task file AC AC-4",
+            "description": "AC-4"
+          },
+          {
+            "id": "AC-5",
+            "satisfied": true,
+            "evidence": "convex-reviewer APPROVED 2026-07-18; 94/94 real Convex",
+            "remediation": null,
+            "verify": "see task file AC AC-5",
+            "description": "AC-5"
+          },
+          {
+            "id": "AC-6",
+            "satisfied": true,
+            "evidence": "convex-reviewer APPROVED 2026-07-18; 94/94 real Convex",
+            "remediation": null,
+            "verify": "see task file AC AC-6",
+            "description": "AC-6"
+          }
+        ],
+        "depends_on": [],
+        "spin_count": 0,
+        "failure_signatures": [],
+        "learned_blockers": [],
+        "wip_recovered": true,
+        "wip_note": "Prior implementer left complete package on task/S4-T1; routing to review",
+        "independent_verify": {
+          "at": "2026-07-18T03:55:09Z",
+          "tests_passed": 94,
+          "test_files": 6,
+          "convex_deploy": "ok",
+          "log": ".tmp/sprint-04-trust-pipeline/S4-T1-independent-full.log"
+        },
+        "land_sha": "aca1343f",
+        "last_reviewer": "convex-reviewer",
+        "seeded_evidence_present": true
+      }
     },
-    "S1-T2": {
+    "S4-T2": {
+      "id": "S4-T2",
       "status": "completed",
-      "phase": "done_preexisting",
-      "assignee": "convex-implementer",
-      "reviewer": "convex-reviewer",
-      "commit": "1b1280b6",
-      "land_sha": "2cbb372c",
-      "preserve_history": true
+      "subject": "S4-T2: Lever 1 promote + Lever 3 re-route [convex-implementer]",
+      "description": "Depends on S4-T1",
+      "owner": "convex-implementer",
+      "blocked_by": [],
+      "metadata": {
+        "source": "sprint-file",
+        "sprint_id": "sprint-04-trust-pipeline",
+        "task_id": "S4-T2",
+        "assignee": "convex-implementer",
+        "reviewer": "convex-reviewer",
+        "file_path": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/S4-T2-lever-1-promote-scraped-promoted-0-lever-3-re-route-name-r.md",
+        "wave": 1,
+        "phase": "done",
+        "tdd_mode": "red_first",
+        "verification_policy": {
+          "requires_tests": true,
+          "requires_red_evidence": true,
+          "requires_seeded_evidence": true
+        },
+        "requirements": [
+          {
+            "id": "AC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-1",
+            "description": "AC-1"
+          },
+          {
+            "id": "AC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-2",
+            "description": "AC-2"
+          },
+          {
+            "id": "AC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-3",
+            "description": "AC-3"
+          },
+          {
+            "id": "AC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-4",
+            "description": "AC-4"
+          },
+          {
+            "id": "AC-5",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-5",
+            "description": "AC-5"
+          },
+          {
+            "id": "AC-6",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-6",
+            "description": "AC-6"
+          }
+        ],
+        "depends_on": [
+          "S4-T1"
+        ],
+        "spin_count": 0,
+        "failure_signatures": [],
+        "learned_blockers": [],
+        "worktree": ".kb-run-sprint/worktrees/S4-T2",
+        "branch": "task/S4-T2",
+        "last_commit_sha": "0ff2e06f7f25de1683f75bc2be1c097a774b65c2",
+        "land_sha": "0c3d7684"
+      }
     },
-    "S1-T3": {
+    "S4-T3": {
+      "id": "S4-T3",
       "status": "completed",
-      "phase": "done_preexisting",
-      "assignee": "react-native-ui-implementer",
-      "reviewer": "react-native-ui-reviewer",
-      "commit": "f251eca0",
-      "land_sha": "1f490e73",
-      "preserve_history": true
+      "subject": "S4-T3: Lever 2 reconstruct ai_reconstructed [convex-implementer]",
+      "description": "Depends on S4-T1",
+      "owner": "convex-implementer",
+      "blocked_by": [],
+      "metadata": {
+        "source": "sprint-file",
+        "sprint_id": "sprint-04-trust-pipeline",
+        "task_id": "S4-T3",
+        "assignee": "convex-implementer",
+        "reviewer": "convex-reviewer",
+        "file_path": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/S4-T3-lever-2-reconstruct-ai-reconstructed-llm-anchors-geocode-r.md",
+        "wave": 1,
+        "phase": "done",
+        "tdd_mode": "red_first",
+        "verification_policy": {
+          "requires_tests": true,
+          "requires_red_evidence": true,
+          "requires_seeded_evidence": true
+        },
+        "requirements": [
+          {
+            "id": "AC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-1",
+            "description": "AC-1"
+          },
+          {
+            "id": "AC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-2",
+            "description": "AC-2"
+          },
+          {
+            "id": "AC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-3",
+            "description": "AC-3"
+          },
+          {
+            "id": "AC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-4",
+            "description": "AC-4"
+          },
+          {
+            "id": "AC-5",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-5",
+            "description": "AC-5"
+          },
+          {
+            "id": "AC-6",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-6",
+            "description": "AC-6"
+          }
+        ],
+        "depends_on": [
+          "S4-T1"
+        ],
+        "spin_count": 0,
+        "failure_signatures": [],
+        "learned_blockers": [],
+        "worktree": ".kb-run-sprint/worktrees/S4-T3",
+        "branch": "task/S4-T3",
+        "last_commit_sha": "ea61c1b34d7fe4b043f941b23f8107fb2f63e01a",
+        "active_fix": "S4-T3-FIX-001"
+      }
     },
-    "S1-T4": {
+    "S4-T4": {
+      "id": "S4-T4",
       "status": "completed",
-      "phase": "done_preexisting_revoked_by_redhat",
-      "assignee": "Founder-Operator",
-      "note": "Prior Done/gate-pass revoked by red-hat H1/H3/H4; REDHAT-FIX-004 re-runs honest founder gate",
-      "preserve_history": true
+      "subject": "S4-T4: Ride-worthiness classifier [convex-implementer]",
+      "description": "Depends on S4-T1",
+      "owner": "convex-implementer",
+      "blocked_by": [],
+      "metadata": {
+        "source": "sprint-file",
+        "sprint_id": "sprint-04-trust-pipeline",
+        "task_id": "S4-T4",
+        "assignee": "convex-implementer",
+        "reviewer": "convex-reviewer",
+        "file_path": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/S4-T4-cross-provider-ride-worthiness-classifier-stored-as-eviden.md",
+        "wave": 1,
+        "phase": "done",
+        "tdd_mode": "red_first",
+        "verification_policy": {
+          "requires_tests": true,
+          "requires_red_evidence": true,
+          "requires_seeded_evidence": true
+        },
+        "requirements": [
+          {
+            "id": "AC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-1",
+            "description": "AC-1"
+          },
+          {
+            "id": "AC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-2",
+            "description": "AC-2"
+          },
+          {
+            "id": "AC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-3",
+            "description": "AC-3"
+          },
+          {
+            "id": "AC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-4",
+            "description": "AC-4"
+          },
+          {
+            "id": "AC-5",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-5",
+            "description": "AC-5"
+          },
+          {
+            "id": "AC-6",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-6",
+            "description": "AC-6"
+          }
+        ],
+        "depends_on": [
+          "S4-T1"
+        ],
+        "spin_count": 0,
+        "failure_signatures": [],
+        "learned_blockers": [],
+        "worktree": ".kb-run-sprint/worktrees/S4-T4",
+        "branch": "task/S4-T4"
+      }
     },
-    "REDHAT-FIX-001": {
+    "S4-T5": {
+      "id": "S4-T5",
       "status": "completed",
-      "assignee": "react-native-ui-implementer",
-      "reviewer": "react-native-ui-reviewer",
-      "file_path": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/REDHAT-FIX-001-visible-road-line-paint-honest-visual-oracle-h1.md",
-      "depends_on": [
-        "S1-T2",
-        "S1-T3"
+      "subject": "S4-T5: Resumable sample waterfall [convex-implementer]",
+      "description": "Depends on S4-T1,T2,T3",
+      "owner": "convex-implementer",
+      "blocked_by": [
+        "S4-T3"
       ],
-      "wave": "A",
-      "worktree": ".kb-run-sprint/worktrees/REDHAT-FIX-001",
-      "branch": "task/REDHAT-FIX-001",
-      "started_at": "2026-07-12T08:20:00Z",
-      "commit": "6bd8a5df",
-      "land_sha": "ba215310"
+      "metadata": {
+        "source": "sprint-file",
+        "sprint_id": "sprint-04-trust-pipeline",
+        "task_id": "S4-T5",
+        "assignee": "convex-implementer",
+        "reviewer": "convex-reviewer",
+        "file_path": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/S4-T5-resumable-sample-waterfall-cost-circuit-breaker-rate-limit.md",
+        "wave": 2,
+        "phase": "done",
+        "tdd_mode": "red_first",
+        "verification_policy": {
+          "requires_tests": true,
+          "requires_red_evidence": true,
+          "requires_seeded_evidence": true
+        },
+        "requirements": [
+          {
+            "id": "AC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-1",
+            "description": "AC-1"
+          },
+          {
+            "id": "AC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-2",
+            "description": "AC-2"
+          },
+          {
+            "id": "AC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-3",
+            "description": "AC-3"
+          },
+          {
+            "id": "AC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-4",
+            "description": "AC-4"
+          },
+          {
+            "id": "AC-5",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-5",
+            "description": "AC-5"
+          },
+          {
+            "id": "AC-6",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-6",
+            "description": "AC-6"
+          }
+        ],
+        "depends_on": [
+          "S4-T1",
+          "S4-T2",
+          "S4-T3"
+        ],
+        "spin_count": 0,
+        "failure_signatures": [],
+        "learned_blockers": [],
+        "last_commit_sha": "6c97272335d9d6fbf0828d00a34147b8b39c0a55",
+        "land_sha": "c3272750"
+      }
     },
-    "REDHAT-FIX-002": {
+    "S4-T6": {
+      "id": "S4-T6",
       "status": "completed",
-      "assignee": "react-native-ui-implementer",
-      "reviewer": "react-native-ui-reviewer",
-      "file_path": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/REDHAT-FIX-002-honest-painted-road-line-oracle-h2.md",
-      "depends_on": [
-        "REDHAT-FIX-001",
-        "S1-T3"
-      ],
-      "wave": "B",
-      "worktree": ".kb-run-sprint/worktrees/REDHAT-FIX-002",
-      "branch": "task/REDHAT-FIX-002",
-      "commit": "fe30ae19",
-      "land_sha": "04eb8310"
+      "subject": "S4-T6: Couch-sample assembler + recordCouchVerdict [convex-implementer]",
+      "description": "Depends on S4-T5",
+      "owner": "convex-implementer",
+      "blocked_by": [],
+      "metadata": {
+        "source": "sprint-file",
+        "sprint_id": "sprint-04-trust-pipeline",
+        "task_id": "S4-T6",
+        "assignee": "convex-implementer",
+        "reviewer": "convex-reviewer",
+        "file_path": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/S4-T6-couch-sample-assembler-25-stratified-recordcouchverdict-co.md",
+        "wave": 3,
+        "phase": "done",
+        "tdd_mode": "red_first",
+        "verification_policy": {
+          "requires_tests": true,
+          "requires_red_evidence": true,
+          "requires_seeded_evidence": true
+        },
+        "requirements": [
+          {
+            "id": "AC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-1",
+            "description": "AC-1"
+          },
+          {
+            "id": "AC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-2",
+            "description": "AC-2"
+          },
+          {
+            "id": "AC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-3",
+            "description": "AC-3"
+          },
+          {
+            "id": "AC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-4",
+            "description": "AC-4"
+          },
+          {
+            "id": "AC-5",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-5",
+            "description": "AC-5"
+          }
+        ],
+        "depends_on": [
+          "S4-T5"
+        ],
+        "spin_count": 0,
+        "failure_signatures": [],
+        "learned_blockers": [],
+        "last_commit_sha": "3271846b48b2da05078b3d491e481bacae409d2a",
+        "land_sha": "33a649da"
+      }
     },
-    "REDHAT-FIX-003": {
+    "S4-T7": {
+      "id": "S4-T7",
       "status": "completed",
-      "assignee": "convex-implementer",
-      "reviewer": "convex-reviewer",
-      "file_path": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/REDHAT-FIX-003-honest-gate-steps-1-3-reconstruct-evidence-h3.md",
-      "depends_on": [
-        "S1-T2"
-      ],
-      "wave": "A",
-      "worktree": ".kb-run-sprint/worktrees/REDHAT-FIX-003",
-      "branch": "task/REDHAT-FIX-003",
-      "started_at": "2026-07-12T08:20:00Z",
-      "commit": "ba8692dc",
-      "land_sha": "676f494f"
-    },
-    "REDHAT-FIX-004": {
-      "status": "completed",
-      "assignee": "Founder-Operator",
-      "reviewer": "react-native-ui-reviewer",
-      "file_path": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/REDHAT-FIX-004-founder-operator-observation-after-visual-fix-h4.md",
-      "depends_on": [
-        "REDHAT-FIX-001",
-        "REDHAT-FIX-002",
-        "REDHAT-FIX-003"
-      ],
-      "wave": "C",
-      "worktree": null,
-      "branch": "task/REDHAT-FIX-004",
-      "run_id": "20260712T100751Z",
-      "founder_visual": "YES"
-    },
-    "REDHAT-FIX-005": {
-      "status": "completed",
-      "assignee": "convex-implementer",
-      "reviewer": "convex-reviewer",
-      "file_path": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/REDHAT-FIX-005-auth-gate-reconstruct-verification-surface-h5.md",
-      "depends_on": [
-        "S1-T2"
-      ],
-      "wave": "A",
-      "worktree": ".kb-run-sprint/worktrees/REDHAT-FIX-005",
-      "branch": "task/REDHAT-FIX-005",
-      "started_at": "2026-07-12T08:20:00Z",
-      "commit": "b80910ba",
-      "land_sha": "0266ac28"
-    },
-    "REDHAT-FIX-006": {
-      "status": "completed",
-      "assignee": "convex-implementer",
-      "reviewer": "convex-reviewer",
-      "file_path": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/REDHAT-FIX-006-failure-discriminating-tests-ac456-m1.md",
-      "depends_on": [
-        "S1-T2"
-      ],
-      "wave": "A",
-      "worktree": ".kb-run-sprint/worktrees/REDHAT-FIX-006",
-      "branch": "task/REDHAT-FIX-006",
-      "started_at": "2026-07-12T08:20:00Z",
-      "commit": "32fa3320",
-      "land_sha": "11a2bb4e"
-    },
-    "REDHAT-FIX-007": {
-      "status": "completed",
-      "assignee": "react-native-ui-implementer",
-      "reviewer": "react-native-ui-reviewer",
-      "file_path": ".spec/prds/route-agent-quality/tasks/sprint-01-geometry-reference-spike/REDHAT-FIX-007-archive-absent-route-maestro-ac4-m2.md",
-      "depends_on": [
-        "S1-T3"
-      ],
-      "wave": "A",
-      "worktree": ".kb-run-sprint/worktrees/REDHAT-FIX-007",
-      "branch": "task/REDHAT-FIX-007",
-      "started_at": "2026-07-12T08:20:00Z",
-      "commit": "46ae7544",
-      "land_sha": "95c7c645"
+      "subject": "S4-T7: Founder couch gate review + REVIEW dispositions [Founder-Operator]",
+      "description": "Depends on S4-T6; human gate",
+      "owner": "Founder-Operator",
+      "blocked_by": [],
+      "metadata": {
+        "source": "sprint-file",
+        "sprint_id": "sprint-04-trust-pipeline",
+        "task_id": "S4-T7",
+        "assignee": "Founder-Operator",
+        "reviewer": "convex-reviewer",
+        "file_path": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/S4-T7-review-rendered-couch-sample-lines-record-verdicts-couch-g.md",
+        "wave": 4,
+        "phase": "done",
+        "tdd_mode": "skipped",
+        "verification_policy": {
+          "requires_tests": false,
+          "requires_red_evidence": false,
+          "requires_seeded_evidence": false
+        },
+        "requirements": [
+          {
+            "id": "AC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-1",
+            "description": "AC-1"
+          },
+          {
+            "id": "AC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-2",
+            "description": "AC-2"
+          },
+          {
+            "id": "AC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-3",
+            "description": "AC-3"
+          },
+          {
+            "id": "AC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-4",
+            "description": "AC-4"
+          },
+          {
+            "id": "AC-5",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null,
+            "verify": "see task file AC AC-5",
+            "description": "AC-5"
+          }
+        ],
+        "depends_on": [
+          "S4-T6"
+        ],
+        "spin_count": 0,
+        "failure_signatures": [],
+        "learned_blockers": [],
+        "last_commit_sha": "788e85b97bc31fef6e40d5787e107df4aa29e3ec",
+        "land_sha": null
+      }
     }
   },
-  "waves": {
-    "A": [
-      "REDHAT-FIX-001",
-      "REDHAT-FIX-003",
-      "REDHAT-FIX-005",
-      "REDHAT-FIX-006",
-      "REDHAT-FIX-007"
-    ],
-    "B": [
-      "REDHAT-FIX-002"
-    ],
-    "C": [
-      "REDHAT-FIX-004"
-    ]
-  },
-  "authority": ".spec/reviews/red-hat-sprint-01-2026-07-12T07-30-55Z.md",
-  "binding_findings": [
-    "H1",
-    "H2",
-    "H3",
-    "H4",
-    "H5",
-    "M1",
-    "M2"
-  ],
-  "goal_status": "GATE-GOAL: ACHIEVED"
+  "id_counter": 7
 }

@@ -1,0 +1,10 @@
+Continue the active Sprint 04 trust-pipeline orchestration from the current repository state.
+
+Immediate required work:
+1. Inspect the existing reviewed S4-T1 stack and the isolated task worktrees S4-T2, S4-T3, S4-T5, S4-T6, and S4-T7.
+2. Execute the already-authorized contract repairs for S4-T2/T3/T5/T6/T7 now, in parallel where safe; commit each repair on its own task branch and obtain independent review before implementation.
+3. Resume Sprint 04 task implementation in dependency order, with independent task reviews and real evidence. Do not claim completion based on prose or placeholders.
+4. Never write, merge, rebase, or reset primary main. Workers commit only to their assigned task branches. Preserve every pre-existing worktree and user change.
+5. S4-T7's founder review must remain an honest human gate. Prepare the rendered evidence but do not synthesize a founder verdict.
+
+The top-level orchestrator owns all later integration, red-hat review, QA, and gate verification. Report real verdicts through the Sprint goal sentinel only after the full requested sprint is actually complete.

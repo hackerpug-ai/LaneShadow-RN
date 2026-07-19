@@ -1,0 +1,5 @@
+Repair Sprint 04 task S4-T6 in this worktree only.
+
+Read the S4-T6 task contract and the preserved audit/evidence in the repository. Implement the contract repair that makes the founder couch-sample verdict requirement real and unforgeable. Do not weaken, default, synthesize, or back-fill human verdicts.
+
+Work only on this task branch. Commit the validated contract repair with normal hooks and report the commit SHA plus exact evidence. Do not merge, rebase, reset, or write main. After committing, request or perform an independent review of the repair; do not claim the overall Sprint complete.

@@ -1,4 +1,8 @@
 # S4-T1 — Deterministic geometry gate (VER-01 full: ratio band, anchor/region, degenerate, pre-existing sweep, quarantine ratio-skip) + bounded LLM repair round (VER-02) (UC-VER-01, UC-VER-02)
+> Status: ✅ Completed
+> Commit: 786177e482bee3c1d98211924f1a0180763925d9
+> Reviewer: convex-reviewer
+> Completed: 2026-07-18T03:59:56Z
 
 | Field | Value |
 |-------|-------|
@@ -354,7 +358,8 @@ python3 -c "import re,sys;print(re.search(r'<!-- REQUIREMENT-CONTRACT v1 -->\n<!
 <details>
 <summary>▸ Full agent specification (TASK-TEMPLATE v5.2 — machine-readable requirement contract)</summary>
 
-<!-- REQUIREMENT-CONTRACT v1 -->
+<!-- REQUIREMENT-CONTRACT v1
+-->
 <!--
 {
   "version": "1",
