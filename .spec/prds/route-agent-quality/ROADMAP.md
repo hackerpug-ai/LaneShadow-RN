@@ -316,7 +316,12 @@ The eight capability chains (CAP-GEO-01…06, CAP-AGT-01/02) are each owned by �
 | S5-T3 | Top-50-by-composite-rank render harness for founder review (VER-05 AC-6) | convex-implementer | 90 min |
 | S5-T4 | Accept realized yield (headline gate); review top-50-by-rank; review retirement candidates before commit | Founder-Operator | 45 min |
 
-**Next Sprint Tasks:** *(populated JIT by kb-sprint-tasks-plan)*
+**Next Sprint Tasks:** *(expanded by kb-sprint-tasks-plan on 2026-07-19 → [`tasks/sprint-05-batch-acceptance-retirement/`](./tasks/sprint-05-batch-acceptance-retirement/))*
+
+- S5-T1-full-all-batch-coverage-report-acceptance-low-yield-escalation.md
+- S5-T2-retirement-eligibility-explicit-confirmation-reversible-unretire.md
+- S5-T3-top-50-composite-rank-founder-review-harness.md
+- S5-T4-founder-accept-realized-yield-review-retirement-candidates.md
 
 #### Dependencies
 
