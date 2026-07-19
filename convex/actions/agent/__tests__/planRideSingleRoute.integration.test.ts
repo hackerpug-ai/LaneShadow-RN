@@ -13,8 +13,8 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
-import type { PlanInput } from '../../../../shared/models/saved-routes'
 import type { RouteSketch } from '../../../../shared/models/route-sketch'
+import type { PlanInput } from '../../../../shared/models/saved-routes'
 import { planRideOrchestrator } from '../lib/planRideOrchestrator'
 import { createRoutingProvider, type ProviderRouteResponse } from '../providers/routingProvider'
 
@@ -47,7 +47,8 @@ const SINGLE_VALID_ROUTE_FIXTURE: ProviderRouteResponse = {
     format: 'polyline' as const,
     encoding: 'polyline5',
     precision: 5,
-    value: 'irjeFnpnjV|@n@dAhA|CtC|@z@p@l@~@z@fAh@hA\\xA\\hBTbCPbATnARrBHzCFrB@xBIlBMyBQmBQuBSqBUuBMiAQkAa@uAy@mBwAoB{A}BqAwBqAwBgBuB}ArBmA~@wB|Aq@f@cBt@gCz@yBp@_Cf@gBZ}BZcDj@',
+    value:
+      'irjeFnpnjV|@n@dAhA|CtC|@z@p@l@~@z@fAh@hA\\xA\\hBTbCPbATnARrBHzCFrB@xBIlBMyBQmBQuBSqBUuBMiAQkAa@uAy@mBwAoB{A}BqAwBqAwBgBuB}ArBmA~@wB|Aq@f@cBt@gCz@yBp@_Cf@gBZ}BZcDj@',
   },
   legs: [
     {
@@ -60,7 +61,8 @@ const SINGLE_VALID_ROUTE_FIXTURE: ProviderRouteResponse = {
         format: 'polyline' as const,
         encoding: 'polyline5',
         precision: 5,
-        value: 'irjeFnpnjV|@n@dAhA|CtC|@z@p@l@~@z@fAh@hA\\xA\\hBTbCPbATnARrBHzCFrB@xBIlBMyBQmBQuBSqBUuBMiAQkAa@uAy@mBwAoB{A}BqAwBqAwBgBuB}ArBmA~@wB|Aq@f@cBt@gCz@yBp@_Cf@gBZ}BZcDj@',
+        value:
+          'irjeFnpnjV|@n@dAhA|CtC|@z@p@l@~@z@fAh@hA\\xA\\hBTbCPbATnARrBHzCFrB@xBIlBMyBQmBQuBSqBUuBMiAQkAa@uAy@mBwAoB{A}BqAwBqAwBgBuB}ArBmA~@wB|Aq@f@cBt@gCz@yBp@_Cf@gBZ}BZcDj@',
       },
       steps: [
         {

@@ -1,0 +1,62 @@
+@@GATE-META step=step8 cmd_sha=df755fe3e2e33412c845aa51ab87f6df315965911721d68d0d1892845d0df1dc@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-19T22:59:46Z/scripts/step8.sh
+blocked_status {
+  "allowed": false,
+  "overallVerdict": null,
+  "reason": "Couch gate blocked: no recordCouchVerdict({overallVerdict:\"pass\"}) yet",
+  "sampleId": null
+}
+
+blocked_all_exit 1
+blocked_all_out npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+✖ Failed to run function "couchVerdict:runAllWaterfall":
+ConvexError: [Request ID: f7c724c47b9aa1db] Server Error
+Uncaught ConvexError: {"code":"COUCH_GATE_BLOCKED","message":"Couch gate blocked: no recordCouchVerdict({overallVerdict:\"pass\"}) yet"}
+    at handler (../convex/couchVerdict.ts:333:8)
+
+unblocked_exit 0
+unblocked_out {
+  "backoffScheduleSeconds": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "batchStopReason": "completed",
+  "costExceededMessage": null,
+  "gate": {
+    "allowed": true,
+    "overallVerdict": "pass"
+  },
+  "maxCostUsd": 10,
+  "maxRetries": 5,
+  "mode": "all",
+  "perLeverCounts": {
+    "lever1": 0,
+    "lever2": 0,
+    "lever3": 0
+  },
+  "perStateCounts": {
+    "queued": 0,
+    "recovered": 0,
+    "retirement_eligible": 0,
+    "skipped": 1
+  },
+  "processed": 0,
+  "reprocessed": 0,
+  "routes": [
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "test:lever1-pass",
+      "skipped": true,
+      "terminalState": "recovered"
+    }
+  ],
+  "skipped": 1,
+  "totalCostUsd": 0
+}
+npm warn Unknown project config "node-linker". This will stop working in the next major
+{"ok": true, "blocked_allowed": false, "pass_allowed": true, "runAll_ok": true}
+@@GATE-EXIT=0@@

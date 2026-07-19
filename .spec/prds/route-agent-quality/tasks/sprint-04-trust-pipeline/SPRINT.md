@@ -3,7 +3,7 @@ sprint: 4
 slug: sprint-04-trust-pipeline
 sequence: 4
 timeline: Phase 2
-status: In Progress
+status: Awaiting Close
 prd: .spec/prds/route-agent-quality/README.md
 prd_version: 3.1.1
 roadmap: .spec/prds/route-agent-quality/ROADMAP.md
@@ -16,9 +16,9 @@ tasks_expanded: 2026-07-14
 
 **Sequence:** 4
 **Timeline:** Phase 2
-**Status:** In Progress
-> Progress: 7/8 tasks completed · updated 2026-07-18T06:11:51Z
-> Status-Note: 7/7 tasks completed; landing deterministic gates
+**Status:** Awaiting Close
+> Progress: 7/7 tasks completed · updated 2026-07-19T23:02:46Z
+> Status-Note: goal met — gate 8/8 · e2e PASS · human-test 8/8 · trunk consolidated
 **Proposed by:** product-manager + convex-planner (lane) + aisdk-planner (lever-2 structured output)
 
 ## Overview

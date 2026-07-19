@@ -1,0 +1,115 @@
+@@GATE-META step=step5 cmd_sha=59af34da63bf8215a97ef34db74c9c0d4f527e1c67ffe93eae9b60af54af4a66@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-19T22:59:46Z/scripts/step5.sh
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "_creationTime": 1784502054488.5068,
+  "_id": "p97bzmk90a94g1xdd61ergngxd8atew9",
+  "overallVerdict": "pass",
+  "recordedAt": 1784502054488,
+  "recordedBy": "s4-human-gate",
+  "routeVerdicts": [
+    {
+      "routeId": "test:couch-scraped-000",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-scraped-005",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:scraped-1",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-scraped-006",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-scraped-002",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-ai-000",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:ai-recon-1",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-ai-001",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-ai-006",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-ai-005",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:name-routed-1",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-name-005",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-name-001",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-name-000",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-name-002",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-scraped-003",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-scraped-008",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-scraped-001",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-ai-003",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-name-006",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-scraped-004",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-ai-004",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-name-003",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-scraped-007",
+      "verdict": "true"
+    },
+    {
+      "routeId": "test:couch-ai-007",
+      "verdict": "true"
+    }
+  ],
+  "sampleId": "couch-1784502048430"
+}
+{"ok": true, "overallVerdict": "pass", "sampleId": "couch-1784502048430"}
+@@GATE-EXIT=0@@

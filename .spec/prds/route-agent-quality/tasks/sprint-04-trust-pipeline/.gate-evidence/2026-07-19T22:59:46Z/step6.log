@@ -1,0 +1,12 @@
+@@GATE-META step=step6 cmd_sha=2d98174320a6b88308506c360f9a0216c41b7c94e55ab7d452f110ff053079c3@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-19T22:59:46Z/scripts/step6.sh
+stdout= 
+stderr= npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+✖ Failed to run function "couchVerdict:recordCouchVerdict":
+ConvexError: [Request ID: c387dccbd53329cd] Server Error
+Uncaught ConvexError: {"code":"WRONG_FORCES_FAIL","message":"Cannot pass couch gate with any routeVerdict=wrong (fabricated-but-passing)"}
+    at handler (../convex/couchVerdict.ts:69:8)
+
+exit= 1
+{"ok": true, "rejected": true, "code": "WRONG_FORCES_FAIL"}
+@@GATE-EXIT=0@@

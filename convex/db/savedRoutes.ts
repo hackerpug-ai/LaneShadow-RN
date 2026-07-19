@@ -412,30 +412,29 @@ export const getSavedRoutesList = query({
     })
 
     return {
-      routes: results
-        .map(({ savedRouteId, savedRoute }) => {
-          if (isPlannedSavedRoute({ savedRouteId, savedRoute } as SavedRouteWithId)) {
-            return {
-              savedRouteId: `${savedRouteId}`,
-              name: savedRoute.name,
-              startLabel: savedRoute.planInput?.start?.label ?? '',
-              endLabel: savedRoute.planInput?.end?.label ?? '',
-              createdAt: savedRoute.createdAt,
-              updatedAt: savedRoute.updatedAt,
-              preview: computePreview(savedRoute.routeSnapshot),
-              capabilities: defaultCapabilities,
-              routeIndex: savedRoute.routeIndex,
-            }
-          }
+      routes: results.map(({ savedRouteId, savedRoute }) => {
+        if (isPlannedSavedRoute({ savedRouteId, savedRoute } as SavedRouteWithId)) {
           return {
             savedRouteId: `${savedRouteId}`,
             name: savedRoute.name,
+            startLabel: savedRoute.planInput?.start?.label ?? '',
+            endLabel: savedRoute.planInput?.end?.label ?? '',
             createdAt: savedRoute.createdAt,
             updatedAt: savedRoute.updatedAt,
+            preview: computePreview(savedRoute.routeSnapshot),
             capabilities: defaultCapabilities,
-            curatedRouteRef: savedRoute.curatedRouteRef ? `${savedRoute.curatedRouteRef}` : undefined,
+            routeIndex: savedRoute.routeIndex,
           }
-        }),
+        }
+        return {
+          savedRouteId: `${savedRouteId}`,
+          name: savedRoute.name,
+          createdAt: savedRoute.createdAt,
+          updatedAt: savedRoute.updatedAt,
+          capabilities: defaultCapabilities,
+          curatedRouteRef: savedRoute.curatedRouteRef ? `${savedRoute.curatedRouteRef}` : undefined,
+        }
+      }),
     }
   },
 })

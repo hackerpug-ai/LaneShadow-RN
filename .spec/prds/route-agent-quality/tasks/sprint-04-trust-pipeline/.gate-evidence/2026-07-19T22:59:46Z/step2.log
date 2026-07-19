@@ -1,0 +1,58 @@
+@@GATE-META step=step2 cmd_sha=5f76c09cbcb50b9f5b56b75a31ff4c13759e0b8ef8c4e4db48a1f7ac4ab69418@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-19T22:59:46Z/scripts/step2.sh
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "backoffScheduleSeconds": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "batchStopReason": "completed",
+  "costExceededMessage": null,
+  "maxCostUsd": 5,
+  "maxRetries": 5,
+  "perLeverCounts": {
+    "lever1": 0,
+    "lever2": 0,
+    "lever3": 0
+  },
+  "perStateCounts": {
+    "queued": 0,
+    "recovered": 0,
+    "retirement_eligible": 0,
+    "skipped": 3
+  },
+  "processed": 0,
+  "reprocessed": 0,
+  "routes": [
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "test:lever1-pass",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "test:lever2-pass",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "test:review-candidate",
+      "skipped": true,
+      "terminalState": "recovered"
+    }
+  ],
+  "skipped": 3,
+  "totalCostUsd": 0
+}
+{"ok": true, "count": 3, "states": ["recovered"]}
+@@GATE-EXIT=0@@

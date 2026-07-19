@@ -242,7 +242,8 @@ export const measureWideRead = internalQuery({
     let docsStillCarryingGeometry = 0
     for (const d of docs) {
       bytes += JSON.stringify(d).length
-      if ((d as { routeGeometry?: unknown }).routeGeometry !== undefined) docsStillCarryingGeometry++
+      if ((d as { routeGeometry?: unknown }).routeGeometry !== undefined)
+        docsStillCarryingGeometry++
     }
     return {
       count: docs.length,

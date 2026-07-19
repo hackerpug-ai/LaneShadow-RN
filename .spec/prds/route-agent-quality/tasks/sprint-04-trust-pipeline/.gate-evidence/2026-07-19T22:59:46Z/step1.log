@@ -1,0 +1,89 @@
+@@GATE-META step=step1 cmd_sha=75682fbe91dda02ea39fde0273ae7097a455111606bb0fbff7246a205bd11825@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-19T22:59:46Z/scripts/step1.sh
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "lever1Pass": {
+    "created": true,
+    "id": "mx7f1ark98bxkq1bqxv733367d8avd39",
+    "routeId": "test:lever1-pass"
+  },
+  "lever2Pass": {
+    "created": false,
+    "id": "mx7ctwb31ce6yt7sazry9swv5h8ats51",
+    "routeId": "test:lever2-pass"
+  },
+  "reviewCandidate": {
+    "created": false,
+    "id": "mx73w089ds52xajxqa0z7q7r098atayj",
+    "routeId": "test:review-candidate"
+  }
+}
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "backoffScheduleSeconds": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "batchStopReason": "completed",
+  "costExceededMessage": null,
+  "maxCostUsd": 5,
+  "maxRetries": 5,
+  "perLeverCounts": {
+    "lever1": 3,
+    "lever2": 2,
+    "lever3": 0
+  },
+  "perStateCounts": {
+    "queued": 0,
+    "recovered": 3,
+    "retirement_eligible": 0,
+    "skipped": 0
+  },
+  "processed": 3,
+  "reprocessed": 0,
+  "routes": [
+    {
+      "costUsd": 0,
+      "leversRun": [
+        1
+      ],
+      "provenance": "scraped_promoted",
+      "reprocessed": false,
+      "routeId": "test:lever1-pass",
+      "skipped": false,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0.07,
+      "lever1Failed": true,
+      "leversRun": [
+        1,
+        2
+      ],
+      "provenance": "ai_reconstructed",
+      "reprocessed": false,
+      "routeId": "test:lever2-pass",
+      "skipped": false,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0.07,
+      "lever1Failed": true,
+      "leversRun": [
+        1,
+        2
+      ],
+      "provenance": "ai_reconstructed",
+      "reprocessed": false,
+      "routeId": "test:review-candidate",
+      "skipped": false,
+      "terminalState": "recovered"
+    }
+  ],
+  "skipped": 0,
+  "totalCostUsd": 0.14
+}
+{"ok": true, "processed": 3, "routes": 3, "states": ["recovered"]}
+@@GATE-EXIT=0@@

@@ -1,0 +1,81 @@
+@@GATE-META step=step7 cmd_sha=e9b99d6a16941e508e2dba323dfa7c92358195c3951854c7af40ee103448aabd@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-19T22:59:46Z/scripts/step7.sh
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "geometryStatus": "review",
+  "id": "mx735hpm13an0zq595bmthtxdx8atkqk",
+  "routeId": "test:s4gate-approve"
+}
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "geometryStatus": "review",
+  "id": "mx74rhcx1hdtzhz2rppywxqmxh8av58g",
+  "routeId": "test:s4gate-retry"
+}
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "geometryStatus": "review",
+  "id": "mx7e9ny0k5981w929ct24p6rqs8atyhd",
+  "routeId": "test:s4gate-retire"
+}
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "disposition": "approve",
+  "geometryStatus": "generated",
+  "riderReady": true,
+  "routeId": "test:s4gate-approve",
+  "verdict": "pass"
+}
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "attemptedAt": "2026-07-19T23:01:05.654Z",
+  "disposition": "retry",
+  "lever": 2,
+  "leverResult": {
+    "anchorCount": 2,
+    "anchors": [
+      {
+        "distanceFromCentroid": 0,
+        "formatted": "Anchor 1, CA",
+        "lat": 34.95,
+        "lng": -120.42
+      },
+      {
+        "distanceFromCentroid": 4.466359929577385,
+        "formatted": "Anchor 2, CA",
+        "lat": 35,
+        "lng": -120.37
+      }
+    ],
+    "claimedMiles": 41,
+    "degenerate": false,
+    "geometry": "oditE~o~}Uo}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@o}@",
+    "geometryStatus": "generated",
+    "pointCount": 80,
+    "provenance": "ai_reconstructed",
+    "ratio": 1,
+    "ratioSkipped": false,
+    "riderReady": true,
+    "routeId": "test:s4gate-retry",
+    "routedMiles": 41,
+    "routingCallCount": 0,
+    "verdict": "pass"
+  },
+  "prepared": {
+    "attemptedAt": 1784502065654,
+    "lever": 2,
+    "prepared": true,
+    "routeId": "test:s4gate-retry"
+  },
+  "retryCount": 1,
+  "routeId": "test:s4gate-retry"
+}
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "disposition": "retire",
+  "retiredAt": "2026-07-19T23:01:11.482Z",
+  "riderReady": false,
+  "routeId": "test:s4gate-retire"
+}
+{"ok": true, "approve": "approve", "retry": "retry", "retire": "retire"}
+@@GATE-EXIT=0@@

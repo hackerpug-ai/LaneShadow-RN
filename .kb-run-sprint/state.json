@@ -8,7 +8,7 @@
   "base_sha": "1b4314533a06d1a3cec8899af710fe65d188ffa1",
   "goal": "Run /kb-run-sprint sprint-04-trust-pipeline until GATE-GOAL: ACHIEVED",
   "created_at": "2026-07-18T03:52:30Z",
-  "phase": "gates",
+  "phase": "complete",
   "e2e_framework": "maestro",
   "e2e_coverage_available": true,
   "max_concurrent": 2,
@@ -272,7 +272,8 @@
         "worktree": ".kb-run-sprint/worktrees/S4-T3",
         "branch": "task/S4-T3",
         "last_commit_sha": "ea61c1b34d7fe4b043f941b23f8107fb2f63e01a",
-        "active_fix": "S4-T3-FIX-001"
+        "active_fix": "S4-T3-FIX-001",
+        "land_sha": "3024a1aa"
       }
     },
     "S4-T4": {
@@ -354,7 +355,9 @@
         "failure_signatures": [],
         "learned_blockers": [],
         "worktree": ".kb-run-sprint/worktrees/S4-T4",
-        "branch": "task/S4-T4"
+        "branch": "task/S4-T4",
+        "land_sha": "c5c2d9bf",
+        "last_commit_sha": "c5c2d9bf"
       }
     },
     "S4-T5": {
@@ -588,7 +591,7 @@
         "failure_signatures": [],
         "learned_blockers": [],
         "last_commit_sha": "788e85b97bc31fef6e40d5787e107df4aa29e3ec",
-        "land_sha": null
+        "land_sha": "96bd5349"
       }
     }
   },
