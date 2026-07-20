@@ -955,6 +955,23 @@ export const listGeometryReviewQueue = query({
       .withIndex('by_geometry_status', (q) => q.eq('geometryStatus', 'review'))
       .take(take * 3)
 
+    // P0(b): direct by_routeId lookup when prefix is a concrete routeId (contains
+    // ':') so the target route cannot be missed when stale review rows push it
+    // outside the generic take window.
+    const directLookupRow = routeIdPrefix?.includes(':')
+      ? await ctx.db
+          .query('curated_routes')
+          .withIndex('by_routeId', (q) => q.eq('routeId', routeIdPrefix))
+          .first()
+      : null
+    if (
+      directLookupRow &&
+      directLookupRow.geometryStatus === 'review' &&
+      !rows.some((r) => r.routeId === directLookupRow.routeId)
+    ) {
+      rows = [directLookupRow, ...rows]
+    }
+
     if (routeIdPrefix) {
       rows = rows.filter((r) => r.routeId.startsWith(routeIdPrefix))
     }

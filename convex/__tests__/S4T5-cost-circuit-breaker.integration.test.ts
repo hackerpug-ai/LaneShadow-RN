@@ -63,6 +63,15 @@ describe('AC-3: Cost circuit-breaker enforces max-cost', () => {
   beforeAll(() => {
     mkdirSync(EVIDENCE_DIR, { recursive: true })
 
+    // FIX-08: waterfall fixture mutations now require operator role — bootstrap
+    // the test identity (subject starts with the test prefix s4t5-).
+    const setup = runConvexFn(
+      'testSupport:devSetupFounderUser',
+      { clerkUserId: 's4t5-cost-circuit-breaker', role: 'operator' },
+      { identity: true },
+    )
+    expect(setup.ok, `devSetupFounderUser failed: ${setup.stderr}`).toBe(true)
+
     const seed = runConvexFn(
       'waterfallOrchestrator:seedCostBurnRoutes',
       { count: ROUTE_COUNT, prefix: PREFIX },

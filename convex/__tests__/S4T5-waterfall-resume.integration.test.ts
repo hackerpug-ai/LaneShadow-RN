@@ -61,6 +61,15 @@ describe('AC-2: Waterfall resume skips already-PASSed routes', () => {
   beforeAll(() => {
     mkdirSync(EVIDENCE_DIR, { recursive: true })
 
+    // FIX-08: waterfall fixture mutations now require operator role — bootstrap
+    // the test identity (subject starts with the test prefix s4t5-).
+    const setup = runConvexFn(
+      'testSupport:devSetupFounderUser',
+      { clerkUserId: 's4t5-waterfall-resume', role: 'operator' },
+      { identity: true },
+    )
+    expect(setup.ok, `devSetupFounderUser failed: ${setup.stderr}`).toBe(true)
+
     const seed = runConvexFn(
       'waterfallOrchestrator:seedPassedSampleRoutes',
       { count: COUNT, prefix: PREFIX },
