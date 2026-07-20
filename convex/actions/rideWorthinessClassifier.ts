@@ -16,7 +16,7 @@ import { generateText, NoObjectGeneratedError, Output } from 'ai'
 import { v } from 'convex/values'
 import { z } from 'zod'
 import { internal } from '../_generated/api'
-import { action, internalAction } from '../_generated/server'
+import { action, internalAction, internalMutation, internalQuery } from '../_generated/server'
 import { requireIdentity } from '../guards'
 import { createZaiProvider, parseZaiFallback } from './agent/lib/zaiProvider'
 
@@ -76,6 +76,10 @@ export type ClassifyCatalogResult = {
   totalEligible?: number
   /** FIX-02: Routes still unclassified after this batch. */
   remainingUnclassified?: number
+  /** FIX-02: Durable run id — re-pass to resume an interrupted catalog run. */
+  runId?: string
+  /** FIX-02: Persisted run status. */
+  runStatus?: 'running' | 'completed' | 'failed'
 }
 
 type RouteForClassification = {
@@ -351,8 +355,13 @@ export const classifyCatalog = action({
   args: {
     routeIds: v.optional(v.array(v.string())),
     failRouteIds: v.optional(v.array(v.string())),
+    /** FIX-02: resume an interrupted whole-catalog run from its persisted cursor. */
+    runId: v.optional(v.string()),
   },
-  handler: async (ctx, { routeIds, failRouteIds }): Promise<ClassifyCatalogResult> => {
+  handler: async (
+    ctx,
+    { routeIds, failRouteIds, runId: resumeRunId },
+  ): Promise<ClassifyCatalogResult> => {
     await requireIdentity(ctx)
 
     // FIX-02: When no routeIds supplied, enumerate ALL eligible routes
@@ -365,12 +374,40 @@ export const classifyCatalog = action({
     // Total eligible estimate — will be refined by pagination
     let totalEligible = 0
     const results: ClassifyRouteResult[] = []
+    let runId = resumeRunId ?? null
+    let runStatus: 'running' | 'completed' | 'failed' = 'running'
+    let checkpointProcessed = 0
+    let checkpointFailed = 0
 
     if (batch.allCatalog) {
-      // FIX-02: Full catalog pagination loop.
-      // Iterate ALL pages using continueCursor until isDone.
+      // FIX-02: durable whole-catalog run — resume from the persisted cursor if
+      // a runId is supplied and the run is still 'running'; otherwise begin a
+      // new run. Progress (cursor + counts) is persisted after every page so an
+      // interrupted invocation resumes instead of restarting from zero, and
+      // completion counters derive from the persisted run.
       let cursor: string | null = null
       let isDone = false
+      if (resumeRunId) {
+        const existing = await ctx.runQuery(
+          internal.actions.rideWorthinessClassifier.getClassifierRun,
+          { runId: resumeRunId },
+        )
+        if (existing && existing.status === 'running') {
+          runId = existing.runId
+          cursor = existing.cursor ?? null
+          isDone = existing.isDone
+          totalEligible = existing.totalEligible ?? 0
+          checkpointProcessed = existing.processedCount
+          checkpointFailed = existing.failedCount
+        }
+      }
+      if (!runId) {
+        runId = `run-${Date.now()}`
+        await ctx.runMutation(internal.actions.rideWorthinessClassifier.beginClassifierRun, {
+          runId,
+          startedAt: Date.now(),
+        })
+      }
 
       while (!isDone) {
         const fetchedIds: {
@@ -393,16 +430,39 @@ export const classifyCatalog = action({
         for (const routeId of ids) {
           const result = await classifyAndPersistOne(ctx, routeId, { failRouteIds })
           results.push(result)
+          if (result.ok) checkpointProcessed += 1
+          else checkpointFailed += 1
         }
 
         cursor = fetchedIds.continueCursor
         isDone = fetchedIds.isDone
+
+        // FIX-02: persist durable progress after each page (durable checkpoint).
+        await ctx.runMutation(
+          internal.actions.rideWorthinessClassifier.updateClassifierRunProgress,
+          {
+            runId,
+            cursor,
+            processedCount: checkpointProcessed,
+            failedCount: checkpointFailed,
+            totalEligible,
+            isDone,
+          },
+        )
 
         // Safety valve: if no new IDs were returned, stop to prevent infinite loop
         if (ids.length === 0 && !isDone) {
           isDone = true
         }
       }
+
+      await ctx.runMutation(internal.actions.rideWorthinessClassifier.completeClassifierRun, {
+        runId,
+        processedCount: checkpointProcessed,
+        failedCount: checkpointFailed,
+        totalEligible,
+      })
+      runStatus = 'completed'
     } else {
       // Caller-supplied routeIds — process directly
       totalEligible = batch.routeIds.length
@@ -419,11 +479,13 @@ export const classifyCatalog = action({
         results: [],
         totalEligible: 0,
         remainingUnclassified: 0,
+        runId: runId ?? undefined,
+        runStatus,
       }
     }
 
-    const classified = results.filter((r) => r.ok).length
-    const failed = results.filter((r) => !r.ok).length
+    const classified = batch.allCatalog ? checkpointProcessed : results.filter((r) => r.ok).length
+    const failed = batch.allCatalog ? checkpointFailed : results.filter((r) => !r.ok).length
     const remainingUnclassified = Math.max(0, totalEligible - classified - failed)
 
     return {
@@ -432,6 +494,8 @@ export const classifyCatalog = action({
       results,
       totalEligible,
       remainingUnclassified,
+      runId: runId ?? undefined,
+      runStatus,
     }
   },
 })
@@ -455,5 +519,97 @@ export const classifyCatalogInternal = internalAction({
       failed: results.filter((r) => !r.ok).length,
       results,
     }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// REDHAT-FIX-02: durable classifier_runs checkpoint/resume state
+// ---------------------------------------------------------------------------
+
+/** Begin a new whole-catalog classifier run. */
+export const beginClassifierRun = internalMutation({
+  args: { runId: v.string(), startedAt: v.number() },
+  handler: async (ctx, { runId, startedAt }) => {
+    const existing = await ctx.db
+      .query('classifier_runs')
+      .withIndex('by_runId', (q) => q.eq('runId', runId))
+      .unique()
+    if (existing) return existing
+    const id = await ctx.db.insert('classifier_runs', {
+      runId,
+      status: 'running',
+      cursor: undefined,
+      processedCount: 0,
+      failedCount: 0,
+      totalEligible: undefined,
+      isDone: false,
+      startedAt,
+      updatedAt: startedAt,
+    })
+    return { _id: id, runId }
+  },
+})
+
+/** Load a run by runId (for resume). */
+export const getClassifierRun = internalQuery({
+  args: { runId: v.string() },
+  handler: async (ctx, { runId }) => {
+    return ctx.db
+      .query('classifier_runs')
+      .withIndex('by_runId', (q) => q.eq('runId', runId))
+      .unique()
+  },
+})
+
+/** Persist durable progress after each page (durable checkpoint). */
+export const updateClassifierRunProgress = internalMutation({
+  args: {
+    runId: v.string(),
+    cursor: v.union(v.string(), v.null()),
+    processedCount: v.number(),
+    failedCount: v.number(),
+    totalEligible: v.optional(v.number()),
+    isDone: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const run = await ctx.db
+      .query('classifier_runs')
+      .withIndex('by_runId', (q) => q.eq('runId', args.runId))
+      .unique()
+    if (!run) return
+    await ctx.db.patch(run._id, {
+      cursor: args.cursor ?? undefined,
+      processedCount: args.processedCount,
+      failedCount: args.failedCount,
+      totalEligible: args.totalEligible,
+      isDone: args.isDone,
+      updatedAt: Date.now(),
+    })
+  },
+})
+
+/** Mark a run completed with final counters derived from the persisted run. */
+export const completeClassifierRun = internalMutation({
+  args: {
+    runId: v.string(),
+    processedCount: v.number(),
+    failedCount: v.number(),
+    totalEligible: v.optional(v.number()),
+  },
+  handler: async (ctx, { runId, processedCount, failedCount, totalEligible }) => {
+    const run = await ctx.db
+      .query('classifier_runs')
+      .withIndex('by_runId', (q) => q.eq('runId', runId))
+      .unique()
+    if (!run) return null
+    await ctx.db.patch(run._id, {
+      status: 'completed',
+      isDone: true,
+      processedCount,
+      failedCount,
+      totalEligible,
+      updatedAt: Date.now(),
+    })
+    return { runId, status: 'completed' as const, processedCount, failedCount, totalEligible }
   },
 })

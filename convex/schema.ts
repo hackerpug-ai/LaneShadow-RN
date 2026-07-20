@@ -325,6 +325,26 @@ export default defineSchema({
     .index('by_artifactType', ['artifactType']),
 
   /**
+   * REDHAT-FIX-02: Durable whole-catalog classifier run state. Persists the
+   * pagination cursor + processed/failed counts so an interrupted run resumes
+   * from the persisted cursor instead of restarting from zero, and completion
+   * counters derive from the persisted run (provable coverage).
+   */
+  classifier_runs: defineTable({
+    runId: v.string(),
+    status: v.union(v.literal('running'), v.literal('completed'), v.literal('failed')),
+    cursor: v.optional(v.string()),
+    processedCount: v.number(),
+    failedCount: v.number(),
+    totalEligible: v.optional(v.number()),
+    isDone: v.boolean(),
+    startedAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index('by_runId', ['runId'])
+    .index('by_status', ['status']),
+
+  /**
    * S4-T6 / VER-05: Stratified couch-sample (~25 routes) for founder visual review.
    * Routes carry provenance + difficulty so stratification can be re-queried.
    *
