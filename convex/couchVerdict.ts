@@ -355,6 +355,7 @@ export const seedAllBatchFixtures = internalMutation({
         verdict: 'ride' as const,
         reason: 's4t6 all-batch seed',
         model: 'test',
+        evidenceComplete: true,
         classifiedAt: nowMs,
       },
       ...base,

@@ -24,6 +24,21 @@ import { createZaiProvider, parseZaiFallback } from './agent/lib/zaiProvider'
 export const RIDE_WORTHINESS_PROVIDER = 'z.ai-glm-5.2' as const
 
 /**
+ * REDHAT-FIX-11: Determine whether a route's ride-worthiness classification is
+ * EVIDENCE-COMPLETE. A freeway/fhwa route must have a recorded rescue-first
+ * geometry attempt before its classification can be considered complete; the
+ * classifier must not silently complete a freeway route lacking that evidence.
+ * Non-freeway routes are evidence-complete without a geometry attempt.
+ */
+export function determineEvidenceComplete(args: {
+  isFreeway: boolean
+  geometryAttempted: boolean
+}): boolean {
+  if (!args.isFreeway) return true
+  return args.geometryAttempted
+}
+
+/**
  * Verification-gate alias (grep target: zai-glm-5.2). The stored stamp uses
  * the dotted form `z.ai-glm-5.2`; this constant documents the z.ai GLM id.
  */
@@ -179,28 +194,28 @@ async function classifyAndPersistOne(
       route.source === 'fhwa' || (route.highwayNumber != null && /^I-/.test(route.highwayNumber))
     const geometryAttempted = route.geometryStatus != null && route.geometryStatus !== 'unresolved'
 
+    const evidenceComplete = determineEvidenceComplete({ isFreeway, geometryAttempted })
+
     if (isFreeway && !geometryAttempted) {
-      // Record evidence that the rescue-first geometry attempt has NOT
-      // been completed yet — the classifier is proceeding but the audit
-      // trail must show geometry_pending status.
-      try {
-        await ctx.runMutation(internal.waterfallOrchestrator.insertCurationArtifact, {
-          routeId,
-          artifactType: 'waterfall_result',
-          terminalState: 'retirement_eligible',
-          provenance: 'freeway_rescue_first_pending',
-          failedCondition: 'geometry_pending',
-          leversRun: [],
-          costUsd: 0,
-          attemptedAt: Date.now(),
-        })
-      } catch {
-        // Non-blocking: artifact recording must not fail classification
-      }
+      // REDHAT-FIX-11: a freeway route CANNOT be evidence-complete without a
+      // recorded rescue-first geometry attempt. Recording the pending artifact
+      // is REQUIRED (not best-effort) so the audit trail is durable; the
+      // classification proceeds but is flagged evidenceComplete=false.
+      await ctx.runMutation(internal.waterfallOrchestrator.insertCurationArtifact, {
+        routeId,
+        artifactType: 'waterfall_result',
+        terminalState: 'retirement_eligible',
+        provenance: 'freeway_rescue_first_pending',
+        failedCondition: 'geometry_pending',
+        leversRun: [],
+        costUsd: 0,
+        attemptedAt: Date.now(),
+      })
     }
 
     if (isFreeway && geometryAttempted) {
-      // Record that geometry was attempted — audit evidence for rescue-first
+      // geometry attempt recorded — best-effort audit note (evidence already
+      // complete via geometryAttempted, so recording failure is non-blocking).
       try {
         await ctx.runMutation(internal.waterfallOrchestrator.insertCurationArtifact, {
           routeId,
@@ -213,7 +228,7 @@ async function classifyAndPersistOne(
           attemptedAt: Date.now(),
         })
       } catch {
-        // Non-blocking
+        // non-blocking: evidence already complete
       }
     }
 
@@ -224,6 +239,7 @@ async function classifyAndPersistOne(
       reason: classified.reason,
       model: RIDE_WORTHINESS_PROVIDER,
       classifiedAt,
+      evidenceComplete,
     }
 
     await ctx.runMutation(internal.curatedGeometry.persistRideWorthiness, {

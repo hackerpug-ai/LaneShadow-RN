@@ -576,6 +576,7 @@ export const persistRideWorthiness = internalMutation({
       reason: v.string(),
       model: v.string(),
       classifiedAt: v.number(),
+      evidenceComplete: v.boolean(),
     }),
   },
   handler: async (ctx, { id, rideWorthiness }) => {

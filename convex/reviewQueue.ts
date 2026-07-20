@@ -207,6 +207,7 @@ export const seedReviewQueueEntry = mutation({
           verdict: 'ride' as const,
           reason: 's4t5 review seed',
           model: 'test',
+          evidenceComplete: true,
           classifiedAt: nowMs,
         },
       })

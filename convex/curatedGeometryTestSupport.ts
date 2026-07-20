@@ -425,6 +425,7 @@ export const restorePoCRouteAllGood = mutation({
         verdict: 'ride',
         reason: 'spike seed',
         model: 'test',
+        evidenceComplete: true,
         classifiedAt: nowMs,
       },
       retiredAt: undefined,
@@ -508,6 +509,7 @@ export const flipPoCRiderReadyInput = mutation({
             verdict: 'not_a_ride',
             reason: 'flip test',
             model: 'test',
+            evidenceComplete: true,
             classifiedAt: Date.now(),
           },
         })
