@@ -652,6 +652,10 @@ export const runSampleWaterfall = action({
         lever2Failed = true
         failedCondition = l2.failedCondition ?? 'ratio'
       } catch (err) {
+        // FIX-09: Charge cost even on L2 failure — the provider was invoked
+        // and the attempt consumed budget. Fail-closed cost accounting.
+        costUsd += costPer
+        totalCostUsd += costPer
         lever2Failed = true
         failedCondition = isRateLimitError(err) ? 'rate_limit_exhausted' : 'anchors'
       }
@@ -715,6 +719,8 @@ export const runSampleWaterfall = action({
         await recordTerminalArtifact(ctx, result)
         await recordReviewArtifact(ctx, routeId, failedCondition, bestCandidateGeometry)
       } catch {
+        // FIX-09: Lever 3 exception → EXACTLY ONE terminal state: retirement_eligible.
+        // Do NOT also queue REVIEW — the route is retired, not queued.
         terminalState = 'retirement_eligible'
         const result: RouteWaterfallResult = {
           routeId,
@@ -730,9 +736,8 @@ export const runSampleWaterfall = action({
         routes.push(result)
         perStateCounts.retirement_eligible += 1
         await recordTerminalArtifact(ctx, result)
-        if (bestCandidateGeometry) {
-          await recordReviewArtifact(ctx, routeId, failedCondition, bestCandidateGeometry)
-        }
+        // NOTE: recordReviewArtifact intentionally NOT called here —
+        // the route ends in retirement_eligible, not queued.
       }
 
       // Post-route cost check (stop after exceeding)
