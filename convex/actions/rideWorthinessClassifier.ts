@@ -325,6 +325,11 @@ export function buildCatalogEnumerationBatch(args: {
  * routes do not abort the catalog run — each error is logged and the next
  * route continues. Geometry pipeline is intentionally independent: this
  * action never blocks geometry generation (rescue-first).
+ *
+ * FIX-02: When no routeIds supplied, iterates ALL pages via .continueCursor
+ * to achieve whole-catalog coverage. Returns totalEligible, classified,
+ * failed, and remainingUnclassified. The run is only complete when
+ * remainingUnclassified === 0.
  */
 export const classifyCatalog = action({
   args: {
@@ -335,40 +340,70 @@ export const classifyCatalog = action({
     await requireIdentity(ctx)
 
     // FIX-02: When no routeIds supplied, enumerate ALL eligible routes
-    // from curated_routes via bounded indexed pagination.
+    // from curated_routes via bounded indexed pagination loop.
     const batch = buildCatalogEnumerationBatch({
       routeIds,
       defaultBatchSize: 50,
     })
 
-    let ids: string[] = batch.routeIds
-    let totalEligible = ids.length
+    // Total eligible estimate — will be refined by pagination
+    let totalEligible = 0
+    const results: ClassifyRouteResult[] = []
 
     if (batch.allCatalog) {
-      // Enumerate all eligible route IDs using paginated query.
-      // Use the by_routeId index for consistent ordering.
-      const fetchedIds = await ctx.runQuery(
-        internal.curatedGeometry.listEligibleRouteIdsForClassification,
-        { limit: batch.batchSize, cursor: null },
-      )
-      ids = fetchedIds.ids
-      totalEligible = fetchedIds.totalEligible ?? ids.length
+      // FIX-02: Full catalog pagination loop.
+      // Iterate ALL pages using continueCursor until isDone.
+      let cursor: string | null = null
+      let isDone = false
+
+      while (!isDone) {
+        const fetchedIds: {
+          ids: string[]
+          continueCursor: string | null
+          isDone: boolean
+          totalEligible?: number
+        } = await ctx.runQuery(internal.curatedGeometry.listEligibleRouteIdsForClassification, {
+          limit: batch.batchSize,
+          cursor,
+        })
+
+        const ids = fetchedIds.ids
+        if (totalEligible === 0 && fetchedIds.totalEligible != null) {
+          totalEligible = fetchedIds.totalEligible
+        } else {
+          totalEligible += ids.length
+        }
+
+        for (const routeId of ids) {
+          const result = await classifyAndPersistOne(ctx, routeId, { failRouteIds })
+          results.push(result)
+        }
+
+        cursor = fetchedIds.continueCursor
+        isDone = fetchedIds.isDone
+
+        // Safety valve: if no new IDs were returned, stop to prevent infinite loop
+        if (ids.length === 0 && !isDone) {
+          isDone = true
+        }
+      }
+    } else {
+      // Caller-supplied routeIds — process directly
+      totalEligible = batch.routeIds.length
+      for (const routeId of batch.routeIds) {
+        const result = await classifyAndPersistOne(ctx, routeId, { failRouteIds })
+        results.push(result)
+      }
     }
 
-    if (ids.length === 0) {
+    if (totalEligible === 0) {
       return {
         classified: 0,
         failed: 0,
         results: [],
-        totalEligible,
-        remainingUnclassified: totalEligible,
+        totalEligible: 0,
+        remainingUnclassified: 0,
       }
-    }
-
-    const results: ClassifyRouteResult[] = []
-    for (const routeId of ids) {
-      const result = await classifyAndPersistOne(ctx, routeId, { failRouteIds })
-      results.push(result)
     }
 
     const classified = results.filter((r) => r.ok).length
