@@ -18,6 +18,7 @@
   "exclude": [
     "workers/**",
     "scripts/**",
+    "tools/**",
     "_archived/**",
     "**/*.test.ts",
     "**/*.test.tsx",
