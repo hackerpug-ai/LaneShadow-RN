@@ -91,7 +91,7 @@ export async function withExponentialBackoff<T>(
 // Types
 // ---------------------------------------------------------------------------
 
-type TerminalState = 'recovered' | 'queued' | 'retirement_eligible'
+type TerminalState = 'recovered' | 'queued' | 'retirement_eligible' | 'cost_blocked'
 
 type RouteWaterfallResult = {
   routeId: string
@@ -120,6 +120,7 @@ type WaterfallReport = {
     recovered: number
     queued: number
     retirement_eligible: number
+    cost_blocked: number
     skipped: number
   }
   backoffScheduleSeconds: number[]
@@ -502,6 +503,7 @@ export const runSampleWaterfall = action({
       recovered: 0,
       queued: 0,
       retirement_eligible: 0,
+      cost_blocked: 0,
       skipped: 0,
     }
 
@@ -578,6 +580,23 @@ export const runSampleWaterfall = action({
       if (maxCost != null && totalCostUsd + costPer > maxCost) {
         batchStopReason = 'cost_exceeded'
         costExceededMessage = `cost_exceeded: totalCost $${totalCostUsd.toFixed(2)} + next $${costPer.toFixed(2)} would exceed maxCost $${maxCost.toFixed(2)}`
+        // FIX-09: the cost-limited route still ends in exactly one durable
+        // terminal state (cost_blocked) — a restart can distinguish an
+        // untouched route from an interrupted/cost-blocked one, and the
+        // exactly-one-terminal-state invariant holds.
+        const costBlocked: RouteWaterfallResult = {
+          routeId,
+          terminalState: 'cost_blocked',
+          skipped: false,
+          reprocessed: false,
+          leversRun,
+          provenance: undefined,
+          failedCondition: 'cost_exceeded',
+          costUsd: 0,
+        }
+        routes.push(costBlocked)
+        perStateCounts.cost_blocked += 1
+        await recordTerminalArtifact(ctx, costBlocked)
         // Stop the batch; this route was not fully processed (L2 not attempted).
         break
       }
@@ -763,7 +782,7 @@ export const runSampleWaterfall = action({
       // already set
     }
 
-    const processed = routes.filter((r) => !r.skipped).length
+    const processed = routes.filter((r) => !r.skipped && r.terminalState !== 'cost_blocked').length
     const skipped = routes.filter((r) => r.skipped).length
     const reprocessed = routes.filter((r) => r.reprocessed).length
 
@@ -822,7 +841,12 @@ export const insertCurationArtifact = internalMutation({
       v.literal('waterfall_result'),
     ),
     terminalState: v.optional(
-      v.union(v.literal('recovered'), v.literal('queued'), v.literal('retirement_eligible')),
+      v.union(
+        v.literal('recovered'),
+        v.literal('queued'),
+        v.literal('retirement_eligible'),
+        v.literal('cost_blocked'),
+      ),
     ),
     provenance: v.optional(v.string()),
     failedCondition: v.optional(v.string()),

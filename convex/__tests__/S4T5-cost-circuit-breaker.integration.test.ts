@@ -131,6 +131,18 @@ describe('AC-3: Cost circuit-breaker enforces max-cost', () => {
     expect(result.costExceededMessage).toMatch(/cost_exceeded/i)
   })
 
+  it('TC-4 (REDHAT-FIX-09) MUST_OBSERVE: the cost-limited route ends in a cost_blocked terminal state, not stateless', () => {
+    // FIX-09: a route skipped mid-waterfall by the cost circuit-breaker must
+    // still end in exactly one durable terminal state (cost_blocked), so a
+    // restart can distinguish untouched vs interrupted/cost-blocked routes.
+    const costBlocked = result.routes.filter((r: any) => r.terminalState === 'cost_blocked')
+    expect(costBlocked.length).toBeGreaterThanOrEqual(1)
+    expect(result.perStateCounts.cost_blocked).toBeGreaterThanOrEqual(1)
+    // The cost-blocked route attempted Lever 1 (leversRun non-empty) but not L2.
+    expect(costBlocked[0].leversRun).toContain(1)
+    expect(costBlocked[0].leversRun).not.toContain(2)
+  })
+
   it('MUST_NOT_OBSERVE: batch ran to completion', () => {
     expect(result.batchStopReason).not.toBe('completed')
     expect(result.processed).toBeLessThan(ROUTE_COUNT)

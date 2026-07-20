@@ -304,7 +304,12 @@ export default defineSchema({
       v.literal('waterfall_result'),
     ),
     terminalState: v.optional(
-      v.union(v.literal('recovered'), v.literal('queued'), v.literal('retirement_eligible')),
+      v.union(
+        v.literal('recovered'),
+        v.literal('queued'),
+        v.literal('retirement_eligible'),
+        v.literal('cost_blocked'),
+      ),
     ),
     provenance: v.optional(v.string()),
     failedCondition: v.optional(v.string()),
