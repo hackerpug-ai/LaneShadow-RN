@@ -14,7 +14,7 @@ import { v } from 'convex/values'
 import { api } from './_generated/api'
 import { action, mutation, query } from './_generated/server'
 import { determineGateVerdict, type GateVerdict, isAnchorInRegion } from './curatedGeometryGate'
-import { requireIdentity, requireOperator } from './guards'
+import { assertTestSubjectOrThrow, requireIdentity, requireOperator } from './guards'
 
 // ---------------------------------------------------------------------------
 // List REVIEW queue with best candidate geometry
@@ -557,7 +557,14 @@ export const retryDisposition = action({
     ),
   },
   handler: async (ctx, args): Promise<RetryDispositionResult> => {
-    await requireIdentity(ctx)
+    const identity = await requireIdentity(ctx)
+
+    // REDHAT-FIX-01: the deterministic Lever-2 test seam must be unreachable
+    // from a production identity — a real REVIEW retry must call live
+    // reconstruction, never the fixed-geometry bypass.
+    if (args.lever2FixedGeometry) {
+      assertTestSubjectOrThrow(identity.clerkUserId)
+    }
 
     const prepared: RetryDispositionResult['prepared'] = await ctx.runMutation(
       api.reviewQueue.prepareRetryDisposition,

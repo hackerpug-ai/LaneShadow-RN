@@ -10,18 +10,7 @@
 
 import { ConvexError, v } from 'convex/values'
 import { mutation } from './_generated/server'
-import { requireIdentity } from './guards'
-
-const TEST_SUBJECT_PREFIXES = [
-  's4t6-',
-  's4t5-',
-  's4t4-',
-  's4t3-',
-  's4t2-',
-  's4t1-',
-  'test:',
-  'dev-',
-]
+import { requireIdentity, TEST_SUBJECT_PREFIXES } from './guards'
 
 /**
  * Public mutation for test/dev bootstrap only.

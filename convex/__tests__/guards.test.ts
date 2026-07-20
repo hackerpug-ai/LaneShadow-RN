@@ -1,7 +1,13 @@
 import { ConvexError } from 'convex/values'
 import { describe, expect, it, vi } from 'vitest'
 
-import { ensureSession, requireFounder, requireIdentity, requireOperator } from '../guards'
+import {
+  assertTestSubjectOrThrow,
+  ensureSession,
+  requireFounder,
+  requireIdentity,
+  requireOperator,
+} from '../guards'
 
 const makeCtx = (
   identity: Record<string, unknown> | null,
@@ -238,6 +244,36 @@ describe('requireOperator (REDHAT-FIX-06)', () => {
       expect.fail('Should have thrown')
     } catch (err: any) {
       expect(err.data.code).toBe('UNAUTHENTICATED')
+    }
+  })
+})
+
+describe('assertTestSubjectOrThrow (REDHAT-FIX-01)', () => {
+  it('allows s4t5- prefix (test suite identity)', () => {
+    expect(() => assertTestSubjectOrThrow('s4t5-waterfall-lever-order')).not.toThrow()
+  })
+  it('allows test: prefix', () => {
+    expect(() => assertTestSubjectOrThrow('test:lever3-fail')).not.toThrow()
+  })
+  it('allows dev- prefix', () => {
+    expect(() => assertTestSubjectOrThrow('dev-something')).not.toThrow()
+  })
+  it('rejects the production closeout subject s4-human-gate with FORBIDDEN', () => {
+    try {
+      assertTestSubjectOrThrow('s4-human-gate')
+      expect.fail('Should have thrown ConvexError')
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(ConvexError)
+      expect(err.data.code).toBe('FORBIDDEN')
+    }
+  })
+  it('rejects a real Clerk user subject with FORBIDDEN', () => {
+    try {
+      assertTestSubjectOrThrow('user_clerk123')
+      expect.fail('Should have thrown')
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(ConvexError)
+      expect(err.data.code).toBe('FORBIDDEN')
     }
   })
 })

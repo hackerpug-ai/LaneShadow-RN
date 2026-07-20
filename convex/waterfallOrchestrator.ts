@@ -14,7 +14,7 @@ import { api, internal } from './_generated/api'
 import type { ActionCtx } from './_generated/server'
 import { action, internalMutation, mutation } from './_generated/server'
 import { geospatial } from './geospatialIndex'
-import { requireIdentity, requireOperator } from './guards'
+import { assertTestSubjectOrThrow, requireIdentity, requireOperator } from './guards'
 
 /** Estimated USD cost per Lever-2 reconstruct (LLM + geocode + routes). */
 export const COST_PER_RECONSTRUCT_USD = 0.07
@@ -472,7 +472,14 @@ export const runSampleWaterfall = action({
     skipSleep: v.optional(v.boolean()),
   },
   handler: async (ctx, args): Promise<WaterfallReport> => {
-    await requireIdentity(ctx)
+    const identity = await requireIdentity(ctx)
+
+    // REDHAT-FIX-01: deterministic test seams must be unreachable from a
+    // production closeout identity — the gate must exercise real Lever-2
+    // reconstruction on live providers, never fall back to the fixed seam.
+    if (args.lever2FixedGeometry || args.simulateRateLimitFailures || args.skipSleep) {
+      assertTestSubjectOrThrow(identity.clerkUserId)
+    }
 
     const maxCost = args.maxCost ?? null
     const costPer = args.costPerReconstruct ?? COST_PER_RECONSTRUCT_USD

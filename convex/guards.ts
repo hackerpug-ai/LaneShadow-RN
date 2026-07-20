@@ -153,3 +153,41 @@ export const requireOperator = async (ctx: DbCtx): Promise<RoleIdentity> => {
 
   return resolved
 }
+
+// ──────────────────────────────────────────────────────────────────────────────
+// REDHAT-FIX-01: Test-seam subject gating
+// ──────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Identity subjects permitted to invoke deterministic test seams
+ * (lever2FixedGeometry, simulateRateLimitFailures, skipSleep). Real Clerk user
+ * subjects and the gate closeout subject (e.g. 's4-human-gate') do NOT match,
+ * so a production closeout cannot fall back to the deterministic reconstruct
+ * seam — it must exercise real Lever-2 LLM reconstruction on live providers.
+ */
+export const TEST_SUBJECT_PREFIXES = [
+  's4t6-',
+  's4t5-',
+  's4t4-',
+  's4t3-',
+  's4t2-',
+  's4t1-',
+  'test:',
+  'dev-',
+] as const
+
+/**
+ * Throw FORBIDDEN unless the caller's subject is a known test identity. Gates
+ * deterministic test seams so they are unreachable from a production closeout
+ * identity (REDHAT-FIX-01).
+ */
+export const assertTestSubjectOrThrow = (clerkUserId: string): void => {
+  const isTestSubject = TEST_SUBJECT_PREFIXES.some((p) => clerkUserId.startsWith(p))
+  if (!isTestSubject) {
+    throw new ConvexError({
+      code: ERROR_CODES.FORBIDDEN,
+      message:
+        'Test-only seam requested by a non-test identity — production closeout must use real providers',
+    })
+  }
+}
