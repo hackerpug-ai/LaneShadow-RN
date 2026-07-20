@@ -370,6 +370,9 @@ export default defineSchema({
         descriptionLength: v.number(),
       }),
     ),
+    // REDHAT-FIX-15: per-route geometry hashes captured at freeze time, so
+    // couchGateStatus can recompute them and block on post-approval drift.
+    routeHashes: v.optional(v.array(v.object({ routeId: v.string(), hash: v.string() }))),
     createdAt: v.number(),
     // FIX-10: Immutable manifest fields (migration-safe: all optional)
     manifestHash: v.optional(v.string()),

@@ -157,7 +157,7 @@ async function sha256Hex(input: string): Promise<string> {
  * Compute a per-route geometry hash from the curated_route_geometry record.
  * Uses: routeId + geometry value + verification verdict + provenance.
  */
-function computeRouteGeometryHash(routeId: string, geom: any): string {
+export function computeRouteGeometryHash(routeId: string, geom: any): string {
   const parts = [
     routeId,
     geom?.value ?? '',
@@ -174,11 +174,9 @@ function computeRouteGeometryHash(routeId: string, geom: any): string {
 async function computeManifestHash(
   routes: Array<{ routeId: string }>,
   routeGeometryHashes: Record<string, string>,
-  catalogVersion: string,
 ): Promise<string> {
   const sortedRouteIds = [...routes.map((r) => r.routeId)].sort()
   const parts = sortedRouteIds.map((rid) => `${rid}:${routeGeometryHashes[rid] ?? 'MISSING'}`)
-  parts.push(`catalog:${catalogVersion}`)
   return sha256Hex(parts.join('|'))
 }
 
@@ -663,7 +661,6 @@ export const storeCouchSample = mutation({
     // FIX-10: Validate every routeId exists in curated_routes AND has
     // gate-passing geometry (curated_route_geometry.verification.verdict === 'pass').
     const routeGeometryHashes: Record<string, string> = {}
-    const catalogVersion = 's4-trust-pipeline-v1'
     const nowMs = Date.now()
 
     for (const route of routes) {
@@ -705,14 +702,23 @@ export const storeCouchSample = mutation({
       routeGeometryHashes[route.routeId] = computeRouteGeometryHash(route.routeId, geom)
     }
 
-    // FIX-10: Compute manifest hash server-side
-    const manifestHash = await computeManifestHash(routes, routeGeometryHashes, catalogVersion)
+    // FIX-10/15: manifest hash is route-content-only (no constant catalog tag);
+    // a real per-freeze catalogVersion is then DERIVED from it (not the constant
+    // 's4-trust-pipeline-v1' the red-hat report flagged).
+    const manifestHash = await computeManifestHash(routes, routeGeometryHashes)
+    const catalogVersion = `rev-${manifestHash.slice(0, 16)}`
+    const routeHashes = routes.map((r) => ({
+      routeId: r.routeId,
+      hash: routeGeometryHashes[r.routeId] ?? 'MISSING',
+    }))
 
-    // FIX-10: Freeze the manifest immediately
+    // FIX-10/15: Freeze the manifest immediately, storing per-route geometry
+    // hashes so couchGateStatus can detect post-approval catalog/geometry drift.
     const doc = {
       sampleId,
       size: routes.length,
       routes,
+      routeHashes,
       createdAt: existing?.createdAt ?? nowMs,
       manifestHash,
       catalogVersion,

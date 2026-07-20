@@ -55,9 +55,11 @@ describe('FIX-02: classifyCatalog iterates all pages', () => {
 
     // After fix: the classifyCatalog handler should have a loop that
     // iterates through all pages, classifying each batch
-    const handlerStart = source.indexOf('classifyCatalog = action')
+    // REDHAT-FIX-13: the pagination loop lives in executeClassifyCatalog (the
+    // extracted engine); classifyCatalog is now a thin operator-only wrapper.
+    const handlerStart = source.indexOf('executeClassifyCatalog')
     expect(handlerStart).toBeGreaterThan(-1)
-    const handlerSection = source.slice(handlerStart, handlerStart + 2500)
+    const handlerSection = source.slice(handlerStart, handlerStart + 3500)
 
     // The handler should call listEligibleRouteIdsForClassification in a loop
     // and use continueCursor/isDone to paginate

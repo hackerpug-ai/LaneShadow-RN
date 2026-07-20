@@ -9,6 +9,7 @@
 import { ConvexError, v } from 'convex/values'
 import { api, internal } from './_generated/api'
 import { action, internalMutation, mutation, query } from './_generated/server'
+import { computeRouteGeometryHash } from './couchSampleAssembler'
 import { geospatial } from './geospatialIndex'
 import { requireFounder, requireIdentity, requireOperator, requireOperatorAction } from './guards'
 
@@ -222,6 +223,28 @@ export const couchGateStatus = query({
     const activeManifestHash = activeManifest.manifestHash ?? latestActivation.manifestHash ?? null
     const activeCatalogVersion =
       activeManifest.catalogVersion ?? latestActivation.catalogVersion ?? null
+
+    // REDHAT-FIX-15: recompute the frozen sample's route hashes against the
+    // CURRENT geometry. If any sampled route's geometry drifted after the
+    // manifest was frozen, the approval is stale and the gate blocks (a PASS
+    // cannot remain an unlock after a sampled route's catalog/geometry changes).
+    const frozenRouteHashes = activeManifest.routeHashes ?? []
+    for (const entry of frozenRouteHashes) {
+      const geom = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', entry.routeId))
+        .first()
+      const currentHash = computeRouteGeometryHash(entry.routeId, geom)
+      if (currentHash !== entry.hash) {
+        return {
+          allowed: false,
+          overallVerdict: null as 'pass' | 'fail' | null,
+          reason: `Couch gate blocked: route ${entry.routeId} geometry/catalog drift detected since the manifest was frozen`,
+          sampleId: activeManifest.sampleId,
+          manifestHash: activeManifestHash,
+        }
+      }
+    }
 
     // Latest pass verdict bound to THIS active manifest (sampleId + manifestHash
     // + catalogVersion). Uses the by_sampleId index then filters in-memory.

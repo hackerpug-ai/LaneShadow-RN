@@ -1986,3 +1986,26 @@ export const teardownS4T4TestRoutes = mutation({
     return { status: 'deleted', count: deleted }
   },
 })
+
+/**
+ * REDHAT-FIX-15 test support: artificially mutate a route's stored geometry so
+ * its per-route geometry hash changes. Used to prove couchGateStatus invalidates
+ * a prior approval on catalog/geometry drift (a PASS cannot remain an unlock
+ * after a sampled route's geometry changes). Test-support only.
+ */
+export const simulateGeometryDrift = mutation({
+  args: { routeId: v.string() },
+  handler: async (ctx, { routeId }) => {
+    await requireIdentity(ctx)
+    const geom = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+    if (!geom) {
+      return { routeId, drifted: false, reason: 'no geometry row' }
+    }
+    const driftedValue = `${geom.value ?? ''}__drift_${Date.now()}`
+    await ctx.db.patch(geom._id, { value: driftedValue })
+    return { routeId, drifted: true }
+  },
+})
