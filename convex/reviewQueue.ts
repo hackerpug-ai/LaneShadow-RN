@@ -11,10 +11,34 @@
  */
 
 import { v } from 'convex/values'
+import { decodePolylineGeometry, haversineMeters } from '../shared/lib/polyline'
 import { api } from './_generated/api'
 import { action, mutation, query } from './_generated/server'
 import { determineGateVerdict, type GateVerdict, isAnchorInRegion } from './curatedGeometryGate'
 import { assertTestSubjectOrThrow, requireIdentity, requireOperator } from './guards'
+
+/**
+ * REDHAT-FIX-05: Derive pointCount + routedMiles by DECODING the real candidate
+ * polyline, never trusting the stored verification record. A stale or
+ * attacker-influenced stored record must not be able to promote a geometry whose
+ * actual points/length fail the canonical gate.
+ */
+export function measureCandidateGeometry(
+  geometry: string | { value: string; precision?: number },
+): { pointCount: number; routedMiles: number } {
+  let coords: ReturnType<typeof decodePolylineGeometry> = []
+  try {
+    coords = decodePolylineGeometry(geometry as never)
+  } catch {
+    coords = []
+  }
+  const pointCount = coords.length
+  let totalMeters = 0
+  for (let i = 1; i < coords.length; i += 1) {
+    totalMeters += haversineMeters(coords[i - 1], coords[i])
+  }
+  return { pointCount, routedMiles: totalMeters / 1609.34 }
+}
 
 // ---------------------------------------------------------------------------
 // List REVIEW queue with best candidate geometry
@@ -326,7 +350,7 @@ export const approveDisposition = mutation({
           distanceFromCentroid: a.distanceFromCentroid ?? 0,
         }),
       ) ?? []
-    const anchorCount = geom?.verification?.anchorCount ?? storedAnchors.length ?? 2
+    const anchorCount = storedAnchors.length
     const gateAnchors: Array<{ lat: number; lng: number }> = storedAnchors.map((a) => ({
       lat: a.lat,
       lng: a.lng,
@@ -335,19 +359,22 @@ export const approveDisposition = mutation({
       lat: route.centroidLat ?? 34.95,
       lng: route.centroidLng ?? -120.42,
     }
-    const routedMiles = geom?.verification?.routedMiles ?? route.lengthMiles ?? 0
-    const pointCount = geom?.verification?.pointCount ?? 50
-    const ratio = geom?.verification?.ratio ?? null
-    const claimedMiles = geom?.verification?.claimedMiles ?? route.lengthMiles ?? 0
+    // FIX-05: DECODE the real candidate geometry and derive pointCount +
+    // routedMiles + ratio from it — never trust the stored verification record
+    // (a stale/attacker-influenced record must not promote bad geometry).
+    const claimedMiles = route.lengthMiles ?? geom?.verification?.claimedMiles ?? 0
+    const quarantine = route.quarantine != null
+    const measured = measureCandidateGeometry(geometry)
+    const ratio = quarantine || claimedMiles <= 0 ? null : measured.routedMiles / claimedMiles
 
     const evaluation = evaluateApprovalCandidate({
       anchorCount,
       anchors: gateAnchors,
       centroid,
-      routedMiles,
-      pointCount,
+      routedMiles: measured.routedMiles,
+      pointCount: measured.pointCount,
       ratio,
-      quarantine: route.quarantine != null,
+      quarantine,
       claimedMiles,
     })
 
@@ -396,11 +423,11 @@ export const approveDisposition = mutation({
       geometryStatus: 'generated' as const,
       anchorCount,
       anchors: storedAnchors,
-      pointCount,
+      pointCount: measured.pointCount,
       degenerate: false,
       ratio: evaluation.gateResult.ratio,
       claimedMiles,
-      routedMiles,
+      routedMiles: measured.routedMiles,
     }
 
     const geomDoc = {
