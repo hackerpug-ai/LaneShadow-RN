@@ -14,7 +14,12 @@ import { api, internal } from './_generated/api'
 import type { ActionCtx } from './_generated/server'
 import { action, internalMutation, mutation } from './_generated/server'
 import { geospatial } from './geospatialIndex'
-import { assertTestSubjectOrThrow, requireIdentity, requireOperator } from './guards'
+import {
+  assertTestSubjectOrThrow,
+  requireIdentity,
+  requireOperator,
+  requireOperatorAction,
+} from './guards'
 
 /** Estimated USD cost per Lever-2 reconstruct (LLM + geocode + routes). */
 export const COST_PER_RECONSTRUCT_USD = 0.07
@@ -806,7 +811,9 @@ export const runSampleWaterfall = action({
     maxRetries: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    await requireIdentity(ctx)
+    // REDHAT-FIX-13: provider-costing waterfall is operator-only. An ordinary
+    // authenticated rider cannot trigger paid Google/LLM recovery work.
+    await requireOperatorAction(ctx)
     return executeWaterfall(ctx, args.routeIds, args)
   },
 })

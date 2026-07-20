@@ -16,8 +16,8 @@ import { generateText, NoObjectGeneratedError, Output } from 'ai'
 import { v } from 'convex/values'
 import { z } from 'zod'
 import { internal } from '../_generated/api'
-import { action, internalAction } from '../_generated/server'
-import { requireIdentity } from '../guards'
+import { type ActionCtx, action, internalAction } from '../_generated/server'
+import { assertTestSubjectOrThrow, requireIdentity, requireOperatorAction } from '../guards'
 import { createZaiProvider, parseZaiFallback } from './agent/lib/zaiProvider'
 
 /** Stored model/provider stamp proving decorrelation from anchor extraction (gpt-4.1). */
@@ -309,10 +309,29 @@ async function classifyAndPersistOne(
 export const classifyRoute = action({
   args: {
     routeId: v.string(),
+  },
+  handler: async (ctx, { routeId }): Promise<ClassifyRouteResult> => {
+    // REDHAT-FIX-13: provider-costing classification is operator-only and the
+    // failRouteIds simulation control is NOT accepted here — a caller cannot
+    // manufacture failed/no-evidence processing outcomes.
+    await requireOperatorAction(ctx)
+    return classifyAndPersistOne(ctx, routeId, {})
+  },
+})
+
+/**
+ * REDHAT-FIX-13: test-only single-route classifier. Re-adds the failRouteIds
+ * simulation control behind assertTestSubjectOrThrow so a production identity
+ * cannot reach it.
+ */
+export const classifyRouteWithFailures = action({
+  args: {
+    routeId: v.string(),
     failRouteIds: v.optional(v.array(v.string())),
   },
   handler: async (ctx, { routeId, failRouteIds }): Promise<ClassifyRouteResult> => {
-    await requireIdentity(ctx)
+    const identity = await requireIdentity(ctx)
+    assertTestSubjectOrThrow(identity.clerkUserId)
     return classifyAndPersistOne(ctx, routeId, { failRouteIds })
   },
 })
@@ -351,148 +370,187 @@ export function buildCatalogEnumerationBatch(args: {
  * failed, and remainingUnclassified. The run is only complete when
  * remainingUnclassified === 0.
  */
-export const classifyCatalog = action({
-  args: {
-    routeIds: v.optional(v.array(v.string())),
-    failRouteIds: v.optional(v.array(v.string())),
-    /** FIX-02: resume an interrupted whole-catalog run from its persisted cursor. */
-    runId: v.optional(v.string()),
+/**
+ * Shared classification engine (REDHAT-FIX-13). Extracted so the production
+ * entry can omit the failRouteIds simulation control from its public validator
+ * while a test-only variant re-adds it behind assertTestSubjectOrThrow.
+ */
+export const executeClassifyCatalog = async (
+  ctx: ActionCtx,
+  {
+    routeIds,
+    failRouteIds,
+    runId: resumeRunId,
+  }: {
+    routeIds?: string[]
+    failRouteIds?: string[]
+    runId?: string
   },
-  handler: async (
-    ctx,
-    { routeIds, failRouteIds, runId: resumeRunId },
-  ): Promise<ClassifyCatalogResult> => {
-    await requireIdentity(ctx)
+): Promise<ClassifyCatalogResult> => {
+  // FIX-02: When no routeIds supplied, enumerate ALL eligible routes
+  // from curated_routes via bounded indexed pagination loop.
+  const batch = buildCatalogEnumerationBatch({
+    routeIds,
+    defaultBatchSize: 50,
+  })
 
-    // FIX-02: When no routeIds supplied, enumerate ALL eligible routes
-    // from curated_routes via bounded indexed pagination loop.
-    const batch = buildCatalogEnumerationBatch({
-      routeIds,
-      defaultBatchSize: 50,
-    })
+  // Total eligible estimate — will be refined by pagination
+  let totalEligible = 0
+  const results: ClassifyRouteResult[] = []
+  let runId = resumeRunId ?? null
+  let runStatus: 'running' | 'completed' | 'failed' = 'running'
+  let checkpointProcessed = 0
+  let checkpointFailed = 0
 
-    // Total eligible estimate — will be refined by pagination
-    let totalEligible = 0
-    const results: ClassifyRouteResult[] = []
-    let runId = resumeRunId ?? null
-    let runStatus: 'running' | 'completed' | 'failed' = 'running'
-    let checkpointProcessed = 0
-    let checkpointFailed = 0
-
-    if (batch.allCatalog) {
-      // FIX-02: durable whole-catalog run — resume from the persisted cursor if
-      // a runId is supplied and the run is still 'running'; otherwise begin a
-      // new run. Progress (cursor + counts) is persisted after every page so an
-      // interrupted invocation resumes instead of restarting from zero, and
-      // completion counters derive from the persisted run.
-      let cursor: string | null = null
-      let isDone = false
-      if (resumeRunId) {
-        const existing = await ctx.runQuery(internal.curatedGeometry.getClassifierRun, {
-          runId: resumeRunId,
-        })
-        if (existing && existing.status === 'running') {
-          runId = existing.runId
-          cursor = existing.cursor ?? null
-          isDone = existing.isDone
-          totalEligible = existing.totalEligible ?? 0
-          checkpointProcessed = existing.processedCount
-          checkpointFailed = existing.failedCount
-        }
+  if (batch.allCatalog) {
+    // FIX-02: durable whole-catalog run — resume from the persisted cursor if
+    // a runId is supplied and the run is still 'running'; otherwise begin a
+    // new run. Progress (cursor + counts) is persisted after every page so an
+    // interrupted invocation resumes instead of restarting from zero, and
+    // completion counters derive from the persisted run.
+    let cursor: string | null = null
+    let isDone = false
+    if (resumeRunId) {
+      const existing = await ctx.runQuery(internal.curatedGeometry.getClassifierRun, {
+        runId: resumeRunId,
+      })
+      if (existing && existing.status === 'running') {
+        runId = existing.runId
+        cursor = existing.cursor ?? null
+        isDone = existing.isDone
+        totalEligible = existing.totalEligible ?? 0
+        checkpointProcessed = existing.processedCount
+        checkpointFailed = existing.failedCount
       }
-      if (!runId) {
-        runId = `run-${Date.now()}`
-        await ctx.runMutation(internal.curatedGeometry.beginClassifierRun, {
-          runId,
-          startedAt: Date.now(),
-        })
-      }
-
-      while (!isDone) {
-        const fetchedIds: {
-          ids: string[]
-          continueCursor: string | null
-          isDone: boolean
-          totalEligible?: number
-        } = await ctx.runQuery(internal.curatedGeometry.listEligibleRouteIdsForClassification, {
-          limit: batch.batchSize,
-          cursor,
-        })
-
-        const ids = fetchedIds.ids
-        if (totalEligible === 0 && fetchedIds.totalEligible != null) {
-          totalEligible = fetchedIds.totalEligible
-        } else {
-          totalEligible += ids.length
-        }
-
-        for (const routeId of ids) {
-          const result = await classifyAndPersistOne(ctx, routeId, { failRouteIds })
-          results.push(result)
-          if (result.ok) checkpointProcessed += 1
-          else checkpointFailed += 1
-        }
-
-        cursor = fetchedIds.continueCursor
-        isDone = fetchedIds.isDone
-
-        // FIX-02: persist durable progress after each page (durable checkpoint).
-        await ctx.runMutation(internal.curatedGeometry.updateClassifierRunProgress, {
-          runId,
-          cursor,
-          processedCount: checkpointProcessed,
-          failedCount: checkpointFailed,
-          totalEligible,
-          isDone,
-        })
-
-        // Safety valve: if no new IDs were returned, stop to prevent infinite loop
-        if (ids.length === 0 && !isDone) {
-          isDone = true
-        }
-      }
-
-      await ctx.runMutation(internal.curatedGeometry.completeClassifierRun, {
+    }
+    if (!runId) {
+      runId = `run-${Date.now()}`
+      await ctx.runMutation(internal.curatedGeometry.beginClassifierRun, {
         runId,
+        startedAt: Date.now(),
+      })
+    }
+
+    while (!isDone) {
+      const fetchedIds: {
+        ids: string[]
+        continueCursor: string | null
+        isDone: boolean
+        totalEligible?: number
+      } = await ctx.runQuery(internal.curatedGeometry.listEligibleRouteIdsForClassification, {
+        limit: batch.batchSize,
+        cursor,
+      })
+
+      const ids = fetchedIds.ids
+      if (totalEligible === 0 && fetchedIds.totalEligible != null) {
+        totalEligible = fetchedIds.totalEligible
+      } else {
+        totalEligible += ids.length
+      }
+
+      for (const routeId of ids) {
+        const result = await classifyAndPersistOne(ctx, routeId, { failRouteIds })
+        results.push(result)
+        if (result.ok) checkpointProcessed += 1
+        else checkpointFailed += 1
+      }
+
+      cursor = fetchedIds.continueCursor
+      isDone = fetchedIds.isDone
+
+      // FIX-02: persist durable progress after each page (durable checkpoint).
+      await ctx.runMutation(internal.curatedGeometry.updateClassifierRunProgress, {
+        runId,
+        cursor,
         processedCount: checkpointProcessed,
         failedCount: checkpointFailed,
         totalEligible,
+        isDone,
       })
-      runStatus = 'completed'
-    } else {
-      // Caller-supplied routeIds — process directly
-      totalEligible = batch.routeIds.length
-      for (const routeId of batch.routeIds) {
-        const result = await classifyAndPersistOne(ctx, routeId, { failRouteIds })
-        results.push(result)
+
+      // Safety valve: if no new IDs were returned, stop to prevent infinite loop
+      if (ids.length === 0 && !isDone) {
+        isDone = true
       }
     }
 
-    if (totalEligible === 0) {
-      return {
-        classified: 0,
-        failed: 0,
-        results: [],
-        totalEligible: 0,
-        remainingUnclassified: 0,
-        runId: runId ?? undefined,
-        runStatus,
-      }
-    }
-
-    const classified = batch.allCatalog ? checkpointProcessed : results.filter((r) => r.ok).length
-    const failed = batch.allCatalog ? checkpointFailed : results.filter((r) => !r.ok).length
-    const remainingUnclassified = Math.max(0, totalEligible - classified - failed)
-
-    return {
-      classified,
-      failed,
-      results,
+    await ctx.runMutation(internal.curatedGeometry.completeClassifierRun, {
+      runId,
+      processedCount: checkpointProcessed,
+      failedCount: checkpointFailed,
       totalEligible,
-      remainingUnclassified,
+    })
+    runStatus = 'completed'
+  } else {
+    // Caller-supplied routeIds — process directly
+    totalEligible = batch.routeIds.length
+    for (const routeId of batch.routeIds) {
+      const result = await classifyAndPersistOne(ctx, routeId, { failRouteIds })
+      results.push(result)
+    }
+  }
+
+  if (totalEligible === 0) {
+    return {
+      classified: 0,
+      failed: 0,
+      results: [],
+      totalEligible: 0,
+      remainingUnclassified: 0,
       runId: runId ?? undefined,
       runStatus,
     }
+  }
+
+  const classified = batch.allCatalog ? checkpointProcessed : results.filter((r) => r.ok).length
+  const failed = batch.allCatalog ? checkpointFailed : results.filter((r) => !r.ok).length
+  const remainingUnclassified = Math.max(0, totalEligible - classified - failed)
+
+  return {
+    classified,
+    failed,
+    results,
+    totalEligible,
+    remainingUnclassified,
+    runId: runId ?? undefined,
+    runStatus,
+  }
+}
+
+/**
+ * REDHAT-FIX-13: production classifier entry. The failRouteIds simulation
+ * control is NOT accepted here — a caller cannot manufacture failed/no-evidence
+ * processing outcomes. Operator-only so paid z.ai classification cannot be
+ * triggered by an ordinary rider.
+ */
+export const classifyCatalog = action({
+  args: {
+    routeIds: v.optional(v.array(v.string())),
+    /** FIX-02: resume an interrupted whole-catalog run from its persisted cursor. */
+    runId: v.optional(v.string()),
+  },
+  handler: async (ctx, { routeIds, runId }): Promise<ClassifyCatalogResult> => {
+    await requireOperatorAction(ctx)
+    return executeClassifyCatalog(ctx, { routeIds, runId })
+  },
+})
+
+/**
+ * REDHAT-FIX-13: test-only classifier entry. Re-adds the failRouteIds
+ * simulation control behind assertTestSubjectOrThrow so a production identity
+ * cannot manufacture failed/no-evidence outcomes.
+ */
+export const classifyCatalogWithFailures = action({
+  args: {
+    routeIds: v.optional(v.array(v.string())),
+    failRouteIds: v.optional(v.array(v.string())),
+    runId: v.optional(v.string()),
+  },
+  handler: async (ctx, { routeIds, failRouteIds, runId }): Promise<ClassifyCatalogResult> => {
+    const identity = await requireIdentity(ctx)
+    assertTestSubjectOrThrow(identity.clerkUserId)
+    return executeClassifyCatalog(ctx, { routeIds, failRouteIds, runId })
   },
 })
 

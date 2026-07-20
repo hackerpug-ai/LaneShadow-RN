@@ -96,9 +96,11 @@ describe('AC-4: Classifier failures isolated; pipeline continues', () => {
     )
     expect(seed.ok, `seedRoutesForErrorTesting failed: ${seed.stderr}\n${seed.stdout}`).toBe(true)
 
-    console.log('🤖 Running classifyCatalog with failRouteIds for route 3...')
+    console.log('🤖 Running classifyCatalogWithFailures with failRouteIds for route 3...')
     const classify = runConvexFn(
-      'actions/rideWorthinessClassifier:classifyCatalog',
+      // REDHAT-FIX-13: failRouteIds is a test-only simulation control; route it
+      // to the test-only entry (subject has the s4t4- test prefix).
+      'actions/rideWorthinessClassifier:classifyCatalogWithFailures',
       {
         routeIds: [...ALL_IDS],
         failRouteIds: [FAIL_ID],

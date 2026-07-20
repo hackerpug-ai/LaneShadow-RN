@@ -93,6 +93,16 @@ describe('AC-1: Classifier runs on catalog routes and stores verdict as evidence
     )
     expect(seed.ok, `seedCatalogWithMixedRows failed: ${seed.stderr}\n${seed.stdout}`).toBe(true)
 
+    console.log(
+      '🔐 Bootstrapping operator role (REDHAT-FIX-13: classifyCatalog is operator-only)...',
+    )
+    const setup = runConvexFn(
+      'testSupport:devSetupFounderUser',
+      { clerkUserId: 's4t4-classify-catalog-test', role: 'operator' },
+      { identity: true },
+    )
+    expect(setup.ok, `devSetupFounderUser failed: ${setup.stderr}`).toBe(true)
+
     console.log('🤖 Running classifyCatalog over mixed routes (real z.ai GLM-5.2)...')
     const classify = runConvexFn(
       'actions/rideWorthinessClassifier:classifyCatalog',

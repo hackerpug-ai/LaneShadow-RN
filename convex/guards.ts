@@ -154,6 +154,33 @@ export const requireOperator = async (ctx: DbCtx): Promise<RoleIdentity> => {
   return resolved
 }
 
+/**
+ * ACTION-side operator guard. REDHAT-FIX-13.
+ *
+ * Actions (runSampleWaterfall, runAllWaterfall, classifyRoute, classifyCatalog)
+ * lack ctx.db, so they cannot call the mutation/query `requireOperator`. This
+ * resolves the caller's role via the getSession query and throws FORBIDDEN for
+ * non-operator callers, so provider-costing (live Google/LLM) work cannot be
+ * triggered by an ordinary authenticated rider. Server-owned: the role is read
+ * from the users table, never accepted from the client.
+ */
+export const requireOperatorAction = async (ctx: ActionCtx): Promise<RoleIdentity> => {
+  const base = await requireIdentity(ctx)
+  const session = await ctx.runQuery(api.db.users.getSession)
+  const roleField = (session as { user?: { role?: string } } | null)?.user?.role
+  const role: 'founder' | 'operator' | 'rider' =
+    roleField === 'founder' || roleField === 'operator' ? roleField : 'rider'
+
+  if (!OPERATOR_ROLES.has(role)) {
+    throw new ConvexError({
+      code: ERROR_CODES.FORBIDDEN,
+      message: 'Operator or founder role required for provider-costing operations',
+    })
+  }
+
+  return { ...base, role }
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // REDHAT-FIX-01: Test-seam subject gating
 // ──────────────────────────────────────────────────────────────────────────────

@@ -83,6 +83,14 @@ describe('AC-2: FHWA freeway classified as not_a_ride; geometry still attempted'
     )
     expect(seed.ok, `seedFHWAFreewayRow failed: ${seed.stderr}\n${seed.stdout}`).toBe(true)
 
+    console.log('🔐 Bootstrapping operator role (REDHAT-FIX-13: classifyRoute is operator-only)...')
+    const setup = runConvexFn(
+      'testSupport:devSetupFounderUser',
+      { clerkUserId: 's4t4-freeway-classification-test', role: 'operator' },
+      { identity: true },
+    )
+    expect(setup.ok, `devSetupFounderUser failed: ${setup.stderr}`).toBe(true)
+
     console.log('🤖 Classifying freeway via real z.ai GLM-5.2...')
     const classify = runConvexFn(
       'actions/rideWorthinessClassifier:classifyRoute',

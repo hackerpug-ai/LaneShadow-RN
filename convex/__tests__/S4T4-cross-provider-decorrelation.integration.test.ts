@@ -82,6 +82,14 @@ describe('AC-6: Cross-provider decorrelation (z.ai vs gpt-4.1 anchors)', () => {
     )
     expect(seed.ok, `seed failed: ${seed.stderr}\n${seed.stdout}`).toBe(true)
 
+    console.log('🔐 Bootstrapping operator role (REDHAT-FIX-13: classifyRoute is operator-only)...')
+    const setup = runConvexFn(
+      'testSupport:devSetupFounderUser',
+      { clerkUserId: 's4t4-cross-provider-decorrelation-test', role: 'operator' },
+      { identity: true },
+    )
+    expect(setup.ok, `devSetupFounderUser failed: ${setup.stderr}`).toBe(true)
+
     console.log('🤖 Classifying with real z.ai GLM-5.2...')
     const classify = runConvexFn(
       'actions/rideWorthinessClassifier:classifyRoute',

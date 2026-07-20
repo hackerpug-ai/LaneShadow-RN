@@ -10,7 +10,7 @@ import { ConvexError, v } from 'convex/values'
 import { api, internal } from './_generated/api'
 import { action, internalMutation, mutation, query } from './_generated/server'
 import { geospatial } from './geospatialIndex'
-import { requireFounder, requireIdentity, requireOperator } from './guards'
+import { requireFounder, requireIdentity, requireOperator, requireOperatorAction } from './guards'
 
 const routeVerdictValidator = v.object({
   routeId: v.string(),
@@ -451,7 +451,8 @@ export const runAllWaterfall = action({
     maxCost: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<RunAllWaterfallResult> => {
-    await requireIdentity(ctx)
+    // REDHAT-FIX-13: full-batch provider-costing waterfall is operator-only.
+    await requireOperatorAction(ctx)
 
     const gate = (await ctx.runQuery(api.couchVerdict.couchGateStatus, {})) as CouchGateSnapshot
     if (!gate.allowed) {
