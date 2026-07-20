@@ -88,4 +88,46 @@ describe('REDHAT-FIX-01 — deterministic seams unreachable from production iden
     })
     assertSeamBlocked(result, 'retryDisposition lever2FixedGeometry')
   })
+
+  // The fixed-geometry ACTIONS are the underlying deterministic seam. Even with
+  // runSampleWaterfall gated, a production caller could call these directly to
+  // manufacture gate-passing geometry with ai_reconstructed provenance.
+  it('AC-5: reconstructForRouteWithFixedGeometry is FORBIDDEN from a production subject (direct-action bypass)', () => {
+    const result = runConvexFn('curatedGeometryReconstruct:reconstructForRouteWithFixedGeometry', {
+      routeId: 'test:any',
+      routedMiles: 41,
+      pointCount: 80,
+      anchorCount: 2,
+      claimedMiles: 41,
+    })
+    assertSeamBlocked(result, 'reconstructForRouteWithFixedGeometry')
+  })
+
+  it('AC-6: reconstructForRouteWithFixedAnchors is FORBIDDEN from a production subject', () => {
+    const result = runConvexFn('curatedGeometryReconstruct:reconstructForRouteWithFixedAnchors', {
+      routeId: 'test:any',
+      anchorCount: 2,
+      claimedMiles: 41,
+    })
+    assertSeamBlocked(result, 'reconstructForRouteWithFixedAnchors')
+  })
+
+  it('AC-7: reconstructForRouteWithMixedAnchors is FORBIDDEN from a production subject', () => {
+    const result = runConvexFn('curatedGeometryReconstruct:reconstructForRouteWithMixedAnchors', {
+      routeId: 'test:any',
+      inRegionCount: 2,
+      offRegionCount: 1,
+    })
+    assertSeamBlocked(result, 'reconstructForRouteWithMixedAnchors')
+  })
+
+  it('AC-8: seedLever1Fixtures is FORBIDDEN from a production subject (cannot manufacture test evidence)', () => {
+    const result = runConvexFn('curatedGeometryReconstruct:seedLever1Fixtures', {})
+    assertSeamBlocked(result, 'seedLever1Fixtures')
+  })
+
+  it('AC-9: teardownLeverTestRoutes is FORBIDDEN from a production subject (cannot erase test evidence)', () => {
+    const result = runConvexFn('curatedGeometryReconstruct:teardownLeverTestRoutes', {})
+    assertSeamBlocked(result, 'teardownLeverTestRoutes')
+  })
 })

@@ -20,7 +20,7 @@ import {
   isDegenerate,
 } from './curatedGeometryGate'
 import { geospatial } from './geospatialIndex'
-import { requireIdentity } from './guards'
+import { assertTestSubjectOrThrow, requireIdentity } from './guards'
 import {
   geocodeBoundsForCentroid,
   type ParseRouteNameResult,
@@ -48,7 +48,11 @@ export const reconstructForRouteWithFixedGeometry = action({
     claimedMiles: v.optional(v.union(v.number(), v.null())),
   },
   handler: async (ctx, args): Promise<ReconstructPersistResult> => {
-    await requireIdentity(ctx)
+    const identity = await requireIdentity(ctx)
+    // REDHAT-FIX-01 (N1): deterministic-seam action must be unreachable from a
+    // production identity, else the runSampleWaterfall test-subject gate is
+    // bypassed by a direct call manufacturing gate-passing geometry.
+    assertTestSubjectOrThrow(identity.clerkUserId)
     return ctx.runAction(
       internal.actions.curatedGeometryReconstruct.reconstructForRouteWithFixedGeometry,
       args,
@@ -63,7 +67,8 @@ export const reconstructForRouteWithFixedAnchors = action({
     claimedMiles: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<ReconstructPersistResult> => {
-    await requireIdentity(ctx)
+    const identity = await requireIdentity(ctx)
+    assertTestSubjectOrThrow(identity.clerkUserId)
     return ctx.runAction(
       internal.actions.curatedGeometryReconstruct.reconstructForRouteWithFixedAnchors,
       args,
@@ -78,7 +83,8 @@ export const reconstructForRouteWithMixedAnchors = action({
     offRegionCount: v.number(),
   },
   handler: async (ctx, args): Promise<ReconstructPersistResult> => {
-    await requireIdentity(ctx)
+    const identity = await requireIdentity(ctx)
+    assertTestSubjectOrThrow(identity.clerkUserId)
     return ctx.runAction(
       internal.actions.curatedGeometryReconstruct.reconstructForRouteWithMixedAnchors,
       args,
@@ -1109,7 +1115,11 @@ async function upsertLeverTestRoute(
 export const seedLever1Fixtures = mutation({
   args: {},
   handler: async (ctx) => {
-    await requireIdentity(ctx)
+    const identity = await requireIdentity(ctx)
+    // REDHAT-FIX-08 (N2): test-fixture seed must be unreachable from a
+    // production identity — cannot let authenticated callers manufacture
+    // gate-passing test evidence.
+    assertTestSubjectOrThrow(identity.clerkUserId)
     return {
       pass: await upsertLeverTestRoute(ctx, {
         routeId: 'test:lever1-pass',
@@ -1132,7 +1142,8 @@ export const seedLever1Fixtures = mutation({
 export const seedLever3Fixtures = mutation({
   args: {},
   handler: async (ctx) => {
-    await requireIdentity(ctx)
+    const identity = await requireIdentity(ctx)
+    assertTestSubjectOrThrow(identity.clerkUserId)
     return {
       hwy: await upsertLeverTestRoute(ctx, {
         routeId: 'test:lever3-hwy',
@@ -1175,7 +1186,10 @@ export const seedLever3Fixtures = mutation({
 export const teardownLeverTestRoutes = mutation({
   args: {},
   handler: async (ctx) => {
-    await requireIdentity(ctx)
+    const identity = await requireIdentity(ctx)
+    // REDHAT-FIX-08 (N2): teardown must be unreachable from a production
+    // identity — cannot let authenticated callers erase trust evidence.
+    assertTestSubjectOrThrow(identity.clerkUserId)
     const ids = [
       'test:lever1-pass',
       'test:lever1-fail',
