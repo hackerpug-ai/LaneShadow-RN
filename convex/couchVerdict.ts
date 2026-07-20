@@ -224,12 +224,37 @@ export const couchGateStatus = query({
     const activeCatalogVersion =
       activeManifest.catalogVersion ?? latestActivation.catalogVersion ?? null
 
+    // REDHAT-FIX-16: a frozen manifest MUST carry a COMPLETE geometry-hash
+    // baseline — exactly one hash per sampled routeId, no duplicates, no extras.
+    // A pre-FIX-15 / legacy manifest with absent/empty/incomplete/duplicate
+    // routeHashes cannot be drift-checked, so it FAILS CLOSED instead of
+    // skipping the loop and falling through to a bound-pass unlock. (The only
+    // reachable way to such a manifest is a pre-FIX-15 freeze or a legacy
+    // migration; the current freeze always writes a complete baseline.)
+    const sampledRouteIds = (activeManifest.routes ?? []).map((r: { routeId: string }) => r.routeId)
+    const frozenHashes = activeManifest.routeHashes ?? []
+    const baselineRouteIds = frozenHashes.map((h: { routeId: string }) => h.routeId)
+    const baselineSet = new Set(baselineRouteIds)
+    const baselineIsComplete =
+      frozenHashes.length > 0 &&
+      baselineSet.size === baselineRouteIds.length &&
+      sampledRouteIds.every((id) => baselineSet.has(id)) &&
+      baselineRouteIds.every((id) => sampledRouteIds.includes(id))
+    if (!baselineIsComplete) {
+      return {
+        allowed: false,
+        overallVerdict: null as 'pass' | 'fail' | null,
+        reason: `Couch gate blocked: active manifest ${activeManifest.sampleId} has an incomplete/missing geometry-hash baseline — re-freeze required`,
+        sampleId: activeManifest.sampleId,
+        manifestHash: activeManifestHash,
+      }
+    }
+
     // REDHAT-FIX-15: recompute the frozen sample's route hashes against the
     // CURRENT geometry. If any sampled route's geometry drifted after the
     // manifest was frozen, the approval is stale and the gate blocks (a PASS
     // cannot remain an unlock after a sampled route's catalog/geometry changes).
-    const frozenRouteHashes = activeManifest.routeHashes ?? []
-    for (const entry of frozenRouteHashes) {
+    for (const entry of frozenHashes) {
       const geom = await ctx.db
         .query('curated_route_geometry')
         .withIndex('by_routeId', (q) => q.eq('routeId', entry.routeId))

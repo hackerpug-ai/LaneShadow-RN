@@ -12,7 +12,13 @@ import { api, internal } from './_generated/api'
 import { action, internalMutation, mutation, query } from './_generated/server'
 import { buildFixturePolyline } from './couchRouteMapPng'
 import { geospatial } from './geospatialIndex'
-import { requireFounder, requireIdentity, requireOperator, requireOperatorAction } from './guards'
+import {
+  assertTestSubjectOrThrow,
+  requireFounder,
+  requireIdentity,
+  requireOperator,
+  requireOperatorAction,
+} from './guards'
 
 // Re-export fixture polyline builder for callers/tests.
 export {
@@ -733,6 +739,144 @@ export const storeCouchSample = mutation({
     }
     await ctx.db.insert('couch_samples', doc)
     return { sampleId, size: routes.length, replaced: false, manifestHash, status: 'frozen' }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// REDHAT-FIX-16: Legacy-manifest migration / re-freeze + test support
+// ---------------------------------------------------------------------------
+
+/**
+ * REDHAT-FIX-16: Operator-authorized migration / re-freeze for a legacy couch
+ * manifest. Recomputes a COMPLETE routeHashes baseline against the CURRENT
+ * curated_route_geometry for each sampled route and persists a NEW frozen
+ * manifest (fresh manifestHash / catalogVersion) under targetSampleId.
+ *
+ * This does NOT activate the new manifest and does NOT inherit the old bound
+ * PASS — the old verdict is bound to sourceSampleId's manifestHash, so after a
+ * fresh activateCouchManifest(targetSampleId) the gate still blocks until an
+ * operator records a fresh recordCouchVerdict(pass) against the new
+ * manifestHash. Reuses the FIX-14 explicit-activation pattern (no auto-rotate).
+ */
+export const refreezeCouchManifest = mutation({
+  args: {
+    sourceSampleId: v.string(),
+    targetSampleId: v.string(),
+  },
+  handler: async (ctx, { sourceSampleId, targetSampleId }) => {
+    const identity = await requireOperator(ctx)
+
+    const source = await ctx.db
+      .query('couch_samples')
+      .withIndex('by_sampleId', (q) => q.eq('sampleId', sourceSampleId))
+      .first()
+    if (!source || source.status !== 'frozen') {
+      throw new ConvexError({
+        code: 'MANIFEST_NOT_FROZEN',
+        message: `Source manifest ${sourceSampleId} is not frozen`,
+      })
+    }
+    const routes = source.routes ?? []
+    if (routes.length < COUCH_SAMPLE_MIN || routes.length > COUCH_SAMPLE_MAX) {
+      throw new ConvexError({
+        code: 'INVALID_SAMPLE_SIZE',
+        message: `Source manifest has ${routes.length} routes; expected ${COUCH_SAMPLE_MIN}–${COUCH_SAMPLE_MAX}`,
+      })
+    }
+
+    const existing = await ctx.db
+      .query('couch_samples')
+      .withIndex('by_sampleId', (q) => q.eq('sampleId', targetSampleId))
+      .first()
+    if (existing?.status === 'frozen') {
+      throw new ConvexError({
+        code: 'MANIFEST_ALREADY_FROZEN',
+        message: `Target manifest ${targetSampleId} is already frozen — choose a new sampleId`,
+      })
+    }
+
+    // Recompute a complete routeHashes baseline against CURRENT geometry.
+    const routeGeometryHashes: Record<string, string> = {}
+    for (const route of routes) {
+      const geom = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', route.routeId))
+        .first()
+      if (!geom) {
+        throw new ConvexError({
+          code: 'GEOMETRY_NOT_FOUND',
+          message: `Route ${route.routeId} has no curated_route_geometry record`,
+        })
+      }
+      routeGeometryHashes[route.routeId] = computeRouteGeometryHash(route.routeId, geom)
+    }
+
+    const manifestHash = await computeManifestHash(routes, routeGeometryHashes)
+    const catalogVersion = `rev-${manifestHash.slice(0, 16)}`
+    const routeHashes = routes.map((r) => ({
+      routeId: r.routeId,
+      hash: routeGeometryHashes[r.routeId] ?? 'MISSING',
+    }))
+
+    const nowMs = Date.now()
+    const doc = {
+      sampleId: targetSampleId,
+      size: routes.length,
+      routes,
+      routeHashes,
+      createdAt: existing?.createdAt ?? nowMs,
+      manifestHash,
+      catalogVersion,
+      status: 'frozen' as const,
+      frozenAt: nowMs,
+      frozenBy: identity.clerkUserId,
+    }
+
+    if (existing) {
+      await ctx.db.replace(existing._id, doc)
+    } else {
+      await ctx.db.insert('couch_samples', doc)
+    }
+
+    return {
+      sampleId: targetSampleId,
+      sourceSampleId,
+      size: routes.length,
+      manifestHash,
+      catalogVersion,
+      routeHashesCount: routeHashes.length,
+      status: 'frozen' as const,
+    }
+  },
+})
+
+/**
+ * REDHAT-FIX-16 (test support): Reduce a frozen manifest's routeHashes baseline
+ * to emulate a pre-FIX-15 / legacy manifest (absent/empty/incomplete/duplicate).
+ * The current freeze always writes a complete baseline, so this is the only
+ * reachable way to a hash-less or incomplete frozen manifest for the fail-closed
+ * test. Operator + test-prefix-subject gated — never reachable from production.
+ */
+export const setManifestRouteHashesForTest = mutation({
+  args: {
+    sampleId: v.string(),
+    routeHashes: v.array(v.object({ routeId: v.string(), hash: v.string() })),
+  },
+  handler: async (ctx, { sampleId, routeHashes }) => {
+    const identity = await requireOperator(ctx)
+    assertTestSubjectOrThrow(identity.clerkUserId)
+    const manifest = await ctx.db
+      .query('couch_samples')
+      .withIndex('by_sampleId', (q) => q.eq('sampleId', sampleId))
+      .first()
+    if (!manifest) {
+      throw new ConvexError({
+        code: 'MANIFEST_NOT_FOUND',
+        message: `No couch sample found for sampleId '${sampleId}'`,
+      })
+    }
+    await ctx.db.patch(manifest._id, { routeHashes })
+    return { sampleId, routeHashesCount: routeHashes.length }
   },
 })
 
