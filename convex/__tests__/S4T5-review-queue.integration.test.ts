@@ -75,7 +75,7 @@ describe('AC-5: REVIEW queue receives failed routes with best candidate', () => 
 
     // L2 fixed geometry fails ratio (routed 200 vs claimed 10) but still produces geometry
     const run = runConvexFn(
-      'waterfallOrchestrator:runSampleWaterfall',
+      'waterfallOrchestrator:runSampleWaterfallWithSeams',
       {
         routeIds: [ROUTE_ID],
         maxCost: 10,

@@ -81,7 +81,7 @@ describe('AC-3: Cost circuit-breaker enforces max-cost', () => {
     routeIds = JSON.parse(seed.stdout).seeded as string[]
 
     const run = runConvexFn(
-      'waterfallOrchestrator:runSampleWaterfall',
+      'waterfallOrchestrator:runSampleWaterfallWithSeams',
       {
         routeIds,
         maxCost: MAX_COST,

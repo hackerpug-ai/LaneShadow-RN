@@ -456,109 +456,201 @@ const lever2FixedGeometryValidator = v.object({
   claimedMiles: v.optional(v.union(v.number(), v.null())),
 })
 
-export const runSampleWaterfall = action({
-  args: {
-    routeIds: v.array(v.string()),
-    maxCost: v.optional(v.number()),
-    costPerReconstruct: v.optional(v.number()),
-    maxRetries: v.optional(v.number()),
-    /** When set, Lever 2 uses production fixed-geometry reconstruct (deterministic). */
-    lever2FixedGeometry: v.optional(lever2FixedGeometryValidator),
-    /**
-     * Test seam: force Lever 2 to throw rate-limit errors N times before succeeding
-     * (or exhausting retries). Does not call external APIs.
-     */
-    simulateRateLimitFailures: v.optional(v.number()),
-    /** When true, sleep is a no-op so backoff tests finish instantly. */
-    skipSleep: v.optional(v.boolean()),
+async function executeWaterfall(
+  ctx: ActionCtx,
+  routeIds: string[],
+  options: {
+    maxCost?: number | null
+    costPerReconstruct?: number
+    maxRetries?: number
+    lever2FixedGeometry?: {
+      routedMiles: number
+      pointCount?: number
+      anchorCount?: number
+      claimedMiles?: number | null
+    }
+    simulateRateLimitFailures?: number
+    skipSleep?: boolean
   },
-  handler: async (ctx, args): Promise<WaterfallReport> => {
-    const identity = await requireIdentity(ctx)
+): Promise<WaterfallReport> {
+  const maxCost = options.maxCost ?? null
+  const costPer = options.costPerReconstruct ?? COST_PER_RECONSTRUCT_USD
+  const maxRetries = options.maxRetries ?? DEFAULT_MAX_RETRIES
+  const backoffScheduleSeconds = computeBackoffDelaysSeconds(maxRetries)
+  const sleep = options.skipSleep
+    ? async () => {
+        /* no-op for tests */
+      }
+    : undefined
+  let remainingRateLimitSim = options.simulateRateLimitFailures ?? 0
 
-    // REDHAT-FIX-01: deterministic test seams must be unreachable from a
-    // production closeout identity — the gate must exercise real Lever-2
-    // reconstruction on live providers, never fall back to the fixed seam.
-    if (args.lever2FixedGeometry || args.simulateRateLimitFailures || args.skipSleep) {
-      assertTestSubjectOrThrow(identity.clerkUserId)
-    }
+  let totalCostUsd = 0
+  let batchStopReason: WaterfallReport['batchStopReason'] = 'completed'
+  let costExceededMessage: string | null = null
 
-    const maxCost = args.maxCost ?? null
-    const costPer = args.costPerReconstruct ?? COST_PER_RECONSTRUCT_USD
-    const maxRetries = args.maxRetries ?? DEFAULT_MAX_RETRIES
-    const backoffScheduleSeconds = computeBackoffDelaysSeconds(maxRetries)
-    const sleep = args.skipSleep
-      ? async () => {
-          /* no-op for tests */
-        }
-      : undefined
-    let remainingRateLimitSim = args.simulateRateLimitFailures ?? 0
+  const routes: RouteWaterfallResult[] = []
+  const perLeverCounts = { lever1: 0, lever2: 0, lever3: 0 }
+  const perStateCounts = {
+    recovered: 0,
+    queued: 0,
+    retirement_eligible: 0,
+    cost_blocked: 0,
+    skipped: 0,
+  }
 
-    let totalCostUsd = 0
-    let batchStopReason: WaterfallReport['batchStopReason'] = 'completed'
-    let costExceededMessage: string | null = null
+  for (const routeId of routeIds) {
+    // Cost circuit-breaker: stop before starting a route that would need L2
+    // when the next reconstruct would exceed budget. Checked again before L2.
 
-    const routes: RouteWaterfallResult[] = []
-    const perLeverCounts = { lever1: 0, lever2: 0, lever3: 0 }
-    const perStateCounts = {
-      recovered: 0,
-      queued: 0,
-      retirement_eligible: 0,
-      cost_blocked: 0,
-      skipped: 0,
-    }
+    const routeMeta = await ctx.runQuery(api.curatedGeometryReconstruct.getRouteForReading, {
+      routeId,
+    })
 
-    for (const routeId of args.routeIds) {
-      // Cost circuit-breaker: stop before starting a route that would need L2
-      // when the next reconstruct would exceed budget. Checked again before L2.
-
-      const routeMeta = await ctx.runQuery(api.curatedGeometryReconstruct.getRouteForReading, {
+    // Resume: skip already-PASSed
+    if (routeMeta?.geometryStatus === 'generated') {
+      const skipped: RouteWaterfallResult = {
         routeId,
-      })
+        terminalState: 'recovered',
+        skipped: true,
+        reprocessed: false,
+        leversRun: [],
+        provenance: undefined,
+        costUsd: 0,
+      }
+      routes.push(skipped)
+      perStateCounts.skipped += 1
+      continue
+    }
 
-      // Resume: skip already-PASSed
-      if (routeMeta?.geometryStatus === 'generated') {
-        const skipped: RouteWaterfallResult = {
-          routeId,
-          terminalState: 'recovered',
-          skipped: true,
-          reprocessed: false,
-          leversRun: [],
-          provenance: undefined,
-          costUsd: 0,
-        }
-        routes.push(skipped)
-        perStateCounts.skipped += 1
-        continue
+    const leversRun: number[] = []
+    let lever1Failed = false
+    let lever2Failed = false
+    let costUsd = 0
+    let terminalState: TerminalState = 'retirement_eligible'
+    let provenance: RouteWaterfallResult['provenance']
+    let failedCondition: string | null | undefined
+    let bestCandidateGeometry: string | null = null
+
+    // ----- Lever 1: promote -----
+    leversRun.push(1)
+    perLeverCounts.lever1 += 1
+    const l1Wrapped = await withExponentialBackoff(
+      async () => {
+        return ctx.runAction(api.curatedGeometryReconstruct.promoteForRoute, { routeId })
+      },
+      { maxRetries, sleep },
+    )
+    const l1 = l1Wrapped.result as {
+      disposition: string
+      provenance?: string
+      failedCondition?: string
+      geometry?: string
+    }
+
+    if (l1.disposition === 'generated') {
+      terminalState = 'recovered'
+      provenance = 'scraped_promoted'
+      const result: RouteWaterfallResult = {
+        routeId,
+        terminalState,
+        skipped: false,
+        reprocessed: false,
+        leversRun,
+        provenance,
+        costUsd: 0,
+      }
+      routes.push(result)
+      perStateCounts.recovered += 1
+      await recordTerminalArtifact(ctx, result)
+      continue
+    }
+    lever1Failed = true
+    if (l1.geometry) bestCandidateGeometry = l1.geometry
+
+    // ----- Cost check before Lever 2 -----
+    if (maxCost != null && totalCostUsd + costPer > maxCost) {
+      batchStopReason = 'cost_exceeded'
+      costExceededMessage = `cost_exceeded: totalCost $${totalCostUsd.toFixed(2)} + next $${costPer.toFixed(2)} would exceed maxCost $${maxCost.toFixed(2)}`
+      // FIX-09: the cost-limited route still ends in exactly one durable
+      // terminal state (cost_blocked) — a restart can distinguish an
+      // untouched route from an interrupted/cost-blocked one, and the
+      // exactly-one-terminal-state invariant holds.
+      const costBlocked: RouteWaterfallResult = {
+        routeId,
+        terminalState: 'cost_blocked',
+        skipped: false,
+        reprocessed: false,
+        leversRun,
+        provenance: undefined,
+        failedCondition: 'cost_exceeded',
+        costUsd: 0,
+      }
+      routes.push(costBlocked)
+      perStateCounts.cost_blocked += 1
+      await recordTerminalArtifact(ctx, costBlocked)
+      // Stop the batch; this route was not fully processed (L2 not attempted).
+      break
+    }
+
+    // ----- Lever 2: reconstruct -----
+    leversRun.push(2)
+    perLeverCounts.lever2 += 1
+
+    try {
+      if (remainingRateLimitSim > 0) {
+        // Pure rate-limit exercise path (AC-4) — only once per batch
+        let failuresLeft = remainingRateLimitSim
+        remainingRateLimitSim = 0
+        await withExponentialBackoff(
+          async () => {
+            if (failuresLeft > 0) {
+              failuresLeft -= 1
+              const err = new Error('Google API 429 rate limit') as RateLimitError
+              err.status = 429
+              err.isRateLimit = true
+              throw err
+            }
+            return { ok: true }
+          },
+          { maxRetries, sleep },
+        )
       }
 
-      const leversRun: number[] = []
-      let lever1Failed = false
-      let lever2Failed = false
-      let costUsd = 0
-      let terminalState: TerminalState = 'retirement_eligible'
-      let provenance: RouteWaterfallResult['provenance']
-      let failedCondition: string | null | undefined
-      let bestCandidateGeometry: string | null = null
-
-      // ----- Lever 1: promote -----
-      leversRun.push(1)
-      perLeverCounts.lever1 += 1
-      const l1Wrapped = await withExponentialBackoff(
+      const l2Wrapped = await withExponentialBackoff(
         async () => {
-          return ctx.runAction(api.curatedGeometryReconstruct.promoteForRoute, { routeId })
+          if (options.lever2FixedGeometry) {
+            return ctx.runAction(
+              api.curatedGeometryReconstruct.reconstructForRouteWithFixedGeometry,
+              {
+                routeId,
+                routedMiles: options.lever2FixedGeometry.routedMiles,
+                pointCount: options.lever2FixedGeometry.pointCount,
+                anchorCount: options.lever2FixedGeometry.anchorCount,
+                claimedMiles: options.lever2FixedGeometry.claimedMiles,
+              },
+            )
+          }
+          return ctx.runAction(api.curatedGeometryReconstruct.reconstructForRoute, {
+            routeId,
+          })
         },
         { maxRetries, sleep },
       )
-      const l1 = l1Wrapped.result as {
-        disposition: string
+      costUsd += costPer
+      totalCostUsd += costPer
+
+      const l2 = l2Wrapped.result as {
+        verdict: string
         provenance?: string
         failedCondition?: string
         geometry?: string
       }
 
-      if (l1.disposition === 'generated') {
+      if (l2.geometry) bestCandidateGeometry = l2.geometry
+
+      if (l2.verdict === 'pass') {
         terminalState = 'recovered'
-        provenance = 'scraped_promoted'
+        provenance = 'ai_reconstructed'
         const result: RouteWaterfallResult = {
           routeId,
           terminalState,
@@ -566,240 +658,179 @@ export const runSampleWaterfall = action({
           reprocessed: false,
           leversRun,
           provenance,
-          costUsd: 0,
+          lever1Failed,
+          costUsd,
         }
         routes.push(result)
         perStateCounts.recovered += 1
         await recordTerminalArtifact(ctx, result)
         continue
       }
-      lever1Failed = true
-      if (l1.geometry) bestCandidateGeometry = l1.geometry
+      lever2Failed = true
+      failedCondition = l2.failedCondition ?? 'ratio'
+    } catch (err) {
+      // FIX-09: Charge cost even on L2 failure — the provider was invoked
+      // and the attempt consumed budget. Fail-closed cost accounting.
+      costUsd += costPer
+      totalCostUsd += costPer
+      lever2Failed = true
+      failedCondition = isRateLimitError(err) ? 'rate_limit_exhausted' : 'anchors'
+    }
 
-      // ----- Cost check before Lever 2 -----
-      if (maxCost != null && totalCostUsd + costPer > maxCost) {
-        batchStopReason = 'cost_exceeded'
-        costExceededMessage = `cost_exceeded: totalCost $${totalCostUsd.toFixed(2)} + next $${costPer.toFixed(2)} would exceed maxCost $${maxCost.toFixed(2)}`
-        // FIX-09: the cost-limited route still ends in exactly one durable
-        // terminal state (cost_blocked) — a restart can distinguish an
-        // untouched route from an interrupted/cost-blocked one, and the
-        // exactly-one-terminal-state invariant holds.
-        const costBlocked: RouteWaterfallResult = {
-          routeId,
-          terminalState: 'cost_blocked',
-          skipped: false,
-          reprocessed: false,
-          leversRun,
-          provenance: undefined,
-          failedCondition: 'cost_exceeded',
-          costUsd: 0,
-        }
-        routes.push(costBlocked)
-        perStateCounts.cost_blocked += 1
-        await recordTerminalArtifact(ctx, costBlocked)
-        // Stop the batch; this route was not fully processed (L2 not attempted).
-        break
+    // ----- Lever 3: re-route -----
+    leversRun.push(3)
+    perLeverCounts.lever3 += 1
+
+    try {
+      const l3Wrapped = await withExponentialBackoff(
+        async () => {
+          return ctx.runAction(api.curatedGeometryReconstruct.rerouteForRoute, { routeId })
+        },
+        { maxRetries, sleep },
+      )
+      const l3 = l3Wrapped.result as {
+        disposition: string
+        provenance?: string
+        failedCondition?: string
+        geometry?: string
       }
 
-      // ----- Lever 2: reconstruct -----
-      leversRun.push(2)
-      perLeverCounts.lever2 += 1
+      if (l3.geometry) bestCandidateGeometry = l3.geometry
 
-      try {
-        if (remainingRateLimitSim > 0) {
-          // Pure rate-limit exercise path (AC-4) — only once per batch
-          let failuresLeft = remainingRateLimitSim
-          remainingRateLimitSim = 0
-          await withExponentialBackoff(
-            async () => {
-              if (failuresLeft > 0) {
-                failuresLeft -= 1
-                const err = new Error('Google API 429 rate limit') as RateLimitError
-                err.status = 429
-                err.isRateLimit = true
-                throw err
-              }
-              return { ok: true }
-            },
-            { maxRetries, sleep },
-          )
-        }
-
-        const l2Wrapped = await withExponentialBackoff(
-          async () => {
-            if (args.lever2FixedGeometry) {
-              return ctx.runAction(
-                api.curatedGeometryReconstruct.reconstructForRouteWithFixedGeometry,
-                {
-                  routeId,
-                  routedMiles: args.lever2FixedGeometry.routedMiles,
-                  pointCount: args.lever2FixedGeometry.pointCount,
-                  anchorCount: args.lever2FixedGeometry.anchorCount,
-                  claimedMiles: args.lever2FixedGeometry.claimedMiles,
-                },
-              )
-            }
-            return ctx.runAction(api.curatedGeometryReconstruct.reconstructForRoute, {
-              routeId,
-            })
-          },
-          { maxRetries, sleep },
-        )
-        costUsd += costPer
-        totalCostUsd += costPer
-
-        const l2 = l2Wrapped.result as {
-          verdict: string
-          provenance?: string
-          failedCondition?: string
-          geometry?: string
-        }
-
-        if (l2.geometry) bestCandidateGeometry = l2.geometry
-
-        if (l2.verdict === 'pass') {
-          terminalState = 'recovered'
-          provenance = 'ai_reconstructed'
-          const result: RouteWaterfallResult = {
-            routeId,
-            terminalState,
-            skipped: false,
-            reprocessed: false,
-            leversRun,
-            provenance,
-            lever1Failed,
-            costUsd,
-          }
-          routes.push(result)
-          perStateCounts.recovered += 1
-          await recordTerminalArtifact(ctx, result)
-          continue
-        }
-        lever2Failed = true
-        failedCondition = l2.failedCondition ?? 'ratio'
-      } catch (err) {
-        // FIX-09: Charge cost even on L2 failure — the provider was invoked
-        // and the attempt consumed budget. Fail-closed cost accounting.
-        costUsd += costPer
-        totalCostUsd += costPer
-        lever2Failed = true
-        failedCondition = isRateLimitError(err) ? 'rate_limit_exhausted' : 'anchors'
-      }
-
-      // ----- Lever 3: re-route -----
-      leversRun.push(3)
-      perLeverCounts.lever3 += 1
-
-      try {
-        const l3Wrapped = await withExponentialBackoff(
-          async () => {
-            return ctx.runAction(api.curatedGeometryReconstruct.rerouteForRoute, { routeId })
-          },
-          { maxRetries, sleep },
-        )
-        const l3 = l3Wrapped.result as {
-          disposition: string
-          provenance?: string
-          failedCondition?: string
-          geometry?: string
-        }
-
-        if (l3.geometry) bestCandidateGeometry = l3.geometry
-
-        if (l3.disposition === 'generated') {
-          terminalState = 'recovered'
-          provenance = 'name_routed'
-          const result: RouteWaterfallResult = {
-            routeId,
-            terminalState,
-            skipped: false,
-            reprocessed: false,
-            leversRun,
-            provenance,
-            lever1Failed,
-            lever2Failed,
-            costUsd,
-          }
-          routes.push(result)
-          perStateCounts.recovered += 1
-          await recordTerminalArtifact(ctx, result)
-          continue
-        }
-
-        // REVIEW queue (terminal) — keep best candidate geometry across levers
-        terminalState = 'queued'
-        failedCondition = l3.failedCondition ?? failedCondition ?? 'anchors'
+      if (l3.disposition === 'generated') {
+        terminalState = 'recovered'
+        provenance = 'name_routed'
         const result: RouteWaterfallResult = {
           routeId,
           terminalState,
           skipped: false,
           reprocessed: false,
           leversRun,
+          provenance,
           lever1Failed,
           lever2Failed,
-          failedCondition,
           costUsd,
         }
         routes.push(result)
-        perStateCounts.queued += 1
+        perStateCounts.recovered += 1
         await recordTerminalArtifact(ctx, result)
-        await recordReviewArtifact(ctx, routeId, failedCondition, bestCandidateGeometry)
-      } catch {
-        // FIX-09: Lever 3 exception → EXACTLY ONE terminal state: retirement_eligible.
-        // Do NOT also queue REVIEW — the route is retired, not queued.
-        terminalState = 'retirement_eligible'
-        const result: RouteWaterfallResult = {
-          routeId,
-          terminalState,
-          skipped: false,
-          reprocessed: false,
-          leversRun,
-          lever1Failed,
-          lever2Failed,
-          failedCondition: failedCondition ?? 'anchors',
-          costUsd,
-        }
-        routes.push(result)
-        perStateCounts.retirement_eligible += 1
-        await recordTerminalArtifact(ctx, result)
-        // NOTE: recordReviewArtifact intentionally NOT called here —
-        // the route ends in retirement_eligible, not queued.
+        continue
       }
 
-      // Post-route cost check (stop after exceeding)
-      if (maxCost != null && totalCostUsd >= maxCost) {
-        batchStopReason = 'cost_exceeded'
-        costExceededMessage = `cost_exceeded: totalCost $${totalCostUsd.toFixed(2)} >= maxCost $${maxCost.toFixed(2)}`
-        break
+      // REVIEW queue (terminal) — keep best candidate geometry across levers
+      terminalState = 'queued'
+      failedCondition = l3.failedCondition ?? failedCondition ?? 'anchors'
+      const result: RouteWaterfallResult = {
+        routeId,
+        terminalState,
+        skipped: false,
+        reprocessed: false,
+        leversRun,
+        lever1Failed,
+        lever2Failed,
+        failedCondition,
+        costUsd,
       }
+      routes.push(result)
+      perStateCounts.queued += 1
+      await recordTerminalArtifact(ctx, result)
+      await recordReviewArtifact(ctx, routeId, failedCondition, bestCandidateGeometry)
+    } catch {
+      // FIX-09: Lever 3 exception → EXACTLY ONE terminal state: retirement_eligible.
+      // Do NOT also queue REVIEW — the route is retired, not queued.
+      terminalState = 'retirement_eligible'
+      const result: RouteWaterfallResult = {
+        routeId,
+        terminalState,
+        skipped: false,
+        reprocessed: false,
+        leversRun,
+        lever1Failed,
+        lever2Failed,
+        failedCondition: failedCondition ?? 'anchors',
+        costUsd,
+      }
+      routes.push(result)
+      perStateCounts.retirement_eligible += 1
+      await recordTerminalArtifact(ctx, result)
+      // NOTE: recordReviewArtifact intentionally NOT called here —
+      // the route ends in retirement_eligible, not queued.
     }
 
-    // If we broke early due to cost before finishing all routeIds
-    if (
-      batchStopReason === 'cost_exceeded' &&
-      routes.filter((r) => !r.skipped).length < args.routeIds.length
-    ) {
-      // already set
+    // Post-route cost check (stop after exceeding)
+    if (maxCost != null && totalCostUsd >= maxCost) {
+      batchStopReason = 'cost_exceeded'
+      costExceededMessage = `cost_exceeded: totalCost $${totalCostUsd.toFixed(2)} >= maxCost $${maxCost.toFixed(2)}`
+      break
     }
+  }
 
-    const processed = routes.filter((r) => !r.skipped && r.terminalState !== 'cost_blocked').length
-    const skipped = routes.filter((r) => r.skipped).length
-    const reprocessed = routes.filter((r) => r.reprocessed).length
+  // If we broke early due to cost before finishing all routeIds
+  if (
+    batchStopReason === 'cost_exceeded' &&
+    routes.filter((r) => !r.skipped).length < routeIds.length
+  ) {
+    // already set
+  }
 
-    return {
-      routes,
-      processed,
-      skipped,
-      reprocessed,
-      totalCostUsd,
-      maxCostUsd: maxCost,
-      batchStopReason,
-      costExceededMessage,
-      perLeverCounts,
-      perStateCounts,
-      backoffScheduleSeconds,
-      maxRetries,
-    }
+  const processed = routes.filter((r) => !r.skipped && r.terminalState !== 'cost_blocked').length
+  const skipped = routes.filter((r) => r.skipped).length
+  const reprocessed = routes.filter((r) => r.reprocessed).length
+
+  return {
+    routes,
+    processed,
+    skipped,
+    reprocessed,
+    totalCostUsd,
+    maxCostUsd: maxCost,
+    batchStopReason,
+    costExceededMessage,
+    perLeverCounts,
+    perStateCounts,
+    backoffScheduleSeconds,
+    maxRetries,
+  }
+}
+
+/**
+ * REDHAT-FIX-01: production waterfall entry. The deterministic test seams
+ * (lever2FixedGeometry, simulateRateLimitFailures, skipSleep) are NOT accepted
+ * here — a production closeout must exercise real Lever-2 reconstruction.
+ */
+export const runSampleWaterfall = action({
+  args: {
+    routeIds: v.array(v.string()),
+    maxCost: v.optional(v.number()),
+    costPerReconstruct: v.optional(v.number()),
+    maxRetries: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    await requireIdentity(ctx)
+    return executeWaterfall(ctx, args.routeIds, args)
+  },
+})
+
+/**
+ * Test-only seam variant. The deterministic Lever-2 geometry injection,
+ * rate-limit simulation, and sleep-skip seams live HERE — not on the
+ * production `runSampleWaterfall` entry. Requires a test-prefix identity
+ * (REDHAT-FIX-01): unreachable from a production closeout identity.
+ */
+export const runSampleWaterfallWithSeams = action({
+  args: {
+    routeIds: v.array(v.string()),
+    maxCost: v.optional(v.number()),
+    costPerReconstruct: v.optional(v.number()),
+    maxRetries: v.optional(v.number()),
+    lever2FixedGeometry: v.optional(lever2FixedGeometryValidator),
+    simulateRateLimitFailures: v.optional(v.number()),
+    skipSleep: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await requireIdentity(ctx)
+    assertTestSubjectOrThrow(identity.clerkUserId)
+    return executeWaterfall(ctx, args.routeIds, args)
   },
 })
 

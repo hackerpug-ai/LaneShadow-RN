@@ -144,7 +144,7 @@ describe('AC-1: Waterfall lever order 1→2→3 until gate-pass', () => {
       expect(reseed.ok, `reseed failed: ${reseed.stderr}`).toBe(true)
 
       const run = runConvexFn(
-        'waterfallOrchestrator:runSampleWaterfall',
+        'waterfallOrchestrator:runSampleWaterfallWithSeams',
         {
           routeIds: ['test:lever2-pass'],
           maxCost: 10,

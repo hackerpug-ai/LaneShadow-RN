@@ -13,7 +13,7 @@
 import { v } from 'convex/values'
 import { decodePolylineGeometry, haversineMeters } from '../shared/lib/polyline'
 import { api } from './_generated/api'
-import { action, mutation, query } from './_generated/server'
+import { type ActionCtx, action, mutation, query } from './_generated/server'
 import { determineGateVerdict, type GateVerdict, isAnchorInRegion } from './curatedGeometryGate'
 import { assertTestSubjectOrThrow, requireIdentity, requireOperator } from './guards'
 
@@ -571,74 +571,102 @@ type RetryDispositionResult = {
 }
 
 /** Action: prepare retry + re-run the lever. */
+const lever2FixedGeometryValidator = v.object({
+  routedMiles: v.number(),
+  pointCount: v.optional(v.number()),
+  anchorCount: v.optional(v.number()),
+  claimedMiles: v.optional(v.union(v.number(), v.null())),
+})
+
+async function executeRetryDisposition(
+  ctx: ActionCtx,
+  routeId: string,
+  lever: 1 | 2 | 3,
+  lever2FixedGeometry?: {
+    routedMiles: number
+    pointCount?: number
+    anchorCount?: number
+    claimedMiles?: number | null
+  },
+): Promise<RetryDispositionResult> {
+  const prepared: RetryDispositionResult['prepared'] = await ctx.runMutation(
+    api.reviewQueue.prepareRetryDisposition,
+    {
+      routeId,
+      lever,
+    },
+  )
+
+  let leverResult: unknown
+  if (lever === 1) {
+    leverResult = await ctx.runAction(api.curatedGeometryReconstruct.promoteForRoute, {
+      routeId,
+    })
+  } else if (lever === 2) {
+    if (lever2FixedGeometry) {
+      leverResult = await ctx.runAction(
+        api.curatedGeometryReconstruct.reconstructForRouteWithFixedGeometry,
+        {
+          routeId,
+          routedMiles: lever2FixedGeometry.routedMiles,
+          pointCount: lever2FixedGeometry.pointCount,
+          anchorCount: lever2FixedGeometry.anchorCount,
+          claimedMiles: lever2FixedGeometry.claimedMiles,
+        },
+      )
+    } else {
+      leverResult = await ctx.runAction(api.curatedGeometryReconstruct.reconstructForRoute, {
+        routeId,
+      })
+    }
+  } else {
+    leverResult = await ctx.runAction(api.curatedGeometryReconstruct.rerouteForRoute, {
+      routeId,
+    })
+  }
+
+  return {
+    routeId,
+    disposition: 'retry' as const,
+    retryCount: 1,
+    lever,
+    prepared,
+    leverResult,
+    attemptedAt: new Date(prepared.attemptedAt).toISOString(),
+  }
+}
+
+/**
+ * REDHAT-FIX-01: production REVIEW retry entry. The deterministic
+ * `lever2FixedGeometry` seam is NOT accepted here — a real retry must call
+ * live Lever-2 reconstruction.
+ */
 export const retryDisposition = action({
   args: {
     routeId: v.string(),
     lever: v.union(v.literal(1), v.literal(2), v.literal(3)),
-    lever2FixedGeometry: v.optional(
-      v.object({
-        routedMiles: v.number(),
-        pointCount: v.optional(v.number()),
-        anchorCount: v.optional(v.number()),
-        claimedMiles: v.optional(v.union(v.number(), v.null())),
-      }),
-    ),
   },
-  handler: async (ctx, args): Promise<RetryDispositionResult> => {
+  handler: async (ctx, args) => {
+    await requireIdentity(ctx)
+    return executeRetryDisposition(ctx, args.routeId, args.lever)
+  },
+})
+
+/**
+ * Test-only seam variant. The deterministic Lever-2 geometry injection lives
+ * HERE — not on the production `retryDisposition` entry. Requires a test-prefix
+ * identity (REDHAT-FIX-01): unreachable from a production identity.
+ */
+export const retryDispositionWithSeams = action({
+  args: {
+    routeId: v.string(),
+    lever: v.union(v.literal(1), v.literal(2), v.literal(3)),
+    lever2FixedGeometry: v.optional(lever2FixedGeometryValidator),
+  },
+  handler: async (ctx, args) => {
     const identity = await requireIdentity(ctx)
-
-    // REDHAT-FIX-01: the deterministic Lever-2 test seam must be unreachable
-    // from a production identity — a real REVIEW retry must call live
-    // reconstruction, never the fixed-geometry bypass.
-    if (args.lever2FixedGeometry) {
-      assertTestSubjectOrThrow(identity.clerkUserId)
-    }
-
-    const prepared: RetryDispositionResult['prepared'] = await ctx.runMutation(
-      api.reviewQueue.prepareRetryDisposition,
-      {
-        routeId: args.routeId,
-        lever: args.lever,
-      },
-    )
-
-    let leverResult: unknown
-    if (args.lever === 1) {
-      leverResult = await ctx.runAction(api.curatedGeometryReconstruct.promoteForRoute, {
-        routeId: args.routeId,
-      })
-    } else if (args.lever === 2) {
-      if (args.lever2FixedGeometry) {
-        leverResult = await ctx.runAction(
-          api.curatedGeometryReconstruct.reconstructForRouteWithFixedGeometry,
-          {
-            routeId: args.routeId,
-            routedMiles: args.lever2FixedGeometry.routedMiles,
-            pointCount: args.lever2FixedGeometry.pointCount,
-            anchorCount: args.lever2FixedGeometry.anchorCount,
-            claimedMiles: args.lever2FixedGeometry.claimedMiles,
-          },
-        )
-      } else {
-        leverResult = await ctx.runAction(api.curatedGeometryReconstruct.reconstructForRoute, {
-          routeId: args.routeId,
-        })
-      }
-    } else {
-      leverResult = await ctx.runAction(api.curatedGeometryReconstruct.rerouteForRoute, {
-        routeId: args.routeId,
-      })
-    }
-
-    return {
-      routeId: args.routeId,
-      disposition: 'retry' as const,
-      retryCount: 1,
-      lever: args.lever,
-      prepared,
-      leverResult,
-      attemptedAt: new Date(prepared.attemptedAt).toISOString(),
-    }
+    assertTestSubjectOrThrow(identity.clerkUserId)
+    return executeRetryDisposition(ctx, args.routeId, args.lever, args.lever2FixedGeometry)
   },
 })
 

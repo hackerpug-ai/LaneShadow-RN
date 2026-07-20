@@ -5,9 +5,16 @@
  *
  * The forged 2026-07-19 gate closeout (`.gate-evidence/.../scripts/step1.sh`)
  * injected `lever2FixedGeometry` straight into `runSampleWaterfall` under the
- * subject `s4-human-gate`, bypassing real Lever-2 LLM reconstruction. This test
- * proves that exact forge now fails closed: a production subject cannot reach any
- * deterministic seam — the gate must exercise real providers.
+ * subject `s4-human-gate`, bypassing real Lever-2 LLM reconstruction. FIX-01 now
+ * REMOVES the seam from every public production entry — `runSampleWaterfall` and
+ * `reviewQueue:retryDisposition` no longer declare these args at all, so a
+ * production caller is rejected at the Convex validator before the handler runs.
+ * The seams survive ONLY on dedicated test-only actions (`runSampleWaterfallWithSeams`,
+ * `retryDispositionWithSeams`) that themselves require a test-prefix identity.
+ *
+ * This test proves the forge fails closed at BOTH layers:
+ *   (1) the production entry rejects the seam argument (validator), and
+ *   (2) the test-only seam action rejects a production identity (gate).
  *
  * TEST_TIER: integration
  * VERIFICATION_SERVICE: Convex dev deployment
@@ -48,86 +55,121 @@ function runConvexFn(fn: string, args: Record<string, unknown> = {}): RunResult 
   }
 }
 
-/** Asserts the call was rejected by the test-seam gate (FORBIDDEN), not some other failure. */
+/**
+ * The seam field is NOT declared on the production action's validator, so Convex
+ * rejects the call before the handler runs. A success here would mean the seam
+ * leaked back into the public API (regression).
+ */
+function assertValidatorRejects(result: RunResult, field: string) {
+  expect(result.ok, `expected ${field} to be REJECTED but the call succeeded`).toBe(false)
+  expect(result.combined).toMatch(/extra field|not in the validator|ArgumentValidationError/i)
+}
+
+/**
+ * The test-only seam action accepts the field but gates it: a non-test identity
+ * is forbidden from reaching the seam.
+ */
 function assertSeamBlocked(result: RunResult, seam: string) {
   expect(result.ok, `expected ${seam} seam to be BLOCKED but the call succeeded`).toBe(false)
-  // The ConvexError carries code FORBIDDEN + a message naming the seam gate.
   expect(result.combined).toMatch(/FORBIDDEN|non-test identity|real providers|Test-only seam/)
 }
 
+const FIXED_GEOM = { routedMiles: 41, pointCount: 80, anchorCount: 2, claimedMiles: 41 }
+
 describe('REDHAT-FIX-01 — deterministic seams unreachable from production identity', () => {
-  it('AC-1: runSampleWaterfall rejects lever2FixedGeometry from a production subject', () => {
-    const result = runConvexFn('waterfallOrchestrator:runSampleWaterfall', {
-      routeIds: ['test:any'],
-      lever2FixedGeometry: { routedMiles: 41, pointCount: 80, anchorCount: 2, claimedMiles: 41 },
+  describe('layer 1: production entries reject the seam argument (validator)', () => {
+    it('AC-1: runSampleWaterfall rejects lever2FixedGeometry', () => {
+      const result = runConvexFn('waterfallOrchestrator:runSampleWaterfall', {
+        routeIds: ['test:any'],
+        lever2FixedGeometry: FIXED_GEOM,
+      })
+      assertValidatorRejects(result, 'lever2FixedGeometry')
     })
-    assertSeamBlocked(result, 'lever2FixedGeometry')
-  })
 
-  it('AC-2: runSampleWaterfall rejects simulateRateLimitFailures from a production subject', () => {
-    const result = runConvexFn('waterfallOrchestrator:runSampleWaterfall', {
-      routeIds: ['test:any'],
-      simulateRateLimitFailures: 1,
+    it('AC-2: runSampleWaterfall rejects simulateRateLimitFailures', () => {
+      const result = runConvexFn('waterfallOrchestrator:runSampleWaterfall', {
+        routeIds: ['test:any'],
+        simulateRateLimitFailures: 1,
+      })
+      assertValidatorRejects(result, 'simulateRateLimitFailures')
     })
-    assertSeamBlocked(result, 'simulateRateLimitFailures')
-  })
 
-  it('AC-3: runSampleWaterfall rejects skipSleep from a production subject', () => {
-    const result = runConvexFn('waterfallOrchestrator:runSampleWaterfall', {
-      routeIds: ['test:any'],
-      skipSleep: true,
+    it('AC-3: runSampleWaterfall rejects skipSleep', () => {
+      const result = runConvexFn('waterfallOrchestrator:runSampleWaterfall', {
+        routeIds: ['test:any'],
+        skipSleep: true,
+      })
+      assertValidatorRejects(result, 'skipSleep')
     })
-    assertSeamBlocked(result, 'skipSleep')
-  })
 
-  it('AC-4: reviewQueue:retryDisposition rejects lever2FixedGeometry from a production subject', () => {
-    const result = runConvexFn('reviewQueue:retryDisposition', {
-      routeId: 'test:any',
-      lever: 2,
-      lever2FixedGeometry: { routedMiles: 41, pointCount: 80, anchorCount: 2, claimedMiles: 41 },
+    it('AC-4: reviewQueue:retryDisposition rejects lever2FixedGeometry', () => {
+      const result = runConvexFn('reviewQueue:retryDisposition', {
+        routeId: 'test:any',
+        lever: 2,
+        lever2FixedGeometry: FIXED_GEOM,
+      })
+      assertValidatorRejects(result, 'retryDisposition lever2FixedGeometry')
     })
-    assertSeamBlocked(result, 'retryDisposition lever2FixedGeometry')
   })
 
-  // The fixed-geometry ACTIONS are the underlying deterministic seam. Even with
-  // runSampleWaterfall gated, a production caller could call these directly to
-  // manufacture gate-passing geometry with ai_reconstructed provenance.
-  it('AC-5: reconstructForRouteWithFixedGeometry is FORBIDDEN from a production subject (direct-action bypass)', () => {
-    const result = runConvexFn('curatedGeometryReconstruct:reconstructForRouteWithFixedGeometry', {
-      routeId: 'test:any',
-      routedMiles: 41,
-      pointCount: 80,
-      anchorCount: 2,
-      claimedMiles: 41,
+  describe('layer 2: test-only seam actions reject a production identity (gate)', () => {
+    it('AC-5: runSampleWaterfallWithSeams is FORBIDDEN from a production subject', () => {
+      const result = runConvexFn('waterfallOrchestrator:runSampleWaterfallWithSeams', {
+        routeIds: ['test:any'],
+        lever2FixedGeometry: FIXED_GEOM,
+      })
+      assertSeamBlocked(result, 'runSampleWaterfallWithSeams')
     })
-    assertSeamBlocked(result, 'reconstructForRouteWithFixedGeometry')
-  })
 
-  it('AC-6: reconstructForRouteWithFixedAnchors is FORBIDDEN from a production subject', () => {
-    const result = runConvexFn('curatedGeometryReconstruct:reconstructForRouteWithFixedAnchors', {
-      routeId: 'test:any',
-      anchorCount: 2,
-      claimedMiles: 41,
+    it('AC-6: retryDispositionWithSeams is FORBIDDEN from a production subject', () => {
+      const result = runConvexFn('reviewQueue:retryDispositionWithSeams', {
+        routeId: 'test:any',
+        lever: 2,
+        lever2FixedGeometry: FIXED_GEOM,
+      })
+      assertSeamBlocked(result, 'retryDispositionWithSeams')
     })
-    assertSeamBlocked(result, 'reconstructForRouteWithFixedAnchors')
-  })
 
-  it('AC-7: reconstructForRouteWithMixedAnchors is FORBIDDEN from a production subject', () => {
-    const result = runConvexFn('curatedGeometryReconstruct:reconstructForRouteWithMixedAnchors', {
-      routeId: 'test:any',
-      inRegionCount: 2,
-      offRegionCount: 1,
+    // The fixed-geometry ACTIONS are the underlying deterministic seam. Even with
+    // the waterfall/retry entries cleaned, a production caller could call these
+    // directly to manufacture gate-passing geometry with ai_reconstructed provenance.
+    it('AC-7: reconstructForRouteWithFixedGeometry is FORBIDDEN from a production subject (direct-action bypass)', () => {
+      const result = runConvexFn(
+        'curatedGeometryReconstruct:reconstructForRouteWithFixedGeometry',
+        {
+          routeId: 'test:any',
+          ...FIXED_GEOM,
+        },
+      )
+      assertSeamBlocked(result, 'reconstructForRouteWithFixedGeometry')
     })
-    assertSeamBlocked(result, 'reconstructForRouteWithMixedAnchors')
-  })
 
-  it('AC-8: seedLever1Fixtures is FORBIDDEN from a production subject (cannot manufacture test evidence)', () => {
-    const result = runConvexFn('curatedGeometryReconstruct:seedLever1Fixtures', {})
-    assertSeamBlocked(result, 'seedLever1Fixtures')
-  })
+    it('AC-8: reconstructForRouteWithFixedAnchors is FORBIDDEN from a production subject', () => {
+      const result = runConvexFn('curatedGeometryReconstruct:reconstructForRouteWithFixedAnchors', {
+        routeId: 'test:any',
+        anchorCount: 2,
+        claimedMiles: 41,
+      })
+      assertSeamBlocked(result, 'reconstructForRouteWithFixedAnchors')
+    })
 
-  it('AC-9: teardownLeverTestRoutes is FORBIDDEN from a production subject (cannot erase test evidence)', () => {
-    const result = runConvexFn('curatedGeometryReconstruct:teardownLeverTestRoutes', {})
-    assertSeamBlocked(result, 'teardownLeverTestRoutes')
+    it('AC-9: reconstructForRouteWithMixedAnchors is FORBIDDEN from a production subject', () => {
+      const result = runConvexFn('curatedGeometryReconstruct:reconstructForRouteWithMixedAnchors', {
+        routeId: 'test:any',
+        inRegionCount: 2,
+        offRegionCount: 1,
+      })
+      assertSeamBlocked(result, 'reconstructForRouteWithMixedAnchors')
+    })
+
+    it('AC-10: seedLever1Fixtures is FORBIDDEN from a production subject (cannot manufacture test evidence)', () => {
+      const result = runConvexFn('curatedGeometryReconstruct:seedLever1Fixtures', {})
+      assertSeamBlocked(result, 'seedLever1Fixtures')
+    })
+
+    it('AC-11: teardownLeverTestRoutes is FORBIDDEN from a production subject (cannot erase test evidence)', () => {
+      const result = runConvexFn('curatedGeometryReconstruct:teardownLeverTestRoutes', {})
+      assertSeamBlocked(result, 'teardownLeverTestRoutes')
+    })
   })
 })

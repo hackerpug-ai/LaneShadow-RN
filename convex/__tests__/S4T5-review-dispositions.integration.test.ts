@@ -122,7 +122,7 @@ describe('AC-6: REVIEW dispositions approve / retry / retire', () => {
 
     // --- retry lever 2 ---
     const retry = runConvexFn(
-      'reviewQueue:retryDisposition',
+      'reviewQueue:retryDispositionWithSeams',
       {
         routeId: RETRY_ID,
         lever: 2,
