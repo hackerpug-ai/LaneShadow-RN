@@ -170,6 +170,53 @@ async function classifyAndPersistOne(
       throw new Error(`Route not found: ${routeId}`)
     }
 
+    // FIX-11: Rescue-first contract — verify freeway/fhwa routes have
+    // a recorded geometry attempt before completing classification.
+    // The geometry pipeline is independent; the classifier must not
+    // complete a freeway route without auditable evidence that the
+    // rescue-first geometry attempt was considered.
+    const isFreeway =
+      route.source === 'fhwa' || (route.highwayNumber != null && /^I-/.test(route.highwayNumber))
+    const geometryAttempted = route.geometryStatus != null && route.geometryStatus !== 'unresolved'
+
+    if (isFreeway && !geometryAttempted) {
+      // Record evidence that the rescue-first geometry attempt has NOT
+      // been completed yet — the classifier is proceeding but the audit
+      // trail must show geometry_pending status.
+      try {
+        await ctx.runMutation(internal.waterfallOrchestrator.insertCurationArtifact, {
+          routeId,
+          artifactType: 'waterfall_result',
+          terminalState: 'retirement_eligible',
+          provenance: 'freeway_rescue_first_pending',
+          failedCondition: 'geometry_pending',
+          leversRun: [],
+          costUsd: 0,
+          attemptedAt: Date.now(),
+        })
+      } catch {
+        // Non-blocking: artifact recording must not fail classification
+      }
+    }
+
+    if (isFreeway && geometryAttempted) {
+      // Record that geometry was attempted — audit evidence for rescue-first
+      try {
+        await ctx.runMutation(internal.waterfallOrchestrator.insertCurationArtifact, {
+          routeId,
+          artifactType: 'waterfall_result',
+          terminalState: 'retirement_eligible',
+          provenance: 'freeway_rescue_first_completed',
+          failedCondition: undefined,
+          leversRun: [1],
+          costUsd: 0,
+          attemptedAt: Date.now(),
+        })
+      } catch {
+        // Non-blocking
+      }
+    }
+
     const classified = await classifyWithZai(route)
     const classifiedAt = Date.now()
     const rideWorthiness = {
