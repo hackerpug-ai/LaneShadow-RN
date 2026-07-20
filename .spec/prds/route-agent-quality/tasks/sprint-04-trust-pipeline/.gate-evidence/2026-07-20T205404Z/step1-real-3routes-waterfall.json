@@ -1,0 +1,73 @@
+{
+  "backoffScheduleSeconds": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "batchStopReason": "completed",
+  "costExceededMessage": null,
+  "maxCostUsd": 5,
+  "maxRetries": 5,
+  "perLeverCounts": {
+    "lever1": 3,
+    "lever2": 3,
+    "lever3": 2
+  },
+  "perStateCounts": {
+    "cost_blocked": 0,
+    "queued": 1,
+    "recovered": 2,
+    "retirement_eligible": 0,
+    "skipped": 0
+  },
+  "processed": 3,
+  "reprocessed": 0,
+  "routes": [
+    {
+      "costUsd": 0.07,
+      "failedCondition": "anchors",
+      "lever1Failed": true,
+      "lever2Failed": true,
+      "leversRun": [
+        1,
+        2,
+        3
+      ],
+      "reprocessed": false,
+      "routeId": "motorcycleroads:twist-of-tepusquet-loop",
+      "skipped": false,
+      "terminalState": "queued"
+    },
+    {
+      "costUsd": 0.07,
+      "lever1Failed": true,
+      "leversRun": [
+        1,
+        2
+      ],
+      "provenance": "ai_reconstructed",
+      "reprocessed": false,
+      "routeId": "motorcycleroads:von-hoak-loop",
+      "skipped": false,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0.07,
+      "lever1Failed": true,
+      "lever2Failed": true,
+      "leversRun": [
+        1,
+        2,
+        3
+      ],
+      "provenance": "name_routed",
+      "reprocessed": false,
+      "routeId": "motorcycleroads:old-hwy-40-cisco-grove-to-donner-lake",
+      "skipped": false,
+      "terminalState": "recovered"
+    }
+  ],
+  "skipped": 0,
+  "totalCostUsd": 0.21000000000000002
+}
