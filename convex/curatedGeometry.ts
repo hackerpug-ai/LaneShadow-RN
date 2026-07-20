@@ -927,3 +927,97 @@ export const reevaluatePreexistingGeometry = internalAction({
     return { scanned, flipped, unchanged }
   },
 })
+
+// ---------------------------------------------------------------------------
+// REDHAT-FIX-02: durable classifier_runs checkpoint/resume state
+// (defined here, not in actions/rideWorthinessClassifier.ts, because Convex
+// forbids mutations/queries inside a 'use node' module.)
+// ---------------------------------------------------------------------------
+
+/** Begin a new whole-catalog classifier run. */
+export const beginClassifierRun = internalMutation({
+  args: { runId: v.string(), startedAt: v.number() },
+  handler: async (ctx, { runId, startedAt }) => {
+    const existing = await ctx.db
+      .query('classifier_runs')
+      .withIndex('by_runId', (q) => q.eq('runId', runId))
+      .unique()
+    if (existing) return existing
+    const id = await ctx.db.insert('classifier_runs', {
+      runId,
+      status: 'running',
+      cursor: undefined,
+      processedCount: 0,
+      failedCount: 0,
+      totalEligible: undefined,
+      isDone: false,
+      startedAt,
+      updatedAt: startedAt,
+    })
+    return { _id: id, runId }
+  },
+})
+
+/** Load a run by runId (for resume). */
+export const getClassifierRun = internalQuery({
+  args: { runId: v.string() },
+  handler: async (ctx, { runId }) => {
+    return ctx.db
+      .query('classifier_runs')
+      .withIndex('by_runId', (q) => q.eq('runId', runId))
+      .unique()
+  },
+})
+
+/** Persist durable progress after each page (durable checkpoint). */
+export const updateClassifierRunProgress = internalMutation({
+  args: {
+    runId: v.string(),
+    cursor: v.union(v.string(), v.null()),
+    processedCount: v.number(),
+    failedCount: v.number(),
+    totalEligible: v.optional(v.number()),
+    isDone: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const run = await ctx.db
+      .query('classifier_runs')
+      .withIndex('by_runId', (q) => q.eq('runId', args.runId))
+      .unique()
+    if (!run) return
+    await ctx.db.patch(run._id, {
+      cursor: args.cursor ?? undefined,
+      processedCount: args.processedCount,
+      failedCount: args.failedCount,
+      totalEligible: args.totalEligible,
+      isDone: args.isDone,
+      updatedAt: Date.now(),
+    })
+  },
+})
+
+/** Mark a run completed with final counters derived from the persisted run. */
+export const completeClassifierRun = internalMutation({
+  args: {
+    runId: v.string(),
+    processedCount: v.number(),
+    failedCount: v.number(),
+    totalEligible: v.optional(v.number()),
+  },
+  handler: async (ctx, { runId, processedCount, failedCount, totalEligible }) => {
+    const run = await ctx.db
+      .query('classifier_runs')
+      .withIndex('by_runId', (q) => q.eq('runId', runId))
+      .unique()
+    if (!run) return null
+    await ctx.db.patch(run._id, {
+      status: 'completed',
+      isDone: true,
+      processedCount,
+      failedCount,
+      totalEligible,
+      updatedAt: Date.now(),
+    })
+    return { runId, status: 'completed' as const, processedCount, failedCount, totalEligible }
+  },
+})

@@ -201,7 +201,7 @@ export const curatedRouteValidator = v.object({
       reason: v.string(),
       model: v.string(),
       classifiedAt: v.number(),
-      evidenceComplete: v.boolean(),
+      evidenceComplete: v.optional(v.boolean()),
     }),
   ),
   retiredAt: v.optional(v.number()),
