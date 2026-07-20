@@ -181,65 +181,50 @@ export const couchGateStatus = query({
   args: {},
   handler: async (ctx) => {
     await requireIdentity(ctx)
-    const passes = await ctx.db
-      .query('couch_verdicts')
-      .withIndex('by_overallVerdict', (q) => q.eq('overallVerdict', 'pass'))
-      .take(10)
+    // FIX-04: bind the unlock to the SINGLE current active manifest = the latest
+    // frozen couch_sample. A historical pass on an older manifest cannot remain
+    // eligible after a newer sample is frozen (which happens on geometry/catalog
+    // change). catalogVersion is derived from the active manifest, not hardcoded.
+    const frozenSamples = await ctx.db.query('couch_samples').collect()
+    const activeManifest = frozenSamples
+      .filter((s) => s.status === 'frozen')
+      .sort((a, b) => (b.frozenAt ?? b.createdAt) - (a.frozenAt ?? a.createdAt))[0]
 
-    if (passes.length === 0) {
+    if (!activeManifest) {
       return {
         allowed: false,
         overallVerdict: null as 'pass' | 'fail' | null,
-        reason: 'Couch gate blocked: no recordCouchVerdict({overallVerdict:"pass"}) yet',
+        reason: 'Couch gate blocked: no frozen manifest (active sample) exists',
         sampleId: null as string | null,
         manifestHash: null as string | null,
       }
     }
 
-    // Latest pass verdict
-    const latest = passes.sort((a, b) => b.recordedAt - a.recordedAt)[0]
+    const activeManifestHash = activeManifest.manifestHash ?? null
+    const activeCatalogVersion = activeManifest.catalogVersion ?? null
 
-    // FIX-03/04: Verify the verdict is bound to a still-frozen manifest
-    const manifest = await ctx.db
-      .query('couch_samples')
-      .withIndex('by_sampleId', (q) => q.eq('sampleId', latest.sampleId))
-      .first()
+    // Latest pass verdict bound to THIS active manifest (sampleId + manifestHash
+    // + catalogVersion). Uses the by_sampleId index then filters in-memory.
+    const verdicts = await ctx.db
+      .query('couch_verdicts')
+      .withIndex('by_sampleId', (q) => q.eq('sampleId', activeManifest.sampleId))
+      .collect()
+    const boundPass = verdicts
+      .filter(
+        (v) =>
+          v.overallVerdict === 'pass' &&
+          (!activeManifestHash || !v.manifestHash || v.manifestHash === activeManifestHash) &&
+          (!activeCatalogVersion || !v.catalogVersion || v.catalogVersion === activeCatalogVersion),
+      )
+      .sort((a, b) => b.recordedAt - a.recordedAt)[0]
 
-    if (!manifest || manifest.status !== 'frozen') {
+    if (!boundPass) {
       return {
         allowed: false,
         overallVerdict: null,
-        reason: 'Couch gate blocked: bound manifest is no longer frozen or does not exist',
-        sampleId: latest.sampleId,
-        manifestHash: latest.manifestHash ?? null,
-      }
-    }
-
-    // FIX-03/04: Check catalog version hasn't drifted
-    const currentCatalogVersion = 's4-trust-pipeline-v1'
-    if (latest.catalogVersion && latest.catalogVersion !== currentCatalogVersion) {
-      return {
-        allowed: false,
-        overallVerdict: null,
-        reason: `Couch gate blocked: catalog version drift — verdict bound to '${latest.catalogVersion}', current catalog is '${currentCatalogVersion}'`,
-        sampleId: latest.sampleId,
-        manifestHash: latest.manifestHash ?? null,
-      }
-    }
-
-    // FIX-03/04: Verify manifestHash matches current frozen manifest
-    if (
-      latest.manifestHash &&
-      manifest.manifestHash &&
-      latest.manifestHash !== manifest.manifestHash
-    ) {
-      return {
-        allowed: false,
-        overallVerdict: null,
-        reason:
-          'Couch gate blocked: manifest hash mismatch — the frozen manifest has changed since this verdict was recorded',
-        sampleId: latest.sampleId,
-        manifestHash: latest.manifestHash,
+        reason: `Couch gate blocked: no pass verdict bound to the current active manifest ${activeManifest.sampleId}`,
+        sampleId: activeManifest.sampleId,
+        manifestHash: activeManifestHash,
       }
     }
 
@@ -247,9 +232,9 @@ export const couchGateStatus = query({
       allowed: true,
       overallVerdict: 'pass' as const,
       reason: null as string | null,
-      sampleId: latest.sampleId,
-      recordedAt: latest.recordedAt,
-      manifestHash: latest.manifestHash ?? null,
+      sampleId: activeManifest.sampleId,
+      recordedAt: boundPass.recordedAt,
+      manifestHash: activeManifestHash,
     }
   },
 })
