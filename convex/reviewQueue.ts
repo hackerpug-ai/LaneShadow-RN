@@ -29,10 +29,32 @@ export const listGeometryReviewQueue = query({
     await requireIdentity(ctx)
     const take = Math.min(limit ?? 50, 200)
 
+    // P0(b): When routeIdPrefix is a concrete routeId (contains ':' and no
+    // wildcards), resolve it directly via the by_routeId index so the target
+    // route cannot be missed when stale review rows push it outside the
+    // generic take window. This is the fast path.
+    const directLookupRow = routeIdPrefix?.includes(':')
+      ? await ctx.db
+          .query('curated_routes')
+          .withIndex('by_routeId', (q) => q.eq('routeId', routeIdPrefix))
+          .first()
+      : null
+
+    // Fallback: generic filtered scan (kept for no-prefix and partial-prefix cases)
     let rows = await ctx.db
       .query('curated_routes')
       .withIndex('by_geometry_status', (q) => q.eq('geometryStatus', 'review'))
       .take(take * 3)
+
+    // Merge the direct-lookup row if it's in review status and not already
+    // in the fallback set (dedup by routeId)
+    if (
+      directLookupRow &&
+      directLookupRow.geometryStatus === 'review' &&
+      !rows.some((r) => r.routeId === directLookupRow.routeId)
+    ) {
+      rows = [directLookupRow, ...rows]
+    }
 
     if (routeIdPrefix) {
       rows = rows.filter((r) => r.routeId.startsWith(routeIdPrefix))

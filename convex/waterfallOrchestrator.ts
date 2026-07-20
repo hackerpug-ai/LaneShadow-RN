@@ -367,10 +367,16 @@ export const seedCostBurnRoutes = mutation({
 export const teardownWaterfallFixtures = mutation({
   args: {
     prefixes: v.optional(v.array(v.string())),
+    routeIds: v.optional(v.array(v.string())),
   },
-  handler: async (ctx, { prefixes }) => {
+  handler: async (ctx, { prefixes, routeIds }) => {
     await requireIdentity(ctx)
-    const exact = [...WATERFALL_ROUTE_IDS]
+    const exact: string[] = [...WATERFALL_ROUTE_IDS]
+    if (routeIds) {
+      for (const id of routeIds) {
+        if (!exact.includes(id)) exact.push(id)
+      }
+    }
     const prefixList = prefixes ?? [
       'test:s4t5-passed',
       'test:s4t5-cost',
@@ -379,8 +385,10 @@ export const teardownWaterfallFixtures = mutation({
     ]
 
     const removed: string[] = []
+    const deleted = new Set<string>()
 
     const deleteByRouteId = async (routeId: string) => {
+      if (deleted.has(routeId)) return
       const doc = await ctx.db
         .query('curated_routes')
         .withIndex('by_routeId', (q: any) => q.eq('routeId', routeId))
@@ -391,11 +399,18 @@ export const teardownWaterfallFixtures = mutation({
         .withIndex('by_routeId', (q: any) => q.eq('routeId', routeId))
         .first()
       if (geom) await ctx.db.delete(geom._id)
-      const arts = await ctx.db
-        .query('curation_artifacts')
-        .withIndex('by_routeId', (q: any) => q.eq('routeId', routeId))
-        .collect()
-      for (const a of arts) await ctx.db.delete(a._id)
+      // Batch-delete curation artifacts — use take to avoid .collect() of many rows
+      let artCursor: string | null = null
+      let artDone = false
+      while (!artDone) {
+        const artPage = await ctx.db
+          .query('curation_artifacts')
+          .withIndex('by_routeId', (q: any) => q.eq('routeId', routeId))
+          .paginate({ cursor: artCursor, numItems: 50 })
+        for (const a of artPage.page) await ctx.db.delete(a._id)
+        artCursor = artPage.continueCursor
+        artDone = artPage.isDone
+      }
       try {
         await geospatial.remove(ctx, doc._id)
       } catch {
@@ -403,19 +418,20 @@ export const teardownWaterfallFixtures = mutation({
       }
       await ctx.db.delete(doc._id)
       removed.push(routeId)
+      deleted.add(routeId)
     }
 
     for (const id of exact) await deleteByRouteId(id)
 
-    // Prefix sweep (bounded)
+    // Prefix sweep — LEAN: bounded small takes per status to stay under 16MB.
+    // Test fixtures are limited in number; 50 per status × 4 statuses = 200 max.
+    const MAX_PER_STATUS = 50
     for (const prefix of prefixList) {
-      // Scan a page of editorial test rows by routeId prefix via known indices is hard;
-      // use a modest take from geometry_status unresolved/generated with filter.
       for (const status of ['unresolved', 'generated', 'review', 'failed'] as const) {
         const rows = await ctx.db
           .query('curated_routes')
           .withIndex('by_geometry_status', (q: any) => q.eq('geometryStatus', status))
-          .take(300)
+          .take(MAX_PER_STATUS)
         for (const row of rows) {
           if (row.routeId.startsWith(prefix)) {
             await deleteByRouteId(row.routeId)
