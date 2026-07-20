@@ -4,14 +4,22 @@
     "resolved_sprint_path": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
     "sprint_slug": "sprint-04-trust-pipeline"
   },
-  "run_id": "2026-07-19T22:59:46Z",
-  "verdict": "pass",
+  "run_id": "2026-07-20T205404Z",
+  "verdict": "blocked",
   "steps_total": 8,
   "steps_executed": 8,
-  "steps_passed": 8,
+  "steps_passed": 2,
+  "steps_blocked_human": 3,
+  "steps_blocked_data": 1,
+  "steps_code_verified": 2,
   "ui_driver": "none",
-  "exec_surface": "tmux:s04-gate",
-  "runner": "exec-step.sh+tmux",
+  "exec_surface": "agent-direct",
+  "runner": "completion-audit",
+  "supersedes": {
+    "run_id": "2026-07-19T22:59:46Z",
+    "prior_verdict": "pass",
+    "reason": "FORGED — step1/step2/step7 used the lever2FixedGeometry seam under s4-human-gate on test: fixtures (not real providers); steps 4-5 (human) were falsely marked terminal/pass. Withdrawn after the fresh red-hat report."
+  },
   "steps": [
     {
       "n": 1,
@@ -19,8 +27,8 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "evidence": "exit=0; log=step1.log",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-19T22:59:46Z/step1.log"
+      "evidence": "production runSampleWaterfall (NO seam) on real route motorcycleroads:twist-of-tepusquet-loop; all 3 levers ran on real providers; cost $0.07; batch completed",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-20T205404Z/step1-real-provider-waterfall.json"
     },
     {
       "n": 2,
@@ -28,62 +36,56 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "evidence": "exit=0; log=step2.log",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-19T22:59:46Z/step2.log"
+      "evidence": "step1 route ended in exactly one terminal state (queued); perStateCounts sums to 1",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-20T205404Z/step1-real-provider-waterfall.json"
     },
     {
       "n": 3,
       "text": "Open the ~25-route couch sample rendered as map PNGs.",
       "type": "terminal",
-      "executed": true,
-      "result": "pass",
-      "evidence": "exit=0; log=step3.log",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-19T22:59:46Z/step3.log"
+      "executed": false,
+      "result": "blocked",
+      "evidence": "BLOCKED: dev deployment has no real ~25-route catalog (only fixtures + 1 real seeded route); no ingestion/loader in codebase; assembleCouchSample needs real catalog routes"
     },
     {
       "n": 4,
       "text": "Record true, off, or wrong for each sampled route.",
-      "type": "terminal",
-      "executed": true,
-      "result": "pass",
-      "evidence": "exit=0; log=step4.log",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-19T22:59:46Z/step4.log"
+      "type": "human",
+      "executed": false,
+      "result": "blocked",
+      "evidence": "BLOCKED (human): Founder-Operator judgment (S4-T7). Not executed — a machine verdict would be a forgery."
     },
     {
       "n": 5,
       "text": "Record an overall pass or fail verdict.",
-      "type": "terminal",
-      "executed": true,
-      "result": "pass",
-      "evidence": "exit=0; log=step5.log",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-19T22:59:46Z/step5.log"
+      "type": "human",
+      "executed": false,
+      "result": "blocked",
+      "evidence": "BLOCKED (human): Founder-Operator judgment (S4-T7). Not executed."
     },
     {
       "n": 6,
       "text": "Confirm a single wrong verdict forces the gate red.",
       "type": "terminal",
       "executed": true,
-      "result": "pass",
-      "evidence": "exit=0; log=step6.log",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-19T22:59:46Z/step6.log"
+      "result": "code_verified",
+      "evidence": "S4T6-couch-* suite: 'STRICTLY: single wrong forces overall fail (rejects pass)' passes; recordCouchVerdict WRONG_FORCES_FAIL enforced"
     },
     {
       "n": 7,
       "text": "Disposition three REVIEW-queue items: approve, retry, retire.",
-      "type": "terminal",
-      "executed": true,
-      "result": "pass",
-      "evidence": "exit=0; log=step7.log",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-19T22:59:46Z/step7.log"
+      "type": "human",
+      "executed": false,
+      "result": "blocked",
+      "evidence": "BLOCKED (human): disposition decisions are Founder-Operator judgment. Corrected step7.sh (no seam, real Lever-2) is runnable; the route from step1 is in REVIEW."
     },
     {
       "n": 8,
       "text": "Confirm the driver refuses --all until the couch verdict passes.",
       "type": "terminal",
       "executed": true,
-      "result": "pass",
-      "evidence": "exit=0; log=step8.log",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-19T22:59:46Z/step8.log"
+      "result": "code_verified",
+      "evidence": "S4T6-couch-* suite + couchGateStatus active-manifest binding (FIX-04) pass; --all refused until couch pass recorded"
     }
   ]
 }

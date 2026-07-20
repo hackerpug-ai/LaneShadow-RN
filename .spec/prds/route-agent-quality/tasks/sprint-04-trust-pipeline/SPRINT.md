@@ -18,7 +18,7 @@ tasks_expanded: 2026-07-14
 **Timeline:** Phase 2
 **Status:** Awaiting Close
 > Progress: 7/7 tasks completed · updated 2026-07-19T23:02:46Z
-> Status-Note: goal met — gate 8/8 · e2e PASS · human-test 8/8 · trunk consolidated
+> Status-Note: REDHAT-FIX 01/02/04/05/09/11 all implemented + verified (314/314). Prior 2026-07-19 gate closeout WITHDRAWN as forged (used lever2FixedGeometry seam under s4-human-gate, not real providers). Re-audit run 2026-07-20T205404Z: steps 1-2 honest real-provider PASS, steps 6/8 code-verified, steps 3-5 + 7 BLOCKED on real catalog data + human Founder-Operator couch review (S4-T7). GATE-GOAL: ACHIEVED not met — requires real ~25-route catalog load + founder review.
 **Proposed by:** product-manager + convex-planner (lane) + aisdk-planner (lever-2 structured output)
 
 ## Overview
@@ -106,6 +106,17 @@ ends in exactly one terminal state.
 | S4-T5 | Resumable `--sample` waterfall + cost circuit-breaker + rate-limit/backoff + REVIEW queue with dispositions (REC-04 sample, T-REC-019, VER-04) | convex-implementer | 210 min |
 | S4-T6 | Couch-sample assembler (~25 stratified) + `recordCouchVerdict` + `couchGateStatus --all` block (VER-05 AC-1..5) | convex-implementer | 150 min |
 | S4-T7 | Review rendered couch-sample lines + record verdicts (couch gate); disposition REVIEW-queue items | Founder-Operator | 45 min |
+| REDHAT-FIX-01 | Re-run closeout without `lever2FixedGeometry`, using live-provider provenance and recovered catalog routes; cited `.gate-evidence/2026-07-19T22:59:46Z/scripts/step1.sh:4-11` | convex-implementer | 120 min |
+| REDHAT-FIX-02 | Implement bounded/paginated whole-catalog `classifyCatalog` enumeration with checkpointing and completion coverage; cited `convex/actions/rideWorthinessClassifier.ts:226-265` | convex-implementer | 120 min |
+| REDHAT-FIX-03 | Bind founder couch approval to an authenticated immutable real sample/export manifest with reviewer identity, hashes, route decisions, and notes; cited `.gate-evidence/2026-07-19T22:59:46Z/scripts/step3.sh:6-35` and `step4.sh:5-18` | convex-implementer | 120 min |
+| REDHAT-FIX-04 | Require exact unique sample membership, authorization, and snapshot/version binding before couch PASS can unlock `--all`; cited `convex/couchVerdict.ts:51-101,128-145` | convex-implementer | 120 min |
+| REDHAT-FIX-05 | Make REVIEW approval re-run the canonical geometry gate and prevent automatic rider-ready on failing geometry; cited `convex/reviewQueue.ts:235-292` | convex-implementer | 90 min |
+| REDHAT-FIX-06 | Enforce founder/operator authorization for REVIEW and couch operational mutations using canonical role/ownership checks; cited `convex/guards.ts:15-28`, `convex/reviewQueue.ts:236-239,317-320`, `convex/couchVerdict.ts:51-58,151-156` | convex-implementer | 90 min |
+| REDHAT-FIX-07 | Enforce in-region anchor validity in the canonical geometry verdict for every lever, not only existing-geometry reevaluation; cited `convex/curatedGeometryGate.ts:99-128,146-183` | convex-implementer | 90 min |
+| REDHAT-FIX-08 | Remove or founder/operator-gate public fixture and cleanup seams so authenticated callers cannot manufacture or erase production trust evidence; cited `convex/reviewQueue.ts:96-224`, `convex/couchSampleAssembler.ts:356-423`, `convex/waterfallOrchestrator.ts:249-372`, `convex/couchVerdict.ts:157-169` | convex-implementer | 120 min |
+| REDHAT-FIX-09 | Make waterfall terminal-state, retry, and provider-cost accounting durable and fail-closed across Lever 3 exceptions and cost limits; cited `convex/waterfallOrchestrator.ts:518-526,586-607,695-718,759-785` | convex-implementer | 120 min |
+| REDHAT-FIX-10 | Bind stored couch samples to real route records, unique exact membership, gate-passing geometry, and immutable export metadata; cited `convex/couchSampleAssembler.ts:523-580`, `convex/schema.ts:326-348` | convex-implementer | 120 min |
+| REDHAT-FIX-11 | Record and enforce the freeway/rescue-first geometry attempt required before classifier completion, with persisted coverage evidence; cited `convex/actions/rideWorthinessClassifier.ts:249-279` | convex-implementer | 120 min |
 
 ## Dependencies
 
