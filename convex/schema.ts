@@ -322,6 +322,10 @@ export default defineSchema({
   /**
    * S4-T6 / VER-05: Stratified couch-sample (~25 routes) for founder visual review.
    * Routes carry provenance + difficulty so stratification can be re-queried.
+   *
+   * FIX-10: Immutable frozen manifest with server-computed hash.
+   * manifestHash = SHA-256(sorted routeIds + per-route geometry hashes + catalogVersion).
+   * Once status='frozen', the manifest is IMMUTABLE — reject re-freeze or mutation.
    */
   couch_samples: defineTable({
     sampleId: v.string(),
@@ -342,11 +346,21 @@ export default defineSchema({
       }),
     ),
     createdAt: v.number(),
+    // FIX-10: Immutable manifest fields (migration-safe: all optional)
+    manifestHash: v.optional(v.string()),
+    catalogVersion: v.optional(v.string()),
+    status: v.optional(v.union(v.literal('draft'), v.literal('frozen'))),
+    frozenAt: v.optional(v.number()),
+    frozenBy: v.optional(v.string()),
   }).index('by_sampleId', ['sampleId']),
 
   /**
    * S4-T6 / VER-05: Founder couch verdicts. Overall pass unblocks waterfall --all.
    * Per-route verdict is true | off | wrong; a single wrong forces overall fail.
+   *
+   * FIX-03/04: Verdicts are bound to a frozen manifest with exact membership.
+   * APPEND-ONLY: multiple verdicts per sampleId; couchGateStatus reads latest.
+   * manifestHash + catalogVersion bind the verdict to a specific frozen manifest.
    */
   couch_verdicts: defineTable({
     sampleId: v.string(),
@@ -359,6 +373,9 @@ export default defineSchema({
     ),
     recordedAt: v.number(),
     recordedBy: v.optional(v.string()),
+    // FIX-03/04: Manifest binding fields (migration-safe: all optional)
+    manifestHash: v.optional(v.string()),
+    catalogVersion: v.optional(v.string()),
   })
     .index('by_sampleId', ['sampleId'])
     .index('by_overallVerdict', ['overallVerdict']),

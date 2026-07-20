@@ -8,11 +8,11 @@
  */
 
 import { ConvexError, v } from 'convex/values'
-import { api } from './_generated/api'
-import { action, mutation, query } from './_generated/server'
+import { api, internal } from './_generated/api'
+import { action, internalMutation, mutation, query } from './_generated/server'
 import { buildFixturePolyline } from './couchRouteMapPng'
 import { geospatial } from './geospatialIndex'
-import { requireIdentity } from './guards'
+import { requireFounder, requireIdentity } from './guards'
 
 // Re-export fixture polyline builder for callers/tests.
 export {
@@ -135,6 +135,51 @@ function diversifyByDifficulty(pool: CouchSampleRoute[]): CouchSampleRoute[] {
     if (queues.every((x) => x.length === 0)) break
   }
   return out
+}
+
+// ---------------------------------------------------------------------------
+// Server-side hash helpers (FIX-10)
+// ---------------------------------------------------------------------------
+
+/**
+ * Compute a SHA-256 hash as a hex string.
+ * Uses the Convex V8 runtime's global crypto.subtle.
+ */
+async function sha256Hex(input: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(input)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+/**
+ * Compute a per-route geometry hash from the curated_route_geometry record.
+ * Uses: routeId + geometry value + verification verdict + provenance.
+ */
+function computeRouteGeometryHash(routeId: string, geom: any): string {
+  const parts = [
+    routeId,
+    geom?.value ?? '',
+    geom?.verification?.verdict ?? '',
+    geom?.provenance ?? '',
+  ]
+  return parts.join('::')
+}
+
+/**
+ * Compute the manifest hash: SHA-256 of sorted routeIds + per-route geometry
+ * hashes + catalogVersion.
+ */
+async function computeManifestHash(
+  routes: Array<{ routeId: string }>,
+  routeGeometryHashes: Record<string, string>,
+  catalogVersion: string,
+): Promise<string> {
+  const sortedRouteIds = [...routes.map((r) => r.routeId)].sort()
+  const parts = sortedRouteIds.map((rid) => `${rid}:${routeGeometryHashes[rid] ?? 'MISSING'}`)
+  parts.push(`catalog:${catalogVersion}`)
+  return sha256Hex(parts.join('|'))
 }
 
 // ---------------------------------------------------------------------------
@@ -353,10 +398,13 @@ async function upsertCouchRoute(
   return { routeId: spec.routeId, created: !existing }
 }
 
-export const seedCouchFixtures = mutation({
+/**
+ * FIX-08: Core fixture seeding — internalMutation, not callable from
+ * npx convex run by production clients. Use seedCouchFixturesPublic instead.
+ */
+export const seedCouchFixtures = internalMutation({
   args: {},
   handler: async (ctx) => {
-    await requireIdentity(ctx)
     const specs = buildSeedSpecs()
     const seeded: string[] = []
     for (const spec of specs) {
@@ -367,10 +415,25 @@ export const seedCouchFixtures = mutation({
   },
 })
 
-export const teardownCouchFixtures = mutation({
+/** FIX-08: Public founder-gated wrapper for seedCouchFixtures. */
+export const seedCouchFixturesPublic = mutation({
+  args: {},
+  handler: async (ctx): Promise<{ seeded: string[]; count: number }> => {
+    await requireFounder(ctx)
+    const result: { seeded: string[]; count: number } = await ctx.runMutation(
+      internal.couchSampleAssembler.seedCouchFixtures,
+      {},
+    )
+    return result
+  },
+})
+
+/**
+ * FIX-08: Core fixture teardown — internalMutation.
+ */
+export const teardownCouchFixtures = internalMutation({
   args: {},
   handler: async (ctx) => {
-    await requireIdentity(ctx)
     const prefixes = [COUCH_ROUTE_PREFIX, 'test:scraped-', 'test:ai-recon-', 'test:name-routed-']
     const removed: string[] = []
 
@@ -415,6 +478,19 @@ export const teardownCouchFixtures = mutation({
     }
 
     return { removed, count: removed.length }
+  },
+})
+
+/** FIX-08: Public founder-gated wrapper for teardownCouchFixtures. */
+export const teardownCouchFixturesPublic = mutation({
+  args: {},
+  handler: async (ctx): Promise<{ removed: string[]; count: number }> => {
+    await requireFounder(ctx)
+    const result: { removed: string[]; count: number } = await ctx.runMutation(
+      internal.couchSampleAssembler.teardownCouchFixtures,
+      {},
+    )
+    return result
   },
 })
 
@@ -540,13 +616,24 @@ export const storeCouchSample = mutation({
     ),
   },
   handler: async (ctx, { sampleId, routes }) => {
-    await requireIdentity(ctx)
+    const identity = await requireIdentity(ctx)
+
     if (routes.length < COUCH_SAMPLE_MIN || routes.length > COUCH_SAMPLE_MAX) {
       throw new ConvexError({
         code: 'INVALID_SAMPLE_SIZE',
         message: `Couch sample size must be ${COUCH_SAMPLE_MIN}–${COUCH_SAMPLE_MAX}, got ${routes.length}`,
       })
     }
+
+    // FIX-10: Reject duplicate routeIds
+    const routeIdSet = new Set(routes.map((r) => r.routeId))
+    if (routeIdSet.size !== routes.length) {
+      throw new ConvexError({
+        code: 'DUPLICATE_ROUTE_IDS',
+        message: 'Couch sample contains duplicate routeIds — each route must be unique',
+      })
+    }
+
     for (const p of PROVENANCES) {
       const n = routes.filter((r) => r.provenance === p).length
       if (n === 0) {
@@ -557,22 +644,86 @@ export const storeCouchSample = mutation({
       }
     }
 
+    // FIX-10: Check for existing frozen manifest — reject re-freeze
     const existing = await ctx.db
       .query('couch_samples')
       .withIndex('by_sampleId', (q) => q.eq('sampleId', sampleId))
       .first()
+
+    if (existing?.status === 'frozen') {
+      throw new ConvexError({
+        code: 'MANIFEST_ALREADY_FROZEN',
+        message: `Couch sample ${sampleId} is already frozen — manifest is immutable`,
+      })
+    }
+
+    // FIX-10: Validate every routeId exists in curated_routes AND has
+    // gate-passing geometry (curated_route_geometry.verification.verdict === 'pass').
+    const routeGeometryHashes: Record<string, string> = {}
+    const catalogVersion = 's4-trust-pipeline-v1'
+    const nowMs = Date.now()
+
+    for (const route of routes) {
+      // 1. Route must exist in curated_routes
+      const curatedRoute = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', route.routeId))
+        .first()
+
+      if (!curatedRoute) {
+        throw new ConvexError({
+          code: 'ROUTE_NOT_FOUND',
+          message: `Route ${route.routeId} not found in curated_routes — all sample routes must exist in the catalog`,
+        })
+      }
+
+      // 2. Route must have gate-passing geometry
+      const geom = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', route.routeId))
+        .first()
+
+      if (!geom) {
+        throw new ConvexError({
+          code: 'GEOMETRY_NOT_FOUND',
+          message: `Route ${route.routeId} has no curated_route_geometry record`,
+        })
+      }
+
+      const verdict = geom?.verification?.verdict
+      if (verdict !== 'pass') {
+        throw new ConvexError({
+          code: 'GEOMETRY_NOT_GATE_PASSING',
+          message: `Route ${route.routeId} geometry verdict is '${verdict ?? 'missing'}', not 'pass' — all sample routes must have gate-passing geometry`,
+        })
+      }
+
+      // 3. Compute per-route geometry hash
+      routeGeometryHashes[route.routeId] = computeRouteGeometryHash(route.routeId, geom)
+    }
+
+    // FIX-10: Compute manifest hash server-side
+    const manifestHash = await computeManifestHash(routes, routeGeometryHashes, catalogVersion)
+
+    // FIX-10: Freeze the manifest immediately
     const doc = {
       sampleId,
       size: routes.length,
       routes,
-      createdAt: Date.now(),
+      createdAt: existing?.createdAt ?? nowMs,
+      manifestHash,
+      catalogVersion,
+      status: 'frozen' as const,
+      frozenAt: nowMs,
+      frozenBy: identity.clerkUserId,
     }
+
     if (existing) {
       await ctx.db.replace(existing._id, doc)
-      return { sampleId, size: routes.length, replaced: true }
+      return { sampleId, size: routes.length, replaced: true, manifestHash, status: 'frozen' }
     }
     await ctx.db.insert('couch_samples', doc)
-    return { sampleId, size: routes.length, replaced: false }
+    return { sampleId, size: routes.length, replaced: false, manifestHash, status: 'frozen' }
   },
 })
 

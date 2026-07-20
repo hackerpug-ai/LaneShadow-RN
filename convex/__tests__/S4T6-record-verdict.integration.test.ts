@@ -60,10 +60,18 @@ describe('AC-4: recordCouchVerdict persists per-route + overall verdicts', () =>
   beforeAll(() => {
     mkdirSync(EVIDENCE_DIR, { recursive: true })
 
-    // Clear any prior pass so gate tests stay independent
-    runConvexFn('couchVerdict:clearCouchVerdicts', {}, { identity: true })
+    // FIX-08: Set up founder user for test identity
+    const setup = runConvexFn(
+      'testSupport:devSetupFounderUser',
+      { clerkUserId: 's4t6-record-verdict', role: 'founder' },
+      { identity: true },
+    )
+    expect(setup.ok, `devSetupFounderUser failed: ${setup.stderr}`).toBe(true)
 
-    const seed = runConvexFn('couchSampleAssembler:seedCouchFixtures', {}, { identity: true })
+    // Clear any prior pass so gate tests stay independent
+    runConvexFn('couchVerdict:clearCouchVerdictsPublic', {}, { identity: true })
+
+    const seed = runConvexFn('couchSampleAssembler:seedCouchFixturesPublic', {}, { identity: true })
     expect(seed.ok, `seed failed: ${seed.stderr}\n${seed.stdout}`).toBe(true)
 
     const assemble = runConvexFn(
@@ -117,8 +125,8 @@ describe('AC-4: recordCouchVerdict persists per-route + overall verdicts', () =>
   }, 180_000)
 
   afterAll(() => {
-    runConvexFn('couchVerdict:clearCouchVerdicts', {}, { identity: true })
-    runConvexFn('couchSampleAssembler:teardownCouchFixtures', {}, { identity: true })
+    runConvexFn('couchVerdict:clearCouchVerdictsPublic', {}, { identity: true })
+    runConvexFn('couchSampleAssembler:teardownCouchFixturesPublic', {}, { identity: true })
   })
 
   // TC-4 CASE 1 — record-verdict-pass
@@ -143,10 +151,24 @@ describe('AC-4: recordCouchVerdict persists per-route + overall verdicts', () =>
       routeId: r.routeId,
       verdict: i === 0 ? 'wrong' : 'true',
     }))
+
+    // FIX-03/04: Create a frozen manifest first for the wrong-test
+    const wrongSampleId = `couch-wrong-${Date.now()}`
+    const storeWrongSample = runConvexFn(
+      'couchSampleAssembler:storeCouchSample',
+      { sampleId: wrongSampleId, routes: sample.routes },
+      { identity: true },
+    )
+    expect(
+      storeWrongSample.ok,
+      `storeCouchSample for wrong test failed: ${storeWrongSample.stderr}`,
+    ).toBe(true)
+
+    // Pass + wrong → rejected
     const bad = runConvexFn(
       'couchVerdict:recordCouchVerdict',
       {
-        sampleId: `${sample.sampleId}-wrong-test`,
+        sampleId: wrongSampleId,
         overallVerdict: 'pass',
         routeVerdicts: withWrong,
       },
@@ -155,11 +177,22 @@ describe('AC-4: recordCouchVerdict persists per-route + overall verdicts', () =>
     // Must fail closed: cannot pass with a wrong route
     expect(bad.ok).toBe(false)
 
-    // Explicit fail with wrong is accepted
+    // Explicit fail with wrong is accepted on a DIFFERENT frozen sample
+    const failSampleId = `couch-wrong-fail-${Date.now()}`
+    const storeFailSample = runConvexFn(
+      'couchSampleAssembler:storeCouchSample',
+      { sampleId: failSampleId, routes: sample.routes },
+      { identity: true },
+    )
+    expect(
+      storeFailSample.ok,
+      `storeCouchSample for fail test failed: ${storeFailSample.stderr}`,
+    ).toBe(true)
+
     const forced = runConvexFn(
       'couchVerdict:recordCouchVerdict',
       {
-        sampleId: `${sample.sampleId}-wrong-fail`,
+        sampleId: failSampleId,
         overallVerdict: 'fail',
         routeVerdicts: withWrong,
       },
@@ -168,5 +201,5 @@ describe('AC-4: recordCouchVerdict persists per-route + overall verdicts', () =>
     expect(forced.ok, `fail-with-wrong should succeed: ${forced.stderr}`).toBe(true)
     const forcedBody = JSON.parse(forced.stdout)
     expect(forcedBody.overallVerdict).toBe('fail')
-  })
+  }, 20000)
 })

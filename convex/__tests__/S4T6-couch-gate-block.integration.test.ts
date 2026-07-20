@@ -63,14 +63,22 @@ describe('AC-5: couchGateStatus blocks --all until couch pass', () => {
   beforeAll(() => {
     mkdirSync(EVIDENCE_DIR, { recursive: true })
 
-    // Ensure clean gate state
-    runConvexFn('couchVerdict:clearCouchVerdicts', {}, { identity: true })
+    // FIX-08: Set up founder user for test identity
+    const setup = runConvexFn(
+      'testSupport:devSetupFounderUser',
+      { clerkUserId: 's4t6-couch-gate-block', role: 'founder' },
+      { identity: true },
+    )
+    expect(setup.ok, `devSetupFounderUser failed: ${setup.stderr}`).toBe(true)
 
-    const seed = runConvexFn('couchSampleAssembler:seedCouchFixtures', {}, { identity: true })
+    // Ensure clean gate state
+    runConvexFn('couchVerdict:clearCouchVerdictsPublic', {}, { identity: true })
+
+    const seed = runConvexFn('couchSampleAssembler:seedCouchFixturesPublic', {}, { identity: true })
     expect(seed.ok, `seed failed: ${seed.stderr}\n${seed.stdout}`).toBe(true)
 
     // Seed a tiny all-batch fixture route set for waterfall --all
-    const allSeed = runConvexFn('couchVerdict:seedAllBatchFixtures', {}, { identity: true })
+    const allSeed = runConvexFn('couchVerdict:seedAllBatchFixturesPublic', {}, { identity: true })
     expect(allSeed.ok, `seedAllBatchFixtures failed: ${allSeed.stderr}\n${allSeed.stdout}`).toBe(
       true,
     )
@@ -146,9 +154,9 @@ describe('AC-5: couchGateStatus blocks --all until couch pass', () => {
   }, 300_000)
 
   afterAll(() => {
-    runConvexFn('couchVerdict:clearCouchVerdicts', {}, { identity: true })
-    runConvexFn('couchVerdict:teardownAllBatchFixtures', {}, { identity: true })
-    runConvexFn('couchSampleAssembler:teardownCouchFixtures', {}, { identity: true })
+    runConvexFn('couchVerdict:clearCouchVerdictsPublic', {}, { identity: true })
+    runConvexFn('couchVerdict:teardownAllBatchFixturesPublic', {}, { identity: true })
+    runConvexFn('couchSampleAssembler:teardownCouchFixturesPublic', {}, { identity: true })
   })
 
   // TC-5 CASE 1 — couch-gate-block-all

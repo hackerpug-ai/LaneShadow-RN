@@ -7,10 +7,10 @@
  */
 
 import { ConvexError, v } from 'convex/values'
-import { api } from './_generated/api'
-import { action, mutation, query } from './_generated/server'
+import { api, internal } from './_generated/api'
+import { action, internalMutation, mutation, query } from './_generated/server'
 import { geospatial } from './geospatialIndex'
-import { requireIdentity, requireOperator } from './guards'
+import { requireFounder, requireIdentity, requireOperator } from './guards'
 
 const routeVerdictValidator = v.object({
   routeId: v.string(),
@@ -64,6 +64,56 @@ export const recordCouchVerdict = mutation({
       })
     }
 
+    // FIX-03/04: Load frozen manifest — reject if not found or not frozen
+    const manifest = await ctx.db
+      .query('couch_samples')
+      .withIndex('by_sampleId', (q) => q.eq('sampleId', sampleId))
+      .first()
+
+    if (!manifest) {
+      throw new ConvexError({
+        code: 'MANIFEST_NOT_FOUND',
+        message: `No couch sample found for sampleId '${sampleId}' — verdict requires a frozen manifest`,
+      })
+    }
+
+    if (manifest.status !== 'frozen') {
+      throw new ConvexError({
+        code: 'MANIFEST_NOT_FROZEN',
+        message: `Couch sample '${sampleId}' status is '${manifest.status ?? 'draft'}', not 'frozen' — verdict requires a frozen immutable manifest`,
+      })
+    }
+
+    // FIX-03/04: Verify exact membership (same set, no missing, no extras, no duplicates)
+    const manifestRouteIds = new Set((manifest.routes ?? []).map((r: any) => r.routeId))
+    const verdictRouteIds = new Set(routeVerdicts.map((r) => r.routeId))
+
+    // Check for missing routes (in manifest but not in verdict)
+    const missing = [...manifestRouteIds].filter((id) => !verdictRouteIds.has(id))
+    if (missing.length > 0) {
+      throw new ConvexError({
+        code: 'VERDICT_MISSING_ROUTES',
+        message: `Verdict is missing ${missing.length} route(s) from the frozen manifest: ${missing.slice(0, 3).join(', ')}${missing.length > 3 ? '...' : ''}`,
+      })
+    }
+
+    // Check for extra routes (in verdict but not in manifest)
+    const extra = [...verdictRouteIds].filter((id) => !manifestRouteIds.has(id))
+    if (extra.length > 0) {
+      throw new ConvexError({
+        code: 'VERDICT_EXTRA_ROUTES',
+        message: `Verdict contains ${extra.length} route(s) not in the frozen manifest: ${extra.slice(0, 3).join(', ')}${extra.length > 3 ? '...' : ''}`,
+      })
+    }
+
+    // Check for duplicate routeIds in verdict
+    if (verdictRouteIds.size !== routeVerdicts.length) {
+      throw new ConvexError({
+        code: 'VERDICT_DUPLICATE_ROUTES',
+        message: 'Verdict contains duplicate routeIds — each route must have exactly one verdict',
+      })
+    }
+
     const resolved = resolveOverallVerdict(overallVerdict, routeVerdicts)
     if (resolved.rejected) {
       throw new ConvexError({
@@ -72,24 +122,19 @@ export const recordCouchVerdict = mutation({
       })
     }
 
-    const existing = await ctx.db
-      .query('couch_verdicts')
-      .withIndex('by_sampleId', (q) => q.eq('sampleId', sampleId))
-      .first()
-
+    // FIX-03/04: APPEND-ONLY — always INSERT a new verdict, never replace
     const doc = {
       sampleId,
       overallVerdict: resolved.overallVerdict,
       routeVerdicts,
       recordedAt: Date.now(),
       recordedBy: identity.clerkUserId,
+      // FIX-03/04: Bind to frozen manifest
+      manifestHash: manifest.manifestHash,
+      catalogVersion: manifest.catalogVersion,
     }
 
-    if (existing) {
-      await ctx.db.replace(existing._id, doc)
-    } else {
-      await ctx.db.insert('couch_verdicts', doc)
-    }
+    await ctx.db.insert('couch_verdicts', doc)
 
     return {
       sampleId,
@@ -97,6 +142,8 @@ export const recordCouchVerdict = mutation({
       routeVerdicts,
       recordedAt: doc.recordedAt,
       recordedBy: doc.recordedBy,
+      manifestHash: doc.manifestHash,
+      catalogVersion: doc.catalogVersion,
     }
   },
 })
@@ -108,14 +155,15 @@ export const getCouchVerdict = query({
   handler: async (ctx, { sampleId }) => {
     await requireIdentity(ctx)
     if (sampleId) {
-      return (
-        (await ctx.db
-          .query('couch_verdicts')
-          .withIndex('by_sampleId', (q) => q.eq('sampleId', sampleId))
-          .first()) ?? null
-      )
+      // FIX-03/04: APPEND-ONLY — return latest verdict by recordedAt for this sampleId
+      const rows = await ctx.db
+        .query('couch_verdicts')
+        .withIndex('by_sampleId', (q) => q.eq('sampleId', sampleId))
+        .take(100)
+      if (rows.length === 0) return null
+      return rows.sort((a, b) => b.recordedAt - a.recordedAt)[0]
     }
-    // Latest by recordedAt
+    // Latest by recordedAt across all samples
     const rows = await ctx.db.query('couch_verdicts').take(50)
     if (rows.length === 0) return null
     return rows.sort((a, b) => b.recordedAt - a.recordedAt)[0]
@@ -123,7 +171,11 @@ export const getCouchVerdict = query({
 })
 
 /**
- * Gate status for full-batch (--all). Allowed only when a pass verdict exists.
+ * Gate status for full-batch (--all).
+ *
+ * FIX-03/04: Only allowed when the latest pass verdict is bound to a CURRENT
+ * active/frozen manifest whose catalogVersion matches the live catalog.
+ * If the manifest's geometry/catalog version has drifted since the verdict, block.
  */
 export const couchGateStatus = query({
   args: {},
@@ -132,7 +184,7 @@ export const couchGateStatus = query({
     const passes = await ctx.db
       .query('couch_verdicts')
       .withIndex('by_overallVerdict', (q) => q.eq('overallVerdict', 'pass'))
-      .take(5)
+      .take(10)
 
     if (passes.length === 0) {
       return {
@@ -140,29 +192,93 @@ export const couchGateStatus = query({
         overallVerdict: null as 'pass' | 'fail' | null,
         reason: 'Couch gate blocked: no recordCouchVerdict({overallVerdict:"pass"}) yet',
         sampleId: null as string | null,
+        manifestHash: null as string | null,
       }
     }
 
+    // Latest pass verdict
     const latest = passes.sort((a, b) => b.recordedAt - a.recordedAt)[0]
+
+    // FIX-03/04: Verify the verdict is bound to a still-frozen manifest
+    const manifest = await ctx.db
+      .query('couch_samples')
+      .withIndex('by_sampleId', (q) => q.eq('sampleId', latest.sampleId))
+      .first()
+
+    if (!manifest || manifest.status !== 'frozen') {
+      return {
+        allowed: false,
+        overallVerdict: null,
+        reason: 'Couch gate blocked: bound manifest is no longer frozen or does not exist',
+        sampleId: latest.sampleId,
+        manifestHash: latest.manifestHash ?? null,
+      }
+    }
+
+    // FIX-03/04: Check catalog version hasn't drifted
+    const currentCatalogVersion = 's4-trust-pipeline-v1'
+    if (latest.catalogVersion && latest.catalogVersion !== currentCatalogVersion) {
+      return {
+        allowed: false,
+        overallVerdict: null,
+        reason: `Couch gate blocked: catalog version drift — verdict bound to '${latest.catalogVersion}', current catalog is '${currentCatalogVersion}'`,
+        sampleId: latest.sampleId,
+        manifestHash: latest.manifestHash ?? null,
+      }
+    }
+
+    // FIX-03/04: Verify manifestHash matches current frozen manifest
+    if (
+      latest.manifestHash &&
+      manifest.manifestHash &&
+      latest.manifestHash !== manifest.manifestHash
+    ) {
+      return {
+        allowed: false,
+        overallVerdict: null,
+        reason:
+          'Couch gate blocked: manifest hash mismatch — the frozen manifest has changed since this verdict was recorded',
+        sampleId: latest.sampleId,
+        manifestHash: latest.manifestHash,
+      }
+    }
+
     return {
       allowed: true,
       overallVerdict: 'pass' as const,
       reason: null as string | null,
       sampleId: latest.sampleId,
       recordedAt: latest.recordedAt,
+      manifestHash: latest.manifestHash ?? null,
     }
   },
 })
 
-export const clearCouchVerdicts = mutation({
+/**
+ * FIX-08: Clear couch verdicts — internalMutation.
+ * Use clearCouchVerdictsPublic instead.
+ */
+export const clearCouchVerdicts = internalMutation({
   args: {},
   handler: async (ctx) => {
-    await requireOperator(ctx)
     const rows = await ctx.db.query('couch_verdicts').take(100)
     for (const r of rows) {
       await ctx.db.delete(r._id)
     }
     return { cleared: rows.length }
+  },
+})
+
+/** FIX-08: Public founder-gated wrapper for clearCouchVerdicts. */
+export const clearCouchVerdictsPublic = mutation({
+  args: {},
+  handler: async (ctx): Promise<{ cleared: number }> => {
+    await requireFounder(ctx)
+    const result: { cleared: number } = await ctx.runMutation(
+      internal.couchVerdict.clearCouchVerdicts,
+      {},
+    )
+    return result
   },
 })
 
@@ -175,10 +291,9 @@ const POLY_41MI =
 
 const ALL_BATCH_PREFIX = 'test:couch-all-'
 
-export const seedAllBatchFixtures = mutation({
+export const seedAllBatchFixtures = internalMutation({
   args: {},
   handler: async (ctx) => {
-    await requireIdentity(ctx)
     const routeId = `${ALL_BATCH_PREFIX}001`
     const existing = await ctx.db
       .query('curated_routes')
@@ -261,10 +376,9 @@ export const seedAllBatchFixtures = mutation({
   },
 })
 
-export const teardownAllBatchFixtures = mutation({
+export const teardownAllBatchFixtures = internalMutation({
   args: {},
   handler: async (ctx) => {
-    await requireIdentity(ctx)
     const removed: string[] = []
     for (const status of ['generated', 'unresolved', 'review', 'failed'] as const) {
       const rows = await ctx.db
@@ -288,6 +402,31 @@ export const teardownAllBatchFixtures = mutation({
       }
     }
     return { removed, count: removed.length }
+  },
+})
+
+/** FIX-08: Public founder-gated wrappers for all-batch fixtures. */
+export const seedAllBatchFixturesPublic = mutation({
+  args: {},
+  handler: async (ctx): Promise<{ routeId: string; created: boolean }> => {
+    await requireFounder(ctx)
+    const result: { routeId: string; created: boolean } = await ctx.runMutation(
+      internal.couchVerdict.seedAllBatchFixtures,
+      {},
+    )
+    return result
+  },
+})
+
+export const teardownAllBatchFixturesPublic = mutation({
+  args: {},
+  handler: async (ctx): Promise<{ removed: string[]; count: number }> => {
+    await requireFounder(ctx)
+    const result: { removed: string[]; count: number } = await ctx.runMutation(
+      internal.couchVerdict.teardownAllBatchFixtures,
+      {},
+    )
+    return result
   },
 })
 

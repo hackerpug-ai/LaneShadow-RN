@@ -86,7 +86,15 @@ describe('AC-3: Couch-sample export renders PNG + metadata per route', () => {
     mkdirSync(EVIDENCE_DIR, { recursive: true })
     mkdirSync(EXPORT_DIR, { recursive: true })
 
-    const seed = runConvexFn('couchSampleAssembler:seedCouchFixtures', {}, { identity: true })
+    // FIX-08: Set up founder user for test identity
+    const setup = runConvexFn(
+      'testSupport:devSetupFounderUser',
+      { clerkUserId: 's4t6-couch-render-pngs', role: 'founder' },
+      { identity: true },
+    )
+    expect(setup.ok, `devSetupFounderUser failed: ${setup.stderr}`).toBe(true)
+
+    const seed = runConvexFn('couchSampleAssembler:seedCouchFixturesPublic', {}, { identity: true })
     expect(seed.ok, `seed failed: ${seed.stderr}\n${seed.stdout}`).toBe(true)
 
     const assemble = runConvexFn(
@@ -151,7 +159,7 @@ describe('AC-3: Couch-sample export renders PNG + metadata per route', () => {
   }, 180_000)
 
   afterAll(() => {
-    runConvexFn('couchSampleAssembler:teardownCouchFixtures', {}, { identity: true })
+    runConvexFn('couchSampleAssembler:teardownCouchFixturesPublic', {}, { identity: true })
   })
 
   // TC-3 CASE 1 — couch-render-pngs

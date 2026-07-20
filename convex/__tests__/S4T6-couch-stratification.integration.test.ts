@@ -58,7 +58,15 @@ describe('AC-1: Couch-sample assembler stratifies ~25 across 3 provenances', () 
   beforeAll(() => {
     mkdirSync(EVIDENCE_DIR, { recursive: true })
 
-    const seed = runConvexFn('couchSampleAssembler:seedCouchFixtures', {}, { identity: true })
+    // FIX-08: Set up founder user for test identity
+    const setup = runConvexFn(
+      'testSupport:devSetupFounderUser',
+      { clerkUserId: 's4t6-couch-stratification', role: 'founder' },
+      { identity: true },
+    )
+    expect(setup.ok, `devSetupFounderUser failed: ${setup.stderr}`).toBe(true)
+
+    const seed = runConvexFn('couchSampleAssembler:seedCouchFixturesPublic', {}, { identity: true })
     expect(seed.ok, `seedCouchFixtures failed: ${seed.stderr}\n${seed.stdout}`).toBe(true)
 
     const assemble = runConvexFn(
@@ -85,7 +93,7 @@ describe('AC-1: Couch-sample assembler stratifies ~25 across 3 provenances', () 
   }, 180_000)
 
   afterAll(() => {
-    runConvexFn('couchSampleAssembler:teardownCouchFixtures', {}, { identity: true })
+    runConvexFn('couchSampleAssembler:teardownCouchFixturesPublic', {}, { identity: true })
   })
 
   // TC-1 CASE 1 — couch-stratified-sample
