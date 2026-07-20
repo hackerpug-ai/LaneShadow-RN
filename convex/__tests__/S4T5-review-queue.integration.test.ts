@@ -61,6 +61,15 @@ describe('AC-5: REVIEW queue receives failed routes with best candidate', () => 
   beforeAll(() => {
     mkdirSync(EVIDENCE_DIR, { recursive: true })
 
+    // FIX-08: seedWaterfallFixtures now requires operator role — bootstrap the
+    // test identity (subject starts with the test prefix s4t5-).
+    const setup = runConvexFn(
+      'testSupport:devSetupFounderUser',
+      { clerkUserId: 's4t5-review-queue', role: 'operator' },
+      { identity: true },
+    )
+    expect(setup.ok, `devSetupFounderUser failed: ${setup.stderr}`).toBe(true)
+
     const seed = runConvexFn('waterfallOrchestrator:seedWaterfallFixtures', {}, { identity: true })
     expect(seed.ok, `seed failed: ${seed.stderr}\n${seed.stdout}`).toBe(true)
 

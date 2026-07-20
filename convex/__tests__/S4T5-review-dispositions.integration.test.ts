@@ -72,6 +72,15 @@ describe('AC-6: REVIEW dispositions approve / retry / retire', () => {
   beforeAll(() => {
     mkdirSync(EVIDENCE_DIR, { recursive: true })
 
+    // FIX-08: seedReviewQueueEntry/approveDisposition now require operator role —
+    // bootstrap the test identity (subject starts with the test prefix s4t5-).
+    const setup = runConvexFn(
+      'testSupport:devSetupFounderUser',
+      { clerkUserId: 's4t5-review-dispositions', role: 'operator' },
+      { identity: true },
+    )
+    expect(setup.ok, `devSetupFounderUser failed: ${setup.stderr}`).toBe(true)
+
     // Seed three REVIEW entries
     for (const routeId of [APPROVE_ID, RETRY_ID, RETIRE_ID]) {
       const seed = runConvexFn(
@@ -179,20 +188,24 @@ describe('AC-6: REVIEW dispositions approve / retry / retire', () => {
     )
   })
 
-  describe('CASE 1 — approve', () => {
-    it('MUST_OBSERVE: curated_route_geometry.verdict == pass, REVIEW removed', () => {
-      expect(approveState?.verdict).toBe('pass')
-      expect(approveState?.geometryStatus).toBe('generated')
+  describe('CASE 1 — approve (FIX-05: gate-failing candidate cannot be forged to pass)', () => {
+    it('MUST_OBSERVE: approveDisposition re-ran the canonical gate and blocked the forge', () => {
       expect(approveResult.disposition).toBe('approve')
-      expect(approveQueue?.length ?? 0).toBe(0)
+      expect(approveResult.gateBlocked).toBe(true)
+      expect(approveResult.verdict).toBe('review')
+      expect(approveResult.riderReady).toBe(false)
     })
 
-    it('MUST_NOT_OBSERVE: REVIEW entry remains / geometry not persisted', () => {
+    it('MUST_NOT_OBSERVE: gate-failing candidate did NOT become pass / rider-ready', () => {
+      // APPROVE_ID is seeded with failedCondition='ratio' (a gate-failing geometry).
+      // FIX-05: approveDisposition re-runs the canonical gate and refuses to forge a pass.
+      expect(approveState?.verdict).not.toBe('pass')
+      expect(approveState?.geometryStatus).toBe('review')
+      expect(approveState?.riderReady).toBe(false)
       const stillQueued = (approveQueue?.reviewQueue ?? []).some(
         (e: any) => e.routeId === APPROVE_ID,
       )
-      expect(stillQueued).toBe(false)
-      expect(approveState?.geometryStatus).not.toBe('review')
+      expect(stillQueued).toBe(true)
     })
   })
 
