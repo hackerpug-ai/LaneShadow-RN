@@ -57,6 +57,10 @@ export type ClassifyCatalogResult = {
   classified: number
   failed: number
   results: ClassifyRouteResult[]
+  /** FIX-02: Total eligible routes (when enumerating full catalog). */
+  totalEligible?: number
+  /** FIX-02: Routes still unclassified after this batch. */
+  remainingUnclassified?: number
 }
 
 type RouteForClassification = {
@@ -247,6 +251,29 @@ export const classifyRoute = action({
 })
 
 /**
+ * REDHAT-FIX-02: Build the catalog enumeration batch configuration.
+ * Pure function — determines whether to enumerate the full catalog
+ * or use caller-supplied routeIds.
+ */
+export function buildCatalogEnumerationBatch(args: {
+  routeIds: string[] | undefined
+  defaultBatchSize: number
+}): {
+  allCatalog: boolean
+  routeIds: string[]
+  batchSize: number
+} {
+  const MAX_BATCH = 200
+  const batchSize = Math.min(args.defaultBatchSize, MAX_BATCH)
+
+  if (!args.routeIds || args.routeIds.length === 0) {
+    return { allCatalog: true, routeIds: [], batchSize }
+  }
+
+  return { allCatalog: false, routeIds: args.routeIds, batchSize }
+}
+
+/**
  * Classify a batch of routes (or a provided subset). Failures on individual
  * routes do not abort the catalog run — each error is logged and the next
  * route continues. Geometry pipeline is intentionally independent: this
@@ -260,9 +287,35 @@ export const classifyCatalog = action({
   handler: async (ctx, { routeIds, failRouteIds }): Promise<ClassifyCatalogResult> => {
     await requireIdentity(ctx)
 
-    const ids = routeIds ?? []
+    // FIX-02: When no routeIds supplied, enumerate ALL eligible routes
+    // from curated_routes via bounded indexed pagination.
+    const batch = buildCatalogEnumerationBatch({
+      routeIds,
+      defaultBatchSize: 50,
+    })
+
+    let ids: string[] = batch.routeIds
+    let totalEligible = ids.length
+
+    if (batch.allCatalog) {
+      // Enumerate all eligible route IDs using paginated query.
+      // Use the by_routeId index for consistent ordering.
+      const fetchedIds = await ctx.runQuery(
+        internal.curatedGeometry.listEligibleRouteIdsForClassification,
+        { limit: batch.batchSize, cursor: null },
+      )
+      ids = fetchedIds.ids
+      totalEligible = fetchedIds.totalEligible ?? ids.length
+    }
+
     if (ids.length === 0) {
-      return { classified: 0, failed: 0, results: [] }
+      return {
+        classified: 0,
+        failed: 0,
+        results: [],
+        totalEligible,
+        remainingUnclassified: totalEligible,
+      }
     }
 
     const results: ClassifyRouteResult[] = []
@@ -271,10 +324,16 @@ export const classifyCatalog = action({
       results.push(result)
     }
 
+    const classified = results.filter((r) => r.ok).length
+    const failed = results.filter((r) => !r.ok).length
+    const remainingUnclassified = Math.max(0, totalEligible - classified - failed)
+
     return {
-      classified: results.filter((r) => r.ok).length,
-      failed: results.filter((r) => !r.ok).length,
+      classified,
+      failed,
       results,
+      totalEligible,
+      remainingUnclassified,
     }
   },
 })

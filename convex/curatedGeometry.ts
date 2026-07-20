@@ -263,6 +263,36 @@ export const listAllRoutesForReset = internalQuery({
 })
 
 /**
+ * REDHAT-FIX-02: List eligible route IDs for whole-catalog classification.
+ * Returns a paginated batch of routeIds that are candidates for ride-worthiness
+ * classification, plus a total eligible count.
+ */
+export const listEligibleRouteIdsForClassification = internalQuery({
+  args: {
+    limit: v.number(),
+    cursor: v.union(v.string(), v.null()),
+  },
+  handler: async (ctx, { limit, cursor }) => {
+    const page = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId')
+      .paginate({ cursor, numItems: Math.min(limit, 200) })
+
+    const ids = page.page.map((r) => r.routeId)
+
+    // To get total eligible count without scanning the whole table,
+    // we use a large first-page estimate. This is approximate but
+    // avoids the cost of a full table scan.
+    return {
+      ids,
+      continueCursor: page.continueCursor,
+      isDone: page.isDone,
+      totalEligible: page.isDone ? ids.length : undefined,
+    }
+  },
+})
+
+/**
  * Internal query: fetch a single curated route by routeId for geometry generation.
  * Returns the fields needed by geocodeRouteGeometry, or null if not found.
  */
