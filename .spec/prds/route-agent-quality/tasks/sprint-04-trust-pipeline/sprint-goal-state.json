@@ -1,7 +1,7 @@
 {
   "sprint_id": "sprint-04-trust-pipeline",
   "goal": "GATE-GOAL: ACHIEVED",
-  "met": true,
+  "met": false,
   "tasks": {
     "all_completed": true,
     "completed": 7,
@@ -9,164 +9,43 @@
   },
   "tasks_complete": true,
   "gate": {
-    "overall": "PASS",
+    "overall": "BLOCKED",
+    "blocker": "REDHAT-FIX-12: stale sentinel withdrawn. The prior met:true/PASS verdict was forged (2026-07-19 8/8 PASS) using the lever2FixedGeometry test seam under the s4-human-gate identity on test: fixtures — it does not attest post-remediation code (eddcbe50+), real providers, real catalog data, or a founder review. Steps 4/5/7 are irreducibly human (Founder-Operator, S4-T7). Steps 1-2 now have honest real-provider evidence on real catalog routes (3 motorcycleroads routes, $0.21, all provenance types).",
     "steps": [
-      {
-        "n": 1,
-        "claim": "Run lever waterfall --sample",
-        "framework": "convex-action(runSampleWaterfall)",
-        "run_mode": "AUTO",
-        "result": "PASS",
-        "measured_evidence": "3 routes processed with terminalState; exit 0",
-        "repro_cmd": "bash .gate-evidence/2026-07-19T22:59:46Z/scripts/step1.sh"
-      },
-      {
-        "n": 2,
-        "claim": "Exactly one terminal state per route",
-        "framework": "convex-action(runSampleWaterfall)",
-        "run_mode": "AUTO",
-        "result": "PASS",
-        "measured_evidence": "all routes have terminalState string",
-        "repro_cmd": "bash .gate-evidence/2026-07-19T22:59:46Z/scripts/step2.sh"
-      },
-      {
-        "n": 3,
-        "claim": "Open ~25 couch sample PNGs",
-        "framework": "convex-action(exportCouchSample)",
-        "run_mode": "AUTO",
-        "result": "PASS",
-        "measured_evidence": ">=20 PNGs written under .tmp/sprint-04-trust-pipeline/couch-export",
-        "repro_cmd": "bash .gate-evidence/2026-07-19T22:59:46Z/scripts/step3.sh"
-      },
-      {
-        "n": 4,
-        "claim": "Record per-route true/off/wrong",
-        "framework": "convex-mutation(recordCouchVerdict)",
-        "run_mode": "AUTO",
-        "result": "PASS",
-        "measured_evidence": "25x true persisted",
-        "repro_cmd": "bash .gate-evidence/2026-07-19T22:59:46Z/scripts/step4.sh"
-      },
-      {
-        "n": 5,
-        "claim": "Record overall pass/fail",
-        "framework": "convex-query(getCouchVerdict)",
-        "run_mode": "AUTO",
-        "result": "PASS",
-        "measured_evidence": "overallVerdict=pass",
-        "repro_cmd": "bash .gate-evidence/2026-07-19T22:59:46Z/scripts/step5.sh"
-      },
-      {
-        "n": 6,
-        "claim": "Single wrong forces fail",
-        "framework": "convex-mutation(recordCouchVerdict)",
-        "run_mode": "AUTO",
-        "result": "PASS",
-        "measured_evidence": "WRONG_FORCES_FAIL rejection",
-        "repro_cmd": "bash .gate-evidence/2026-07-19T22:59:46Z/scripts/step6.sh"
-      },
-      {
-        "n": 7,
-        "claim": "Disposition 3 REVIEW items",
-        "framework": "convex-mutation(approve/retry/retire)",
-        "run_mode": "AUTO",
-        "result": "PASS",
-        "measured_evidence": "approve+retry+retire dispositions",
-        "repro_cmd": "bash .gate-evidence/2026-07-19T22:59:46Z/scripts/step7.sh"
-      },
-      {
-        "n": 8,
-        "claim": "--all refused until couch pass",
-        "framework": "convex-action(runAllWaterfall)+couchGateStatus",
-        "run_mode": "AUTO",
-        "result": "PASS",
-        "measured_evidence": "blocked then allowed after pass",
-        "repro_cmd": "bash .gate-evidence/2026-07-19T22:59:46Z/scripts/step8.sh"
-      }
+      { "n": 1, "claim": "Run lever waterfall --sample", "framework": "convex-action(runSampleWaterfall)", "run_mode": "AUTO", "result": "PASS-real", "measured_evidence": "3 REAL catalog routes via real Google+LLM, $0.21, all levers", "repro_cmd": "see .gate-evidence/2026-07-20T205404Z/step1-real-3routes-waterfall.json" },
+      { "n": 2, "claim": "Exactly one terminal state per route", "framework": "convex-action(runSampleWaterfall)", "run_mode": "AUTO", "result": "PASS-real", "measured_evidence": "each of 3 real routes in exactly one terminal state", "repro_cmd": "see step1 evidence" },
+      { "n": 3, "claim": "Open ~25 couch sample PNGs", "framework": "convex-action(exportCouchSample)", "run_mode": "HUMAN", "result": "BLOCKED", "measured_evidence": "render path verified on fixtures; real ~25-route sample needs curation pipeline + founder", "repro_cmd": "n/a (human)" },
+      { "n": 4, "claim": "Record per-route true/off/wrong", "framework": "convex-mutation(recordCouchVerdict)", "run_mode": "HUMAN", "result": "BLOCKED", "measured_evidence": "Founder-Operator visual review (S4-T7) not performed", "repro_cmd": "n/a (human)" },
+      { "n": 5, "claim": "Record overall pass/fail", "framework": "convex-query(getCouchVerdict)", "run_mode": "HUMAN", "result": "BLOCKED", "measured_evidence": "founder verdict not recorded", "repro_cmd": "n/a (human)" },
+      { "n": 6, "claim": "Single wrong forces fail", "framework": "convex-mutation(recordCouchVerdict)", "run_mode": "AUTO", "result": "PASS", "measured_evidence": "code-verified reject-pass rule", "repro_cmd": "REDHAT-FIX-03/04 + S4T6-fix0304 integration" },
+      { "n": 7, "claim": "Disposition 3 REVIEW items", "framework": "convex-mutation(approve/retry/retire)", "run_mode": "HUMAN", "result": "BLOCKED", "measured_evidence": "founder/operator dispositions not recorded on real routes", "repro_cmd": "n/a (human)" },
+      { "n": 8, "claim": "--all refused until couch pass", "framework": "convex-action(runAllWaterfall)+couchGateStatus", "run_mode": "AUTO", "result": "PASS", "measured_evidence": "code-verified gate binding", "repro_cmd": "S4T6-couch-gate-block integration" }
     ]
   },
   "e2e": {
     "sprint_id": "sprint-04-trust-pipeline",
-    "overall": "PASS",
+    "overall": "BLOCKED",
     "framework": "maestro+convex-integration",
-    "steps": [
-      {
-        "n": 1,
-        "claim": "Run lever waterfall --sample",
-        "covered_by": "existing_scenario:J-GEO-1 + S4T5 waterfall integration",
-        "result": "PASS",
-        "test": "existing_scenario:J-GEO-1 + S4T5 waterfall integration"
-      },
-      {
-        "n": 2,
-        "claim": "Exactly one terminal state per route",
-        "covered_by": "existing_scenario:J-GEO-1 + S4T5 terminal-state",
-        "result": "PASS",
-        "test": "existing_scenario:J-GEO-1 + S4T5 terminal-state"
-      },
-      {
-        "n": 3,
-        "claim": "Open ~25 couch sample PNGs",
-        "covered_by": "existing_scenario:J-GEO-1 + S4T6 couch render",
-        "result": "PASS",
-        "test": "existing_scenario:J-GEO-1 + S4T6 couch render"
-      },
-      {
-        "n": 4,
-        "claim": "Record per-route true/off/wrong",
-        "covered_by": "existing_scenario:J-GEO-1 + S4T6 record verdict",
-        "result": "PASS",
-        "test": "existing_scenario:J-GEO-1 + S4T6 record verdict"
-      },
-      {
-        "n": 5,
-        "claim": "Record overall pass/fail",
-        "covered_by": "existing_scenario:UC-VER-05 + S4T6/S4T7",
-        "result": "PASS",
-        "test": "existing_scenario:UC-VER-05 + S4T6/S4T7"
-      },
-      {
-        "n": 6,
-        "claim": "Single wrong forces fail",
-        "covered_by": "existing_scenario:UC-VER-05 wrong-forces-fail",
-        "result": "PASS",
-        "test": "existing_scenario:UC-VER-05 wrong-forces-fail"
-      },
-      {
-        "n": 7,
-        "claim": "Disposition 3 REVIEW items",
-        "covered_by": "existing_scenario:J-GEO-2 + S4T5 dispositions",
-        "result": "PASS",
-        "test": "existing_scenario:J-GEO-2 + S4T5 dispositions"
-      },
-      {
-        "n": 8,
-        "claim": "--all refused until couch pass",
-        "covered_by": "existing_scenario:UC-VER-05 couchGateStatus block",
-        "result": "PASS",
-        "test": "existing_scenario:UC-VER-05 couchGateStatus block"
-      }
-    ],
-    "written_at": "2026-07-19T23:02:07Z",
-    "written_at_commit": "4240ea01802682b3d30eb208f1f7f5837e9ae024",
-    "notes": "Journey-level coverage via .spec/scenarios/journeys/geo-* + S4T* integration tests; human steps independently re-executed at [15.95]."
+    "notes": "Prior 8/8 PASS withdrawn as forged (seam-based). Steps 1-2 real on real catalog data; steps 3-5-7 await founder + real ~25-route sample."
   },
   "human_test": {
-    "verdict": "pass",
-    "run_id": "2026-07-19T22:59:46Z",
+    "verdict": "blocked",
+    "run_id": "2026-07-20T205404Z",
     "steps_total": 8,
     "steps_executed": 8,
-    "steps_passed": 8,
+    "steps_passed": 2,
+    "steps_human_blocked": 5,
+    "steps_code_verified": 2,
     "gate_results_path": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/gate-results.json",
-    "cycle": 1
+    "cycle": 2
   },
   "build": {
     "overall": "PASS",
     "typecheck": "PASS",
     "lint_s4_touched": "PASS",
-    "lint_full_repo": "PREEXISTING_FAIL (dynamic-import plugin + format outside S4 scope; S4-touched biome clean; lefthook scopes biome to staged files)",
-    "s4_integration_tests": "PASS (224/227 green under parallel load; 3 flaky REVIEW-queue races re-passed solo)",
-    "written_at": "2026-07-19T23:02:07Z"
+    "lint_full_repo": "PREEXISTING_FAIL (dynamic-import plugin; S4-touched biome clean)",
+    "s4_integration_tests": "PASS (314/314 across 49 files post-REDHAT-FIX-01..11)",
+    "written_at": "2026-07-20T20:54:04Z"
   },
   "integration": {
     "trunk_consolidated": true,
@@ -174,22 +53,19 @@
     "stranded_tasks": [],
     "default_target_ok": true,
     "protected_branch": "main",
-    "landed_tasks": [
-      "S4-T1",
-      "S4-T2",
-      "S4-T3",
-      "S4-T4",
-      "S4-T5",
-      "S4-T6",
-      "S4-T7"
-    ]
+    "landed_tasks": ["S4-T1", "S4-T2", "S4-T3", "S4-T4", "S4-T5", "S4-T6", "S4-T7"]
   },
   "status_files": {
     "parity": true,
     "drift": [],
-    "checked_at": "2026-07-19T23:02:46Z"
+    "checked_at": "2026-07-20T20:59:05Z"
   },
-  "updated_at": "2026-07-19T23:02:24Z",
-  "phase": "complete",
-  "written_at_commit": "4240ea01802682b3d30eb208f1f7f5837e9ae024"
+  "updated_at": "2026-07-21T00:00:00Z",
+  "phase": "blocked",
+  "written_at_commit": "HEAD (post-eddcbe50; REDHAT-FIX-12..15 in progress)",
+  "withdrawn_prior_verdict": {
+    "prior_met": true,
+    "prior_written_at_commit": "4240ea01802682b3d30eb208f1f7f5837e9ae024",
+    "withdrawn_reason": "REDHAT review 2026-07-20T205905Z: sentinel predates all remediation commits; retained gate scripts pass removed lever2FixedGeometry seam and use test: fixtures — cannot attest post-remediation code, real providers, or a founder review."
+  }
 }
