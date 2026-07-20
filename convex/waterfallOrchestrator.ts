@@ -14,7 +14,7 @@ import { api, internal } from './_generated/api'
 import type { ActionCtx } from './_generated/server'
 import { action, internalMutation, mutation } from './_generated/server'
 import { geospatial } from './geospatialIndex'
-import { requireIdentity } from './guards'
+import { requireIdentity, requireOperator } from './guards'
 
 /** Estimated USD cost per Lever-2 reconstruct (LLM + geocode + routes). */
 export const COST_PER_RECONSTRUCT_USD = 0.07
@@ -249,7 +249,7 @@ async function upsertWaterfallRoute(
 export const seedWaterfallFixtures = mutation({
   args: {},
   handler: async (ctx) => {
-    await requireIdentity(ctx)
+    await requireOperator(ctx)
     return {
       lever1Pass: await upsertWaterfallRoute(ctx, {
         routeId: 'test:lever1-pass',
@@ -287,7 +287,7 @@ export const seedPassedSampleRoutes = mutation({
     prefix: v.optional(v.string()),
   },
   handler: async (ctx, { count, prefix }) => {
-    await requireIdentity(ctx)
+    await requireOperator(ctx)
     const p = prefix ?? 'test:s4t5-passed'
     const seeded: string[] = []
     for (let i = 0; i < count; i++) {
@@ -345,7 +345,7 @@ export const seedCostBurnRoutes = mutation({
     prefix: v.optional(v.string()),
   },
   handler: async (ctx, { count, prefix }) => {
-    await requireIdentity(ctx)
+    await requireOperator(ctx)
     const p = prefix ?? 'test:s4t5-cost'
     const seeded: string[] = []
     for (let i = 0; i < count; i++) {
@@ -370,7 +370,7 @@ export const teardownWaterfallFixtures = mutation({
     routeIds: v.optional(v.array(v.string())),
   },
   handler: async (ctx, { prefixes, routeIds }) => {
-    await requireIdentity(ctx)
+    await requireOperator(ctx)
     const exact: string[] = [...WATERFALL_ROUTE_IDS]
     if (routeIds) {
       for (const id of routeIds) {

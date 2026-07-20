@@ -127,7 +127,7 @@ export const seedReviewQueueEntry = mutation({
     lengthMiles: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    await requireIdentity(ctx)
+    await requireOperator(ctx)
     const failedCondition = args.failedCondition ?? 'ratio'
     const lengthMiles = args.lengthMiles ?? 41
     const nowMs = Date.now()
