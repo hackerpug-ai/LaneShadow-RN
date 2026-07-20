@@ -13,7 +13,12 @@ import { v } from 'convex/values'
 import { internal } from './_generated/api'
 import { action, internalMutation, internalQuery, mutation, query } from './_generated/server'
 import type { ReconstructPersistResult } from './actions/curatedGeometryReconstruct'
-import { determineGateVerdict, haversineDistance, isDegenerate } from './curatedGeometryGate'
+import {
+  determineGateVerdict,
+  haversineDistance,
+  isAnchorInRegion,
+  isDegenerate,
+} from './curatedGeometryGate'
 import { geospatial } from './geospatialIndex'
 import { requireIdentity } from './guards'
 import {
@@ -571,11 +576,17 @@ export const promoteForRoute = action({
     const ratio = claimedMiles != null && claimedMiles > 0 ? routedMiles / claimedMiles : null
     const roundedRatio = ratio == null ? null : Math.round(ratio * 100) / 100
 
+    // FIX-07: count in-region anchors (≤150mi from centroid)
+    const inRegionAnchorCount = anchors.filter((a) =>
+      isAnchorInRegion({ lat: a.lat, lng: a.lng }, centroid),
+    ).length
+
     const gateResult = determineGateVerdict({
       ratio,
       pointCount: points.length,
       routedMiles,
       anchorCount: anchors.length,
+      inRegionAnchorCount,
       quarantine: route.quarantine != null,
     })
 
@@ -819,11 +830,17 @@ export const rerouteForRoute = action({
     const ratio = claimedMiles != null && claimedMiles > 0 ? routedMiles / claimedMiles : null
     const roundedRatio = ratio == null ? null : Math.round(ratio * 100) / 100
 
+    // FIX-07: count in-region anchors (≤150mi from centroid)
+    const inRegionAnchorCountL3 = geocoded.filter((a) =>
+      isAnchorInRegion({ lat: a.lat, lng: a.lng }, centroid),
+    ).length
+
     const gateResult = determineGateVerdict({
       ratio,
       pointCount: decodedPoints.length,
       routedMiles,
       anchorCount: geocoded.length,
+      inRegionAnchorCount: inRegionAnchorCountL3,
       quarantine: route.quarantine != null,
     })
 

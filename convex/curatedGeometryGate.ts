@@ -100,11 +100,23 @@ export function determineGateVerdict(args: {
   pointCount: number
   routedMiles: number
   anchorCount: number
+  /**
+   * REDHAT-FIX-07: Number of anchors verified to be within 150mi of the centroid.
+   * When provided, this is the canonical count for the anchor gate check
+   * (replaces the raw anchorCount check). Required for new geometry from all
+   * levers and the persisted-geometry sweep.
+   */
+  inRegionAnchorCount?: number
   quarantine?: boolean
 }): GateVerdict {
   const ratio = normalizeRatio(args.ratio)
 
-  if (args.anchorCount < 2) {
+  // FIX-07: Use inRegionAnchorCount when provided (canonical check).
+  // Fall back to anchorCount only when inRegionAnchorCount is not supplied
+  // (legacy callers that will also be updated).
+  const effectiveAnchorCount = args.inRegionAnchorCount ?? args.anchorCount
+
+  if (effectiveAnchorCount < 2) {
     return { verdict: 'review', failedCondition: 'anchors', ratio, ratioSkipped: false }
   }
 

@@ -200,4 +200,43 @@ describe('curatedGeometryGate (pure math unit tests)', () => {
       expect(result.failedCondition).toBe('anchors')
     })
   })
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // REDHAT-FIX-07: In-region anchor enforcement
+  // ─────────────────────────────────────────────────────────────────────────
+  describe('in-region anchor enforcement (REDHAT-FIX-07)', () => {
+    it('review: anchorCount>=2 but inRegionAnchorCount<2 — off-region anchors fail', () => {
+      const result = determineGateVerdict({
+        ratio: 1.0,
+        pointCount: 100,
+        routedMiles: 40,
+        anchorCount: 3,
+        inRegionAnchorCount: 1,
+      })
+      expect(result.verdict).toBe('review')
+      expect(result.failedCondition).toBe('anchors')
+    })
+
+    it('pass: anchorCount>=2 with ≥2 in-region anchors and good ratio', () => {
+      const result = determineGateVerdict({
+        ratio: 1.0,
+        pointCount: 100,
+        routedMiles: 40,
+        anchorCount: 2,
+        inRegionAnchorCount: 2,
+      })
+      expect(result.verdict).toBe('pass')
+      expect(result.failedCondition).toBeUndefined()
+    })
+
+    it('backward compat: still works without inRegionAnchorCount', () => {
+      const result = determineGateVerdict({
+        ratio: 1.0,
+        pointCount: 100,
+        routedMiles: 40,
+        anchorCount: 2,
+      })
+      expect(result.verdict).toBe('pass')
+    })
+  })
 })

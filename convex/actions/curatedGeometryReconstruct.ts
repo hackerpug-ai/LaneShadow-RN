@@ -552,6 +552,7 @@ async function evaluateRoutedAnchors(
   geocodedAnchors: GeocodedAnchor[],
   claimedMiles: number | null,
   quarantined: boolean,
+  centroid: { lat: number; lng: number },
 ): Promise<{
   gateResult: ReturnType<typeof determineGateVerdict>
   geocodedAnchors: GeocodedAnchor[]
@@ -565,11 +566,18 @@ async function evaluateRoutedAnchors(
   const decodedPoints = polyline.decode(routeResult.polyline.encodedPolyline, 5)
   const routedMiles = routeResult.distanceMeters / 1609.34
   const ratio = claimedMiles != null && claimedMiles > 0 ? routedMiles / claimedMiles : null
+
+  // FIX-07: count in-region anchors (≤150mi from centroid)
+  const inRegionAnchorCount = geocodedAnchors.filter((a) =>
+    isAnchorInRegion({ lat: a.lat, lng: a.lng }, centroid),
+  ).length
+
   const gateResult = determineGateVerdict({
     ratio,
     pointCount: decodedPoints.length,
     routedMiles,
     anchorCount: geocodedAnchors.length,
+    inRegionAnchorCount,
     // Quarantine is a DISTINCT input from an unknown claimed length: a quarantined
     // route still computes its real ratio, and the flag alone skips the band check.
     quarantine: quarantined,
@@ -656,7 +664,12 @@ export const reconstructForRoute = internalAction({
         return null
       }
 
-      const routed = await evaluateRoutedAnchors(geocodedAnchors, claimedMiles, quarantined)
+      const routed = await evaluateRoutedAnchors(
+        geocodedAnchors,
+        claimedMiles,
+        quarantined,
+        centroid,
+      )
       return { ...routed, geocodeLog }
     }
 
@@ -751,11 +764,17 @@ export const reconstructForRouteWithFixedGeometry = internalAction({
     const claimedMiles = args.claimedMiles !== undefined ? args.claimedMiles : route.lengthMiles
     const ratio = claimedMiles != null && claimedMiles > 0 ? args.routedMiles / claimedMiles : null
 
+    // FIX-07: in-region count for fixed geometry (inRegionAnchors are synth anchors at centroid)
+    const fixedInRegionCount = geocodedAnchors.filter((a) =>
+      isAnchorInRegion({ lat: a.lat, lng: a.lng }, centroid),
+    ).length
+
     const gateResult = determineGateVerdict({
       ratio,
       pointCount,
       routedMiles: args.routedMiles,
       anchorCount,
+      inRegionAnchorCount: fixedInRegionCount,
       // The DB quarantine flag is the ONLY skip condition — never a null claimed length.
       quarantine: route.quarantine != null,
     })
@@ -791,11 +810,13 @@ export const reconstructForRouteWithFixedAnchors = internalAction({
     const geocodedAnchors = await geocodeUpToAnchors(anchorCount, centroid)
 
     if (geocodedAnchors.length < 2) {
+      // FIX-07: <2 anchors → gate fails regardless; pass raw count for audit
       const gateResult = determineGateVerdict({
         ratio: null,
         pointCount: 0,
         routedMiles: 0,
         anchorCount: geocodedAnchors.length,
+        inRegionAnchorCount: 0,
         quarantine: false,
       })
       return persistGateResult(ctx, route, {
@@ -813,6 +834,7 @@ export const reconstructForRouteWithFixedAnchors = internalAction({
       geocodedAnchors,
       resolvedClaimedMiles,
       route.quarantine != null,
+      centroid,
     )
     return persistGateResult(ctx, route, {
       gateResult: routed.gateResult,
@@ -850,11 +872,13 @@ export const reconstructForRouteWithMixedAnchors = internalAction({
     )
 
     if (surviving.length < 2) {
+      // FIX-07: surviving are already filtered for in-region; <2 → gate fails
       const gateResult = determineGateVerdict({
         ratio: null,
         pointCount: 0,
         routedMiles: 0,
         anchorCount: surviving.length,
+        inRegionAnchorCount: surviving.length,
         quarantine: false,
       })
       return persistGateResult(ctx, route, {
@@ -872,6 +896,7 @@ export const reconstructForRouteWithMixedAnchors = internalAction({
       surviving,
       route.lengthMiles,
       route.quarantine != null,
+      centroid,
     )
     return persistGateResult(ctx, route, {
       gateResult: routed.gateResult,
