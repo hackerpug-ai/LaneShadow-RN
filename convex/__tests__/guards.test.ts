@@ -1,14 +1,29 @@
 import { ConvexError } from 'convex/values'
 import { describe, expect, it, vi } from 'vitest'
 
-import { ensureSession, requireIdentity } from '../guards'
+import { ensureSession, requireFounder, requireIdentity, requireOperator } from '../guards'
 
-const makeCtx = (identity: Record<string, unknown> | null) => ({
+const makeCtx = (
+  identity: Record<string, unknown> | null,
+  userDoc?: Record<string, unknown> | null,
+) => ({
   auth: {
     getUserIdentity: vi.fn().mockResolvedValue(identity),
   },
   runQuery: vi.fn(),
   runMutation: vi.fn(),
+  db: {
+    query: vi.fn().mockReturnValue({
+      withIndex: vi.fn(
+        (_indexName: string, cb: (q: { eq: ReturnType<typeof vi.fn> }) => unknown) => {
+          cb({ eq: vi.fn() })
+          return {
+            unique: vi.fn().mockResolvedValue(userDoc ?? null),
+          }
+        },
+      ),
+    }),
+  },
 })
 
 const clerkIdentity = {
@@ -98,5 +113,131 @@ describe('requireIdentity', () => {
     const result = await requireIdentity(ctx as any)
     expect(result.clerkUserId).toBe('user_abc')
     expect(result.tokenIdentifier).toBeNull()
+  })
+})
+
+describe('requireFounder (REDHAT-FIX-06)', () => {
+  it('rejects non-founder (rider role) with FORBIDDEN', async () => {
+    const ctx = makeCtx(clerkIdentity, {
+      clerkUserId: 'user_clerk123',
+      email: 'rider@example.com',
+      name: 'Test Rider',
+      role: 'rider',
+      createdAt: 1,
+      updatedAt: 1,
+      lastLocalUpdateAt: 1,
+    })
+    try {
+      await requireFounder(ctx as any)
+      expect.fail('Should have thrown ConvexError')
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(ConvexError)
+      expect(err.data.code).toBe('FORBIDDEN')
+    }
+  })
+
+  it('rejects non-founder (operator role) with FORBIDDEN', async () => {
+    const ctx = makeCtx(clerkIdentity, {
+      clerkUserId: 'user_clerk123',
+      email: 'rider@example.com',
+      name: 'Test Rider',
+      role: 'operator',
+      createdAt: 1,
+      updatedAt: 1,
+      lastLocalUpdateAt: 1,
+    })
+    try {
+      await requireFounder(ctx as any)
+      expect.fail('Should have thrown ConvexError')
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(ConvexError)
+      expect(err.data.code).toBe('FORBIDDEN')
+    }
+  })
+
+  it('allows founder role through', async () => {
+    const ctx = makeCtx(clerkIdentity, {
+      clerkUserId: 'user_clerk123',
+      email: 'founder@example.com',
+      name: 'Founder',
+      role: 'founder',
+      createdAt: 1,
+      updatedAt: 1,
+      lastLocalUpdateAt: 1,
+    })
+    const result = await requireFounder(ctx as any)
+    expect(result.clerkUserId).toBe('user_clerk123')
+    expect(result.role).toBe('founder')
+  })
+
+  it('rejects unauthenticated caller with UNAUTHENTICATED', async () => {
+    const ctx = makeCtx(null)
+    try {
+      await requireFounder(ctx as any)
+      expect.fail('Should have thrown')
+    } catch (err: any) {
+      expect(err.data.code).toBe('UNAUTHENTICATED')
+    }
+  })
+})
+
+describe('requireOperator (REDHAT-FIX-06)', () => {
+  it('rejects non-operator (rider role) with FORBIDDEN', async () => {
+    const ctx = makeCtx(clerkIdentity, {
+      clerkUserId: 'user_clerk123',
+      email: 'rider@example.com',
+      name: 'Test Rider',
+      role: 'rider',
+      createdAt: 1,
+      updatedAt: 1,
+      lastLocalUpdateAt: 1,
+    })
+    try {
+      await requireOperator(ctx as any)
+      expect.fail('Should have thrown ConvexError')
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(ConvexError)
+      expect(err.data.code).toBe('FORBIDDEN')
+    }
+  })
+
+  it('allows founder role through (founder is also operator)', async () => {
+    const ctx = makeCtx(clerkIdentity, {
+      clerkUserId: 'user_clerk123',
+      email: 'founder@example.com',
+      name: 'Founder',
+      role: 'founder',
+      createdAt: 1,
+      updatedAt: 1,
+      lastLocalUpdateAt: 1,
+    })
+    const result = await requireOperator(ctx as any)
+    expect(result.clerkUserId).toBe('user_clerk123')
+    expect(result.role).toBe('founder')
+  })
+
+  it('allows operator role through', async () => {
+    const ctx = makeCtx(clerkIdentity, {
+      clerkUserId: 'user_clerk123',
+      email: 'op@example.com',
+      name: 'Operator',
+      role: 'operator',
+      createdAt: 1,
+      updatedAt: 1,
+      lastLocalUpdateAt: 1,
+    })
+    const result = await requireOperator(ctx as any)
+    expect(result.clerkUserId).toBe('user_clerk123')
+    expect(result.role).toBe('operator')
+  })
+
+  it('rejects unauthenticated caller with UNAUTHENTICATED', async () => {
+    const ctx = makeCtx(null)
+    try {
+      await requireOperator(ctx as any)
+      expect.fail('Should have thrown')
+    } catch (err: any) {
+      expect(err.data.code).toBe('UNAUTHENTICATED')
+    }
   })
 })

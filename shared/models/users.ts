@@ -12,6 +12,12 @@ export const USER_FIELDS = {
   clerkUserId: v.string(),
   email: v.string(),
   name: v.string(),
+  /**
+   * REDHAT-FIX-06: Server-owned role for authorization.
+   * 'founder' — full operational access; 'operator' — operational mutations;
+   * 'rider' — standard user (default when absent).
+   */
+  role: v.optional(v.union(v.literal('founder'), v.literal('operator'), v.literal('rider'))),
   createdAt: v.number(),
   updatedAt: v.number(),
   /**

@@ -13,7 +13,7 @@
 import { v } from 'convex/values'
 import { api } from './_generated/api'
 import { action, mutation, query } from './_generated/server'
-import { requireIdentity } from './guards'
+import { requireIdentity, requireOperator } from './guards'
 
 // ---------------------------------------------------------------------------
 // List REVIEW queue with best candidate geometry
@@ -232,11 +232,11 @@ export const seedReviewQueueEntry = mutation({
 // Dispositions
 // ---------------------------------------------------------------------------
 
-/** Approve: persist best candidate geometry as gate-pass (founder override). */
+/** Approve: persist best candidate geometry as gate-pass (founder/operator). */
 export const approveDisposition = mutation({
   args: { routeId: v.string() },
   handler: async (ctx, { routeId }) => {
-    await requireIdentity(ctx)
+    await requireOperator(ctx)
     const route = await ctx.db
       .query('curated_routes')
       .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
@@ -313,11 +313,11 @@ export const approveDisposition = mutation({
   },
 })
 
-/** Retire: mark retiredAt, riderReady=false, leave REVIEW. */
+/** Retire: mark retiredAt, riderReady=false, leave REVIEW (operator only). */
 export const retireDisposition = mutation({
   args: { routeId: v.string() },
   handler: async (ctx, { routeId }) => {
-    await requireIdentity(ctx)
+    await requireOperator(ctx)
     const route = await ctx.db
       .query('curated_routes')
       .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
@@ -359,7 +359,7 @@ export const prepareRetryDisposition = mutation({
     lever: v.union(v.literal(1), v.literal(2), v.literal(3)),
   },
   handler: async (ctx, { routeId, lever }) => {
-    await requireIdentity(ctx)
+    await requireOperator(ctx)
     const route = await ctx.db
       .query('curated_routes')
       .withIndex('by_routeId', (q) => q.eq('routeId', routeId))

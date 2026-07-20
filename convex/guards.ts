@@ -7,10 +7,15 @@ import { ERROR_CODES } from './errors'
 
 type Ctx = QueryCtx | MutationCtx | ActionCtx
 
+/** Mutation/Query context only (has db access for role lookup). */
+type DbCtx = QueryCtx | MutationCtx
+
 type Identity = {
   clerkUserId: string
   tokenIdentifier: string | null
 }
+
+type RoleIdentity = Identity & { role: 'founder' | 'operator' | 'rider' }
 
 export const requireIdentity = async (ctx: Ctx): Promise<Identity> => {
   const identity = await ctx.auth.getUserIdentity()
@@ -86,4 +91,65 @@ export const requireSession = async (ctx: Ctx, devBypassKey?: string): Promise<S
   } catch (_error) {
     throw new Error('SESSION_REQUIRED')
   }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// REDHAT-FIX-06: Role-based authorization guards
+// ────────────────────────────────────────────────────────────────────────────
+
+/** Allowed operational roles (founder can do everything operator can). */
+const OPERATOR_ROLES: ReadonlySet<string> = new Set(['founder', 'operator'])
+
+/**
+ * Resolve the authenticated identity's role from the users table.
+ * Falls back to 'rider' for records without a role field (backward compat).
+ * Server-owned: never accepts a role from the client.
+ */
+async function resolveRole(ctx: DbCtx, clerkUserId: string): Promise<RoleIdentity> {
+  const identity: Identity = { clerkUserId, tokenIdentifier: null }
+
+  const user = await ctx.db
+    .query('users')
+    .withIndex('by_clerkUserId', (q) => q.eq('clerkUserId', clerkUserId))
+    .unique()
+
+  const role: 'founder' | 'operator' | 'rider' =
+    user?.role === 'founder' || user?.role === 'operator' ? user.role : 'rider'
+
+  return { ...identity, role }
+}
+
+/**
+ * Require founder role. Throws FORBIDDEN if the authenticated user is not a founder.
+ */
+export const requireFounder = async (ctx: DbCtx): Promise<RoleIdentity> => {
+  const base = await requireIdentity(ctx)
+  const resolved = await resolveRole(ctx, base.clerkUserId)
+
+  if (resolved.role !== 'founder') {
+    throw new ConvexError({
+      code: ERROR_CODES.FORBIDDEN,
+      message: 'Founder role required',
+    })
+  }
+
+  return resolved
+}
+
+/**
+ * Require operator or founder role. Throws FORBIDDEN if the authenticated user
+ * is neither a founder nor an operator.
+ */
+export const requireOperator = async (ctx: DbCtx): Promise<RoleIdentity> => {
+  const base = await requireIdentity(ctx)
+  const resolved = await resolveRole(ctx, base.clerkUserId)
+
+  if (!OPERATOR_ROLES.has(resolved.role)) {
+    throw new ConvexError({
+      code: ERROR_CODES.FORBIDDEN,
+      message: 'Operator or founder role required',
+    })
+  }
+
+  return resolved
 }

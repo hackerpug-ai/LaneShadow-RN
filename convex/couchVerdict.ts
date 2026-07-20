@@ -10,7 +10,7 @@ import { ConvexError, v } from 'convex/values'
 import { api } from './_generated/api'
 import { action, mutation, query } from './_generated/server'
 import { geospatial } from './geospatialIndex'
-import { requireIdentity } from './guards'
+import { requireIdentity, requireOperator } from './guards'
 
 const routeVerdictValidator = v.object({
   routeId: v.string(),
@@ -55,7 +55,7 @@ export const recordCouchVerdict = mutation({
     routeVerdicts: v.array(routeVerdictValidator),
   },
   handler: async (ctx, { sampleId, overallVerdict, routeVerdicts }) => {
-    const identity = await requireIdentity(ctx)
+    const identity = await requireOperator(ctx)
 
     if (routeVerdicts.length === 0) {
       throw new ConvexError({
@@ -157,7 +157,7 @@ export const couchGateStatus = query({
 export const clearCouchVerdicts = mutation({
   args: {},
   handler: async (ctx) => {
-    await requireIdentity(ctx)
+    await requireOperator(ctx)
     const rows = await ctx.db.query('couch_verdicts').take(100)
     for (const r of rows) {
       await ctx.db.delete(r._id)
