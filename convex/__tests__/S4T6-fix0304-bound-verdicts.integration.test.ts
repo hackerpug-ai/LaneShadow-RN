@@ -81,6 +81,8 @@ describe('FIX-03/04: Verdicts bound to frozen manifest (exact membership, append
 
     // Clear any prior pass
     runConvexFn('couchVerdict:clearCouchVerdictsPublic', {}, { identity: true })
+    // REDHAT-FIX-14: clear explicit manifest activations for a clean gate state
+    runConvexFn('couchVerdict:clearCouchManifestActivations', {}, { identity: true })
 
     // Seed + assemble
     const seed = runConvexFn('couchSampleAssembler:seedCouchFixturesPublic', {}, { identity: true })
@@ -104,6 +106,14 @@ describe('FIX-03/04: Verdicts bound to frozen manifest (exact membership, append
     expect(manifest.ok, `getCouchSample failed: ${manifest.stderr}`).toBe(true)
     frozenManifest = JSON.parse(manifest.stdout)
 
+    // REDHAT-FIX-14: explicitly activate the frozen manifest (operator).
+    const activate = runConvexFn(
+      'couchVerdict:activateCouchManifest',
+      { sampleId: validSample.sampleId, reason: 's4t6-fix0304 setup' },
+      { identity: true },
+    )
+    expect(activate.ok, `activateCouchManifest failed: ${activate.stderr}`).toBe(true)
+
     writeFileSync(
       resolve(EVIDENCE_DIR, 'FIX-0304-setup.json'),
       JSON.stringify(
@@ -120,6 +130,8 @@ describe('FIX-03/04: Verdicts bound to frozen manifest (exact membership, append
 
   afterAll(() => {
     runConvexFn('couchVerdict:clearCouchVerdictsPublic', {}, { identity: true })
+    // REDHAT-FIX-14: clear explicit manifest activations
+    runConvexFn('couchVerdict:clearCouchManifestActivations', {}, { identity: true })
     runConvexFn('couchSampleAssembler:teardownCouchFixturesPublic', {}, { identity: true })
   })
 

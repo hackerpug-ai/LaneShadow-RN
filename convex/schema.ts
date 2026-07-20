@@ -404,4 +404,23 @@ export default defineSchema({
   })
     .index('by_sampleId', ['sampleId'])
     .index('by_overallVerdict', ['overallVerdict']),
+
+  /**
+   * REDHAT-FIX-14: Explicit active-manifest transition log. The active couch
+   * manifest is NOT derived from the latest frozen sample — an operator must
+   * explicitly activate a frozen manifest (activateCouchManifest). This prevents
+   * an ordinary authenticated user from freezing a new manifest to invalidate a
+   * prior approved unlock (a trust-gate DoS / unauthorized control-plane change).
+   * Append-only audit trail: couchGateStatus binds to the latest activation.
+   */
+  couch_manifest_activations: defineTable({
+    sampleId: v.string(),
+    manifestHash: v.optional(v.string()),
+    catalogVersion: v.optional(v.string()),
+    activatedBy: v.string(),
+    reason: v.optional(v.string()),
+    activatedAt: v.number(),
+  })
+    .index('by_sampleId', ['sampleId'])
+    .index('by_activatedAt', ['activatedAt']),
 })

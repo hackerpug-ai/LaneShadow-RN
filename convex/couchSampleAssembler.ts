@@ -12,7 +12,7 @@ import { api, internal } from './_generated/api'
 import { action, internalMutation, mutation, query } from './_generated/server'
 import { buildFixturePolyline } from './couchRouteMapPng'
 import { geospatial } from './geospatialIndex'
-import { requireFounder, requireIdentity } from './guards'
+import { requireFounder, requireIdentity, requireOperator, requireOperatorAction } from './guards'
 
 // Re-export fixture polyline builder for callers/tests.
 export {
@@ -616,7 +616,10 @@ export const storeCouchSample = mutation({
     ),
   },
   handler: async (ctx, { sampleId, routes }) => {
-    const identity = await requireIdentity(ctx)
+    // REDHAT-FIX-14: freezing a manifest is an operator control-plane action —
+    // an ordinary rider cannot freeze a new manifest (which previously rotated
+    // the "active" manifest and invalidated a prior approved unlock).
+    const identity = await requireOperator(ctx)
 
     if (routes.length < COUCH_SAMPLE_MIN || routes.length > COUCH_SAMPLE_MAX) {
       throw new ConvexError({
@@ -738,7 +741,8 @@ export const assembleCouchSample = action({
     sampleId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requireIdentity(ctx)
+    // REDHAT-FIX-14: assemble→freeze is operator-only (freezes a manifest).
+    await requireOperatorAction(ctx)
     const targetSize = args.targetSize ?? COUCH_SAMPLE_TARGET
     // Default: include PRD fixtures + couch-prefixed seeds
     const listed = await ctx.runQuery(api.couchSampleAssembler.listRecoveredCandidates, {

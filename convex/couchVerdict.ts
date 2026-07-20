@@ -185,23 +185,43 @@ export const couchGateStatus = query({
     // frozen couch_sample. A historical pass on an older manifest cannot remain
     // eligible after a newer sample is frozen (which happens on geometry/catalog
     // change). catalogVersion is derived from the active manifest, not hardcoded.
-    const frozenSamples = await ctx.db.query('couch_samples').collect()
-    const activeManifest = frozenSamples
-      .filter((s) => s.status === 'frozen')
-      .sort((a, b) => (b.frozenAt ?? b.createdAt) - (a.frozenAt ?? a.createdAt))[0]
+    // REDHAT-FIX-14: the active manifest is the LATEST EXPLICIT activation, NOT
+    // the latest frozen sample. An ordinary rider cannot rotate it by freezing a
+    // new manifest; only an operator activation (activateCouchManifest) does.
+    const latestActivation = await ctx.db
+      .query('couch_manifest_activations')
+      .withIndex('by_activatedAt', (q) => q)
+      .order('desc')
+      .first()
 
-    if (!activeManifest) {
+    if (!latestActivation) {
       return {
         allowed: false,
         overallVerdict: null as 'pass' | 'fail' | null,
-        reason: 'Couch gate blocked: no frozen manifest (active sample) exists',
+        reason: 'Couch gate blocked: no active manifest (no operator activation exists)',
         sampleId: null as string | null,
         manifestHash: null as string | null,
       }
     }
 
-    const activeManifestHash = activeManifest.manifestHash ?? null
-    const activeCatalogVersion = activeManifest.catalogVersion ?? null
+    const activeManifest = await ctx.db
+      .query('couch_samples')
+      .withIndex('by_sampleId', (q) => q.eq('sampleId', latestActivation.sampleId))
+      .first()
+
+    if (!activeManifest || activeManifest.status !== 'frozen') {
+      return {
+        allowed: false,
+        overallVerdict: null as 'pass' | 'fail' | null,
+        reason: `Couch gate blocked: active manifest ${latestActivation.sampleId} is no longer frozen`,
+        sampleId: latestActivation.sampleId,
+        manifestHash: null as string | null,
+      }
+    }
+
+    const activeManifestHash = activeManifest.manifestHash ?? latestActivation.manifestHash ?? null
+    const activeCatalogVersion =
+      activeManifest.catalogVersion ?? latestActivation.catalogVersion ?? null
 
     // Latest pass verdict bound to THIS active manifest (sampleId + manifestHash
     // + catalogVersion). Uses the by_sampleId index then filters in-memory.
@@ -236,6 +256,64 @@ export const couchGateStatus = query({
       recordedAt: boundPass.recordedAt,
       manifestHash: activeManifestHash,
     }
+  },
+})
+
+/**
+ * REDHAT-FIX-14: Explicitly activate a frozen manifest as the active gate
+ * manifest. Operator-only. The active manifest is NOT derived from the latest
+ * freeze — an ordinary user cannot rotate it (which previously invalidated a
+ * prior approved unlock). Append-only audit log with the activating operator's
+ * identity + an optional reason.
+ */
+export const activateCouchManifest = mutation({
+  args: {
+    sampleId: v.string(),
+    reason: v.optional(v.string()),
+  },
+  handler: async (ctx, { sampleId, reason }) => {
+    const identity = await requireOperator(ctx)
+    const manifest = await ctx.db
+      .query('couch_samples')
+      .withIndex('by_sampleId', (q) => q.eq('sampleId', sampleId))
+      .first()
+    if (!manifest || manifest.status !== 'frozen') {
+      throw new ConvexError({
+        code: 'MANIFEST_NOT_FROZEN',
+        message: `Cannot activate ${sampleId}: manifest is not frozen`,
+      })
+    }
+    const nowMs = Date.now()
+    const activationId = await ctx.db.insert('couch_manifest_activations', {
+      sampleId,
+      manifestHash: manifest.manifestHash,
+      catalogVersion: manifest.catalogVersion,
+      activatedBy: identity.clerkUserId,
+      reason,
+      activatedAt: nowMs,
+    })
+    return {
+      sampleId,
+      manifestHash: manifest.manifestHash ?? null,
+      catalogVersion: manifest.catalogVersion ?? null,
+      activatedAt: nowMs,
+      activationId,
+    }
+  },
+})
+
+/**
+ * REDHAT-FIX-14: Clear all manifest activations (test/reset only). Founder-only.
+ */
+export const clearCouchManifestActivations = mutation({
+  args: {},
+  handler: async (ctx): Promise<{ cleared: number }> => {
+    await requireFounder(ctx)
+    const rows = await ctx.db.query('couch_manifest_activations').take(100)
+    for (const r of rows) {
+      await ctx.db.delete(r._id)
+    }
+    return { cleared: rows.length }
   },
 })
 

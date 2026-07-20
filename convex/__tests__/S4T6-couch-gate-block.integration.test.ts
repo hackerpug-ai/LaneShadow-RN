@@ -73,6 +73,8 @@ describe('AC-5: couchGateStatus blocks --all until couch pass', () => {
 
     // Ensure clean gate state
     runConvexFn('couchVerdict:clearCouchVerdictsPublic', {}, { identity: true })
+    // REDHAT-FIX-14: clear explicit manifest activations too
+    runConvexFn('couchVerdict:clearCouchManifestActivations', {}, { identity: true })
 
     const seed = runConvexFn('couchSampleAssembler:seedCouchFixturesPublic', {}, { identity: true })
     expect(seed.ok, `seed failed: ${seed.stderr}\n${seed.stdout}`).toBe(true)
@@ -101,6 +103,18 @@ describe('AC-5: couchGateStatus blocks --all until couch pass', () => {
     )
     expect(assemble.ok, `assemble failed: ${assemble.stderr}\n${assemble.stdout}`).toBe(true)
     sample = JSON.parse(assemble.stdout)
+
+    // REDHAT-FIX-14: explicitly activate the frozen manifest (operator). The
+    // active manifest is NOT derived from the latest freeze.
+    const activate = runConvexFn(
+      'couchVerdict:activateCouchManifest',
+      { sampleId: sample.sampleId, reason: 's4t6-couch-gate-block test' },
+      { identity: true },
+    )
+    expect(
+      activate.ok,
+      `activateCouchManifest failed: ${activate.stderr}\n${activate.stdout}`,
+    ).toBe(true)
 
     const routeVerdicts = (sample.routes ?? []).map((r: any) => ({
       routeId: r.routeId,
