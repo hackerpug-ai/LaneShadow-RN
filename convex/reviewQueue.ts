@@ -13,6 +13,7 @@
 import { v } from 'convex/values'
 import { api } from './_generated/api'
 import { action, mutation, query } from './_generated/server'
+import { determineGateVerdict, type GateVerdict, isAnchorInRegion } from './curatedGeometryGate'
 import { requireIdentity, requireOperator } from './guards'
 
 // ---------------------------------------------------------------------------
@@ -232,6 +233,45 @@ export const seedReviewQueueEntry = mutation({
 // Dispositions
 // ---------------------------------------------------------------------------
 
+/**
+ * REDHAT-FIX-05: Evaluate a REVIEW candidate against the canonical geometry gate.
+ * Pure function — no DB access. Returns the gate verdict + whether riderReady
+ * should be set (only when the gate passes).
+ */
+export function evaluateApprovalCandidate(args: {
+  anchorCount: number
+  anchors: Array<{ lat: number; lng: number }>
+  centroid: { lat: number; lng: number }
+  routedMiles: number
+  pointCount: number
+  ratio: number | null
+  quarantine: boolean
+  claimedMiles: number
+}): {
+  verdict: 'pass' | 'review'
+  failedCondition?: 'ratio' | 'anchors' | 'degenerate'
+  riderReady: boolean
+  gateResult: GateVerdict
+} {
+  const inRegionAnchorCount = args.anchors.filter((a) => isAnchorInRegion(a, args.centroid)).length
+
+  const gateResult = determineGateVerdict({
+    ratio: args.ratio,
+    pointCount: args.pointCount,
+    routedMiles: args.routedMiles,
+    anchorCount: args.anchorCount,
+    inRegionAnchorCount,
+    quarantine: args.quarantine,
+  })
+
+  return {
+    verdict: gateResult.verdict,
+    failedCondition: gateResult.failedCondition,
+    riderReady: gateResult.verdict === 'pass',
+    gateResult,
+  }
+}
+
 /** Approve: persist best candidate geometry as gate-pass (founder/operator). */
 export const approveDisposition = mutation({
   args: { routeId: v.string() },
@@ -253,19 +293,92 @@ export const approveDisposition = mutation({
       throw new Error(`No best candidate geometry to approve for ${routeId}`)
     }
 
+    // FIX-05: Run the canonical geometry gate on the stored verification data.
+    // Approval must NOT forge a pass for gate-failing geometry.
+    const storedAnchors =
+      geom?.verification?.anchors?.map(
+        (a: { lat: number; lng: number; formatted?: string; distanceFromCentroid?: number }) => ({
+          lat: a.lat,
+          lng: a.lng,
+          formatted: a.formatted ?? '',
+          distanceFromCentroid: a.distanceFromCentroid ?? 0,
+        }),
+      ) ?? []
+    const anchorCount = geom?.verification?.anchorCount ?? storedAnchors.length ?? 2
+    const gateAnchors: Array<{ lat: number; lng: number }> = storedAnchors.map((a) => ({
+      lat: a.lat,
+      lng: a.lng,
+    }))
+    const centroid = {
+      lat: route.centroidLat ?? 34.95,
+      lng: route.centroidLng ?? -120.42,
+    }
+    const routedMiles = geom?.verification?.routedMiles ?? route.lengthMiles ?? 0
+    const pointCount = geom?.verification?.pointCount ?? 50
+    const ratio = geom?.verification?.ratio ?? null
+    const claimedMiles = geom?.verification?.claimedMiles ?? route.lengthMiles ?? 0
+
+    const evaluation = evaluateApprovalCandidate({
+      anchorCount,
+      anchors: gateAnchors,
+      centroid,
+      routedMiles,
+      pointCount,
+      ratio,
+      quarantine: route.quarantine != null,
+      claimedMiles,
+    })
+
+    // FIX-05: Gate-failing candidates stay in REVIEW — do NOT forge pass/riderReady.
+    // Founders who need to override must use a separate override pathway (not yet
+    // implemented) that sets geometryStatus:'override' with audit rationale.
+    if (evaluation.verdict !== 'pass') {
+      const now = Date.now()
+      await ctx.db.insert('curation_artifacts', {
+        routeId,
+        artifactType: 'disposition',
+        disposition: 'approve',
+        terminalState: 'queued',
+        failedCondition: evaluation.failedCondition,
+        bestCandidateGeometry: geometry,
+        attemptedAt: now,
+        createdAt: now,
+      })
+
+      return {
+        routeId,
+        disposition: 'approve' as const,
+        geometryStatus: 'review' as const,
+        verdict: 'review' as const,
+        riderReady: false,
+        gateBlocked: true,
+        failedCondition: evaluation.failedCondition,
+      }
+    }
+
+    // Gate passes — persist the canonical approval.
+    const provenance: 'scraped_promoted' | 'ai_reconstructed' | 'name_routed' =
+      (geom?.verification?.provenance as
+        | 'scraped_promoted'
+        | 'ai_reconstructed'
+        | 'name_routed'
+        | undefined) ??
+      geom?.provenance ??
+      'scraped_promoted'
+
     const verification = {
       routeId,
       verdict: 'pass' as const,
-      provenance: 'scraped_promoted' as const,
+      provenance,
       geometry,
       geometryStatus: 'generated' as const,
-      anchorCount: geom?.verification?.anchorCount ?? 2,
-      anchors: geom?.verification?.anchors ?? [],
-      pointCount: geom?.verification?.pointCount ?? 50,
+      anchorCount,
+      anchors: storedAnchors,
+      pointCount,
       degenerate: false,
-      ratio: geom?.verification?.ratio ?? 1.0,
-      claimedMiles: geom?.verification?.claimedMiles ?? route.lengthMiles,
-      routedMiles: geom?.verification?.routedMiles ?? route.lengthMiles,
+      ratio: evaluation.gateResult.ratio,
+      claimedMiles,
+      routedMiles,
     }
 
     const geomDoc = {
@@ -274,7 +387,7 @@ export const approveDisposition = mutation({
       encoding: 'utf-8',
       precision: 5,
       value: geometry,
-      provenance: 'scraped_promoted' as const,
+      provenance,
       verification,
     }
 
@@ -286,7 +399,7 @@ export const approveDisposition = mutation({
 
     await ctx.db.patch(route._id, {
       geometryStatus: 'generated',
-      geometryProvenance: 'scraped_promoted',
+      geometryProvenance: provenance,
       riderReady: true,
       retiredAt: undefined,
     })
@@ -297,7 +410,7 @@ export const approveDisposition = mutation({
       artifactType: 'disposition',
       disposition: 'approve',
       terminalState: 'recovered',
-      provenance: 'scraped_promoted',
+      provenance,
       bestCandidateGeometry: geometry,
       attemptedAt: now,
       createdAt: now,
