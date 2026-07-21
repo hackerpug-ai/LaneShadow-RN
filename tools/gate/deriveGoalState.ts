@@ -424,24 +424,81 @@ function extractTimestampEvidenceRunIds(text: string): string[] {
 }
 
 /**
- * REDHAT-FIX-22: canonicalize a plan literal_cmd / repro_cmd / path to a stable
- * script key for exact equality. Prefer the
+ * REDHAT-FIX-25: shell metacharacters / control chars / quote-IFS evasion that
+ * MUST NOT appear in a plan-equality command. Fail closed — never strip these
+ * to recover a clean plan key.
+ *
+ * Forbidden: `; & | $ \` ( ) < >` newline tab, and quotes / backslash used for
+ * IFS/escape evasion of the same vectors.
+ */
+const SHELL_UNSAFE_RE = /[;&|$\x60()<>\n\t'"\\]/
+
+/** True when text embeds shell grammar / control / quote-escape characters. */
+export function containsShellUnsafeChars(text: string): boolean {
+  return SHELL_UNSAFE_RE.test(text)
+}
+
+/**
+ * True when text names a timestamp-shaped `.gate-evidence/.../*.sh` path even
+ * if shell metacharacters are glued to the path token. Used only to detect
+ * the enforcement surface — never as an equality key.
+ */
+function mentionsTimestampShapedScript(text: string): boolean {
+  return /\.gate-evidence\/\d{4}-\d{2}-\d{2}T(?:\d{6}Z|\d{2}:\d{2}:\d{2}Z)\/(?:scripts\/)?[^\s/]*\.sh/.test(
+    text,
+  )
+}
+
+/**
+ * Clean path characters only (no shell metachar / control / quote / escape).
+ * Used so a token like `step1.sh;:` is NEVER accepted as a script path.
+ */
+const CLEAN_PATH_TOKEN = /^(?:\/|\.\/)?[A-Za-z0-9_./@%+=:,-]+\.sh$/
+
+/**
+ * REDHAT-FIX-22 + REDHAT-FIX-25: canonicalize a plan literal_cmd / repro_cmd /
+ * path to a stable script key for exact equality. Prefer the
  * `.gate-evidence/<timestamp-run>/scripts/<file>.sh` suffix so absolute vs
  * relative prefixes compare equal. Returns null when no `.sh` path is present
  * (e.g. bare bundle dirs) — those stay under run-ID checks only.
+ *
+ * REDHAT-FIX-25: do NOT use `\S+\.sh` extract that trims trailing `;:` /
+ * `$(…)` / operators from a larger shell token to recover a plan key. The
+ * matched path token itself must be a clean `.sh` path with no suffix junk.
  */
 export function canonicalizeScriptPath(text: string): string | null {
   if (!text) return null
   const trimmed = text.trim()
-  // Extract script path from `bash <path>` / raw path ending in .sh
-  const m = trimmed.match(/(?:^|\s)((?:\/|\.\/)?\S+\.sh)\s*$/) ?? trimmed.match(/(\S+\.sh)/)
-  if (!m?.[1]) return null
-  const raw = m[1].replace(/\\/g, '/')
+  // Prefer whole-string clean path, then final whitespace-delimited clean token.
+  // Never match a prefix of a dirty token (e.g. `step1.sh;:` / `step1.sh$(true)`).
+  let candidate: string | null = null
+  if (CLEAN_PATH_TOKEN.test(trimmed)) {
+    candidate = trimmed
+  } else {
+    const parts = trimmed.split(/\s+/).filter(Boolean)
+    const last = parts[parts.length - 1]
+    if (last && CLEAN_PATH_TOKEN.test(last)) {
+      candidate = last
+    } else {
+      // Scan tokens for a clean .sh path (interpreter + path + args form).
+      for (const t of parts) {
+        if (CLEAN_PATH_TOKEN.test(t)) {
+          candidate = t
+          break
+        }
+      }
+    }
+  }
+  if (!candidate) return null
+  const raw = candidate.replace(/\\/g, '/')
   // Stable key: .gate-evidence/<runId>/scripts/<file>.sh (timestamp runs only)
   const ge = raw.match(/\.gate-evidence\/([^/]+)\/(?:scripts\/)?([^/]+\.sh)$/)
   if (ge?.[1] && ge[2] && isTimestampShapedRunId(ge[1])) {
+    // Filename itself must be clean (no metachar smuggled into the capture).
+    if (containsShellUnsafeChars(ge[2])) return null
     return `.gate-evidence/${ge[1]}/scripts/${ge[2]}`
   }
+  if (containsShellUnsafeChars(raw)) return null
   return raw
 }
 
@@ -477,9 +534,16 @@ export type NormalizedFullCommand = {
  * Tokenize and normalize a full shell command for exact equality.
  * Leading env KEY=val / `env VAR=…` prefixes are kept in `prefix` so they
  * cannot equal a bare plan `bash <script>` literal_cmd.
+ *
+ * REDHAT-FIX-25: shell-SAFE — commands containing shell metacharacters /
+ * control chars / quote-escape chars return null (fail closed). Equality
+ * requires a strict whitespace-delimited argv of clean path/interpreter/arg
+ * words; glued metachar suffixes never recover a plan key.
  */
 export function normalizeFullCommand(text: string): NormalizedFullCommand | null {
   if (!text) return null
+  // Fail closed on shell grammar before any path-prefix recovery.
+  if (containsShellUnsafeChars(text)) return null
   const tokens = text.trim().split(/\s+/).filter(Boolean)
   if (tokens.length === 0) return null
 
@@ -503,11 +567,13 @@ export function normalizeFullCommand(text: string): NormalizedFullCommand | null
 
   if (i >= tokens.length) return null
 
-  // Locate the .sh script token among remaining tokens.
+  // Locate the .sh script token among remaining tokens (clean token only).
   let scriptIdx = -1
   for (let j = i; j < tokens.length; j++) {
     const t = tokens[j]!
     if (!t.includes('.sh')) continue
+    // Token itself must be a clean path — never extract `.sh` prefix from junk.
+    if (!CLEAN_PATH_TOKEN.test(t)) continue
     const key = canonicalizeScriptPath(t)
     if (key) {
       scriptIdx = j
@@ -515,8 +581,9 @@ export function normalizeFullCommand(text: string): NormalizedFullCommand | null
     }
   }
   if (scriptIdx < 0) {
-    // Fallback: whole remaining text may embed a path (canonicalizeScriptPath scan).
+    // Fallback: whole remaining text may be a bare clean path.
     const rest = tokens.slice(i).join(' ')
+    if (containsShellUnsafeChars(rest)) return null
     const key = canonicalizeScriptPath(rest)
     if (!key) return null
     // Treat as bare path when only one token, else first token = interpreter.
@@ -557,9 +624,9 @@ export function stableFullCommandKey(n: NormalizedFullCommand): string {
 }
 
 /**
- * REDHAT-FIX-20 + REDHAT-FIX-21 + REDHAT-FIX-22 + REDHAT-FIX-24: reject step
- * repro_cmd / bundle paths that are off-plan relative to HEAD-bound gate-plan
- * literal_cmds.
+ * REDHAT-FIX-20 + REDHAT-FIX-21 + REDHAT-FIX-22 + REDHAT-FIX-24 + REDHAT-FIX-25:
+ * reject step repro_cmd / bundle paths that are off-plan relative to
+ * HEAD-bound gate-plan literal_cmds.
  *
  * Binding rules (fail closed):
  *   1. Dirty/stale plans → PLAN_* (never WT plan authority).
@@ -571,6 +638,11 @@ export function stableFullCommandKey(n: NormalizedFullCommand): string {
  *      NORMALIZED FULL-COMMAND (interpreter + canonical script path + arg
  *      vector). Path-only .sh match is insufficient — extra flags, env-prefix
  *      wrappers, and interpreter swaps are OFF_PLAN_SCRIPT.
+ *   6. REDHAT-FIX-25: shell-SAFE — any command naming a timestamp-shaped
+ *      `.gate-evidence` script that contains shell metacharacters / control
+ *      chars / quote-escape chars is OFF_PLAN_SCRIPT. Glued suffixes
+ *      (`;:`, `$(…)`, backticks, `&&`/`||`/`|`, redirects) must never
+ *      normalize to the plan key via `\S+\.sh` prefix extract.
  *
  * Synthetic harness dirs (one-step, full-eight, …) are left alone so
  * FIX-12/FIX-18 completeness paths still apply — they are not timestamp-shaped.
@@ -635,11 +707,29 @@ export function rejectOffPlanScripts(
       }
     }
 
-    // 2) REDHAT-FIX-24: exact NORMALIZED FULL-COMMAND equality against plan
+    // 2) REDHAT-FIX-25: shell-SAFE fail-closed. Any command that names a
+    // timestamp-shaped `.gate-evidence` script AND embeds shell metachar /
+    // control / quote-escape characters is OFF_PLAN — do not attempt to
+    // recover a clean path key from glued suffixes.
+    if (mentionsTimestampShapedScript(text) && containsShellUnsafeChars(text)) {
+      return {
+        ok: false,
+        code: 'OFF_PLAN_SCRIPT',
+        details: {
+          reason: `off-plan shell-unsafe command (metachar/control/quote) not an exact HEAD-bound plan literal_cmd match (${text})`,
+          step,
+          script: text,
+          capturedCommit: '',
+          headCommit: head,
+        },
+      }
+    }
+
+    // 3) REDHAT-FIX-24: exact NORMALIZED FULL-COMMAND equality against plan
     // literal_cmds (interpreter + canonical script path + args). Only
     // timestamp-shaped script paths are enforced (synthetic harness dirs
     // remain outside this axis). Path-only .sh match is intentionally not used.
-    if (isTimestampShapedScriptPath(text)) {
+    if (isTimestampShapedScriptPath(text) || mentionsTimestampShapedScript(text)) {
       const normalized = normalizeFullCommand(text)
       if (!normalized || !allowedFullCmds.has(stableFullCommandKey(normalized))) {
         const scriptKey = normalized?.scriptKey ?? canonicalizeScriptPath(text) ?? text
