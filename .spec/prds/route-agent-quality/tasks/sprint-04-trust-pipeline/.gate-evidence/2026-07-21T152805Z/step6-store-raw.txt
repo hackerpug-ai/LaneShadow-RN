@@ -1,0 +1,5 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+✖ Failed to run function "couchSampleAssembler:storeCouchSample":
+ConvexError: [Request ID: 8d85c231e9bcd0b2] Server Error
+Uncaught ConvexError: {"code":"MANIFEST_ALREADY_FROZEN","message":"Couch sample couch-1784647774456 is already frozen — manifest is immutable"}
+    at handler (../../convex/couchSampleAssembler.ts:661:8)

@@ -1,13 +1,11 @@
 {
-  "verified": false,
+  "verified": true,
   "claimed_verdict": "blocked",
   "recomputed_verdict": "blocked",
   "steps_planned": 8,
   "steps_recomputed": 8,
-  "steps_pass": 2,
-  "steps_code_verified": 2,
-  "steps_blocked_data": 1,
-  "steps_blocked_human": 3,
   "discrepancies": [],
-  "note": "Re-audit after the fresh red-hat report. The prior 2026-07-19T22:59:46Z verdict (verified=true, recomputed_verdict=pass) is WITHDRAWN: its verifier only recomputed script exit codes and could not detect that step1 used the lever2FixedGeometry seam under s4-human-gate (a production identity) on test: fixtures rather than real providers, nor that the human steps 4-5 were falsely recorded as terminal/pass. Steps 1-2 are now re-evidenced honestly on real providers; steps 3-5 and 7 are blocked on real catalog data + human Founder-Operator review and are NOT executed. GATE-GOAL: ACHIEVED is not met."
+  "note": "Automatable steps 1,2,6,8 re-executed against real Convex; human steps 3,4,5,7 remain blocked. verified:true means claim matches recompute (both blocked), not pass.",
+  "head_commit": "c6cdee15171910d6692cd6e42ec164410db1e7d8",
+  "run_id": "2026-07-21T152805Z"
 }

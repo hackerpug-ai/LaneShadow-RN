@@ -1,0 +1,20 @@
+{
+  "run_id": "2026-07-21T152805Z",
+  "head_commit": "c6cdee15171910d6692cd6e42ec164410db1e7d8",
+  "written_at": "2026-07-21T15:30:47Z",
+  "code_commit_note": "evidence captured against this HEAD; REDHAT-FIX-12 v3 harness",
+  "operator_identity": "test:s4-gate-operator (seeded via testSupport:devSetupFounderUser)",
+  "seam": "NONE \u2014 no lever2FixedGeometry",
+  "steps_run": {
+    "1": "runSampleWaterfall real Google+LLM on 3 real catalog routes (resume: 1 processed, 2 skipped already-terminal)",
+    "2": "exactly one terminalState per route from step1 output",
+    "6": "recordCouchVerdict wrong+pass \u2192 WRONG_FORCES_FAIL on frozen sample",
+    "8": "runAllWaterfall \u2192 COUCH_GATE_BLOCKED while couchGateStatus.allowed=false"
+  },
+  "steps_blocked_human": {
+    "3": "Open ~25-route couch sample PNGs \u2014 requires real (non-test:) ~25-route curated sample + founder visual review",
+    "4": "Record true/off/wrong per route \u2014 Founder-Operator S4-T7 judgment",
+    "5": "Record overall pass/fail \u2014 Founder-Operator S4-T7 judgment",
+    "7": "Disposition 3 REVIEW items \u2014 Founder-Operator judgment"
+  }
+}

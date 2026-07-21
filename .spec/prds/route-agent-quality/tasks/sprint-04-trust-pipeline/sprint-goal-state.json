@@ -16,19 +16,20 @@
         "n": 1,
         "claim": "Run lever waterfall --sample",
         "result": "PASS-real",
-        "measured_evidence": "3 REAL catalog routes via real Google+LLM"
+        "measured_evidence": "3 REAL catalog routes via real Google+LLM (1 processed this run, 2 skipped already-terminal; no seam; operator identity)"
       },
       {
         "n": 2,
         "claim": "Exactly one terminal state per route",
-        "result": "PASS-real"
+        "result": "PASS-real",
+        "measured_evidence": "3/3 routes have terminalState; perStateCounts sums to 3"
       },
       {
         "n": 3,
         "claim": "Open ~25 couch sample PNGs",
         "result": "BLOCKED",
         "run_mode": "HUMAN",
-        "measured_evidence": "real ~25-route sample needs curation pipeline + founder"
+        "measured_evidence": "real ~25-route non-test catalog sample not curated for founder visual review; assemble only yields test: fixtures"
       },
       {
         "n": 4,
@@ -41,23 +42,27 @@
         "n": 5,
         "claim": "Record overall pass/fail",
         "result": "BLOCKED",
-        "run_mode": "HUMAN"
+        "run_mode": "HUMAN",
+        "measured_evidence": "Founder-Operator overall verdict (S4-T7) not performed"
       },
       {
         "n": 6,
         "claim": "Single wrong forces fail",
-        "result": "PASS"
+        "result": "PASS",
+        "measured_evidence": "recordCouchVerdict wrong+pass → WRONG_FORCES_FAIL on frozen sample couch-1784647774456"
       },
       {
         "n": 7,
         "claim": "Disposition 3 REVIEW items",
         "result": "BLOCKED",
-        "run_mode": "HUMAN"
+        "run_mode": "HUMAN",
+        "measured_evidence": "Founder-Operator REVIEW disposition (approve/retry/retire) not performed"
       },
       {
         "n": 8,
         "claim": "--all refused until couch pass",
-        "result": "PASS"
+        "result": "PASS",
+        "measured_evidence": "couchGateStatus.allowed=false; runAllWaterfall → COUCH_GATE_BLOCKED"
       }
     ]
   },
@@ -100,7 +105,7 @@
     "drift": [],
     "checked_at": "2026-07-20T20:59:05Z"
   },
-  "updated_at": "2026-07-21T02:15:47.852Z",
+  "updated_at": "2026-07-21T15:31:09.781Z",
   "phase": "blocked",
   "written_at_commit": "HEAD (post-eddcbe50; REDHAT-FIX-12..15 in progress)",
   "withdrawn_prior_verdict": {
@@ -111,8 +116,8 @@
   "generator": {
     "written_by": "tools/gate/deriveGoalState.ts",
     "derived_from": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/honest-step-results.json",
-    "attested_source_commit": "63c63ac2cedb1b9f609f87e1c4d24a203f1c8dbd",
-    "head_commit": "63c63ac2cedb1b9f609f87e1c4d24a203f1c8dbd",
+    "attested_source_commit": "c6cdee15171910d6692cd6e42ec164410db1e7d8",
+    "head_commit": "c6cdee15171910d6692cd6e42ec164410db1e7d8",
     "rule": "met := every step substantiated-PASS AND HEAD-bound manifest AND couchGateStatus.allowed manifest-bound durable founder verdict; HEAD computed internally; provenance = attested_source_commit(strict-descendant-of attestation_commit); never hand-supplied",
     "note": "REDHAT-FIX-12 v3: this file is machine-derived; do not hand-edit."
   }

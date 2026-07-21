@@ -1,13 +1,59 @@
 {
   "sprintId": "sprint-04-trust-pipeline",
+  "run_id": "2026-07-21T152805Z",
+  "head_at_capture": "c6cdee15171910d6692cd6e42ec164410db1e7d8",
   "steps": [
-    { "n": 1, "claim": "Run lever waterfall --sample", "result": "PASS-real", "measured_evidence": "3 REAL catalog routes via real Google+LLM" },
-    { "n": 2, "claim": "Exactly one terminal state per route", "result": "PASS-real" },
-    { "n": 3, "claim": "Open ~25 couch sample PNGs", "result": "BLOCKED", "run_mode": "HUMAN", "measured_evidence": "real ~25-route sample needs curation pipeline + founder" },
-    { "n": 4, "claim": "Record per-route true/off/wrong", "result": "BLOCKED", "run_mode": "HUMAN", "measured_evidence": "Founder-Operator visual review (S4-T7) not performed" },
-    { "n": 5, "claim": "Record overall pass/fail", "result": "BLOCKED", "run_mode": "HUMAN" },
-    { "n": 6, "claim": "Single wrong forces fail", "result": "PASS" },
-    { "n": 7, "claim": "Disposition 3 REVIEW items", "result": "BLOCKED", "run_mode": "HUMAN" },
-    { "n": 8, "claim": "--all refused until couch pass", "result": "PASS" }
+    {
+      "n": 1,
+      "claim": "Run lever waterfall --sample",
+      "result": "PASS-real",
+      "measured_evidence": "3 REAL catalog routes via real Google+LLM (1 processed this run, 2 skipped already-terminal; no seam; operator identity)"
+    },
+    {
+      "n": 2,
+      "claim": "Exactly one terminal state per route",
+      "result": "PASS-real",
+      "measured_evidence": "3/3 routes have terminalState; perStateCounts sums to 3"
+    },
+    {
+      "n": 3,
+      "claim": "Open ~25 couch sample PNGs",
+      "result": "BLOCKED",
+      "run_mode": "HUMAN",
+      "measured_evidence": "real ~25-route non-test catalog sample not curated for founder visual review; assemble only yields test: fixtures"
+    },
+    {
+      "n": 4,
+      "claim": "Record per-route true/off/wrong",
+      "result": "BLOCKED",
+      "run_mode": "HUMAN",
+      "measured_evidence": "Founder-Operator visual review (S4-T7) not performed"
+    },
+    {
+      "n": 5,
+      "claim": "Record overall pass/fail",
+      "result": "BLOCKED",
+      "run_mode": "HUMAN",
+      "measured_evidence": "Founder-Operator overall verdict (S4-T7) not performed"
+    },
+    {
+      "n": 6,
+      "claim": "Single wrong forces fail",
+      "result": "PASS",
+      "measured_evidence": "recordCouchVerdict wrong+pass \u2192 WRONG_FORCES_FAIL on frozen sample couch-1784647774456"
+    },
+    {
+      "n": 7,
+      "claim": "Disposition 3 REVIEW items",
+      "result": "BLOCKED",
+      "run_mode": "HUMAN",
+      "measured_evidence": "Founder-Operator REVIEW disposition (approve/retry/retire) not performed"
+    },
+    {
+      "n": 8,
+      "claim": "--all refused until couch pass",
+      "result": "PASS",
+      "measured_evidence": "couchGateStatus.allowed=false; runAllWaterfall \u2192 COUCH_GATE_BLOCKED"
+    }
   ]
 }

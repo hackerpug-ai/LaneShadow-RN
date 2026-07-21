@@ -1,0 +1,62 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "backoffScheduleSeconds": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "batchStopReason": "completed",
+  "costExceededMessage": null,
+  "maxCostUsd": 5,
+  "maxRetries": 5,
+  "perLeverCounts": {
+    "lever1": 1,
+    "lever2": 1,
+    "lever3": 1
+  },
+  "perStateCounts": {
+    "cost_blocked": 0,
+    "queued": 1,
+    "recovered": 0,
+    "retirement_eligible": 0,
+    "skipped": 2
+  },
+  "processed": 1,
+  "reprocessed": 0,
+  "routes": [
+    {
+      "costUsd": 0.07,
+      "failedCondition": "anchors",
+      "lever1Failed": true,
+      "lever2Failed": true,
+      "leversRun": [
+        1,
+        2,
+        3
+      ],
+      "reprocessed": false,
+      "routeId": "motorcycleroads:twist-of-tepusquet-loop",
+      "skipped": false,
+      "terminalState": "queued"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "motorcycleroads:von-hoak-loop",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "motorcycleroads:old-hwy-40-cisco-grove-to-donner-lake",
+      "skipped": true,
+      "terminalState": "recovered"
+    }
+  ],
+  "skipped": 2,
+  "totalCostUsd": 0.07
+}

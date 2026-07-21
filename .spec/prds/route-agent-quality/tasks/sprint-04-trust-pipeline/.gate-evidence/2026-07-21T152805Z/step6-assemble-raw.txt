@@ -1,0 +1,237 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "counts": {
+    "ai_reconstructed": 8,
+    "name_routed": 7,
+    "scraped_promoted": 10
+  },
+  "routes": [
+    {
+      "anchorCount": 2,
+      "claimedMiles": 20,
+      "descriptionLength": 13,
+      "difficulty": "hard",
+      "provenance": "scraped_promoted",
+      "routeId": "test:couch-scraped-000",
+      "routedMiles": 20.5
+    },
+    {
+      "anchorCount": 7,
+      "claimedMiles": 35,
+      "descriptionLength": 210,
+      "difficulty": "easy",
+      "provenance": "scraped_promoted",
+      "routeId": "test:couch-scraped-005",
+      "routedMiles": 35.5
+    },
+    {
+      "anchorCount": 5,
+      "claimedMiles": 41,
+      "descriptionLength": 87,
+      "difficulty": "medium",
+      "provenance": "scraped_promoted",
+      "routeId": "test:scraped-1",
+      "routedMiles": 41
+    },
+    {
+      "anchorCount": 2,
+      "claimedMiles": 38,
+      "descriptionLength": 13,
+      "difficulty": "hard",
+      "provenance": "scraped_promoted",
+      "routeId": "test:couch-scraped-006",
+      "routedMiles": 38
+    },
+    {
+      "anchorCount": 9,
+      "claimedMiles": 26,
+      "descriptionLength": 210,
+      "difficulty": "easy",
+      "provenance": "scraped_promoted",
+      "routeId": "test:couch-scraped-002",
+      "routedMiles": 26
+    },
+    {
+      "anchorCount": 2,
+      "claimedMiles": 20,
+      "descriptionLength": 13,
+      "difficulty": "hard",
+      "provenance": "ai_reconstructed",
+      "routeId": "test:couch-ai-000",
+      "routedMiles": 20.5
+    },
+    {
+      "anchorCount": 7,
+      "claimedMiles": 41,
+      "descriptionLength": 207,
+      "difficulty": "easy",
+      "provenance": "ai_reconstructed",
+      "routeId": "test:ai-recon-1",
+      "routedMiles": 41.1
+    },
+    {
+      "anchorCount": 5,
+      "claimedMiles": 23,
+      "descriptionLength": 82,
+      "difficulty": "medium",
+      "provenance": "ai_reconstructed",
+      "routeId": "test:couch-ai-001",
+      "routedMiles": 23
+    },
+    {
+      "anchorCount": 2,
+      "claimedMiles": 38,
+      "descriptionLength": 13,
+      "difficulty": "hard",
+      "provenance": "ai_reconstructed",
+      "routeId": "test:couch-ai-006",
+      "routedMiles": 38
+    },
+    {
+      "anchorCount": 7,
+      "claimedMiles": 35,
+      "descriptionLength": 210,
+      "difficulty": "easy",
+      "provenance": "ai_reconstructed",
+      "routeId": "test:couch-ai-005",
+      "routedMiles": 35.5
+    },
+    {
+      "anchorCount": 2,
+      "claimedMiles": 25,
+      "descriptionLength": 7,
+      "difficulty": "hard",
+      "provenance": "name_routed",
+      "routeId": "test:name-routed-1",
+      "routedMiles": 25
+    },
+    {
+      "anchorCount": 7,
+      "claimedMiles": 35,
+      "descriptionLength": 210,
+      "difficulty": "easy",
+      "provenance": "name_routed",
+      "routeId": "test:couch-name-005",
+      "routedMiles": 35.5
+    },
+    {
+      "anchorCount": 5,
+      "claimedMiles": 23,
+      "descriptionLength": 82,
+      "difficulty": "medium",
+      "provenance": "name_routed",
+      "routeId": "test:couch-name-001",
+      "routedMiles": 23
+    },
+    {
+      "anchorCount": 2,
+      "claimedMiles": 20,
+      "descriptionLength": 13,
+      "difficulty": "hard",
+      "provenance": "name_routed",
+      "routeId": "test:couch-name-000",
+      "routedMiles": 20.5
+    },
+    {
+      "anchorCount": 9,
+      "claimedMiles": 26,
+      "descriptionLength": 210,
+      "difficulty": "easy",
+      "provenance": "name_routed",
+      "routeId": "test:couch-name-002",
+      "routedMiles": 26
+    },
+    {
+      "anchorCount": 3,
+      "claimedMiles": 29,
+      "descriptionLength": 13,
+      "difficulty": "hard",
+      "provenance": "scraped_promoted",
+      "routeId": "test:couch-scraped-003",
+      "routedMiles": 29
+    },
+    {
+      "anchorCount": 10,
+      "claimedMiles": 44,
+      "descriptionLength": 210,
+      "difficulty": "easy",
+      "provenance": "scraped_promoted",
+      "routeId": "test:couch-scraped-008",
+      "routedMiles": 44
+    },
+    {
+      "anchorCount": 5,
+      "claimedMiles": 23,
+      "descriptionLength": 82,
+      "difficulty": "medium",
+      "provenance": "scraped_promoted",
+      "routeId": "test:couch-scraped-001",
+      "routedMiles": 23
+    },
+    {
+      "anchorCount": 3,
+      "claimedMiles": 29,
+      "descriptionLength": 13,
+      "difficulty": "hard",
+      "provenance": "ai_reconstructed",
+      "routeId": "test:couch-ai-003",
+      "routedMiles": 29
+    },
+    {
+      "anchorCount": 2,
+      "claimedMiles": 38,
+      "descriptionLength": 13,
+      "difficulty": "hard",
+      "provenance": "name_routed",
+      "routeId": "test:couch-name-006",
+      "routedMiles": 38
+    },
+    {
+      "anchorCount": 5,
+      "claimedMiles": 32,
+      "descriptionLength": 82,
+      "difficulty": "medium",
+      "provenance": "scraped_promoted",
+      "routeId": "test:couch-scraped-004",
+      "routedMiles": 32
+    },
+    {
+      "anchorCount": 5,
+      "claimedMiles": 32,
+      "descriptionLength": 82,
+      "difficulty": "medium",
+      "provenance": "ai_reconstructed",
+      "routeId": "test:couch-ai-004",
+      "routedMiles": 32
+    },
+    {
+      "anchorCount": 3,
+      "claimedMiles": 29,
+      "descriptionLength": 13,
+      "difficulty": "hard",
+      "provenance": "name_routed",
+      "routeId": "test:couch-name-003",
+      "routedMiles": 29
+    },
+    {
+      "anchorCount": 5,
+      "claimedMiles": 41,
+      "descriptionLength": 82,
+      "difficulty": "medium",
+      "provenance": "scraped_promoted",
+      "routeId": "test:couch-scraped-007",
+      "routedMiles": 41
+    },
+    {
+      "anchorCount": 5,
+      "claimedMiles": 41,
+      "descriptionLength": 82,
+      "difficulty": "medium",
+      "provenance": "ai_reconstructed",
+      "routeId": "test:couch-ai-007",
+      "routedMiles": 41
+    }
+  ],
+  "sampleId": "couch-1784647774456",
+  "size": 25
+}
