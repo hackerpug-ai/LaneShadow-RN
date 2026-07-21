@@ -100,7 +100,7 @@
     "drift": [],
     "checked_at": "2026-07-20T20:59:05Z"
   },
-  "updated_at": "2026-07-21T00:35:39.428Z",
+  "updated_at": "2026-07-21T00:48:51.108Z",
   "phase": "blocked",
   "written_at_commit": "HEAD (post-eddcbe50; REDHAT-FIX-12..15 in progress)",
   "withdrawn_prior_verdict": {
@@ -111,7 +111,7 @@
   "generator": {
     "written_by": "tools/gate/deriveGoalState.ts",
     "derived_from": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/honest-step-results.json",
-    "head_commit": "e76f49ec3e3df3900fae15ba750450dd45467ed5",
+    "head_commit": "7129d20ea13b7af44e69e61bed43e16e1fbe64b8",
     "rule": "met := every step substantiated-PASS AND valid committed manifest AND genuine durable S4-T7 founder verdict; HEAD computed internally; never hand-supplied",
     "note": "REDHAT-FIX-12: this file is machine-derived; do not hand-edit."
   }
