@@ -1,0 +1,44 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+ RUN  v3.2.4 /Users/inference1/Projects/LaneShadow-RN/.worktrees/REDHAT-FIX-22
+
+ ❯ convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts (4 tests | 2 failed) 1806ms
+   × REDHAT-FIX-22 AC-1: substitute script under allowed run → OFF_PLAN_SCRIPT > AC-1: not-in-gate-plan.sh under 2026-07-21T152805Z → OFF_PLAN_SCRIPT and met===false 1145ms
+     → expected null not to be null
+   ✓ REDHAT-FIX-22 AC-2: exact plan step1 literal_cmd not OFF_PLAN > AC-2: repro_cmd equal to plan step1 literal_cmd → rejectOffPlanScripts returns null 232ms
+   × REDHAT-FIX-22 AC-3: empty/malformed literal_cmds fail closed > AC-3: HEAD plan with no usable literal_cmds does NOT return null skip 166ms
+     → expected null not to be null
+   ✓ REDHAT-FIX-22 AC-4: withdrawn run path still OFF_PLAN_SCRIPT > AC-4: repro_cmd under 2026-07-19T22:59:46Z → OFF_PLAN_SCRIPT and met===false 262ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts > REDHAT-FIX-22 AC-1: substitute script under allowed run → OFF_PLAN_SCRIPT > AC-1: not-in-gate-plan.sh under 2026-07-21T152805Z → OFF_PLAN_SCRIPT and met===false
+AssertionError: expected null not to be null
+ ❯ convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts:165:25
+    163| 
+    164|     // MUST_OBSERVE
+    165|     expect(offPlan).not.toBeNull()
+       |                         ^
+    166|     expect(offPlan?.code).toBe('OFF_PLAN_SCRIPT')
+    167|     const reason = offPlan?.details.reason ?? ''
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts > REDHAT-FIX-22 AC-3: empty/malformed literal_cmds fail closed > AC-3: HEAD plan with no usable literal_cmds does NOT return null skip
+AssertionError: expected null not to be null
+ ❯ convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts:246:25
+    244| 
+    245|     // MUST_OBSERVE: fail closed — not null skip on empty literalCmds
+    246|     expect(offPlan).not.toBeNull()
+       |                         ^
+    247|     const code = offPlan?.code
+    248|     const reason = (offPlan?.details.reason ?? '').toLowerCase()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  11:42:45
+   Duration  2.31s (transform 47ms, setup 89ms, collect 36ms, tests 1.81s, environment 221ms, prepare 28ms)
+

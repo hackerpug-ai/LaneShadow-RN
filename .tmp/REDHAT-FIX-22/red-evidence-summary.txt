@@ -1,0 +1,61 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+ RUN  v3.2.4 /Users/inference1/Projects/LaneShadow-RN/.worktrees/REDHAT-FIX-22
+
+ ❯ convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts (4 tests | 3 failed) 868ms
+   × REDHAT-FIX-22 AC-1: substitute script under allowed run → OFF_PLAN_SCRIPT > AC-1: not-in-gate-plan.sh under 2026-07-21T152805Z → OFF_PLAN_SCRIPT and met===false 243ms
+     → expected null not to be null
+   ✓ REDHAT-FIX-22 AC-2: exact plan step1 literal_cmd not OFF_PLAN > AC-2: repro_cmd equal to plan step1 literal_cmd → rejectOffPlanScripts returns null 238ms
+   × REDHAT-FIX-22 AC-3: empty/malformed literal_cmds fail closed > AC-3: HEAD plan with no usable literal_cmds does NOT return null skip 163ms
+     → expected null not to be null
+   × REDHAT-FIX-22 AC-4: withdrawn run path still OFF_PLAN_SCRIPT > AC-4: repro_cmd under 2026-07-19T22:59:46Z → OFF_PLAN_SCRIPT and met===false 222ms
+     → expected 'INCOMPLETE_CANONICAL_STEPS' to be 'OFF_PLAN_SCRIPT' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts > REDHAT-FIX-22 AC-1: substitute script under allowed run → OFF_PLAN_SCRIPT > AC-1: not-in-gate-plan.sh under 2026-07-21T152805Z → OFF_PLAN_SCRIPT and met===false
+AssertionError: expected null not to be null
+ ❯ convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts:162:25
+    160| 
+    161|     // MUST_OBSERVE
+    162|     expect(offPlan).not.toBeNull()
+       |                         ^
+    163|     expect(offPlan?.code).toBe('OFF_PLAN_SCRIPT')
+    164|     const reason = offPlan?.details.reason ?? ''
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts > REDHAT-FIX-22 AC-3: empty/malformed literal_cmds fail closed > AC-3: HEAD plan with no usable literal_cmds does NOT return null skip
+AssertionError: expected null not to be null
+ ❯ convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts:243:25
+    241| 
+    242|     // MUST_OBSERVE: fail closed — not null skip on empty literalCmds
+    243|     expect(offPlan).not.toBeNull()
+       |                         ^
+    244|     const code = offPlan?.code
+    245|     const reason = (offPlan?.details.reason ?? '').toLowerCase()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts > REDHAT-FIX-22 AC-4: withdrawn run path still OFF_PLAN_SCRIPT > AC-4: repro_cmd under 2026-07-19T22:59:46Z → OFF_PLAN_SCRIPT and met===false
+AssertionError: expected 'INCOMPLETE_CANONICAL_STEPS' to be 'OFF_PLAN_SCRIPT' // Object.is equality
+
+Expected: "OFF_PLAN_SCRIPT"
+Received: "INCOMPLETE_CANONICAL_STEPS"
+
+ ❯ convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts:306:31
+    304|     expect(state.met).toBe(false)
+    305|     expect(state.goal).not.toBe('GATE-GOAL: ACHIEVED')
+    306|     expect(state.error?.code).toBe('OFF_PLAN_SCRIPT')
+       |                               ^
+    307|   })
+    308| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 1 passed (4)
+   Start at  11:42:07
+   Duration  1.56s (transform 52ms, setup 103ms, collect 38ms, tests 868ms, environment 388ms, prepare 36ms)
+

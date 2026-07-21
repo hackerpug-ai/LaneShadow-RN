@@ -1,0 +1,16 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+ RUN  v3.2.4 /Users/inference1/Projects/LaneShadow-RN/.worktrees/REDHAT-FIX-22
+
+ ✓ convex/__tests__/REDHAT-FIX-21-head-bound-gate-plan.integration.test.ts (5 tests) 1552ms
+   ✓ REDHAT-FIX-21 AC-1: dirty one-step plan + stale-run bundle rejected > AC-1: dirty one-step WT plan + one-step stale-run never expected:[1]+offPlan:null+manifest.ok  537ms
+   ✓ REDHAT-FIX-21 AC-4: clean HEAD plan loads 1..8; stale plan fails closed > AC-4: clean plan returns expectedSteps 1..8; stale last-touch fails closed  474ms
+ ✓ convex/__tests__/REDHAT-FIX-20-gate-plan-honest-rebinding.integration.test.ts (6 tests) 1921ms
+   ✓ REDHAT-FIX-20 AC-2: writer rejects off-plan stale forged scripts > AC-2c: synthetic harness dirs (no timestamp shape) are NOT OFF_PLAN_SCRIPT  422ms
+   ✓ REDHAT-FIX-20 AC-4: human steps 3/4/5/7 remain BLOCKED after rebinding > AC-4: honest-step-results 3/4/5/7 are BLOCKED; plan rebinding alone does not ACHIEVE  1106ms
+
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+   Start at  11:43:55
+   Duration  4.08s (transform 56ms, setup 107ms, collect 47ms, tests 3.47s, environment 273ms, prepare 33ms)
+
