@@ -271,27 +271,40 @@ export const couchGateStatus = query({
       }
     }
 
-    // Latest pass verdict bound to THIS active manifest (sampleId + manifestHash
-    // + catalogVersion). Uses the by_sampleId index then filters in-memory.
+    // REDHAT-FIX-17: Select the LATEST bound verdict (pass OR fail) for THIS
+    // active manifest, matching getCouchVerdict's latest-by-recordedAt authority.
+    // A later append-only fail must revoke an earlier pass — NEVER filter to
+    // overallVerdict==='pass' before picking the newest row (CRITICAL-1).
+    // Soft binding equality is intentionally fail-open here (FIX-19 owns strict).
     const verdicts = await ctx.db
       .query('couch_verdicts')
       .withIndex('by_sampleId', (q) => q.eq('sampleId', activeManifest.sampleId))
       .collect()
-    const boundPass = verdicts
+    const boundLatest = verdicts
       .filter(
         (v) =>
-          v.overallVerdict === 'pass' &&
           (!activeManifestHash || !v.manifestHash || v.manifestHash === activeManifestHash) &&
           (!activeCatalogVersion || !v.catalogVersion || v.catalogVersion === activeCatalogVersion),
       )
       .sort((a, b) => b.recordedAt - a.recordedAt)[0]
 
-    if (!boundPass) {
+    if (!boundLatest) {
       return {
         allowed: false,
-        overallVerdict: null,
+        overallVerdict: null as 'pass' | 'fail' | null,
         reason: `Couch gate blocked: no pass verdict bound to the current active manifest ${activeManifest.sampleId}`,
         sampleId: activeManifest.sampleId,
+        manifestHash: activeManifestHash,
+      }
+    }
+
+    if (boundLatest.overallVerdict !== 'pass') {
+      return {
+        allowed: false,
+        overallVerdict: boundLatest.overallVerdict as 'pass' | 'fail',
+        reason: `Couch gate blocked: latest bound verdict for active manifest ${activeManifest.sampleId} is '${boundLatest.overallVerdict}' (not pass)`,
+        sampleId: activeManifest.sampleId,
+        recordedAt: boundLatest.recordedAt,
         manifestHash: activeManifestHash,
       }
     }
@@ -301,7 +314,7 @@ export const couchGateStatus = query({
       overallVerdict: 'pass' as const,
       reason: null as string | null,
       sampleId: activeManifest.sampleId,
-      recordedAt: boundPass.recordedAt,
+      recordedAt: boundLatest.recordedAt,
       manifestHash: activeManifestHash,
     }
   },
