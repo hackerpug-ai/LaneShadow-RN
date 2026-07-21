@@ -11,7 +11,13 @@ import { api, internal } from './_generated/api'
 import { action, internalMutation, mutation, query } from './_generated/server'
 import { computeRouteGeometryHash } from './couchSampleAssembler'
 import { geospatial } from './geospatialIndex'
-import { requireFounder, requireIdentity, requireOperator, requireOperatorAction } from './guards'
+import {
+  assertTestSubjectOrThrow,
+  requireFounder,
+  requireIdentity,
+  requireOperator,
+  requireOperatorAction,
+} from './guards'
 
 const routeVerdictValidator = v.object({
   routeId: v.string(),
@@ -202,6 +208,7 @@ export const couchGateStatus = query({
         reason: 'Couch gate blocked: no active manifest (no operator activation exists)',
         sampleId: null as string | null,
         manifestHash: null as string | null,
+        catalogVersion: null as string | null,
       }
     }
 
@@ -217,6 +224,7 @@ export const couchGateStatus = query({
         reason: `Couch gate blocked: active manifest ${latestActivation.sampleId} is no longer frozen`,
         sampleId: latestActivation.sampleId,
         manifestHash: null as string | null,
+        catalogVersion: (latestActivation.catalogVersion ?? null) as string | null,
       }
     }
 
@@ -247,6 +255,7 @@ export const couchGateStatus = query({
         reason: `Couch gate blocked: active manifest ${activeManifest.sampleId} has an incomplete/missing geometry-hash baseline — re-freeze required`,
         sampleId: activeManifest.sampleId,
         manifestHash: activeManifestHash,
+        catalogVersion: activeCatalogVersion,
       }
     }
 
@@ -267,6 +276,7 @@ export const couchGateStatus = query({
           reason: `Couch gate blocked: route ${entry.routeId} geometry/catalog drift detected since the manifest was frozen`,
           sampleId: activeManifest.sampleId,
           manifestHash: activeManifestHash,
+          catalogVersion: activeCatalogVersion,
         }
       }
     }
@@ -275,7 +285,13 @@ export const couchGateStatus = query({
     // active manifest, matching getCouchVerdict's latest-by-recordedAt authority.
     // A later append-only fail must revoke an earlier pass — NEVER filter to
     // overallVerdict==='pass' before picking the newest row (CRITICAL-1).
-    // Soft binding equality is intentionally fail-open here (FIX-19 owns strict).
+    // REDHAT-FIX-19: binding is STRICT — both active-manifest and verdict must
+    // carry non-empty matching manifestHash AND catalogVersion (empty/undefined
+    // fail closed; never (!active || !row || equal)).
+    const exactBind = (
+      active: string | null | undefined,
+      row: string | null | undefined,
+    ): boolean => !!active && !!row && active === row
     const verdicts = await ctx.db
       .query('couch_verdicts')
       .withIndex('by_sampleId', (q) => q.eq('sampleId', activeManifest.sampleId))
@@ -283,8 +299,8 @@ export const couchGateStatus = query({
     const boundLatest = verdicts
       .filter(
         (v) =>
-          (!activeManifestHash || !v.manifestHash || v.manifestHash === activeManifestHash) &&
-          (!activeCatalogVersion || !v.catalogVersion || v.catalogVersion === activeCatalogVersion),
+          exactBind(activeManifestHash, v.manifestHash) &&
+          exactBind(activeCatalogVersion, v.catalogVersion),
       )
       .sort((a, b) => b.recordedAt - a.recordedAt)[0]
 
@@ -295,6 +311,7 @@ export const couchGateStatus = query({
         reason: `Couch gate blocked: no pass verdict bound to the current active manifest ${activeManifest.sampleId}`,
         sampleId: activeManifest.sampleId,
         manifestHash: activeManifestHash,
+        catalogVersion: activeCatalogVersion,
       }
     }
 
@@ -306,6 +323,7 @@ export const couchGateStatus = query({
         sampleId: activeManifest.sampleId,
         recordedAt: boundLatest.recordedAt,
         manifestHash: activeManifestHash,
+        catalogVersion: activeCatalogVersion,
       }
     }
 
@@ -316,6 +334,7 @@ export const couchGateStatus = query({
       sampleId: activeManifest.sampleId,
       recordedAt: boundLatest.recordedAt,
       manifestHash: activeManifestHash,
+      catalogVersion: activeCatalogVersion,
     }
   },
 })
@@ -403,6 +422,48 @@ export const clearCouchVerdictsPublic = mutation({
       {},
     )
     return result
+  },
+})
+
+/**
+ * REDHAT-FIX-19 (test support): Reduce the latest verdict for a sampleId to a
+ * legacy unbound shape by clearing/overwriting manifestHash and/or catalogVersion.
+ * recordCouchVerdict always writes bindings from the frozen manifest; this is
+ * the only reachable way to a pass row missing bindings for fail-closed tests.
+ * Operator + test-prefix-subject gated — never reachable from production.
+ */
+export const setVerdictBindingsForTest = mutation({
+  args: {
+    sampleId: v.string(),
+    manifestHash: v.optional(v.string()),
+    catalogVersion: v.optional(v.string()),
+  },
+  handler: async (ctx, { sampleId, manifestHash, catalogVersion }) => {
+    const identity = await requireOperator(ctx)
+    assertTestSubjectOrThrow(identity.clerkUserId)
+    const rows = await ctx.db
+      .query('couch_verdicts')
+      .withIndex('by_sampleId', (q) => q.eq('sampleId', sampleId))
+      .take(100)
+    if (rows.length === 0) {
+      throw new ConvexError({
+        code: 'VERDICT_NOT_FOUND',
+        message: `No couch verdict found for sampleId '${sampleId}'`,
+      })
+    }
+    const latest = rows.sort((a, b) => b.recordedAt - a.recordedAt)[0]
+    const patch: { manifestHash?: string; catalogVersion?: string } = {}
+    if (manifestHash !== undefined) patch.manifestHash = manifestHash
+    if (catalogVersion !== undefined) patch.catalogVersion = catalogVersion
+    await ctx.db.patch(latest._id, patch)
+    const updated = await ctx.db.get(latest._id)
+    return {
+      sampleId,
+      overallVerdict: updated?.overallVerdict ?? latest.overallVerdict,
+      recordedAt: updated?.recordedAt ?? latest.recordedAt,
+      manifestHash: updated?.manifestHash ?? null,
+      catalogVersion: updated?.catalogVersion ?? null,
+    }
   },
 })
 

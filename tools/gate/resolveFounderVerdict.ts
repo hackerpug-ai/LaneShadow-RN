@@ -112,8 +112,10 @@ export function evaluateFounderAttestation(
     }
   }
   const sampleId = typeof status.sampleId === 'string' ? status.sampleId : null
-  const manifestHash = typeof status.manifestHash === 'string' ? status.manifestHash : null
-  const catalogVersion = typeof status.catalogVersion === 'string' ? status.catalogVersion : null
+  // REDHAT-FIX-19: non-empty required — empty string / null / undefined fail closed.
+  const nonEmpty = (v: unknown): string | null => (typeof v === 'string' && v.length > 0 ? v : null)
+  const manifestHash = nonEmpty(status.manifestHash)
+  const catalogVersion = nonEmpty(status.catalogVersion)
   if (!sampleId)
     return { ...fail('allowed_status_missing_sampleId', sourceReachable), gateAllowed: true }
 
@@ -130,9 +132,20 @@ export function evaluateFounderAttestation(
       sampleId,
     }
   }
-  const rowManifest = typeof row.manifestHash === 'string' ? row.manifestHash : null
-  const rowCatalog = typeof row.catalogVersion === 'string' ? row.catalogVersion : null
-  if (manifestHash && rowManifest && rowManifest !== manifestHash) {
+  const rowManifest = nonEmpty(row.manifestHash)
+  const rowCatalog = nonEmpty(row.catalogVersion)
+  // REDHAT-FIX-19: both status and row must carry non-empty matching bindings.
+  // Missing either side is missing_binding (fail closed); present-but-unequal is mismatch.
+  if (!manifestHash || !catalogVersion || !rowManifest || !rowCatalog) {
+    return {
+      ...fail('missing_binding', sourceReachable),
+      gateAllowed: true,
+      sampleId,
+      manifestHash,
+      catalogVersion,
+    }
+  }
+  if (rowManifest !== manifestHash) {
     return {
       ...fail('manifestHash_mismatch', sourceReachable),
       gateAllowed: true,
@@ -140,7 +153,7 @@ export function evaluateFounderAttestation(
       manifestHash,
     }
   }
-  if (catalogVersion && rowCatalog && rowCatalog !== catalogVersion) {
+  if (rowCatalog !== catalogVersion) {
     return {
       ...fail('catalogVersion_mismatch', sourceReachable),
       gateAllowed: true,
