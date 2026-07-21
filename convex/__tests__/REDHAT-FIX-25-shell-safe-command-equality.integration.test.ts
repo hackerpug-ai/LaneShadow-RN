@@ -106,12 +106,7 @@ function eightStepsWithRepro(step1Repro: string): StepResult[] {
 }
 
 /** Assert OFF_PLAN_SCRIPT + met===false for a shell-metachar attack command. */
-function expectOffPlanMetachar(
-  root: string,
-  head: string,
-  attackCmd: string,
-  label: string,
-): void {
+function expectOffPlanMetachar(root: string, head: string, attackCmd: string, label: string): void {
   const steps = eightStepsWithRepro(attackCmd)
   const offPlan = rejectOffPlanScripts(steps, undefined, root, head)
   const state = deriveGoalState({
@@ -181,12 +176,7 @@ describe('REDHAT-FIX-25 AC-2: command substitution → OFF_PLAN_SCRIPT', () => {
     const head = gitHeadInternal(root)
 
     // Dollar-paren command substitution glued to plan script
-    expectOffPlanMetachar(
-      root,
-      head,
-      `bash ${STEP1_REL}$(true)`,
-      'cmd-substitution-$()',
-    )
+    expectOffPlanMetachar(root, head, `bash ${STEP1_REL}$(true)`, 'cmd-substitution-$()')
 
     // Backtick command substitution glued to plan script
     expectOffPlanMetachar(
@@ -236,36 +226,16 @@ describe('REDHAT-FIX-25 AC-4: control chars and quote/IFS evasion → OFF_PLAN_S
     const head = gitHeadInternal(root)
 
     // Newline after plan command + colon (control-char smuggle)
-    expectOffPlanMetachar(
-      root,
-      head,
-      `bash ${STEP1_REL}\n:`,
-      'newline-suffix',
-    )
+    expectOffPlanMetachar(root, head, `bash ${STEP1_REL}\n:`, 'newline-suffix')
 
     // Tab after plan command + extra token
-    expectOffPlanMetachar(
-      root,
-      head,
-      `bash ${STEP1_REL}\textra`,
-      'tab-suffix',
-    )
+    expectOffPlanMetachar(root, head, `bash ${STEP1_REL}\textra`, 'tab-suffix')
 
     // Quoted $() form that still embeds command-substitution metacharacters
-    expectOffPlanMetachar(
-      root,
-      head,
-      `bash ${STEP1_REL}'$(true)'`,
-      'quoted-cmd-substitution',
-    )
+    expectOffPlanMetachar(root, head, `bash ${STEP1_REL}'$(true)'`, 'quoted-cmd-substitution')
 
     // Escaped semicolon form (backslash before metachar still smuggles authority)
-    expectOffPlanMetachar(
-      root,
-      head,
-      `bash ${STEP1_REL}\\;:`,
-      'escaped-semicolon',
-    )
+    expectOffPlanMetachar(root, head, `bash ${STEP1_REL}\\;:`, 'escaped-semicolon')
   })
 })
 
@@ -296,18 +266,8 @@ describe('REDHAT-FIX-25 AC-5: exact plan accept + FIX-24 still reject', () => {
     expect(exactOffPlan).toBeNull()
 
     // FIX-24 named attacks must still reject after shell-SAFE hardening
-    expectOffPlanMetachar(
-      root,
-      head,
-      `bash ${STEP1_REL} --unreviewed-flag`,
-      'fix24-extra-flag',
-    )
-    expectOffPlanMetachar(
-      root,
-      head,
-      `env FOO=attacker bash ${STEP1_REL}`,
-      'fix24-env-prefix',
-    )
+    expectOffPlanMetachar(root, head, `bash ${STEP1_REL} --unreviewed-flag`, 'fix24-extra-flag')
+    expectOffPlanMetachar(root, head, `env FOO=attacker bash ${STEP1_REL}`, 'fix24-env-prefix')
     expectOffPlanMetachar(root, head, `sh ${STEP1_REL}`, 'fix24-sh-swap')
     expectOffPlanMetachar(root, head, `python ${STEP1_REL}`, 'fix24-python-swap')
   })
