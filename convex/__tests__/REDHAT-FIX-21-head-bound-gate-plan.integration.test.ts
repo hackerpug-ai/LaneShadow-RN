@@ -9,7 +9,8 @@
  *   AC-1 PRIMARY: dirty one-step WT plan + one-step stale-run bundle rejected
  *   AC-2: HEAD-bound expected steps ignore dirty one-step WT plan
  *   AC-3: dirty plan fails closed with PLAN_NOT_HEAD_BOUND / PLAN_DIRTY
- *   AC-4: stale plan last-touch != HEAD fails closed; clean HEAD plan loads 1..8
+ *   AC-4: clean HEAD plan loads 1..8; clean last-touch-behind also loads 1..8
+ *         (REDHAT-FIX-23: last-touch !== HEAD is NOT PLAN_STALE when blob at HEAD)
  */
 
 import { execFileSync } from 'node:child_process'
@@ -366,11 +367,12 @@ describe('REDHAT-FIX-21 AC-3: dirty plan fails closed', () => {
 })
 
 // ---------------------------------------------------------------------------
-// AC-4 — Stale plan last-touch != HEAD fails closed; clean loads 1..8
+// AC-4 — Clean HEAD plan loads 1..8; clean last-touch-behind also succeeds
+// (REDHAT-FIX-23: last-touch !== HEAD is NOT fail-closed for clean HEAD blob)
 // ---------------------------------------------------------------------------
 
-describe('REDHAT-FIX-21 AC-4: clean HEAD plan loads 1..8; stale plan fails closed', () => {
-  it('AC-4: clean plan returns expectedSteps 1..8; stale last-touch fails closed', () => {
+describe('REDHAT-FIX-21 AC-4: clean HEAD plan loads 1..8; last-touch-behind also ok', () => {
+  it('AC-4: clean plan returns expectedSteps 1..8; last-touch-behind also succeeds (not PLAN_STALE)', () => {
     // --- clean path: plan last-touch === HEAD, wtHash === headHash ---
     const cleanRoot = makeTempRepoWithHonestPlan()
     temps.push(cleanRoot)
@@ -393,38 +395,40 @@ describe('REDHAT-FIX-21 AC-4: clean HEAD plan loads 1..8; stale plan fails close
     }
     expect(loadGatePlanExpectedSteps(cleanRoot)).toEqual([...CANONICAL_STEPS])
 
-    // --- stale path: intermediate commit leaves plan last-touch behind HEAD ---
-    const staleRoot = makeTempRepoWithHonestPlan()
-    temps.push(staleRoot)
-    // Unrelated commit advances HEAD without touching the plan.
-    writeFileSync(join(staleRoot, 'unrelated.txt'), 'stale-launder attempt\n')
-    commitAll(staleRoot, 'unrelated file after plan')
+    // --- last-touch-behind path: unrelated commit advances HEAD; plan still clean ---
+    // REDHAT-FIX-23: HEAD-bound plan blob is usable when last-touch != HEAD.
+    const behindRoot = makeTempRepoWithHonestPlan()
+    temps.push(behindRoot)
+    writeFileSync(join(behindRoot, 'unrelated.txt'), 'head advance without plan touch\n')
+    commitAll(behindRoot, 'unrelated file after plan')
 
-    const staleHead = gitHeadInternal(staleRoot)
-    const staleTouch = gitLastCommit(GATE_PLAN_REL, staleRoot)
-    expect(staleTouch).not.toBe(staleHead)
+    const behindHead = gitHeadInternal(behindRoot)
+    const behindTouch = gitLastCommit(GATE_PLAN_REL, behindRoot)
+    expect(behindTouch).not.toBe(behindHead)
     // Plan content still byte-equal (not dirty)
-    const staleWt = join(staleRoot, GATE_PLAN_REL)
-    expect(gitBlobHashWorkingTree(staleWt, staleRoot)).toBe(
-      gitBlobHashHead(GATE_PLAN_REL, staleRoot),
+    const behindWt = join(behindRoot, GATE_PLAN_REL)
+    expect(gitBlobHashWorkingTree(behindWt, behindRoot)).toBe(
+      gitBlobHashHead(GATE_PLAN_REL, behindRoot),
     )
 
-    const staleLoad = loadHeadBoundGatePlan(staleRoot, staleHead)
-    expect(staleLoad.ok).toBe(false)
-    if (staleLoad.ok === false) {
-      expect(
-        staleLoad.code === 'PLAN_STALE' ||
-          staleLoad.code === 'PLAN_NOT_IN_HEAD' ||
-          staleLoad.code === 'PLAN_NOT_HEAD_BOUND',
-        `expected PLAN_STALE|PLAN_NOT_IN_HEAD|PLAN_NOT_HEAD_BOUND; got ${staleLoad.code}`,
-      ).toBe(true)
+    const behindLoad = loadHeadBoundGatePlan(behindRoot, behindHead)
+    expect(behindLoad.ok).toBe(true)
+    if (behindLoad.ok) {
+      expect(behindLoad.expectedSteps).toEqual([...CANONICAL_STEPS])
+      expect(behindLoad.literalCmds.length).toBe(8)
+      expect(behindLoad.runIds.has(HONEST_RUN)).toBe(true)
+      expect(behindLoad.runIds.has(WITHDRAWN_RUN)).toBe(false)
     }
+    expect(behindLoad.ok === false && behindLoad.code === 'PLAN_STALE').toBe(false)
 
     // MUST_NOT_OBSERVE
     if (cleanLoad.ok) {
       expect(cleanLoad.expectedSteps).not.toEqual([])
       expect(cleanLoad.expectedSteps).not.toEqual([1])
     }
-    expect(staleLoad.ok).not.toBe(true)
+    if (behindLoad.ok) {
+      expect(behindLoad.expectedSteps).not.toEqual([])
+      expect(behindLoad.expectedSteps).not.toEqual([1])
+    }
   })
 })
