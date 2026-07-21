@@ -1,5 +1,6 @@
 /**
- * REDHAT-FIX-12 (v3): immutable HEAD-bound evidence-manifest verification.
+ * REDHAT-FIX-12 (v3) + REDHAT-FIX-18: immutable HEAD-bound evidence-manifest
+ * verification with canonical 1..8 step-set completeness.
  *
  * Closes the red-hat CRITICAL findings (review 2026-07-21T005254Z):
  *   - the manifest and every enumerated artifact are resolved from immutable
@@ -13,9 +14,15 @@
  *   - artifact paths are contained within the bundle via realpath
  *     canonicalization BEFORE any tracking check, so a `../../package.json`
  *     escape is rejected even though that file is tracked (ARTIFACT_PATH_ESCAPE).
+ *
+ * REDHAT-FIX-18: evidence_steps must cover exactly the committed gate-plan.json
+ * steps[].n set (canonical 1..8). Incomplete / extra keys fail closed with
+ * INCOMPLETE_EVIDENCE_STEPS so a 1-step all-PASS bundle cannot substantiate
+ * full gate completeness.
  */
 
-import { join } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 import {
   containedRealpath,
   gitBlobHashHead,
@@ -41,6 +48,7 @@ export type ManifestErrorCode =
   | 'MANIFEST_NOT_HEAD_BOUND'
   | 'EVIDENCE_FILE_STALE'
   | 'ARTIFACT_PATH_ESCAPE'
+  | 'INCOMPLETE_EVIDENCE_STEPS'
 
 export interface ManifestError {
   ok: false
@@ -50,6 +58,8 @@ export interface ManifestError {
     file?: string
     step?: number
     artifact?: string
+    missing?: number[]
+    extra?: number[]
     capturedCommit: string
     headCommit: string
   }
@@ -60,6 +70,40 @@ export type ManifestResult =
   | ManifestError
 
 const MANIFEST_REL = 'manifest.json'
+
+/** Committed gate-plan path (read-only expected step set source). FIX-20 owns path rewrite. */
+export const GATE_PLAN_REL =
+  '.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/gate-plan.json'
+
+/**
+ * Load the fixed expected step IDs (in plan order) from committed gate-plan.json.
+ * Prefers cwd-relative plan (so temp test repos with a seeded plan work); falls
+ * back to the plan next to this package's project root. Returns [] only when
+ * no plan is readable (callers fail closed on empty).
+ */
+export function loadGatePlanExpectedSteps(cwd: string): number[] {
+  const candidates = [
+    join(cwd, GATE_PLAN_REL),
+    // tools/gate → repo root
+    join(dirname(__dirname), '..', GATE_PLAN_REL),
+  ]
+  for (const p of candidates) {
+    if (!existsSync(p)) continue
+    try {
+      const raw = JSON.parse(readFileSync(p, 'utf-8')) as {
+        steps?: Array<{ n?: number }>
+      }
+      if (!raw?.steps || !Array.isArray(raw.steps)) continue
+      const ids = raw.steps
+        .map((s) => (typeof s?.n === 'number' ? s.n : NaN))
+        .filter((n) => Number.isFinite(n))
+      if (ids.length > 0) return ids
+    } catch {
+      // try next candidate
+    }
+  }
+  return []
+}
 
 function parseManifest(content: string): EvidenceManifest | null {
   try {
@@ -76,6 +120,28 @@ function parseManifest(content: string): EvidenceManifest | null {
   } catch {
     return null
   }
+}
+
+/**
+ * Compare evidence_steps keys against the canonical expected set.
+ * Order of object keys is ignored; missing or extra step IDs fail closed.
+ */
+export function validateEvidenceStepsCompleteness(
+  evidenceSteps: Record<string, ManifestStep>,
+  expected: number[],
+): { ok: true } | { ok: false; missing: number[]; extra: number[] } {
+  const present = new Set(
+    Object.keys(evidenceSteps)
+      .map((k) => Number(k))
+      .filter((n) => Number.isFinite(n)),
+  )
+  const expectedSet = new Set(expected)
+  const missing = expected.filter((n) => !present.has(n))
+  const extra = [...present].filter((n) => !expectedSet.has(n)).sort((a, b) => a - b)
+  if (missing.length > 0 || extra.length > 0) {
+    return { ok: false, missing, extra }
+  }
+  return { ok: true }
 }
 
 /**
@@ -147,6 +213,8 @@ export function verifyEvidenceManifest(
   // 4. For every enumerated artifact: containment FIRST, then tracked + dirty +
   //    per-file freshness. Containment uses realpath canonicalization and runs
   //    BEFORE any gitTracked call (a `../` escape is rejected even if tracked).
+  //    REDHAT-FIX-18 completeness runs AFTER these checks so path-escape /
+  //    freshness / dirty-tree rejections are never masked.
   for (const [stepN, entry] of Object.entries(manifest.evidence_steps)) {
     const artifacts = Array.isArray(entry?.artifacts) ? entry.artifacts : []
     for (const art of artifacts) {
@@ -209,6 +277,40 @@ export function verifyEvidenceManifest(
         }
       }
       artifactPaths.push(artRepoRel)
+    }
+  }
+
+  // 5. REDHAT-FIX-18: evidence_steps must be exactly the canonical gate-plan
+  //    set (typically 1..8). A 1-step all-PASS subset fails closed — only after
+  //    FIX-12 path/freshness/dirty checks so those seams stay unweakened.
+  const expectedSteps = loadGatePlanExpectedSteps(cwd)
+  if (expectedSteps.length === 0) {
+    return {
+      ok: false,
+      code: 'INCOMPLETE_EVIDENCE_STEPS',
+      details: {
+        reason: 'gate_plan_expected_steps_unreadable',
+        file: MANIFEST_REL,
+        missing: [],
+        extra: [],
+        capturedCommit: manifestTouch,
+        headCommit: head,
+      },
+    }
+  }
+  const completeness = validateEvidenceStepsCompleteness(manifest.evidence_steps, expectedSteps)
+  if (!completeness.ok) {
+    return {
+      ok: false,
+      code: 'INCOMPLETE_EVIDENCE_STEPS',
+      details: {
+        reason: 'evidence_steps_not_canonical_set',
+        file: MANIFEST_REL,
+        missing: completeness.missing,
+        extra: completeness.extra,
+        capturedCommit: manifestTouch,
+        headCommit: head,
+      },
     }
   }
 

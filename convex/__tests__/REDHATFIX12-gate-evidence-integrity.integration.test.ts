@@ -211,6 +211,18 @@ function manifestForSteps(steps: number[], artifactFile: string): EvidenceManife
   return { version: 1, evidence_steps }
 }
 
+/** REDHAT-FIX-18: full canonical 1..8 evidence_steps (each with its own artifact). */
+function fullCanonicalManifest(root: string, bundleRel: string): EvidenceManifest {
+  const evidence_steps: Record<string, { result: string; artifacts: string[] }> = {}
+  mkdirSync(join(root, bundleRel, 'evidence'), { recursive: true })
+  for (const n of [1, 2, 3, 4, 5, 6, 7, 8]) {
+    const art = `evidence/step${n}.json`
+    writeFileSync(join(root, bundleRel, art), JSON.stringify({ step: n, ok: true }))
+    evidence_steps[String(n)] = { result: 'PASS', artifacts: [art] }
+  }
+  return { version: 1, evidence_steps }
+}
+
 /** Full allowed-gate recipe with the TEST operator (test:s4t12-operator). */
 function seedAllowedGateTestOp(): {
   sampleId: string
@@ -569,7 +581,14 @@ describe('REDHATFIX12: non-forgeable gate-evidence harness (REDHAT-FIX-12 v3)', 
         convexRepoCwd: root,
       })
       expect(state.met).toBe(false)
-      expect(state.error?.code).toBe('STEP_RESULT_UNSUBSTANTIATED')
+      // REDHAT-FIX-18: incomplete evidence_steps (missing step 1) fails closed at
+      // verifyEvidenceManifest before per-claim substantiation; both codes prove
+      // a supplied PASS cannot exceed the chosen/canonical manifest.
+      expect(
+        state.error?.code === 'STEP_RESULT_UNSUBSTANTIATED' ||
+          state.error?.code === 'INCOMPLETE_EVIDENCE_STEPS' ||
+          state.error?.code === 'INCOMPLETE_CANONICAL_STEPS',
+      ).toBe(true)
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
@@ -640,29 +659,31 @@ describe('REDHATFIX12: non-forgeable gate-evidence harness (REDHAT-FIX-12 v3)', 
     const root = makeTempRepo()
     try {
       // CASE 1: dirty working-tree manifest → MANIFEST_NOT_HEAD_BOUND.
+      // REDHAT-FIX-18: clean happy-path needs full canonical 1..8 evidence_steps.
       const bundleRel = '.gate-evidence/b'
-      mkdirSync(join(root, bundleRel, 'evidence'), { recursive: true })
-      writeFileSync(join(root, bundleRel, 'evidence/step1.json'), '{"ok":true}')
-      writeFileSync(
-        join(root, bundleRel, 'manifest.json'),
-        JSON.stringify(manifestForSteps([1, 2], 'evidence/step1.json')),
-      )
-      commitAll(root, 'clean bundle') // manifest + artifact at HEAD
+      const cleanManifest = fullCanonicalManifest(root, bundleRel)
+      writeFileSync(join(root, bundleRel, 'manifest.json'), JSON.stringify(cleanManifest))
+      commitAll(root, 'clean bundle') // manifest + artifacts at HEAD
       const head = gitHeadInternal(root)
       const cleanBundle = join(root, bundleRel)
       expect(verifyEvidenceManifest(cleanBundle, head, root).ok).toBe(true)
-      // Dirty: modify ONLY the working-tree manifest (repoint to a different
+      // Dirty: modify ONLY the working-tree manifest (repoint step1 to a different
       // artifact path) WITHOUT git add/commit — wt blob hash != HEAD blob hash.
-      writeFileSync(
-        join(root, bundleRel, 'manifest.json'),
-        JSON.stringify(manifestForSteps([1, 2], 'evidence/step-other.json')),
-      )
+      const dirtyManifest: EvidenceManifest = {
+        version: 1,
+        evidence_steps: {
+          ...cleanManifest.evidence_steps,
+          '1': { result: 'PASS', artifacts: ['evidence/step-other.json'] },
+        },
+      }
+      writeFileSync(join(root, bundleRel, 'manifest.json'), JSON.stringify(dirtyManifest))
       const dirty = verifyEvidenceManifest(cleanBundle, head, root)
       expect(dirty.ok).toBe(false)
       if (!dirty.ok) expect(dirty.code).toBe('MANIFEST_NOT_HEAD_BOUND')
 
       // CASE 2: directory-laundered — manifest+artifact at parent P, unrelated
       // README under the same bundle at HEAD → EVIDENCE_FILE_STALE (per-file).
+      // Freshness fails before completeness, so a partial set still proves the seam.
       const root2 = makeTempRepo()
       try {
         const b2 = '.gate-evidence/laundered'
