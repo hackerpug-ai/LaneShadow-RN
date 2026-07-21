@@ -1,0 +1,13 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+ RUN  v3.2.4 /Users/inference1/Projects/LaneShadow-RN/.worktrees/REDHAT-FIX-21
+
+ ✓ convex/__tests__/REDHAT-FIX-21-head-bound-gate-plan.integration.test.ts (5 tests) 1400ms
+   ✓ REDHAT-FIX-21 AC-1: dirty one-step plan + stale-run bundle rejected > AC-1: dirty one-step WT plan + one-step stale-run never expected:[1]+offPlan:null+manifest.ok  544ms
+   ✓ REDHAT-FIX-21 AC-4: clean HEAD plan loads 1..8; stale plan fails closed > AC-4: clean plan returns expectedSteps 1..8; stale last-touch fails closed  389ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  11:33:56
+   Duration  1.94s (transform 54ms, setup 86ms, collect 41ms, tests 1.40s, environment 256ms, prepare 28ms)
+
