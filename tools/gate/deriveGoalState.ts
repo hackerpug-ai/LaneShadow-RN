@@ -439,6 +439,27 @@ export function containsShellUnsafeChars(text: string): boolean {
 }
 
 /**
+ * REDHAT-FIX-26: accepted plan-command language is STRICTLY ASCII (code points
+ * 0x00–0x7F). Any non-ASCII character (Unicode whitespace, zero-width,
+ * homoglyphs, full-width forms, emoji, accented Latin, …) is non-normalizable
+ * — never strip / NFKC / case-fold to recover a plan key.
+ */
+export function isStrictAscii(text: string): boolean {
+  for (let i = 0; i < text.length; i++) {
+    if (text.charCodeAt(i) > 0x7f) return false
+  }
+  return true
+}
+
+/**
+ * REDHAT-FIX-26: tokenize ONLY on ASCII whitespace (space/tab/LF/CR).
+ * NEVER use JS `\s+` for plan-command equality — `\s` matches Unicode
+ * whitespace (NBSP U+00A0, U+2007, U+202F, U+2028, …) and would forge a
+ * stable key equal to the plan ASCII command.
+ */
+const ASCII_WHITESPACE_RE = /[ \t\n\r]+/
+
+/**
  * True when text names a timestamp-shaped `.gate-evidence/.../*.sh` path even
  * if shell metacharacters are glued to the path token. Used only to detect
  * the enforcement surface — never as an equality key.
@@ -447,6 +468,20 @@ function mentionsTimestampShapedScript(text: string): boolean {
   return /\.gate-evidence\/\d{4}-\d{2}-\d{2}T(?:\d{6}Z|\d{2}:\d{2}:\d{2}Z)\/(?:scripts\/)?[^\s/]*\.sh/.test(
     text,
   )
+}
+
+/**
+ * REDHAT-FIX-26: true when text appears to name a gate-evidence script —
+ * including Unicode-polluted lookalikes that break the strict ASCII path
+ * regex (full-width solidus, homoglyph path segments, etc.). Detection only;
+ * never used as an equality key.
+ */
+function namesGateEvidenceScript(text: string): boolean {
+  if (mentionsTimestampShapedScript(text)) return true
+  // Looser markers: `.gate-evidence` + `.sh` + timestamp-shaped run id anywhere
+  // (ASCII separators may be replaced by full-width / homoglyph chars).
+  if (!text.includes('.gate-evidence') || !text.includes('.sh')) return false
+  return /\d{4}-\d{2}-\d{2}T(?:\d{6}Z|\d{2}:\d{2}:\d{2}Z)/.test(text)
 }
 
 /**
@@ -468,14 +503,17 @@ const CLEAN_PATH_TOKEN = /^(?:\/|\.\/)?[A-Za-z0-9_./@%+=:,-]+\.sh$/
  */
 export function canonicalizeScriptPath(text: string): string | null {
   if (!text) return null
+  // REDHAT-FIX-26: non-ASCII is non-normalizable — never recover a path key.
+  if (!isStrictAscii(text)) return null
   const trimmed = text.trim()
   // Prefer whole-string clean path, then final whitespace-delimited clean token.
   // Never match a prefix of a dirty token (e.g. `step1.sh;:` / `step1.sh$(true)`).
+  // REDHAT-FIX-26: ASCII-only whitespace split (never JS `\s+`).
   let candidate: string | null = null
   if (CLEAN_PATH_TOKEN.test(trimmed)) {
     candidate = trimmed
   } else {
-    const parts = trimmed.split(/\s+/).filter(Boolean)
+    const parts = trimmed.split(ASCII_WHITESPACE_RE).filter(Boolean)
     const last = parts[parts.length - 1]
     if (last && CLEAN_PATH_TOKEN.test(last)) {
       candidate = last
@@ -539,12 +577,19 @@ export type NormalizedFullCommand = {
  * control chars / quote-escape chars return null (fail closed). Equality
  * requires a strict whitespace-delimited argv of clean path/interpreter/arg
  * words; glued metachar suffixes never recover a plan key.
+ *
+ * REDHAT-FIX-26: STRICTLY ASCII + BYTE-EXACT — any non-ASCII code unit returns
+ * null (fail closed; never strip/NFKC). Tokenize ONLY on ASCII whitespace
+ * (`/[ \t\n\r]+/`), never JS `\s+` (Unicode whitespace would forge plan keys).
  */
 export function normalizeFullCommand(text: string): NormalizedFullCommand | null {
   if (!text) return null
+  // REDHAT-FIX-26: reject ANY non-ASCII before equality / tokenization.
+  if (!isStrictAscii(text)) return null
   // Fail closed on shell grammar before any path-prefix recovery.
   if (containsShellUnsafeChars(text)) return null
-  const tokens = text.trim().split(/\s+/).filter(Boolean)
+  // REDHAT-FIX-26: ASCII-only whitespace split (never JS `\s+`).
+  const tokens = text.trim().split(ASCII_WHITESPACE_RE).filter(Boolean)
   if (tokens.length === 0) return null
 
   let i = 0
@@ -624,7 +669,8 @@ export function stableFullCommandKey(n: NormalizedFullCommand): string {
 }
 
 /**
- * REDHAT-FIX-20 + REDHAT-FIX-21 + REDHAT-FIX-22 + REDHAT-FIX-24 + REDHAT-FIX-25:
+ * REDHAT-FIX-20 + REDHAT-FIX-21 + REDHAT-FIX-22 + REDHAT-FIX-24 + REDHAT-FIX-25
+ * + REDHAT-FIX-26:
  * reject step repro_cmd / bundle paths that are off-plan relative to
  * HEAD-bound gate-plan literal_cmds.
  *
@@ -643,6 +689,10 @@ export function stableFullCommandKey(n: NormalizedFullCommand): string {
  *      chars / quote-escape chars is OFF_PLAN_SCRIPT. Glued suffixes
  *      (`;:`, `$(…)`, backticks, `&&`/`||`/`|`, redirects) must never
  *      normalize to the plan key via `\S+\.sh` prefix extract.
+ *   7. REDHAT-FIX-26: STRICTLY ASCII + BYTE-EXACT — any non-ASCII code unit
+ *      in a command that names a gate-evidence script is OFF_PLAN_SCRIPT
+ *      (Unicode whitespace / zero-width / homoglyph / full-width / emoji).
+ *      Tokenization uses ASCII whitespace only; never JS `\s+`.
  *
  * Synthetic harness dirs (one-step, full-eight, …) are left alone so
  * FIX-12/FIX-18 completeness paths still apply — they are not timestamp-shaped.
@@ -725,7 +775,27 @@ export function rejectOffPlanScripts(
       }
     }
 
-    // 3) REDHAT-FIX-24: exact NORMALIZED FULL-COMMAND equality against plan
+    // 3) REDHAT-FIX-26: STRICTLY ASCII fail-closed. Any command that names a
+    // gate-evidence script (ASCII path or Unicode-polluted lookalike) AND
+    // contains non-ASCII is OFF_PLAN — leave script text intact; never
+    // strip/NFKC to recover a plan key. Looser `.gate-evidence` + `.sh` +
+    // timestamp marker catches full-width / homoglyph path variants that
+    // break the strict ASCII path regex.
+    if (!isStrictAscii(text) && namesGateEvidenceScript(text)) {
+      return {
+        ok: false,
+        code: 'OFF_PLAN_SCRIPT',
+        details: {
+          reason: `off-plan non-ASCII command not an exact HEAD-bound plan literal_cmd match (${text})`,
+          step,
+          script: text,
+          capturedCommit: '',
+          headCommit: head,
+        },
+      }
+    }
+
+    // 4) REDHAT-FIX-24: exact NORMALIZED FULL-COMMAND equality against plan
     // literal_cmds (interpreter + canonical script path + args). Only
     // timestamp-shaped script paths are enforced (synthetic harness dirs
     // remain outside this axis). Path-only .sh match is intentionally not used.

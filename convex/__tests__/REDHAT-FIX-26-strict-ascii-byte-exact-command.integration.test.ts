@@ -106,6 +106,14 @@ function eightStepsWithRepro(step1Repro: string): StepResult[] {
   }))
 }
 
+/** True when any code unit is outside ASCII (0x00–0x7F). Avoids control-char regex lint. */
+function hasNonAscii(text: string): boolean {
+  for (let i = 0; i < text.length; i++) {
+    if (text.charCodeAt(i) > 0x7f) return true
+  }
+  return false
+}
+
 /** Assert OFF_PLAN_SCRIPT + met===false for a non-ASCII / off-plan attack command. */
 function expectOffPlanStrictAscii(
   root: string,
@@ -129,7 +137,7 @@ function expectOffPlanStrictAscii(
     reason.toLowerCase().includes('off-plan') ||
       script.includes('step1.sh') ||
       script.includes('\u00A0') ||
-      /[^\x00-\x7F]/.test(script),
+      hasNonAscii(script),
     `expected off-plan reason or non-ASCII/script; reason=${reason} script=${JSON.stringify(script)}`,
   ).toBe(true)
   // Leave script text intact — do not strip Unicode from details.
@@ -192,12 +200,7 @@ describe('REDHAT-FIX-26 AC-2: zero-width injection → OFF_PLAN_SCRIPT', () => {
     const head = gitHeadInternal(root)
 
     // Zero-width space between interpreter and script (no ASCII space)
-    expectOffPlanStrictAscii(
-      root,
-      head,
-      `bash\u200B${STEP1_REL}`,
-      'zwsp-between-tokens-U+200B',
-    )
+    expectOffPlanStrictAscii(root, head, `bash\u200B${STEP1_REL}`, 'zwsp-between-tokens-U+200B')
 
     // ZWSP inside path
     expectOffPlanStrictAscii(
@@ -208,20 +211,10 @@ describe('REDHAT-FIX-26 AC-2: zero-width injection → OFF_PLAN_SCRIPT', () => {
     )
 
     // BOM / ZWNBSP prefix — JS trim() may strip FEFF; STRICTLY-ASCII must still reject
-    expectOffPlanStrictAscii(
-      root,
-      head,
-      `\uFEFF${PLAN_STEP1_CMD}`,
-      'feff-prefix-U+FEFF',
-    )
+    expectOffPlanStrictAscii(root, head, `\uFEFF${PLAN_STEP1_CMD}`, 'feff-prefix-U+FEFF')
 
     // FEFF mid-command between tokens
-    expectOffPlanStrictAscii(
-      root,
-      head,
-      `bash\uFEFF${STEP1_REL}`,
-      'feff-mid-U+FEFF',
-    )
+    expectOffPlanStrictAscii(root, head, `bash\uFEFF${STEP1_REL}`, 'feff-mid-U+FEFF')
   })
 })
 
@@ -237,12 +230,7 @@ describe('REDHAT-FIX-26 AC-3: homoglyph / non-ASCII lookalike → OFF_PLAN_SCRIP
     const head = gitHeadInternal(root)
 
     // Cyrillic 'а' (U+0430) replaces Latin 'a' in "bash"
-    expectOffPlanStrictAscii(
-      root,
-      head,
-      `b\u0430sh ${STEP1_REL}`,
-      'cyrillic-homoglyph-bash',
-    )
+    expectOffPlanStrictAscii(root, head, `b\u0430sh ${STEP1_REL}`, 'cyrillic-homoglyph-bash')
 
     // Full-width solidus (U+FF0F) in path segment
     expectOffPlanStrictAscii(
@@ -266,20 +254,10 @@ describe('REDHAT-FIX-26 AC-4: blanket any non-ASCII → OFF_PLAN_SCRIPT', () => 
     const head = gitHeadInternal(root)
 
     // Emoji injected into otherwise plan-shaped command
-    expectOffPlanStrictAscii(
-      root,
-      head,
-      `bash ${STEP1_REL} \u{1F680}`,
-      'emoji-suffix',
-    )
+    expectOffPlanStrictAscii(root, head, `bash ${STEP1_REL} \u{1F680}`, 'emoji-suffix')
 
     // Accented Latin in interpreter-adjacent token
-    expectOffPlanStrictAscii(
-      root,
-      head,
-      `b\u00E1sh ${STEP1_REL}`,
-      'accented-latin-bash',
-    )
+    expectOffPlanStrictAscii(root, head, `b\u00E1sh ${STEP1_REL}`, 'accented-latin-bash')
   })
 })
 
@@ -298,7 +276,7 @@ describe('REDHAT-FIX-26 AC-5: exact ASCII plan accept + FIX-24/25 still reject',
     expect(exactCmd).toContain(HONEST_RUN)
     expect(exactCmd).toContain('step1.sh')
     // Plan command itself must be pure ASCII
-    expect(/[^\x00-\x7F]/.test(exactCmd)).toBe(false)
+    expect(hasNonAscii(exactCmd)).toBe(false)
 
     // Exact plan step1 full command must NOT be OFF_PLAN on the off-plan axis
     const exactSteps: StepResult[] = [
@@ -312,18 +290,8 @@ describe('REDHAT-FIX-26 AC-5: exact ASCII plan accept + FIX-24/25 still reject',
     expect(exactOffPlan).toBeNull()
 
     // FIX-24 named attacks
-    expectOffPlanStrictAscii(
-      root,
-      head,
-      `bash ${STEP1_REL} --unreviewed-flag`,
-      'fix24-extra-flag',
-    )
-    expectOffPlanStrictAscii(
-      root,
-      head,
-      `env FOO=attacker bash ${STEP1_REL}`,
-      'fix24-env-prefix',
-    )
+    expectOffPlanStrictAscii(root, head, `bash ${STEP1_REL} --unreviewed-flag`, 'fix24-extra-flag')
+    expectOffPlanStrictAscii(root, head, `env FOO=attacker bash ${STEP1_REL}`, 'fix24-env-prefix')
     expectOffPlanStrictAscii(root, head, `sh ${STEP1_REL}`, 'fix24-sh-swap')
 
     // FIX-25 metachar suffix
