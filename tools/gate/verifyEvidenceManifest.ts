@@ -22,9 +22,14 @@
  * full gate completeness.
  *
  * REDHAT-FIX-21: gate-plan expected steps + plan binding resolve ONLY from the
- * immutable HEAD blob (same dirty + last-touch freshness pattern as the
- * evidence manifest). A dirty one-step working-tree plan can no longer shrink
- * the canonical expected set or re-admit withdrawn runs via plan-binding.
+ * immutable HEAD blob (dirty WT fail-closed). A dirty one-step working-tree
+ * plan can no longer shrink the canonical expected set or re-admit withdrawn
+ * runs via plan-binding.
+ *
+ * REDHAT-FIX-23: plan freshness attests the plan blob AT HEAD (HEAD-bound by
+ * gitShowHead construction), NOT plan last-touch commit equality to HEAD.
+ * Unrelated commits that advance HEAD past plan last-touch no longer yield
+ * PLAN_STALE when the plan blob is present at HEAD and WT is clean.
  */
 
 import { join } from 'node:path'
@@ -134,17 +139,24 @@ function isTimestampShapedRunId(runId: string): boolean {
 }
 
 /**
- * REDHAT-FIX-21: resolve the canonical gate-plan from an immutable HEAD-bound
- * blob with dirty + per-file freshness fail-closed checks (FIX-12 v3 pattern).
+ * REDHAT-FIX-21 + REDHAT-FIX-23: resolve the canonical gate-plan from an
+ * immutable HEAD-bound blob with dirty-WT fail-closed checks.
  *
  * Authority is ALWAYS `git show HEAD:<GATE_PLAN_REL>` — never working-tree
- * `readFileSync`. Dirty WT plans and plans whose last-touch commit is not HEAD
- * fail closed so a one-step dirty plan cannot shrink expected steps or re-admit
- * withdrawn runs.
+ * `readFileSync`. Dirty WT plans fail closed so a one-step dirty plan cannot
+ * shrink expected steps or re-admit withdrawn runs.
+ *
+ * REDHAT-FIX-23: plan freshness attests the plan blob AT HEAD (HEAD-bound by
+ * construction via gitShowHead). last-touch commit !== HEAD is NOT fail-closed
+ * for a clean HEAD-bound plan — unrelated commits must not make the gate
+ * unusable (HIGH-2 PLAN_STALE regression). PLAN_STALE remains in the type
+ * union for back-compat but is not returned for clean last-touch-behind cases.
  */
 export function loadHeadBoundGatePlan(cwd: string, head?: string): HeadBoundGatePlan {
   const headCommit = head && head.length > 0 ? head : gitHeadInternal(cwd)
   const planWtPath = join(cwd, GATE_PLAN_REL)
+  // Diagnostics only — never used as fail-closed freshness for clean HEAD blobs.
+  const planTouch = gitLastCommit(GATE_PLAN_REL, cwd)
 
   // 1. Plan must exist as a HEAD blob (committed content of record).
   const headContent = gitShowHead(GATE_PLAN_REL, cwd)
@@ -155,7 +167,7 @@ export function loadHeadBoundGatePlan(cwd: string, head?: string): HeadBoundGate
       details: {
         reason: 'plan_not_in_head',
         file: GATE_PLAN_REL,
-        capturedCommit: gitLastCommit(GATE_PLAN_REL, cwd),
+        capturedCommit: planTouch,
         headCommit,
       },
     }
@@ -171,40 +183,16 @@ export function loadHeadBoundGatePlan(cwd: string, head?: string): HeadBoundGate
       details: {
         reason: 'dirty_working_tree',
         file: GATE_PLAN_REL,
-        capturedCommit: gitLastCommit(GATE_PLAN_REL, cwd),
-        headCommit,
-      },
-    }
-  }
-
-  // 3. Per-file freshness: the plan's OWN last-touch commit == HEAD.
-  const planTouch = gitLastCommit(GATE_PLAN_REL, cwd)
-  if (!planTouch) {
-    return {
-      ok: false,
-      code: 'PLAN_NOT_IN_HEAD',
-      details: {
-        reason: 'plan_last_touch_unresolved',
-        file: GATE_PLAN_REL,
-        capturedCommit: '',
-        headCommit,
-      },
-    }
-  }
-  if (planTouch !== headCommit) {
-    return {
-      ok: false,
-      code: 'PLAN_STALE',
-      details: {
-        reason: 'file_not_at_head',
-        file: GATE_PLAN_REL,
         capturedCommit: planTouch,
         headCommit,
       },
     }
   }
 
-  // 4. Parse HEAD content ONLY — never WT bytes as authority.
+  // 3. Parse HEAD content ONLY — never WT bytes as authority.
+  // Plan is HEAD-bound by construction (gitShowHead). last-touch !== HEAD is
+  // not fail-closed (REDHAT-FIX-23): unrelated commits advancing HEAD must not
+  // reject a clean committed plan blob present at HEAD.
   let raw: ParsedGatePlan
   try {
     raw = JSON.parse(headContent) as ParsedGatePlan
@@ -273,7 +261,8 @@ export function loadHeadBoundGatePlan(cwd: string, head?: string): HeadBoundGate
 /**
  * Load the fixed expected step IDs (in plan order) from the HEAD-bound plan.
  * REDHAT-FIX-21: uses loadHeadBoundGatePlan — never working-tree readFileSync.
- * Returns [] when the plan is dirty/stale/missing so callers fail closed.
+ * Returns [] when the plan is dirty/missing/unparseable so callers fail closed.
+ * REDHAT-FIX-23: clean last-touch-behind HEAD is usable (not treated as stale).
  */
 export function loadGatePlanExpectedSteps(cwd: string): number[] {
   const loaded = loadHeadBoundGatePlan(cwd)

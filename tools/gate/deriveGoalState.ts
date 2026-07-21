@@ -642,8 +642,9 @@ export function deriveGoalState(opts: DeriveOptions): GoalState {
   const convexCwd = opts.convexRepoCwd ?? cwd
   const head = gitHeadInternal(cwd)
 
-  // REDHAT-FIX-21: single immutable plan object is authority for expected steps
-  // and plan-binding. Dirty/stale plans fail closed before any completeness claim.
+  // REDHAT-FIX-21/23: single immutable HEAD-bound plan is authority for expected
+  // steps and plan-binding. Dirty/missing plans fail closed; clean last-touch
+  // behind HEAD is usable (FIX-23 — no PLAN_STALE on last-touch inequality).
   const planLoad = loadHeadBoundGatePlan(cwd, head)
   const expectedSteps = planLoad.ok ? planLoad.expectedSteps : []
 
