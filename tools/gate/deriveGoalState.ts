@@ -424,12 +424,49 @@ function extractTimestampEvidenceRunIds(text: string): string[] {
 }
 
 /**
- * REDHAT-FIX-20 + REDHAT-FIX-21: reject step repro_cmd / bundle paths that
- * reference a timestamp-shaped `.gate-evidence/<runId>/` not listed by the
- * HEAD-bound gate-plan literal_cmds. Synthetic harness dirs (one-step,
- * full-eight, …) are left alone so FIX-12/FIX-18 completeness paths still apply.
- * Dirty/stale plans fail closed with PLAN_* (never WT plan authority).
- * Does NOT implement FIX-18 completeness (missing 1..8) or FIX-22 exact path equality.
+ * REDHAT-FIX-22: canonicalize a plan literal_cmd / repro_cmd / path to a stable
+ * script key for exact equality. Prefer the
+ * `.gate-evidence/<timestamp-run>/scripts/<file>.sh` suffix so absolute vs
+ * relative prefixes compare equal. Returns null when no `.sh` path is present
+ * (e.g. bare bundle dirs) — those stay under run-ID checks only.
+ */
+export function canonicalizeScriptPath(text: string): string | null {
+  if (!text) return null
+  const trimmed = text.trim()
+  // Extract script path from `bash <path>` / raw path ending in .sh
+  const m = trimmed.match(/(?:^|\s)((?:\/|\.\/)?\S+\.sh)\s*$/) ?? trimmed.match(/(\S+\.sh)/)
+  if (!m?.[1]) return null
+  const raw = m[1].replace(/\\/g, '/')
+  // Stable key: .gate-evidence/<runId>/scripts/<file>.sh (timestamp runs only)
+  const ge = raw.match(/\.gate-evidence\/([^/]+)\/(?:scripts\/)?([^/]+\.sh)$/)
+  if (ge?.[1] && ge[2] && isTimestampShapedRunId(ge[1])) {
+    return `.gate-evidence/${ge[1]}/scripts/${ge[2]}`
+  }
+  return raw
+}
+
+/** True when the text names a timestamp-shaped `.gate-evidence/.../*.sh` path. */
+function isTimestampShapedScriptPath(text: string): boolean {
+  const key = canonicalizeScriptPath(text)
+  if (!key) return false
+  return /\.gate-evidence\/\d{4}-\d{2}-\d{2}T(?:\d{6}Z|\d{2}:\d{2}:\d{2}Z)\/scripts\//.test(key)
+}
+
+/**
+ * REDHAT-FIX-20 + REDHAT-FIX-21 + REDHAT-FIX-22: reject step repro_cmd / bundle
+ * paths that are off-plan relative to HEAD-bound gate-plan literal_cmds.
+ *
+ * Binding rules (fail closed):
+ *   1. Dirty/stale plans → PLAN_* (never WT plan authority).
+ *   2. Empty/malformed literal_cmds after successful load → OFF_PLAN_SCRIPT
+ *      (no null skip / allow-all).
+ *   3. Timestamp-shaped run IDs not in plan allow-list → OFF_PLAN_SCRIPT.
+ *   4. Timestamp-shaped `.gate-evidence/<run>/scripts/*.sh` must exactly match
+ *      a plan-owned canonical script path (not merely live under an allowed
+ *      run directory). Substitute scripts under an allowed run are rejected.
+ *
+ * Synthetic harness dirs (one-step, full-eight, …) are left alone so
+ * FIX-12/FIX-18 completeness paths still apply — they are not timestamp-shaped.
  */
 export function rejectOffPlanScripts(
   steps: StepResult[],
@@ -450,10 +487,30 @@ export function rejectOffPlanScripts(
       },
     }
   }
-  // No plan literal_cmds → nothing to bind against on this axis.
-  if (planLoad.literalCmds.length === 0) return null
+
+  // REDHAT-FIX-22: fail closed when HEAD plan has no usable literal_cmds.
+  // Former early-return null skipped validation and allowed any script.
+  const allowedScripts = new Set<string>()
+  for (const cmd of planLoad.literalCmds) {
+    const key = canonicalizeScriptPath(cmd)
+    if (key) allowedScripts.add(key)
+  }
+  if (planLoad.literalCmds.length === 0 || allowedScripts.size === 0) {
+    return {
+      ok: false,
+      code: 'OFF_PLAN_SCRIPT',
+      details: {
+        reason:
+          'no plan literal_cmds / empty binding — fail closed (HEAD-bound plan has no usable literal_cmd paths)',
+        file: GATE_PLAN_REL,
+        capturedCommit: '',
+        headCommit: head,
+      },
+    }
+  }
 
   const checkText = (text: string, step?: number): GateError | null => {
+    // 1) Run-ID allow-list: reject withdrawn / non-plan timestamp runs.
     const runs = extractTimestampEvidenceRunIds(text)
     for (const runId of runs) {
       if (!planLoad.runIds.has(runId)) {
@@ -462,6 +519,26 @@ export function rejectOffPlanScripts(
           code: 'OFF_PLAN_SCRIPT',
           details: {
             reason: `off-plan/stale script not referenced by HEAD-bound gate-plan (.gate-evidence/${runId}/)`,
+            step,
+            script: text,
+            capturedCommit: '',
+            headCommit: head,
+          },
+        }
+      }
+    }
+
+    // 2) Exact script-path equality against plan-owned literal_cmds.
+    // Only timestamp-shaped script paths are enforced (synthetic harness dirs
+    // remain outside this axis).
+    if (isTimestampShapedScriptPath(text)) {
+      const scriptKey = canonicalizeScriptPath(text)
+      if (scriptKey && !allowedScripts.has(scriptKey)) {
+        return {
+          ok: false,
+          code: 'OFF_PLAN_SCRIPT',
+          details: {
+            reason: `off-plan script path not an exact HEAD-bound plan literal_cmd match (${scriptKey})`,
             step,
             script: text,
             capturedCommit: '',

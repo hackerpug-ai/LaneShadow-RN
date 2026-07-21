@@ -1,0 +1,5 @@
+GREEN: all 4 AC tests pass
+RED: AC-1+AC-3 failed pre-impl (see red-phase-full.txt)
+REGRESSION: FIX-20+21 pass
+TSC: 0
+BIOME: clean

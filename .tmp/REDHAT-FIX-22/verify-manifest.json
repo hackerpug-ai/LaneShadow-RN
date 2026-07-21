@@ -1,0 +1,17 @@
+{
+  "task_id": "REDHAT-FIX-22",
+  "sprint_id": "sprint-04-trust-pipeline",
+  "requirements": [
+    {"id": "AC-1", "verify": "npx vitest run convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts -t 'AC-1'"},
+    {"id": "AC-2", "verify": "npx vitest run convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts -t 'AC-2'"},
+    {"id": "AC-3", "verify": "npx vitest run convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts -t 'AC-3'"},
+    {"id": "AC-4", "verify": "npx vitest run convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts -t 'AC-4'"},
+    {"id": "TC-1", "verify": "npx vitest run convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts -t 'AC-1'"},
+    {"id": "TC-2", "verify": "npx vitest run convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts -t 'AC-1'"},
+    {"id": "TC-3", "verify": "npx vitest run convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts -t 'AC-2'"},
+    {"id": "TC-4", "verify": "npx vitest run convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts -t 'AC-3'"},
+    {"id": "TC-5", "verify": "npx vitest run convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts -t 'AC-4'"}
+  ],
+  "typecheck": "npx tsc --noEmit -p convex/tsconfig.json",
+  "lint": "pnpm exec biome check tools/gate/deriveGoalState.ts convex/__tests__/REDHAT-FIX-22-exact-plan-script-match.integration.test.ts"
+}

@@ -1,0 +1,5 @@
+RED evidence captured 2026-07-21
+AC-1: FAIL expected null not to be null (run-ID allow-list accepts substitute)
+AC-2: PASS (exact plan path already null)
+AC-3: FAIL expected null not to be null (empty literalCmds early-return)
+AC-4: offPlan may already reject withdrawn run; state.error was INCOMPLETE_CANONICAL_STEPS (ordering)
