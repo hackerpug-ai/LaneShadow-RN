@@ -69,6 +69,7 @@ export type GateErrorCode =
   | 'INCOMPLETE_CANONICAL_STEPS'
   | 'INVALID_STEP_IDENTITY'
   | 'INCOMPLETE_EVIDENCE_STEPS'
+  | 'OFF_PLAN_SCRIPT'
 
 export interface GateError {
   ok: false
@@ -360,6 +361,132 @@ export function validateStepIdentity(
 }
 
 // ---------------------------------------------------------------------------
+// REDHAT-FIX-20: plan-binding rejection (scripts/bundles not in HEAD-bound plan)
+// ---------------------------------------------------------------------------
+
+const GATE_PLAN_REL = '.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/gate-plan.json'
+
+/** Match `.gate-evidence/<segment>/` fragments in paths or shell commands. */
+const GATE_EVIDENCE_RUN_RE = /\.gate-evidence\/([^/]+)/g
+
+/**
+ * Timestamp-shaped evidence run IDs only, e.g.:
+ *   2026-07-21T152805Z      (compact)
+ *   2026-07-19T22:59:46Z    (ISO with colons)
+ * Synthetic harness dirs (full-eight, one-step, corroborated-no-step1, …)
+ * are NOT timestamp-shaped and must never trigger OFF_PLAN_SCRIPT.
+ */
+const TIMESTAMP_RUN_ID_RE = /^\d{4}-\d{2}-\d{2}T(?:\d{6}Z|\d{2}:\d{2}:\d{2}Z)$/
+
+export function isTimestampShapedRunId(runId: string): boolean {
+  return TIMESTAMP_RUN_ID_RE.test(runId)
+}
+
+type GatePlanBinding = {
+  runIds: Set<string>
+  literalCmds: string[]
+}
+
+/**
+ * Load allowed evidence-run IDs from committed gate-plan.json literal_cmds.
+ * Prefers cwd-relative plan (temp test repos); falls back to package project root.
+ * Only timestamp-shaped segments are added to the allow-list.
+ */
+export function loadGatePlanBinding(cwd: string): GatePlanBinding {
+  const candidates = [
+    join(cwd, GATE_PLAN_REL),
+    // tools/gate → repo root
+    join(__dirname, '..', '..', GATE_PLAN_REL),
+  ]
+  const runIds = new Set<string>()
+  const literalCmds: string[] = []
+  for (const p of candidates) {
+    if (!existsSync(p)) continue
+    try {
+      const raw = JSON.parse(readFileSync(p, 'utf-8')) as {
+        steps?: Array<{ literal_cmd?: string }>
+      }
+      if (!raw?.steps || !Array.isArray(raw.steps)) continue
+      for (const step of raw.steps) {
+        const cmd = typeof step?.literal_cmd === 'string' ? step.literal_cmd : ''
+        if (!cmd) continue
+        literalCmds.push(cmd)
+        for (const m of cmd.matchAll(GATE_EVIDENCE_RUN_RE)) {
+          if (m[1] && isTimestampShapedRunId(m[1])) runIds.add(m[1])
+        }
+      }
+      if (literalCmds.length > 0) return { runIds, literalCmds }
+    } catch {
+      // try next candidate
+    }
+  }
+  return { runIds, literalCmds }
+}
+
+/**
+ * Extract timestamp-shaped `.gate-evidence/<runId>/` segments only.
+ * Synthetic harness names (no ISO-like timestamp) are ignored.
+ */
+function extractTimestampEvidenceRunIds(text: string): string[] {
+  const ids: string[] = []
+  for (const m of text.matchAll(GATE_EVIDENCE_RUN_RE)) {
+    const seg = m[1]
+    if (seg && isTimestampShapedRunId(seg) && !ids.includes(seg)) ids.push(seg)
+  }
+  return ids
+}
+
+/**
+ * REDHAT-FIX-20: reject step repro_cmd / bundle paths that reference a
+ * timestamp-shaped `.gate-evidence/<runId>/` not listed by the HEAD-bound
+ * gate-plan literal_cmds. Synthetic harness dirs (one-step, full-eight, …)
+ * are left alone so FIX-12/FIX-18 completeness paths still apply.
+ * Does NOT implement FIX-18 completeness (missing 1..8).
+ */
+export function rejectOffPlanScripts(
+  steps: StepResult[],
+  bundlePath: string | undefined,
+  cwd: string,
+  head: string,
+): GateError | null {
+  const binding = loadGatePlanBinding(cwd)
+  // No plan literal_cmds → nothing to bind against on this axis.
+  if (binding.literalCmds.length === 0) return null
+
+  const checkText = (text: string, step?: number): GateError | null => {
+    const runs = extractTimestampEvidenceRunIds(text)
+    for (const runId of runs) {
+      if (!binding.runIds.has(runId)) {
+        return {
+          ok: false,
+          code: 'OFF_PLAN_SCRIPT',
+          details: {
+            reason: `off-plan/stale script not referenced by HEAD-bound gate-plan (.gate-evidence/${runId}/)`,
+            step,
+            script: text,
+            capturedCommit: '',
+            headCommit: head,
+          },
+        }
+      }
+    }
+    return null
+  }
+
+  for (const step of steps) {
+    if (step.repro_cmd) {
+      const err = checkText(step.repro_cmd, step.n)
+      if (err) return err
+    }
+  }
+  if (bundlePath) {
+    const err = checkText(bundlePath)
+    if (err) return err
+  }
+  return null
+}
+
+// ---------------------------------------------------------------------------
 // Fail-closed derivation
 // ---------------------------------------------------------------------------
 
@@ -384,6 +511,10 @@ function describeBlocker(
       d.missing?.length || d.extra?.length || d.duplicates?.length
         ? ` missing=[${(d.missing ?? []).join(',')}] extra=[${(d.extra ?? []).join(',')}] duplicates=[${(d.duplicates ?? []).join(',')}]`
         : ''
+    // REDHAT-FIX-20: name the off-plan / stale script seam explicitly.
+    if (error.code === 'OFF_PLAN_SCRIPT') {
+      return `REDHAT-FIX-20: off-plan/stale script not referenced by HEAD-bound gate-plan (${d.reason}${where}). Bundles and repro_cmd paths must match the plan control surface.`
+    }
     // REDHAT-FIX-18 completeness/identity errors: name the incomplete/identity seam.
     if (error.code === 'INCOMPLETE_CANONICAL_STEPS' || error.code === 'INCOMPLETE_EVIDENCE_STEPS') {
       return `REDHAT-FIX-18: incomplete canonical gate steps (${error.code}: ${d.reason}${where}${identityBits}). A non-empty subset of non-blocked steps is never gate-complete; expected the full committed gate-plan set.`
@@ -436,6 +567,13 @@ export function deriveGoalState(opts: DeriveOptions): GoalState {
   const identityErr = validateStepIdentity(opts.steps, expectedSteps, head)
   if (identityErr) {
     error = identityErr
+  }
+
+  // REDHAT-FIX-20: reject repro_cmd / bundle paths not in the HEAD-bound plan
+  // before structural bundle validation (so OFF_PLAN_SCRIPT wins over untracked).
+  if (!error) {
+    const offPlan = rejectOffPlanScripts(opts.steps, opts.bundlePath, cwd, head)
+    if (offPlan) error = offPlan
   }
 
   if (!error && opts.bundlePath) {
@@ -533,7 +671,7 @@ export function deriveGoalState(opts: DeriveOptions): GoalState {
       attested_source_commit: head,
       head_commit: head,
       rule: 'met := every canonical gate-plan step (1..8) substantiated-PASS AND HEAD-bound complete evidence_steps AND couchGateStatus.allowed manifest-bound durable founder verdict; HEAD computed internally; never hand-supplied',
-      note: 'REDHAT-FIX-12 v3 + REDHAT-FIX-18: this file is machine-derived; do not hand-edit.',
+      note: 'REDHAT-FIX-12 v3 + REDHAT-FIX-18 + REDHAT-FIX-20: this file is machine-derived; do not hand-edit.',
     },
     exitCode,
     ...(error ? { error } : {}),
