@@ -211,6 +211,33 @@ describe('REDHAT-FIX-20 AC-2: writer rejects off-plan stale forged scripts', () 
       `expected off-plan rejection for forged bundle; got code=${errorCode} blocker=${blocker}`,
     ).toBe(true)
   })
+
+  it('AC-2c: synthetic harness dirs (no timestamp shape) are NOT OFF_PLAN_SCRIPT', () => {
+    // Regression: FIX-12/FIX-18 use .gate-evidence/one-step, full-eight, etc.
+    // Those must not be treated as off-plan when the plan allow-list is a
+    // timestamp-shaped honest run id (package-root fallback).
+    const root = makeTempRepoWithPlan()
+    temps.push(root)
+
+    const syntheticNames = ['one-step', 'full-eight', 'corroborated-no-step1']
+    for (const name of syntheticNames) {
+      const state = deriveGoalState({
+        steps: [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({
+          n,
+          result: 'PASS' as const,
+        })),
+        bundlePath: join(root, `.gate-evidence/${name}`),
+        repoCwd: root,
+        convexRepoCwd: root,
+      })
+      expect(
+        state.error?.code,
+        `synthetic harness "${name}" must not be OFF_PLAN_SCRIPT (got ${state.error?.code})`,
+      ).not.toBe('OFF_PLAN_SCRIPT')
+      const blocker = state.gate.blocker ?? ''
+      expect(blocker.toLowerCase().includes('off-plan')).toBe(false)
+    }
+  })
 })
 
 // ---------------------------------------------------------------------------

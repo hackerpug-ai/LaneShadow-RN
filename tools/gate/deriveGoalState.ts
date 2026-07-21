@@ -366,8 +366,21 @@ export function validateStepIdentity(
 
 const GATE_PLAN_REL = '.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/gate-plan.json'
 
-/** Match `.gate-evidence/<runId>/` fragments in paths or shell commands. */
+/** Match `.gate-evidence/<segment>/` fragments in paths or shell commands. */
 const GATE_EVIDENCE_RUN_RE = /\.gate-evidence\/([^/]+)/g
+
+/**
+ * Timestamp-shaped evidence run IDs only, e.g.:
+ *   2026-07-21T152805Z      (compact)
+ *   2026-07-19T22:59:46Z    (ISO with colons)
+ * Synthetic harness dirs (full-eight, one-step, corroborated-no-step1, …)
+ * are NOT timestamp-shaped and must never trigger OFF_PLAN_SCRIPT.
+ */
+const TIMESTAMP_RUN_ID_RE = /^\d{4}-\d{2}-\d{2}T(?:\d{6}Z|\d{2}:\d{2}:\d{2}Z)$/
+
+export function isTimestampShapedRunId(runId: string): boolean {
+  return TIMESTAMP_RUN_ID_RE.test(runId)
+}
 
 type GatePlanBinding = {
   runIds: Set<string>
@@ -377,6 +390,7 @@ type GatePlanBinding = {
 /**
  * Load allowed evidence-run IDs from committed gate-plan.json literal_cmds.
  * Prefers cwd-relative plan (temp test repos); falls back to package project root.
+ * Only timestamp-shaped segments are added to the allow-list.
  */
 export function loadGatePlanBinding(cwd: string): GatePlanBinding {
   const candidates = [
@@ -398,7 +412,7 @@ export function loadGatePlanBinding(cwd: string): GatePlanBinding {
         if (!cmd) continue
         literalCmds.push(cmd)
         for (const m of cmd.matchAll(GATE_EVIDENCE_RUN_RE)) {
-          if (m[1]) runIds.add(m[1])
+          if (m[1] && isTimestampShapedRunId(m[1])) runIds.add(m[1])
         }
       }
       if (literalCmds.length > 0) return { runIds, literalCmds }
@@ -409,17 +423,24 @@ export function loadGatePlanBinding(cwd: string): GatePlanBinding {
   return { runIds, literalCmds }
 }
 
-function extractEvidenceRunIds(text: string): string[] {
+/**
+ * Extract timestamp-shaped `.gate-evidence/<runId>/` segments only.
+ * Synthetic harness names (no ISO-like timestamp) are ignored.
+ */
+function extractTimestampEvidenceRunIds(text: string): string[] {
   const ids: string[] = []
   for (const m of text.matchAll(GATE_EVIDENCE_RUN_RE)) {
-    if (m[1] && !ids.includes(m[1])) ids.push(m[1])
+    const seg = m[1]
+    if (seg && isTimestampShapedRunId(seg) && !ids.includes(seg)) ids.push(seg)
   }
   return ids
 }
 
 /**
  * REDHAT-FIX-20: reject step repro_cmd / bundle paths that reference a
- * `.gate-evidence/<runId>/` not listed by the HEAD-bound gate-plan literal_cmds.
+ * timestamp-shaped `.gate-evidence/<runId>/` not listed by the HEAD-bound
+ * gate-plan literal_cmds. Synthetic harness dirs (one-step, full-eight, …)
+ * are left alone so FIX-12/FIX-18 completeness paths still apply.
  * Does NOT implement FIX-18 completeness (missing 1..8).
  */
 export function rejectOffPlanScripts(
@@ -433,7 +454,7 @@ export function rejectOffPlanScripts(
   if (binding.literalCmds.length === 0) return null
 
   const checkText = (text: string, step?: number): GateError | null => {
-    const runs = extractEvidenceRunIds(text)
+    const runs = extractTimestampEvidenceRunIds(text)
     for (const runId of runs) {
       if (!binding.runIds.has(runId)) {
         return {
