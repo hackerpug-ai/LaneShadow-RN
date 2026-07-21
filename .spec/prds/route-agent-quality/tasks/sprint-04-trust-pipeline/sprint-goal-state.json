@@ -100,7 +100,7 @@
     "drift": [],
     "checked_at": "2026-07-20T20:59:05Z"
   },
-  "updated_at": "2026-07-21T00:48:51.108Z",
+  "updated_at": "2026-07-21T02:15:47.852Z",
   "phase": "blocked",
   "written_at_commit": "HEAD (post-eddcbe50; REDHAT-FIX-12..15 in progress)",
   "withdrawn_prior_verdict": {
@@ -111,8 +111,9 @@
   "generator": {
     "written_by": "tools/gate/deriveGoalState.ts",
     "derived_from": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/honest-step-results.json",
-    "head_commit": "7129d20ea13b7af44e69e61bed43e16e1fbe64b8",
-    "rule": "met := every step substantiated-PASS AND valid committed manifest AND genuine durable S4-T7 founder verdict; HEAD computed internally; never hand-supplied",
-    "note": "REDHAT-FIX-12: this file is machine-derived; do not hand-edit."
+    "attested_source_commit": "63c63ac2cedb1b9f609f87e1c4d24a203f1c8dbd",
+    "head_commit": "63c63ac2cedb1b9f609f87e1c4d24a203f1c8dbd",
+    "rule": "met := every step substantiated-PASS AND HEAD-bound manifest AND couchGateStatus.allowed manifest-bound durable founder verdict; HEAD computed internally; provenance = attested_source_commit(strict-descendant-of attestation_commit); never hand-supplied",
+    "note": "REDHAT-FIX-12 v3: this file is machine-derived; do not hand-edit."
   }
 }

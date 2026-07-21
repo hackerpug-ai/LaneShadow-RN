@@ -1,39 +1,27 @@
 /**
- * REDHAT-FIX-12 (v2): Machine-derived, NON-FORGEABLE Sprint-04 goal-state writer.
+ * REDHAT-FIX-12 (v3): Machine-derived, NON-FORGEABLE Sprint-04 goal-state writer.
  *
- * Per red-hat review 2026-07-20T233411Z, the prior writer was still forgeable: it
- * trusted a caller-supplied `founderVerdict` boolean, a caller `--head-commit`
- * SHA, an optional/skippable bundle, and the caller `steps` JSON verbatim. A
- * temporary all-PASS JSON with `founderVerdict:true` produced `met:true`.
+ * Per red-hat review 2026-07-21T005254Z, the v2 writer still permitted
+ * completion authority to be manufactured from a caller-controlled evidence
+ * tree (working-tree manifest bytes, directory-level freshness, `../` traversal)
+ * and accepted any latest pass row. v3 closes those seams:
  *
- * This writer derives completion authority ONLY from authenticated durable
- * sources — NEVER from caller input:
+ *   - the manifest AND every enumerated artifact are resolved from immutable
+ *     HEAD-bound content with PER-FILE freshness and dirty-tree rejection
+ *     (verifyEvidenceManifest);
+ *   - artifact paths are contained within the bundle via realpath BEFORE any
+ *     tracking check (ARTIFACT_PATH_ESCAPE);
+ *   - founder attestation is bound to couchGateStatus.allowed===true and the
+ *     active manifest's exact sampleId/manifestHash/catalogVersion via a
+ *     matching getCouchVerdict({sampleId}) row recorded by a non-test operator
+ *     (resolveFounderVerdict);
+ *   - generator provenance is a two-object attested_source_commit /
+ *     attestation_commit contract verified by strict-descendant relation
+ *     (verifyProvenance), replacing the impossible self-HEAD-equality claim.
  *
- *   (1) Founder attestation (human_test.verdict, and a precondition for met) is
- *       resolved from a REAL `couch_verdicts` row read via `getCouchVerdict`
- *       against the Convex dev deployment. A CLI/JSON `founderVerdict:true`
- *       flag has ZERO effect (the input authority is removed).
- *   (2) HEAD is computed internally via `git rev-parse HEAD`. A caller
- *       `--head-commit` is accepted only as a non-authoritative diagnostic and
- *       is NEVER used in the stale-commit comparison.
- *   (3) A committed evidence manifest is MANDATORY for any write that could
- *       produce met:true: a missing bundle dir fails closed
- *       (MISSING_EVIDENCE_BUNDLE, never {ok:true}); an untracked-on-disk bundle
- *       is rejected (UNTRACKED_EVIDENCE_BUNDLE); a clean bundle whose captured
- *       commit != the internal HEAD is rejected (STALE_EVIDENCE_BUNDLE /
- *       stale_commit); the removed-seam / bare-identity scans are retained.
- *   (4) Every step PASS claim is substantiated against the manifest's enumerated
- *       per-step artifacts (each must be git-tracked at HEAD). A tampered
- *       step-results JSON that flips a BLOCKED step to PASS without manifest
- *       corroboration is rejected (STEP_RESULT_UNSUBSTANTIATED).
- *   (5) `generator.head_commit` is always the actual `git rev-parse HEAD` and
- *       `generator.derived_from` is a repository-relative immutable path (never
- *       an ephemeral /tmp/... path).
- *
- * The human Founder-Operator visual review (S4-T7) is NEVER synthesized: the
- * goal-state stays BLOCKED with `human_test.verdict` pending unless a genuine
- * operator-recorded `couch_verdicts` pass verdict exists. This harness cannot —
- * and must not — manufacture that evidence.
+ * HEAD is computed internally (git rev-parse HEAD); a caller --head-commit is
+ * non-authoritative. A committed evidence manifest is MANDATORY for met:true.
+ * The human Founder-Operator visual review (S4-T7) is NEVER synthesized.
  *
  * CLI usage (run from the repo root):
  *   npx tsx tools/gate/deriveGoalState.ts \
@@ -41,17 +29,13 @@
  *     --out <path-to-sprint-goal-state.json> \
  *     [--bundle <path-to-committed-evidence-bundle>] \
  *     [--sprint <sprint-id>]   # [--head-commit <sha>] accepted but IGNORED
- *
- * step-results.json shape:
- *   { "sprintId"?: string, "steps": [{ "n": number, "result": "PASS"|"PASS-real"|"BLOCKED"|"FAIL", ... }] }
- *   (a "founderVerdict" field, if present, is IGNORED — founder attestation is
- *   resolved from the durable Convex source only)
  */
 
-import { execFileSync } from 'node:child_process'
-import { existsSync, readdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
-import { isAbsolute, relative } from 'node:path'
-import * as posix from 'node:path/posix'
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { gitHeadInternal, gitLastCommit, gitTracked, toRepoRel } from './gitUtils'
+import { type FounderAttestation, resolveFounderVerdict } from './resolveFounderVerdict'
+import { type EvidenceManifest, verifyEvidenceManifest } from './verifyEvidenceManifest'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -69,53 +53,37 @@ export interface StepResult {
   repro_cmd?: string
 }
 
-export type BundleErrorCode =
+export type GateErrorCode =
   | 'MISSING_EVIDENCE_BUNDLE'
   | 'UNTRACKED_EVIDENCE_BUNDLE'
   | 'STALE_EVIDENCE_BUNDLE'
   | 'MISSING_EVIDENCE_MANIFEST'
+  | 'MANIFEST_NOT_HEAD_BOUND'
+  | 'EVIDENCE_FILE_STALE'
+  | 'ARTIFACT_PATH_ESCAPE'
   | 'STEP_RESULT_UNSUBSTANTIATED'
 
-export interface BundleError {
+export interface GateError {
   ok: false
-  code: BundleErrorCode
+  code: GateErrorCode
   details: {
     reason: string
     step?: number
     script?: string
     seam?: string
+    file?: string
     artifact?: string
     capturedCommit: string
     headCommit: string
   }
 }
 
-export interface ManifestStep {
-  result: string
-  artifacts: string[]
-}
-
-export interface EvidenceManifest {
-  version: number
-  evidence_steps: Record<string, ManifestStep>
-}
-
-export type ValidationResult = { ok: true; manifest: EvidenceManifest } | BundleError
+export type BundleValidation = { ok: true } | GateError
 
 export interface HumanTest {
   verdict: 'pass' | 'pending'
   note: string
   recorded_by?: string | null
-}
-
-export interface FounderAttestation {
-  /** A genuine operator-recorded pass verdict exists in couch_verdicts. */
-  present: boolean
-  recordedBy: string | null
-  verdict: 'pass' | 'fail' | null
-  sampleId: string | null
-  /** The durable source was reachable (false ⇒ Convex unavailable ⇒ fail-safe). */
-  sourceReachable: boolean
 }
 
 export interface GoalState {
@@ -131,105 +99,48 @@ export interface GoalState {
   generator: {
     written_by: string
     derived_from: string | null
+    attested_source_commit: string
     head_commit: string
     rule: string
     note: string
   }
   exitCode: number
-  error?: BundleError
+  error?: GateError
 }
+
+export { gitHeadInternal } from './gitUtils'
+export { type FounderAttestation, resolveFounderVerdict } from './resolveFounderVerdict'
+// Re-exports for tests / external use.
+export { type EvidenceManifest, verifyEvidenceManifest } from './verifyEvidenceManifest'
+export { type ProvenanceResult, verifyProvenance } from './verifyProvenance'
 
 // ---------------------------------------------------------------------------
-// Git helpers (all HEAD/tracking resolved internally — never caller-supplied)
-// ---------------------------------------------------------------------------
-
-function git(args: string[], cwd: string): string {
-  try {
-    return execFileSync('git', args, {
-      cwd,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim()
-  } catch {
-    return ''
-  }
-}
-
-/** Internal, authoritative current HEAD. Never overridable by the caller. */
-export function gitHeadInternal(cwd: string): string {
-  return git(['rev-parse', 'HEAD'], cwd)
-}
-
-/** Resolve symlinks when present (macOS /var -> /private/var) so relative() is consistent. */
-function realpathish(p: string): string {
-  try {
-    return realpathSync(p)
-  } catch {
-    return p
-  }
-}
-
-function toRepoRel(absOrRel: string, cwd: string): string {
-  if (!isAbsolute(absOrRel)) return absOrRel.split(/[\\/]/).join('/')
-  // Normalize symlinks on both sides — process.cwd() may resolve /var to
-  // /private/var while the caller's absolute path does not, which would
-  // otherwise yield a broken ../../.. pathspec for git ls-files/log.
-  const rel = relative(realpathish(cwd), realpathish(absOrRel))
-  return rel.split(/[\\/]/).join('/')
-}
-
-/** Tracked paths under `path` (empty ⇒ untracked). */
-function gitTracked(path: string, cwd: string): string[] {
-  const rel = toRepoRel(path, cwd)
-  const out = git(['ls-files', '--', rel], cwd)
-  return out ? out.split('\n').filter(Boolean) : []
-}
-
-/** Latest commit that touched `path` (its "captured commit"). */
-function gitLastCommit(path: string, cwd: string): string {
-  const rel = toRepoRel(path, cwd)
-  return git(['log', '-1', '--format=%H', '--', rel], cwd)
-}
-
-// ---------------------------------------------------------------------------
-// Bundle validation (anti-forgery) — MANDATORY, never short-circuits to ok
+// Bundle structural validation (anti-forgery) — missing/untracked/seam/identity/stale
 // ---------------------------------------------------------------------------
 
 const FORBIDDEN_SEAM = 'lever2FixedGeometry'
 const FORBIDDEN_IDENTITY = 's4-human-gate'
 
 function readScripts(bundlePath: string): string[] {
-  const scriptsDir = existsSync(posix.join(bundlePath, 'scripts'))
-    ? posix.join(bundlePath, 'scripts')
+  // List the working-tree scripts dir (the bundle must exist + be tracked,
+  // checked before this). Seam/identity scans read these bytes.
+  const scriptsDir = existsSync(join(bundlePath, 'scripts'))
+    ? join(bundlePath, 'scripts')
     : bundlePath
   if (!existsSync(scriptsDir)) return []
   return readdirSync(scriptsDir)
     .filter((f) => f.endsWith('.sh'))
     .sort()
-    .map((f) => posix.join(scriptsDir, f))
-}
-
-export function loadManifest(bundlePath: string): EvidenceManifest | null {
-  const manifestPath = posix.join(bundlePath, 'manifest.json')
-  if (!existsSync(manifestPath)) return null
-  try {
-    const raw = JSON.parse(readFileSync(manifestPath, 'utf-8')) as Partial<EvidenceManifest>
-    if (raw && typeof raw === 'object' && raw.evidence_steps) {
-      return { version: raw.version ?? 1, evidence_steps: raw.evidence_steps }
-    }
-    return null
-  } catch {
-    return null
-  }
+    .map((f) => join(scriptsDir, f))
 }
 
 /**
- * Validate a MANDATORY committed evidence bundle against the internal HEAD.
- * Order: missing → untracked → seam → bare-identity → stale-commit → manifest.
- * Never returns {ok:true} for a missing/untracked/stale bundle.
+ * Structural bundle validation: missing → untracked → seam → bare-identity →
+ * directory-level stale-commit. (Per-file freshness + manifest content binding
+ * is handled by verifyEvidenceManifest; this never short-circuits a missing/
+ * untracked/stale bundle to ok.)
  */
-export function validateBundle(bundlePath: string, head: string, cwd: string): ValidationResult {
-  // 1. Missing bundle dir ⇒ fail closed (NEVER {ok:true}).
+export function validateBundle(bundlePath: string, head: string, cwd: string): BundleValidation {
   if (!existsSync(bundlePath)) {
     return {
       ok: false,
@@ -237,7 +148,6 @@ export function validateBundle(bundlePath: string, head: string, cwd: string): V
       details: { reason: 'missing_dir', capturedCommit: '', headCommit: head },
     }
   }
-  // 2. Untracked on disk ⇒ reject (must be a committed manifest).
   if (gitTracked(bundlePath, cwd).length === 0) {
     return {
       ok: false,
@@ -245,7 +155,6 @@ export function validateBundle(bundlePath: string, head: string, cwd: string): V
       details: { reason: 'untracked', capturedCommit: '', headCommit: head },
     }
   }
-  // 3/4. Reject any repro script carrying the removed seam or a bare identity.
   const scripts = readScripts(bundlePath)
   for (const script of scripts) {
     const text = readFileSync(script, 'utf-8')
@@ -276,7 +185,6 @@ export function validateBundle(bundlePath: string, head: string, cwd: string): V
       }
     }
   }
-  // 5. Clean bundle whose captured commit != internal HEAD ⇒ stale.
   const capturedCommit = gitLastCommit(bundlePath, cwd)
   if (capturedCommit && capturedCommit !== head) {
     return {
@@ -285,20 +193,11 @@ export function validateBundle(bundlePath: string, head: string, cwd: string): V
       details: { reason: 'stale_commit', capturedCommit, headCommit: head },
     }
   }
-  // 6. A manifest enumerating per-step artifacts is mandatory.
-  const manifest = loadManifest(bundlePath)
-  if (!manifest) {
-    return {
-      ok: false,
-      code: 'MISSING_EVIDENCE_MANIFEST',
-      details: { reason: 'manifest_absent', capturedCommit, headCommit: head },
-    }
-  }
-  return { ok: true, manifest }
+  return { ok: true }
 }
 
 // ---------------------------------------------------------------------------
-// Step substantiation — PASS claims must be corroborated by the manifest
+// Step substantiation — PASS claims corroborated by the HEAD-bound manifest
 // ---------------------------------------------------------------------------
 
 function isPassing(result: StepResultKind): boolean {
@@ -306,26 +205,26 @@ function isPassing(result: StepResultKind): boolean {
 }
 
 /**
- * Every step claiming PASS/PASS-real must be corroborated by the manifest: the
- * manifest must list that step as PASS with at least one artifact git-tracked at
- * HEAD. A tampered JSON flipping BLOCKED→PASS (uncorroborated) is rejected.
+ * Every step claiming PASS must be corroborated by the manifest (entry exists,
+ * result PASS, ≥1 artifact). Containment/freshness of artifacts is already
+ * enforced by verifyEvidenceManifest; this checks the step→entry mapping so a
+ * tampered step-results JSON cannot flip an uncorroborated step to PASS.
  */
 export function substantiateSteps(
   steps: StepResult[],
   manifest: EvidenceManifest,
   bundlePath: string,
   cwd: string,
-): BundleError | null {
-  const bundleRel = toRepoRel(bundlePath, cwd)
+): GateError | null {
   for (const step of steps) {
-    if (!isPassing(step.result)) continue // BLOCKED/FAIL need no corroboration
+    if (!isPassing(step.result)) continue
     const entry = manifest.evidence_steps[String(step.n)]
-    if (
-      !entry ||
-      !isPassing(entry.result as StepResultKind) ||
-      !Array.isArray(entry.artifacts) ||
-      entry.artifacts.length === 0
-    ) {
+    const corroborated =
+      !!entry &&
+      isPassing(entry.result as StepResultKind) &&
+      Array.isArray(entry.artifacts) &&
+      entry.artifacts.length > 0
+    if (!corroborated) {
       return {
         ok: false,
         code: 'STEP_RESULT_UNSUBSTANTIATED',
@@ -337,105 +236,8 @@ export function substantiateSteps(
         },
       }
     }
-    for (const art of entry.artifacts) {
-      const artRepoRel = posix.join(bundleRel, art)
-      if (gitTracked(artRepoRel, cwd).length === 0) {
-        return {
-          ok: false,
-          code: 'STEP_RESULT_UNSUBSTANTIATED',
-          details: {
-            reason: 'artifact_not_tracked',
-            step: step.n,
-            artifact: artRepoRel,
-            capturedCommit: gitLastCommit(bundlePath, cwd),
-            headCommit: gitHeadInternal(cwd),
-          },
-        }
-      }
-    }
   }
   return null
-}
-
-// ---------------------------------------------------------------------------
-// Founder attestation — resolved ONLY from the durable Convex source
-// ---------------------------------------------------------------------------
-
-const READER_IDENTITY = JSON.stringify({
-  subject: 'gate-evidence-reader',
-  issuer: 'https://laneshadow.test',
-})
-
-/** Parse npx convex run stdout (may be empty for null, or pure JSON). */
-function parseConvexRow(stdout: string): Record<string, unknown> | null {
-  const trimmed = stdout.trim()
-  if (!trimmed) return null
-  try {
-    const v = JSON.parse(trimmed)
-    return v === null ? null : (v as Record<string, unknown>)
-  } catch {
-    // Fall back: extract the outermost JSON object (skip any stray non-JSON lines).
-    const start = trimmed.indexOf('{')
-    const end = trimmed.lastIndexOf('}')
-    if (start >= 0 && end > start) {
-      try {
-        return JSON.parse(trimmed.slice(start, end + 1)) as Record<string, unknown>
-      } catch {
-        return null
-      }
-    }
-    return null
-  }
-}
-
-/**
- * Resolve the S4-T7/founder attestation from a REAL `couch_verdicts` row read via
- * getCouchVerdict on the Convex dev deployment. NEVER from a caller flag.
- * Fails safe (present=false) when the source is unreachable.
- */
-export function resolveFounderVerdict(convexRepoCwd: string): FounderAttestation {
-  const fail = (): FounderAttestation => ({
-    present: false,
-    recordedBy: null,
-    verdict: null,
-    sampleId: null,
-    sourceReachable: false,
-  })
-  let stdout = ''
-  try {
-    stdout = execFileSync(
-      'npx',
-      ['convex', 'run', 'couchVerdict:getCouchVerdict', '{}', '--identity', READER_IDENTITY],
-      { cwd: convexRepoCwd, encoding: 'utf-8', timeout: 60000, stdio: ['pipe', 'pipe', 'pipe'] },
-    )
-  } catch {
-    return fail()
-  }
-  const row = parseConvexRow(stdout)
-  if (!row) {
-    return {
-      present: false,
-      recordedBy: null,
-      verdict: null,
-      sampleId: null,
-      sourceReachable: true,
-    }
-  }
-  const verdict = (
-    row.overallVerdict === 'pass' || row.overallVerdict === 'fail' ? row.overallVerdict : null
-  ) as 'pass' | 'fail' | null
-  const recordedBy = typeof row.recordedBy === 'string' ? row.recordedBy : null
-  // A genuine S4-T7 attestation requires a pass verdict recorded by a real
-  // operator identity (never the bare s4-human-gate control).
-  const present =
-    verdict === 'pass' && !!recordedBy && recordedBy !== FORBIDDEN_IDENTITY && recordedBy.length > 0
-  return {
-    present,
-    recordedBy,
-    verdict,
-    sampleId: typeof row.sampleId === 'string' ? row.sampleId : null,
-    sourceReachable: true,
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -443,15 +245,21 @@ export function resolveFounderVerdict(convexRepoCwd: string): FounderAttestation
 // ---------------------------------------------------------------------------
 
 function describeBlocker(
-  error: BundleError | null,
+  error: GateError | null,
   anyBlocked: boolean,
   hasValidManifest: boolean,
   founder: FounderAttestation,
 ): string | null {
   if (error) {
     const d = error.details
-    const where = d.script ? ` in ${d.script}` : d.step ? ` for step ${d.step}` : ''
-    const art = d.artifact ? ` (artifact ${d.artifact} not tracked)` : ''
+    const where = d.script
+      ? ` in ${d.script}`
+      : d.step
+        ? ` for step ${d.step}`
+        : d.file
+          ? ` (${d.file})`
+          : ''
+    const art = d.artifact ? ` artifact ${d.artifact}` : ''
     return `REDHAT-FIX-12: ${error.code} (${d.reason}${where}${art}; captured ${
       d.capturedCommit ? d.capturedCommit.slice(0, 12) : '∅'
     } vs HEAD ${d.headCommit.slice(0, 12)}). The evidence cannot attest the current code.`
@@ -461,8 +269,8 @@ function describeBlocker(
   }
   if (!founder.present) {
     return founder.sourceReachable
-      ? 'REDHAT-FIX-12: the Founder-Operator/live-provider human gate (S4-T7) is an external, unresolved, human-owned blocker; no genuine operator-recorded couch_verdicts pass verdict exists. The harness never synthesizes it.'
-      : 'REDHAT-FIX-12: the durable founder-attestation source (getCouchVerdict) was unreachable; failing safe (met:false) rather than trusting a caller flag.'
+      ? `REDHAT-FIX-12: the Founder-Operator/live-provider human gate (S4-T7) is an external, unresolved, human-owned blocker; couchGateStatus.allowed is false or no manifest-bound operator pass exists (${founder.reason ?? 'unbound'}). The harness never synthesizes it.`
+      : 'REDHAT-FIX-12: the durable founder-attestation source (couchGateStatus) was unreachable; failing safe (met:false) rather than trusting a caller flag.'
   }
   if (!hasValidManifest) {
     return 'REDHAT-FIX-12: no committed evidence manifest substantiates a PASS — met:true requires a mandatory manifest bound to HEAD.'
@@ -473,13 +281,9 @@ function describeBlocker(
 export interface DeriveOptions {
   sprintId?: string
   steps: StepResult[]
-  /** A committed evidence bundle (mandatory for met:true). Optional input. */
   bundlePath?: string
-  /** Repo cwd for git operations (default process.cwd()). */
   repoCwd?: string
-  /** Repo cwd holding the Convex project for founder resolution (default repoCwd). */
   convexRepoCwd?: string
-  /** The step-results input path (stored repo-relative in derived_from). */
   stepResultsPath?: string
 }
 
@@ -487,28 +291,28 @@ export function deriveGoalState(opts: DeriveOptions): GoalState {
   const sprintId = opts.sprintId ?? 'sprint-04-trust-pipeline'
   const cwd = opts.repoCwd ?? process.cwd()
   const convexCwd = opts.convexRepoCwd ?? cwd
-  // (2) HEAD is computed internally — never caller-supplied.
   const head = gitHeadInternal(cwd)
 
-  let error: BundleError | null = null
+  let error: GateError | null = null
   let manifest: EvidenceManifest | null = null
   let hasValidManifest = false
   if (opts.bundlePath) {
-    const v = validateBundle(opts.bundlePath, head, cwd)
-    if (!v.ok) {
-      error = v
+    const structural = validateBundle(opts.bundlePath, head, cwd)
+    if (!structural.ok) {
+      error = structural
     } else {
-      manifest = v.manifest
-      // (4) Substantiate step PASS claims against the manifest.
-      const sub = substantiateSteps(opts.steps, manifest, opts.bundlePath, cwd)
-      if (sub) error = sub
-      else hasValidManifest = true
+      const mv = verifyEvidenceManifest(opts.bundlePath, head, cwd)
+      if (!mv.ok) {
+        error = mv
+      } else {
+        manifest = mv.manifest
+        const sub = substantiateSteps(opts.steps, manifest, opts.bundlePath, cwd)
+        if (sub) error = sub
+        else hasValidManifest = true
+      }
     }
   }
 
-  // If the bundle/substantiation is forged/stale, derive a blocked state but do
-  // NOT resolve the founder attestation (the evidence already fails). The CLI
-  // writes NO goal-state in this case.
   const anyBlocked = opts.steps.some((s) => !isPassing(s.result))
 
   let founder: FounderAttestation = {
@@ -516,15 +320,17 @@ export function deriveGoalState(opts: DeriveOptions): GoalState {
     recordedBy: null,
     verdict: null,
     sampleId: null,
+    manifestHash: null,
+    catalogVersion: null,
+    gateAllowed: false,
     sourceReachable: true,
+    reason: null,
   }
   if (!error) {
-    // (1) Founder attestation from the durable source only — never a caller flag.
     founder = resolveFounderVerdict(convexCwd)
   }
 
   const allStepsPass = opts.steps.length > 0 && !anyBlocked
-  // met:true requires ALL of: substantiated steps, valid manifest, durable founder.
   const met = !error && allStepsPass && hasValidManifest && founder.present
   const goal = met ? 'GATE-GOAL: ACHIEVED' : 'GATE-GOAL: BLOCKED'
   const overall = met ? 'PASS' : 'BLOCKED'
@@ -533,7 +339,7 @@ export function deriveGoalState(opts: DeriveOptions): GoalState {
   const human_test: HumanTest = {
     verdict: founder.present ? 'pass' : 'pending',
     note: founder.present
-      ? `S4-T7 Founder-Operator verdict recorded by ${founder.recordedBy}`
+      ? `S4-T7 Founder-Operator verdict recorded by ${founder.recordedBy} (couchGateStatus.allowed, manifest-bound)`
       : 'S4-T7 Founder-Operator review required (human-owned, unresolved)',
     ...(founder.recordedBy ? { recorded_by: founder.recordedBy } : {}),
   }
@@ -557,9 +363,10 @@ export function deriveGoalState(opts: DeriveOptions): GoalState {
     generator: {
       written_by: 'tools/gate/deriveGoalState.ts',
       derived_from: derivedFrom,
+      attested_source_commit: head,
       head_commit: head,
-      rule: 'met := every step substantiated-PASS AND valid committed manifest AND genuine durable S4-T7 founder verdict; HEAD computed internally; never hand-supplied',
-      note: 'REDHAT-FIX-12: this file is machine-derived; do not hand-edit.',
+      rule: 'met := every step substantiated-PASS AND HEAD-bound manifest AND couchGateStatus.allowed manifest-bound durable founder verdict; HEAD computed internally; provenance = attested_source_commit(strict-descendant-of attestation_commit); never hand-supplied',
+      note: 'REDHAT-FIX-12 v3: this file is machine-derived; do not hand-edit.',
     },
     exitCode,
     ...(error ? { error } : {}),
@@ -599,17 +406,16 @@ function err(msg: string): void {
 function main(): void {
   const args = parseArgs(process.argv.slice(2))
   const stepResultsPath = args['step-results']
-  const outPath = args['out']
+  const outPath = args.out
   if (!stepResultsPath || !outPath) {
     err(
       'usage: deriveGoalState.ts --step-results <path> --out <path> [--bundle <path>] [--sprint <id>]',
     )
     process.exit(2)
   }
-  // --head-commit is accepted but NEVER authoritative (diagnostic only).
   if (args['head-commit']) {
     err(
-      `warning: --head-commit is non-authoritative and ignored; using internal git rev-parse HEAD.`,
+      'warning: --head-commit is non-authoritative and ignored; using internal git rev-parse HEAD.',
     )
   }
 
@@ -619,17 +425,13 @@ function main(): void {
     steps: file.steps,
     bundlePath: args.bundle,
     stepResultsPath,
-    // founderVerdict in the file is deliberately IGNORED.
   })
 
-  // Anti-forgery: a stale/forged/unsubstantiated bundle writes NO goal-state.
   if (state.error) {
     err(JSON.stringify(state.error))
     process.exit(state.exitCode)
   }
 
-  // Preserve non-derived sections (build, integration, status_files, e2e) from
-  // the existing file; the derived fields + generator are authoritative.
   let preserved: Record<string, unknown> = {}
   try {
     if (existsSync(outPath)) {
@@ -654,7 +456,6 @@ function main(): void {
   process.exit(state.exitCode)
 }
 
-// Run the CLI only when executed directly via npx tsx tools/gate/deriveGoalState.ts.
 const invokedDirectly = /deriveGoalState\.ts$/.test(process.argv[1] ?? '')
 if (invokedDirectly) {
   main()
