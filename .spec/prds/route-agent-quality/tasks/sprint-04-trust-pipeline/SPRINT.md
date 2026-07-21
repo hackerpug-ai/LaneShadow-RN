@@ -18,7 +18,7 @@ tasks_expanded: 2026-07-14
 **Timeline:** Phase 2
 **Status:** Blocked
 > Progress: 7/7 tasks completed · updated 2026-07-21T17:48:49Z
-> Status-Note: REDHAT-FIX-21/22 landed on main. GATE-GOAL still BLOCKED on S4-T7 Founder-Operator human steps 3/4/5/7 (honest).
+> Status-Note: REDHAT-FIX-21/22/23/24 landed on main. Gate usable at HEAD (no PLAN_STALE). GATE-GOAL still BLOCKED on S4-T7 Founder-Operator human steps 3/4/5/7 (honest).
 **Proposed by:** product-manager + convex-planner (lane) + aisdk-planner (lever-2 structured output)
 
 ## Overview

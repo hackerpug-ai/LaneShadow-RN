@@ -78,7 +78,7 @@
     "sprint_id": "sprint-04-trust-pipeline",
     "overall": "BLOCKED",
     "framework": "maestro+convex-integration",
-    "notes": "Prior 8/8 PASS withdrawn as forged. Steps 1-2,6,8 re-run real at HEAD 272928927f22; steps 3/4/5/7 await founder + real ~25-route sample. REDHAT-FIX-21/22 planned Pending (anti-forgery only; not a human-review substitute)."
+    "notes": "Prior forged 8/8 PASS withdrawn. Steps 1-2,6,8 re-run real; steps 3/4/5/7 await Founder-Operator S4-T7 + real ~25-route sample. REDHAT-FIX-21/22/23/24 landed: HEAD-bound plan authority, full-command off-plan equality, plan freshness attests HEAD blob (no PLAN_STALE when last-touch behind HEAD). Gate usable at HEAD; human BLOCK honest."
   },
   "human_test": {
     "verdict": "pending",
@@ -87,9 +87,9 @@
   "build": {
     "overall": "PASS",
     "typecheck": "PASS",
-    "s4_integration_tests": "PASS (prior 314 + FIX suites; not re-run this conductor tick)",
+    "s4_integration_tests": "PASS (FIX-18/23/24 re-run green this cycle)",
     "written_at": "2026-07-21T17:24:00.788Z",
-    "note": "Build not re-run this conductor tick; last known green. Human gate is the blocker."
+    "note": "FIX-18/23/24 suites green at HEAD after cycle-3 remediation. Human gate (S4-T7 steps 3/4/5/7) remains the met:false blocker."
   },
   "integration": {
     "trunk_consolidated": true,
@@ -108,7 +108,11 @@
       "REDHAT-FIX-17",
       "REDHAT-FIX-18",
       "REDHAT-FIX-19",
-      "REDHAT-FIX-20"
+      "REDHAT-FIX-20",
+      "REDHAT-FIX-21",
+      "REDHAT-FIX-22",
+      "REDHAT-FIX-23",
+      "REDHAT-FIX-24"
     ]
   },
   "status_files": {
@@ -116,9 +120,9 @@
     "drift": [],
     "checked_at": "2026-07-20T20:59:05Z"
   },
-  "updated_at": "2026-07-21T17:24:00.788Z",
+  "updated_at": "2026-07-21T18:24:26.308Z",
   "phase": "blocked",
-  "written_at_commit": "272928927f226a175fc38a4849a5cc6d17c81031",
+  "written_at_commit": "dc062785f43d414dfb79198c547f83327b576245",
   "withdrawn_prior_verdict": {
     "prior_met": true,
     "prior_written_at_commit": "4240ea01802682b3d30eb208f1f7f5837e9ae024",
@@ -127,13 +131,10 @@
   "generator": {
     "written_by": "tools/gate/deriveGoalState.ts",
     "derived_from": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/honest-step-results.json",
-    "attested_source_commit": "272928927f226a175fc38a4849a5cc6d17c81031",
-    "head_commit": "272928927f226a175fc38a4849a5cc6d17c81031",
+    "attested_source_commit": "dc062785f43d414dfb79198c547f83327b576245",
+    "head_commit": "dc062785f43d414dfb79198c547f83327b576245",
     "rule": "met := every canonical gate-plan step (1..8) substantiated-PASS AND HEAD-bound complete evidence_steps AND couchGateStatus.allowed manifest-bound durable founder verdict; HEAD computed internally; never hand-supplied",
-    "note": "REDHAT-FIX-12 v3 + REDHAT-FIX-18 + REDHAT-FIX-20: this file is machine-derived; do not hand-edit."
+    "note": "REDHAT-FIX-12 v3 + REDHAT-FIX-18 + REDHAT-FIX-20 + REDHAT-FIX-21: this file is machine-derived; do not hand-edit."
   },
-  "open_redhat_plan_tasks": [
-    "REDHAT-FIX-21",
-    "REDHAT-FIX-22"
-  ]
+  "open_redhat_plan_tasks": []
 }
