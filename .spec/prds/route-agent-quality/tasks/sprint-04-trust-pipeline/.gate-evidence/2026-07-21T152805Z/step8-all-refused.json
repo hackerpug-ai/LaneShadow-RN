@@ -1,8 +1,7 @@
 {
   "ok": true,
   "allowed": false,
-  "reason": "Couch gate blocked: active manifest couch-1784600244121 is no longer frozen",
-  "runAll_exit": 1,
   "pass_allowed": false,
-  "assert": "runAll refused while couchGateStatus.allowed=false"
+  "runAll_refused": true,
+  "reason": "Couch gate blocked: no active manifest (no operator activation exists)"
 }

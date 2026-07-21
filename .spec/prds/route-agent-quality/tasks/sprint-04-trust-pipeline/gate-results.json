@@ -5,6 +5,7 @@
     "sprint_slug": "sprint-04-trust-pipeline"
   },
   "run_id": "2026-07-21T152805Z",
+  "rerun_at": "2026-07-21T16:50:25Z",
   "verdict": "blocked",
   "blocked_reason": "steps 3,4,5,7 require Founder-Operator (S4-T7) human review of a REAL ~25-route couch sample; machine cannot pass a human visual review",
   "steps_total": 8,
@@ -13,12 +14,13 @@
   "steps_blocked_human": 4,
   "ui_driver": "none",
   "exec_surface": "agent-direct",
-  "runner": "conductor-honest-rerun-v3",
-  "head_commit": "c6cdee15171910d6692cd6e42ec164410db1e7d8",
+  "runner": "conductor-honest-rerun-post-fix-17-20",
+  "head_commit": "8f91f7d0dd3d07dda80f9b4d2cdf2e90acd05908",
   "supersedes": {
-    "run_id": "2026-07-20T205404Z",
+    "run_id": "2026-07-21T152805Z",
+    "prior_head": "c6cdee15171910d6692cd6e42ec164410db1e7d8",
     "prior_verdict": "blocked",
-    "reason": "Re-ran automatable steps 1,2,6,8 against REDHAT-FIX-12 v3 HEAD; human steps remain unresolved"
+    "reason": "Re-ran automatable steps 1,2,6,8 after REDHAT-FIX-17..20 landed; human steps remain unresolved"
   },
   "steps": [
     {
@@ -27,7 +29,7 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "evidence": "production runSampleWaterfall (NO seam) under operator identity on 3 real catalog routes; 1 processed, 2 skipped already-terminal; cost --.07 this run",
+      "evidence": "production runSampleWaterfall (NO seam) under operator identity on 3 real catalog routes; 1 processed, 2 skipped already-terminal; cost ~0.07",
       "log": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step1-real-provider-waterfall.json"
     },
     {
@@ -36,7 +38,7 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "evidence": "3/3 routes have terminalState (queued|recovered); perStateCounts sums to 3",
+      "evidence": "3/3 routes have terminalState; states=['queued', 'recovered']",
       "log": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step2-terminal-states.json"
     },
     {
@@ -45,12 +47,7 @@
       "type": "human",
       "executed": false,
       "result": "blocked",
-      "evidence": "BLOCKED (human+data): real ~25-route non-test: catalog sample not curated; founder must review REAL recovered lines rendered as PNGs",
-      "failure": {
-        "expected": "~25 real-route PNG render openable by founder",
-        "actual": "no real ~25-route curated sample ready for S4-T7",
-        "evidence_pointer": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step6-assembled-sample.json (test: fixtures only)"
-      }
+      "evidence": "BLOCKED (human+data): real ~25-route non-test: catalog sample not curated; founder must review REAL recovered lines rendered as PNGs"
     },
     {
       "n": 4,
@@ -91,7 +88,7 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "evidence": "couchGateStatus.allowed=false; runAllWaterfall \u2192 COUCH_GATE_BLOCKED",
+      "evidence": "couchGateStatus.allowed=false; runAllWaterfall refused; reason=Couch gate blocked: no active manifest (no operator activation exists)",
       "log": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step8-all-refused.json"
     }
   ]

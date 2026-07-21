@@ -1,7 +1,4 @@
 {
   "allowed": false,
-  "manifestHash": null,
-  "overallVerdict": null,
-  "reason": "Couch gate blocked: active manifest couch-1784600244121 is no longer frozen",
-  "sampleId": "couch-1784600244121"
+  "reason": "Couch gate blocked: no active manifest (no operator activation exists)"
 }

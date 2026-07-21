@@ -1,4 +1,5 @@
 npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
 {
   "backoffScheduleSeconds": [
     1,

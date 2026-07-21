@@ -1,11 +1,12 @@
 # Gate Results: sprint-04-trust-pipeline
 
-## ✗ BLOCKED — human Founder-Operator steps unresolved (S4-T7)
+## BLOCKED — human Founder-Operator steps unresolved (S4-T7)
 
-**Date:** 2026-07-21T152805Z
-**HEAD:** `c6cdee15171910d6692cd6e42ec164410db1e7d8` (REDHAT-FIX-12 v3)
-**Verdict:** `blocked` — automatable steps re-run honestly; steps 3,4,5,7 need founder
-**Runner:** conductor-honest-rerun-v3 (no seam, operator-gated)
+**Date (control surface):** 2026-07-21T152805Z  
+**Re-run:** 2026-07-21T16:50:25Z (2026-07-21T164828Z)  
+**HEAD:** `8f91f7d0dd3d07dda80f9b4d2cdf2e90acd05908` (post REDHAT-FIX-17..20)  
+**Verdict:** `blocked` — automatable steps re-run honestly; steps 3,4,5,7 need founder  
+**Runner:** conductor-honest-rerun-post-fix-17-20 (no seam, operator-gated)
 
 ### Summary
 
@@ -22,12 +23,12 @@
 
 **4/8 machine-pass · 4/8 human-blocked · overall BLOCKED**
 
-### Automatable evidence (this run)
+### Automatable evidence (this re-run)
 
-- Step 1: `.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step1-real-provider-waterfall.json` — 3 real catalog routes, NO lever2FixedGeometry, operator identity `test:s4-gate-operator`
+- Step 1: `.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step1-real-provider-waterfall.json` — 3 real catalog routes, NO lever2FixedGeometry, operator `test:s4-gate-operator`
 - Step 2: `.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step2-terminal-states.json`
-- Step 6: `.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step6-wrong-forces-fail.json` — WRONG_FORCES_FAIL on frozen sample
-- Step 8: `.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step8-all-refused.json` — COUCH_GATE_BLOCKED
+- Step 6: `.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step6-wrong-forces-fail.json` — WRONG_FORCES_FAIL on `couch-1784652533234`
+- Step 8: `.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step8-all-refused.json` — allowed=false (Couch gate blocked: no active manifest (no operator activation exists))
 
 ### Needs human (Founder-Operator)
 
@@ -38,6 +39,9 @@
 
 Until those four complete with a durable `couch_verdicts` pass bound to `couchGateStatus.allowed===true` for the active manifest, `GATE-GOAL: ACHIEVED` is impossible. A machine cannot pass a human visual review.
 
-### Withdrawn prior
+### Code landed this conductor session
 
-Prior 8/8 PASS (run 2026-07-19) was forged (seam-based). Prior 2026-07-20 audit correctly left human steps blocked; this run re-attests automatable steps against v3 HEAD.
+- REDHAT-FIX-17: latest bound verdict (pass OR fail) — later fail revokes prior pass
+- REDHAT-FIX-18: canonical 1..8 step completeness in deriveGoalState
+- REDHAT-FIX-19: strict non-optional manifestHash/catalogVersion binding
+- REDHAT-FIX-20: gate-plan rebound to honest 2026-07-21T152805Z control surface

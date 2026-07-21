@@ -10,19 +10,19 @@
   "tasks_complete": true,
   "gate": {
     "overall": "BLOCKED",
-    "blocker": "REDHAT-FIX-12: at least one gate step is BLOCKED/FAIL — the goal-state cannot report met:true while any step is unresolved.",
+    "blocker": "REDHAT-FIX-12: at least one gate step is BLOCKED/FAIL \u2014 the goal-state cannot report met:true while any step is unresolved.",
     "steps": [
       {
         "n": 1,
         "claim": "Run lever waterfall --sample",
         "result": "PASS-real",
-        "measured_evidence": "3 REAL catalog routes via real Google+LLM (1 processed this run, 2 skipped already-terminal; no seam; operator identity)"
+        "measured_evidence": "3 REAL catalog routes via real Google+LLM (1 processed this run, 2 skipped already-terminal; no seam; operator identity; cost ~0.07)"
       },
       {
         "n": 2,
         "claim": "Exactly one terminal state per route",
         "result": "PASS-real",
-        "measured_evidence": "3/3 routes have terminalState; perStateCounts sums to 3"
+        "measured_evidence": "3/3 routes have terminalState; states=['queued', 'recovered']"
       },
       {
         "n": 3,
@@ -49,7 +49,7 @@
         "n": 6,
         "claim": "Single wrong forces fail",
         "result": "PASS",
-        "measured_evidence": "recordCouchVerdict wrong+pass → WRONG_FORCES_FAIL on frozen sample couch-1784647774456"
+        "measured_evidence": "recordCouchVerdict wrong+pass \u2192 WRONG_FORCES_FAIL on frozen sample couch-1784652533234"
       },
       {
         "n": 7,
@@ -62,7 +62,7 @@
         "n": 8,
         "claim": "--all refused until couch pass",
         "result": "PASS",
-        "measured_evidence": "couchGateStatus.allowed=false; runAllWaterfall → COUCH_GATE_BLOCKED"
+        "measured_evidence": "couchGateStatus.allowed=false; runAllWaterfall refused; reason=Couch gate blocked: no active manifest (no operator activation exists)"
       }
     ]
   },
@@ -70,7 +70,7 @@
     "sprint_id": "sprint-04-trust-pipeline",
     "overall": "BLOCKED",
     "framework": "maestro+convex-integration",
-    "notes": "Prior 8/8 PASS withdrawn as forged (seam-based). Steps 1-2 real on real catalog data; steps 3-5-7 await founder + real ~25-route sample."
+    "notes": "Prior 8/8 PASS withdrawn as forged. Steps 1-2 real; steps 3/4/5/7 await founder + real ~25-route sample. REDHAT-FIX-17..20 landed."
   },
   "human_test": {
     "verdict": "pending",
@@ -79,10 +79,8 @@
   "build": {
     "overall": "PASS",
     "typecheck": "PASS",
-    "lint_s4_touched": "PASS",
-    "lint_full_repo": "PREEXISTING_FAIL (dynamic-import plugin; S4-touched biome clean)",
-    "s4_integration_tests": "PASS (314/314 across 49 files post-REDHAT-FIX-01..11)",
-    "written_at": "2026-07-20T20:54:04Z"
+    "s4_integration_tests": "PASS (FIX-17..20 suites green; prior 314 + new FIX tests)",
+    "written_at": "2026-07-21T16:50:25Z"
   },
   "integration": {
     "trunk_consolidated": true,
@@ -97,7 +95,11 @@
       "S4-T4",
       "S4-T5",
       "S4-T6",
-      "S4-T7"
+      "S4-T7",
+      "REDHAT-FIX-17",
+      "REDHAT-FIX-18",
+      "REDHAT-FIX-19",
+      "REDHAT-FIX-20"
     ]
   },
   "status_files": {
@@ -105,20 +107,20 @@
     "drift": [],
     "checked_at": "2026-07-20T20:59:05Z"
   },
-  "updated_at": "2026-07-21T15:31:09.781Z",
+  "updated_at": "2026-07-21T16:52:27.282Z",
   "phase": "blocked",
-  "written_at_commit": "HEAD (post-eddcbe50; REDHAT-FIX-12..15 in progress)",
+  "written_at_commit": "8f91f7d0dd3d07dda80f9b4d2cdf2e90acd05908",
   "withdrawn_prior_verdict": {
     "prior_met": true,
     "prior_written_at_commit": "4240ea01802682b3d30eb208f1f7f5837e9ae024",
-    "withdrawn_reason": "REDHAT review 2026-07-20T205905Z: sentinel predates all remediation commits; retained gate scripts pass removed lever2FixedGeometry seam and use test: fixtures — cannot attest post-remediation code, real providers, or a founder review."
+    "withdrawn_reason": "REDHAT review 2026-07-20T205905Z: sentinel predates all remediation commits; retained gate scripts pass removed lever2FixedGeometry seam and use test: fixtures \u2014 cannot attest post-remediation code, real providers, or a founder review."
   },
   "generator": {
     "written_by": "tools/gate/deriveGoalState.ts",
-    "derived_from": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/honest-step-results.json",
-    "attested_source_commit": "c6cdee15171910d6692cd6e42ec164410db1e7d8",
-    "head_commit": "c6cdee15171910d6692cd6e42ec164410db1e7d8",
-    "rule": "met := every step substantiated-PASS AND HEAD-bound manifest AND couchGateStatus.allowed manifest-bound durable founder verdict; HEAD computed internally; provenance = attested_source_commit(strict-descendant-of attestation_commit); never hand-supplied",
-    "note": "REDHAT-FIX-12 v3: this file is machine-derived; do not hand-edit."
+    "derived_from": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/honest-step-results.json",
+    "attested_source_commit": "8f91f7d0dd3d07dda80f9b4d2cdf2e90acd05908",
+    "head_commit": "8f91f7d0dd3d07dda80f9b4d2cdf2e90acd05908",
+    "rule": "met := every canonical gate-plan step (1..8) substantiated-PASS AND HEAD-bound complete evidence_steps AND couchGateStatus.allowed manifest-bound durable founder verdict; HEAD computed internally; never hand-supplied",
+    "note": "REDHAT-FIX-12 v3 + REDHAT-FIX-18 + REDHAT-FIX-20: this file is machine-derived; do not hand-edit."
   }
 }

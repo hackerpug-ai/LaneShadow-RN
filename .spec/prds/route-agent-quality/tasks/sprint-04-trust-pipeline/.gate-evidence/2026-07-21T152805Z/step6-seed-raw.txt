@@ -1,0 +1,6 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+✖ Failed to run function "couchSampleAssembler:seedCouchFixturesPublic":
+ConvexError: [Request ID: d07179c911066b0b] Server Error
+Uncaught ConvexError: {"code":"FORBIDDEN","message":"Founder role required"}
+    at requireFounder (../../convex/guards.ts:130:6)
+    at async handler (../../convex/couchSampleAssembler.ts:427:36)

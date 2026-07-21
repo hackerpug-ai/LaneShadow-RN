@@ -1,5 +1,2 @@
 npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
-✖ Failed to run function "couchVerdict:recordCouchVerdict":
-ConvexError: [Request ID: 485fd2ecc5090817] Server Error
-Uncaught ConvexError: {"code":"WRONG_FORCES_FAIL","message":"Cannot pass couch gate with any routeVerdict=wrong (fabricated-but-passing)"}
-    at handler (../convex/couchVerdict.ts:120:8)
+{"ok": true, "rejected": true, "code": "WRONG_FORCES_FAIL"}

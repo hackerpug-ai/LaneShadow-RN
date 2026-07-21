@@ -5,7 +5,8 @@
   "steps_planned": 8,
   "steps_recomputed": 8,
   "discrepancies": [],
-  "note": "Automatable steps 1,2,6,8 re-executed against real Convex; human steps 3,4,5,7 remain blocked. verified:true means claim matches recompute (both blocked), not pass.",
-  "head_commit": "c6cdee15171910d6692cd6e42ec164410db1e7d8",
-  "run_id": "2026-07-21T152805Z"
+  "note": "Automatable steps 1,2,6,8 re-executed against real Convex after REDHAT-FIX-17..20; human steps 3,4,5,7 remain blocked. verified:true means claim matches recompute (both blocked), not pass.",
+  "head_commit": "8f91f7d0dd3d07dda80f9b4d2cdf2e90acd05908",
+  "run_id": "2026-07-21T152805Z",
+  "rerun_note": "2026-07-21T164828Z"
 }
