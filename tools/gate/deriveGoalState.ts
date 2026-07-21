@@ -35,7 +35,11 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { gitHeadInternal, gitLastCommit, gitTracked, toRepoRel } from './gitUtils'
 import { type FounderAttestation, resolveFounderVerdict } from './resolveFounderVerdict'
-import { type EvidenceManifest, verifyEvidenceManifest } from './verifyEvidenceManifest'
+import {
+  type EvidenceManifest,
+  loadGatePlanExpectedSteps,
+  verifyEvidenceManifest,
+} from './verifyEvidenceManifest'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -62,6 +66,9 @@ export type GateErrorCode =
   | 'EVIDENCE_FILE_STALE'
   | 'ARTIFACT_PATH_ESCAPE'
   | 'STEP_RESULT_UNSUBSTANTIATED'
+  | 'INCOMPLETE_CANONICAL_STEPS'
+  | 'INVALID_STEP_IDENTITY'
+  | 'INCOMPLETE_EVIDENCE_STEPS'
 
 export interface GateError {
   ok: false
@@ -73,6 +80,11 @@ export interface GateError {
     seam?: string
     file?: string
     artifact?: string
+    missing?: number[]
+    extra?: number[]
+    duplicates?: number[]
+    expected?: number[]
+    actual?: number[]
     capturedCommit: string
     headCommit: string
   }
@@ -111,7 +123,11 @@ export interface GoalState {
 export { gitHeadInternal } from './gitUtils'
 export { type FounderAttestation, resolveFounderVerdict } from './resolveFounderVerdict'
 // Re-exports for tests / external use.
-export { type EvidenceManifest, verifyEvidenceManifest } from './verifyEvidenceManifest'
+export {
+  type EvidenceManifest,
+  loadGatePlanExpectedSteps,
+  verifyEvidenceManifest,
+} from './verifyEvidenceManifest'
 export { type ProvenanceResult, verifyProvenance } from './verifyProvenance'
 
 // ---------------------------------------------------------------------------
@@ -240,6 +256,109 @@ export function substantiateSteps(
   return null
 }
 
+/**
+ * REDHAT-FIX-18: validate step-results identity against the fixed canonical
+ * gate-plan set. Rejects missing, duplicate, extra, or reordered step IDs.
+ */
+export function validateStepIdentity(
+  steps: StepResult[],
+  expected: number[],
+  head: string,
+): GateError | null {
+  if (expected.length === 0) {
+    return {
+      ok: false,
+      code: 'INCOMPLETE_CANONICAL_STEPS',
+      details: {
+        reason: 'gate_plan_expected_steps_unreadable',
+        missing: [],
+        expected: [],
+        actual: steps.map((s) => s.n),
+        capturedCommit: '',
+        headCommit: head,
+      },
+    }
+  }
+
+  const actual = steps.map((s) => s.n)
+  const seen = new Set<number>()
+  const duplicates: number[] = []
+  for (const n of actual) {
+    if (seen.has(n)) {
+      if (!duplicates.includes(n)) duplicates.push(n)
+    } else {
+      seen.add(n)
+    }
+  }
+  if (duplicates.length > 0) {
+    return {
+      ok: false,
+      code: 'INVALID_STEP_IDENTITY',
+      details: {
+        reason: 'duplicate_step_ids',
+        duplicates,
+        expected,
+        actual,
+        capturedCommit: '',
+        headCommit: head,
+      },
+    }
+  }
+
+  const expectedSet = new Set(expected)
+  const missing = expected.filter((n) => !seen.has(n))
+  const extra = actual.filter((n) => !expectedSet.has(n))
+  if (missing.length > 0 || extra.length > 0) {
+    // Missing canonical steps → INCOMPLETE_CANONICAL_STEPS; pure extras (no
+    // missing) still fail identity. Prefer incomplete when any expected is gone.
+    if (missing.length > 0) {
+      return {
+        ok: false,
+        code: 'INCOMPLETE_CANONICAL_STEPS',
+        details: {
+          reason: extra.length > 0 ? 'missing_and_extra_step_ids' : 'missing_step_ids',
+          missing,
+          extra,
+          expected,
+          actual,
+          capturedCommit: '',
+          headCommit: head,
+        },
+      }
+    }
+    return {
+      ok: false,
+      code: 'INVALID_STEP_IDENTITY',
+      details: {
+        reason: 'extra_step_ids',
+        extra,
+        expected,
+        actual,
+        capturedCommit: '',
+        headCommit: head,
+      },
+    }
+  }
+
+  // Exact multiset match — still reject reorders (canonical plan order required).
+  for (let i = 0; i < expected.length; i++) {
+    if (actual[i] !== expected[i]) {
+      return {
+        ok: false,
+        code: 'INVALID_STEP_IDENTITY',
+        details: {
+          reason: 'reordered_step_ids',
+          expected,
+          actual,
+          capturedCommit: '',
+          headCommit: head,
+        },
+      }
+    }
+  }
+  return null
+}
+
 // ---------------------------------------------------------------------------
 // Fail-closed derivation
 // ---------------------------------------------------------------------------
@@ -249,6 +368,7 @@ function describeBlocker(
   anyBlocked: boolean,
   hasValidManifest: boolean,
   founder: FounderAttestation,
+  allStepsPass: boolean,
 ): string | null {
   if (error) {
     const d = error.details
@@ -260,11 +380,22 @@ function describeBlocker(
           ? ` (${d.file})`
           : ''
     const art = d.artifact ? ` artifact ${d.artifact}` : ''
+    const identityBits =
+      d.missing?.length || d.extra?.length || d.duplicates?.length
+        ? ` missing=[${(d.missing ?? []).join(',')}] extra=[${(d.extra ?? []).join(',')}] duplicates=[${(d.duplicates ?? []).join(',')}]`
+        : ''
+    // REDHAT-FIX-18 completeness/identity errors: name the incomplete/identity seam.
+    if (error.code === 'INCOMPLETE_CANONICAL_STEPS' || error.code === 'INCOMPLETE_EVIDENCE_STEPS') {
+      return `REDHAT-FIX-18: incomplete canonical gate steps (${error.code}: ${d.reason}${where}${identityBits}). A non-empty subset of non-blocked steps is never gate-complete; expected the full committed gate-plan set.`
+    }
+    if (error.code === 'INVALID_STEP_IDENTITY') {
+      return `REDHAT-FIX-18: invalid step identity/order (${d.reason}${identityBits}; expected=[${(d.expected ?? []).join(',')}] actual=[${(d.actual ?? []).join(',')}]). Duplicate, missing, extra, or reordered step IDs are rejected.`
+    }
     return `REDHAT-FIX-12: ${error.code} (${d.reason}${where}${art}; captured ${
       d.capturedCommit ? d.capturedCommit.slice(0, 12) : '∅'
     } vs HEAD ${d.headCommit.slice(0, 12)}). The evidence cannot attest the current code.`
   }
-  if (anyBlocked) {
+  if (anyBlocked || !allStepsPass) {
     return 'REDHAT-FIX-12: at least one gate step is BLOCKED/FAIL — the goal-state cannot report met:true while any step is unresolved.'
   }
   if (!founder.present) {
@@ -293,17 +424,42 @@ export function deriveGoalState(opts: DeriveOptions): GoalState {
   const convexCwd = opts.convexRepoCwd ?? cwd
   const head = gitHeadInternal(cwd)
 
+  // REDHAT-FIX-18: fixed expected set from committed gate-plan.json (not the
+  // caller-selected subset). Completeness requires every expected step.
+  const expectedSteps = loadGatePlanExpectedSteps(cwd)
+
   let error: GateError | null = null
   let manifest: EvidenceManifest | null = null
   let hasValidManifest = false
-  if (opts.bundlePath) {
+
+  // Identity/order check first so invalid step-results cannot claim completeness.
+  const identityErr = validateStepIdentity(opts.steps, expectedSteps, head)
+  if (identityErr) {
+    error = identityErr
+  }
+
+  if (!error && opts.bundlePath) {
     const structural = validateBundle(opts.bundlePath, head, cwd)
     if (!structural.ok) {
       error = structural
     } else {
       const mv = verifyEvidenceManifest(opts.bundlePath, head, cwd)
       if (!mv.ok) {
-        error = mv
+        // Map ManifestError into GateError (compatible codes + details).
+        error = {
+          ok: false,
+          code: mv.code,
+          details: {
+            reason: mv.details.reason,
+            step: mv.details.step,
+            file: mv.details.file,
+            artifact: mv.details.artifact,
+            missing: mv.details.missing,
+            extra: mv.details.extra,
+            capturedCommit: mv.details.capturedCommit,
+            headCommit: mv.details.headCommit,
+          },
+        }
       } else {
         manifest = mv.manifest
         const sub = substantiateSteps(opts.steps, manifest, opts.bundlePath, cwd)
@@ -313,7 +469,19 @@ export function deriveGoalState(opts: DeriveOptions): GoalState {
     }
   }
 
+  // When there is no bundle, still require the full expected set to be present
+  // and PASS for the mechanical step predicate (identity already enforced).
+  const stepByN = new Map(opts.steps.map((s) => [s.n, s]))
   const anyBlocked = opts.steps.some((s) => !isPassing(s.result))
+  // CRITICAL-2 fix: length>0 && !anyBlocked is NOT sufficient — every canonical
+  // expected step must be present and substantiated-PASS.
+  const allStepsPass =
+    expectedSteps.length > 0 &&
+    !error &&
+    expectedSteps.every((n) => {
+      const s = stepByN.get(n)
+      return !!s && isPassing(s.result)
+    })
 
   let founder: FounderAttestation = {
     present: false,
@@ -330,7 +498,6 @@ export function deriveGoalState(opts: DeriveOptions): GoalState {
     founder = resolveFounderVerdict(convexCwd)
   }
 
-  const allStepsPass = opts.steps.length > 0 && !anyBlocked
   const met = !error && allStepsPass && hasValidManifest && founder.present
   const goal = met ? 'GATE-GOAL: ACHIEVED' : 'GATE-GOAL: BLOCKED'
   const overall = met ? 'PASS' : 'BLOCKED'
@@ -356,7 +523,7 @@ export function deriveGoalState(opts: DeriveOptions): GoalState {
     met,
     gate: {
       overall,
-      blocker: describeBlocker(error, anyBlocked, hasValidManifest, founder),
+      blocker: describeBlocker(error, anyBlocked, hasValidManifest, founder, allStepsPass),
       steps: opts.steps,
     },
     human_test,
@@ -365,8 +532,8 @@ export function deriveGoalState(opts: DeriveOptions): GoalState {
       derived_from: derivedFrom,
       attested_source_commit: head,
       head_commit: head,
-      rule: 'met := every step substantiated-PASS AND HEAD-bound manifest AND couchGateStatus.allowed manifest-bound durable founder verdict; HEAD computed internally; provenance = attested_source_commit(strict-descendant-of attestation_commit); never hand-supplied',
-      note: 'REDHAT-FIX-12 v3: this file is machine-derived; do not hand-edit.',
+      rule: 'met := every canonical gate-plan step (1..8) substantiated-PASS AND HEAD-bound complete evidence_steps AND couchGateStatus.allowed manifest-bound durable founder verdict; HEAD computed internally; never hand-supplied',
+      note: 'REDHAT-FIX-12 v3 + REDHAT-FIX-18: this file is machine-derived; do not hand-edit.',
     },
     exitCode,
     ...(error ? { error } : {}),
