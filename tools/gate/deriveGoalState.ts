@@ -452,18 +452,125 @@ function isTimestampShapedScriptPath(text: string): boolean {
   return /\.gate-evidence\/\d{4}-\d{2}-\d{2}T(?:\d{6}Z|\d{2}:\d{2}:\d{2}Z)\/scripts\//.test(key)
 }
 
+/** Shell KEY=val assignment token (not a bare word). */
+function isEnvAssignmentToken(token: string): boolean {
+  return /^[A-Za-z_][A-Za-z0-9_]*=/.test(token)
+}
+
 /**
- * REDHAT-FIX-20 + REDHAT-FIX-21 + REDHAT-FIX-22: reject step repro_cmd / bundle
- * paths that are off-plan relative to HEAD-bound gate-plan literal_cmds.
+ * REDHAT-FIX-24: normalized full command for equality against plan literal_cmds.
+ * Interpreter + canonical script path + arg vector; env prefixes are preserved
+ * so they never silently strip to a path-only match.
+ */
+export type NormalizedFullCommand = {
+  /** Leading `env` / KEY=val tokens (must be empty to match bare plan cmds). */
+  prefix: string[]
+  /** Interpreter token (e.g. bash, sh, python); empty when bare path. */
+  interpreter: string
+  /** Canonical script key (same as canonicalizeScriptPath). */
+  scriptKey: string
+  /** Remaining argv after interpreter + script (flags, extra args). */
+  args: string[]
+}
+
+/**
+ * Tokenize and normalize a full shell command for exact equality.
+ * Leading env KEY=val / `env VAR=…` prefixes are kept in `prefix` so they
+ * cannot equal a bare plan `bash <script>` literal_cmd.
+ */
+export function normalizeFullCommand(text: string): NormalizedFullCommand | null {
+  if (!text) return null
+  const tokens = text.trim().split(/\s+/).filter(Boolean)
+  if (tokens.length === 0) return null
+
+  let i = 0
+  const prefix: string[] = []
+
+  // `env [KEY=val …] cmd …` or bare `KEY=val … cmd …`
+  if (tokens[0] === 'env') {
+    prefix.push('env')
+    i = 1
+    while (i < tokens.length && isEnvAssignmentToken(tokens[i]!)) {
+      prefix.push(tokens[i]!)
+      i++
+    }
+  } else {
+    while (i < tokens.length && isEnvAssignmentToken(tokens[i]!)) {
+      prefix.push(tokens[i]!)
+      i++
+    }
+  }
+
+  if (i >= tokens.length) return null
+
+  // Locate the .sh script token among remaining tokens.
+  let scriptIdx = -1
+  for (let j = i; j < tokens.length; j++) {
+    const t = tokens[j]!
+    if (!t.includes('.sh')) continue
+    const key = canonicalizeScriptPath(t)
+    if (key) {
+      scriptIdx = j
+      break
+    }
+  }
+  if (scriptIdx < 0) {
+    // Fallback: whole remaining text may embed a path (canonicalizeScriptPath scan).
+    const rest = tokens.slice(i).join(' ')
+    const key = canonicalizeScriptPath(rest)
+    if (!key) return null
+    // Treat as bare path when only one token, else first token = interpreter.
+    if (tokens.length - i === 1) {
+      return { prefix, interpreter: '', scriptKey: key, args: [] }
+    }
+    return {
+      prefix,
+      interpreter: tokens[i]!,
+      scriptKey: key,
+      args: tokens.slice(i + 1).filter((t) => canonicalizeScriptPath(t) !== key),
+    }
+  }
+
+  const scriptKey = canonicalizeScriptPath(tokens[scriptIdx]!)
+  if (!scriptKey) return null
+
+  const between = tokens.slice(i, scriptIdx)
+  const interpreter = between[0] ?? ''
+  const midArgs = between.slice(1) // e.g. bash -x script.sh → midArgs = ['-x']
+  const trailingArgs = tokens.slice(scriptIdx + 1)
+  return {
+    prefix,
+    interpreter,
+    scriptKey,
+    args: [...midArgs, ...trailingArgs],
+  }
+}
+
+/** Stable equality key for a normalized full command. */
+export function stableFullCommandKey(n: NormalizedFullCommand): string {
+  return JSON.stringify({
+    p: n.prefix,
+    i: n.interpreter,
+    s: n.scriptKey,
+    a: n.args,
+  })
+}
+
+/**
+ * REDHAT-FIX-20 + REDHAT-FIX-21 + REDHAT-FIX-22 + REDHAT-FIX-24: reject step
+ * repro_cmd / bundle paths that are off-plan relative to HEAD-bound gate-plan
+ * literal_cmds.
  *
  * Binding rules (fail closed):
  *   1. Dirty/stale plans → PLAN_* (never WT plan authority).
  *   2. Empty/malformed literal_cmds after successful load → OFF_PLAN_SCRIPT
  *      (no null skip / allow-all).
  *   3. Timestamp-shaped run IDs not in plan allow-list → OFF_PLAN_SCRIPT.
- *   4. Timestamp-shaped `.gate-evidence/<run>/scripts/*.sh` must exactly match
- *      a plan-owned canonical script path (not merely live under an allowed
- *      run directory). Substitute scripts under an allowed run are rejected.
+ *   4. REDHAT-FIX-22: substitute scripts under an allowed run are rejected.
+ *   5. REDHAT-FIX-24: timestamp-shaped script commands must match an exact
+ *      NORMALIZED FULL-COMMAND (interpreter + canonical script path + arg
+ *      vector). Path-only .sh match is insufficient — extra flags, env-prefix
+ *      wrappers, and interpreter swaps are OFF_PLAN_SCRIPT.
  *
  * Synthetic harness dirs (one-step, full-eight, …) are left alone so
  * FIX-12/FIX-18 completeness paths still apply — they are not timestamp-shaped.
@@ -488,14 +595,14 @@ export function rejectOffPlanScripts(
     }
   }
 
-  // REDHAT-FIX-22: fail closed when HEAD plan has no usable literal_cmds.
-  // Former early-return null skipped validation and allowed any script.
-  const allowedScripts = new Set<string>()
+  // REDHAT-FIX-22 + REDHAT-FIX-24: build allowed full-command keys from plan
+  // literal_cmds. Fail closed when none are usable (empty/malformed).
+  const allowedFullCmds = new Set<string>()
   for (const cmd of planLoad.literalCmds) {
-    const key = canonicalizeScriptPath(cmd)
-    if (key) allowedScripts.add(key)
+    const normalized = normalizeFullCommand(cmd)
+    if (normalized) allowedFullCmds.add(stableFullCommandKey(normalized))
   }
-  if (planLoad.literalCmds.length === 0 || allowedScripts.size === 0) {
+  if (planLoad.literalCmds.length === 0 || allowedFullCmds.size === 0) {
     return {
       ok: false,
       code: 'OFF_PLAN_SCRIPT',
@@ -528,17 +635,19 @@ export function rejectOffPlanScripts(
       }
     }
 
-    // 2) Exact script-path equality against plan-owned literal_cmds.
-    // Only timestamp-shaped script paths are enforced (synthetic harness dirs
-    // remain outside this axis).
+    // 2) REDHAT-FIX-24: exact NORMALIZED FULL-COMMAND equality against plan
+    // literal_cmds (interpreter + canonical script path + args). Only
+    // timestamp-shaped script paths are enforced (synthetic harness dirs
+    // remain outside this axis). Path-only .sh match is intentionally not used.
     if (isTimestampShapedScriptPath(text)) {
-      const scriptKey = canonicalizeScriptPath(text)
-      if (scriptKey && !allowedScripts.has(scriptKey)) {
+      const normalized = normalizeFullCommand(text)
+      if (!normalized || !allowedFullCmds.has(stableFullCommandKey(normalized))) {
+        const scriptKey = normalized?.scriptKey ?? canonicalizeScriptPath(text) ?? text
         return {
           ok: false,
           code: 'OFF_PLAN_SCRIPT',
           details: {
-            reason: `off-plan script path not an exact HEAD-bound plan literal_cmd match (${scriptKey})`,
+            reason: `off-plan full command not an exact HEAD-bound plan literal_cmd match (${scriptKey})`,
             step,
             script: text,
             capturedCommit: '',
