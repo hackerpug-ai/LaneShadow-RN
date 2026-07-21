@@ -1,6 +1,1 @@
-{
-  "ok": true,
-  "rejected": true,
-  "code": "WRONG_FORCES_FAIL",
-  "sampleId": "couch-1784652533234"
-}
+{"ok": true, "rejected": true, "code": "WRONG_FORCES_FAIL"}

@@ -1,7 +1,1 @@
-{
-  "ok": true,
-  "allowed": false,
-  "pass_allowed": false,
-  "runAll_refused": true,
-  "reason": "Couch gate blocked: no active manifest (no operator activation exists)"
-}
+{"ok": true, "allowed": false, "pass_allowed": false, "runAll_refused": true, "reason": "Couch gate blocked: no active manifest (no operator activation exists)"}

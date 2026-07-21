@@ -1,4 +1,1 @@
-{
-  "allowed": false,
-  "reason": "Couch gate blocked: no active manifest (no operator activation exists)"
-}
+{"allowed": false, "reason": "Couch gate blocked: no active manifest (no operator activation exists)", "pass_allowed": false}

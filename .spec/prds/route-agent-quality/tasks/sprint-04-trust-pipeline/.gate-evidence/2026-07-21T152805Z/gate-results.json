@@ -5,7 +5,7 @@
     "sprint_slug": "sprint-04-trust-pipeline"
   },
   "run_id": "2026-07-21T152805Z",
-  "rerun_at": "2026-07-21T16:50:25Z",
+  "rerun_at": "2026-07-21T17:23:25Z",
   "verdict": "blocked",
   "blocked_reason": "steps 3,4,5,7 require Founder-Operator (S4-T7) human review of a REAL ~25-route couch sample; machine cannot pass a human visual review",
   "steps_total": 8,
@@ -14,13 +14,13 @@
   "steps_blocked_human": 4,
   "ui_driver": "none",
   "exec_surface": "agent-direct",
-  "runner": "conductor-honest-rerun-post-fix-17-20",
-  "head_commit": "8f91f7d0dd3d07dda80f9b4d2cdf2e90acd05908",
+  "runner": "conductor-honest-rerun-current-head",
+  "head_commit": "272928927f226a175fc38a4849a5cc6d17c81031",
   "supersedes": {
     "run_id": "2026-07-21T152805Z",
-    "prior_head": "c6cdee15171910d6692cd6e42ec164410db1e7d8",
+    "prior_head": "8f91f7d0dd3d07dda80f9b4d2cdf2e90acd05908",
     "prior_verdict": "blocked",
-    "reason": "Re-ran automatable steps 1,2,6,8 after REDHAT-FIX-17..20 landed; human steps remain unresolved"
+    "reason": "Re-ran automatable steps 1,2,6,8 at current HEAD after conductor resume; human steps remain unresolved"
   },
   "steps": [
     {
@@ -71,7 +71,7 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "evidence": "recordCouchVerdict with overallVerdict=pass + one wrong \u2192 WRONG_FORCES_FAIL (exit 1)",
+      "evidence": "recordCouchVerdict with overallVerdict=pass + one wrong \u2192 WRONG_FORCES_FAIL on couch-1784654446923",
       "log": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step6-wrong-forces-fail.json"
     },
     {

@@ -3,10 +3,10 @@
 ## BLOCKED — human Founder-Operator steps unresolved (S4-T7)
 
 **Date (control surface):** 2026-07-21T152805Z  
-**Re-run:** 2026-07-21T16:50:25Z (2026-07-21T164828Z)  
-**HEAD:** `8f91f7d0dd3d07dda80f9b4d2cdf2e90acd05908` (post REDHAT-FIX-17..20)  
+**Re-run:** 2026-07-21T17:23:25Z (2026-07-21T172325Z)  
+**HEAD:** `272928927f226a175fc38a4849a5cc6d17c81031` (current main at conductor resume)  
 **Verdict:** `blocked` — automatable steps re-run honestly; steps 3,4,5,7 need founder  
-**Runner:** conductor-honest-rerun-post-fix-17-20 (no seam, operator-gated)
+**Runner:** conductor-honest-rerun-current-head (no seam, operator-gated)
 
 ### Summary
 
@@ -25,9 +25,9 @@
 
 ### Automatable evidence (this re-run)
 
-- Step 1: `.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step1-real-provider-waterfall.json` — 3 real catalog routes, NO lever2FixedGeometry, operator `test:s4-gate-operator`
-- Step 2: `.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step2-terminal-states.json`
-- Step 6: `.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step6-wrong-forces-fail.json` — WRONG_FORCES_FAIL on `couch-1784652533234`
+- Step 1: `.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step1-real-provider-waterfall.json` — 3 real catalog routes, NO lever2FixedGeometry, operator `test:s4-gate-operator`, cost ~0.07
+- Step 2: `.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step2-terminal-states.json` — states=['queued', 'recovered']
+- Step 6: `.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step6-wrong-forces-fail.json` — WRONG_FORCES_FAIL on `couch-1784654446923`
 - Step 8: `.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step8-all-refused.json` — allowed=false (Couch gate blocked: no active manifest (no operator activation exists))
 
 ### Needs human (Founder-Operator)
@@ -39,9 +39,6 @@
 
 Until those four complete with a durable `couch_verdicts` pass bound to `couchGateStatus.allowed===true` for the active manifest, `GATE-GOAL: ACHIEVED` is impossible. A machine cannot pass a human visual review.
 
-### Code landed this conductor session
+### Open machine backlog (does not unlock the human gate)
 
-- REDHAT-FIX-17: latest bound verdict (pass OR fail) — later fail revokes prior pass
-- REDHAT-FIX-18: canonical 1..8 step completeness in deriveGoalState
-- REDHAT-FIX-19: strict non-optional manifestHash/catalogVersion binding
-- REDHAT-FIX-20: gate-plan rebound to honest 2026-07-21T152805Z control surface
+- REDHAT-FIX-21 / REDHAT-FIX-22 are planned Pending at HEAD (HEAD-bound gate-plan authority + exact script match). They tighten anti-forgery further; they do **not** substitute for S4-T7 founder review.

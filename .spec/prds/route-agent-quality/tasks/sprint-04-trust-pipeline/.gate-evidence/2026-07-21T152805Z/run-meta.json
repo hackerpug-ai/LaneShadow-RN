@@ -1,16 +1,16 @@
 {
   "run_id": "2026-07-21T152805Z",
-  "rerun_at": "2026-07-21T16:50:25Z",
-  "rerun_note": "2026-07-21T164828Z",
-  "head_commit": "8f91f7d0dd3d07dda80f9b4d2cdf2e90acd05908",
-  "written_at": "2026-07-21T16:50:25Z",
-  "code_commit_note": "evidence re-captured against HEAD after REDHAT-FIX-17..20 landed; control surface 2026-07-21T152805Z",
+  "rerun_at": "2026-07-21T17:23:25Z",
+  "rerun_note": "2026-07-21T172325Z",
+  "head_commit": "272928927f226a175fc38a4849a5cc6d17c81031",
+  "written_at": "2026-07-21T17:23:25Z",
+  "code_commit_note": "evidence re-captured against current HEAD after conductor resume; control surface 2026-07-21T152805Z; FIX-21/22 planned-not-implemented (do not forge pass)",
   "operator_identity": "test:s4-gate-operator (seeded via testSupport:devSetupFounderUser)",
   "seam": "NONE \u2014 no lever2FixedGeometry",
   "steps_run": {
     "1": "runSampleWaterfall real Google+LLM on 3 real catalog routes (processed=1, skipped=2)",
     "2": "exactly one terminalState per route from step1 output",
-    "6": "recordCouchVerdict wrong+pass \u2192 WRONG_FORCES_FAIL on frozen sample couch-1784652533234",
+    "6": "recordCouchVerdict wrong+pass \u2192 WRONG_FORCES_FAIL on frozen sample couch-1784654446923",
     "8": "runAllWaterfall refused while couchGateStatus.allowed=false (Couch gate blocked: no active manifest (no operator activation exists))"
   },
   "steps_blocked_human": {

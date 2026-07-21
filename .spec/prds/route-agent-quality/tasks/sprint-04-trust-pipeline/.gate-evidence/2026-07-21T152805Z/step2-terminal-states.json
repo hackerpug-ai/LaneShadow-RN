@@ -1,8 +1,1 @@
-{
-  "ok": true,
-  "count": 3,
-  "states": [
-    "queued",
-    "recovered"
-  ]
-}
+{"ok": true, "count": 3, "states": ["queued", "recovered"]}
