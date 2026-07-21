@@ -1,6 +1,7 @@
 # REDHAT-FIX-12 — Rebuild founder/live-provider gate evidence harness so goal-state cannot claim completion from stale/forged bundles OR forged completion inputs (UC-VER-05)
 > Status: ⬜ Pending
 > **SECOND REFRESH (2026-07-20):** Precision-gap correction (same TASK_ID, in-place) driven by the fresh independent red-hat review `.spec/reviews/red-hat-sprint-04-trust-pipeline-20260720T233411Z.md` (reviewed commit `a39c5850`, disposition `needs-revision`). The first refresh added AC-5/TC-8/TC-9 (step3/step5 script coverage). This refresh closes the newly-found forgeability of the writer's *completion authority itself*: `founderVerdict`, `--head-commit`, the optional/skippable bundle, and the caller-supplied `steps` JSON were all trusted from caller input and produced `met:true` / `GATE-GOAL: ACHIEVED` with no authenticated durable evidence. AC-1..AC-5 / TC-1..TC-9 are PRESERVED unchanged; AC-6..AC-10 / TC-10..TC-17 are added on top.
+> **THIRD REFRESH (2026-07-21):** Completion-authority hardening continues (same TASK_ID, in-place) driven by the fresh independent red-hat review `.spec/reviews/red-hat-sprint-04-trust-pipeline-20260721T005254Z.md` (reviewed commit `1bacaef0`, disposition `needs-revision`). AC-1..AC-9 are CONFIRMED FIXED by that review's passing live suite and are preserved byte-for-byte. This refresh closes two remaining CRITICAL findings — the manifest/artifacts were still resolved from the live working tree with only bundle-directory-level freshness (AC-11), and an artifact path could traverse outside the bundle to substantiate a PASS step (AC-12) — a HIGH finding that founder attestation accepted any latest `couch_verdicts` pass row instead of the `couchGateStatus.allowed`-bound current active manifest (AC-13), and a MEDIUM finding that AC-10's prior self-HEAD-equality claim was semantically impossible for an ordinary follow-up commit — AC-10 is revised in place to a two-object `attested_source_commit` / `attestation_commit` provenance contract verified by strict-descendant relation, not equality.
 
 | Field | Value |
 |-------|-------|
@@ -8,8 +9,8 @@
 | SPRINT | [Sprint 04 — Trust pipeline](./SPRINT.md) |
 | TASK_TYPE | FEATURE |
 | AGENT | implementer=`convex-implementer` · reviewer=`convex-reviewer` |
-| ESTIMATE | 225 min |
-| EFFORT | L |
+| ESTIMATE | 360 min |
+| EFFORT | XL |
 | PRIORITY | P0 |
 | STATUS | Backlog |
 | PROPOSED_BY | `convex-planner` |
@@ -21,7 +22,7 @@
 
 RUNTIME_COMMANDS:
 - test: `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts`
-- test (new adversarial ACs): `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-6|AC-7|AC-8|AC-9|AC-10'`
+- test (new adversarial ACs): `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-6|AC-7|AC-8|AC-9|AC-10|AC-11|AC-12|AC-13'`
 - typecheck: `npx tsc --noEmit -p convex/tsconfig.json`
 - lint: `pnpm exec biome check`
 
@@ -29,7 +30,7 @@ RUNTIME_COMMANDS:
 
 ## OUTCOME
 
-deriveGoalState.ts recomputes sprint-goal-state.json from *authenticated durable evidence*, not caller input: `founderVerdict` and any route-level/S4-T7 decision data are resolved ONLY from real `couch_verdicts` rows recorded through the operator-gated `recordCouchVerdict` and read back via `getCouchVerdict`/`couchGateStatus` (a CLI/JSON `founderVerdict:true` has ZERO effect); `headCommit` is computed internally via `git rev-parse HEAD` (a caller-supplied `--head-commit` is never authoritative); a committed evidence manifest is MANDATORY for any write that could produce `met:true` (missing → fails closed, untracked → rejected, clean-but-stale commit ≠ internal HEAD → rejected); every step PASS claim is substantiated against the manifest's enumerated per-step artifacts so a tampered step-results JSON cannot flip the outcome; and `generator.head_commit` always equals the actual current HEAD with a repository-relative immutable input-manifest reference. It still refuses `met:true` whenever any step is BLOCKED/FAIL or the bundle is stale/seam/bare-identity, rebuilt step3/4/5/7 exercise the real operator-gated surface, and the human founder review (S4-T7) is never synthesized and stays human-owned.
+deriveGoalState.ts recomputes sprint-goal-state.json from *authenticated durable evidence*, not caller input: `founderVerdict` and any route-level/S4-T7 decision data are resolved ONLY from real `couch_verdicts` rows recorded through the operator-gated `recordCouchVerdict` and read back via `getCouchVerdict`/`couchGateStatus` (a CLI/JSON `founderVerdict:true` has ZERO effect); `headCommit` is computed internally via `git rev-parse HEAD` (a caller-supplied `--head-commit` is never authoritative); a committed evidence manifest is MANDATORY for any write that could produce `met:true` (missing → fails closed, untracked → rejected, clean-but-stale commit ≠ internal HEAD → rejected); every step PASS claim is substantiated against the manifest's enumerated per-step artifacts so a tampered step-results JSON cannot flip the outcome; and `generator.head_commit` always equals the actual current HEAD with a repository-relative immutable input-manifest reference. It still refuses `met:true` whenever any step is BLOCKED/FAIL or the bundle is stale/seam/bare-identity, rebuilt step3/4/5/7 exercise the real operator-gated surface, and the human founder review (S4-T7) is never synthesized and stays human-owned. THIRD REFRESH: the manifest and every enumerated artifact are additionally resolved from immutable HEAD-bound content (a git blob comparison, never a working-tree `readFileSync`) with PER-FILE freshness (each required file's own last-touch commit, not the bundle directory's), artifact paths are contained within the bundle via realpath canonicalization (rejecting `../` traversal even to a tracked file), founder attestation is bound to `couchGateStatus.allowed===true` for the CURRENT active manifest (never `getCouchVerdict({})`'s latest-across-all-samples row), and the generator's provenance is expressed as a two-object `attested_source_commit`/`attestation_commit` contract verified by strict-descendant relation rather than the previously impossible self-HEAD-equality claim.
 
 ## 🚫 CRITICAL CONSTRAINTS (Never tier — read before acting)
 
@@ -43,6 +44,10 @@ deriveGoalState.ts recomputes sprint-goal-state.json from *authenticated durable
 - MUST treat a committed evidence manifest as MANDATORY for any write that could produce met:true — a missing bundle directory MUST fail closed (NEVER `{ok:true}`), an untracked bundle (present on disk but not tracked by git) MUST be rejected, and a clean bundle (no forbidden seam/identity) whose captured commit ≠ the internal HEAD MUST be rejected; the manifest's captured commit MUST be verified against the internally computed `git rev-parse HEAD`, never a CLI-supplied SHA, and the manifest MUST enumerate the required per-step artifacts
 - MUST substantiate every step's PASS claim against the mandatory committed manifest's enumerated per-step artifacts — an arbitrary caller-supplied step-results JSON is NOT sole completion authority; a tampered step-results JSON (flipping a BLOCKED step to PASS, or naming a step the manifest does not corroborate) MUST be rejected / MUST NOT change the manifest-derived outcome
 - MUST emit `generator.head_commit` equal to the actual current HEAD at generation time (never a stale/parent/ephemeral-source commit, e.g. never a bare `da67b6e9…` when HEAD differs) and MUST record a repository-relative, immutable input-manifest reference (never an ephemeral `/tmp/...` path)
+- MUST resolve the evidence manifest AND every enumerated artifact from immutable HEAD-bound content — read `git show HEAD:<repo-rel-path>` (or compare the working-tree blob hash against `git rev-parse HEAD:<path>` for byte-equality) — and MUST NEVER treat a `readFileSync` off the live working tree as completion authority; a manifest or artifact that is tracked but modified/staged in the working tree (dirty) MUST be rejected fail-closed with MANIFEST_NOT_HEAD_BOUND, never read verbatim
+- MUST verify evidence freshness PER-FILE — each required manifest and artifact's OWN last-touch commit (`git log -1 --format=%H -- <exact path>`) MUST equal the internal `git rev-parse HEAD` — and MUST NOT accept bundle-DIRECTORY-level `git log -1 -- <bundleDir>` as sufficient; an unrelated file newly committed under the same bundle directory MUST NOT launder a stale manifest/artifact whose own last-touch commit != HEAD into a PASS (EVIDENCE_FILE_STALE)
+- MUST enforce artifact containment BEFORE any tracking check — canonicalize `realpath(bundle/artifact)` and require it to start with `realpath(bundle) + separator`, rejecting any `..`/symlink path escape with ARTIFACT_PATH_ESCAPE — so an out-of-bundle tracked file (e.g. `../../package.json`) can NEVER substantiate a PASS step even though it is tracked in git
+- MUST derive founder attestation ONLY from `couchGateStatus.allowed===true` for the CURRENT active manifest, bound to that status's exact `sampleId`/`manifestHash`/`catalogVersion` via a matching `getCouchVerdict({sampleId})` row whose `recordedBy` is a real `requireOperator`-authorized (OPERATOR_ROLES = founder OR operator) NON-test-prefixed, NON-bare (`!= s4-human-gate`) identity — MUST NEVER use `getCouchVerdict({})` (the latest of up to 50 rows across ALL samples), a historic/inactive/legacy/drifted pass while `couchGateStatus.allowed` is false, or a TEST_SUBJECT_PREFIXES-matching identity for a production closeout
 
 **NEVER**
 - NEVER synthesize, fabricate, or auto-pass the human founder visual review (human_test.verdict) — the Founder-Operator/live-provider gate (S4-T7) is an EXTERNAL, unresolved, human-owned blocker; this harness must leave human_test unresolved/pending unless a genuine operator-recorded `couch_verdicts` S4-T7 verdict record exists, and must NEVER simulate, satisfy, or reduce its scope; a test may only produce a "real" verdict by seeding a genuine call through the real operator-gated `recordCouchVerdict` mutation, never by a raw db insert or a JSON flag
@@ -53,12 +58,14 @@ deriveGoalState.ts recomputes sprint-goal-state.json from *authenticated durable
 - NEVER edit the honest top-level GATE-RESULTS.md (read-only source of truth) or perform FIX-01's live-provider closeout scope
 - NEVER modify convex/couchVerdict.ts / convex/couchSampleAssembler.ts (FIX-15/FIX-16) — call getCouchVerdict/couchGateStatus/recordCouchVerdict/assembleCouchSample as existing public APIs only; do NOT re-litigate the legacy-manifest routeHashes fix
 - NEVER assert a FORBIDDEN negative control on step5 getCouchVerdict (it is requireIdentity, not requireOperator, in current source) — its control is rebuilt-off-bare-identity + no-seam + no-synthesized-pass; only step3 export (requireOperatorAction) and step4/step7 (requireOperator) carry a true FORBIDDEN control
+- NEVER let an out-of-bundle (`..`/symlink-escaped) artifact, a dirty/staged evidence file, a bundle-directory-laundered stale manifest/artifact, or a `getCouchVerdict({})` latest-across-all-samples / historic-inactive pass reach `met:true` or `human_test.verdict:'pass'`
 
 **STRICTLY**
 - STRICTLY the goal-state writer is the ONLY writer of sprint-goal-state.json; the file is a generated output, never hand-edited in this task
 - STRICTLY the stale/commit/seam/operator/missing/untracked checks are load-bearing negative controls and must be exercised by real forged/missing/untracked/stale/tampered inputs
 - STRICTLY the six adversarial vectors — (1) missing bundle, (2) untracked bundle, (3) clean-but-stale bundle, (4) forged/bogus CLI `--head-commit`, (5) tampered step-results JSON, (6) arbitrary `founderVerdict:true` flag with no real S4-T7 record — are EACH a load-bearing negative control with its own scenario case, and each case must fail against a stub/mock/empty writer (Fakeability Floor)
 - STRICTLY every scenario case seeds through a real entrypoint (public API / real operator mutation / real git commit / real writer invocation) — never a raw db insert or a view-injected value used as the thing under test — and each case must fail against a stub/mock/empty implementation
+- STRICTLY the HEAD-content binding, per-file freshness, realpath artifact containment, and `couchGateStatus.allowed`-bound founder attestation are load-bearing negative controls — each MUST be exercised by a REAL dirty-working-tree / directory-laundering / `../` traversal / historic-inactive-pass input against the ACTUAL shipped functions, never a stub/mock/empty writer (Fakeability Floor)
 
 ## DONE WHEN
 
@@ -71,7 +78,10 @@ deriveGoalState.ts recomputes sprint-goal-state.json from *authenticated durable
 - AC-7 [HEAD is computed internally; a forged --head-commit is inert]: the writer compares the bundle's captured commit against the true internal `git rev-parse HEAD`, and a bogus caller `--head-commit` does not change the STALE_EVIDENCE_BUNDLE outcome
 - AC-8 [A committed evidence manifest is mandatory; missing/untracked/clean-stale bundles are rejected]: a missing bundle fails closed, an untracked bundle is rejected, and a clean bundle whose captured commit ≠ internal HEAD is rejected — none can produce met:true
 - AC-9 [Step PASS claims are substantiated against the committed manifest; tampering is inert]: a tampered step-results JSON that flips a BLOCKED step to PASS (uncorroborated by the manifest) is rejected / does not change the manifest-derived outcome
-- AC-10 [Generator metadata binds to the actual HEAD and a repository-relative immutable input]: emitted `generator.head_commit` equals the current `git rev-parse HEAD` and `generator.derived_from`/input-manifest reference is repository-relative (never a `/tmp/...` ephemeral path)
+- AC-10 [Generator provenance is a two-object contract, not impossible self-equality]: `generator.attested_source_commit` equals the internal `git rev-parse HEAD` at generation time; a provenance verifier confirms the sentinel's `attestation_commit` (its own last-touch commit) is a STRICT descendant of `attested_source_commit` (never equal/ancestor/unrelated); `generator.derived_from` stays repository-relative (never `/tmp/...`)
+- AC-11 [Manifest/artifacts are resolved from immutable HEAD-bound content with per-file freshness]: a dirty-working-tree manifest modification is rejected with MANIFEST_NOT_HEAD_BOUND, and an old manifest/artifact laundered by an unrelated new bundle file is rejected with EVIDENCE_FILE_STALE (per-file last-touch != HEAD even though bundle-directory-level `git log` == HEAD)
+- AC-12 [Artifact path traversal is rejected by containment, not tracking]: an artifact path resolving outside the bundle (`../../package.json`), even though tracked in git, is rejected with ARTIFACT_PATH_ESCAPE via a realpath containment check performed BEFORE any `gitTracked` call
+- AC-13 [Founder attestation is bound to the live active-manifest gate, not any latest pass row]: attestation requires `couchGateStatus.allowed===true` for the CURRENT active manifest bound to its exact `sampleId`/`manifestHash`/`catalogVersion` via `getCouchVerdict({sampleId})`, recorded by a real `requireOperator` non-test, non-bare identity; a historic/inactive pass unbound to the active manifest yields `met:false` / `human_test.verdict:'pending'`
 - Every behavioral AC scenario passes `validate_scenario` (exit 0, zero CRITICAL/HIGH); RED-against-start recorded before GREEN; seeded-value EVIDENCE artifact captured
 - `npx tsc --noEmit -p convex/tsconfig.json` → 0 errors + `pnpm exec biome check` clean + `pnpm convex:dev --once` clean
 - NO-REGRESSION: `pnpm type-check` reports zero new errors vs. a baseline captured at task start
@@ -81,7 +91,7 @@ deriveGoalState.ts recomputes sprint-goal-state.json from *authenticated durable
 
 **Objective:** Make the Sprint-04 gate evidence harness non-forgeable at the *completion-authority* layer, not just the script-coverage layer. sprint-goal-state.json becomes a machine-derived, fail-closed artifact whose `met:true` can only arise from authenticated durable evidence: (a) the founder/S4-T7 attestation resolved from real `couch_verdicts` rows (operator-recorded via `recordCouchVerdict`, read via `getCouchVerdict`/`couchGateStatus`) — never a caller boolean; (b) an internally-computed HEAD (`git rev-parse HEAD`) — never a caller `--head-commit`; (c) a MANDATORY committed evidence manifest whose captured commit is bound to that internal HEAD and which enumerates the per-step artifacts that substantiate each PASS claim — so missing/untracked/clean-stale bundles and tampered step-results JSON are all rejected. ALL FOUR gate-evidence step scripts remain rebuilt to exercise the current public Convex surface under a real operator identity with a bare-identity negative control, and the human founder review stays external/S4-T7-owned.
 
-**Success state:** See OUTCOME. The six adversarial vectors (missing bundle, untracked bundle, clean-but-stale bundle, forged `--head-commit`, tampered step-results, arbitrary `founderVerdict:true`) each fail closed with a concrete error/`met:false`, and the honest `sprint-goal-state.json` sentinel is regenerated ONLY through the hardened writer with `generator.head_commit` == the actual reviewed HEAD and a repository-relative immutable input reference.
+**Success state:** See OUTCOME. The six adversarial vectors (missing bundle, untracked bundle, clean-but-stale bundle, forged `--head-commit`, tampered step-results, arbitrary `founderVerdict:true`) each fail closed with a concrete error/`met:false`, and the honest `sprint-goal-state.json` sentinel is regenerated ONLY through the hardened writer with `generator.head_commit` == the actual reviewed HEAD and a repository-relative immutable input reference. THIRD REFRESH additionally hardens the CONTENT-BINDING and ATTESTATION-BINDING seams: the manifest and artifacts are resolved from HEAD blobs (not the working tree) with per-file HEAD freshness and realpath containment, and the founder attestation is bound to `couchGateStatus.allowed===true` and its exact `sampleId`/`manifestHash`/`catalogVersion` via a `getCouchVerdict({sampleId})` row recorded by a non-test `requireOperator` identity. The generator's provenance is expressed as a two-object contract — an internally-computed `attested_source_commit` (the reviewed code/evidence commit) and a later `attestation_commit` (the commit that carries the generated sentinel) verified to be a strict descendant — replacing the impossible claim that the sentinel's own carrying commit equals its recorded HEAD.
 
 ## FIXTURES (shared seed data — referenced by scenario `start_ref`)
 
@@ -107,6 +117,21 @@ deriveGoalState.ts recomputes sprint-goal-state.json from *authenticated durable
     - manifest.json listing step artifact paths tracked at HEAD; operator 's4t12-operator' recorded the couch verdict via recordCouchVerdict
 - `tampered-step-results` (seed_method: `cli`): A step-results JSON altered to flip a BLOCKED step to PASS (uncorroborated), paired with the committed-manifest-corroborated manifest that does NOT corroborate the flipped step.
     - step-results.json with step 1 hand-edited from 'BLOCKED' to 'PASS'; the committed manifest enumerates no artifact substantiating step 1's PASS
+- `dirty-working-tree-manifest` (seed_method: `cli`): A committed evidence bundle whose manifest.json is tracked at HEAD but then modified ONLY in the working tree (dirty, uncommitted) to repoint both PASS steps at a different tracked file — the working-tree content diverges from the HEAD blob.
+    - a git-committed bundle dir + manifest.json tracked at HEAD, then manifest.json edited on disk WITHOUT git add/commit so `git show HEAD:<bundle>/manifest.json` != the working-tree bytes; `git status` reports it modified/dirty
+- `directory-laundered-evidence` (seed_method: `cli`): A manifest.json and its enumerated artifact committed at an OLDER parent commit, with an unrelated file (README.md) added to the SAME bundle directory at HEAD so bundle-DIRECTORY-level `git log -1 -- <bundle>` == HEAD while each required file's OWN last-touch commit != HEAD.
+    - manifest.json + step artifact committed at parent commit P; an unrelated README.md added under the same bundle dir and committed at HEAD; `git log -1 --format=%H -- <bundle>` == HEAD but `git log -1 --format=%H -- <bundle>/manifest.json` == P != HEAD
+- `traversal-artifact-manifest` (seed_method: `cli`): A committed bundle whose manifest declares an artifact path that traverses OUTSIDE the bundle directory (`../../package.json`) for a PASS step; the escaped file is itself tracked in git but is unrelated source, not gate evidence.
+    - manifest.json committed at HEAD listing artifacts:['../../package.json'] for a PASS step; realpath(bundle/artifact) resolves outside realpath(bundle); package.json is tracked but not gate evidence
+- `active-manifest-allowed-pass` (seed_method: `public_api`): A CURRENT active couch manifest activation whose couchGateStatus resolves allowed===true, bound to a real operator-recorded pass verdict for that active manifest's sampleId/manifestHash/catalogVersion.
+    - operator 's4t12-operator' activates a couch manifest with a complete routeHashes baseline and no live geometry drift, and records a pass couch_verdict for THAT active sampleId via recordCouchVerdict, so couchGateStatus({}) returns allowed:true with sampleId/manifestHash/catalogVersion matching getCouchVerdict({sampleId})
+- `historic-inactive-couch-pass` (seed_method: `public_api`): A real pass couch_verdict row that EXISTS but is NOT bound to the current active manifest — recorded for a superseded sample while the active manifest is inactive/drifted.
+    - operator 's4t12-operator' recorded a pass couch_verdict for a superseded sampleId; the current active manifest is inactive/drifted so couchGateStatus({}) returns allowed:false; getCouchVerdict({}) latest-across-all-samples still returns the historic pass row
+- `sentinel-descendant-provenance` (seed_method: `cli`): A generated sentinel committed such that its carrying (attestation) commit is a genuine STRICT descendant of the recorded attested_source_commit.
+    - deriveGoalState run at source commit S recording generator.attested_source_commit==S; the emitted sentinel committed as a later commit A where `git merge-base --is-ancestor S A` succeeds and S != A
+- `sentinel-selfequal-provenance` (seed_method: `cli`): A sentinel whose recorded attested_source_commit equals its own carrying commit (self-equality) OR is unrelated to its carrying commit — the impossible/forged provenance relation.
+    - a committed sentinel whose generator.attested_source_commit is hand-set equal to its own last-touch commit (or to an unrelated commit U with no ancestor relation), so the strict-descendant relation does NOT hold
+
 
 ## ACCEPTANCE CRITERIA (TDD beads — RED → GREEN → REFACTOR per AC)
 
@@ -270,21 +295,81 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
   - MUST_OBSERVE: the writer rejects / reports error code == 'STEP_RESULT_UNSUBSTANTIATED' naming step 1; emitted met == false; gate.overall == 'BLOCKED'
   - MUST_NOT_OBSERVE: the flipped PASS is accepted; met == true; gate.overall == 'PASS'; the tampered step-results JSON changes the manifest-derived outcome (the empty/verbatim-trusting writer that copies `opts.steps` must not satisfy this case)
 
-### AC-10 — Generator metadata binds to the actual HEAD and a repository-relative immutable input
+### AC-10 — Generator provenance is a two-object contract: `attested_source_commit` vs `attestation_commit`, verified by strict-descendant relation, never impossible self-equality
 
-**Requirement:** GIVEN the writer emits generator provenance metadata WHEN it regenerates sprint-goal-state.json through the hardened path THEN `generator.head_commit` equals the actual current `git rev-parse HEAD` and the input-manifest reference is repository-relative and immutable (never an ephemeral `/tmp/...` path or a stale/parent commit)
+**Requirement:** GIVEN the writer emits generator provenance metadata and a provenance verifier checks the committed sentinel WHEN it regenerates sprint-goal-state.json through the hardened path AND the sentinel is later committed THEN `generator.attested_source_commit` equals the actual internal `git rev-parse HEAD` at generation time (computed internally, never caller-supplied), `generator.derived_from` is a repository-relative immutable path (never `/tmp/...`), and the provenance verifier confirms the sentinel's `attestation_commit` (its own last-touch commit) is a STRICT descendant of `attested_source_commit` (`git merge-base --is-ancestor <attested_source_commit> <attestation_commit>` succeeds AND `attested_source_commit != attestation_commit`) — it MUST NOT assert the semantically impossible self-equality (a file cannot record the hash of the ordinary commit that will contain its own bytes), and an equal / ancestor-inverted / unrelated `attestation_commit` is rejected with PROVENANCE_RELATION_INVALID
 
-- TEST_TIER: `integration` · VERIFICATION_SERVICE: deriveGoalState generator metadata vs internal `git rev-parse HEAD`
+- TEST_TIER: `integration` · VERIFICATION_SERVICE: deriveGoalState generator metadata + tools/gate/verifyProvenance.ts two-object relation vs internal `git rev-parse HEAD` and `git merge-base --is-ancestor`
 - FLOW_REF: UC-VER-05
 - VERIFY: `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-10'`
 
 SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0):
-- NEGATIVE_CONTROL — would fail if: `generator.head_commit` is set from `args['head-commit'] || headCommit()` and trusts a caller SHA or a stale parent (e.g. `da67b6e9…` while HEAD differs); `generator.derived_from` records an ephemeral `/tmp/...` input path; the metadata is a hardcoded/stubbed constant disconnected from `git rev-parse HEAD`
+- NEGATIVE_CONTROL — would fail if: the contract asserts `generator.head_commit` equals the sentinel's OWN carrying commit (self-equality) — semantically impossible for an ordinary follow-up commit; the provenance verifier accepts an `attestation_commit` equal to, an ancestor of, or unrelated to `attested_source_commit` instead of requiring a STRICT descendant; `attested_source_commit` is read from a caller `--head-commit` rather than the internal `git rev-parse HEAD`, or the verifier is a stub that returns valid without running `git merge-base --is-ancestor`
 - EVIDENCE: `file_snapshot` (required_capture: true)
-- CASE 1 — start_ref `committed-manifest-corroborated`
-  - ACTION: Run deriveGoalState through the hardened writer with the committed manifest as input; Capture the emitted `generator` block and compare `generator.head_commit` against `git rev-parse HEAD`
-  - MUST_OBSERVE: `generator.head_commit` equals the actual `git rev-parse HEAD` (full 40-char SHA, byte-equal); `generator.derived_from` (and any input-manifest reference) is a repository-relative path beginning with `.spec/` or `.gate-evidence/`
-  - MUST_NOT_OBSERVE: `generator.head_commit` equals a stale/parent commit (e.g. `da67b6e9…`) while HEAD differs; `generator.derived_from` begins with `/tmp/` or another absolute ephemeral path; the `generator` block is empty/missing — a stub writer producing no provenance must not satisfy this AC
+- CASE 1 — start_ref `sentinel-descendant-provenance`
+  - ACTION: Run deriveGoalState through the hardened writer at source commit S with the committed manifest as input, capturing `generator.attested_source_commit`; Commit the emitted sentinel as a later commit A (strict descendant of S); Run tools/gate/verifyProvenance.ts over the committed sentinel and capture the relation result
+  - MUST_OBSERVE: `generator.attested_source_commit` equals the internal `git rev-parse HEAD` at generation time (full 40-char SHA, byte-equal, computed internally — never caller-supplied); the provenance verifier confirms `attestation_commit` (the sentinel's own last-touch commit) is a STRICT descendant of `attested_source_commit`: `git merge-base --is-ancestor <attested_source_commit> <attestation_commit>` succeeds AND `attested_source_commit != attestation_commit`; `generator.derived_from` is a repository-relative path beginning with `.spec/` or `.gate-evidence/`
+  - MUST_NOT_OBSERVE: the contract asserts `attestation_commit == attested_source_commit` (impossible self-equality); `attested_source_commit` equals a caller-supplied `--head-commit` SHA; `generator.derived_from` begins with `/tmp/` or another absolute ephemeral path; the `generator` block is empty/missing — a stub writer producing no provenance must not satisfy this AC
+- CASE 2 — start_ref `sentinel-selfequal-provenance`
+  - ACTION: Take a committed sentinel whose `generator.attested_source_commit` is hand-set equal to its own carrying commit (or to an unrelated commit U); Run tools/gate/verifyProvenance.ts over it; Capture the relation result and any met:true acceptance
+  - MUST_OBSERVE: the provenance verifier rejects with code == 'PROVENANCE_RELATION_INVALID' when `attestation_commit` is equal to (or an ancestor of / unrelated to) `attested_source_commit`; no met:true / GATE-GOAL: ACHIEVED is accepted for a sentinel whose provenance relation is not a strict descendant
+  - MUST_NOT_OBSERVE: a self-equal (`attestation_commit == attested_source_commit`) provenance is accepted as valid; an unrelated or ancestor-inverted `attestation_commit` passes the relation check; the verifier is a stub that returns valid without running `git merge-base --is-ancestor` — an empty/no-op verifier must not satisfy this case
+
+### AC-11 — Manifest/artifacts are resolved from immutable HEAD-bound content with PER-FILE freshness; dirty and directory-laundered evidence are rejected fail-closed
+
+**Requirement:** GIVEN the evidence manifest and its enumerated artifacts must be resolved from immutable HEAD-bound content (git blob byte-equality with HEAD, not a working-tree `readFileSync`) and each required file's OWN last-touch commit must equal the internal HEAD WHEN deriveGoalState validates (a) a committed bundle whose manifest.json is modified ONLY in the working tree and (b) a manifest/artifact committed at an older parent with an unrelated new file added to the same bundle directory at HEAD THEN (a) is rejected with MANIFEST_NOT_HEAD_BOUND (working-tree content != HEAD blob) and (b) is rejected with EVIDENCE_FILE_STALE (per-file last-touch != HEAD despite directory-level git log == HEAD), and neither produces met:true
+
+- TEST_TIER: `integration` · VERIFICATION_SERVICE: deriveGoalState HEAD-blob manifest/artifact resolver + per-file freshness check (`git show HEAD:<path>`, `git log -1 -- <exact path>`) over real committed/dirty bundles
+- FLOW_REF: UC-VER-05
+- VERIFY: `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-11'`
+
+SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0):
+- NEGATIVE_CONTROL — would fail if: the manifest/artifacts are read via `readFileSync` off the working tree instead of `git show HEAD:<path>` (or a working-tree-blob-hash vs HEAD comparison), so a dirty working-tree modification of manifest.json is accepted (the current `loadManifest` behavior); freshness is gated only on bundle-DIRECTORY-level `git log -1 -- <bundle>`, so an unrelated file newly committed under the bundle directory launders a stale manifest/artifact to PASS (the current `gitLastCommit(bundlePath)` behavior); the substantiation check is stubbed to always corroborate or is disconnected from git tracking/content binding
+- EVIDENCE: `file_snapshot` (required_capture: true)
+- CASE 1 — start_ref `dirty-working-tree-manifest`
+  - ACTION: Seed dirty-working-tree-manifest — commit a bundle + manifest.json at HEAD, then edit manifest.json on disk (repoint both PASS steps) WITHOUT git add/commit; Run deriveGoalState pointed at the bundle with the internally computed HEAD; Capture the thrown error, the HEAD-blob manifest bytes, and any goal-state write
+  - MUST_OBSERVE: validation throws error code == 'MANIFEST_NOT_HEAD_BOUND'; the HEAD-blob manifest content (read via `git show HEAD:<bundle>/manifest.json`) still declares the ORIGINAL 2 committed artifact paths — a SHA-256 digest of that HEAD-blob content does NOT equal a SHA-256 digest of the dirty working-tree manifest.json bytes; no sprint-goal-state.json with met:true is written
+  - MUST_NOT_OBSERVE: the working-tree-modified manifest is read via readFileSync and accepted; validateBundle returns ok:true and substantiateSteps returns null for the dirty manifest; met == true; the dirty manifest's repointed artifacts substantiate any PASS step — an empty/no-op validator that ignores the HEAD-vs-working-tree divergence must not satisfy this case
+- CASE 2 — start_ref `directory-laundered-evidence`
+  - ACTION: Seed directory-laundered-evidence — commit manifest.json + artifact at parent P, then add an unrelated README.md under the same bundle dir and commit it at HEAD; Run deriveGoalState pointed at the bundle with the internally computed HEAD; Capture the thrown error, the per-file last-touch commits, and any goal-state write
+  - MUST_OBSERVE: validation throws error code == 'EVIDENCE_FILE_STALE'; each required file's OWN last-touch commit (`git log -1 --format=%H -- <bundle>/manifest.json` and `-- <artifact>`) equals P and != HEAD, even though `git log -1 --format=%H -- <bundle>` (directory-level) == HEAD; no sprint-goal-state.json with met:true is written
+  - MUST_NOT_OBSERVE: directory-level `git log -1 -- <bundle>` == HEAD launders the stale manifest/artifact to PASS; the unrelated README.md's HEAD-level touch satisfies per-file freshness for manifest.json/artifact; met == true; the validator only checks bundle-directory freshness — an empty/stub validator that skips per-file freshness must not satisfy this case
+
+### AC-12 — Artifact path traversal is rejected by containment, not tracking
+
+**Requirement:** GIVEN artifact containment must be enforced before any tracking check WHEN deriveGoalState substantiates a manifest declaring an artifact path that traverses outside the bundle directory (`../../package.json`) THEN it rejects with ARTIFACT_PATH_ESCAPE because `realpath(bundle/artifact)` does not start with `realpath(bundle) + separator`, no out-of-bundle file reaches PASS via any hidden hop, and no met:true is produced — even though `../../package.json` is itself tracked in git
+
+- TEST_TIER: `integration` · VERIFICATION_SERVICE: deriveGoalState substantiateSteps realpath containment check (`realpath(bundle/artifact)` startsWith `realpath(bundle)+sep`) over a real committed traversal manifest
+- FLOW_REF: UC-VER-05
+- VERIFY: `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-12'`
+
+SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0):
+- NEGATIVE_CONTROL — would fail if: `posix.join(bundleRel, art)` normalizes `..` and `gitTracked` accepts an out-of-bundle tracked file with no containment check (the current `substantiateSteps` behavior); no realpath/canonicalization containment check follows before `gitTracked`, so `../../package.json` (tracked) substantiates a PASS step; the containment check is stubbed to always pass or symlink escapes are not rejected
+- EVIDENCE: `file_snapshot` (required_capture: true)
+- CASE 1 — start_ref `traversal-artifact-manifest`
+  - ACTION: Seed traversal-artifact-manifest — commit a bundle whose manifest declares artifacts:['../../package.json'] for a PASS step; Run deriveGoalState pointed at the bundle with the internally computed HEAD; Capture the thrown error, the realpath containment comparison, and any goal-state write
+  - MUST_OBSERVE: substantiation throws error code == 'ARTIFACT_PATH_ESCAPE' naming the escaped artifact; `realpath('.gate-evidence/<bundle>/../../package.json')` resolves to the repo-root `package.json` absolute path, which does NOT start with `realpath('.gate-evidence/<bundle>') + '/'` — this string-prefix comparison fails BEFORE `gitTracked()` is ever invoked (0 calls to gitTracked for this artifact); no sprint-goal-state.json with met:true is written
+  - MUST_NOT_OBSERVE: an out-of-bundle tracked file (`../../package.json`) substantiates a PASS step; `posix.join(bundleRel, art)` normalizes `..` and gitTracked accepts the escaped path; met == true; substantiateSteps returns null with the traversal artifact accepted — an empty/no-op check that skips containment must not satisfy this case
+
+### AC-13 — Founder attestation is bound to the live active-manifest gate, not any latest pass row
+
+**Requirement:** GIVEN founder attestation must be bound to the current active manifest's live gate status WHEN deriveGoalState resolves attestation under (a) `couchGateStatus.allowed===true` for the current active manifest with a matching `getCouchVerdict({sampleId})` pass recorded by a real operator and (b) a historic/inactive/legacy pass that exists but is NOT bound to the current active manifest (`couchGateStatus.allowed` false due to an inactive/drifted/legacy manifest) THEN (a) yields `founder.present` with the recording identity/sampleId/manifestHash/catalogVersion bound to the status, `human_test.verdict` 'pass', and (b) yields `founder.present` false, `met:false`, `human_test.verdict` 'pending' even though a `couch_verdicts` PASS row technically exists somewhere; the recording identity must be a `requireOperator`-authorized (founder OR operator) non-test-prefixed, non-bare identity
+
+- TEST_TIER: `integration` · VERIFICATION_SERVICE: Convex dev deployment (`couchGateStatus.allowed` + `getCouchVerdict({sampleId})` over real `couch_verdicts`/`couch_manifest_activations`) + deriveGoalState founder resolver
+- FLOW_REF: UC-VER-05
+- VERIFY: `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-13'`
+
+SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0):
+- NEGATIVE_CONTROL — would fail if: founder attestation reads `getCouchVerdict({})` — the latest of up to 50 rows across ALL samples — and never calls `couchGateStatus`, so a historic/inactive pass satisfies present (the current `resolveFounderVerdict` behavior); present is set from `overallVerdict === 'pass'` alone with no active-manifest binding to sampleId/manifestHash/catalogVersion, or a test-prefixed / bare `s4-human-gate` identity is accepted as founder; the `couchGateStatus` read is stubbed/mocked to `allowed:true` and disconnected from the durable Convex source
+- EVIDENCE: `db_query` (required_capture: true)
+- CASE 1 — start_ref `active-manifest-allowed-pass`
+  - ACTION: Seed operator-gate-identity and active-manifest-allowed-pass (an active couch manifest with couchGateStatus.allowed===true bound to an operator-recorded pass for that sampleId); Run deriveGoalState with a step-results JSON that omits founderVerdict; Capture the resolved founder attestation, the couchGateStatus result, and the getCouchVerdict({sampleId}) row
+  - MUST_OBSERVE: founder attestation is derived from `couchGateStatus.allowed === true` for the CURRENT active manifest (couchGateStatus was actually called, not `getCouchVerdict({})`); the attestation is bound to that status's exact sampleId/manifestHash/catalogVersion via a matching `getCouchVerdict({sampleId})` row (`recordedBy == 's4t12-operator'`, a requireOperator-authorized non-test, non-bare identity); `human_test.verdict == 'pass'` and met can be true only with this bound attestation present
+  - MUST_NOT_OBSERVE: attestation is derived from `getCouchVerdict({})` latest-across-all-samples; sampleId/manifestHash/catalogVersion mismatch between couchGateStatus and the getCouchVerdict({sampleId}) row is accepted; a test-prefixed (TEST_SUBJECT_PREFIXES) or bare s4-human-gate identity is accepted as founder; the couchGateStatus query returns 0 active-manifest binding — a stub/disconnected read producing no binding must not satisfy this case
+- CASE 2 — start_ref `historic-inactive-couch-pass`
+  - ACTION: Seed operator-gate-identity and historic-inactive-couch-pass (a real operator pass for a superseded sampleId while the current active manifest is inactive/drifted so couchGateStatus.allowed === false); Run deriveGoalState (a step-results JSON that may falsely set founderVerdict:true); Capture the emitted goal-state, the couchGateStatus result, and the getCouchVerdict query
+  - MUST_OBSERVE: `couchGateStatus.allowed === false` for the current active manifest; founder attestation present == false, emitted met == false, `human_test.verdict == 'pending'`; gate.blocker names the unresolved/blocked S4-T7 human-owned gate
+  - MUST_NOT_OBSERVE: the historic/inactive pass (a real couch_verdicts PASS row that exists but is unbound to the current active manifest) satisfies founder.present; `getCouchVerdict({})` latest-across-all-samples returns the historic pass and it is accepted as attestation while couchGateStatus.allowed is false; met == true or human_test.verdict == 'pass'; gate.overall == 'PASS' while couchGateStatus.allowed is false — an empty/stub resolver that ignores couchGateStatus.allowed must not satisfy this case
 
 ## TEST CRITERIA
 
@@ -306,15 +391,21 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 | TC-14 | an untracked-on-disk bundle is rejected with UNTRACKED_EVIDENCE_BUNDLE | AC-8 | `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-8'` |
 | TC-15 | a clean-but-stale committed bundle (captured commit != HEAD) is rejected with STALE_EVIDENCE_BUNDLE (stale_commit) | AC-8 | `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-8'` |
 | TC-16 | a tampered step-results JSON flipping BLOCKED→PASS (uncorroborated by the manifest) is rejected / does not change the outcome | AC-9 | `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-9'` |
-| TC-17 | emitted generator.head_commit equals git rev-parse HEAD and derived_from is a repository-relative path (never /tmp/) | AC-10 | `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-10'` |
+| TC-17 | generator.attested_source_commit equals internal git rev-parse HEAD and the provenance verifier confirms attestation_commit is a STRICT descendant (never equal/ancestor/unrelated, PROVENANCE_RELATION_INVALID otherwise); derived_from stays repository-relative | AC-10 | `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-10'` |
+| TC-18 | a manifest tracked at HEAD but modified only in the working tree (dirty) is rejected with MANIFEST_NOT_HEAD_BOUND — resolved from the HEAD blob, not readFileSync — and produces no met:true | AC-11 | `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-11'` |
+| TC-19 | an old manifest/artifact laundered by an unrelated new bundle file (directory-level git log == HEAD) is rejected per-file with EVIDENCE_FILE_STALE because each required file's own last-touch commit != HEAD | AC-11 | `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-11'` |
+| TC-20 | a manifest artifact path resolving outside the bundle (../../package.json), even though tracked in git, is rejected with ARTIFACT_PATH_ESCAPE via a realpath containment check before gitTracked | AC-12 | `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-12'` |
+| TC-21 | founder attestation requires couchGateStatus.allowed===true bound to the active manifest's sampleId/manifestHash/catalogVersion via a matching getCouchVerdict({sampleId}) row recorded by a requireOperator non-test, non-bare identity (never getCouchVerdict({}) latest-across-all-samples) | AC-13 | `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-13'` |
+| TC-22 | a historic/inactive couch pass unbound to the current active manifest (couchGateStatus.allowed false) yields met:false and human_test.verdict 'pending' even though a couch_verdicts PASS row exists somewhere | AC-13 | `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-13'` |
 
 ## SCOPE (file-level write permissions)
 
 **writeAllowed:**
-- tools/gate/deriveGoalState.ts (MODIFY) - remove the `founderVerdict` boolean + `--head-commit` completion authority; compute HEAD internally; resolve founder attestation from the durable Convex source; enforce a mandatory committed manifest (missing/untracked/clean-stale rejection + HEAD binding); substantiate step PASS claims against the manifest; bind generator metadata to the actual HEAD + a repository-relative immutable input
-- tools/gate/verifyEvidenceManifest.ts (NEW, optional) - mandatory-manifest verification module: git-tracking check (`git ls-files`), captured-commit-vs-internal-HEAD binding, per-step artifact enumeration/substantiation
-- tools/gate/resolveFounderVerdict.ts (NEW, optional) - reads getCouchVerdict/couchGateStatus from the Convex dev deployment via the generated API (READ-ONLY) to resolve the founder attestation from real couch_verdicts rows
-- .spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/sprint-goal-state.json (MODIFY - regenerated ONLY by deriveGoalState through the hardened path, never hand-edited; generator.head_commit must equal the actual current HEAD)
+- tools/gate/deriveGoalState.ts (MODIFY) - remove the `founderVerdict` boolean + `--head-commit` completion authority; compute HEAD internally; replace the working-tree `loadManifest` read with HEAD-blob resolution + per-file freshness (via verifyEvidenceManifest); add realpath containment to substantiateSteps; replace resolveFounderVerdict's `getCouchVerdict({})` with the couchGateStatus.allowed-bound resolver; emit `generator.attested_source_commit` and wire verifyProvenance for the two-object relation
+- tools/gate/verifyEvidenceManifest.ts (NEW, REQUIRED — promoted from optional) - resolve manifest + every enumerated artifact from immutable HEAD-bound content (`git show HEAD:<repo-rel-path>` or working-tree-blob-hash vs `git rev-parse HEAD:<path>` byte-equality); reject dirty/staged evidence (MANIFEST_NOT_HEAD_BOUND); per-file freshness (each required file's own `git log -1 --format=%H -- <path>` == internal HEAD, EVIDENCE_FILE_STALE); realpath artifact containment (`realpath(bundle/artifact)` startsWith `realpath(bundle)+sep`, reject symlink/`..` escape, ARTIFACT_PATH_ESCAPE)
+- tools/gate/verifyProvenance.ts (NEW, REQUIRED) - two-object provenance contract: record `attested_source_commit` = internal `git rev-parse HEAD` at generation time; verify `attestation_commit` (the sentinel's last-touch commit) is a STRICT descendant via `git merge-base --is-ancestor <attested_source_commit> <attestation_commit>` && `attested_source_commit != attestation_commit` (PROVENANCE_RELATION_INVALID otherwise); never assert self-equality
+- tools/gate/resolveFounderVerdict.ts (NEW, REQUIRED — promoted from optional) - derive founder attestation from `couchGateStatus.allowed===true` for the current active manifest, bound to its exact sampleId/manifestHash/catalogVersion via a matching `getCouchVerdict({sampleId})` row (READ-ONLY public APIs); reject test-prefixed (TEST_SUBJECT_PREFIXES) / bare (s4-human-gate) identities and any historic/inactive/unbound pass
+- .spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/sprint-goal-state.json (MODIFY - regenerated ONLY by deriveGoalState through the hardened path, never hand-edited; generator.attested_source_commit must equal the actual current HEAD at generation time)
 - .gate-evidence/2026-07-19T22:59:46Z/scripts/step3.sh (MODIFY - rebuild to operator-gated couch export, no seam args)
 - .gate-evidence/2026-07-19T22:59:46Z/scripts/step4.sh (MODIFY - rebuild to operator-gated recordCouchVerdict, seed operator identity)
 - .gate-evidence/2026-07-19T22:59:46Z/scripts/step5.sh (MODIFY - rebuild to getCouchVerdict under the seeded operator, no seam args)
@@ -342,17 +433,26 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 - `convex/schema.ts` — `couch_verdicts` (VER-05, append-only, operator-recorded) and `couch_manifest_activations` (FIX-14) — the durable tables the writer must resolve founder attestation from (reference only; must not modify)
 - `convex/waterfallOrchestrator.ts` (801-841) — runSampleWaterfall (no seam args) vs the seam variant with lever2FixedGeometry — the validator must reject seam args
 - `brain/docs/kanban/SCENARIO-CONTRACT-V1.md` + `brain/docs/REQUIREMENT-TRACKING.md` — scenario schema / requirement-contract format the new ACs must satisfy (zero CRITICAL/HIGH)
+- `.spec/reviews/red-hat-sprint-04-trust-pipeline-20260721T005254Z.md` (all) — the fresh review re-opening FIX-12: CRITICAL (caller-controlled manifest/artifacts — working-tree readFileSync, directory-level git log laundering, `../` artifact traversal) and HIGH (resolveFounderVerdict accepts any latest pass row, never calls couchGateStatus.allowed) and MEDIUM (impossible self-provenance claim → two-object attested_source_commit/attestation_commit contract)
+- `tools/gate/deriveGoalState.ts` (212-224) — `loadManifest` reads manifest.json via `readFileSync` off the LIVE WORKING TREE with no HEAD-blob binding — must be replaced with `git show HEAD:<path>` / blob byte-equality (AC-11)
+- `tools/gate/deriveGoalState.ts` (231-298) — `validateBundle`: bundle-level `gitTracked(bundlePath).length===0` (ANY tracked path counts) and directory-level `gitLastCommit(bundlePath)` freshness — must become per-file HEAD-content + per-file last-touch checks (AC-11)
+- `tools/gate/deriveGoalState.ts` (340-355) — `substantiateSteps` `posix.join(bundleRel, art)` normalizes `..` then `gitTracked` with NO containment check — must add realpath containment before tracking (AC-12)
+- `tools/gate/deriveGoalState.ts` (396-439) — `resolveFounderVerdict` runs `getCouchVerdict({})` (latest of up to 50 across ALL samples) and checks only overallVerdict/recordedBy — must be rebound to `couchGateStatus.allowed===true` + `getCouchVerdict({sampleId})` + non-test operator identity (AC-13)
+- `tools/gate/deriveGoalState.ts` (486-567) — `deriveGoalState` computes `head=gitHeadInternal()` once and writes `generator.head_commit` — extend to emit `generator.attested_source_commit` and the two-object provenance relation (AC-10)
+- `convex/couchVerdict.ts` (167-170) — `getCouchVerdict({})` returns the latest of up to 50 verdicts across ALL samples (the unbound row the writer currently trusts); `getCouchVerdict({sampleId})` returns the row bound to a specific sample (recordedBy/manifestHash/catalogVersion)
+- `convex/couchVerdict.ts` (192-306) — `couchGateStatus`: the authoritative allowed:true source — active `couch_manifest_activations` + complete `routeHashes` baseline (FIX-16) + live geometry drift (FIX-15) + pass verdict bound to the active sampleId/manifestHash/catalogVersion; return shape omits `recordedBy` (pair with `getCouchVerdict({sampleId})` for identity)
+- `convex/guards.ts` (143-193, re-read for this refresh) — `OPERATOR_ROLES = {founder, operator}` (both legitimate Founder-Operator reviewers per this sprint's own human-gate framing) and `TEST_SUBJECT_PREFIXES` — the definition of a real requireOperator non-test, non-bare identity for AC-13 (do NOT require role literally `founder`)
 
 ## CODE PATTERN
 
-- Pattern: Authenticated-source derivation (no caller trust): `deriveGoalState` computes `head = gitRevParseHEAD()` internally (no `--head-commit` override); resolves `founderAttestation = resolveFounderVerdict()` by reading real `couch_verdicts` via `getCouchVerdict`/`couchGateStatus` on the Convex dev deployment (the `founderVerdict` boolean input is removed); requires a MANDATORY committed manifest — `validateBundle` returns an error (not `{ok:true}`) when the dir is missing (`MISSING_EVIDENCE_BUNDLE`), when `git ls-files` shows the scripts untracked (`UNTRACKED_EVIDENCE_BUNDLE`), or when `gitLastCommit(bundle) !== head` (`STALE_EVIDENCE_BUNDLE`/`stale_commit`), in addition to the existing seam/bare-identity scans; each step's PASS is substantiated against the manifest's enumerated artifacts (`STEP_RESULT_UNSUBSTANTIATED` for an uncorroborated/tampered claim); `met = allStepsSubstantiatedPass && bundleValid && durableFounderAttestation`; `generator.head_commit = head` (the internal SHA) and `generator.derived_from` is a repository-relative immutable manifest path. Rebuilt step3/4/5/7 scripts bootstrap an operator identity then call the current public APIs with no seam args.
+- Pattern: Authenticated-source derivation (no caller trust): `deriveGoalState` computes `head = gitRevParseHEAD()` internally (no `--head-commit` override); resolves `founderAttestation = resolveFounderVerdict()` by reading real `couch_verdicts` via `getCouchVerdict`/`couchGateStatus` on the Convex dev deployment (the `founderVerdict` boolean input is removed); requires a MANDATORY committed manifest — `validateBundle` returns an error (not `{ok:true}`) when the dir is missing (`MISSING_EVIDENCE_BUNDLE`), when `git ls-files` shows the scripts untracked (`UNTRACKED_EVIDENCE_BUNDLE`), or when `gitLastCommit(bundle) !== head` (`STALE_EVIDENCE_BUNDLE`/`stale_commit`), in addition to the existing seam/bare-identity scans; each step's PASS is substantiated against the manifest's enumerated artifacts (`STEP_RESULT_UNSUBSTANTIATED` for an uncorroborated/tampered claim); `met = allStepsSubstantiatedPass && bundleValid && durableFounderAttestation`; `generator.head_commit = head` (the internal SHA) and `generator.derived_from` is a repository-relative immutable manifest path. Rebuilt step3/4/5/7 scripts bootstrap an operator identity then call the current public APIs with no seam args. THIRD REFRESH: `verifyEvidenceManifest` resolves the manifest and every enumerated artifact from the HEAD blob (`git show HEAD:<path>`, never `readFileSync`) and checks EACH file's own `git log -1` against HEAD (not the bundle directory's); `substantiateSteps` canonicalizes `realpath(bundle/artifact)` and requires containment under `realpath(bundle)` before any `gitTracked` call; `resolveFounderVerdict` calls `couchGateStatus({})` first and only trusts a `getCouchVerdict({sampleId})` row bound to that status's active `sampleId`/`manifestHash`/`catalogVersion`, recorded by a non-test `requireOperator` identity; `verifyProvenance` records `generator.attested_source_commit = head` and, given a later `attestation_commit`, asserts `git merge-base --is-ancestor attested_source_commit attestation_commit` strictly (never equality).
 - Pattern source: `tools/gate/deriveGoalState.ts:122-263 (validator + derivation to harden) + convex/couchVerdict.ts:52-157 (recordCouchVerdict operator write / getCouchVerdict identity read as the durable founder source) + convex/couchSampleAssembler.ts:743-751 (operator-gated export) + git plumbing (rev-parse HEAD, ls-files, log -1)`
-- Anti-pattern: `founderVerdict = opts.founderVerdict === true`; `head = opts.headCommit || headCommit()`; `if (opts.bundlePath)` (optional validation); missing dir → `{ok:true}`; `allStepsPass` from `opts.steps` verbatim; `generator.head_commit = args['head-commit'] || headCommit()`; synthesizing human_test.verdict='pass' with no real couch_verdicts row; asserting a FORBIDDEN control on step5 getCouchVerdict (identity-gated) which would force an out-of-scope guard change
+- Anti-pattern: `founderVerdict = opts.founderVerdict === true`; `head = opts.headCommit || headCommit()`; `if (opts.bundlePath)` (optional validation); missing dir → `{ok:true}`; `allStepsPass` from `opts.steps` verbatim; `generator.head_commit = args['head-commit'] || headCommit()`; synthesizing human_test.verdict='pass' with no real couch_verdicts row; asserting a FORBIDDEN control on step5 getCouchVerdict (identity-gated) which would force an out-of-scope guard change; reading manifest/artifacts via `readFileSync` off the working tree; gating freshness on bundle-directory `git log -1` instead of each file's own; `posix.join(bundleRel, art)` with no realpath containment check; `resolveFounderVerdict` calling `getCouchVerdict({})` (latest-across-all-samples) instead of `couchGateStatus({}).allowed`-bound; asserting `attestation_commit === attested_source_commit` (impossible self-equality)
 
 ## VERIFICATION GATES
 
 - test: `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts` → Exit 0
-- test (new adversarial ACs): `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-6|AC-7|AC-8|AC-9|AC-10'` → Exit 0
+- test (new adversarial ACs): `npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-6|AC-7|AC-8|AC-9|AC-10|AC-11|AC-12|AC-13'` → Exit 0
 - typecheck (in-scope): `npx tsc --noEmit -p convex/tsconfig.json` → Exit 0
 - typecheck (no-regression): `pnpm type-check 2>&1 | grep -c 'error TS'` → no greater than baseline
 - lint: `pnpm exec biome check` → Exit 0
@@ -366,7 +466,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 ## EVIDENCE GATES
 
-- RED phase: each behavioral AC's test went red before green (the six adversarial vectors each RED against the current caller-trusting writer)
+- RED phase: each behavioral AC's test went red before green (the six AC-6..AC-10 adversarial vectors plus the THIRD REFRESH's dirty-working-tree, directory-laundering, path-traversal, historic-inactive-pass, and self-equal-provenance vectors each RED against the current caller-trusting / working-tree-reading / unbound-attestation writer)
 - Integration coverage: PRIMARY AC is integration against the writer + real Convex dev deployment; AC-6/AC-8/AC-9 exercise the durable Convex source + git tracking, not stubs
 - Scenario un-fakeable: validate_scenario exit 0 (zero CRITICAL/HIGH) on every behavioral AC; captured EVIDENCE shows the fail-closed outcome and the durable-source attribution (recordedBy, real HEAD SHA, tracked artifact paths)
 
@@ -477,6 +577,55 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
       "records": [
         "step-results.json with step 1 hand-edited from 'BLOCKED' to 'PASS'; the committed manifest enumerates no artifact substantiating step 1's PASS"
       ]
+    },
+    "dirty-working-tree-manifest": {
+      "description": "A committed evidence bundle whose manifest.json is tracked at HEAD but then modified ONLY in the working tree (dirty, uncommitted) to repoint both PASS steps at a different tracked file \u2014 the working-tree content diverges from the HEAD blob.",
+      "seed_method": "cli",
+      "records": [
+        "a git-committed bundle dir + manifest.json tracked at HEAD, then manifest.json edited on disk WITHOUT git add/commit so `git show HEAD:<bundle>/manifest.json` != the working-tree bytes; `git status` reports it modified/dirty"
+      ]
+    },
+    "directory-laundered-evidence": {
+      "description": "A manifest.json and its enumerated artifact committed at an OLDER parent commit, with an unrelated file (README.md) added to the SAME bundle directory at HEAD so bundle-DIRECTORY-level `git log -1 -- <bundle>` == HEAD while each required file's OWN last-touch commit != HEAD.",
+      "seed_method": "cli",
+      "records": [
+        "manifest.json + step artifact committed at parent commit P; an unrelated README.md added under the same bundle dir and committed at HEAD; `git log -1 --format=%H -- <bundle>` == HEAD but `git log -1 --format=%H -- <bundle>/manifest.json` == P != HEAD"
+      ]
+    },
+    "traversal-artifact-manifest": {
+      "description": "A committed bundle whose manifest declares an artifact path that traverses OUTSIDE the bundle directory (`../../package.json`) for a PASS step; the escaped file is itself tracked in git but is unrelated source, not gate evidence.",
+      "seed_method": "cli",
+      "records": [
+        "manifest.json committed at HEAD listing artifacts:['../../package.json'] for a PASS step; realpath(bundle/artifact) resolves outside realpath(bundle); package.json is tracked but not gate evidence"
+      ]
+    },
+    "active-manifest-allowed-pass": {
+      "description": "A CURRENT active couch manifest activation whose couchGateStatus resolves allowed===true, bound to a real operator-recorded pass verdict for that active manifest's sampleId/manifestHash/catalogVersion.",
+      "seed_method": "public_api",
+      "records": [
+        "operator 's4t12-operator' activates a couch manifest with a complete routeHashes baseline and no live geometry drift, and records a pass couch_verdict for THAT active sampleId via recordCouchVerdict, so couchGateStatus({}) returns allowed:true with sampleId/manifestHash/catalogVersion matching getCouchVerdict({sampleId})"
+      ]
+    },
+    "historic-inactive-couch-pass": {
+      "description": "A real pass couch_verdict row that EXISTS but is NOT bound to the current active manifest.",
+      "seed_method": "public_api",
+      "records": [
+        "operator 's4t12-operator' recorded a pass couch_verdict for a superseded sampleId; the current active manifest is inactive/drifted so couchGateStatus({}) returns allowed:false; getCouchVerdict({}) latest-across-all-samples still returns the historic pass row"
+      ]
+    },
+    "sentinel-descendant-provenance": {
+      "description": "A generated sentinel committed such that its carrying (attestation) commit is a genuine STRICT descendant of the recorded attested_source_commit.",
+      "seed_method": "cli",
+      "records": [
+        "deriveGoalState run at source commit S recording generator.attested_source_commit==S; the emitted sentinel committed as a later commit A where `git merge-base --is-ancestor S A` succeeds and S != A"
+      ]
+    },
+    "sentinel-selfequal-provenance": {
+      "description": "A sentinel whose recorded attested_source_commit equals its own carrying commit (self-equality) OR is unrelated to its carrying commit.",
+      "seed_method": "cli",
+      "records": [
+        "a committed sentinel whose generator.attested_source_commit is hand-set equal to its own last-touch commit (or to an unrelated commit U with no ancestor relation), so the strict-descendant relation does NOT hold"
+      ]
     }
   },
   "requirements": [
@@ -521,7 +670,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
                 "emitted met == true",
                 "gate.overall == 'PASS' while a step result is BLOCKED",
                 "gate.overall is silently rewritten away from 'BLOCKED' (it must stay 'BLOCKED', unchanged)",
-                "the writer's output is not empty — a no-op/stub writer producing an empty file must not satisfy this AC"
+                "the writer's output is not empty \u2014 a no-op/stub writer producing an empty file must not satisfy this AC"
               ]
             }
           }
@@ -569,7 +718,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
                 "the forged bundle is accepted as reproducible",
                 "a lever2FixedGeometry-bearing script passes the seam scan",
                 "no `sprint-goal-state.json` write occurs (file absent/unchanged)",
-                "the extracted STALE_EVIDENCE_BUNDLE error detail is not empty — a stub validator returning an empty/no-op result must not satisfy this AC"
+                "the extracted STALE_EVIDENCE_BUNDLE error detail is not empty \u2014 a stub validator returning an empty/no-op result must not satisfy this AC"
               ]
             }
           }
@@ -663,8 +812,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
               "must_not_observe": [
                 "human_test.verdict == 'pass' synthesized without an S4-T7 record",
                 "a stale human_test.run_id from the forged bundle is carried forward as passing",
-                "`human_test.verdict` is set to anything other than `'pending'` — it must remain `'pending'`/unresolved while the S4-T7 record is absent",
-                "the emitted `human_test` block is not empty — a stub writer producing an empty/missing block must not satisfy this AC"
+                "`human_test.verdict` is set to anything other than `'pending'` \u2014 it must remain `'pending'`/unresolved while the S4-T7 record is absent",
+                "the emitted `human_test` block is not empty \u2014 a stub writer producing an empty/missing block must not satisfy this AC"
               ]
             }
           }
@@ -761,7 +910,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
               ],
               "must_not_observe": [
                 "the founder attestation is read from the JSON founderVerdict flag",
-                "the resolved recordedBy is empty/undefined — a disconnected/stub read producing no attribution must not satisfy this case",
+                "the resolved recordedBy is empty/undefined \u2014 a disconnected/stub read producing no attribution must not satisfy this case",
                 "couch_verdicts query returns 0 rows"
               ]
             }
@@ -836,7 +985,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
                 "the bundle is accepted because the bogus --head-commit matched the captured commit",
                 "error.details.headCommit equals the caller-supplied bogus SHA",
                 "met == true",
-                "no error is produced — an empty/no-op validator that ignores HEAD must not satisfy this AC"
+                "no error is produced \u2014 an empty/no-op validator that ignores HEAD must not satisfy this AC"
               ]
             }
           }
@@ -908,7 +1057,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
               "must_not_observe": [
                 "the untracked bundle is accepted as valid evidence",
                 "met == true",
-                "the validator never consults git tracking — an empty/stub validator that ignores tracking must not satisfy this case"
+                "the validator never consults git tracking \u2014 an empty/stub validator that ignores tracking must not satisfy this case"
               ]
             }
           },
@@ -977,7 +1126,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
               ],
               "must_not_observe": [
                 "substantiation passes with an empty artifact list",
-                "the substantiation set is empty — a stub returning 'corroborated' with no artifact paths must not satisfy this case"
+                "the substantiation set is empty \u2014 a stub returning 'corroborated' with no artifact paths must not satisfy this case"
               ]
             }
           },
@@ -1001,7 +1150,7 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
                 "the flipped PASS is accepted",
                 "met == true",
                 "gate.overall == 'PASS'",
-                "the tampered step-results JSON changes the manifest-derived outcome — the empty/verbatim-trusting writer that copies opts.steps must not satisfy this case"
+                "the tampered step-results JSON changes the manifest-derived outcome \u2014 the empty/verbatim-trusting writer that copies opts.steps must not satisfy this case"
               ]
             }
           }
@@ -1011,19 +1160,19 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
     {
       "id": "AC-10",
       "type": "acceptance_criterion",
-      "description": "Generator metadata binds head_commit to the actual internal HEAD and records a repository-relative immutable input reference",
+      "description": "Generator provenance is a two-object contract: attested_source_commit is the internally-computed reviewed HEAD; attestation_commit (the sentinel's carrying commit) is verified to be its STRICT descendant \u2014 never the impossible self-equality",
       "verify": "npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-10'",
       "scenario": {
         "tier": "visible",
         "test_tier": "integration",
         "flow_ref": "UC-VER-05",
-        "verification_service": "deriveGoalState generator metadata vs internal git rev-parse HEAD",
+        "verification_service": "deriveGoalState generator metadata + tools/gate/verifyProvenance.ts two-object relation vs internal git rev-parse HEAD and git merge-base --is-ancestor",
         "topology": "single-node",
         "negative_control": {
           "would_fail_if": [
-            "generator.head_commit is set from args['head-commit'] || headCommit() and trusts a caller SHA or a stale parent (e.g. da67b6e9 while HEAD differs)",
-            "generator.derived_from records an ephemeral /tmp/... input path",
-            "the metadata is a hardcoded/stubbed constant disconnected from git rev-parse HEAD"
+            "the contract asserts generator.head_commit equals the sentinel's OWN carrying commit (self-equality) \u2014 semantically impossible for an ordinary follow-up commit \u2014 so the check is perpetually stale/red or forces a false green",
+            "the provenance verifier accepts an attestation_commit equal to, an ancestor of, or unrelated to attested_source_commit instead of requiring a STRICT descendant (git merge-base --is-ancestor && not equal)",
+            "attested_source_commit is read from a caller --head-commit rather than the internal git rev-parse HEAD at generation time, or the verifier is a stub that returns valid without running git merge-base --is-ancestor"
           ]
         },
         "evidence": {
@@ -1032,23 +1181,246 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
         },
         "cases": [
           {
-            "start_ref": "committed-manifest-corroborated",
+            "start_ref": "sentinel-descendant-provenance",
             "action": {
-              "actor": "api_client",
+              "actor": "cli_user",
               "steps": [
-                "Run deriveGoalState through the hardened writer with the committed manifest as input",
-                "Capture the emitted generator block and compare generator.head_commit against git rev-parse HEAD"
+                "Run deriveGoalState through the hardened writer at source commit S with the committed manifest as input; capture generator.attested_source_commit",
+                "Commit the emitted sentinel as a later commit A (strict descendant of S)",
+                "Run tools/gate/verifyProvenance.ts over the committed sentinel; capture the relation result and compare generator.attested_source_commit against the internal git rev-parse HEAD at generation time"
               ]
             },
             "end_state": {
               "must_observe": [
-                "generator.head_commit equals the actual `git rev-parse HEAD` (full 40-char SHA, byte-equal)",
-                "generator.derived_from (and any input-manifest reference) is a repository-relative path beginning with `.spec/` or `.gate-evidence/`"
+                "generator.attested_source_commit equals the internal git rev-parse HEAD at generation time (full 40-char SHA, byte-equal, computed internally \u2014 never caller-supplied)",
+                "the provenance verifier confirms attestation_commit (the sentinel's own last-touch commit) is a STRICT descendant of attested_source_commit: git merge-base --is-ancestor <attested_source_commit> <attestation_commit> succeeds AND attested_source_commit != attestation_commit",
+                "generator.derived_from is a repository-relative path beginning with '.spec/' or '.gate-evidence/'"
               ],
               "must_not_observe": [
-                "generator.head_commit equals a stale/parent commit (e.g. `da67b6e9`) while HEAD differs",
-                "generator.derived_from begins with `/tmp/` or another absolute ephemeral path",
-                "the generator block is empty/missing — a stub writer producing no provenance must not satisfy this AC"
+                "the contract asserts attestation_commit == attested_source_commit (impossible self-equality)",
+                "attested_source_commit equals a caller-supplied --head-commit SHA",
+                "generator.derived_from begins with '/tmp/' or another absolute ephemeral path",
+                "the generator block is empty/missing \u2014 a stub writer producing no provenance must not satisfy this AC"
+              ]
+            }
+          },
+          {
+            "start_ref": "sentinel-selfequal-provenance",
+            "action": {
+              "actor": "cli_user",
+              "steps": [
+                "Take a committed sentinel whose generator.attested_source_commit is hand-set equal to its own carrying commit (or to an unrelated commit U)",
+                "Run tools/gate/verifyProvenance.ts over it",
+                "Capture the relation result and any met:true acceptance"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "the provenance verifier rejects with code == 'PROVENANCE_RELATION_INVALID' when attestation_commit is equal to (or an ancestor of / unrelated to) attested_source_commit",
+                "no met:true / GATE-GOAL: ACHIEVED is accepted for a sentinel whose provenance relation is not a strict descendant"
+              ],
+              "must_not_observe": [
+                "a self-equal (attestation_commit == attested_source_commit) provenance is accepted as valid",
+                "an unrelated or ancestor-inverted attestation_commit passes the relation check",
+                "the verifier is a stub that returns valid without running git merge-base --is-ancestor \u2014 an empty/no-op verifier must not satisfy this case"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-11",
+      "type": "acceptance_criterion",
+      "description": "Manifest and every artifact are resolved from immutable HEAD-bound content and freshness is checked PER-FILE \u2014 both a dirty-working-tree manifest modification and an old-evidence-plus-unrelated-new-bundle-file directory-laundering attempt are rejected fail-closed",
+      "verify": "npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-11'",
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "integration",
+        "flow_ref": "UC-VER-05",
+        "verification_service": "deriveGoalState HEAD-blob manifest/artifact resolver + per-file freshness check (git show HEAD:<path>, git log -1 -- <exact path>) over real committed/dirty bundles",
+        "topology": "single-node",
+        "negative_control": {
+          "would_fail_if": [
+            "the manifest/artifacts are read via readFileSync off the working tree instead of git show HEAD:<path> (or a working-tree-blob-hash vs HEAD comparison), so a dirty working-tree modification of manifest.json is accepted (the current loadManifest behavior)",
+            "freshness is gated only on bundle-DIRECTORY-level git log -1 -- <bundle>, so an unrelated file newly committed under the bundle directory launders a stale manifest/artifact to PASS (the current gitLastCommit(bundlePath) behavior)",
+            "the substantiation check is stubbed to always corroborate or is disconnected from git tracking/content binding"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "file_snapshot",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "dirty-working-tree-manifest",
+            "action": {
+              "actor": "cli_user",
+              "steps": [
+                "Seed dirty-working-tree-manifest: commit a bundle + manifest.json at HEAD, then edit manifest.json on disk (repoint both PASS steps) WITHOUT git add/commit",
+                "Run deriveGoalState pointed at the bundle with the internally computed HEAD",
+                "Capture the thrown error, the HEAD-blob manifest bytes, and any goal-state write"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "validation throws error code == 'MANIFEST_NOT_HEAD_BOUND'",
+                "the HEAD-blob manifest content (read via `git show HEAD:<bundle>/manifest.json`) still declares the ORIGINAL 2 committed artifact paths \u2014 a SHA-256 digest of that HEAD-blob content does NOT equal a SHA-256 digest of the dirty working-tree manifest.json bytes",
+                "no sprint-goal-state.json with met:true is written"
+              ],
+              "must_not_observe": [
+                "the working-tree-modified manifest is read via readFileSync and accepted",
+                "validateBundle returns ok:true and substantiateSteps returns null for the dirty manifest",
+                "met == true",
+                "the dirty manifest's repointed artifacts substantiate any PASS step \u2014 an empty/no-op validator that ignores the HEAD-vs-working-tree divergence must not satisfy this case"
+              ]
+            }
+          },
+          {
+            "start_ref": "directory-laundered-evidence",
+            "action": {
+              "actor": "cli_user",
+              "steps": [
+                "Seed directory-laundered-evidence: commit manifest.json + artifact at parent P, then add an unrelated README.md under the same bundle dir and commit it at HEAD",
+                "Run deriveGoalState pointed at the bundle with the internally computed HEAD",
+                "Capture the thrown error, the per-file last-touch commits, and any goal-state write"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "validation throws error code == 'EVIDENCE_FILE_STALE'",
+                "each required file's OWN last-touch commit (git log -1 --format=%H -- <bundle>/manifest.json and -- <artifact>) equals P and != HEAD, even though git log -1 --format=%H -- <bundle> (directory-level) == HEAD",
+                "no sprint-goal-state.json with met:true is written"
+              ],
+              "must_not_observe": [
+                "directory-level git log -1 -- <bundle> == HEAD launders the stale manifest/artifact to PASS",
+                "the unrelated README.md's HEAD-level touch satisfies per-file freshness for manifest.json/artifact",
+                "met == true",
+                "the validator only checks bundle-directory freshness \u2014 an empty/stub validator that skips per-file freshness must not satisfy this case"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-12",
+      "type": "acceptance_criterion",
+      "description": "An artifact path that resolves (after realpath/normalization) outside the bundle directory is rejected as a containment violation, even when the escaped file is tracked in git",
+      "verify": "npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-12'",
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "integration",
+        "flow_ref": "UC-VER-05",
+        "verification_service": "deriveGoalState substantiateSteps realpath containment check (realpath(bundle/artifact) startsWith realpath(bundle)+sep) over a real committed traversal manifest",
+        "topology": "single-node",
+        "negative_control": {
+          "would_fail_if": [
+            "posix.join(bundleRel, art) normalizes .. and gitTracked accepts an out-of-bundle tracked file with no containment check (the current substantiateSteps behavior)",
+            "no realpath/canonicalization containment check follows before gitTracked, so ../../package.json (tracked) substantiates a PASS step",
+            "the containment check is stubbed to always pass or symlink escapes are not rejected"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "file_snapshot",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "traversal-artifact-manifest",
+            "action": {
+              "actor": "cli_user",
+              "steps": [
+                "Seed traversal-artifact-manifest: commit a bundle whose manifest declares artifacts:['../../package.json'] for a PASS step",
+                "Run deriveGoalState pointed at the bundle with the internally computed HEAD",
+                "Capture the thrown error, the realpath containment comparison, and any goal-state write"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "substantiation throws error code == 'ARTIFACT_PATH_ESCAPE' naming the escaped artifact",
+                "`realpath('.gate-evidence/<bundle>/../../package.json')` resolves to the repo-root `package.json` absolute path, which does NOT start with `realpath('.gate-evidence/<bundle>') + '/'` \u2014 this string-prefix comparison fails BEFORE `gitTracked()` is ever invoked (0 calls to gitTracked for this artifact)",
+                "no sprint-goal-state.json with met:true is written"
+              ],
+              "must_not_observe": [
+                "an out-of-bundle tracked file (../../package.json) substantiates a PASS step",
+                "posix.join(bundleRel, art) normalizes .. and gitTracked accepts the escaped path",
+                "met == true",
+                "substantiateSteps returns null with the traversal artifact accepted \u2014 an empty/no-op check that skips containment must not satisfy this case"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-13",
+      "type": "acceptance_criterion",
+      "description": "Founder attestation is derived ONLY from couchGateStatus.allowed===true for the current active manifest, bound to its exact sampleId/manifestHash/catalogVersion via a matching getCouchVerdict({sampleId}) row recorded by a requireOperator non-test identity; a historic/inactive pass yields met:false / human_test.verdict pending",
+      "verify": "npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-13'",
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "integration",
+        "flow_ref": "UC-VER-05",
+        "verification_service": "Convex dev deployment (couchGateStatus.allowed + getCouchVerdict({sampleId}) over real couch_verdicts/couch_manifest_activations) + deriveGoalState founder resolver",
+        "topology": "single-node",
+        "negative_control": {
+          "would_fail_if": [
+            "founder attestation reads getCouchVerdict({}) \u2014 the latest of up to 50 rows across ALL samples \u2014 and never calls couchGateStatus, so a historic/inactive pass satisfies present (the current resolveFounderVerdict behavior)",
+            "present is set from overallVerdict === 'pass' alone with no active-manifest binding to sampleId/manifestHash/catalogVersion, or a test-prefixed / bare s4-human-gate identity is accepted as founder",
+            "the couchGateStatus read is stubbed/mocked to allowed:true and disconnected from the durable Convex source"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "active-manifest-allowed-pass",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "Seed operator-gate-identity and active-manifest-allowed-pass (an active couch manifest with couchGateStatus.allowed===true bound to an operator-recorded pass for that sampleId)",
+                "Run deriveGoalState with a step-results JSON that omits founderVerdict",
+                "Capture the resolved founder attestation, the couchGateStatus result, and the getCouchVerdict({sampleId}) row"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "founder attestation is derived from couchGateStatus.allowed === true for the CURRENT active manifest (couchGateStatus was actually called, not getCouchVerdict({}))",
+                "the attestation is bound to that status's exact sampleId/manifestHash/catalogVersion via a matching getCouchVerdict({sampleId}) row (recordedBy == 's4t12-operator', a requireOperator-authorized non-test, non-bare identity)",
+                "human_test.verdict == 'pass' and met can be true only with this bound attestation present"
+              ],
+              "must_not_observe": [
+                "attestation is derived from getCouchVerdict({}) latest-across-all-samples",
+                "sampleId/manifestHash/catalogVersion mismatch between couchGateStatus and the getCouchVerdict({sampleId}) row is accepted",
+                "a test-prefixed (TEST_SUBJECT_PREFIXES) or bare s4-human-gate identity is accepted as founder",
+                "the couchGateStatus query returns 0 active-manifest binding \u2014 a stub/disconnected read producing no binding must not satisfy this case"
+              ]
+            }
+          },
+          {
+            "start_ref": "historic-inactive-couch-pass",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "Seed operator-gate-identity and historic-inactive-couch-pass (a real operator pass for a superseded sampleId while the current active manifest is inactive/drifted so couchGateStatus.allowed === false)",
+                "Run deriveGoalState (a step-results JSON that may falsely set founderVerdict:true)",
+                "Capture the emitted goal-state, the couchGateStatus result, and the getCouchVerdict query"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "couchGateStatus.allowed === false for the current active manifest",
+                "founder attestation present == false, emitted met == false, human_test.verdict == 'pending'",
+                "gate.blocker names the unresolved/blocked S4-T7 human-owned gate"
+              ],
+              "must_not_observe": [
+                "the historic/inactive pass (a real couch_verdicts PASS row that exists but is unbound to the current active manifest) satisfies founder.present",
+                "getCouchVerdict({}) latest-across-all-samples returns the historic pass and it is accepted as attestation while couchGateStatus.allowed is false",
+                "met == true or human_test.verdict == 'pass'",
+                "gate.overall == 'PASS' while couchGateStatus.allowed is false \u2014 an empty/stub resolver that ignores couchGateStatus.allowed must not satisfy this case"
               ]
             }
           }
@@ -1170,9 +1542,44 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
     {
       "id": "TC-17",
       "type": "test_criterion",
-      "description": "emitted generator.head_commit equals git rev-parse HEAD and derived_from is a repository-relative path (never /tmp/)",
+      "description": "generator.attested_source_commit equals the internal git rev-parse HEAD at generation time and the provenance verifier confirms attestation_commit is a STRICT descendant of attested_source_commit (never equal/ancestor/unrelated, PROVENANCE_RELATION_INVALID otherwise); derived_from is repository-relative (never /tmp/)",
       "maps_to_ac": "AC-10",
       "verify": "npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-10'"
+    },
+    {
+      "id": "TC-18",
+      "type": "test_criterion",
+      "description": "a manifest tracked at HEAD but modified only in the working tree (dirty) is rejected with MANIFEST_NOT_HEAD_BOUND \u2014 resolved from the HEAD blob (git show HEAD:<path>), not readFileSync \u2014 and produces no met:true",
+      "maps_to_ac": "AC-11",
+      "verify": "npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-11'"
+    },
+    {
+      "id": "TC-19",
+      "type": "test_criterion",
+      "description": "an old manifest/artifact laundered by an unrelated new bundle file (directory-level git log == HEAD) is rejected per-file with EVIDENCE_FILE_STALE because each required file's own last-touch commit != HEAD",
+      "maps_to_ac": "AC-11",
+      "verify": "npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-11'"
+    },
+    {
+      "id": "TC-20",
+      "type": "test_criterion",
+      "description": "a manifest artifact path resolving outside the bundle (../../package.json), even though tracked in git, is rejected with ARTIFACT_PATH_ESCAPE via a realpath containment check before gitTracked",
+      "maps_to_ac": "AC-12",
+      "verify": "npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-12'"
+    },
+    {
+      "id": "TC-21",
+      "type": "test_criterion",
+      "description": "founder attestation requires couchGateStatus.allowed===true bound to the active manifest's sampleId/manifestHash/catalogVersion via a matching getCouchVerdict({sampleId}) row recorded by a requireOperator non-test, non-bare identity (never getCouchVerdict({}) latest-across-all-samples)",
+      "maps_to_ac": "AC-13",
+      "verify": "npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-13'"
+    },
+    {
+      "id": "TC-22",
+      "type": "test_criterion",
+      "description": "a historic/inactive couch pass unbound to the current active manifest (couchGateStatus.allowed false) yields met:false and human_test.verdict 'pending' even though a couch_verdicts PASS row exists somewhere",
+      "maps_to_ac": "AC-13",
+      "verify": "npx vitest run convex/__tests__/REDHATFIX12-gate-evidence-integrity.integration.test.ts -t 'AC-13'"
     }
   ]
 }
