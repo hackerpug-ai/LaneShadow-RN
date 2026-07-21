@@ -1,5 +1,8 @@
 # REDHAT-FIX-24 — Enforce exact NORMALIZED FULL-COMMAND equality for off-plan rejection (not path-only)
-> Status: ⬜ Pending
+> Status: ✅ Completed
+> Commit: 26943758b4ed5c015cc162eab92ff3eebbc3d76b
+> Reviewer: convex-reviewer
+> Completed: 2026-07-21T18:24:40Z
 
 | Field | Value |
 |-------|-------|

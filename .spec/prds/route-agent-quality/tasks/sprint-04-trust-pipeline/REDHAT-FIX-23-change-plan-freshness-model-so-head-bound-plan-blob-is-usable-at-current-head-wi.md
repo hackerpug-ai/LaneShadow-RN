@@ -1,5 +1,8 @@
 # REDHAT-FIX-23 — Change plan-freshness model so HEAD-bound plan blob is usable at current HEAD without last-touch==HEAD (close PLAN_STALE regression from FIX-21)
-> Status: ⬜ Pending
+> Status: ✅ Completed
+> Commit: c2799eb5a78c500dd19089f9f30e5b58ab999831
+> Reviewer: convex-reviewer
+> Completed: 2026-07-21T18:24:40Z
 
 | Field | Value |
 |-------|-------|
