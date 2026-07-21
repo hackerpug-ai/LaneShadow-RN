@@ -3,7 +3,7 @@ sprint: 4
 slug: sprint-04-trust-pipeline
 sequence: 4
 timeline: Phase 2
-status: Awaiting Close
+status: Blocked
 prd: .spec/prds/route-agent-quality/README.md
 prd_version: 3.1.1
 roadmap: .spec/prds/route-agent-quality/ROADMAP.md
@@ -16,9 +16,9 @@ tasks_expanded: 2026-07-14
 
 **Sequence:** 4
 **Timeline:** Phase 2
-**Status:** Awaiting Close
-> Progress: 7/7 tasks completed · updated 2026-07-19T23:02:46Z
-> Status-Note: REDHAT-FIX 01/02/04/05/09/11 all implemented + verified (314/314). Prior 2026-07-19 gate closeout WITHDRAWN as forged (used lever2FixedGeometry seam under s4-human-gate, not real providers). Re-audit run 2026-07-20T205404Z: steps 1-2 honest real-provider PASS, steps 6/8 code-verified, steps 3-5 + 7 BLOCKED on real catalog data + human Founder-Operator couch review (S4-T7). GATE-GOAL: ACHIEVED not met — requires real ~25-route catalog load + founder review.
+**Status:** Blocked
+> Progress: 7/7 tasks completed · updated 2026-07-21T17:48:49Z
+> Status-Note: REDHAT-FIX-21/22 landed on main. GATE-GOAL still BLOCKED on S4-T7 Founder-Operator human steps 3/4/5/7 (honest).
 **Proposed by:** product-manager + convex-planner (lane) + aisdk-planner (lever-2 structured output)
 
 ## Overview
@@ -128,6 +128,8 @@ ends in exactly one terminal state.
 | REDHAT-FIX-20 | (HIGH-2) Retire/replace canonical `gate-plan.json` entries that still point to the withdrawn forged `2026-07-19T22:59:46Z` scripts (bare `s4-human-gate` + `lever2FixedGeometry`); point every step at the current canonical control surface (honest run `2026-07-21T152805Z`) and make the goal-state writer reject bundles/scripts not referenced by the HEAD-bound plan; cited `.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/gate-plan.json`; fresh red-hat review 2026-07-21T153804Z | convex-implementer | 75 min |
 | REDHAT-FIX-21 | (CRITICAL, re-review 2026-07-21T165629Z) The canonical gate-plan authority must be resolved from an IMMUTABLE HEAD-bound blob, not the mutable working-tree `gate-plan.json`. Today `loadGatePlanExpectedSteps` reads working-tree plan bytes (`tools/gate/verifyEvidenceManifest.ts:84-105`) and the verifier uses that mutable result (`:283-301`), and the off-plan check reads a run-ID allow-list from working-tree bytes (`tools/gate/deriveGoalState.ts:395-485`); so a dirty one-step plan can reduce the canonical step set (re-opening the FIX-18/CRITICAL-2 authority hole) and admit a withdrawn run ID. Fix: resolve the canonical plan (expected step set + allowed run paths) from a committed HEAD git-blob using the SAME immutable-resolution pattern FIX-12 v3 uses for the evidence manifest (per-file HEAD-blob content, never a working-tree readFileSync), so working-tree mutation cannot alter the expected steps or allow off-plan runs; add a reproducer `dirty one-step working-tree plan + one-step stale-run bundle → rejected`. cited `tools/gate/verifyEvidenceManifest.ts:84-105,283-301`, `tools/gate/deriveGoalState.ts:395-485`; fresh red-hat review `.spec/reviews/red-hat-sprint-04-trust-pipeline-20260721T165629Z.md` | convex-implementer | 135 min |
 | REDHAT-FIX-22 | (HIGH, re-review 2026-07-21T165629Z) "Off-plan script" validation must enforce an EXACT command/script match against the HEAD-bound plan, not accept arbitrary scripts under an allowed run directory. Today off-plan is a run-ID directory allow-list, so any script under an allowed run dir passes. Fix: compare each step's executed command+script against the exact HEAD-bound plan entry (exact string/path equality, not a prefix/allow-list), rejecting any substitution; add a negative test executing a substitute script under an allowed run dir. cited `tools/gate/deriveGoalState.ts:395-485`; fresh red-hat review 2026-07-21T165629Z | convex-implementer | 75 min |
+| REDHAT-FIX-23 | (HIGH-2, re-review 2026-07-21T175607Z — REGRESSION) The plan-freshness check FIX-21 added requires the plan file's last-touch commit to EQUAL repo HEAD; since HEAD advanced to 91a05d9f via unrelated commits while the plan was last touched at 1082ca7d, every clean current invocation now exits 1 with `PLAN_STALE` BEFORE evaluating canonical steps/evidence/S4-T7 — the gate is unusable at HEAD and the FIX-18 suite went red (3/5). Fix: change the freshness model so the canonical gate is usable at the current HEAD WITHOUT re-opening any working-tree authority seam — the plan is authoritative via `git show HEAD:<plan>` bytes (already done by FIX-21), so freshness must attest the plan blob AT HEAD (it is HEAD-bound by construction), not require the plan file's last-touch commit to equal HEAD; re-attest/record plan freshness at the current HEAD (e.g., reattest the plan at the evidence-manifest commit, or drop the plan-last-touch==HEAD requirement in favor of the existing HEAD-blob authority). Verify: a clean `deriveGoalState` at current HEAD reaches step evaluation and reports the honest human-step BLOCK (not PLAN_STALE), and the FIX-18 suite returns green. cited `tools/gate/verifyEvidenceManifest.ts`, `tools/gate/deriveGoalState.ts`; fresh red-hat review `.spec/reviews/red-hat-sprint-04-trust-pipeline-20260721T175607Z.md` | convex-implementer | 105 min |
+| REDHAT-FIX-24 | (HIGH-1, re-review 2026-07-21T175607Z) FIX-22 matches the script PATH but NOT the command TEXT: `bash .../step1.sh --unreviewed-flag` and `env FOO=attacker bash .../step1.sh` are accepted (null) against a plan containing only `bash .../step1.sh`. Fix: enforce exact NORMALIZED FULL-COMMAND equality — tokenize/normalize the executed command (interpreter + script path + arguments; strip/forbid env-prefix and any extra args) and require it to EQUAL the HEAD-bound plan command exactly; reject any added flag, argument, or environment-prefix. Add adversarial tests: appended `--unreviewed-flag`, `env VAR=… bash script.sh`, and a different interpreter. cited `tools/gate/deriveGoalState.ts`; fresh red-hat review 2026-07-21T175607Z | convex-implementer | 75 min |
 
 ## Dependencies
 
@@ -244,6 +246,22 @@ REDHAT-FIX-21..22 added by /kb-sprint-tasks-plan on 2026-07-21 in response to th
 Both tasks passed the mandatory fakeability audit (`tools/validate-scenario/validate_scenario.py`) clean after one NEG_OBSERVE_WEAK remediation round-trip with `convex-planner`. Every `requirements[]` entry carries stable gapless AC-N/TC-N IDs. `proposed_by: convex-planner` on both.
 
 **MEDIUM-1 (integration-test file parallelism) remains non-blocking** — opportunistically serialize/isolate destructive FIX integration suites when feasible.
+
+- REDHAT-FIX-21-resolve-canonical-gate-plan-authority-from-immutable-head-bound-blob-n.md
+- REDHAT-FIX-22-enforce-exact-head-bound-plan-script-command-match-for-off-plan-reject.md
+
+REDHAT-FIX-23..24 added by /kb-sprint-tasks-plan on 2026-07-21 in response to the cycle-2 re-review `.spec/reviews/red-hat-sprint-04-trust-pipeline-20260721T175607Z.md` (specialist-authored: `convex-planner`; `--only REDHAT-FIX-23,REDHAT-FIX-24` append mode — no re-expansion of S4-T1..T7 or REDHAT-FIX-01..22). That re-review confirmed the recurring CRITICAL RESOLVED (FIX-21 HEAD-bound plan authority) and FIX-17/19/20/21 + FIX-22 path-match all PASS, but found 2 HIGH:
+
+- **REDHAT-FIX-23 (HIGH-2 REGRESSION, NEW):** FIX-21's plan-freshness required plan last-touch commit == HEAD; HEAD advanced via unrelated commits so clean invocations exit `PLAN_STALE` before step evaluation (FIX-18 suite 3/5 red). Fix: freshness attests the plan blob AT HEAD (HEAD-bound by construction via `git show HEAD:<plan>`), not last-touch==HEAD; keep dirty WT rejection. PRIMARY: clean last-touch-behind plan loads and reaches evaluation (not PLAN_STALE); FIX-18 green.
+- **REDHAT-FIX-24 (HIGH-1, NEW):** FIX-22 path match accepts `bash …/step1.sh --unreviewed-flag` and `env FOO=attacker bash …/step1.sh`. Fix: exact NORMALIZED FULL-COMMAND equality (interpreter + script path + args; forbid env-prefix/extra args). Adversarial tests: extra flag, env prefix, different interpreter. Exact plan command still accepted on off-plan axis.
+
+Both tasks passed the mandatory fakeability audit (`tools/validate-scenario/validate_scenario.py`) clean — zero CRITICAL/HIGH (FIX-24 one NEG_OBSERVE_WEAK on AC-1 remediated). Every `requirements[]` entry carries stable gapless AC-N/TC-N IDs. `proposed_by: convex-planner` on both.
+
+**The Founder-Operator/live-provider human gate (S4-T7) remains an external, unresolved, human-owned blocker — unchanged by this expansion.** Neither FIX-23 nor FIX-24 forges human PASS; honest human-step BLOCK after reaching evaluation is success for FIX-23 AC-1.
+
+- REDHAT-FIX-23-change-plan-freshness-model-so-head-bound-plan-blob-is-usable-at-current-head-wi.md
+- REDHAT-FIX-24-enforce-exact-normalized-full-command-equality-for-off-plan-rejection-not-path-o.md
+
 
 **The Founder-Operator/live-provider human gate (S4-T7) remains an external, unresolved, human-owned blocker — unchanged by this expansion.**
 
