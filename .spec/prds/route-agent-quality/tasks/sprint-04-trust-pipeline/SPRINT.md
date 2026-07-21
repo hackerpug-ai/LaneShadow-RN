@@ -17,8 +17,8 @@ tasks_expanded: 2026-07-14
 **Sequence:** 4
 **Timeline:** Phase 2
 **Status:** Blocked
-> Progress: 7/7 base tasks completed · REDHAT-FIX-25 landed · updated 2026-07-21T18:50:55Z
-> Status-Note: REDHAT-FIX-21/22/23/24/25 landed on main. Gate usable at HEAD (shell-SAFE exact command match). GATE-GOAL still BLOCKED on S4-T7 Founder-Operator human steps 3/4/5/7 (honest). · updated 2026-07-21T18:50:55Z
+> Progress: 7/7 base tasks completed · REDHAT-FIX-26 landed · updated 2026-07-21T19:18:00Z
+> Status-Note: REDHAT-FIX-21/22/23/24/25/26 landed on main. Gate usable at HEAD (STRICTLY-ASCII byte-exact command language). GATE-GOAL still BLOCKED on S4-T7 Founder-Operator human steps 3/4/5/7 (honest). · updated 2026-07-21T19:18:00Z
 **Proposed by:** product-manager + convex-planner (lane) + aisdk-planner (lever-2 structured output)
 
 ## Overview

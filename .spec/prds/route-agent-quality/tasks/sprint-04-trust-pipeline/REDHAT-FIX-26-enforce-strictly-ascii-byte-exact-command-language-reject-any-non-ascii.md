@@ -9,7 +9,7 @@
 | ESTIMATE | 75 min |
 | EFFORT | S |
 | PRIORITY | P0 |
-| STATUS | Backlog |
+| STATUS | ✅ Completed |
 | PROPOSED_BY | `convex-planner` |
 | TDD_MODE | `red_first` |
 | RED_GREEN_REQUIRED | yes |
