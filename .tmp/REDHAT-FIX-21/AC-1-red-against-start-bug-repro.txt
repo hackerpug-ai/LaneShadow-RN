@@ -1,0 +1,14 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "expectedSteps": [
+    1
+  ],
+  "wtHash": "5d447e1306717b0283316bcb7cf1d2cb36f19554",
+  "headHash": "96b27d735da2ea07c77194fc6e1c8357e32ec74a",
+  "bindingRunIds": [
+    "2026-07-19T22:59:46Z"
+  ],
+  "bindingLiteralCount": 1,
+  "bug_expected_is_one": true,
+  "bug_admits_withdrawn": true
+}

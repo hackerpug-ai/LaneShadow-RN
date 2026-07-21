@@ -1,6 +1,7 @@
 /**
- * REDHAT-FIX-12 (v3) + REDHAT-FIX-18: immutable HEAD-bound evidence-manifest
- * verification with canonical 1..8 step-set completeness.
+ * REDHAT-FIX-12 (v3) + REDHAT-FIX-18 + REDHAT-FIX-21: immutable HEAD-bound
+ * evidence-manifest verification with canonical 1..8 step-set completeness
+ * and HEAD-bound gate-plan authority.
  *
  * Closes the red-hat CRITICAL findings (review 2026-07-21T005254Z):
  *   - the manifest and every enumerated artifact are resolved from immutable
@@ -19,14 +20,19 @@
  * steps[].n set (canonical 1..8). Incomplete / extra keys fail closed with
  * INCOMPLETE_EVIDENCE_STEPS so a 1-step all-PASS bundle cannot substantiate
  * full gate completeness.
+ *
+ * REDHAT-FIX-21: gate-plan expected steps + plan binding resolve ONLY from the
+ * immutable HEAD blob (same dirty + last-touch freshness pattern as the
+ * evidence manifest). A dirty one-step working-tree plan can no longer shrink
+ * the canonical expected set or re-admit withdrawn runs via plan-binding.
  */
 
-import { existsSync, readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { join } from 'node:path'
 import {
   containedRealpath,
   gitBlobHashHead,
   gitBlobHashWorkingTree,
+  gitHeadInternal,
   gitLastCommit,
   gitShowHead,
   gitTracked,
@@ -49,6 +55,11 @@ export type ManifestErrorCode =
   | 'EVIDENCE_FILE_STALE'
   | 'ARTIFACT_PATH_ESCAPE'
   | 'INCOMPLETE_EVIDENCE_STEPS'
+  | 'PLAN_NOT_HEAD_BOUND'
+  | 'PLAN_DIRTY'
+  | 'PLAN_STALE'
+  | 'PLAN_NOT_IN_HEAD'
+  | 'PLAN_UNPARSEABLE'
 
 export interface ManifestError {
   ok: false
@@ -75,34 +86,199 @@ const MANIFEST_REL = 'manifest.json'
 export const GATE_PLAN_REL =
   '.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/gate-plan.json'
 
-/**
- * Load the fixed expected step IDs (in plan order) from committed gate-plan.json.
- * Prefers cwd-relative plan (so temp test repos with a seeded plan work); falls
- * back to the plan next to this package's project root. Returns [] only when
- * no plan is readable (callers fail closed on empty).
- */
-export function loadGatePlanExpectedSteps(cwd: string): number[] {
-  const candidates = [
-    join(cwd, GATE_PLAN_REL),
-    // tools/gate → repo root
-    join(dirname(__dirname), '..', GATE_PLAN_REL),
-  ]
-  for (const p of candidates) {
-    if (!existsSync(p)) continue
-    try {
-      const raw = JSON.parse(readFileSync(p, 'utf-8')) as {
-        steps?: Array<{ n?: number }>
+/** Timestamp-shaped evidence run IDs only (compact or ISO-with-colons). */
+const TIMESTAMP_RUN_ID_RE = /^\d{4}-\d{2}-\d{2}T(?:\d{6}Z|\d{2}:\d{2}:\d{2}Z)$/
+const GATE_EVIDENCE_RUN_RE = /\.gate-evidence\/([^/]+)/g
+
+export type PlanLoadErrorCode =
+  | 'PLAN_NOT_HEAD_BOUND'
+  | 'PLAN_DIRTY'
+  | 'PLAN_STALE'
+  | 'PLAN_NOT_IN_HEAD'
+  | 'PLAN_UNPARSEABLE'
+
+export type GatePlanStep = {
+  n: number
+  literal_cmd?: string
+  [key: string]: unknown
+}
+
+export type ParsedGatePlan = {
+  steps: GatePlanStep[]
+  planned_steps?: number
+  [key: string]: unknown
+}
+
+export type HeadBoundGatePlan =
+  | {
+      ok: true
+      expectedSteps: number[]
+      literalCmds: string[]
+      runIds: Set<string>
+      plan: ParsedGatePlan
+      head: string
+    }
+  | {
+      ok: false
+      code: PlanLoadErrorCode
+      details: {
+        reason: string
+        file?: string
+        capturedCommit: string
+        headCommit: string
       }
-      if (!raw?.steps || !Array.isArray(raw.steps)) continue
-      const ids = raw.steps
-        .map((s) => (typeof s?.n === 'number' ? s.n : NaN))
-        .filter((n) => Number.isFinite(n))
-      if (ids.length > 0) return ids
-    } catch {
-      // try next candidate
+    }
+
+function isTimestampShapedRunId(runId: string): boolean {
+  return TIMESTAMP_RUN_ID_RE.test(runId)
+}
+
+/**
+ * REDHAT-FIX-21: resolve the canonical gate-plan from an immutable HEAD-bound
+ * blob with dirty + per-file freshness fail-closed checks (FIX-12 v3 pattern).
+ *
+ * Authority is ALWAYS `git show HEAD:<GATE_PLAN_REL>` — never working-tree
+ * `readFileSync`. Dirty WT plans and plans whose last-touch commit is not HEAD
+ * fail closed so a one-step dirty plan cannot shrink expected steps or re-admit
+ * withdrawn runs.
+ */
+export function loadHeadBoundGatePlan(cwd: string, head?: string): HeadBoundGatePlan {
+  const headCommit = head && head.length > 0 ? head : gitHeadInternal(cwd)
+  const planWtPath = join(cwd, GATE_PLAN_REL)
+
+  // 1. Plan must exist as a HEAD blob (committed content of record).
+  const headContent = gitShowHead(GATE_PLAN_REL, cwd)
+  if (!headContent) {
+    return {
+      ok: false,
+      code: 'PLAN_NOT_IN_HEAD',
+      details: {
+        reason: 'plan_not_in_head',
+        file: GATE_PLAN_REL,
+        capturedCommit: gitLastCommit(GATE_PLAN_REL, cwd),
+        headCommit,
+      },
     }
   }
-  return []
+
+  // 2. Dirty check: working-tree plan must byte-equal the HEAD blob.
+  const wtHash = gitBlobHashWorkingTree(planWtPath, cwd)
+  const headHash = gitBlobHashHead(GATE_PLAN_REL, cwd)
+  if (headHash && wtHash && wtHash !== headHash) {
+    return {
+      ok: false,
+      code: 'PLAN_NOT_HEAD_BOUND',
+      details: {
+        reason: 'dirty_working_tree',
+        file: GATE_PLAN_REL,
+        capturedCommit: gitLastCommit(GATE_PLAN_REL, cwd),
+        headCommit,
+      },
+    }
+  }
+
+  // 3. Per-file freshness: the plan's OWN last-touch commit == HEAD.
+  const planTouch = gitLastCommit(GATE_PLAN_REL, cwd)
+  if (!planTouch) {
+    return {
+      ok: false,
+      code: 'PLAN_NOT_IN_HEAD',
+      details: {
+        reason: 'plan_last_touch_unresolved',
+        file: GATE_PLAN_REL,
+        capturedCommit: '',
+        headCommit,
+      },
+    }
+  }
+  if (planTouch !== headCommit) {
+    return {
+      ok: false,
+      code: 'PLAN_STALE',
+      details: {
+        reason: 'file_not_at_head',
+        file: GATE_PLAN_REL,
+        capturedCommit: planTouch,
+        headCommit,
+      },
+    }
+  }
+
+  // 4. Parse HEAD content ONLY — never WT bytes as authority.
+  let raw: ParsedGatePlan
+  try {
+    raw = JSON.parse(headContent) as ParsedGatePlan
+  } catch {
+    return {
+      ok: false,
+      code: 'PLAN_UNPARSEABLE',
+      details: {
+        reason: 'plan_unparseable',
+        file: GATE_PLAN_REL,
+        capturedCommit: planTouch,
+        headCommit,
+      },
+    }
+  }
+  if (!raw || !Array.isArray(raw.steps)) {
+    return {
+      ok: false,
+      code: 'PLAN_UNPARSEABLE',
+      details: {
+        reason: 'plan_missing_steps',
+        file: GATE_PLAN_REL,
+        capturedCommit: planTouch,
+        headCommit,
+      },
+    }
+  }
+
+  const expectedSteps = raw.steps
+    .map((s) => (typeof s?.n === 'number' ? s.n : NaN))
+    .filter((n) => Number.isFinite(n))
+  if (expectedSteps.length === 0) {
+    return {
+      ok: false,
+      code: 'PLAN_UNPARSEABLE',
+      details: {
+        reason: 'plan_empty_expected_steps',
+        file: GATE_PLAN_REL,
+        capturedCommit: planTouch,
+        headCommit,
+      },
+    }
+  }
+
+  const literalCmds: string[] = []
+  const runIds = new Set<string>()
+  for (const step of raw.steps) {
+    const cmd = typeof step?.literal_cmd === 'string' ? step.literal_cmd : ''
+    if (!cmd) continue
+    literalCmds.push(cmd)
+    for (const m of cmd.matchAll(GATE_EVIDENCE_RUN_RE)) {
+      if (m[1] && isTimestampShapedRunId(m[1])) runIds.add(m[1])
+    }
+  }
+
+  return {
+    ok: true,
+    expectedSteps,
+    literalCmds,
+    runIds,
+    plan: raw,
+    head: headCommit,
+  }
+}
+
+/**
+ * Load the fixed expected step IDs (in plan order) from the HEAD-bound plan.
+ * REDHAT-FIX-21: uses loadHeadBoundGatePlan — never working-tree readFileSync.
+ * Returns [] when the plan is dirty/stale/missing so callers fail closed.
+ */
+export function loadGatePlanExpectedSteps(cwd: string): number[] {
+  const loaded = loadHeadBoundGatePlan(cwd)
+  if (!loaded.ok) return []
+  return loaded.expectedSteps
 }
 
 function parseManifest(content: string): EvidenceManifest | null {
@@ -280,24 +456,27 @@ export function verifyEvidenceManifest(
     }
   }
 
-  // 5. REDHAT-FIX-18: evidence_steps must be exactly the canonical gate-plan
-  //    set (typically 1..8). A 1-step all-PASS subset fails closed — only after
-  //    FIX-12 path/freshness/dirty checks so those seams stay unweakened.
-  const expectedSteps = loadGatePlanExpectedSteps(cwd)
-  if (expectedSteps.length === 0) {
+  // 5. REDHAT-FIX-18 + REDHAT-FIX-21: evidence_steps must be exactly the
+  //    HEAD-bound gate-plan set (typically 1..8). Plan authority is the same
+  //    immutable loader used by deriveGoalState / plan-binding. A 1-step
+  //    all-PASS subset fails closed — only after FIX-12 path/freshness/dirty
+  //    checks so those seams stay unweakened.
+  const planLoad = loadHeadBoundGatePlan(cwd, head)
+  if (!planLoad.ok) {
     return {
       ok: false,
-      code: 'INCOMPLETE_EVIDENCE_STEPS',
+      code: planLoad.code,
       details: {
-        reason: 'gate_plan_expected_steps_unreadable',
-        file: MANIFEST_REL,
+        reason: planLoad.details.reason,
+        file: planLoad.details.file ?? GATE_PLAN_REL,
         missing: [],
         extra: [],
-        capturedCommit: manifestTouch,
-        headCommit: head,
+        capturedCommit: planLoad.details.capturedCommit,
+        headCommit: planLoad.details.headCommit,
       },
     }
   }
+  const expectedSteps = planLoad.expectedSteps
   const completeness = validateEvidenceStepsCompleteness(manifest.evidence_steps, expectedSteps)
   if (!completeness.ok) {
     return {

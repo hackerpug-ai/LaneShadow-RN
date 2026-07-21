@@ -37,7 +37,9 @@ import { gitHeadInternal, gitLastCommit, gitTracked, toRepoRel } from './gitUtil
 import { type FounderAttestation, resolveFounderVerdict } from './resolveFounderVerdict'
 import {
   type EvidenceManifest,
-  loadGatePlanExpectedSteps,
+  GATE_PLAN_REL,
+  loadHeadBoundGatePlan,
+  type PlanLoadErrorCode,
   verifyEvidenceManifest,
 } from './verifyEvidenceManifest'
 
@@ -70,6 +72,11 @@ export type GateErrorCode =
   | 'INVALID_STEP_IDENTITY'
   | 'INCOMPLETE_EVIDENCE_STEPS'
   | 'OFF_PLAN_SCRIPT'
+  | 'PLAN_NOT_HEAD_BOUND'
+  | 'PLAN_DIRTY'
+  | 'PLAN_STALE'
+  | 'PLAN_NOT_IN_HEAD'
+  | 'PLAN_UNPARSEABLE'
 
 export interface GateError {
   ok: false
@@ -126,7 +133,11 @@ export { type FounderAttestation, resolveFounderVerdict } from './resolveFounder
 // Re-exports for tests / external use.
 export {
   type EvidenceManifest,
+  GATE_PLAN_REL,
+  type HeadBoundGatePlan,
   loadGatePlanExpectedSteps,
+  loadHeadBoundGatePlan,
+  type PlanLoadErrorCode,
   verifyEvidenceManifest,
 } from './verifyEvidenceManifest'
 export { type ProvenanceResult, verifyProvenance } from './verifyProvenance'
@@ -361,10 +372,9 @@ export function validateStepIdentity(
 }
 
 // ---------------------------------------------------------------------------
-// REDHAT-FIX-20: plan-binding rejection (scripts/bundles not in HEAD-bound plan)
+// REDHAT-FIX-20 + REDHAT-FIX-21: plan-binding rejection (scripts/bundles not in
+// HEAD-bound plan). Binding authority is loadHeadBoundGatePlan only.
 // ---------------------------------------------------------------------------
-
-const GATE_PLAN_REL = '.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/gate-plan.json'
 
 /** Match `.gate-evidence/<segment>/` fragments in paths or shell commands. */
 const GATE_EVIDENCE_RUN_RE = /\.gate-evidence\/([^/]+)/g
@@ -388,39 +398,16 @@ type GatePlanBinding = {
 }
 
 /**
- * Load allowed evidence-run IDs from committed gate-plan.json literal_cmds.
- * Prefers cwd-relative plan (temp test repos); falls back to package project root.
- * Only timestamp-shaped segments are added to the allow-list.
+ * Load allowed evidence-run IDs from the HEAD-bound gate-plan literal_cmds.
+ * REDHAT-FIX-21: uses loadHeadBoundGatePlan — never working-tree readFileSync.
+ * On dirty/stale/missing plan returns empty sets (no WT authority).
  */
 export function loadGatePlanBinding(cwd: string): GatePlanBinding {
-  const candidates = [
-    join(cwd, GATE_PLAN_REL),
-    // tools/gate → repo root
-    join(__dirname, '..', '..', GATE_PLAN_REL),
-  ]
-  const runIds = new Set<string>()
-  const literalCmds: string[] = []
-  for (const p of candidates) {
-    if (!existsSync(p)) continue
-    try {
-      const raw = JSON.parse(readFileSync(p, 'utf-8')) as {
-        steps?: Array<{ literal_cmd?: string }>
-      }
-      if (!raw?.steps || !Array.isArray(raw.steps)) continue
-      for (const step of raw.steps) {
-        const cmd = typeof step?.literal_cmd === 'string' ? step.literal_cmd : ''
-        if (!cmd) continue
-        literalCmds.push(cmd)
-        for (const m of cmd.matchAll(GATE_EVIDENCE_RUN_RE)) {
-          if (m[1] && isTimestampShapedRunId(m[1])) runIds.add(m[1])
-        }
-      }
-      if (literalCmds.length > 0) return { runIds, literalCmds }
-    } catch {
-      // try next candidate
-    }
+  const loaded = loadHeadBoundGatePlan(cwd)
+  if (!loaded.ok) {
+    return { runIds: new Set(), literalCmds: [] }
   }
-  return { runIds, literalCmds }
+  return { runIds: loaded.runIds, literalCmds: loaded.literalCmds }
 }
 
 /**
@@ -437,11 +424,12 @@ function extractTimestampEvidenceRunIds(text: string): string[] {
 }
 
 /**
- * REDHAT-FIX-20: reject step repro_cmd / bundle paths that reference a
- * timestamp-shaped `.gate-evidence/<runId>/` not listed by the HEAD-bound
- * gate-plan literal_cmds. Synthetic harness dirs (one-step, full-eight, …)
- * are left alone so FIX-12/FIX-18 completeness paths still apply.
- * Does NOT implement FIX-18 completeness (missing 1..8).
+ * REDHAT-FIX-20 + REDHAT-FIX-21: reject step repro_cmd / bundle paths that
+ * reference a timestamp-shaped `.gate-evidence/<runId>/` not listed by the
+ * HEAD-bound gate-plan literal_cmds. Synthetic harness dirs (one-step,
+ * full-eight, …) are left alone so FIX-12/FIX-18 completeness paths still apply.
+ * Dirty/stale plans fail closed with PLAN_* (never WT plan authority).
+ * Does NOT implement FIX-18 completeness (missing 1..8) or FIX-22 exact path equality.
  */
 export function rejectOffPlanScripts(
   steps: StepResult[],
@@ -449,14 +437,26 @@ export function rejectOffPlanScripts(
   cwd: string,
   head: string,
 ): GateError | null {
-  const binding = loadGatePlanBinding(cwd)
+  const planLoad = loadHeadBoundGatePlan(cwd, head)
+  if (!planLoad.ok) {
+    return {
+      ok: false,
+      code: planLoad.code as PlanLoadErrorCode,
+      details: {
+        reason: planLoad.details.reason,
+        file: planLoad.details.file ?? GATE_PLAN_REL,
+        capturedCommit: planLoad.details.capturedCommit,
+        headCommit: planLoad.details.headCommit,
+      },
+    }
+  }
   // No plan literal_cmds → nothing to bind against on this axis.
-  if (binding.literalCmds.length === 0) return null
+  if (planLoad.literalCmds.length === 0) return null
 
   const checkText = (text: string, step?: number): GateError | null => {
     const runs = extractTimestampEvidenceRunIds(text)
     for (const runId of runs) {
-      if (!binding.runIds.has(runId)) {
+      if (!planLoad.runIds.has(runId)) {
         return {
           ok: false,
           code: 'OFF_PLAN_SCRIPT',
@@ -511,6 +511,16 @@ function describeBlocker(
       d.missing?.length || d.extra?.length || d.duplicates?.length
         ? ` missing=[${(d.missing ?? []).join(',')}] extra=[${(d.extra ?? []).join(',')}] duplicates=[${(d.duplicates ?? []).join(',')}]`
         : ''
+    // REDHAT-FIX-21: name the dirty/stale plan authority seam explicitly.
+    if (
+      error.code === 'PLAN_NOT_HEAD_BOUND' ||
+      error.code === 'PLAN_DIRTY' ||
+      error.code === 'PLAN_STALE' ||
+      error.code === 'PLAN_NOT_IN_HEAD' ||
+      error.code === 'PLAN_UNPARSEABLE'
+    ) {
+      return `REDHAT-FIX-21: gate-plan is not an immutable HEAD-bound authority (${error.code}: ${d.reason}${where}). Expected steps and plan binding resolve only from git show HEAD:${GATE_PLAN_REL}.`
+    }
     // REDHAT-FIX-20: name the off-plan / stale script seam explicitly.
     if (error.code === 'OFF_PLAN_SCRIPT') {
       return `REDHAT-FIX-20: off-plan/stale script not referenced by HEAD-bound gate-plan (${d.reason}${where}). Bundles and repro_cmd paths must match the plan control surface.`
@@ -555,18 +565,34 @@ export function deriveGoalState(opts: DeriveOptions): GoalState {
   const convexCwd = opts.convexRepoCwd ?? cwd
   const head = gitHeadInternal(cwd)
 
-  // REDHAT-FIX-18: fixed expected set from committed gate-plan.json (not the
-  // caller-selected subset). Completeness requires every expected step.
-  const expectedSteps = loadGatePlanExpectedSteps(cwd)
+  // REDHAT-FIX-21: single immutable plan object is authority for expected steps
+  // and plan-binding. Dirty/stale plans fail closed before any completeness claim.
+  const planLoad = loadHeadBoundGatePlan(cwd, head)
+  const expectedSteps = planLoad.ok ? planLoad.expectedSteps : []
 
   let error: GateError | null = null
   let manifest: EvidenceManifest | null = null
   let hasValidManifest = false
 
+  if (!planLoad.ok) {
+    error = {
+      ok: false,
+      code: planLoad.code,
+      details: {
+        reason: planLoad.details.reason,
+        file: planLoad.details.file ?? GATE_PLAN_REL,
+        capturedCommit: planLoad.details.capturedCommit,
+        headCommit: planLoad.details.headCommit,
+      },
+    }
+  }
+
   // Identity/order check first so invalid step-results cannot claim completeness.
-  const identityErr = validateStepIdentity(opts.steps, expectedSteps, head)
-  if (identityErr) {
-    error = identityErr
+  if (!error) {
+    const identityErr = validateStepIdentity(opts.steps, expectedSteps, head)
+    if (identityErr) {
+      error = identityErr
+    }
   }
 
   // REDHAT-FIX-20: reject repro_cmd / bundle paths not in the HEAD-bound plan
@@ -671,7 +697,7 @@ export function deriveGoalState(opts: DeriveOptions): GoalState {
       attested_source_commit: head,
       head_commit: head,
       rule: 'met := every canonical gate-plan step (1..8) substantiated-PASS AND HEAD-bound complete evidence_steps AND couchGateStatus.allowed manifest-bound durable founder verdict; HEAD computed internally; never hand-supplied',
-      note: 'REDHAT-FIX-12 v3 + REDHAT-FIX-18 + REDHAT-FIX-20: this file is machine-derived; do not hand-edit.',
+      note: 'REDHAT-FIX-12 v3 + REDHAT-FIX-18 + REDHAT-FIX-20 + REDHAT-FIX-21: this file is machine-derived; do not hand-edit.',
     },
     exitCode,
     ...(error ? { error } : {}),

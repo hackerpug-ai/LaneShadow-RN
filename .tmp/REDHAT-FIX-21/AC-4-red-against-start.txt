@@ -1,0 +1,71 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+ RUN  v3.2.4 /Users/inference1/Projects/LaneShadow-RN/.worktrees/REDHAT-FIX-21
+
+ ❯ convex/__tests__/REDHAT-FIX-21-head-bound-gate-plan.integration.test.ts (5 tests | 4 failed) 490ms
+   ✓ REDHAT-FIX-21 fixtures > canonical gate-plan.json has steps n=1..8 (read-only shape check) 1ms
+   × REDHAT-FIX-21 AC-1: dirty one-step plan + stale-run bundle rejected > AC-1: dirty one-step WT plan + one-step stale-run never expected:[1]+offPlan:null+manifest.ok 166ms
+     → (0 , loadHeadBoundGatePlan) is not a function
+   × REDHAT-FIX-21 AC-2: HEAD expected steps ignore dirty one-step WT > AC-2: dirty one-step WT plan never silently returns expectedSteps === [1] 109ms
+     → (0 , loadHeadBoundGatePlan) is not a function
+   × REDHAT-FIX-21 AC-3: dirty plan fails closed > AC-3: wtHash !== headHash → PLAN_NOT_HEAD_BOUND or PLAN_DIRTY; planLoad.ok false 97ms
+     → (0 , loadHeadBoundGatePlan) is not a function
+   × REDHAT-FIX-21 AC-4: clean HEAD plan loads 1..8; stale plan fails closed > AC-4: clean plan returns expectedSteps 1..8; stale last-touch fails closed 117ms
+     → (0 , loadHeadBoundGatePlan) is not a function
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  convex/__tests__/REDHAT-FIX-21-head-bound-gate-plan.integration.test.ts > REDHAT-FIX-21 AC-1: dirty one-step plan + stale-run bundle rejected > AC-1: dirty one-step WT plan + one-step stale-run never expected:[1]+offPlan:null+manifest.ok
+TypeError: (0 , loadHeadBoundGatePlan) is not a function
+ ❯ convex/__tests__/REDHAT-FIX-21-head-bound-gate-plan.integration.test.ts:214:22
+    212| 
+    213|     const head = gitHeadInternal(root)
+    214|     const planLoad = loadHeadBoundGatePlan(root, head)
+       |                      ^
+    215|     const expectedSteps = loadGatePlanExpectedSteps(root)
+    216|     const oneStep: StepResult[] = [
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  convex/__tests__/REDHAT-FIX-21-head-bound-gate-plan.integration.test.ts > REDHAT-FIX-21 AC-2: HEAD expected steps ignore dirty one-step WT > AC-2: dirty one-step WT plan never silently returns expectedSteps === [1]
+TypeError: (0 , loadHeadBoundGatePlan) is not a function
+ ❯ convex/__tests__/REDHAT-FIX-21-head-bound-gate-plan.integration.test.ts:292:22
+    290|     expect(headPlan.steps.map((s) => s.n)).toEqual([...CANONICAL_STEPS…
+    291| 
+    292|     const planLoad = loadHeadBoundGatePlan(root)
+       |                      ^
+    293|     const expectedSteps = loadGatePlanExpectedSteps(root)
+    294| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  convex/__tests__/REDHAT-FIX-21-head-bound-gate-plan.integration.test.ts > REDHAT-FIX-21 AC-3: dirty plan fails closed > AC-3: wtHash !== headHash → PLAN_NOT_HEAD_BOUND or PLAN_DIRTY; planLoad.ok false
+TypeError: (0 , loadHeadBoundGatePlan) is not a function
+ ❯ convex/__tests__/REDHAT-FIX-21-head-bound-gate-plan.integration.test.ts:332:22
+    330|     expect(wtHash !== headHash).toBe(true)
+    331| 
+    332|     const planLoad = loadHeadBoundGatePlan(root)
+       |                      ^
+    333|     expect(planLoad.ok).toBe(false)
+    334|     if (planLoad.ok === false) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  convex/__tests__/REDHAT-FIX-21-head-bound-gate-plan.integration.test.ts > REDHAT-FIX-21 AC-4: clean HEAD plan loads 1..8; stale plan fails closed > AC-4: clean plan returns expectedSteps 1..8; stale last-touch fails closed
+TypeError: (0 , loadHeadBoundGatePlan) is not a function
+ ❯ convex/__tests__/REDHAT-FIX-21-head-bound-gate-plan.integration.test.ts:383:23
+    381|     )
+    382| 
+    383|     const cleanLoad = loadHeadBoundGatePlan(cleanRoot, cleanHead)
+       |                       ^
+    384|     expect(cleanLoad.ok).toBe(true)
+    385|     if (cleanLoad.ok) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+   Start at  11:31:22
+   Duration  1.27s (transform 52ms, setup 128ms, collect 37ms, tests 490ms, environment 443ms, prepare 39ms)
+
