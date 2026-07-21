@@ -1,0 +1,13 @@
+{
+  "sprintId": "sprint-04-trust-pipeline",
+  "steps": [
+    { "n": 1, "claim": "Run lever waterfall --sample", "result": "PASS-real", "measured_evidence": "3 REAL catalog routes via real Google+LLM" },
+    { "n": 2, "claim": "Exactly one terminal state per route", "result": "PASS-real" },
+    { "n": 3, "claim": "Open ~25 couch sample PNGs", "result": "BLOCKED", "run_mode": "HUMAN", "measured_evidence": "real ~25-route sample needs curation pipeline + founder" },
+    { "n": 4, "claim": "Record per-route true/off/wrong", "result": "BLOCKED", "run_mode": "HUMAN", "measured_evidence": "Founder-Operator visual review (S4-T7) not performed" },
+    { "n": 5, "claim": "Record overall pass/fail", "result": "BLOCKED", "run_mode": "HUMAN" },
+    { "n": 6, "claim": "Single wrong forces fail", "result": "PASS" },
+    { "n": 7, "claim": "Disposition 3 REVIEW items", "result": "BLOCKED", "run_mode": "HUMAN" },
+    { "n": 8, "claim": "--all refused until couch pass", "result": "PASS" }
+  ]
+}

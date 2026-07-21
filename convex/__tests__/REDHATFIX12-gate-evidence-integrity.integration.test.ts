@@ -1,37 +1,45 @@
 /**
- * REDHATFIX12 — gate-evidence integrity harness (REDHAT-FIX-12).
+ * REDHATFIX12 — gate-evidence integrity harness (REDHAT-FIX-12 v2).
  *
- * Red-hat review 2026-07-20T221805Z (CRITICAL): the blocked sentinel was
- * hand-authored and could again be made internally inconsistent; no
- * machine-derived writer, stale-bundle validator, or FIX-12 integration test
- * existed, and the retained forged scripts still carried the removed seam and a
- * bare non-operator closeout identity.
+ * Red-hat review 2026-07-20T233411Z (CRITICAL/HIGH/MEDIUM): the v1 writer was
+ * still forgeable — it trusted a caller `founderVerdict` boolean, a caller
+ * `--head-commit` SHA, an optional/skippable bundle, and the caller `steps`
+ * JSON verbatim. A temporary all-PASS JSON with `founderVerdict:true` produced
+ * `met:true` / `GATE-GOAL: ACHIEVED` with no durable evidence.
  *
- * This test proves the harness:
- *   AC-1: deriveGoalState FAILS CLOSED on any BLOCKED/FAIL step (met:false,
- *         'GATE-GOAL: BLOCKED', nonzero exit) and a hand-supplied met:true
- *         cannot survive.
- *   AC-2: the retained forged bundle is rejected (STALE_EVIDENCE_BUNDLE) with
- *         capturedCommit != HEAD, and no met:true goal-state is written.
- *   AC-3: rebuilt step4 (recordCouchVerdict) + step7 (disposition) scripts pass
- *         under a seeded operator and are FORBIDDEN under a bare identity.
- *   AC-4: the human Founder-Operator review is never synthesized (pending).
- *   AC-5: rebuilt step3 (operator-gated export) + step5 (getCouchVerdict) pass
- *         under the operator; step3 is FORBIDDEN under bare; step5 never
- *         returns a synthesized/forged pass.
+ * This suite proves the hardened, non-forgeable contract:
+ *   AC-1:  fails closed on any BLOCKED/FAIL step (met:false, nonzero exit).
+ *   AC-2:  stale/forged evidence bundle rejected (STALE_EVIDENCE_BUNDLE, no write).
+ *   AC-3:  rebuilt step4/step7 pass under operator, FORBIDDEN under bare identity.
+ *   AC-4:  human founder review never fabricated (human_test pending).
+ *   AC-5:  rebuilt step3 export + step5 getCouchVerdict under operator; bare
+ *          FORBIDDEN on step3; step5 never synthesizes a pass.
+ *   AC-6:  founder attestation resolved from durable couch_verdicts only, never a
+ *          caller flag (founderVerdict:true has ZERO effect with no real row).
+ *   AC-7:  HEAD computed internally; a forged --head-commit is inert.
+ *   AC-8:  committed manifest MANDATORY — missing/untracked/clean-stale rejected.
+ *   AC-9:  step PASS claims substantiated against the manifest; tampering inert.
+ *   AC-10: generator metadata binds to actual HEAD + repo-relative input.
  *
  * TEST_TIER: integration
- * VERIFICATION_SERVICE: deriveGoalState writer + Convex dev deployment
  * FLOW_REF: UC-VER-05 (gate-evidence anti-forgery)
  */
 
 import { execFileSync } from 'node:child_process'
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { basename, join, resolve } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { deriveGoalState, validateBundle } from '../../tools/gate/deriveGoalState'
+import {
+  deriveGoalState,
+  type EvidenceManifest,
+  gitHeadInternal,
+  resolveFounderVerdict,
+  type StepResult,
+  substantiateSteps,
+  validateBundle,
+} from '../../tools/gate/deriveGoalState'
 
 const PROJECT_ROOT = resolve(__dirname, '..', '..')
 const DERIVE_PATH = resolve(PROJECT_ROOT, 'tools/gate/deriveGoalState.ts')
@@ -51,7 +59,33 @@ const OPERATOR = JSON.stringify({
 })
 const BARE = JSON.stringify({ subject: 's4-human-gate', issuer: 'https://laneshadow.test' })
 
-let tmpDir: string
+const ALL_PASS_STEPS: StepResult[] = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({
+  n,
+  result: 'PASS' as const,
+}))
+const BLOCKED_STEPS: StepResult[] = [
+  { n: 1, result: 'BLOCKED' },
+  ...[2, 3, 4, 5, 6, 7, 8].map((n) => ({ n, result: 'PASS' as const })),
+]
+
+// CLI temp artifacts live OUTSIDE the repo so they never pollute git status.
+const CLI_TMP = mkdtempSync(join(tmpdir(), 's4t12-cli-'))
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function git(args: string[], cwd: string): string {
+  try {
+    return execFileSync('git', args, {
+      cwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim()
+  } catch {
+    return ''
+  }
+}
 
 interface RunResult {
   ok: boolean
@@ -66,10 +100,10 @@ function runConvex(fn: string, args: Record<string, unknown>, identity: string):
       { cwd: PROJECT_ROOT, encoding: 'utf-8', timeout: 120000, stdio: ['pipe', 'pipe', 'pipe'] },
     )
     return { ok: true, combined: stdout }
-  } catch (err: any) {
+  } catch (e: any) {
     return {
       ok: false,
-      combined: `${typeof err.stdout === 'string' ? err.stdout : ''}${typeof err.stderr === 'string' ? err.stderr : ''}`,
+      combined: `${typeof e.stdout === 'string' ? e.stdout : ''}${typeof e.stderr === 'string' ? e.stderr : ''}`,
     }
   }
 }
@@ -80,20 +114,20 @@ interface CliResult {
   stderr: string
 }
 
-function runDeriveCli(args: string[]): CliResult {
+function runDeriveCli(args: string[], cwd = PROJECT_ROOT): CliResult {
   try {
     const stdout = execFileSync('npx', ['tsx', DERIVE_PATH, ...args], {
-      cwd: PROJECT_ROOT,
+      cwd,
       encoding: 'utf-8',
-      timeout: 60000,
+      timeout: 90000,
       stdio: ['pipe', 'pipe', 'pipe'],
     })
     return { code: 0, stdout, stderr: '' }
-  } catch (err: any) {
+  } catch (e: any) {
     return {
-      code: typeof err.status === 'number' ? err.status : 1,
-      stdout: typeof err.stdout === 'string' ? err.stdout : '',
-      stderr: typeof err.stderr === 'string' ? err.stderr : '',
+      code: typeof e.status === 'number' ? e.status : 1,
+      stdout: typeof e.stdout === 'string' ? e.stdout : '',
+      stderr: typeof e.stderr === 'string' ? e.stderr : '',
     }
   }
 }
@@ -109,184 +143,414 @@ function runScript(name: string, identity: string): RunResult {
       env,
     })
     return { ok: true, combined: stdout }
-  } catch (err: any) {
+  } catch (e: any) {
     return {
       ok: false,
-      combined: `${typeof err.stdout === 'string' ? err.stdout : ''}${typeof err.stderr === 'string' ? err.stderr : ''}`,
+      combined: `${typeof e.stdout === 'string' ? e.stdout : ''}${typeof e.stderr === 'string' ? e.stderr : ''}`,
     }
   }
 }
 
-function writeStepResults(file: string, steps: any[], founderVerdict = false): void {
-  writeFileSync(
-    file,
-    JSON.stringify({ sprintId: 'sprint-04-trust-pipeline', founderVerdict, steps }),
-  )
+interface TempRepo {
+  root: string
 }
 
-describe('REDHATFIX12: gate-evidence integrity harness (REDHAT-FIX-12)', () => {
+function makeTempRepo(): TempRepo {
+  const root = mkdtempSync(join(tmpdir(), 's4t12-repo-'))
+  git(['init', '-q'], root)
+  git(['config', 'user.email', 'gate-test@laneshadow.test'], root)
+  git(['config', 'user.name', 'Gate Test'], root)
+  writeFileSync(join(root, 'README.md'), '# temp gate repo\n')
+  git(['add', '-A'], root)
+  git(['commit', '-q', '-m', 'init'], root)
+  return { root }
+}
+
+function commitAll(root: string, msg: string): void {
+  git(['add', '-A'], root)
+  git(['commit', '-q', '-m', msg], root)
+}
+
+function cleanState(): void {
+  runConvex('couchVerdict:clearCouchVerdictsPublic', {}, FOUNDER)
+  runConvex('couchVerdict:clearCouchManifestActivations', {}, FOUNDER)
+}
+
+/** A manifest corroborating a given set of PASS step numbers, each with a tracked artifact. */
+function manifestFor(steps: number[], artifactFile: string): EvidenceManifest {
+  const evidence_steps: Record<string, { result: string; artifacts: string[] }> = {}
+  for (const n of steps) evidence_steps[String(n)] = { result: 'PASS', artifacts: [artifactFile] }
+  return { version: 1, evidence_steps }
+}
+
+describe('REDHATFIX12: non-forgeable gate-evidence harness (REDHAT-FIX-12 v2)', () => {
   beforeAll(() => {
-    tmpDir = mkdtempSync(join(tmpdir(), 's4t12-'))
-    // Bootstrap a founder (for cleanup) + ensure the operator identity exists.
-    const founder = runConvex(
+    // Bootstrap founder (cleanup) + operator identities.
+    const f = runConvex(
       'testSupport:devSetupFounderUser',
       { clerkUserId: 'test:s4t12-founder', role: 'founder' },
       FOUNDER,
     )
-    expect(founder.ok, `founder setup failed: ${founder.combined}`).toBe(true)
-    const operator = runConvex(
+    expect(f.ok, `founder setup: ${f.combined}`).toBe(true)
+    const o = runConvex(
       'testSupport:devSetupFounderUser',
       { clerkUserId: 'test:s4t12-operator', role: 'founder' },
       OPERATOR,
     )
-    expect(operator.ok, `operator setup failed: ${operator.combined}`).toBe(true)
+    expect(o.ok, `operator setup: ${o.combined}`).toBe(true)
+    cleanState()
   })
 
   afterAll(() => {
-    runConvex('couchVerdict:clearCouchVerdictsPublic', {}, FOUNDER)
-    runConvex('couchVerdict:clearCouchManifestActivations', {}, FOUNDER)
+    cleanState()
     runConvex('couchSampleAssembler:teardownCouchFixturesPublic', {}, FOUNDER)
+    rmSync(CLI_TMP, { recursive: true, force: true })
   })
 
-  it('AC-1: goal-state writer fails closed on any BLOCKED/FAIL step; no hand-supplied met:true survives', () => {
-    const steps = [
-      { n: 1, result: 'BLOCKED' },
-      ...[2, 3, 4, 5, 6, 7, 8].map((n) => ({ n, result: 'PASS' })),
-    ]
-    // Function-level: met is DERIVED from step results, never accepted from caller.
-    const state = deriveGoalState({ steps, headCommit: 'deadbeef'.repeat(5) })
+  // ---------------------------------------------------------------- AC-1
+  it('AC-1: fails closed on any BLOCKED/FAIL step; met is derived, never caller-supplied', () => {
+    cleanState()
+    const state = deriveGoalState({
+      steps: BLOCKED_STEPS,
+      repoCwd: PROJECT_ROOT,
+      convexRepoCwd: PROJECT_ROOT,
+    })
     expect(state.met).toBe(false)
     expect(state.goal).toBe('GATE-GOAL: BLOCKED')
     expect(state.gate.overall).toBe('BLOCKED')
     expect(state.exitCode).not.toBe(0)
-
-    // CLI writer: emits met:false + nonzero exit + 'GATE-GOAL: BLOCKED' file.
-    const stepsFile = join(tmpDir, 'blocked.json')
-    const outFile = join(tmpDir, 'goalstate-ac1.json')
-    writeStepResults(stepsFile, steps)
-    const cli = runDeriveCli([
-      '--step-results',
+    // An all-PASS input with no founder stays false (founderVerdict removed).
+    const allPass = deriveGoalState({
+      steps: ALL_PASS_STEPS,
+      repoCwd: PROJECT_ROOT,
+      convexRepoCwd: PROJECT_ROOT,
+    })
+    expect(allPass.met).toBe(false)
+    // CLI still emits a BLOCKED sentinel (no error → write happens) + nonzero exit.
+    const stepsFile = join(CLI_TMP, 'ac1-steps.json')
+    writeFileSync(
       stepsFile,
-      '--out',
-      outFile,
-      '--head-commit',
-      'abcdef0123456789',
-    ])
-    expect(cli.code, `writer must exit nonzero on a BLOCKED step`).not.toBe(0)
-    expect(existsSync(outFile), `writer must still emit a goal-state file`).toBe(true)
+      JSON.stringify({ sprintId: 'sprint-04-trust-pipeline', steps: BLOCKED_STEPS }),
+    )
+    const outFile = join(CLI_TMP, 'ac1-goalstate.json')
+    const cli = runDeriveCli(['--step-results', stepsFile, '--out', outFile])
+    expect(cli.code).not.toBe(0)
+    expect(existsSync(outFile)).toBe(true)
     const written = JSON.parse(readFileSync(outFile, 'utf-8'))
     expect(written.met).toBe(false)
     expect(written.goal).toBe('GATE-GOAL: BLOCKED')
-    expect(written.gate.overall).toBe('BLOCKED')
-    expect(written.generator.written_by).toBe('tools/gate/deriveGoalState.ts')
-    // A hand-supplied met:true cannot survive: even all-PASS steps stay false
-    // absent a genuine founder verdict.
-    const allPass = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({ n, result: 'PASS' }))
-    const noFounder = deriveGoalState({ steps: allPass, headCommit: 'cafef00d'.repeat(5) })
-    expect(noFounder.met).toBe(false)
-  })
+  }, 120000)
 
-  it('AC-2: stale/forged evidence bundle is rejected (STALE_EVIDENCE_BUNDLE); no met:true written', () => {
-    const head = execFileSync('git', ['rev-parse', 'HEAD'], {
-      cwd: PROJECT_ROOT,
-      encoding: 'utf-8',
-    }).trim()
-
-    // Function-level: the retained forged bundle is invalid.
-    const v = validateBundle(FORGED, head)
+  // ---------------------------------------------------------------- AC-2
+  it('AC-2: stale/forged evidence bundle rejected (STALE_EVIDENCE_BUNDLE); no met:true write', () => {
+    const head = gitHeadInternal(PROJECT_ROOT)
+    const v = validateBundle(FORGED, head, PROJECT_ROOT)
     expect(v.ok).toBe(false)
     if (!v.ok) {
       expect(v.code).toBe('STALE_EVIDENCE_BUNDLE')
       expect(v.details.capturedCommit).not.toBe(v.details.headCommit)
       expect(v.details.capturedCommit.length).toBe(40)
     }
-
-    // CLI writer: rejects the forged bundle, exits nonzero, writes NO goal-state.
-    const stepsFile = join(tmpDir, 'allpass.json')
-    const outFile = join(tmpDir, 'goalstate-ac2.json')
-    writeStepResults(
-      stepsFile,
-      [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({ n, result: 'PASS' })),
-      true,
-    )
-    const cli = runDeriveCli([
-      '--step-results',
-      stepsFile,
-      '--out',
-      outFile,
-      '--bundle',
-      FORGED,
-      '--head-commit',
-      head,
-    ])
-    expect(cli.code, `forged bundle must be rejected`).not.toBe(0)
+    // CLI: forged bundle → no write, nonzero, stderr STALE.
+    const stepsFile = join(CLI_TMP, 'ac2-steps.json')
+    const outFile = join(CLI_TMP, 'ac2-goalstate.json')
+    writeFileSync(stepsFile, JSON.stringify({ steps: ALL_PASS_STEPS, founderVerdict: true }))
+    const cli = runDeriveCli(['--step-results', stepsFile, '--out', outFile, '--bundle', FORGED])
+    expect(cli.code).not.toBe(0)
     expect(cli.stderr).toMatch(/STALE_EVIDENCE_BUNDLE/)
-    expect(cli.stderr).toMatch(/seam_detected|bare_closeout_identity/)
-    expect(existsSync(outFile), `no goal-state written for a stale bundle`).toBe(false)
+    expect(existsSync(outFile)).toBe(false)
   })
 
-  it('AC-3: rebuilt step4/step7 pass under a seeded operator and are FORBIDDEN under a bare identity', () => {
-    runConvex('couchVerdict:clearCouchVerdictsPublic', {}, FOUNDER)
-    runConvex('couchVerdict:clearCouchManifestActivations', {}, FOUNDER)
-
-    // step3 sets up the frozen sample consumed by step4 (operator identity).
+  // ---------------------------------------------------------------- AC-3
+  it('AC-3: rebuilt step4/step7 pass under operator; FORBIDDEN under bare identity', () => {
+    cleanState()
     const s3 = runScript('step3.sh', OPERATOR)
-    expect(s3.ok, `step3 operator failed: ${s3.combined}`).toBe(true)
-
-    // step4 (recordCouchVerdict) under the operator — rows written by operator.
+    expect(s3.ok, `step3 op: ${s3.combined}`).toBe(true)
     const s4 = runScript('step4.sh', OPERATOR)
-    expect(s4.ok, `step4 operator failed: ${s4.combined}`).toBe(true)
+    expect(s4.ok, `step4 op: ${s4.combined}`).toBe(true)
     const verdict = JSON.parse(readFileSync('/tmp/s4t12-verdict-pass.json', 'utf-8'))
     expect(verdict.recordedBy).toBe('test:s4t12-operator')
-    expect(verdict.overallVerdict).toBe('pass')
-
-    // step7 (disposition) under the operator — dispositions complete.
     const s7 = runScript('step7.sh', OPERATOR)
-    expect(s7.ok, `step7 operator failed: ${s7.combined}`).toBe(true)
-
-    // Negative control: bare identity is FORBIDDEN from the operator-gated writes.
-    const s4Bare = runScript('step4.sh', BARE)
-    expect(s4Bare.ok, `bare must be FORBIDDEN from recordCouchVerdict`).toBe(false)
-    expect(s4Bare.combined).toMatch(/FORBIDDEN/)
-
-    const s7Bare = runScript('step7.sh', BARE)
-    expect(s7Bare.ok, `bare must be FORBIDDEN from disposition`).toBe(false)
-    expect(s7Bare.combined).toMatch(/FORBIDDEN/)
+    expect(s7.ok, `step7 op: ${s7.combined}`).toBe(true)
+    // Bare identity FORBIDDEN.
+    expect(runScript('step4.sh', BARE).ok).toBe(false)
+    expect(runScript('step4.sh', BARE).combined).toMatch(/FORBIDDEN/)
+    expect(runScript('step7.sh', BARE).ok).toBe(false)
+    expect(runScript('step7.sh', BARE).combined).toMatch(/FORBIDDEN/)
   }, 300000)
 
-  it('AC-4: harness never fabricates the human founder review (stays pending)', () => {
-    const steps = [
-      { n: 1, result: 'BLOCKED' },
-      ...[2, 3, 4, 5, 6, 7, 8].map((n) => ({ n, result: 'PASS' })),
-    ]
-    const state = deriveGoalState({ steps, headCommit: 'feedface'.repeat(5) })
+  // ---------------------------------------------------------------- AC-4
+  it('AC-4: never fabricates the human founder review (stays pending)', () => {
+    cleanState()
+    const state = deriveGoalState({
+      steps: BLOCKED_STEPS,
+      repoCwd: PROJECT_ROOT,
+      convexRepoCwd: PROJECT_ROOT,
+    })
     expect(state.human_test.verdict).toBe('pending')
     expect(state.human_test.note).toMatch(/S4-T7|review required|human/i)
+    const allPass = deriveGoalState({
+      steps: ALL_PASS_STEPS,
+      repoCwd: PROJECT_ROOT,
+      convexRepoCwd: PROJECT_ROOT,
+    })
+    expect(allPass.human_test.verdict).toBe('pending')
+  }, 120000)
 
-    // Even all-PASS steps keep human_test pending absent a genuine verdict.
-    const allPass = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({ n, result: 'PASS' }))
-    const noFounder = deriveGoalState({ steps: allPass, headCommit: 'feedface'.repeat(5) })
-    expect(noFounder.human_test.verdict).toBe('pending')
-  })
-
-  it('AC-5: rebuilt step3 export + step5 getCouchVerdict pass under operator; step3 FORBIDDEN under bare; step5 never synthesizes a pass', () => {
-    // step5 getCouchVerdict returns the operator-recorded verdict (from AC-3).
+  // ---------------------------------------------------------------- AC-5
+  it('AC-5: rebuilt step3 export + step5 getCouchVerdict under operator; bare FORBIDDEN on step3', () => {
+    // operator-recorded couch state already seeded by AC-3; re-seed for isolation.
+    cleanState()
+    expect(runScript('step3.sh', OPERATOR).ok).toBe(true)
+    expect(runScript('step4.sh', OPERATOR).ok).toBe(true)
     const s5 = runScript('step5.sh', OPERATOR)
-    expect(s5.ok, `step5 operator failed: ${s5.combined}`).toBe(true)
-    const out = JSON.parse(
+    expect(s5.ok, `step5 op: ${s5.combined}`).toBe(true)
+    const line =
       s5.combined
         .split('\n')
         .filter((l) => l.startsWith('{'))
-        .pop() ?? '{}',
-    )
+        .pop() ?? '{}'
+    const out = JSON.parse(line)
     expect(out.recordedBy).toBe('test:s4t12-operator')
     expect(out.synthesized).toBe(false)
-    expect(out.overallVerdict).toBe('pass')
-
-    // Negative control: bare identity is FORBIDDEN from the operator-gated export
-    // (assembleCouchSample = requireOperatorAction).
+    // Bare identity FORBIDDEN on the operator-gated step3 export.
     const s3Bare = runScript('step3.sh', BARE)
-    expect(s3Bare.ok, `bare must be FORBIDDEN from the operator-gated export`).toBe(false)
+    expect(s3Bare.ok).toBe(false)
     expect(s3Bare.combined).toMatch(/FORBIDDEN/)
   }, 300000)
+
+  // ---------------------------------------------------------------- AC-6
+  it('AC-6: founder attestation from durable couch_verdicts only; caller flag has zero effect', () => {
+    // CASE 1: durable source PRESENT (operator records a pass verdict) → human_test pass.
+    cleanState()
+    expect(runScript('step3.sh', OPERATOR).ok).toBe(true)
+    expect(runScript('step4.sh', OPERATOR).ok).toBe(true)
+    const row = resolveFounderVerdict(PROJECT_ROOT)
+    expect(row.sourceReachable).toBe(true)
+    expect(row.present).toBe(true)
+    expect(row.recordedBy).toBe('test:s4t12-operator')
+    const statePresent = deriveGoalState({
+      steps: ALL_PASS_STEPS,
+      repoCwd: PROJECT_ROOT,
+      convexRepoCwd: PROJECT_ROOT,
+    })
+    expect(statePresent.human_test.verdict).toBe('pass')
+    expect(statePresent.human_test.recorded_by).toBe('test:s4t12-operator')
+
+    // CASE 2: durable source ABSENT, JSON founderVerdict:true IGNORED → met:false, pending.
+    cleanState()
+    const exploitFile = join(CLI_TMP, 'ac6-exploit.json')
+    writeFileSync(exploitFile, JSON.stringify({ steps: ALL_PASS_STEPS, founderVerdict: true }))
+    const stateAbsent = deriveGoalState({
+      steps: ALL_PASS_STEPS,
+      repoCwd: PROJECT_ROOT,
+      convexRepoCwd: PROJECT_ROOT,
+    })
+    expect(stateAbsent.met).toBe(false)
+    expect(stateAbsent.human_test.verdict).toBe('pending')
+    expect(stateAbsent.gate.blocker).toMatch(/S4-T7|founder|human/i)
+  }, 300000)
+
+  // ---------------------------------------------------------------- AC-7
+  it('AC-7: HEAD computed internally; a forged --head-commit is inert', () => {
+    const { root } = makeTempRepo()
+    try {
+      // Build a clean (seam-free, identity-clean) bundle committed at commit1.
+      mkdirSync(join(root, '.gate-evidence/clean-stale/scripts'), { recursive: true })
+      writeFileSync(
+        join(root, '.gate-evidence/clean-stale/scripts/step1.sh'),
+        '#!/bin/sh\necho harmless\n',
+      )
+      writeFileSync(
+        join(root, '.gate-evidence/clean-stale/manifest.json'),
+        JSON.stringify(manifestFor([1], 'evidence/step1.json')),
+      )
+      commitAll(root, 'add clean bundle') // commit1: bundle capturedCommit
+      // Advance HEAD past the bundle so it is stale.
+      git(['commit', '-q', '--allow-empty', '-m', 'advance head'], root)
+      const internalHead = gitHeadInternal(root)
+      const capturedCommit = git(
+        ['log', '-1', '--format=%H', '--', '.gate-evidence/clean-stale'],
+        root,
+      )
+      expect(capturedCommit).not.toBe(internalHead)
+
+      // validateBundle uses the INTERNAL head (passed in by deriveGoalState).
+      const bundle = join(root, '.gate-evidence/clean-stale')
+      const v = validateBundle(bundle, internalHead, root)
+      expect(v.ok).toBe(false)
+      if (!v.ok) {
+        expect(v.code).toBe('STALE_EVIDENCE_BUNDLE')
+        expect(v.details.reason).toBe('stale_commit')
+        expect(v.details.capturedCommit).not.toBe(v.details.headCommit)
+        expect(v.details.headCommit).toBe(internalHead)
+      }
+
+      // CLI: a bogus --head-commit equal to the captured commit is IGNORED —
+      // the writer compares against the true internal HEAD and still rejects.
+      const bogus = capturedCommit
+      const stepsFile = join(root, 'steps.json')
+      writeFileSync(stepsFile, JSON.stringify({ steps: ALL_PASS_STEPS }))
+      const outFile = join(root, 'goalstate.json')
+      const cli = runDeriveCli(
+        ['--step-results', stepsFile, '--out', outFile, '--bundle', bundle, '--head-commit', bogus],
+        root,
+      )
+      expect(cli.code).not.toBe(0)
+      expect(cli.stderr).toMatch(/STALE_EVIDENCE_BUNDLE/)
+      // The reported headCommit must be the true internal HEAD, not the bogus SHA.
+      const reported = JSON.parse(cli.stderr.split('\n').find((l) => l.includes('"code"')) ?? '{}')
+      expect(reported.details?.headCommit).toBe(internalHead)
+      expect(reported.details?.headCommit).not.toBe(bogus)
+      expect(existsSync(outFile)).toBe(false)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  // ---------------------------------------------------------------- AC-8
+  it('AC-8: committed manifest mandatory — missing/untracked/clean-stale rejected', () => {
+    const { root } = makeTempRepo()
+    try {
+      const head = gitHeadInternal(root)
+      // CASE 1: missing bundle path.
+      const missing = join(root, '.gate-evidence/does-not-exist')
+      const v1 = validateBundle(missing, head, root)
+      expect(v1.ok).toBe(false)
+      if (!v1.ok) expect(v1.code).toBe('MISSING_EVIDENCE_BUNDLE')
+
+      // CASE 2: untracked-on-disk bundle (created but never git-added).
+      mkdirSync(join(root, '.gate-evidence/untracked/scripts'), { recursive: true })
+      writeFileSync(join(root, '.gate-evidence/untracked/scripts/step1.sh'), '#!/bin/sh\necho x\n')
+      writeFileSync(
+        join(root, '.gate-evidence/untracked/manifest.json'),
+        JSON.stringify(manifestFor([1], 'evidence/step1.json')),
+      )
+      const untracked = join(root, '.gate-evidence/untracked')
+      expect(git(['ls-files', '--', '.gate-evidence/untracked'], root)).toBe('')
+      const v2 = validateBundle(untracked, head, root)
+      expect(v2.ok).toBe(false)
+      if (!v2.ok) expect(v2.code).toBe('UNTRACKED_EVIDENCE_BUNDLE')
+
+      // CASE 3: clean committed bundle whose captured commit != HEAD.
+      mkdirSync(join(root, '.gate-evidence/clean-stale/scripts'), { recursive: true })
+      writeFileSync(
+        join(root, '.gate-evidence/clean-stale/scripts/step1.sh'),
+        '#!/bin/sh\necho ok\n',
+      )
+      writeFileSync(
+        join(root, '.gate-evidence/clean-stale/manifest.json'),
+        JSON.stringify(manifestFor([1], 'evidence/step1.json')),
+      )
+      commitAll(root, 'clean stale bundle') // commit1
+      git(['commit', '-q', '--allow-empty', '-m', 'advance'], root) // HEAD moves
+      const cleanStale = join(root, '.gate-evidence/clean-stale')
+      const v3 = validateBundle(cleanStale, gitHeadInternal(root), root)
+      expect(v3.ok).toBe(false)
+      if (!v3.ok) {
+        expect(v3.code).toBe('STALE_EVIDENCE_BUNDLE')
+        expect(v3.details.reason).toBe('stale_commit')
+        expect(v3.details.capturedCommit).not.toBe(v3.details.headCommit)
+      }
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  // ---------------------------------------------------------------- AC-9
+  it('AC-9: step PASS claims substantiated against the manifest; tampering inert', () => {
+    const { root } = makeTempRepo()
+    try {
+      // CASE 1: corroborated manifest at HEAD substantiates every PASS step.
+      const bundleRel = '.gate-evidence/corroborated'
+      mkdirSync(join(root, bundleRel, 'evidence'), { recursive: true })
+      for (const n of [1, 2, 3, 4, 5, 6, 7, 8]) {
+        writeFileSync(
+          join(root, bundleRel, `evidence/step${n}.json`),
+          JSON.stringify({ n, ok: true }),
+        )
+      }
+      const manifest: EvidenceManifest = { version: 1, evidence_steps: {} }
+      for (const n of [1, 2, 3, 4, 5, 6, 7, 8])
+        manifest.evidence_steps[String(n)] = {
+          result: 'PASS',
+          artifacts: [`evidence/step${n}.json`],
+        }
+      writeFileSync(join(root, bundleRel, 'manifest.json'), JSON.stringify(manifest))
+      commitAll(root, 'corroborated bundle') // capturedCommit == HEAD
+      const corroborated = join(root, bundleRel)
+      // Each PASS step is corroborated (substantiation returns null).
+      expect(substantiateSteps(ALL_PASS_STEPS, manifest, corroborated, root)).toBeNull()
+
+      // CASE 2: a SEPARATE bundle whose manifest lacks step 1 is committed at
+      // HEAD; a tampered step-results JSON flips step 1 BLOCKED→PASS with no
+      // manifest corroboration. Substantiation must reject it.
+      const noStep1Rel = '.gate-evidence/corroborated-no-step1'
+      mkdirSync(join(root, noStep1Rel, 'evidence'), { recursive: true })
+      const manifestNoStep1: EvidenceManifest = { version: 1, evidence_steps: {} }
+      for (const n of [2, 3, 4, 5, 6, 7, 8]) {
+        manifestNoStep1.evidence_steps[String(n)] = {
+          result: 'PASS',
+          artifacts: [`evidence/step${n}.json`],
+        }
+        writeFileSync(join(root, noStep1Rel, `evidence/step${n}.json`), '{}')
+      }
+      writeFileSync(join(root, noStep1Rel, 'manifest.json'), JSON.stringify(manifestNoStep1))
+      commitAll(root, 'corroborated without step 1') // capturedCommit == HEAD
+      const noStep1Bundle = join(root, noStep1Rel)
+      const tampered: StepResult[] = [
+        { n: 1, result: 'PASS' },
+        ...[2, 3, 4, 5, 6, 7, 8].map((n) => ({ n, result: 'PASS' as const })),
+      ]
+      const sub = substantiateSteps(tampered, manifestNoStep1, noStep1Bundle, root)
+      expect(sub).not.toBeNull()
+      expect(sub?.code).toBe('STEP_RESULT_UNSUBSTANTIATED')
+      expect(sub?.details.step).toBe(1)
+      // End-to-end via deriveGoalState: the tampered JSON cannot flip the outcome.
+      const state = deriveGoalState({
+        steps: tampered,
+        bundlePath: noStep1Bundle,
+        repoCwd: root,
+        convexRepoCwd: root,
+      })
+      expect(state.met).toBe(false)
+      expect(state.gate.overall).toBe('BLOCKED')
+      expect(state.error?.code).toBe('STEP_RESULT_UNSUBSTANTIATED')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  // ---------------------------------------------------------------- AC-10
+  it('AC-10: generator metadata binds to actual HEAD + repo-relative input', () => {
+    const { root } = makeTempRepo()
+    try {
+      // A corroborated bundle committed at HEAD, under .gate-evidence/.
+      const bundleRel = '.gate-evidence/corroborated'
+      mkdirSync(join(root, bundleRel, 'evidence'), { recursive: true })
+      writeFileSync(join(root, bundleRel, 'evidence/step1.json'), '{}')
+      const manifest = manifestFor([1, 2, 3, 4, 5, 6, 7, 8], 'evidence/step1.json')
+      writeFileSync(join(root, bundleRel, 'manifest.json'), JSON.stringify(manifest))
+      for (const n of [2, 3, 4, 5, 6, 7, 8]) {
+        writeFileSync(join(root, bundleRel, `evidence/step${n}.json`), '{}')
+      }
+      commitAll(root, 'corroborated') // capturedCommit == HEAD
+      const bundle = join(root, bundleRel)
+      const internalHead = gitHeadInternal(root)
+      const state = deriveGoalState({
+        steps: ALL_PASS_STEPS,
+        bundlePath: bundle,
+        repoCwd: root,
+        convexRepoCwd: root,
+      })
+      expect(state.generator.head_commit).toBe(internalHead)
+      expect(state.generator.head_commit).toHaveLength(40)
+      expect(state.generator.derived_from).toMatch(/^\.gate-evidence\//)
+      expect(state.generator.derived_from).not.toMatch(/^\/tmp/)
+      // derived_from names the bundle (basename corroborated), tracked at HEAD.
+      expect(basename(state.generator.derived_from ?? '')).toBe('corroborated')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
 })

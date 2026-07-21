@@ -15,69 +15,49 @@
       {
         "n": 1,
         "claim": "Run lever waterfall --sample",
-        "framework": "convex-action(runSampleWaterfall)",
-        "run_mode": "AUTO",
         "result": "PASS-real",
-        "measured_evidence": "3 REAL catalog routes via real Google+LLM, all levers",
-        "repro_cmd": ".gate-evidence/2026-07-20T205404Z/step1-real-3routes-waterfall.json"
+        "measured_evidence": "3 REAL catalog routes via real Google+LLM"
       },
       {
         "n": 2,
         "claim": "Exactly one terminal state per route",
-        "framework": "convex-action(runSampleWaterfall)",
-        "run_mode": "AUTO",
-        "result": "PASS-real",
-        "measured_evidence": "each of 3 real routes in exactly one terminal state"
+        "result": "PASS-real"
       },
       {
         "n": 3,
         "claim": "Open ~25 couch sample PNGs",
-        "framework": "convex-action(exportCouchSample)",
-        "run_mode": "HUMAN",
         "result": "BLOCKED",
-        "measured_evidence": "render path verified on fixtures; real ~25-route sample needs curation pipeline + founder"
+        "run_mode": "HUMAN",
+        "measured_evidence": "real ~25-route sample needs curation pipeline + founder"
       },
       {
         "n": 4,
         "claim": "Record per-route true/off/wrong",
-        "framework": "convex-mutation(recordCouchVerdict)",
-        "run_mode": "HUMAN",
         "result": "BLOCKED",
+        "run_mode": "HUMAN",
         "measured_evidence": "Founder-Operator visual review (S4-T7) not performed"
       },
       {
         "n": 5,
         "claim": "Record overall pass/fail",
-        "framework": "convex-query(getCouchVerdict)",
-        "run_mode": "HUMAN",
         "result": "BLOCKED",
-        "measured_evidence": "founder verdict not recorded"
+        "run_mode": "HUMAN"
       },
       {
         "n": 6,
         "claim": "Single wrong forces fail",
-        "framework": "convex-mutation(recordCouchVerdict)",
-        "run_mode": "AUTO",
-        "result": "PASS",
-        "measured_evidence": "code-verified reject-pass rule",
-        "repro_cmd": "REDHAT-FIX-03/04 + S4T6-fix0304 integration"
+        "result": "PASS"
       },
       {
         "n": 7,
         "claim": "Disposition 3 REVIEW items",
-        "framework": "convex-mutation(approve/retry/retire)",
-        "run_mode": "HUMAN",
         "result": "BLOCKED",
-        "measured_evidence": "founder/operator dispositions not recorded on real routes"
+        "run_mode": "HUMAN"
       },
       {
         "n": 8,
         "claim": "--all refused until couch pass",
-        "framework": "convex-action(runAllWaterfall)+couchGateStatus",
-        "run_mode": "AUTO",
-        "result": "PASS",
-        "measured_evidence": "code-verified gate binding",
-        "repro_cmd": "S4T6-couch-gate-block integration"
+        "result": "PASS"
       }
     ]
   },
@@ -120,7 +100,7 @@
     "drift": [],
     "checked_at": "2026-07-20T20:59:05Z"
   },
-  "updated_at": "2026-07-20T23:25:51.264Z",
+  "updated_at": "2026-07-21T00:35:39.428Z",
   "phase": "blocked",
   "written_at_commit": "HEAD (post-eddcbe50; REDHAT-FIX-12..15 in progress)",
   "withdrawn_prior_verdict": {
@@ -130,9 +110,9 @@
   },
   "generator": {
     "written_by": "tools/gate/deriveGoalState.ts",
-    "derived_from": "/tmp/sprint04-honest-steps.json",
-    "head_commit": "da67b6e9357faa2529c25a80ec5e47825985347a",
-    "rule": "met := every step PASS/PASS-real AND bundle valid AND genuine S4-T7 founder verdict; never hand-supplied",
+    "derived_from": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/honest-step-results.json",
+    "head_commit": "e76f49ec3e3df3900fae15ba750450dd45467ed5",
+    "rule": "met := every step substantiated-PASS AND valid committed manifest AND genuine durable S4-T7 founder verdict; HEAD computed internally; never hand-supplied",
     "note": "REDHAT-FIX-12: this file is machine-derived; do not hand-edit."
   }
 }
