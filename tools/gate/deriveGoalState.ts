@@ -471,20 +471,6 @@ function mentionsTimestampShapedScript(text: string): boolean {
 }
 
 /**
- * REDHAT-FIX-26: true when text appears to name a gate-evidence script —
- * including Unicode-polluted lookalikes that break the strict ASCII path
- * regex (full-width solidus, homoglyph path segments, etc.). Detection only;
- * never used as an equality key.
- */
-function namesGateEvidenceScript(text: string): boolean {
-  if (mentionsTimestampShapedScript(text)) return true
-  // Looser markers: `.gate-evidence` + `.sh` + timestamp-shaped run id anywhere
-  // (ASCII separators may be replaced by full-width / homoglyph chars).
-  if (!text.includes('.gate-evidence') || !text.includes('.sh')) return false
-  return /\d{4}-\d{2}-\d{2}T(?:\d{6}Z|\d{2}:\d{2}:\d{2}Z)/.test(text)
-}
-
-/**
  * Clean path characters only (no shell metachar / control / quote / escape).
  * Used so a token like `step1.sh;:` is NEVER accepted as a script path.
  */
@@ -775,13 +761,12 @@ export function rejectOffPlanScripts(
       }
     }
 
-    // 3) REDHAT-FIX-26: STRICTLY ASCII fail-closed. Any command that names a
-    // gate-evidence script (ASCII path or Unicode-polluted lookalike) AND
-    // contains non-ASCII is OFF_PLAN — leave script text intact; never
-    // strip/NFKC to recover a plan key. Looser `.gate-evidence` + `.sh` +
-    // timestamp marker catches full-width / homoglyph path variants that
-    // break the strict ASCII path regex.
-    if (!isStrictAscii(text) && namesGateEvidenceScript(text)) {
+    // 3) REDHAT-FIX-26 + REDHAT-FIX-27: STRICTLY ASCII fail-closed UNCONDITIONALLY.
+    // Any non-ASCII code unit in command-bearing text is OFF_PLAN — independent of
+    // namesGateEvidenceScript / marker heuristics. Marker-obfuscated vectors
+    // (Cyrillic е/һ, ZWSP, full-width ．/／) must not blind the gate. Leave
+    // script text intact; never strip/NFKC to recover a plan key.
+    if (!isStrictAscii(text)) {
       return {
         ok: false,
         code: 'OFF_PLAN_SCRIPT',

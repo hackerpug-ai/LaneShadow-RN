@@ -115,12 +115,7 @@ function hasNonAscii(text: string): boolean {
 }
 
 /** Assert OFF_PLAN_SCRIPT + met===false for a non-ASCII / off-plan attack command. */
-function expectOffPlan(
-  root: string,
-  head: string,
-  attackCmd: string,
-  label: string,
-): void {
+function expectOffPlan(root: string, head: string, attackCmd: string, label: string): void {
   const steps = eightStepsWithRepro(attackCmd)
   const offPlan = rejectOffPlanScripts(steps, undefined, root, head)
   const state = deriveGoalState({
@@ -141,8 +136,14 @@ function expectOffPlan(
   ).toBe(true)
   // Leave script text intact — do not strip/NFKC Unicode from details.
   expect(script, `details.script must preserve raw attack text for ${label}`).toBe(attackCmd)
-  expect(hasNonAscii(script) || attackCmd.includes(';') || attackCmd.includes('--') || attackCmd.startsWith('env ') || attackCmd.startsWith('sh '),
-    `attack text should retain distinctive content for ${label}`).toBe(true)
+  expect(
+    hasNonAscii(script) ||
+      attackCmd.includes(';') ||
+      attackCmd.includes('--') ||
+      attackCmd.startsWith('env ') ||
+      attackCmd.startsWith('sh '),
+    `attack text should retain distinctive content for ${label}`,
+  ).toBe(true)
   expect(state.met, `expected met===false for ${label}`).toBe(false)
   expect(state.error?.code).toBe('OFF_PLAN_SCRIPT')
   expect(offPlan === null).toBe(false)
