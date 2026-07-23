@@ -10,7 +10,7 @@
   "tasks_complete": true,
   "gate": {
     "overall": "BLOCKED",
-    "blocker": "REDHAT-FIX-12: at least one gate step is BLOCKED/FAIL — the goal-state cannot report met:true while any step is unresolved.",
+    "blocker": "REDHAT-FIX-12: at least one gate step is BLOCKED/FAIL \u2014 the goal-state cannot report met:true while any step is unresolved.",
     "steps": [
       {
         "n": 1,
@@ -54,7 +54,7 @@
         "n": 6,
         "claim": "Single wrong forces fail",
         "result": "PASS",
-        "measured_evidence": "recordCouchVerdict wrong+pass → WRONG_FORCES_FAIL on frozen sample couch-1784654446923",
+        "measured_evidence": "recordCouchVerdict wrong+pass \u2192 WRONG_FORCES_FAIL on frozen sample couch-1784654446923",
         "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step6.sh"
       },
       {
@@ -81,8 +81,8 @@
     "notes": "Prior forged 8/8 PASS withdrawn. Steps 1-2,6,8 re-run real; steps 3/4/5/7 await Founder-Operator S4-T7 + real ~25-route sample. REDHAT-FIX-21/22/23/24/25/26 landed: HEAD-bound plan authority, full-command off-plan equality, plan freshness attests HEAD blob, shell-SAFE command comparison rejects metachar suffixes, STRICTLY-ASCII byte-exact command language rejects Unicode whitespace/homoglyph/zero-width bypass. Gate usable at HEAD; human BLOCK honest."
   },
   "human_test": {
-    "verdict": "pending",
-    "note": "S4-T7 Founder-Operator review required (human-owned, unresolved)"
+    "verdict": "not-run",
+    "note": "S4-T7 Founder-Operator human steps 3/4/5/7 require real founder auth \u2014 not forged (cycle-6 FIX-27 land)."
   },
   "build": {
     "overall": "PASS",
@@ -114,7 +114,8 @@
       "REDHAT-FIX-23",
       "REDHAT-FIX-24",
       "REDHAT-FIX-25",
-      "REDHAT-FIX-26"
+      "REDHAT-FIX-26",
+      "REDHAT-FIX-27"
     ]
   },
   "status_files": {
@@ -122,21 +123,21 @@
     "drift": [],
     "checked_at": "2026-07-20T20:59:05Z"
   },
-  "updated_at": "2026-07-21T19:18:08.929Z",
-  "phase": "blocked",
-  "written_at_commit": "23d687a1bc2b32429e277f3c0a802e7e064ef07e",
+  "updated_at": "2026-07-23T05:00:21Z",
+  "phase": "gate",
+  "written_at_commit": "5821eff8719b3a85ae4926a298ee7571bc040b4a",
   "withdrawn_prior_verdict": {
     "prior_met": true,
     "prior_written_at_commit": "4240ea01802682b3d30eb208f1f7f5837e9ae024",
-    "withdrawn_reason": "REDHAT review 2026-07-20T205905Z: sentinel predates all remediation commits; retained gate scripts pass removed lever2FixedGeometry seam and use test: fixtures — cannot attest post-remediation code, real providers, or a founder review."
+    "withdrawn_reason": "REDHAT review 2026-07-20T205905Z: sentinel predates all remediation commits; retained gate scripts pass removed lever2FixedGeometry seam and use test: fixtures \u2014 cannot attest post-remediation code, real providers, or a founder review."
   },
   "generator": {
     "written_by": "tools/gate/deriveGoalState.ts",
-    "derived_from": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/honest-step-results.json",
-    "attested_source_commit": "23d687a1bc2b32429e277f3c0a802e7e064ef07e",
-    "head_commit": "23d687a1bc2b32429e277f3c0a802e7e064ef07e",
+    "derived_from": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/honest-step-results.json",
+    "attested_source_commit": "5821eff8719b3a85ae4926a298ee7571bc040b4a",
+    "head_commit": "5821eff8719b3a85ae4926a298ee7571bc040b4a",
     "rule": "met := every canonical gate-plan step (1..8) substantiated-PASS AND HEAD-bound complete evidence_steps AND couchGateStatus.allowed manifest-bound durable founder verdict; HEAD computed internally; never hand-supplied",
-    "note": "REDHAT-FIX-12 v3 + REDHAT-FIX-18 + REDHAT-FIX-20 + REDHAT-FIX-21: this file is machine-derived; do not hand-edit."
+    "note": "Honest regen after REDHAT-FIX-27 land @ 5821eff8: unconditional non-ASCII reject before marker heuristics. met:false / GATE-GOAL:BLOCKED on S4-T7 human steps 3/4/5/7."
   },
-  "open_redhat_plan_tasks": []
+  "open_redhat_plan_tasks": null
 }
