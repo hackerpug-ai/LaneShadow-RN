@@ -41,15 +41,25 @@ function parseArgs(argv: string[]): {
   all: boolean
   cursor: string | null
   top: number | null
+  maxCost: number | null
+  runId: string | null
+  routeIds: string[] | null
+  waterfall: boolean
 } {
   let sample: number | null = null
   let all = false
   let cursor: string | null = null
   let top: number | null = null
+  let maxCost: number | null = null
+  let runId: string | null = null
+  let routeIds: string[] | null = null
+  let waterfall = false
 
   for (const arg of argv.slice(2)) {
     if (arg === '--all') {
       all = true
+    } else if (arg === '--waterfall') {
+      waterfall = true
     } else if (arg.startsWith('--top=')) {
       top = parseInt(arg.split('=')[1], 10)
       if (Number.isNaN(top) || top < 1) {
@@ -64,33 +74,50 @@ function parseArgs(argv: string[]): {
       }
     } else if (arg.startsWith('--cursor=')) {
       cursor = arg.split('=').slice(1).join('=')
+    } else if (arg.startsWith('--max-cost=')) {
+      maxCost = parseFloat(arg.split('=')[1])
+      if (Number.isNaN(maxCost) || maxCost <= 0) {
+        process.stderr.write(`Invalid --max-cost value: ${arg}\n`)
+        process.exit(1)
+      }
+    } else if (arg.startsWith('--run-id=')) {
+      runId = arg.slice('--run-id='.length)
+    } else if (arg.startsWith('--route-ids=')) {
+      routeIds = arg
+        .slice('--route-ids='.length)
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
     } else if (arg === '--help' || arg === '-h') {
       process.stdout.write(`
-DATA-011: Backfill curated route geometry
+DATA-011 / S5-T1: Backfill curated route geometry + full-batch waterfall
 
 Usage:
   pnpm tsx scripts/backfill-curated-geometry.ts --top=50
   pnpm tsx scripts/backfill-curated-geometry.ts --sample=25
   pnpm tsx scripts/backfill-curated-geometry.ts --all
+  pnpm tsx scripts/backfill-curated-geometry.ts --all --waterfall --route-ids=a,b --max-cost=1.5
   pnpm tsx scripts/backfill-curated-geometry.ts --cursor="<continueCursor>"
 
 Modes:
   --top=N       Process the top-N unprocessed routes by composite_score (NO reset).
-                Use this to backfill the highest-scored routes that lack geometry
-                without disturbing already-processed rows. Requires the
-                by_composite_score index on listForGeometryBackfill.
-  --sample=N    Reset N already-processed routes, then process N unprocessed routes,
-                writing a fidelity report to .tmp/DATA-011/sample-report.json.
-  --all         Full backfill of all unprocessed routes
+  --sample=N    Reset N already-processed routes, then process N unprocessed routes.
+  --all         Full backfill of all unprocessed routes (geometry generation).
+  --waterfall   S5-T1: run couch-gated recovery waterfall instead of Nominatim backfill.
+                Requires --route-ids=... (or pair with a prior sample list).
+                Refuses when couchGateStatus is not pass (unrecorded/fail).
+  --max-cost=N  Hard cost circuit-breaker for waterfall --all (default 10).
+  --run-id=X    Durable coverageReport / acceptance run id.
   --cursor=X    Resume from a prior run's continueCursor
 
 The sample report must be reviewed by a human before running --all.
+S5-T1: --all --waterfall is blocked until couch gate PASS.
       `)
       process.exit(0)
     }
   }
 
-  return { sample, all, cursor, top }
+  return { sample, all, cursor, top, maxCost, runId, routeIds, waterfall }
 }
 
 // ---------------------------------------------------------------------------
@@ -215,7 +242,102 @@ function writeSampleReport(report: SampleReport, outDir: string): string {
 // Full backfill (paginated, resumable)
 // ---------------------------------------------------------------------------
 
+/** S5-T1: couch gate must be pass before any --all waterfall mutates routes. */
+function assertCouchGateAllowsFullBatch(): void {
+  const cmd = 'npx convex run couchVerdict:couchGateStatus'
+  process.stdout.write('Checking couchGateStatus before --all...\n')
+  try {
+    const result = execSync(cmd, { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'] })
+    const gate = JSON.parse(result) as {
+      allowed?: boolean
+      overallVerdict?: string | null
+      reason?: string | null
+    }
+    if (!gate.allowed) {
+      process.stderr.write(
+        `COUCH_GATE_BLOCKED: refusing --all before any route mutation.\n` +
+          `  overallVerdict=${String(gate.overallVerdict)}\n` +
+          `  reason=${gate.reason ?? 'unrecorded or fail'}\n`,
+      )
+      process.exit(2)
+    }
+    process.stdout.write(
+      `  couchGateStatus allowed (verdict=${String(gate.overallVerdict ?? 'pass')})\n`,
+    )
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error)
+    process.stderr.write(`COUCH_GATE_BLOCKED: failed to read couchGateStatus: ${msg}\n`)
+    process.exit(2)
+  }
+}
+
+/**
+ * S5-T1: couch-gated full waterfall with cost/cursor + coverageReport persistence.
+ */
+function runFullWaterfallBatch(opts: {
+  routeIds: string[]
+  maxCost: number | null
+  cursor: string | null
+  runId: string | null
+}): void {
+  assertCouchGateAllowsFullBatch()
+
+  const args: Record<string, unknown> = {
+    routeIds: opts.routeIds,
+    maxCost: opts.maxCost ?? 10,
+  }
+  if (opts.cursor) args.cursor = opts.cursor
+  if (opts.runId) args.runId = opts.runId
+
+  const argsJson = JSON.stringify(args)
+  const cmd = `npx convex run waterfallOrchestrator:runFullBatch '${argsJson.replace(/'/g, "'\"'\"'")}'`
+  process.stdout.write(`Running full-batch waterfall: ${cmd}\n`)
+
+  try {
+    const result = execSync(cmd, { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'] })
+    const report = JSON.parse(result) as {
+      totalCostUSD?: number
+      continueCursor?: string | null
+      isDone?: boolean
+      batchStopReason?: string | null
+      coverageReport?: Record<string, unknown>
+      processed?: number
+      skipped?: number
+    }
+
+    process.stdout.write('\nFull-batch waterfall report:\n')
+    process.stdout.write(`  processed: ${report.processed ?? 0}\n`)
+    process.stdout.write(`  skipped: ${report.skipped ?? 0}\n`)
+    process.stdout.write(`  totalCostUSD: ${report.totalCostUSD ?? 0}\n`)
+    process.stdout.write(`  batchStopReason: ${report.batchStopReason ?? '(none)'}\n`)
+    process.stdout.write(`  isDone: ${String(report.isDone)}\n`)
+    process.stdout.write(`  continueCursor: ${report.continueCursor ?? '(none)'}\n`)
+
+    const outDir = path.resolve(process.cwd(), '.tmp', 'S5-T1')
+    if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true })
+    const outPath = path.join(outDir, 'full-batch-report.json')
+    fs.writeFileSync(outPath, JSON.stringify(report, null, 2))
+    process.stdout.write(`\nWrote ${outPath}\n`)
+
+    if (report.continueCursor && !report.isDone) {
+      process.stdout.write(
+        `\nTo resume: --all --waterfall --cursor="${report.continueCursor}"` +
+          (opts.runId ? ` --run-id=${opts.runId}` : '') +
+          `\n`,
+      )
+    }
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error)
+    process.stderr.write(`Full-batch waterfall failed: ${msg}\n`)
+    process.exit(1)
+  }
+}
+
 async function runFullBackfill(): Promise<void> {
+  // S5-T1: even the legacy geometry --all path refuses without couch PASS so the
+  // Founder-Operator cannot accidentally full-batch before the Sprint 04 gate.
+  assertCouchGateAllowsFullBatch()
+
   process.stdout.write('Starting full backfill...\n')
   let cursor: string | null = null
   let totalProcessed = 0
@@ -272,7 +394,23 @@ async function runFullBackfill(): Promise<void> {
 // ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
-  const { sample, all, cursor, top } = parseArgs(process.argv)
+  const { sample, all, cursor, top, maxCost, runId, routeIds, waterfall } = parseArgs(process.argv)
+
+  if (all && waterfall) {
+    if (!routeIds || routeIds.length === 0) {
+      process.stderr.write(
+        '--all --waterfall requires --route-ids=id1,id2,... (explicit batch membership).\n',
+      )
+      process.exit(1)
+    }
+    runFullWaterfallBatch({
+      routeIds,
+      maxCost,
+      cursor,
+      runId,
+    })
+    return
+  }
 
   if (top !== null) {
     // --top=N: Process the top-N unprocessed routes by composite_score, WITHOUT the

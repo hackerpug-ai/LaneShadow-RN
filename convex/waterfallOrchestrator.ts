@@ -9,10 +9,11 @@
  *   recovered | queued | retirement_eligible
  */
 
-import { v } from 'convex/values'
+import { ConvexError, v } from 'convex/values'
 import { api, internal } from './_generated/api'
 import type { ActionCtx } from './_generated/server'
 import { action, internalMutation, mutation } from './_generated/server'
+import { PRD_YIELD_ASSUMPTIONS } from './curatedGeometry'
 import { geospatial } from './geospatialIndex'
 import {
   assertTestSubjectOrThrow,
@@ -838,6 +839,286 @@ export const runSampleWaterfallWithSeams = action({
     const identity = await requireIdentity(ctx)
     assertTestSubjectOrThrow(identity.clerkUserId)
     return executeWaterfall(ctx, args.routeIds, args)
+  },
+})
+
+// ---------------------------------------------------------------------------
+// S5-T1: Full-batch (--all) with couch gate + coverageReport + cursor resume
+// ---------------------------------------------------------------------------
+
+type CouchGateSnapshot = {
+  allowed: boolean
+  overallVerdict: 'pass' | 'fail' | null
+  reason: string | null
+  sampleId: string | null
+}
+
+function parseContinueCursor(cursor: string | undefined | null): number {
+  if (!cursor) return 0
+  // Formats: "idx:N" or bare integer string
+  const m = /^idx:(\d+)$/.exec(cursor)
+  if (m) return parseInt(m[1], 10)
+  const n = parseInt(cursor, 10)
+  return Number.isFinite(n) && n >= 0 ? n : 0
+}
+
+function encodeContinueCursor(index: number): string {
+  return `idx:${index}`
+}
+
+function buildCoverageFromWaterfall(
+  report: WaterfallReport,
+  opts: {
+    startIndex: number
+    routeIds: string[]
+    priorCostUSD?: number
+    priorPageTotals?: Array<Record<string, unknown>>
+  },
+) {
+  const endIndex = opts.startIndex + report.routes.length
+  const isDone = report.batchStopReason === 'completed' && endIndex >= opts.routeIds.length
+  // If we stopped for cost mid-list, continueCursor points at next unprocessed index.
+  // The last route may be cost_blocked — resume from that index so it can retry.
+  let nextIndex = endIndex
+  if (report.batchStopReason === 'cost_exceeded') {
+    const costBlockedIdx = report.routes.findIndex((r) => r.terminalState === 'cost_blocked')
+    if (costBlockedIdx >= 0) {
+      nextIndex = opts.startIndex + costBlockedIdx
+    }
+  }
+  const continueCursor =
+    !isDone && nextIndex < opts.routeIds.length
+      ? encodeContinueCursor(nextIndex)
+      : encodeContinueCursor(nextIndex)
+
+  const leverPass: Record<string, { candidates: number; passCount: number }> = {
+    scraped_promoted: { candidates: 0, passCount: 0 },
+    ai_reconstructed: { candidates: 0, passCount: 0 },
+    name_routed: { candidates: 0, passCount: 0 },
+  }
+  // Approximate per-lever candidates from leversRun counts + provenance on recovered
+  leverPass.scraped_promoted.candidates = report.perLeverCounts.lever1
+  leverPass.ai_reconstructed.candidates = report.perLeverCounts.lever2
+  leverPass.name_routed.candidates = report.perLeverCounts.lever3
+  for (const r of report.routes) {
+    if (r.provenance === 'scraped_promoted' && r.terminalState === 'recovered' && !r.skipped) {
+      leverPass.scraped_promoted.passCount += 1
+    }
+    if (r.provenance === 'ai_reconstructed' && r.terminalState === 'recovered' && !r.skipped) {
+      leverPass.ai_reconstructed.passCount += 1
+    }
+    if (r.provenance === 'name_routed' && r.terminalState === 'recovered' && !r.skipped) {
+      leverPass.name_routed.passCount += 1
+    }
+  }
+
+  const levers = PRD_YIELD_ASSUMPTIONS.map((a) => {
+    const c = leverPass[a.provenance] ?? { candidates: 0, passCount: 0 }
+    const realizedRate = c.candidates > 0 ? c.passCount / c.candidates : 0
+    return {
+      lever: a.lever,
+      leverNumber: a.leverNumber,
+      provenance: a.provenance,
+      candidateCount: c.candidates,
+      passCount: c.passCount,
+      realizedRate,
+      passRate: realizedRate,
+      assumptionLabel: a.assumptionLabel,
+      assumptionIsTarget: false,
+      escalationFloor: a.escalationFloor,
+    }
+  })
+
+  const provenanceCounts: Record<string, number> = {}
+  for (const r of report.routes) {
+    if (r.provenance) {
+      provenanceCounts[r.provenance] = (provenanceCounts[r.provenance] ?? 0) + 1
+    }
+  }
+
+  const riderReadyCount = report.routes.filter(
+    (r) => r.terminalState === 'recovered' && !r.skipped,
+  ).length
+
+  const totalCostUSD = (opts.priorCostUSD ?? 0) + report.totalCostUsd
+  const pageTotals = [
+    ...(opts.priorPageTotals ?? []),
+    {
+      startIndex: opts.startIndex,
+      endIndex,
+      processed: report.processed,
+      skipped: report.skipped,
+      totalCostUsd: report.totalCostUsd,
+      batchStopReason: report.batchStopReason,
+    },
+  ]
+
+  return {
+    isDone,
+    continueCursor,
+    totalCostUSD,
+    levers,
+    terminalStates: report.perStateCounts,
+    provenanceCounts,
+    riderReadyCount,
+    pageTotals,
+    nextIndex,
+  }
+}
+
+async function executeFullBatch(
+  ctx: ActionCtx,
+  args: {
+    routeIds: string[]
+    maxCost?: number | null
+    costPerReconstruct?: number
+    maxRetries?: number
+    cursor?: string | null
+    runId?: string
+    lever2FixedGeometry?: {
+      routedMiles: number
+      pointCount?: number
+      anchorCount?: number
+      claimedMiles?: number | null
+    }
+    simulateRateLimitFailures?: number
+    skipSleep?: boolean
+  },
+) {
+  const gate = (await ctx.runQuery(api.couchVerdict.couchGateStatus, {})) as CouchGateSnapshot
+  if (!gate.allowed) {
+    throw new ConvexError({
+      code: 'COUCH_GATE_BLOCKED',
+      message:
+        gate.reason ?? 'Couch gate blocked --all until recordCouchVerdict({overallVerdict:"pass"})',
+    })
+  }
+
+  const startIndex = parseContinueCursor(args.cursor)
+  const remaining = args.routeIds.slice(startIndex)
+  const runId = args.runId ?? `full-batch-${Date.now()}`
+
+  // Load prior cumulative cost from persisted report (resume)
+  let priorCostUSD = 0
+  let priorPageTotals: Array<Record<string, unknown>> = []
+  if (args.cursor) {
+    const prior = (await ctx.runQuery(api.curatedGeometry.coverageReport, {
+      runId,
+    })) as {
+      source?: string
+      totalCostUSD?: number
+      pageTotals?: Array<Record<string, unknown>>
+    }
+    if (prior?.source === 'persisted') {
+      priorCostUSD = prior.totalCostUSD ?? 0
+      priorPageTotals = prior.pageTotals ?? []
+    }
+  }
+
+  const report = await executeWaterfall(ctx, remaining, {
+    maxCost: args.maxCost ?? null,
+    costPerReconstruct: args.costPerReconstruct,
+    maxRetries: args.maxRetries,
+    lever2FixedGeometry: args.lever2FixedGeometry,
+    simulateRateLimitFailures: args.simulateRateLimitFailures,
+    skipSleep: args.skipSleep,
+  })
+
+  const coverage = buildCoverageFromWaterfall(report, {
+    startIndex,
+    routeIds: args.routeIds,
+    priorCostUSD,
+    priorPageTotals,
+  })
+
+  await ctx.runMutation(internal.curatedGeometry.persistCoverageReport, {
+    runId,
+    isDone: coverage.isDone,
+    continueCursor: coverage.continueCursor,
+    totalCostUSD: coverage.totalCostUSD,
+    maxCostUSD: args.maxCost ?? null,
+    batchStopReason: report.batchStopReason,
+    riderReadyCount: coverage.riderReadyCount,
+    levers: coverage.levers,
+    terminalStates: coverage.terminalStates,
+    provenanceCounts: coverage.provenanceCounts,
+    pageTotals: coverage.pageTotals,
+  })
+
+  const routesMutated = report.routes.filter((r) => !r.skipped).length
+
+  return {
+    mode: 'all' as const,
+    runId,
+    gate: { allowed: true as const, overallVerdict: gate.overallVerdict },
+    ...report,
+    // Per-page spend (circuit-breaker unit) vs cumulative across resumes
+    pageCostUSD: report.totalCostUsd,
+    totalCostUsd: report.totalCostUsd,
+    totalCostUSD: report.totalCostUsd,
+    cumulativeCostUSD: coverage.totalCostUSD,
+    continueCursor: coverage.continueCursor,
+    isDone: coverage.isDone,
+    coverageReport: {
+      runId,
+      isDone: coverage.isDone,
+      continueCursor: coverage.continueCursor,
+      totalCostUSD: coverage.totalCostUSD,
+      pageCostUSD: report.totalCostUsd,
+      levers: coverage.levers,
+      terminalStates: coverage.terminalStates,
+      provenanceCounts: coverage.provenanceCounts,
+      riderReadyCount: coverage.riderReadyCount,
+      pageTotals: coverage.pageTotals,
+      assumptionNote:
+        'PRD per-lever expected yields are assumptions for comparison only — not committed catalog targets.',
+    },
+    routesMutated,
+    reprocessedCount: report.reprocessed,
+  }
+}
+
+/**
+ * Production full-batch entry. STRICTLY blocked until couchGateStatus.allowed.
+ * Persists coverageReport; supports --max-cost and --cursor resume.
+ */
+export const runFullBatch = action({
+  args: {
+    routeIds: v.array(v.string()),
+    maxCost: v.optional(v.number()),
+    costPerReconstruct: v.optional(v.number()),
+    maxRetries: v.optional(v.number()),
+    cursor: v.optional(v.string()),
+    runId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requireOperatorAction(ctx)
+    return executeFullBatch(ctx, args)
+  },
+})
+
+/**
+ * Test-only full-batch with deterministic seams. Couch gate still enforced.
+ * Requires test-prefix identity (REDHAT-FIX-01).
+ */
+export const runFullBatchWithSeams = action({
+  args: {
+    routeIds: v.array(v.string()),
+    maxCost: v.optional(v.number()),
+    costPerReconstruct: v.optional(v.number()),
+    maxRetries: v.optional(v.number()),
+    cursor: v.optional(v.string()),
+    runId: v.optional(v.string()),
+    lever2FixedGeometry: v.optional(lever2FixedGeometryValidator),
+    simulateRateLimitFailures: v.optional(v.number()),
+    skipSleep: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await requireIdentity(ctx)
+    assertTestSubjectOrThrow(identity.clerkUserId)
+    // Still operator-gated for cost work
+    await requireOperatorAction(ctx)
+    return executeFullBatch(ctx, args)
   },
 })
 
