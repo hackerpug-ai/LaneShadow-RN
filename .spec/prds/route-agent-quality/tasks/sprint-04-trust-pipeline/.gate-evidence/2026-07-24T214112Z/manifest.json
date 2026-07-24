@@ -22,8 +22,7 @@
       "artifacts": [
         "step3.log",
         "step3.exit",
-        "step3-result.json",
-        "scripts/step3.sh"
+        "step3-result.json"
       ]
     },
     "4": {
@@ -31,8 +30,7 @@
       "artifacts": [
         "step4.log",
         "step4.exit",
-        "step4-result.json",
-        "scripts/step4.sh"
+        "step4-result.json"
       ]
     },
     "5": {
@@ -40,8 +38,7 @@
       "artifacts": [
         "step5.log",
         "step5.exit",
-        "step5-result.json",
-        "scripts/step5.sh"
+        "step5-result.json"
       ]
     },
     "6": {
@@ -49,8 +46,7 @@
       "artifacts": [
         "step6.log",
         "step6.exit",
-        "step6-result.json",
-        "scripts/step6.sh"
+        "step6-result.json"
       ]
     },
     "7": {
@@ -58,8 +54,7 @@
       "artifacts": [
         "step7.log",
         "step7.exit",
-        "step7-result.json",
-        "scripts/step7.sh"
+        "step7-result.json"
       ]
     },
     "8": {
@@ -67,8 +62,7 @@
       "artifacts": [
         "step8.log",
         "step8.exit",
-        "step8-result.json",
-        "scripts/step8.sh"
+        "step8-result.json"
       ]
     }
   },
