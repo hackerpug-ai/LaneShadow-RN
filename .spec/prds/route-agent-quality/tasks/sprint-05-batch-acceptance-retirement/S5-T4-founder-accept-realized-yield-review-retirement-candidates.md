@@ -178,21 +178,258 @@ Run the steps in order, capture raw command output and artifacts, and never repl
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "version":"1",
-  "task_id":"S5-T4",
-  "tdd_mode":"skipped",
-  "verification_policy":{"requires_tests":false,"requires_red_evidence":false,"requires_seeded_evidence":true},
-  "fixtures":{
-    "s5t4-real-batch-acceptance-packet":{"seed_method":"real_unseeded_catalog","purpose":"founder yield decision"},
-    "s5t4-top-50-review-packet":{"seed_method":"real_unseeded_catalog","purpose":"independent first-surface review"},
-    "s5t4-retirement-review-packet":{"seed_method":"real_unseeded_catalog","purpose":"founder candidate review"}
+  "version": "1",
+  "task_id": "S5-T4",
+  "tdd_mode": "skipped",
+  "verification_policy": {
+    "requires_tests": false,
+    "requires_red_evidence": false,
+    "requires_seeded_evidence": true
   },
-  "requirements":[
-    {"id":"AC-1","kind":"acceptance","statement":"Founder records decision on complete real batch","test_tier":"human-gate","scenario":{"start_ref":"s5t4-real-batch-acceptance-packet","must_observe":["complete report","explicit decision","lock follows decision"],"must_not_observe":["partial acceptance","target promise"],"negative_control":"cost-stopped report"}},
-    {"id":"AC-2","kind":"acceptance","statement":"Far-below yield escalates","test_tier":"human-gate","scenario":{"start_ref":"s5t4-real-batch-acceptance-packet","must_observe":["lever named","evidence linked","non-green"],"must_not_observe":["silent completion"],"negative_control":"accept unresolved escalation"}},
-    {"id":"AC-3","kind":"acceptance","statement":"Top-50 independently reviewed","test_tier":"human-gate","scenario":{"start_ref":"s5t4-top-50-review-packet","must_observe":["all row verdicts","clean packet or named failure"],"must_not_observe":["couch substitute","partial pass"],"negative_control":"one wrong row"}},
-    {"id":"AC-4","kind":"acceptance","statement":"Retirement decisions are explicit and preserved","test_tier":"human-gate","scenario":{"start_ref":"s5t4-retirement-review-packet","must_observe":["candidate dispositions","confirmation/reason/audit for retirement"],"must_not_observe":["auto-retirement","deletion"],"negative_control":"batch without confirmations"}},
-    {"id":"TC-1","kind":"test","statement":"Yield decision","maps_to":["AC-1"]},{"id":"TC-2","kind":"test","statement":"Escalation","maps_to":["AC-2"]},{"id":"TC-3","kind":"test","statement":"Top-50 review","maps_to":["AC-3"]},{"id":"TC-4","kind":"test","statement":"Retirement review","maps_to":["AC-4"]}
+  "fixtures": {
+    "s5t4-real-batch-acceptance-packet": {
+      "description": "Real un-seeded post-Sprint-04 dev catalog with couch PASS and complete isDone==true full-batch coverageReport (no test-support route IDs in acceptance evidence)",
+      "seed_method": "cli",
+      "records": [
+        "operator: pnpm tsx scripts/backfill-curated-geometry.ts --all until isDone==true",
+        "operator: pnpm tsx scripts/geometry-coverage-report.ts produces raw coverageReport JSON",
+        "couchGateStatus: 'pass', no routeId matching test: or seed: prefixes in acceptance packet"
+      ]
+    },
+    "s5t4-top-50-review-packet": {
+      "description": "Real post-gate top-50 rendered packet (manifest + local PNGs + metadata) independent of couch sample",
+      "seed_method": "cli",
+      "records": [
+        "operator: pnpm tsx scripts/top-50-curated-review.ts --render",
+        "manifest rowCount==50 (or real catalog size), images and metadata under local output dir"
+      ]
+    },
+    "s5t4-retirement-review-packet": {
+      "description": "Real retirement candidate list from all-lever-failed evidence with per-route failure reasons",
+      "seed_method": "cli",
+      "records": [
+        "operator: npx convex run reviewQueue:listGeometryReviewQueue '{\"limit\":200}'",
+        "candidates export with lever failure reasons and classifier verdicts"
+      ]
+    }
+  },
+  "requirements": [
+    {
+      "id": "AC-1",
+      "type": "acceptance_criterion",
+      "primary": true,
+      "description": "GIVEN a couch PASS and a complete real --all report WHEN the Founder-Operator compares per-lever realized yields and rider-ready count with the expected-yield table THEN the founder records accept, reject, or escalation with the raw report reference and the retirement lock follows the decision",
+      "verify": "pnpm tsx scripts/geometry-coverage-report.ts plus the persisted acceptance artifact",
+      "maps_to_ac": null,
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "e2e",
+        "verification_service": "Convex dev deployment (real un-seeded catalog + operator scripts)",
+        "negative_control": {
+          "would_fail_if": [
+            "acceptance uses a static hard-coded report instead of real coverageReport",
+            "cost-stopped incomplete report (isDone==false) is accepted",
+            "fixture/seeded test: route IDs substitute for the real catalog",
+            "decision artifact is mocked empty with no operator identity"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "file_artifact",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "s5t4-real-batch-acceptance-packet",
+            "action": {
+              "actor": "founder_operator",
+              "steps": [
+                "Confirm couchGateStatus=='pass'",
+                "Run/resume --all until isDone==true",
+                "Open coverageReport; record per-lever counts/rates and riderReady count against labeled assumptions",
+                "Submit Founder decision (accept|reject|escalation)"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "coverageReport.isDone==true with terminalTotals count >= 1, totalCostUSD > 0, continueCursor reconciled",
+                "decision is one of 'accepted'|'rejected'|'escalation_required' with perLeverComparison count >= 1",
+                "decision.timestamp is ISO string length >= 1 and operatorIdentity length >= 1",
+                "retirementUnlockedAt non-null only when decision=='accepted' or escalation is resolved"
+              ],
+              "must_not_observe": [
+                "decision=='accepted' while isDone==false (partial/cost-stopped report)",
+                "promised numeric catalog target used as pass/fail threshold",
+                "retirementUnlockedAt set after unresolved escalation or decision=='rejected'",
+                "empty report JSON or (0) per-lever comparison fields",
+                "acceptance packet containing routeId prefix 'test:' or 'seed:'"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-2",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN a per-lever realized rate below the documented escalation example WHEN the Founder reviews the table THEN the recorded decision is escalation/reject with the affected lever and evidence, not automatic acceptance",
+      "verify": "persisted acceptance artifact and coverageReport",
+      "maps_to_ac": null,
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "e2e",
+        "verification_service": "Convex dev deployment (real acceptance/lock artifacts)",
+        "negative_control": {
+          "would_fail_if": [
+            "submit decision=='accepted' while low-yield escalation is unresolved and command succeeds",
+            "low rate is omitted/stubbed because total riderReady looks acceptable",
+            "lock query is mocked to always unlock",
+            "static decision artifact with empty lever name"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "s5t4-real-batch-acceptance-packet",
+            "action": {
+              "actor": "founder_operator",
+              "steps": [
+                "Identify any far-below estimate lever (including reconstruct realizedRate < 0.40 if present)",
+                "Record numerator/denominator and decision",
+                "Inspect retirement lock status",
+                "Attempt submit accepted while escalation unresolved"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "lowYieldLever=='reconstruct' (or named lever) with numerator >= 0 and denominator >= 1",
+                "decision=='escalation_required' or decision=='rejected'",
+                "retirementUnlockedAt==null while escalation unresolved",
+                "submit decision=='accepted' while unresolved returns ok==false or gateStatus=='red'"
+              ],
+              "must_not_observe": [
+                "decision=='accepted' with unresolved low-yield lever",
+                "low rate omitted because total riderReadyCount looks acceptable",
+                "retiredCount increases automatically with no founder confirmation",
+                "empty lever name or empty evidence link on escalation"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-3",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the rendered top-50 packet WHEN the Founder reviews it THEN every row is marked correct/plausible or a named failure, and any wrong road, duplicate headliner, or test/seed row makes the review fail",
+      "verify": "pnpm tsx scripts/top-50-curated-review.ts --render",
+      "maps_to_ac": null,
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "e2e",
+        "verification_service": "local top-50 render packet + independent founder review JSON",
+        "negative_control": {
+          "would_fail_if": [
+            "couch-sample verdict is substituted for top-50 review (static substitute)",
+            "partial review with empty remaining verdicts is accepted as pass",
+            "one wrong row is mocked away and review stays green",
+            "seeded test marker is omitted from contamination scan"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "file_artifact",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "s5t4-top-50-review-packet",
+            "action": {
+              "actor": "founder_operator",
+              "steps": [
+                "Open each rendered top-50 image/metadata entry",
+                "Verify road identity and plausible measured-vs-claimed length",
+                "Search manifest for duplicate/test/seed markers",
+                "Submit all row verdicts"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "rowVerdictCount==50 (or real catalog size)",
+                "review.status=='pass' only when contaminationCount==0 and every row verdict in {'correct','plausible'}",
+                "any wrong/duplicate/test marker forces review.status=='fail' with offending routeId length >= 1"
+              ],
+              "must_not_observe": [
+                "couch-sample verdict substituted for a top-50 verdict",
+                "partial review accepted (status=='pass' with empty remaining verdicts)",
+                "status=='pass' when one row verdict=='wrong' or test/seed marker present",
+                "review packet with (0) row verdicts"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-4",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the candidate list WHEN the Founder reviews each failure reason and chooses actions THEN no route auto-retires; any retirement has explicit confirmation and reason; unresolved candidates remain visible",
+      "verify": "npx convex run reviewQueue:listGeometryReviewQueue '{\"limit\":200}' and persisted disposition artifacts",
+      "maps_to_ac": null,
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "e2e",
+        "verification_service": "Convex dev deployment (real reviewQueue + disposition audit)",
+        "negative_control": {
+          "would_fail_if": [
+            "batch/report path auto-increases retired count without founder confirmation",
+            "retire mutation is stubbed to succeed without confirmed==true",
+            "hard delete removes route document after retire",
+            "empty failure reason still commits retirement"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "s5t4-retirement-review-packet",
+            "action": {
+              "actor": "founder_operator",
+              "steps": [
+                "Export candidates and inspect all-lever failure evidence and classifier verdicts",
+                "Record keep/retry/retire decisions",
+                "For each retirement invoke explicit confirmation path with a reason",
+                "Run batch/report without founder confirmations as negative control"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "every candidate has disposition in {'keep','retry','retire','unresolved'}",
+                "retired rows have retiredAt non-null ISO timestamp and retirementReason length >= 1",
+                "dispositionAuditCount >= 1 per retirement",
+                "preserved routeId remains queryable (detail.ok==true) after retire"
+              ],
+              "must_not_observe": [
+                "auto-retired rows after batch/report with no confirmation (retiredCount must not increase)",
+                "retirementReason empty on retired row",
+                "route document deleted (detail returns empty or none)",
+                "marginal-only route retired without all-lever failure evidence (eligible==true from marginal alone)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {"id": "TC-1", "kind": "test", "statement": "Yield decision", "maps_to": ["AC-1"]},
+    {"id": "TC-2", "kind": "test", "statement": "Escalation", "maps_to": ["AC-2"]},
+    {"id": "TC-3", "kind": "test", "statement": "Top-50 review", "maps_to": ["AC-3"]},
+    {"id": "TC-4", "kind": "test", "statement": "Retirement review", "maps_to": ["AC-4"]}
   ]
 }
 -->

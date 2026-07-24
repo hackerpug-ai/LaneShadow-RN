@@ -194,17 +194,267 @@ Run RED against the current Convex dev deployment before implementation for ever
     "requires_seeded_evidence": true
   },
   "fixtures": {
-    "s5t1-real-batch-gate-fixture": {"seed_method":"public_api","purpose":"exercise couch gate refusal/report shape"},
-    "s5t1-mixed-provenance-batch": {"seed_method":"public_api","purpose":"exercise per-lever yield and rider-ready counting"},
-    "s5t1-low-yield-reconstruct": {"seed_method":"public_api","purpose":"exercise low-yield escalation and lock"},
-    "s5t1-cost-stop-resume": {"seed_method":"public_api","purpose":"exercise cursor/cost reconciliation"}
+    "s5t1-real-batch-gate-fixture": {
+      "description": "Test-support catalog with couchGateStatus settable to unrecorded|fail|pass; fixture proves refusal and report shape (acceptance artifact uses un-seeded dev catalog)",
+      "seed_method": "public_api",
+      "records": [
+        "routeId: 'test:s5t1-gate-unrecorded', couchGateStatus: 'unrecorded', geometryStatus: 'pending'",
+        "routeId: 'test:s5t1-gate-fail', couchGateStatus: 'fail', geometryStatus: 'pending'",
+        "routeId: 'test:s5t1-gate-pass', couchGateStatus: 'pass', geometryStatus: 'pending', compositeScore: 0.85"
+      ]
+    },
+    "s5t1-mixed-provenance-batch": {
+      "description": "Mixed provenance pool with one PASS and one non-PASS per lever/provenance plus non-ready generated rows",
+      "seed_method": "public_api",
+      "records": [
+        "routeId: 'test:s5t1-lever1-pass', provenance: 'scraped_promoted', verification.verdict: 'pass', riderReady: true",
+        "routeId: 'test:s5t1-lever1-fail', provenance: 'scraped_promoted', verification.verdict: 'review', riderReady: false",
+        "routeId: 'test:s5t1-lever2-pass', provenance: 'ai_reconstructed', verification.verdict: 'pass', riderReady: true",
+        "routeId: 'test:s5t1-lever2-fail', provenance: 'ai_reconstructed', verification.verdict: 'review', riderReady: false",
+        "routeId: 'test:s5t1-lever3-pass', provenance: 'rescue', verification.verdict: 'pass', riderReady: true",
+        "routeId: 'test:s5t1-lever3-fail', provenance: 'rescue', verification.verdict: 'review', riderReady: false",
+        "routeId: 'test:s5t1-not-a-ride', geometryStatus: 'generated', classifier: 'not_a_ride', riderReady: false",
+        "routeId: 'test:s5t1-shadow-dup', geometryStatus: 'generated', isShadow: true, riderReady: false"
+      ]
+    },
+    "s5t1-low-yield-reconstruct": {
+      "description": "Completed report whose reconstruct lever realized rate is below the PRD 40% escalation line (e.g. 1 PASS / 10 candidates = 0.10)",
+      "seed_method": "public_api",
+      "records": [
+        "coverageReport.levers.reconstruct: {candidates: 10, passCount: 1, realizedRate: 0.10, assumptionLabel: '~40-55%'}",
+        "acceptance.decision: null, acceptedAt: null, retirementUnlockedAt: null"
+      ]
+    },
+    "s5t1-cost-stop-resume": {
+      "description": "Waterfall pool sized so a small --max-cost stops mid-batch with continueCursor and partial page totals",
+      "seed_method": "public_api",
+      "records": [
+        "routeIds: 'test:s5t1-cost-01'..'test:s5t1-cost-12', couchGateStatus: 'pass'",
+        "batch config: --max-cost=0.50, isDone: false after first page"
+      ]
+    }
   },
   "requirements": [
-    {"id":"AC-1","kind":"acceptance","statement":"Couch-gated full batch emits a complete real coverage report","test_tier":"integration","scenario":{"start_ref":"s5t1-real-batch-gate-fixture","must_observe":["non-PASS refuses before mutation","PASS emits per-lever/status/provenance/riderReady/cost/cursor report"],"must_not_observe":["mutation before couch PASS"],"negative_control":"non-PASS couch status"}},
-    {"id":"AC-2","kind":"acceptance","statement":"Realized yields compare to labeled assumptions","test_tier":"integration","scenario":{"start_ref":"s5t1-mixed-provenance-batch","must_observe":["observed per-lever rates","rider-ready derived from gate"],"must_not_observe":["hard-coded target acceptance"],"negative_control":"generated non-ready row"}},
-    {"id":"AC-3","kind":"acceptance","statement":"Far-below yield escalates and locks acceptance/retirement","test_tier":"integration","scenario":{"start_ref":"s5t1-low-yield-reconstruct","must_observe":["escalation_required","explicit resolution required"],"must_not_observe":["automatic acceptance","retirement unlock"],"negative_control":"change total only"}},
-    {"id":"AC-4","kind":"acceptance","statement":"Resume and cost evidence reconcile without accepting incomplete work","test_tier":"integration","scenario":{"start_ref":"s5t1-cost-stop-resume","must_observe":["cursor","cost reconciliation","pending while incomplete"],"must_not_observe":["reprocessing PASS rows","accept partial report"],"negative_control":"accept isDone=false"}},
-    {"id":"TC-1","kind":"test","statement":"Couch gate and report contract","maps_to":["AC-1"]},{"id":"TC-2","kind":"test","statement":"Yield comparison","maps_to":["AC-2"]},{"id":"TC-3","kind":"test","statement":"Escalation lock","maps_to":["AC-3"]},{"id":"TC-4","kind":"test","statement":"Resume/cost reconciliation","maps_to":["AC-4"]}
+    {
+      "id": "AC-1",
+      "type": "acceptance_criterion",
+      "primary": true,
+      "description": "GIVEN couchGateStatus is unrecorded|fail|pass WHEN the operator invokes the full-batch driver with --all THEN unrecorded/fail refuse before any route mutation and pass runs against the real deployment and persists a coverageReport with per-lever PASS rates, terminal-state counts, provenance counts, riderReady count, totalCostUSD, and continueCursor",
+      "verify": "pnpm test convex/__tests__/S5T1-all-batch-gate-report.integration.test.ts",
+      "maps_to_ac": null,
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "integration",
+        "verification_service": "Convex dev deployment (real backfill driver + coverageReport persistence)",
+        "negative_control": {
+          "would_fail_if": [
+            "couch gate is stubbed/mocked and always returns pass",
+            "driver is disconnected from real Convex and never reads couchGateStatus",
+            "static hard-coded coverageReport with no db_query of real route state",
+            "empty/disconnected start — seed never applied so refusal path is never exercised"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "s5t1-real-batch-gate-fixture",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "Record couchGateStatus='unrecorded', invoke real driver with --all, query route and acceptance state",
+                "Record couchGateStatus='fail' and repeat --all",
+                "Record couchGateStatus='pass', run one bounded real batch with continuation cursor",
+                "Assert coverageReport, totalCostUSD, continueCursor, per-lever counts/rates, terminal-state counts, provenance counts, riderReady count"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "couchGateStatus=='unrecorded' refusal with routesMutated==0",
+                "couchGateStatus=='fail' refusal with routesMutated==0",
+                "couchGateStatus=='pass' returns coverageReport with totalCostUSD > 0 and continueCursor length >= 1",
+                "coverageReport.levers count >= 1 with passRate numbers and riderReadyCount >= 0"
+              ],
+              "must_not_observe": [
+                "geometryStatus=='generated' or 'review' or 'retired' while couchGateStatus is not 'pass'",
+                "routesMutated > 0 on non-PASS couch status",
+                "coverageReport is empty after PASS run",
+                "totalCostUSD is null or continueCursor is empty after PASS run",
+                "static hard-coded report with no cursor/cost fields"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-2",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN a completed or resumable full batch WHEN the operator requests the coverage report THEN it computes observed candidates, PASS counts/rates, rider-ready count, and terminal states per lever and compares them with the PRD table (lever 1: unproven, lever 2: ~67%, lever 3: ~40-55%) while labeling those values as assumptions",
+      "verify": "pnpm test convex/__tests__/S5T1-coverage-report-yields.integration.test.ts",
+      "maps_to_ac": null,
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "integration",
+        "verification_service": "Convex dev deployment (real coverage report query)",
+        "negative_control": {
+          "would_fail_if": [
+            "report is a static hard-coded JSON with invented rates",
+            "riderReady is stubbed to equal generated row count",
+            "not_a_ride / shadow rows are omitted from negative control and counted as ready",
+            "empty seed pool — report always returns zeros with no provenance breakdown"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "s5t1-mixed-provenance-batch",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "Seed mixed test-support pool with one PASS and one non-PASS per provenance",
+                "Run actual coverage report query/action",
+                "Inspect serialized report for lever rates, assumptions, and riderReady"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "each lever has candidateCount >= 1, passCount >= 0, realizedRate as number",
+                "lever1.assumptionLabel == 'unproven'",
+                "lever2.assumptionLabel includes '~67%'",
+                "lever3.assumptionLabel includes '~40-55%'",
+                "riderReadyCount == count of rows with riderReady==true (not raw generated count)"
+              ],
+              "must_not_observe": [
+                "committed numeric target used as pass/fail threshold",
+                "riderReadyCount inferred from geometryStatus alone with empty gate evidence",
+                "lever1.assumptionLabel empty or not equal to 'unproven'",
+                "not_a_ride or shadow row counted as riderReady==true",
+                "report with (0) levers or empty provenance breakdown after seeded pool"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-3",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN a realized per-lever rate is materially below its assumption (including reconstruct below the PRD example 40% escalation line) WHEN acceptance is requested THEN the system records decision=='escalation_required', names the lever and observed evidence, and keeps acceptedAt and retirementUnlockedAt null until explicit Founder resolution",
+      "verify": "pnpm test convex/__tests__/S5T1-low-yield-escalation.integration.test.ts",
+      "maps_to_ac": null,
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "integration",
+        "verification_service": "Convex dev deployment (real acceptance mutation + retirement lock)",
+        "negative_control": {
+          "would_fail_if": [
+            "acceptance mutation is stubbed to always accept regardless of yield",
+            "escalation path is a no-op static status with no lever name",
+            "lock query is mocked and always returns retirementUnlockedAt set",
+            "empty report seed — low reconstruct rate never present so lock is never engaged"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "s5t1-low-yield-reconstruct",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "Seed report with reconstruct realizedRate=0.10 (1/10) below 40% escalation line",
+                "Call acceptance mutation with decision='accept'",
+                "Query acceptance and retirement-lock state",
+                "Call explicit founder resolution path and query again"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "first call returns decision=='escalation_required' with lever=='reconstruct'",
+                "observed reconstruct realizedRate==0.10 (passCount==1, candidates==10)",
+                "acceptedAt==null and retirementUnlockedAt==null after first call",
+                "explicit resolution records decision string, rationale length >= 1, and resolvedAt ISO timestamp"
+              ],
+              "must_not_observe": [
+                "decision=='accepted' automatically on first call",
+                "retirementUnlockedAt non-null before resolution",
+                "escalation with empty lever name or empty observed rates",
+                "lock clears when only total riderReadyCount is mutated while reconstruct rate remains unresolved"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-4",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN the full run stops at a circuit-breaker or provider failure WHEN the operator resumes with the returned cursor THEN already-PASSed routes are not reprocessed, actual cost never exceeds the configured cap, and the eventual report reconciles all page totals without falsely accepting an incomplete run",
+      "verify": "pnpm test convex/__tests__/S5T1-resume-cost-reconciliation.integration.test.ts",
+      "maps_to_ac": null,
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "integration",
+        "verification_service": "Convex dev deployment (real waterfall cost/cursor resume)",
+        "negative_control": {
+          "would_fail_if": [
+            "cursor is stubbed empty and resume restarts from page 0",
+            "cost telemetry is hard-coded static 0 after resume",
+            "acceptance is mocked to succeed while isDone==false",
+            "disconnected batch never persists continueCursor"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "stdout",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "s5t1-cost-stop-resume",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "Run real waterfall with small --max-cost against test-support pool",
+                "Capture continueCursor and original verification timestamps",
+                "Resume from that cursor",
+                "Request coverage report and attempt acceptance while isDone=false"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "batchStopReason=='cost_exceeded' (or explicit provider-halt reason string)",
+                "continueCursor length >= 1 across resume",
+                "already-PASSed routes keep original verification timestamp (reprocessedCount==0)",
+                "cost totals reconcile across pages and totalCostUSD > 0",
+                "acceptedAt==null while isDone==false"
+              ],
+              "must_not_observe": [
+                "reprocessedCount > 0 for already-PASSed routes",
+                "continueCursor is empty or null after cost stop",
+                "totalCostUSD reset to 0 after resume",
+                "decision=='accepted' while isDone==false",
+                "empty incomplete-run rejection reason when acceptance attempted early"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {"id": "TC-1", "kind": "test", "statement": "Couch gate and report contract", "maps_to": ["AC-1"]},
+    {"id": "TC-2", "kind": "test", "statement": "Yield comparison", "maps_to": ["AC-2"]},
+    {"id": "TC-3", "kind": "test", "statement": "Escalation lock", "maps_to": ["AC-3"]},
+    {"id": "TC-4", "kind": "test", "statement": "Resume/cost reconciliation", "maps_to": ["AC-4"]}
   ]
 }
 -->

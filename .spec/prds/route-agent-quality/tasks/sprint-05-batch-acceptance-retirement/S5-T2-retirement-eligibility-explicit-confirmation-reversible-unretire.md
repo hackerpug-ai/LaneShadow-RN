@@ -184,22 +184,260 @@ RED each integration scenario against the real deployment. Keep candidate eligib
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "version":"1",
-  "task_id":"S5-T2",
-  "tdd_mode":"red_first",
-  "verification_policy":{"requires_tests":true,"requires_red_evidence":true,"requires_seeded_evidence":true},
-  "fixtures":{
-    "s5t2-all-levers-failed-vs-pass":{"seed_method":"public_api","purpose":"compare complete failure evidence with a Lever-2 PASS"},
-    "s5t2-founder-confirmation-required":{"seed_method":"public_api","purpose":"exercise explicit founder confirmation"},
-    "s5t2-retired-route-surface":{"seed_method":"public_api","purpose":"exercise suggestion exclusion and detail reachability"},
-    "s5t2-retire-unretire-preserves-record":{"seed_method":"public_api","purpose":"exercise reversibility"}
+  "version": "1",
+  "task_id": "S5-T2",
+  "tdd_mode": "red_first",
+  "verification_policy": {
+    "requires_tests": true,
+    "requires_red_evidence": true,
+    "requires_seeded_evidence": true
   },
-  "requirements":[
-    {"id":"AC-1","kind":"acceptance","statement":"Eligibility requires all three lever failures","test_tier":"integration","scenario":{"start_ref":"s5t2-all-levers-failed-vs-pass","must_observe":["only all-failed route eligible"],"must_not_observe":["passed or marginal route eligible"],"negative_control":"remove one terminal artifact"}},
-    {"id":"AC-2","kind":"acceptance","statement":"Founder reasons and confirmation precede retirement","test_tier":"integration","scenario":{"start_ref":"s5t2-founder-confirmation-required","must_observe":["failure reasons","invalid calls do not patch","valid call audit"],"must_not_observe":["auto-retirement"],"negative_control":"batch completion without confirmation"}},
-    {"id":"AC-3","kind":"acceptance","statement":"Retired row is excluded but preserved","test_tier":"integration","scenario":{"start_ref":"s5t2-retired-route-surface","must_observe":["retired","riderReady false","detail preserved"],"must_not_observe":["suggestion result","delete"],"negative_control":"all suggestion modes"}},
-    {"id":"AC-4","kind":"acceptance","statement":"Un-retire preserves history and recomputes","test_tier":"integration","scenario":{"start_ref":"s5t2-retire-unretire-preserves-record","must_observe":["same route id","history","recompute"],"must_not_observe":["automatic ready"],"negative_control":"no qualifying geometry"}},
-    {"id":"TC-1","kind":"test","statement":"Eligibility","maps_to":["AC-1"]},{"id":"TC-2","kind":"test","statement":"Confirmation","maps_to":["AC-2"]},{"id":"TC-3","kind":"test","statement":"Surface exclusion","maps_to":["AC-3"]},{"id":"TC-4","kind":"test","statement":"Reversibility","maps_to":["AC-4"]}
+  "fixtures": {
+    "s5t2-all-levers-failed-vs-pass": {
+      "description": "One route with terminal failures for Levers 1/2/3 and one route with Lever-2 gate-PASS",
+      "seed_method": "public_api",
+      "records": [
+        "routeId: 'test:s5t2-all-failed', lever1.verdict: 'fail', lever2.verdict: 'fail', lever3.verdict: 'fail', terminal artifacts present for levers 1/2/3",
+        "routeId: 'test:s5t2-lever2-pass', lever2.verdict: 'pass', verification.verdict: 'pass', riderReady: true"
+      ]
+    },
+    "s5t2-founder-confirmation-required": {
+      "description": "Eligible all-lever-failed candidate awaiting founder confirmation with per-lever failure reasons",
+      "seed_method": "public_api",
+      "records": [
+        "routeId: 'test:s5t2-confirm', eligible: true, leverFailures: {1:'ratio', 2:'anchors', 3:'degenerate'}, classifierVerdict: 'no_rescue', confirmed: false, retirementReason: ''"
+      ]
+    },
+    "s5t2-retired-route-surface": {
+      "description": "Explicitly retired eligible route with preserved document and retirement reason",
+      "seed_method": "public_api",
+      "records": [
+        "routeId: 'test:s5t2-retired-surface', geometryStatus: 'retired', retiredAt: ISO timestamp, retirementReason: 'all levers failed after founder review', riderReady: false"
+      ]
+    },
+    "s5t2-retire-unretire-preserves-record": {
+      "description": "Retired route with stable _id, terminal failure artifacts, and no gate-PASS geometry for post-unretire recompute",
+      "seed_method": "public_api",
+      "records": [
+        "routeId: 'test:s5t2-unretire', _id stable, geometryStatus: 'retired', retiredAt set, retirementReason: 'founder confirmed', lever failure artifacts retained, verification.verdict: 'review'"
+      ]
+    }
+  },
+  "requirements": [
+    {
+      "id": "AC-1",
+      "type": "acceptance_criterion",
+      "primary": true,
+      "description": "GIVEN one route with terminal failures for Levers 1-3 and one route with a gate-PASS from Lever 2 WHEN the candidate query runs THEN only the all-failed route is retirement-eligible (eligible==true) and the winning route is absent from candidates",
+      "verify": "pnpm test convex/__tests__/S5T2-retirement-eligibility.integration.test.ts",
+      "maps_to_ac": null,
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "integration",
+        "verification_service": "Convex dev deployment (real retirement candidate query)",
+        "negative_control": {
+          "would_fail_if": [
+            "eligibility is stubbed always true for any route",
+            "terminal artifacts are mocked empty yet eligible==true",
+            "remove one lever terminal artifact and route remains eligible (disconnect from all-lever evidence)",
+            "static hard-coded candidate list independent of db_query"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "s5t2-all-levers-failed-vs-pass",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "Seed both routes via test-support public entrypoint",
+                "Record three distinct lever outcomes and terminal artifacts for first route",
+                "Record Lever-2 PASS for second route",
+                "Query real retirement candidate function"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "routeId=='test:s5t2-all-failed' has eligible==true with failure evidence for levers 1/2/3",
+                "routeId=='test:s5t2-lever2-pass' has candidateAbsent==true and verification.verdict=='pass'",
+                "eligibleCandidateCount==1 for the all-failed route"
+              ],
+              "must_not_observe": [
+                "eligible==true for passed or marginal route",
+                "eligibility inferred from geometryStatus=='review' alone with empty lever artifacts",
+                "candidate list includes routeId=='test:s5t2-lever2-pass'",
+                "(0) candidates when all-failed route is seeded"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-2",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN eligible candidates WHEN the founder lists them and attempts retirement THEN every row includes per-lever failure reasons, classifier evidence, and best candidate information, and only a request carrying confirmed==true plus a non-empty reason commits",
+      "verify": "pnpm test convex/__tests__/S5T2-retirement-confirmation.integration.test.ts",
+      "maps_to_ac": null,
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "integration",
+        "verification_service": "Convex dev deployment (real retire mutation + disposition audit)",
+        "negative_control": {
+          "would_fail_if": [
+            "retire mutation is stubbed to succeed without confirmed==true",
+            "batch completion path auto-sets retiredAt (static auto-retirement)",
+            "empty reason is accepted and patches route",
+            "disposition audit is mocked/absent after valid retire"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "s5t2-founder-confirmation-required",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "Query retirement candidates",
+                "Call retirement mutation with missing confirmation",
+                "Call retirement mutation with empty reason",
+                "Call with confirmed=true and concrete reason",
+                "Query route and disposition artifact"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "candidate.leverFailureReasons count == 3 (levers 1/2/3)",
+                "invalid calls fail without patching (retiredAt==null)",
+                "call with confirmed==true records retirementReason length >= 1",
+                "call with confirmed==true sets retiredAt to non-null ISO timestamp and dispositionAuditCount >= 1"
+              ],
+              "must_not_observe": [
+                "retiredAt non-null after call with confirmed==false or empty reason",
+                "auto-retirement during batch/report (retiredCount increases with no confirmation)",
+                "mutation success with retirementReason empty",
+                "(0) disposition audit rows after valid confirmed retirement"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-3",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN an explicitly retired route WHEN rider-ready discovery and saved-route detail queries run THEN the route is absent from suggestions but its preserved record and detail remain queryable with geometryStatus=='retired' and riderReady==false",
+      "verify": "pnpm test convex/__tests__/S5T2-retirement-surface.integration.test.ts",
+      "maps_to_ac": null,
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "integration",
+        "verification_service": "Convex dev deployment (real listCuratedRoutes + getCuratedRouteDetail)",
+        "negative_control": {
+          "would_fail_if": [
+            "hard delete removes the route document (stub delete path)",
+            "discovery queries ignore retired status and still return the row",
+            "detail query returns empty after retire",
+            "recomputeRiderReady is mocked and leaves riderReady==true"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "s5t2-retired-route-surface",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "Retire a confirmed eligible route",
+                "Call recomputeRiderReady",
+                "Query listCuratedRoutes/discovery and getCuratedRouteDetail for the route ID"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "geometryStatus=='retired'",
+                "riderReady==false",
+                "suggestionHitCount==0 for the retired routeId across top/bbox/nearest",
+                "getCuratedRouteDetail returns routeId length >= 1 and retirementReason length >= 1"
+              ],
+              "must_not_observe": [
+                "route document deleted (detail returns empty or none)",
+                "riderReady==true after retirement",
+                "suggestionHitCount > 0 for the retired routeId",
+                "geometryStatus not equal to 'retired' after confirmed retirement"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-4",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN a retired route WHEN the operator invokes un-retire THEN the row and prior failure/retirement evidence remain, retiredAt and exclusion status are cleared, rider-ready is recomputed from current evidence, and the route does not become ready without a qualifying geometry/classifier state",
+      "verify": "pnpm test convex/__tests__/S5T2-unretire-reversible.integration.test.ts",
+      "maps_to_ac": null,
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "integration",
+        "verification_service": "Convex dev deployment (real unretire + recomputeRiderReady)",
+        "negative_control": {
+          "would_fail_if": [
+            "un-retire hard-deletes evidence or creates a new route _id (stub replace)",
+            "un-retire is mocked to set riderReady==true regardless of geometry",
+            "history artifacts are empty after un-retire",
+            "route with no gate-PASS geometry surfaces in discovery after un-retire"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "s5t2-retire-unretire-preserves-record",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "Retire a confirmed candidate and capture document and artifact IDs",
+                "Invoke un-retire",
+                "Query route, geometry, artifacts, and rider-ready discovery"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "route._id is unchanged after un-retire (sameId==true) and geometry candidate retained",
+                "retiredAt==null and geometryStatus != 'retired'",
+                "un-retire disposition appended (dispositionCount >= 2)",
+                "recomputeRiderReady returns riderReady==false when verification.verdict != 'pass'"
+              ],
+              "must_not_observe": [
+                "new route _id replacing the old one (sameId==false)",
+                "deleted retirementReason or empty lever failure evidence",
+                "riderReady==true from un-retire alone with no gate-PASS geometry",
+                "discoveryHitCount > 0 when verification.verdict != 'pass'"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {"id": "TC-1", "kind": "test", "statement": "Eligibility", "maps_to": ["AC-1"]},
+    {"id": "TC-2", "kind": "test", "statement": "Confirmation", "maps_to": ["AC-2"]},
+    {"id": "TC-3", "kind": "test", "statement": "Surface exclusion", "maps_to": ["AC-3"]},
+    {"id": "TC-4", "kind": "test", "statement": "Reversibility", "maps_to": ["AC-4"]}
   ]
 }
 -->

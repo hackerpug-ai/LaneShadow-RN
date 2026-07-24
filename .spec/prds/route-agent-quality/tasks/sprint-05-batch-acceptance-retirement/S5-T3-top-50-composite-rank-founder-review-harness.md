@@ -169,20 +169,203 @@ Write RED integration tests before implementation. Exercise the actual indexed q
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "version":"1",
-  "task_id":"S5-T3",
-  "tdd_mode":"red_first",
-  "verification_policy":{"requires_tests":true,"requires_red_evidence":true,"requires_seeded_evidence":true},
-  "fixtures":{
-    "s5t3-ranked-ready-manifest":{"seed_method":"public_api","purpose":"exercise real ranked query"},
-    "s5t3-local-render-manifest":{"seed_method":"public_api","purpose":"exercise local PNG and metadata boundary"},
-    "s5t3-top-50-negative-control":{"seed_method":"public_api","purpose":"exercise row-level review fail/pass"}
+  "version": "1",
+  "task_id": "S5-T3",
+  "tdd_mode": "red_first",
+  "verification_policy": {
+    "requires_tests": true,
+    "requires_red_evidence": true,
+    "requires_seeded_evidence": true
   },
-  "requirements":[
-    {"id":"AC-1","kind":"acceptance","statement":"Manifest is exact real rank-ordered ready surface","test_tier":"integration","scenario":{"start_ref":"s5t3-ranked-ready-manifest","must_observe":["first 50 eligible rows","ordered","evidence per row"],"must_not_observe":["non-ready row","client sort"],"negative_control":"higher-score non-ready row"}},
-    {"id":"AC-2","kind":"acceptance","statement":"Local render packet is complete without image bytes in Convex","test_tier":"integration","scenario":{"start_ref":"s5t3-local-render-manifest","must_observe":["PNG and metadata per row","local output"],"must_not_observe":["missing render","image bytes in mutation"],"negative_control":"delete one geometry"}},
-    {"id":"AC-3","kind":"acceptance","statement":"Independent top-50 review fails on any wrong/duplicate/test row","test_tier":"integration","scenario":{"start_ref":"s5t3-top-50-negative-control","must_observe":["fail with row reason","pass only all reviewed clean"],"must_not_observe":["partial pass","couch state mutation"],"negative_control":"one wrong row"}},
-    {"id":"TC-1","kind":"test","statement":"Rank manifest","maps_to":["AC-1"]},{"id":"TC-2","kind":"test","statement":"Render boundary","maps_to":["AC-2"]},{"id":"TC-3","kind":"test","statement":"Review negative control","maps_to":["AC-3"]}
+  "fixtures": {
+    "s5t3-ranked-ready-manifest": {
+      "description": "Public test-support catalog with 55 route rows spanning composite scores, ready/non-ready status, provenance, and saved geometry",
+      "seed_method": "public_api",
+      "records": [
+        "55 routes: 50 with riderReady==true and compositeScore descending 0.99..0.50",
+        "5 routes with riderReady==false including one higher-score non-ready (compositeScore: 0.995)",
+        "each ready row has routeId, name, provenance, measuredMiles, claimedMiles, geometry reference"
+      ]
+    },
+    "s5t3-local-render-manifest": {
+      "description": "Valid top-50 manifest with persisted geometry for local PNG render and metadata mapping",
+      "seed_method": "public_api",
+      "records": [
+        "manifest rowCount==50 (or catalog size), each row has routeId and geometry polyline reference",
+        "output dir: local deterministic path under .tmp/top-50-review/"
+      ]
+    },
+    "s5t3-top-50-negative-control": {
+      "description": "Rendered top-50 packet with support for injecting one wrong verdict and a duplicate/test marker",
+      "seed_method": "public_api",
+      "records": [
+        "50 reviewable rows with initial verdicts unset",
+        "negative control row: top-ranked routeId marked verdict=='wrong' or test/seed marker present"
+      ]
+    }
+  },
+  "requirements": [
+    {
+      "id": "AC-1",
+      "type": "acceptance_criterion",
+      "primary": true,
+      "description": "GIVEN a real post-batch catalog WHEN the harness exports the top 50 THEN it returns up to 50 rows in descending composite rank from the canonical rider-ready query and includes measured geometry/provenance/length evidence for each",
+      "verify": "pnpm test convex/__tests__/S5T3-top-50-manifest.integration.test.ts",
+      "maps_to_ac": null,
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "integration",
+        "verification_service": "Convex dev deployment (real indexed rider-ready compositeScore query)",
+        "negative_control": {
+          "would_fail_if": [
+            "manifest is a static hard-coded fixture list independent of the query",
+            "ranking is client-side re-sort of a stub response",
+            "higher-score riderReady==false row is included (empty ready filter)",
+            "disconnected query returns empty manifest while seed has 50 ready rows"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "s5t3-ranked-ready-manifest",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "Seed public test-support catalog with 55 routes spanning scores and ready flags",
+                "Invoke actual top-50 query/export",
+                "Parse manifest ordering and row fields"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "manifest.rowCount==50 (exactly first 50 eligible rows with riderReady==true)",
+                "rows are score-descending with deterministic tie-break (score[i] >= score[i+1])",
+                "each row has routeId length >= 1, name, compositeScore, provenance, measuredMiles, claimedMiles, geometryRef length >= 1",
+                "every manifest row has riderReady==true"
+              ],
+              "must_not_observe": [
+                "row with riderReady==false in manifest",
+                "higher-score non-ready row (compositeScore==0.995) included",
+                "client-side re-sort or fixed fixture list independent of query",
+                "rows with geometryRef empty",
+                "manifest.rowCount==(0) after seeding 50 riderReady==true routes"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-2",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN a valid top-50 manifest WHEN the operator runs the render harness THEN each manifest row has a local map PNG and a metadata record showing road identity, provenance, measured-vs-claimed length, and source route ID, while Convex receives no image bytes",
+      "verify": "pnpm test convex/__tests__/S5T3-top-50-render.integration.test.ts",
+      "maps_to_ac": null,
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "integration",
+        "verification_service": "Convex dev deployment + local top-50-curated-review.ts render harness",
+        "negative_control": {
+          "would_fail_if": [
+            "render is stubbed and emits PNG count without reading geometry",
+            "image base64 is hard-coded into a Convex mutation payload",
+            "delete one geometry and harness still emits a passing review packet",
+            "empty output directory accepted as success"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "file_artifact",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "s5t3-local-render-manifest",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "Export a real manifest",
+                "Run pnpm tsx scripts/top-50-curated-review.ts --render",
+                "Inspect output directory and captured Convex calls"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "pngCount == manifest.rowCount (one PNG per row)",
+                "metadataEntryCount == manifest.rowCount with 1:1 routeId mapping",
+                "each metadata row has measuredMiles, claimedMiles, provenance, routeId length >= 1",
+                "output path is local under .tmp/ and Convex payloads contain only IDs/metadata (imageByteCount==0)"
+              ],
+              "must_not_observe": [
+                "pngCount < manifest.rowCount (missing PNG for any row)",
+                "image base64 or binary in a Convex mutation payload",
+                "render success with empty routeId mapping",
+                "status=='pass' review packet after one geometry is deleted (empty geometry)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-3",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN a rendered top-50 packet WHEN the Founder-Operator records row verdicts and overall review THEN one wrong, duplicate headliner, or test/seed row forces status=='fail' regardless of couch-gate status; all clean rows are required for status=='pass'",
+      "verify": "pnpm test convex/__tests__/S5T3-top-50-review.integration.test.ts",
+      "maps_to_ac": null,
+      "scenario": {
+        "tier": "visible",
+        "test_tier": "integration",
+        "verification_service": "Convex dev deployment (real independent top-50 review artifact)",
+        "negative_control": {
+          "would_fail_if": [
+            "review is stubbed to always return status=='pass'",
+            "one wrong verdict is omitted/aggregated away (static rollup)",
+            "partial review with empty verdicts is treated as pass",
+            "top-50 review mutates couch-gate or retirement state (disconnected side effects)"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "db_query",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "s5t3-top-50-negative-control",
+            "action": {
+              "actor": "api_client",
+              "steps": [
+                "Record verdict=='wrong' for one top-ranked row and a duplicate/test marker",
+                "Query review status (expect fail)",
+                "Clear negative control, record all 50 rows as correct/plausible",
+                "Query review status again (expect pass)"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "first result status=='fail' with offending routeId length >= 1 and reason length >= 1",
+                "second result status=='pass' only after every row is reviewed and contaminationCount==0",
+                "reviewedRowCount==50 (or real catalog size)",
+                "couchGateStatusUnchanged==true across both queries"
+              ],
+              "must_not_observe": [
+                "status=='pass' with one row verdict=='wrong' (even if correctCount==49)",
+                "partial review treated as pass (empty verdicts remaining)",
+                "top-50 review mutates retirementUnlockedAt or couchGateStatus",
+                "status=='fail' with empty offending routeId list"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {"id": "TC-1", "kind": "test", "statement": "Rank manifest", "maps_to": ["AC-1"]},
+    {"id": "TC-2", "kind": "test", "statement": "Render boundary", "maps_to": ["AC-2"]},
+    {"id": "TC-3", "kind": "test", "statement": "Review negative control", "maps_to": ["AC-3"]}
   ]
 }
 -->

@@ -3,7 +3,7 @@ sprint: 5
 slug: sprint-05-batch-acceptance-retirement
 sequence: 5
 timeline: Phase 3
-status: Planned
+status: In Progress
 prd: .spec/prds/route-agent-quality/README.md
 prd_version: 3.1.1
 roadmap: .spec/prds/route-agent-quality/ROADMAP.md
@@ -17,7 +17,8 @@ planned_from_source_sha: facc807930bd3b207c26cfae5b3650205f294858
 
 **Sequence:** 5
 **Timeline:** Phase 3
-**Status:** Planned
+**Status:** In Progress
+> Progress: 0/4 tasks completed · updated 2026-07-24T23:27:51Z
 **Proposed by:** product-manager + convex-planner (lane)
 
 ## Overview
