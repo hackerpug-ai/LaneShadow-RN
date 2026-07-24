@@ -4,7 +4,7 @@
     "resolved_sprint_path": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
     "sprint_slug": "sprint-04-trust-pipeline"
   },
-  "planned_at": "2026-07-21T15:28:05Z",
+  "planned_at": "2026-07-24T21:41:12Z",
   "planned_steps": 8,
   "steps": [
     {
@@ -38,7 +38,7 @@
       "text": "Open the ~25-route couch sample rendered as map PNGs.",
       "type": "terminal",
       "method": "real-cli",
-      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step3.sh",
+      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step3.sh",
       "assertion": {
         "kind": "exit_and_log_regex",
         "expected_exit": 0,
@@ -51,7 +51,7 @@
       "text": "Record true, off, or wrong for each sampled route.",
       "type": "terminal",
       "method": "real-cli",
-      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step4.sh",
+      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step4.sh",
       "assertion": {
         "kind": "exit_and_log_regex",
         "expected_exit": 0,
@@ -64,7 +64,7 @@
       "text": "Record an overall pass or fail verdict.",
       "type": "terminal",
       "method": "real-cli",
-      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step5.sh",
+      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step5.sh",
       "assertion": {
         "kind": "exit_and_log_regex",
         "expected_exit": 0,
@@ -77,7 +77,7 @@
       "text": "Confirm a single wrong verdict forces the gate red.",
       "type": "terminal",
       "method": "real-cli",
-      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step6.sh",
+      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step6.sh",
       "assertion": {
         "kind": "exit_and_log_regex",
         "expected_exit": 0,
@@ -90,7 +90,7 @@
       "text": "Disposition three REVIEW-queue items: approve, retry, retire.",
       "type": "terminal",
       "method": "real-cli",
-      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step7.sh",
+      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step7.sh",
       "assertion": {
         "kind": "exit_and_log_regex",
         "expected_exit": 0,
@@ -103,7 +103,7 @@
       "text": "Confirm the driver refuses --all until the couch verdict passes.",
       "type": "terminal",
       "method": "real-cli",
-      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step8.sh",
+      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step8.sh",
       "assertion": {
         "kind": "exit_and_log_regex",
         "expected_exit": 0,
@@ -111,5 +111,6 @@
         "expect_not_log_regex": "AssertionError|UNAUTHENTICATED"
       }
     }
-  ]
+  ],
+  "note": "2026-07-24 gate-fix: step3/4/5/6/7/8 rebind to live-verify scripts after founder pass recorded"
 }
