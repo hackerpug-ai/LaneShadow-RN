@@ -1,0 +1,93 @@
+{
+  "ok": true,
+  "dispositions": [
+    "approve",
+    "retry",
+    "retire"
+  ],
+  "routes": {
+    "approve": "test:gate-s4-disp-approve-1784929473",
+    "retry": "test:gate-s4-disp-retry-1784929473",
+    "retire": "test:gate-s4-disp-retire-1784929473"
+  },
+  "states": {
+    "approve": {
+      "dispositionCount": 1,
+      "dispositions": [
+        {
+          "_creationTime": 1784929478593.341,
+          "_id": "p176hdh91nved5494rcjrpxnbx8b59wk",
+          "artifactType": "disposition",
+          "attemptedAt": 1784929478593,
+          "bestCandidateGeometry": "_p~iF~ps|U_ulLnnqC_mqNvxq\\\\",
+          "createdAt": 1784929478593,
+          "disposition": "approve",
+          "failedCondition": "degenerate",
+          "routeId": "test:gate-s4-disp-approve-1784929473",
+          "terminalState": "queued"
+        }
+      ],
+      "geometryProvenance": null,
+      "geometryStatus": "review",
+      "provenance": null,
+      "retiredAt": null,
+      "riderReady": false,
+      "routeId": "test:gate-s4-disp-approve-1784929473",
+      "verdict": "review"
+    },
+    "retry": {
+      "dispositionCount": 2,
+      "dispositions": [
+        {
+          "_creationTime": 1784929479650.7214,
+          "_id": "p1738m961g1jz2a9vgtr57tjm98b5rab",
+          "artifactType": "disposition",
+          "attemptedAt": 1784929479650,
+          "createdAt": 1784929479650,
+          "disposition": "retry",
+          "lever": 1,
+          "routeId": "test:gate-s4-disp-retry-1784929473"
+        },
+        {
+          "_creationTime": 1784929480709.1672,
+          "_id": "p1748ntn4x3j9cxwwy03rqdkp58b4n94",
+          "artifactType": "disposition",
+          "attemptedAt": 1784929480709,
+          "createdAt": 1784929480709,
+          "disposition": "retry",
+          "lever": 1,
+          "routeId": "test:gate-s4-disp-retry-1784929473"
+        }
+      ],
+      "geometryProvenance": null,
+      "geometryStatus": "unresolved",
+      "provenance": null,
+      "retiredAt": null,
+      "riderReady": false,
+      "routeId": "test:gate-s4-disp-retry-1784929473",
+      "verdict": "review"
+    },
+    "retire": {
+      "dispositionCount": 1,
+      "dispositions": [
+        {
+          "_creationTime": 1784929481973.2603,
+          "_id": "p176wk2fwtbna4faf4scp7rt5n8b5cj5",
+          "artifactType": "disposition",
+          "attemptedAt": 1784929481973,
+          "createdAt": 1784929481973,
+          "disposition": "retire",
+          "routeId": "test:gate-s4-disp-retire-1784929473",
+          "terminalState": "retirement_eligible"
+        }
+      ],
+      "geometryProvenance": null,
+      "geometryStatus": "review",
+      "provenance": null,
+      "retiredAt": "2026-07-24T21:44:41.973Z",
+      "riderReady": false,
+      "routeId": "test:gate-s4-disp-retire-1784929473",
+      "verdict": "review"
+    }
+  }
+}

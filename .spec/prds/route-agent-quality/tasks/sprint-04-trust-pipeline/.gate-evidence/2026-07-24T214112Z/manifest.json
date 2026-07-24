@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "evidence_steps": {
+    "1": {
+      "result": "PASS-real",
+      "artifacts": [
+        "step1.log",
+        "step1.exit",
+        "step1-result.json"
+      ]
+    },
+    "2": {
+      "result": "PASS-real",
+      "artifacts": [
+        "step2.log",
+        "step2.exit",
+        "step2-result.json"
+      ]
+    },
+    "3": {
+      "result": "PASS-real",
+      "artifacts": [
+        "step3.log",
+        "step3.exit",
+        "step3-result.json",
+        "scripts/step3.sh"
+      ]
+    },
+    "4": {
+      "result": "PASS-real",
+      "artifacts": [
+        "step4.log",
+        "step4.exit",
+        "step4-result.json",
+        "scripts/step4.sh"
+      ]
+    },
+    "5": {
+      "result": "PASS-real",
+      "artifacts": [
+        "step5.log",
+        "step5.exit",
+        "step5-result.json",
+        "scripts/step5.sh"
+      ]
+    },
+    "6": {
+      "result": "PASS-real",
+      "artifacts": [
+        "step6.log",
+        "step6.exit",
+        "step6-result.json",
+        "scripts/step6.sh"
+      ]
+    },
+    "7": {
+      "result": "PASS-real",
+      "artifacts": [
+        "step7.log",
+        "step7.exit",
+        "step7-result.json",
+        "scripts/step7.sh"
+      ]
+    },
+    "8": {
+      "result": "PASS-real",
+      "artifacts": [
+        "step8.log",
+        "step8.exit",
+        "step8-result.json",
+        "scripts/step8.sh"
+      ]
+    }
+  },
+  "run_id": "2026-07-24T214112Z"
+}

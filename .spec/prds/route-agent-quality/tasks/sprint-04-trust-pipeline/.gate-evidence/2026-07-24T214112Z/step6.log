@@ -1,0 +1,5 @@
+@@GATE-META step=step6 cmd_sha=8d0fb3de05fa9d03b586dccb1e5af7c349f7b2d20bb124fd5dfadedd447174a0@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step6.sh
+{"ok": true, "rejected": true, "code": "WRONG_FORCES_FAIL", "sampleId": "couch-s4t7-real-1784665935405"}
+
+@@GATE-EXIT=0@@

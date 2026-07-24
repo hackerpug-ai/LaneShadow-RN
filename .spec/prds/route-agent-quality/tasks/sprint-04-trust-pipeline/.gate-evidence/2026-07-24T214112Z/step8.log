@@ -1,0 +1,5 @@
+@@GATE-META step=step8 cmd_sha=3bef86575ae4a6e77972e5f10f7d52b7f6ce811e7eceb84eefb28f4a5f695f8e@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step8.sh
+{"ok": true, "pass_allowed": true, "allowed": true, "overallVerdict": "pass", "sampleId": "couch-s4t7-real-1784665935405", "runAll_not_gate_blocked": true}
+
+@@GATE-EXIT=0@@

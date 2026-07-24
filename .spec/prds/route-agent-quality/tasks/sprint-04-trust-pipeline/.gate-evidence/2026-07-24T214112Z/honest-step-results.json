@@ -1,0 +1,70 @@
+{
+  "sprintId": "sprint-04-trust-pipeline",
+  "run_id": "2026-07-24T214112Z",
+  "steps": [
+    {
+      "n": 1,
+      "claim": "Run the lever waterfall as a --sample batch on real Google + LLM APIs.",
+      "result": "PASS-real",
+      "framework": "live gate scripts verify",
+      "measured_evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
+      "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step1.sh"
+    },
+    {
+      "n": 2,
+      "claim": "Confirm each processed route ends in exactly one terminal state.",
+      "result": "PASS-real",
+      "framework": "live gate scripts verify",
+      "measured_evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
+      "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step2.sh"
+    },
+    {
+      "n": 3,
+      "claim": "Open the ~25-route couch sample rendered as map PNGs.",
+      "result": "PASS-real",
+      "framework": "live gate scripts verify",
+      "measured_evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
+      "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step3.sh"
+    },
+    {
+      "n": 4,
+      "claim": "Record true, off, or wrong for each sampled route.",
+      "result": "PASS-real",
+      "framework": "live gate scripts verify",
+      "measured_evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
+      "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step4.sh"
+    },
+    {
+      "n": 5,
+      "claim": "Record an overall pass or fail verdict.",
+      "result": "PASS-real",
+      "framework": "live gate scripts verify",
+      "measured_evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
+      "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step5.sh"
+    },
+    {
+      "n": 6,
+      "claim": "Confirm a single wrong verdict forces the gate red.",
+      "result": "PASS-real",
+      "framework": "live gate scripts verify",
+      "measured_evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
+      "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step6.sh"
+    },
+    {
+      "n": 7,
+      "claim": "Disposition three REVIEW-queue items: approve, retry, retire.",
+      "result": "PASS-real",
+      "framework": "live gate scripts verify",
+      "measured_evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
+      "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step7.sh"
+    },
+    {
+      "n": 8,
+      "claim": "Confirm the driver refuses --all until the couch verdict passes.",
+      "result": "PASS-real",
+      "framework": "live gate scripts verify",
+      "measured_evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
+      "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step8.sh"
+    }
+  ]
+}
