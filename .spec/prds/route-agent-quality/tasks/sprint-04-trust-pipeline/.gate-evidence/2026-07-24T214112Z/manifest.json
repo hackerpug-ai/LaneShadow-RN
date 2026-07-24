@@ -1,5 +1,6 @@
 {
   "version": 1,
+  "run_id": "2026-07-24T214112Z",
   "evidence_steps": {
     "1": {
       "result": "PASS-real",
@@ -65,6 +66,5 @@
         "step8-result.json"
       ]
     }
-  },
-  "run_id": "2026-07-24T214112Z"
+  }
 }

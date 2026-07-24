@@ -65,4 +65,3 @@ npm warn Unknown project config "node-linker". This will stop working in the nex
 npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
 
 @@GATE-EXIT=0@@
-# HEAD_BIND=abe1d5a1534fc4012a1b8d72332b6daeff26da94
