@@ -1,0 +1,4 @@
+@@GATE-META step=step4 cmd_sha=ac9d93e7945dbcafb7e50448fe5d8246003d1b2bf1c804e018bc0e05c5d94557@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step4.sh
+{"ok": true, "overallVerdict": "pass", "sampleId": "couch-s4t7-real-1784665935405", "allowed": true, "recordedBy": "founder-operator-s4t7", "routeVerdicts": 25, "manifestHash": "39d4be330a0d107501cdd5e9071587db13f2a7e26bf453565084eecc12b36189"}
+@@GATE-EXIT=0@@

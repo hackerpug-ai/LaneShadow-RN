@@ -1,0 +1,4 @@
+@@GATE-META step=step2 cmd_sha=b04c761bb6cd70e8eeab0376bf6e28100cbe6b650d5ce9a0511da96ecf1f062d@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step2.sh
+{"ok": true, "count": 3, "states": ["queued", "recovered"]}
+@@GATE-EXIT=0@@

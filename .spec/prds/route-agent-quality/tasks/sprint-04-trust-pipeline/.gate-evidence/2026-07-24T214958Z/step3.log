@@ -1,0 +1,4 @@
+@@GATE-META step=step3 cmd_sha=b9d10fd9b9c3bfdd3677745639a39cb783f04fe540d6605fadfa0025daf31afa@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step3.sh
+{"ok": true, "pngs": 25, "sampleId": "couch-s4t7-real-1784665935405", "exportSize": 25, "manifestHash": "39d4be330a0d107501cdd5e9071587db13f2a7e26bf453565084eecc12b36189"}
+@@GATE-EXIT=0@@

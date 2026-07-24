@@ -4,14 +4,17 @@
     "resolved_sprint_path": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
     "sprint_slug": "sprint-04-trust-pipeline"
   },
-  "run_id": "2026-07-24T214112Z",
+  "run_id": "2026-07-24T214958Z",
   "verdict": "pass",
+  "blocked_reason": null,
   "steps_total": 8,
   "steps_executed": 8,
   "steps_passed": 8,
   "ui_driver": "none",
-  "exec_surface": "local-orchestrator-gate-fix",
-  "runner": "local-orchestrator-gate-fix",
+  "exec_surface": "surface:305 (834C1190-EBBE-4E8E-AA3E-0966BAE3482E)",
+  "qa_surface_id": "E380E602-B2D1-40C1-BB2F-87FC7DBAE552",
+  "qa_session_id": null,
+  "runner": "cmux exec-step.sh",
   "steps": [
     {
       "n": 1,
@@ -19,8 +22,9 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/step1.log"
+      "evidence": "exec-step exit=0; duration_ms=14242; timed_out=False",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214958Z/step1.log",
+      "duration_ms": 14242
     },
     {
       "n": 2,
@@ -28,8 +32,9 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/step2.log"
+      "evidence": "exec-step exit=0; duration_ms=1073; timed_out=False",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214958Z/step2.log",
+      "duration_ms": 1073
     },
     {
       "n": 3,
@@ -37,8 +42,9 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/step3.log"
+      "evidence": "exec-step exit=0; duration_ms=6137; timed_out=False",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214958Z/step3.log",
+      "duration_ms": 6137
     },
     {
       "n": 4,
@@ -46,8 +52,9 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/step4.log"
+      "evidence": "exec-step exit=0; duration_ms=3100; timed_out=False",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214958Z/step4.log",
+      "duration_ms": 3100
     },
     {
       "n": 5,
@@ -55,8 +62,9 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/step5.log"
+      "evidence": "exec-step exit=0; duration_ms=2092; timed_out=False",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214958Z/step5.log",
+      "duration_ms": 2092
     },
     {
       "n": 6,
@@ -64,8 +72,9 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/step6.log"
+      "evidence": "exec-step exit=0; duration_ms=4113; timed_out=False",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214958Z/step6.log",
+      "duration_ms": 4113
     },
     {
       "n": 7,
@@ -73,8 +82,9 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/step7.log"
+      "evidence": "exec-step exit=0; duration_ms=13226; timed_out=False",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214958Z/step7.log",
+      "duration_ms": 13226
     },
     {
       "n": 8,
@@ -82,8 +92,9 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/step8.log"
+      "evidence": "exec-step exit=0; duration_ms=3090; timed_out=False",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214958Z/step8.log",
+      "duration_ms": 3090
     }
   ]
 }

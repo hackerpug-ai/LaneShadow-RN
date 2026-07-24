@@ -1,0 +1,5 @@
+@@GATE-META step=step6 cmd_sha=336dedbfc8189360cc89bd087ce13b56ae60be9ea8cd5bd16badad717ca63f9c@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step6.sh
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step6.sh: line 8: SAMPLE_JSON: set SAMPLE_JSON to a frozen sample json with routes[]
+@@GATE-EXIT=1@@

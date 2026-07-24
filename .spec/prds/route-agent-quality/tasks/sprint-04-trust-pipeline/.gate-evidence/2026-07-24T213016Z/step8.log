@@ -1,0 +1,7 @@
+@@GATE-META step=step8 cmd_sha=75dc60add2586bc0a3e78ef00527b612989810cd72fba37d413be330e415d0ba@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step8.sh
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+Traceback (most recent call last):
+  File "<stdin>", line 10, in <module>
+AssertionError: {'allowed': True, 'catalogVersion': 'rev-39d4be330a0d1075', 'manifestHash': '39d4be330a0d107501cdd5e9071587db13f2a7e26bf453565084eecc12b36189', 'overallVerdict': 'pass', 'reason': None, 'recordedAt': 1784925651878, 'sampleId': 'couch-s4t7-real-1784665935405'}
+@@GATE-EXIT=1@@

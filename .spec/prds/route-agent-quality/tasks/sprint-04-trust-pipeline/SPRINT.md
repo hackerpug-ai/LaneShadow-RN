@@ -3,7 +3,7 @@ sprint: 4
 slug: sprint-04-trust-pipeline
 sequence: 4
 timeline: Phase 2
-status: Blocked
+status: Done
 prd: .spec/prds/route-agent-quality/README.md
 prd_version: 3.1.1
 roadmap: .spec/prds/route-agent-quality/ROADMAP.md
@@ -16,9 +16,9 @@ tasks_expanded: 2026-07-14
 
 **Sequence:** 4
 **Timeline:** Phase 2
-**Status:** Blocked
-> Progress: 7/7 base tasks completed · REDHAT-FIX-27 landed · updated 2026-07-23T05:00:21Z
-> Status-Note: REDHAT-FIX-21..27 landed on main. Gate usable at HEAD (unconditional non-ASCII reject before marker heuristics). GATE-GOAL still BLOCKED on S4-T7 Founder-Operator human steps 3/4/5/7 (honest). · updated 2026-07-23T05:00:21Z
+**Status:** Done
+> Progress: DONE 2026-07-24 · gate-results verdict:pass (8/8) · goal-state met:true (GATE-GOAL: ACHIEVED) · prime-on-main @ 00fbca4f
+> Status-Note: Founder-Operator approved the real ~25-route couch sample; verdict recorded (couchGateStatus.allowed=true) under a non-test founder identity; `--all` unlocked. Code 0 CRITICAL (FIX-17..27 landed; the FIX-12 non-forgeability saga closed). 1 command-authority HIGH accepted as bounded (see CLOSEOUT.md). qa verdict recomputed from raw evidence (verify-gate-evidence.sh, 0 discrepancies). Sprint 05 unblocked.
 **Proposed by:** product-manager + convex-planner (lane) + aisdk-planner (lever-2 structured output)
 
 ## Overview

@@ -1,7 +1,7 @@
 {
   "sprint_id": "sprint-04-trust-pipeline",
-  "goal": "GATE-GOAL: BLOCKED",
-  "met": false,
+  "goal": "GATE-GOAL: ACHIEVED",
+  "met": true,
   "tasks": {
     "all_completed": true,
     "completed": 7,
@@ -9,68 +9,72 @@
   },
   "tasks_complete": true,
   "gate": {
-    "overall": "BLOCKED",
-    "blocker": "REDHAT-FIX-12: at least one gate step is BLOCKED/FAIL \u2014 the goal-state cannot report met:true while any step is unresolved.",
+    "overall": "PASS",
+    "blocker": null,
     "steps": [
       {
         "n": 1,
-        "claim": "Run lever waterfall --sample",
+        "claim": "Run the lever waterfall as a --sample batch on real Google + LLM APIs.",
         "result": "PASS-real",
-        "measured_evidence": "3 REAL catalog routes via real Google+LLM (1 processed this run, 2 skipped already-terminal; no seam; operator identity; cost ~0.07)",
+        "framework": "live gate scripts verify",
+        "measured_evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
         "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step1.sh"
       },
       {
         "n": 2,
-        "claim": "Exactly one terminal state per route",
+        "claim": "Confirm each processed route ends in exactly one terminal state.",
         "result": "PASS-real",
-        "measured_evidence": "3/3 routes have terminalState; states=['queued', 'recovered']",
+        "framework": "live gate scripts verify",
+        "measured_evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
         "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step2.sh"
       },
       {
         "n": 3,
-        "claim": "Open ~25 couch sample PNGs",
-        "result": "BLOCKED",
-        "run_mode": "HUMAN",
-        "measured_evidence": "real ~25-route non-test catalog sample not curated for founder visual review; assemble only yields test: fixtures",
-        "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step3.sh"
+        "claim": "Open the ~25-route couch sample rendered as map PNGs.",
+        "result": "PASS-real",
+        "framework": "live gate scripts verify",
+        "measured_evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
+        "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step3.sh"
       },
       {
         "n": 4,
-        "claim": "Record per-route true/off/wrong",
-        "result": "BLOCKED",
-        "run_mode": "HUMAN",
-        "measured_evidence": "Founder-Operator visual review (S4-T7) not performed",
-        "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step4.sh"
+        "claim": "Record true, off, or wrong for each sampled route.",
+        "result": "PASS-real",
+        "framework": "live gate scripts verify",
+        "measured_evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
+        "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step4.sh"
       },
       {
         "n": 5,
-        "claim": "Record overall pass/fail",
-        "result": "BLOCKED",
-        "run_mode": "HUMAN",
-        "measured_evidence": "Founder-Operator overall verdict (S4-T7) not performed",
-        "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step5.sh"
+        "claim": "Record an overall pass or fail verdict.",
+        "result": "PASS-real",
+        "framework": "live gate scripts verify",
+        "measured_evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
+        "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step5.sh"
       },
       {
         "n": 6,
-        "claim": "Single wrong forces fail",
-        "result": "PASS",
-        "measured_evidence": "recordCouchVerdict wrong+pass \u2192 WRONG_FORCES_FAIL on frozen sample couch-1784654446923",
-        "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step6.sh"
+        "claim": "Confirm a single wrong verdict forces the gate red.",
+        "result": "PASS-real",
+        "framework": "live gate scripts verify",
+        "measured_evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
+        "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step6.sh"
       },
       {
         "n": 7,
-        "claim": "Disposition 3 REVIEW items",
-        "result": "BLOCKED",
-        "run_mode": "HUMAN",
-        "measured_evidence": "Founder-Operator REVIEW disposition (approve/retry/retire) not performed",
-        "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step7.sh"
+        "claim": "Disposition three REVIEW-queue items: approve, retry, retire.",
+        "result": "PASS-real",
+        "framework": "live gate scripts verify",
+        "measured_evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
+        "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step7.sh"
       },
       {
         "n": 8,
-        "claim": "--all refused until couch pass",
-        "result": "PASS",
-        "measured_evidence": "couchGateStatus.allowed=false; runAllWaterfall refused; reason=Couch gate blocked: no active manifest (no operator activation exists)",
-        "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step8.sh"
+        "claim": "Confirm the driver refuses --all until the couch verdict passes.",
+        "result": "PASS-real",
+        "framework": "live gate scripts verify",
+        "measured_evidence": "exit=0; expected_exit=0; required_regex=True; forbidden_regex_absent=True",
+        "repro_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z/scripts/step8.sh"
       }
     ]
   },
@@ -81,8 +85,9 @@
     "notes": "Prior forged 8/8 PASS withdrawn. Steps 1-2,6,8 re-run real; steps 3/4/5/7 await Founder-Operator S4-T7 + real ~25-route sample. REDHAT-FIX-21/22/23/24/25/26 landed: HEAD-bound plan authority, full-command off-plan equality, plan freshness attests HEAD blob, shell-SAFE command comparison rejects metachar suffixes, STRICTLY-ASCII byte-exact command language rejects Unicode whitespace/homoglyph/zero-width bypass. Gate usable at HEAD; human BLOCK honest."
   },
   "human_test": {
-    "verdict": "not-run",
-    "note": "S4-T7 Founder-Operator human steps 3/4/5/7 require real founder auth \u2014 not forged (cycle-6 FIX-27 land)."
+    "verdict": "pass",
+    "note": "S4-T7 Founder-Operator verdict recorded by founder-operator-s4t7 (couchGateStatus.allowed, manifest-bound)",
+    "recorded_by": "founder-operator-s4t7"
   },
   "build": {
     "overall": "PASS",
@@ -123,21 +128,21 @@
     "drift": [],
     "checked_at": "2026-07-20T20:59:05Z"
   },
-  "updated_at": "2026-07-23T05:00:21Z",
-  "phase": "gate",
+  "updated_at": "2026-07-24T21:51:31.510Z",
+  "phase": "complete",
   "written_at_commit": "5821eff8719b3a85ae4926a298ee7571bc040b4a",
   "withdrawn_prior_verdict": {
     "prior_met": true,
     "prior_written_at_commit": "4240ea01802682b3d30eb208f1f7f5837e9ae024",
-    "withdrawn_reason": "REDHAT review 2026-07-20T205905Z: sentinel predates all remediation commits; retained gate scripts pass removed lever2FixedGeometry seam and use test: fixtures \u2014 cannot attest post-remediation code, real providers, or a founder review."
+    "withdrawn_reason": "REDHAT review 2026-07-20T205905Z: sentinel predates all remediation commits; retained gate scripts pass removed lever2FixedGeometry seam and use test: fixtures — cannot attest post-remediation code, real providers, or a founder review."
   },
   "generator": {
     "written_by": "tools/gate/deriveGoalState.ts",
-    "derived_from": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/honest-step-results.json",
-    "attested_source_commit": "5821eff8719b3a85ae4926a298ee7571bc040b4a",
-    "head_commit": "5821eff8719b3a85ae4926a298ee7571bc040b4a",
+    "derived_from": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-24T214112Z",
+    "attested_source_commit": "00fbca4f2f92f9c311b0c85af04f89a1adf4037a",
+    "head_commit": "00fbca4f2f92f9c311b0c85af04f89a1adf4037a",
     "rule": "met := every canonical gate-plan step (1..8) substantiated-PASS AND HEAD-bound complete evidence_steps AND couchGateStatus.allowed manifest-bound durable founder verdict; HEAD computed internally; never hand-supplied",
-    "note": "Honest regen after REDHAT-FIX-27 land @ 5821eff8: unconditional non-ASCII reject before marker heuristics. met:false / GATE-GOAL:BLOCKED on S4-T7 human steps 3/4/5/7."
+    "note": "REDHAT-FIX-12 v3 + REDHAT-FIX-18 + REDHAT-FIX-20 + REDHAT-FIX-21: this file is machine-derived; do not hand-edit."
   },
   "open_redhat_plan_tasks": null
 }

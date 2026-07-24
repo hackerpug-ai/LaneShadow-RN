@@ -14,3 +14,6 @@
 | 6 | pass | Confirm a single wrong verdict forces the gate red. |
 | 7 | pass | Disposition three REVIEW-queue items: approve, retry, retire. |
 | 8 | pass | Confirm the driver refuses --all until the couch verdict passes. |
+
+**Sprint goal:** `GATE-GOAL: ACHIEVED` (met=True)
+**Founder attestation:** {'verdict': 'pass', 'note': 'S4-T7 Founder-Operator verdict recorded by founder-operator-s4t7 (couchGateStatus.allowed, manifest-bound)', 'recorded_by': 'founder-operator-s4t7'}

@@ -1,0 +1,64 @@
+@@GATE-META step=step1 cmd_sha=9465038a04ec4410d202c71c2db7a8599eb9a1e2b18620029beee93149145311@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/scripts/step1.sh
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "backoffScheduleSeconds": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "batchStopReason": "completed",
+  "costExceededMessage": null,
+  "maxCostUsd": 5,
+  "maxRetries": 5,
+  "perLeverCounts": {
+    "lever1": 1,
+    "lever2": 1,
+    "lever3": 0
+  },
+  "perStateCounts": {
+    "cost_blocked": 0,
+    "queued": 0,
+    "recovered": 1,
+    "retirement_eligible": 0,
+    "skipped": 2
+  },
+  "processed": 1,
+  "reprocessed": 0,
+  "routes": [
+    {
+      "costUsd": 0.07,
+      "lever1Failed": true,
+      "leversRun": [
+        1,
+        2
+      ],
+      "provenance": "ai_reconstructed",
+      "reprocessed": false,
+      "routeId": "motorcycleroads:twist-of-tepusquet-loop",
+      "skipped": false,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "motorcycleroads:von-hoak-loop",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "motorcycleroads:old-hwy-40-cisco-grove-to-donner-lake",
+      "skipped": true,
+      "terminalState": "recovered"
+    }
+  ],
+  "skipped": 2,
+  "totalCostUsd": 0.07
+}
+@@GATE-EXIT=0@@
