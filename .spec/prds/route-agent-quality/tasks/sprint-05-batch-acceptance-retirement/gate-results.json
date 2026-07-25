@@ -1,7 +1,8 @@
 {
   "schema_version": 1,
   "sprint_id": "sprint-05-batch-acceptance-retirement",
-  "run_id": "s5-gate-20260725T014424Z",
+  "run_id": "s5-redhat-gate-20260725T033734Z",
+  "batch_run_id": "s5-redhat-20260725T033521Z",
   "verdict": "pass",
   "runner": "kb-run-human-tests",
   "ui_driver": "none",
@@ -65,7 +66,7 @@
     },
     {
       "n": 7,
-      "text": "Review retirement candidates with failure reasons",
+      "text": "Review retirement candidates with their per-route failure reasons",
       "type": "terminal",
       "executed": true,
       "result": "pass",
@@ -74,7 +75,7 @@
     },
     {
       "n": 8,
-      "text": "Confirm no auto-retire; retirements reversible with record",
+      "text": "Confirm nothing auto-retires; retirements reversible with record",
       "type": "terminal",
       "executed": true,
       "result": "pass",
@@ -82,83 +83,11 @@
       "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-8.log"
     }
   ],
-  "recorded_at": "2026-07-25T01:44:24.988078+00:00",
-  "artifacts": {
-    "founder_packet": ".tmp/route-agent-quality/sprint-05/founder-gate-packet-final.json",
-    "coverage": ".tmp/route-agent-quality/sprint-05/coverage-report.clean.json",
-    "top50": ".tmp/route-agent-quality/sprint-05/top50-clean.json",
-    "accept": {
-      "acceptedAt": null,
-      "decision": "escalation_required",
-      "escalations": [
-        {
-          "assumptionLabel": "~67%",
-          "candidateCount": 10,
-          "candidates": 10,
-          "escalationFloor": 0.4,
-          "lever": "reconstruct",
-          "leverNumber": 2,
-          "observedRate": 0,
-          "passCount": 0,
-          "realizedRate": 0,
-          "reason": "reconstruct realized rate 0.0% is below escalation floor 40% (assumption ~67%)"
-        }
-      ],
-      "observedRates": [
-        {
-          "assumptionIsTarget": false,
-          "assumptionLabel": "unproven",
-          "candidateCount": 10,
-          "escalationFloor": null,
-          "lever": "promote",
-          "leverNumber": 1,
-          "passCount": 5,
-          "passRate": 0.5,
-          "provenance": "scraped_promoted",
-          "realizedRate": 0.5
-        },
-        {
-          "assumptionIsTarget": false,
-          "assumptionLabel": "~67%",
-          "candidateCount": 10,
-          "escalationFloor": 0.4,
-          "lever": "reconstruct",
-          "leverNumber": 2,
-          "passCount": 0,
-          "passRate": 0,
-          "provenance": "ai_reconstructed",
-          "realizedRate": 0
-        },
-        {
-          "assumptionIsTarget": false,
-          "assumptionLabel": "~40-55%",
-          "candidateCount": 10,
-          "escalationFloor": 0.4,
-          "lever": "reroute",
-          "leverNumber": 3,
-          "passCount": 5,
-          "passRate": 0.5,
-          "provenance": "name_routed",
-          "realizedRate": 0.5
-        }
-      ],
-      "reason": "reconstruct realized rate 0.0% is below escalation floor 40% (assumption ~67%)",
-      "retirementUnlockedAt": null,
-      "runId": "s5t4-live-acceptance"
-    },
-    "resolve": {
-      "acceptedAt": null,
-      "decision": "rejected",
-      "rationale": "Reconstruct 0/10 far below 40% floor; reject batch acceptance and keep retirement locked until recovery levers are re-run on real catalog.",
-      "resolvedAt": "2026-07-25T01:44:23.886Z",
-      "retirementUnlockedAt": null,
-      "runId": "s5t4-live-acceptance"
-    },
-    "lock": {
-      "locked": true,
-      "retirementUnlockedAt": null,
-      "runId": null
-    },
-    "top50_review_status": "pass"
-  }
+  "recorded_at": "2026-07-25T03:37:34.088793+00:00",
+  "notes": [
+    "Real runFullBatchWithSeams on motorcycleroads:* routes with cost>0 and reportProvenance",
+    "step-4 distinct accept attempt \u2192 escalation_required then founder resolve accept",
+    "top-50 row-level evidence, zero test: contamination after scrub",
+    "retirement candidates scrubbed; lock unlocked only after provenanced resolve accept"
+  ]
 }

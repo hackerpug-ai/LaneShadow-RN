@@ -1,0 +1,28 @@
+{
+  "runId": "s5-redhat-20260725T033521Z",
+  "step3Path": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-3.log",
+  "step4Path": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-4.log",
+  "step4_distinct": true,
+  "decision": "escalation_required",
+  "retirementUnlockedAt": null,
+  "mutated": true,
+  "goal": {
+    "goal": "blocked",
+    "met": false,
+    "decision": "escalation_required",
+    "status": "Escalation required unresolved",
+    "reason": "escalation_required unresolved; goal not complete until resolved accept",
+    "sprint10": {
+      "blocked": true,
+      "reason": "no accepted catalog: escalation_required unresolved"
+    },
+    "retirementUnlockedAt": null,
+    "runId": "s5-redhat-20260725T033521Z",
+    "written_by": "tools/gate/deriveSprint05GoalState.ts",
+    "written_at": "2026-07-25T03:36:09.334Z"
+  },
+  "sprint10": {
+    "blocked": true,
+    "reason": "no accepted catalog: escalation_required unresolved"
+  }
+}

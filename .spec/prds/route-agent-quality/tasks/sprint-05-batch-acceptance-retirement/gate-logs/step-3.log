@@ -1,60 +1,87 @@
-npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
 {
-  "acceptedAt": null,
-  "decision": "escalation_required",
-  "escalations": [
-    {
-      "assumptionLabel": "~67%",
-      "candidateCount": 10,
-      "candidates": 10,
-      "escalationFloor": 0.4,
-      "lever": "reconstruct",
-      "leverNumber": 2,
-      "observedRate": 0,
-      "passCount": 0,
-      "realizedRate": 0,
-      "reason": "reconstruct realized rate 0.0% is below escalation floor 40% (assumption ~67%)"
-    }
-  ],
-  "observedRates": [
+  "phase": "step-3-yield-comparison",
+  "runId": "s5-redhat-20260725T033521Z",
+  "decision": null,
+  "levers": [
     {
       "assumptionIsTarget": false,
       "assumptionLabel": "unproven",
-      "candidateCount": 10,
+      "candidateCount": 3,
       "escalationFloor": null,
       "lever": "promote",
       "leverNumber": 1,
-      "passCount": 5,
-      "passRate": 0.5,
-      "provenance": "scraped_promoted",
-      "realizedRate": 0.5
-    },
-    {
-      "assumptionIsTarget": false,
-      "assumptionLabel": "~67%",
-      "candidateCount": 10,
-      "escalationFloor": 0.4,
-      "lever": "reconstruct",
-      "leverNumber": 2,
       "passCount": 0,
       "passRate": 0,
-      "provenance": "ai_reconstructed",
+      "provenance": "scraped_promoted",
       "realizedRate": 0
     },
     {
       "assumptionIsTarget": false,
+      "assumptionLabel": "~67%",
+      "candidateCount": 3,
+      "escalationFloor": 0.4,
+      "lever": "reconstruct",
+      "leverNumber": 2,
+      "passCount": 2,
+      "passRate": 0.6666666666666666,
+      "provenance": "ai_reconstructed",
+      "realizedRate": 0.6666666666666666
+    },
+    {
+      "assumptionIsTarget": false,
       "assumptionLabel": "~40-55%",
-      "candidateCount": 10,
+      "candidateCount": 1,
       "escalationFloor": 0.4,
       "lever": "reroute",
       "leverNumber": 3,
-      "passCount": 5,
-      "passRate": 0.5,
+      "passCount": 0,
+      "passRate": 0,
       "provenance": "name_routed",
-      "realizedRate": 0.5
+      "realizedRate": 0
     }
   ],
-  "reason": "reconstruct realized rate 0.0% is below escalation floor 40% (assumption ~67%)",
-  "retirementUnlockedAt": null,
-  "runId": "s5t4-live-acceptance"
+  "riderReadyCount": 2,
+  "isDone": true,
+  "comparison": {
+    "note": "realized yields vs PRD expected-yield assumptions (pre-accept)",
+    "yieldsVsAssumptions": [
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "unproven",
+        "candidateCount": 3,
+        "escalationFloor": null,
+        "lever": "promote",
+        "leverNumber": 1,
+        "passCount": 0,
+        "passRate": 0,
+        "provenance": "scraped_promoted",
+        "realizedRate": 0
+      },
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "~67%",
+        "candidateCount": 3,
+        "escalationFloor": 0.4,
+        "lever": "reconstruct",
+        "leverNumber": 2,
+        "passCount": 2,
+        "passRate": 0.6666666666666666,
+        "provenance": "ai_reconstructed",
+        "realizedRate": 0.6666666666666666
+      },
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "~40-55%",
+        "candidateCount": 1,
+        "escalationFloor": 0.4,
+        "lever": "reroute",
+        "leverNumber": 3,
+        "passCount": 0,
+        "passRate": 0,
+        "provenance": "name_routed",
+        "realizedRate": 0
+      }
+    ]
+  },
+  "capturedAt": "2026-07-25T03:36:06.823Z"
 }

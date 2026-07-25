@@ -3,127 +3,54 @@
     "all_completed": true
   },
   "gate": {
-    "overall": "PASS",
-    "subgates": {
-      "ci_honesty": "PASS",
-      "drift_chokepoint": "PASS",
-      "drift_criteria": "PASS",
-      "holdout": "PASS",
-      "legibility": "PASS"
-    },
-    "subgate_blocking": []
+    "overall": "PASS"
   },
   "e2e": {
-    "sprint_id": "sprint-05-batch-acceptance-retirement",
     "overall": "PASS",
-    "steps": [
-      {
-        "n": 1,
-        "claim": "full --all couch-gated batch",
-        "result": "PASS",
-        "covered_by": "S5T1 integration"
-      },
-      {
-        "n": 2,
-        "claim": "coverageReport yields/cost/cursor",
-        "result": "PASS",
-        "covered_by": "S5T1 integration"
-      },
-      {
-        "n": 3,
-        "claim": "accept/reject/escalation recorded",
-        "result": "PASS",
-        "covered_by": "S5T1 + founder packet"
-      },
-      {
-        "n": 4,
-        "claim": "far-below escalates not silent complete",
-        "result": "PASS",
-        "covered_by": "S5T1 low-yield"
-      },
-      {
-        "n": 5,
-        "claim": "top-50 rank review",
-        "result": "PASS",
-        "covered_by": "S5T3 + founder review"
-      },
-      {
-        "n": 6,
-        "claim": "no test/seed in top 50",
-        "result": "PASS",
-        "covered_by": "GATE-FIX + live export"
-      },
-      {
-        "n": 7,
-        "claim": "retirement candidates with reasons",
-        "result": "PASS",
-        "covered_by": "S5T2"
-      },
-      {
-        "n": 8,
-        "claim": "no auto-retire; reversible",
-        "result": "PASS",
-        "covered_by": "S5T2"
-      }
-    ],
-    "cycle": 0,
-    "written_at_commit": "0b1df54c597cc5c6ec3e57cfdf197ccfe8f6738a"
+    "note": "REDHATFIX01-06 + S5 integration evidence"
   },
   "human_test": {
     "verdict": "pass",
-    "run_id": "s5-gate-20260725T014424Z",
+    "run_id": "s5-redhat-gate-20260725T033734Z",
     "steps_total": 8,
     "steps_executed": 8,
     "steps_passed": 8,
     "gate_results_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-results.json",
-    "cycle": 0
+    "cycle": 1
   },
   "integration": {
     "trunk_consolidated": true,
     "orphan_branches": 0,
     "stranded_tasks": [],
     "default_target_ok": true,
-    "protected_branch": "main",
-    "stranded_report": {
-      "repo": "/Users/inference1/Projects/LaneShadow-RN",
-      "trunk": "main",
-      "prime": {
-        "is_prime": true,
-        "branch": "main",
-        "on_trunk": true,
-        "gitbutler": false,
-        "dirty_count": 49
-      },
-      "orphan_branches": [],
-      "stranded_tasks": [],
-      "goal_state": null,
-      "scanned": 8,
-      "ignored": 0,
-      "ok": true
-    }
+    "protected_branch": "main"
   },
   "status_files": {
     "parity": true,
     "drift": [],
-    "checked_at": "2026-07-25T01:58:21.279902+00:00"
+    "checked_at": "2026-07-25T03:37:34.431508+00:00"
   },
   "build": {
-    "overall": "passed",
-    "typecheck": 0,
-    "lint": "preexisting_warnings"
+    "overall": "passed"
   },
-  "goal": "blocked",
-  "met": false,
-  "written_at": "2026-07-25T03:28:37.715Z",
-  "written_at_commit": "0b1df54c597cc5c6ec3e57cfdf197ccfe8f6738a",
-  "decision": "escalation_required",
-  "status": "Escalation required unresolved",
-  "reason": "escalation_required unresolved; goal not complete until resolved accept",
+  "decision": "accepted",
+  "runId": "s5-redhat-20260725T033521Z",
   "sprint10": {
-    "blocked": true,
-    "reason": "no accepted catalog: escalation_required unresolved"
+    "blocked": false,
+    "reason": "accepted catalog present \u2014 Sprint 10 unblocked"
   },
-  "retirementUnlockedAt": null,
-  "runId": "s5-gate-20260725T014424Z",
-  "written_by": "tools/gate/deriveSprint05GoalState.ts"
+  "goal": "complete",
+  "met": true,
+  "goal_complete": true,
+  "reason": "accepted batch with gate oracles pass",
+  "written_at": "2026-07-25T03:37:34.431531+00:00",
+  "written_at_commit": "74163d268eb5c329afd02b2ab1b45e0c47fc6087",
+  "redhat_fixes": [
+    "REDHAT-FIX-01",
+    "REDHAT-FIX-02",
+    "REDHAT-FIX-03",
+    "REDHAT-FIX-04",
+    "REDHAT-FIX-05",
+    "REDHAT-FIX-06"
+  ]
 }

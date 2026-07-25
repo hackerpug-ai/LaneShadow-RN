@@ -17,9 +17,13 @@ planned_from_source_sha: facc807930bd3b207c26cfae5b3650205f294858
 
 **Sequence:** 5
 **Timeline:** Phase 3
-**Status:** In Progress
-> Progress: 4/10 tasks completed · updated 2026-07-25T03:28:37Z
-> Status-Note: REDHAT-FIX-05 landed honest goal semantics — `goal:blocked` / `met:false` while batch decision is `escalation_required` (not accepted). **Sprint 10 is BLOCKED** (reason: no accepted catalog). Human gate must be re-run un-seeded with distinct step-4 negative control and row-level top-50 evidence before any future accepted decision can complete the sprint. See `tools/gate/deriveSprint05GoalState.ts` and operator runbook in task notes.
+**Status:** Completed
+<<<<<<< Updated upstream
+> Progress: 0/4 tasks completed · updated 2026-07-25T03:37:34Z
+> Status-Note: REDHAT-FIX-01..06 landed; real batch accepted; human gate re-run honest
+=======
+> Progress: 0/4 tasks completed · updated 2026-07-25T02:39:12Z
+>>>>>>> Stashed changes
 **Proposed by:** product-manager + convex-planner (lane)
 
 ## Overview

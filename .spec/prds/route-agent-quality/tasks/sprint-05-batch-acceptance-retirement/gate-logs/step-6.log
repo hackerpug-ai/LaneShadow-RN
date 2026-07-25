@@ -1,4 +1,15 @@
 {
-  "testRows": 0,
-  "rowCount": 50
+  "phase": "step-6-no-test-seed",
+  "testRowsCount": 0,
+  "rowCount": 50,
+  "sampleRouteIds": [
+    "motorcycleroads:twist-of-tepusquet-loop",
+    "motorcycleroads:old-hwy-40-cisco-grove-to-donner-lake",
+    "motorcycleroads:von-hoak-loop",
+    "bestbikingroads:sr22-lexington-sparta",
+    "motorcycleroads:arkansas-pig-trail-arkansas-23",
+    "bestbikingroads:gorman-to-ojai",
+    "bestbikingroads:rampart-rd",
+    "bestbikingroads:salt-river-canyon"
+  ]
 }

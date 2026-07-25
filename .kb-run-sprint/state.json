@@ -1,12 +1,12 @@
 {
   "version": 1,
   "sprint_id": "sprint-05-batch-acceptance-retirement",
-  "batch_id": "sprint-file-sprint-05-batch-acceptance-retirement-20260724T232750Z",
+  "batch_id": "sprint-05-redhat-fix-20260725T023912Z",
   "harness": "grok",
   "protected_branch": "main",
   "max_concurrent": 2,
   "sprint_dir": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement",
-  "id_counter": 6,
+  "id_counter": 12,
   "tasks": {
     "S5-T1": {
       "id": "S5-T1",
@@ -409,6 +409,510 @@
           "branch": "task/S5-T2"
         }
       }
+    },
+    "REDHAT-FIX-01": {
+      "id": "REDHAT-FIX-01",
+      "status": "completed",
+      "subject": "REDHAT-FIX-01: Remove live coverage stubs + real --all batch [convex-implementer]",
+      "description": "# REDHAT-FIX-01 \u2014 Remove live coverageReport stubs and prove a real `--all` batch\n\n> Status: Backlog\n> Proposed By: `convex-planner`\n\n| Field | Value |\n|---|---|\n| TASK_ID | REDHAT-FIX-01 |\n| SPRINT | [Sprint 05 \u2014 Batch acceptance + retirement](./SPRINT.md) |\n| TASK_TYPE | FEATURE |\n| AGENT | implementer=`convex-implementer` \u00b7 reviewer=`convex-reviewer` |\n| ESTIMATE | 120 min |\n| EFFORT | M |\n| PRIORITY | P0 |\n| STATUS | Backlog |\n| PROPOSED_BY | `convex-planner` |\n| TDD_MODE | `red_first` |\n| RED_GREEN_REQUIRED | yes |\n| CAPABILITIES | CAP-GEO-05 |\n| DEPENDS_ON | \u2014 |\n| BLOCKS | REDHAT-FIX-02, REDHAT-FIX-05 |\n\nRUNTIME_COMMANDS:\n- integration: `npx vitest run convex/__tests__/REDHATFIX01-*.integration.test.ts`\n- typecheck: `pnpm type-check`\n- lint: `pnpm exec biome check convex scripts`\n- build: `pnpm convex:dev --once`\n\n> **Command note:** `pnpm test` maps to bare `vitest` (watch mode) and HANGS in an agent shell \u2014 always use `npx vitest run`. vitest has no `--grep`; the single-test filter is `-t '<name>'`.\n\n## OUTCOME\n\ncoverageReport (persisted by runId and any live path that claims batch completeness) returns real isDone/continueCursor/totalCostUSD from runFullBatch; a real --all execution leaves totalCostUSD > 0, a cursor transcript, and no isDone=true + unresolved residual contradiction; RED then GREEN integration tests prove the stub path is gone.\n\n## BACKGROUND\n\nRed-hat review 2026-07-25T02:13:34Z (NEEDS_REVISION BLOCK). Closes F2, F9 (undefined 0/0 context for live report honesty), F10, F11. Primary unblocks live acceptance binding and human gate re-run.\n\n**Objective:** Eliminate the semantic stubs on the live coverageReport path and prove a real full-batch run produces non-degenerate cost, cursor, and completeness telemetry that operators and founders can trust for acceptance.\n\n## \ud83d\udeab CRITICAL CONSTRAINTS (Never tier)\n\n- **MUST** derive isDone, continueCursor, and totalCostUSD from persisted full-batch state (batch_acceptance_artifacts coverage_report written by persistCoverageReport / runFullBatch), never hardcode them on the live branch\n- **MUST** execute (or prove via integration against real Convex) a real pnpm tsx scripts/backfill-curated-geometry.ts --all path that yields totalCostUSD > 0 and a non-null cursor transcript when the batch is multi-page or cost-stopped\n- **MUST** reconcile isDone with terminalStates.unresolved and continueCursor: isDone=true only when the batch truly completed (batchStopReason completed and no residual unprocessed work claimed complete)\n- **NEVER** leave isDone:true and totalCostUSD:0 hardcoded on the live coverageReport branch (curatedGeometry.ts:1330-1344)\n- **NEVER** treat a point-in-time catalog scan with unresolved residual as a completed full batch\n- **NEVER** accept re-authored/seeded gate logs as proof of a real --all run\n- **STRICTLY** a live unscoped coverageReport without a bound runId must either return source that does not claim completion, or surface the latest real full-batch runId's persisted fields \u2014 never invent completeness\n\n## SPECIFICATION\n\n**Objective:** Eliminate the semantic stubs on the live coverageReport path and prove a real full-batch run produces non-degenerate cost, cursor, and completeness telemetry that operators and founders can trust for acceptance.\n\n**Success state:** coverageReport (persisted by runId and any live path that claims batch completeness) returns real isDone/continueCursor/totalCostUSD from runFullBatch; a real --all execution leaves totalCostUSD > 0, a cursor transcript, and no isDone=true + unresolved residual contradiction; RED then GREEN integration tests prove the stub path is gone.\n\n## FIXTURES (shared seed data \u2014 referenced by scenario `start_ref`)\n\n- `redhatfix01-cost-stop-resume-pool` (seed_method: `public_api`): Test-support route pool sized so a small --max-cost stops mid-batch with continueCursor and partial page totals; used to prove non-zero cost and non-null cursor without claiming isDone prematurely\n  - routeIds test:redhatfix01-cost-01..N with couchGateStatus pass\n  - runFullBatchWithSeams --max-cost small enough to stop mid-list\n  - persisted coverage_report runId with totalCostUSD > 0, isDone false, continueCursor non-null\n- `redhatfix01-completed-batch-report` (seed_method: `public_api`): Completed full-batch coverage_report artifact written only via persistCoverageReport from executeFullBatch (not seedS5T1* fixture seeds)\n  - runId redhatfix01-completed-batch\n  - isDone true, continueCursor null, totalCostUSD > 0, batchStopReason completed\n  - terminalStates consistent with processed routes (not unresolved=500 with isDone true)\n- `redhatfix01-live-scan-without-run` (seed_method: `public_api`): Catalog point-in-time scan with no bound full-batch runId \u2014 must not hardcode isDone true / totalCostUSD 0 as a completed batch\n  - unscoped coverageReport with no runId and no latest completed coverage_report\n  - or live branch explicitly labeled as scan-not-batch without claiming completeness\n\n## ACCEPTANC",
+      "owner": "convex-implementer",
+      "blocked_by": [],
+      "metadata": {
+        "source": "red-hat",
+        "sprint_id": "sprint-05-batch-acceptance-retirement",
+        "task_id": "REDHAT-FIX-01",
+        "assignee": "convex-implementer",
+        "priority": "P0",
+        "type": "FEATURE",
+        "file_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/REDHAT-FIX-01-remove-live-coverage-stubs-real-all-batch.md",
+        "wave": 0,
+        "batch_id": "sprint-05-redhat-fix-20260725T023912Z",
+        "phase": "done",
+        "tdd_mode": "red_first",
+        "verification_policy": {
+          "requires_tests": true,
+          "requires_red_evidence": true,
+          "requires_seeded_evidence": true,
+          "tdd_lineage_required": true
+        },
+        "requirements": [
+          {
+            "id": "AC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          }
+        ],
+        "failure_signatures": [],
+        "spin_count": 0,
+        "worktree": {
+          "path": "/Users/inference1/Projects/LaneShadow-RN/.worktrees/REDHAT-FIX-01",
+          "branch": "task/REDHAT-FIX-01"
+        },
+        "last_commit_sha": "78f94db4342e13ff6af4d7ff090dbab89ae9a9dc"
+      }
+    },
+    "REDHAT-FIX-03": {
+      "id": "REDHAT-FIX-03",
+      "status": "completed",
+      "subject": "REDHAT-FIX-03: Scrub test/seed retirement candidates [convex-implementer]",
+      "description": "# REDHAT-FIX-03 \u2014 Scrub test:/seed: rows from listRetirementCandidates export\n\n> Status: Backlog\n> Proposed By: `convex-planner`\n\n| Field | Value |\n|---|---|\n| TASK_ID | REDHAT-FIX-03 |\n| SPRINT | [Sprint 05 \u2014 Batch acceptance + retirement](./SPRINT.md) |\n| TASK_TYPE | FEATURE |\n| AGENT | implementer=`convex-implementer` \u00b7 reviewer=`convex-reviewer` |\n| ESTIMATE | 60 min |\n| EFFORT | S |\n| PRIORITY | P0 |\n| STATUS | Backlog |\n| PROPOSED_BY | `convex-planner` |\n| TDD_MODE | `red_first` |\n| RED_GREEN_REQUIRED | yes |\n| CAPABILITIES | CAP-GEO-04 |\n| DEPENDS_ON | \u2014 |\n| BLOCKS | REDHAT-FIX-05 |\n\nRUNTIME_COMMANDS:\n- integration: `npx vitest run convex/__tests__/REDHATFIX03-*.integration.test.ts`\n- typecheck: `pnpm type-check`\n- lint: `pnpm exec biome check convex scripts`\n- build: `pnpm convex:dev --once`\n\n> **Command note:** `pnpm test` maps to bare `vitest` (watch mode) and HANGS in an agent shell \u2014 always use `npx vitest run`. vitest has no `--grep`; the single-test filter is `-t '<name>'`.\n\n## OUTCOME\n\nUnscoped listRetirementCandidates returns zero routeIds starting with test: or seed: even when such rows dominate the review/unresolved indexes; prefix-scoped harness still works.\n\n## BACKGROUND\n\nRed-hat review 2026-07-25T02:13:34Z (NEEDS_REVISION BLOCK). Closes F3. Parallel-safe with FIX-01 and FIX-06.\n\n**Objective:** Apply the top-50 GATE-FIX seed scrub to listRetirementCandidates so the acceptance packet retirement review is not 94% test fixtures.\n\n## \ud83d\udeab CRITICAL CONSTRAINTS (Never tier)\n\n- **MUST** filter unscoped listRetirementCandidates with the same isTestSeedRoute (or extended) predicate used by top-50 founder surface\n- **MUST** treat seed: prefix as fixture contamination in addition to test:\n- **MUST** oversample then filter so limit is filled with real candidates when possible\n- **NEVER** return test:s4t5-passed-* (or other test:/seed:) rows on the unscoped founder export\n- **NEVER** break prefix-scoped test isolation used by S5-T2 integration tests\n- **STRICTLY** scrub is post-index filter on the founder (unscoped) path only; do not delete production routes\n\n## SPECIFICATION\n\n**Objective:** Apply the top-50 GATE-FIX seed scrub to listRetirementCandidates so the acceptance packet retirement review is not 94% test fixtures.\n\n**Success state:** Unscoped listRetirementCandidates returns zero routeIds starting with test: or seed: even when such rows dominate the review/unresolved indexes; prefix-scoped harness still works.\n\n## FIXTURES (shared seed data \u2014 referenced by scenario `start_ref`)\n\n- `redhatfix03-mixed-retirement-pool` (seed_method: `public_api`): Mix of real-looking motorcycleroads:* candidates and dense test:s4t5-passed-* / seed: rows in review/unresolved/failed\n  - routeId test:s4t5-passed-001..047 geometryStatus review, all-lever failed evidence\n  - routeId seed:fake-retire-01\n  - routeId motorcycleroads:real-retire-a eligible\n  - routeId motorcycleroads:real-retire-b eligible\n- `redhatfix03-prefix-harness` (seed_method: `public_api`): Prefix-scoped export for test isolation must still return test: rows when routeIdPrefix=test:\n  - routeIdPrefix test:s5t2- or test:redhatfix03-\n\n## ACCEPTANCE CRITERIA (TDD beads \u2014 RED \u2192 GREEN \u2192 REFACTOR per AC)\n\n### AC-1 [PRIMARY] \u2014 Unscoped export purges test: and seed: routeIds\n\n**Requirement:** GIVEN DB contains eligible retirement candidates with test: and seed: prefixes mixed with real routeIds WHEN listRetirementCandidates is called without routeIdPrefix THEN returned candidates contain zero routeIds starting with test: or seed:\n\n- TEST_TIER: `integration` \u00b7 VERIFICATION_SERVICE: Convex dev deployment\n- FLOW_REF: UC-REC-05\n- VERIFY: `npx vitest run convex/__tests__/REDHATFIX03-retirement-seed-scrub.integration.test.ts`\n\nSCENARIO (validated by `tools/validate-scenario/validate_scenario.py` \u2014 exit 0):\n- tier: `visible` \u00b7 test_tier: `integration` \u00b7 verification_service: `Convex dev deployment` \u00b7 topology: `single-node`\n- NEGATIVE_CONTROL \u2014 would fail if: test:s4t5-passed rows returned unscoped; seed: rows returned unscoped; stub empty list that skips scrub proof with candidates.length == 0; mock filter that only drops one prefix and leaves test: rows\n- EVIDENCE: `api_response` (required_capture: True)\n- CASE 1 \u2014 start_ref `redhatfix03-mixed-retirement-pool`\n  - ACTION (founder): Seed mixed pool with 47 test: and 1 seed: and 2 real candidates; Call listRetirementCandidates({limit:50}) unscoped; Count prefixes in response.candidates\n  - MUST_OBSERVE: `candidates with prefix 'test:' count == 0`\n  - MUST_OBSERVE: `candidates with prefix 'seed:' count == 0`\n  - MUST_OBSERVE: `contaminationCount == 0`\n  - MUST_OBSERVE: `realEligibleCount >= 1`\n  - MUST_OBSERVE: `candidates.length >= 1`\n  - MUST_NOT_OBSERVE: `candidates with prefix 'test:' count > 0`\n  - MUST_NOT_OBSERVE: `candidates with prefix 'seed:' count > 0`\n  - MUST_NOT_OBSERVE: `routeId == 'test:s4t5-passed-001'`\n  - MUST_NOT_OBSERVE: `candidates.length == 0 when real eligible rows exist`\n  - MUST_NOT_OBSE",
+      "owner": "convex-implementer",
+      "blocked_by": [],
+      "metadata": {
+        "source": "red-hat",
+        "sprint_id": "sprint-05-batch-acceptance-retirement",
+        "task_id": "REDHAT-FIX-03",
+        "assignee": "convex-implementer",
+        "priority": "P0",
+        "type": "FEATURE",
+        "file_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/REDHAT-FIX-03-scrub-test-seed-retirement-candidates.md",
+        "wave": 0,
+        "batch_id": "sprint-05-redhat-fix-20260725T023912Z",
+        "phase": "done",
+        "tdd_mode": "red_first",
+        "verification_policy": {
+          "requires_tests": true,
+          "requires_red_evidence": true,
+          "requires_seeded_evidence": true,
+          "tdd_lineage_required": true
+        },
+        "requirements": [
+          {
+            "id": "AC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          }
+        ],
+        "failure_signatures": [],
+        "spin_count": 0,
+        "worktree": {
+          "path": "/Users/inference1/Projects/LaneShadow-RN/.worktrees/REDHAT-FIX-03",
+          "branch": "task/REDHAT-FIX-03"
+        },
+        "last_commit_sha": "d0527f274adeea55e0aea80c7369f1438f8ac46b"
+      }
+    },
+    "REDHAT-FIX-04": {
+      "id": "REDHAT-FIX-04",
+      "status": "completed",
+      "subject": "REDHAT-FIX-04: Zero-candidate low-yield escalation [convex-implementer]",
+      "description": "# REDHAT-FIX-04 \u2014 Escalate zero-candidate levers (close live auto-unlock)\n\n> Status: Backlog\n> Proposed By: `convex-planner`\n\n| Field | Value |\n|---|---|\n| TASK_ID | REDHAT-FIX-04 |\n| SPRINT | [Sprint 05 \u2014 Batch acceptance + retirement](./SPRINT.md) |\n| TASK_TYPE | FEATURE |\n| AGENT | implementer=`convex-implementer` \u00b7 reviewer=`convex-reviewer` |\n| ESTIMATE | 90 min |\n| EFFORT | M |\n| PRIORITY | P0 |\n| STATUS | Backlog |\n| PROPOSED_BY | `convex-planner` |\n| TDD_MODE | `red_first` |\n| RED_GREEN_REQUIRED | yes |\n| CAPABILITIES | CAP-GEO-04, CAP-GEO-05 |\n| DEPENDS_ON | \u2014 |\n| BLOCKS | REDHAT-FIX-02, REDHAT-FIX-05 |\n\nRUNTIME_COMMANDS:\n- integration: `npx vitest run convex/__tests__/REDHATFIX04-*.integration.test.ts`\n- typecheck: `pnpm type-check`\n- lint: `pnpm exec biome check convex scripts`\n- build: `pnpm convex:dev --once`\n\n> **Command note:** `pnpm test` maps to bare `vitest` (watch mode) and HANGS in an agent shell \u2014 always use `npx vitest run`. vitest has no `--grep`; the single-test filter is `-t '<name>'`.\n\n## OUTCOME\n\ndetectLowYieldEscalations escalates zero-candidate floored levers; accept stays locked until founder resolution; reason text does not misstate 0/0 as 0.0%.\n\n## BACKGROUND\n\nRed-hat review 2026-07-25T02:13:34Z (NEEDS_REVISION BLOCK). Closes F7 and the live-path half of F9. Must land before FIX-02 acceptance binding is proven safe on live-shaped data.\n\n**Objective:** Close the live-data auto-unlock path where reconstruct/reroute candidateCount=0 silently skipped floor checks, allowing accept without escalation.\n\n## \ud83d\udeab CRITICAL CONSTRAINTS (Never tier)\n\n- **MUST** remove the silent continue when candidateCount<=0 for levers with non-null escalationFloor\n- **MUST** emit an escalation with an explicit reason code for zero_candidates / undefined_rate inspection\n- **MUST** keep requestBatchAcceptance(decision=accept) returning escalation_required when such escalations exist (retirementUnlockedAt null)\n- **NEVER** treat 0/0 as realizedRate 0.0% mathematically for floor comparison without labeling undefined\n- **NEVER** allow live reconstruct/reroute candidateCount=0 to auto-accept and unlock retirement\n- **NEVER** escalate lever 1 when escalationFloor is null (still unproven assumption)\n- **STRICTLY** zero-candidate levers with a floor are fail-closed inspection signals, not success\n\n## SPECIFICATION\n\n**Objective:** Close the live-data auto-unlock path where reconstruct/reroute candidateCount=0 silently skipped floor checks, allowing accept without escalation.\n\n**Success state:** detectLowYieldEscalations escalates zero-candidate floored levers; accept stays locked until founder resolution; reason text does not misstate 0/0 as 0.0%.\n\n## FIXTURES (shared seed data \u2014 referenced by scenario `start_ref`)\n\n- `redhatfix04-zero-candidate-levers` (seed_method: `public_api`): Completed coverage_report with promote candidates>0 and reconstruct/reroute candidateCount=0 (live-shaped), escalationFloor 0.4 on levers 2/3\n  - runId redhatfix04-zero-cand with runFullBatch provenance for accept path tests\n  - levers: promote candidates>=1; reconstruct candidates=0; reroute candidates=0\n  - isDone true\n- `redhatfix04-low-yield-nonzero` (seed_method: `public_api`): Existing low-yield reconstruct 1/10 still escalates (regression)\n  - reconstruct candidates=10 passCount=1 realizedRate=0.1\n- `redhatfix04-promote-only-floor-null` (seed_method: `public_api`): Only promote lever has data; escalationFloor null \u2014 no zero-candidate escalation for promote\n  - promote candidates=5; reconstruct/reroute 0 still escalate as floored levers\n\n## ACCEPTANCE CRITERIA (TDD beads \u2014 RED \u2192 GREEN \u2192 REFACTOR per AC)\n\n### AC-1 [PRIMARY] \u2014 Zero-candidate floored lever produces escalation\n\n**Requirement:** GIVEN a completed report where reconstruct and/or reroute have candidateCount=0 and non-null escalationFloor WHEN detectLowYieldEscalations runs (via requestBatchAcceptance accept) THEN escalations include those levers with reason indicating zero_candidates or undefined_rate inspection (not silent skip)\n\n- TEST_TIER: `integration` \u00b7 VERIFICATION_SERVICE: Convex dev deployment\n- FLOW_REF: UC-REC-04\n- VERIFY: `npx vitest run convex/__tests__/REDHATFIX04-zero-candidate-escalation.integration.test.ts`\n\nSCENARIO (validated by `tools/validate-scenario/validate_scenario.py` \u2014 exit 0):\n- tier: `visible` \u00b7 test_tier: `integration` \u00b7 verification_service: `Convex dev deployment` \u00b7 topology: `single-node`\n- NEGATIVE_CONTROL \u2014 would fail if: hardcoded candidateCount<=0 continue skip still present; stub detectLowYieldEscalations that returns escalations.length == 0; mock requestBatchAcceptance that auto-accepts on zero candidates; empty escalations with decision == accepted unlock\n- EVIDENCE: `api_response` (required_capture: True)\n- CASE 1 \u2014 start_ref `redhatfix04-zero-candidate-levers`\n  - ACTION (founder): Persist zero-candidate reconstruct/reroute report; Call requestBatchAcceptance({decision:'accept'}); Inspect escalations array\n  - MUST_OBSERVE: `deci",
+      "owner": "convex-implementer",
+      "blocked_by": [],
+      "metadata": {
+        "source": "red-hat",
+        "sprint_id": "sprint-05-batch-acceptance-retirement",
+        "task_id": "REDHAT-FIX-04",
+        "assignee": "convex-implementer",
+        "priority": "P0",
+        "type": "FEATURE",
+        "file_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/REDHAT-FIX-04-zero-candidate-low-yield-escalation.md",
+        "wave": 0,
+        "batch_id": "sprint-05-redhat-fix-20260725T023912Z",
+        "phase": "done",
+        "tdd_mode": "red_first",
+        "verification_policy": {
+          "requires_tests": true,
+          "requires_red_evidence": true,
+          "requires_seeded_evidence": true,
+          "tdd_lineage_required": true
+        },
+        "requirements": [
+          {
+            "id": "AC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          }
+        ],
+        "failure_signatures": [],
+        "spin_count": 0,
+        "worktree": {
+          "path": "/Users/inference1/Projects/LaneShadow-RN/.worktrees/REDHAT-FIX-04",
+          "branch": "task/REDHAT-FIX-04"
+        },
+        "last_commit_sha": "97bada1d68ba79b36e00e46647dddfb2bd5ebafc"
+      }
+    },
+    "REDHAT-FIX-06": {
+      "id": "REDHAT-FIX-06",
+      "status": "completed",
+      "subject": "REDHAT-FIX-06: retiredAt null + pagination + OCC [convex-implementer]",
+      "description": "# REDHAT-FIX-06 \u2014 retiredAt null, pagination, OCC on unretireRoute\n\n> Status: Backlog\n> Proposed By: `convex-planner`\n\n| Field | Value |\n|---|---|\n| TASK_ID | REDHAT-FIX-06 |\n| SPRINT | [Sprint 05 \u2014 Batch acceptance + retirement](./SPRINT.md) |\n| TASK_TYPE | FEATURE |\n| AGENT | implementer=`convex-implementer` \u00b7 reviewer=`convex-reviewer` |\n| ESTIMATE | 90 min |\n| EFFORT | M |\n| PRIORITY | P1 |\n| STATUS | Backlog |\n| PROPOSED_BY | `convex-planner` |\n| TDD_MODE | `red_first` |\n| RED_GREEN_REQUIRED | yes |\n| CAPABILITIES | CAP-GEO-04 |\n| DEPENDS_ON | \u2014 |\n| BLOCKS | \u2014 |\n\nRUNTIME_COMMANDS:\n- integration: `npx vitest run convex/__tests__/REDHATFIX06-*.integration.test.ts`\n- typecheck: `pnpm type-check`\n- lint: `pnpm exec biome check convex scripts`\n- build: `pnpm convex:dev --once`\n\n> **Command note:** `pnpm test` maps to bare `vitest` (watch mode) and HANGS in an agent shell \u2014 always use `npx vitest run`. vitest has no `--grep`; the single-test filter is `-t '<name>'`.\n\n## OUTCOME\n\nNo retiredAt:undefined patches remain in listed files; listRetirementCandidates paginates safely; unretireRoute fails closed on concurrent conflict; integration tests prove all three.\n\n## BACKGROUND\n\nRed-hat review 2026-07-25T02:13:34Z (NEEDS_REVISION BLOCK). Closes F12, F13, F14. Parallel with FIX-03; if both edit listRetirementCandidates, implement scrub first (FIX-03) then pagination (this task) or combine carefully without losing either contract.\n\n**Objective:** Harden retirement mutators and export against Convex value rules, read limits, and concurrent unretire races.\n\n## \ud83d\udeab CRITICAL CONSTRAINTS (Never tier)\n\n- **MUST** replace retiredAt: undefined with retiredAt: null at all Convex patch/insert sites listed (curatedGeometry, top50Review, reviewQueue, couchSampleAssembler, curatedGeometryReconstruct, waterfallOrchestrator, couchVerdict, curatedGeometryTestSupport)\n- **MUST** add pagination (cursor/continueCursor or page args) and/or tighter indexing so listRetirementCandidates stays under the 16MB read limit\n- **MUST** add OCC guard on unretireRoute (e.g. expectedRetiredAt or expectedUpdatedAt / document version) so concurrent retire/unretire cannot silent last-write-win\n- **NEVER** leave retiredAt: undefined in production patch paths\n- **NEVER** scan unbounded 800\u00d74 status \u00d7 per-row artifacts without pagination on large catalogs\n- **NEVER** unretire without detecting concurrent retire that changed state since read\n- **STRICTLY** follow Convex guidelines: undefined is not a valid Convex value in documents/patches\n\n## SPECIFICATION\n\n**Objective:** Harden retirement mutators and export against Convex value rules, read limits, and concurrent unretire races.\n\n**Success state:** No retiredAt:undefined patches remain in listed files; listRetirementCandidates paginates safely; unretireRoute fails closed on concurrent conflict; integration tests prove all three.\n\n## FIXTURES (shared seed data \u2014 referenced by scenario `start_ref`)\n\n- `redhatfix06-retired-route` (seed_method: `public_api`): Eligible route that has been retired with retiredAt set and retirementReason preserved\n  - routeId test:redhatfix06-retired geometryStatus retired retiredAt timestamp retirementReason all_levers_failed\n- `redhatfix06-large-candidate-scan` (seed_method: `public_api`): Many review/unresolved rows to exercise pagination without exceeding read budget\n  - N>>200 review/unresolved rows under prefix test:redhatfix06-page-\n- `redhatfix06-concurrent-retire` (seed_method: `public_api`): Two conflicting operations: retire then stale unretire with old expected token\n  - route eligible \u2192 retire \u2192 unretire with stale expectedRetiredAt\n\n## ACCEPTANCE CRITERIA (TDD beads \u2014 RED \u2192 GREEN \u2192 REFACTOR per AC)\n\n### AC-1 [PRIMARY] \u2014 retiredAt cleared with null not undefined\n\n**Requirement:** GIVEN unretireRoute and all other sites that previously patched retiredAt: undefined WHEN unretire or seed/clear paths run THEN documents store retiredAt: null (or field cleared via null-compatible schema), never undefined in patch objects; unretire returns retiredAt null\n\n- TEST_TIER: `integration` \u00b7 VERIFICATION_SERVICE: Convex dev deployment\n- FLOW_REF: UC-REC-05\n- VERIFY: `npx vitest run convex/__tests__/REDHATFIX06-retiredAt-null.integration.test.ts`\n\nSCENARIO (validated by `tools/validate-scenario/validate_scenario.py` \u2014 exit 0):\n- tier: `visible` \u00b7 test_tier: `integration` \u00b7 verification_service: `Convex dev deployment` \u00b7 topology: `single-node`\n- NEGATIVE_CONTROL \u2014 would fail if: retiredAt: undefined patch idiom remains; hardcoded unretire that only returns null without patching; stub unretire leaving retiredAt timestamp unchanged; empty patch omitting retiredAt null clear\n- EVIDENCE: `db_query` (required_capture: True)\n- CASE 1 \u2014 start_ref `redhatfix06-retired-route`\n  - ACTION (operator): Call unretireRoute({routeId}); Re-read curated_routes row; Grep codebase for retiredAt: undefined remaining\n  - MUST_OBSERVE: `stored.retiredAt == null`\n  - MUST_OBSERVE: `api.retiredAt == null",
+      "owner": "convex-implementer",
+      "blocked_by": [],
+      "metadata": {
+        "source": "red-hat",
+        "sprint_id": "sprint-05-batch-acceptance-retirement",
+        "task_id": "REDHAT-FIX-06",
+        "assignee": "convex-implementer",
+        "priority": "P0",
+        "type": "FEATURE",
+        "file_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/REDHAT-FIX-06-retiredat-null-pagination-occ.md",
+        "wave": 0,
+        "batch_id": "sprint-05-redhat-fix-20260725T023912Z",
+        "phase": "done",
+        "tdd_mode": "red_first",
+        "verification_policy": {
+          "requires_tests": true,
+          "requires_red_evidence": true,
+          "requires_seeded_evidence": true,
+          "tdd_lineage_required": true
+        },
+        "requirements": [
+          {
+            "id": "AC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          }
+        ],
+        "failure_signatures": [],
+        "spin_count": 0,
+        "worktree": {
+          "path": "/Users/inference1/Projects/LaneShadow-RN/.worktrees/REDHAT-FIX-06",
+          "branch": "task/REDHAT-FIX-06"
+        },
+        "last_commit_sha": "9e6631fa622b893f6bc01ef2d124e24b62c3e2d2"
+      }
+    },
+    "REDHAT-FIX-02": {
+      "id": "REDHAT-FIX-02",
+      "status": "completed",
+      "subject": "REDHAT-FIX-02: Bind acceptance to live runId provenance [convex-implementer]",
+      "description": "# REDHAT-FIX-02 \u2014 Bind acceptance to live runId with provenance, identity, timestamp\n\n> Status: Backlog\n> Proposed By: `convex-planner`\n\n| Field | Value |\n|---|---|\n| TASK_ID | REDHAT-FIX-02 |\n| SPRINT | [Sprint 05 \u2014 Batch acceptance + retirement](./SPRINT.md) |\n| TASK_TYPE | FEATURE |\n| AGENT | implementer=`convex-implementer` \u00b7 reviewer=`convex-reviewer` |\n| ESTIMATE | 120 min |\n| EFFORT | M |\n| PRIORITY | P0 |\n| STATUS | Backlog |\n| PROPOSED_BY | `convex-planner` |\n| TDD_MODE | `red_first` |\n| RED_GREEN_REQUIRED | yes |\n| CAPABILITIES | CAP-GEO-04, CAP-GEO-05 |\n| DEPENDS_ON | REDHAT-FIX-01, REDHAT-FIX-04 |\n| BLOCKS | REDHAT-FIX-05 |\n\nRUNTIME_COMMANDS:\n- integration: `npx vitest run convex/__tests__/REDHATFIX02-*.integration.test.ts`\n- typecheck: `pnpm type-check`\n- lint: `pnpm exec biome check convex scripts`\n- build: `pnpm convex:dev --once`\n\n> **Command note:** `pnpm test` maps to bare `vitest` (watch mode) and HANGS in an agent shell \u2014 always use `npx vitest run`. vitest has no `--grep`; the single-test filter is `-t '<name>'`.\n\n## OUTCOME\n\nrequestBatchAcceptance refuses fixture-seeded reports; accepts only provenance-tied runFullBatch reports; every decision stores operatorIdentity + ISO timestamp; s5t4-live-acceptance is gone; observed lever counts match the bound report.\n\n## BACKGROUND\n\nRed-hat review 2026-07-25T02:13:34Z (NEEDS_REVISION BLOCK). Closes F1, F8, F15. Depends on FIX-01 for real reports and FIX-04 so live accept cannot skip escalation.\n\n**Objective:** Close SEED_SUBSTITUTION by making acceptance auditable: same runId as the founder-read report, attested operator + time, and provenance proving the report came from a real full-batch invocation \u2014 not a seeded fixture.\n\n## \ud83d\udeab CRITICAL CONSTRAINTS (Never tier)\n\n- **MUST** bind acceptance to the exact coverage_report runId the founder read; observedRates on the acceptance artifact must equal that report's levers\n- **MUST** persist non-null operatorIdentity (len>=1) and decision.timestamp as ISO-8601 on every acceptance decision artifact\n- **MUST** reject acceptance when the coverage_report lacks runFullBatch provenance (e.g. only seedS5T1LowYieldReport / fixture seed paths)\n- **MUST** delete or tombstone the seeded s5t4-live-acceptance artifact so it cannot satisfy a live gate\n- **NEVER** allow a seed/fixture coverage_report to satisfy a production/live acceptance step\n- **NEVER** persist acceptance without operatorIdentity or ISO timestamp\n- **NEVER** accept when report.isDone is false (existing incomplete_run lock must remain)\n- **STRICTLY** provenance is fail-closed: missing provenance fields \u2192 NOT_PROVENANCED / rejection, not silent accept\n\n## SPECIFICATION\n\n**Objective:** Close SEED_SUBSTITUTION by making acceptance auditable: same runId as the founder-read report, attested operator + time, and provenance proving the report came from a real full-batch invocation \u2014 not a seeded fixture.\n\n**Success state:** requestBatchAcceptance refuses fixture-seeded reports; accepts only provenance-tied runFullBatch reports; every decision stores operatorIdentity + ISO timestamp; s5t4-live-acceptance is gone; observed lever counts match the bound report.\n\n## FIXTURES (shared seed data \u2014 referenced by scenario `start_ref`)\n\n- `redhatfix02-real-batch-report` (seed_method: `public_api`): coverage_report written via persistCoverageReport from runFullBatch with provenance markers (batchStopReason, totalCostUSD, sourceRunKind=runFullBatch or equivalent)\n  - runId redhatfix02-real-batch\n  - artifactKind coverage_report\n  - isDone true, totalCostUSD > 0, levers with real candidate counts\n  - provenance: producedBy=runFullBatch|persistCoverageReport\n- `redhatfix02-seeded-fixture-report` (seed_method: `public_api`): coverage_report shaped like s5t1-low-yield-reconstruct / s5t4-live-acceptance (10/10/10 candidates) written via seed helper only\n  - runId s5t4-live-acceptance or redhatfix02-seeded\n  - levers candidateCount 10/10/10 from seedS5T1LowYieldReport\n  - no runFullBatch provenance\n- `redhatfix02-founder-identity` (seed_method: `public_api`): Founder-authenticated caller for requestBatchAcceptance\n  - devSetupFounderUser with clerkUserId used as operatorIdentity\n\n## ACCEPTANCE CRITERIA (TDD beads \u2014 RED \u2192 GREEN \u2192 REFACTOR per AC)\n\n### AC-1 [PRIMARY] \u2014 Acceptance binds to the same coverage_report runId the founder read\n\n**Requirement:** GIVEN a persisted coverage_report for runId R with known lever candidateCounts WHEN the founder calls requestBatchAcceptance({runId: R, decision}) THEN the acceptance artifact references R and observedRates/levers equal the coverage_report for R (not a different report or live-unscoped scan)\n\n- TEST_TIER: `integration` \u00b7 VERIFICATION_SERVICE: Convex dev deployment\n- FLOW_REF: UC-REC-04\n- VERIFY: `npx vitest run convex/__tests__/REDHATFIX02-runId-binding.integration.test.ts`\n\nSCENARIO (validated by `tools/validate-scenario/validate_scenario.py` \u2014 exit 0):\n- tier: `visible` \u00b7 test_tier: `integration` \u00b7 verification_service: `Conv",
+      "owner": "convex-implementer",
+      "blocked_by": [],
+      "metadata": {
+        "source": "red-hat",
+        "sprint_id": "sprint-05-batch-acceptance-retirement",
+        "task_id": "REDHAT-FIX-02",
+        "assignee": "convex-implementer",
+        "priority": "P0",
+        "type": "FEATURE",
+        "file_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/REDHAT-FIX-02-bind-acceptance-to-live-runid-provenance.md",
+        "wave": 1,
+        "batch_id": "sprint-05-redhat-fix-20260725T023912Z",
+        "phase": "done",
+        "tdd_mode": "red_first",
+        "verification_policy": {
+          "requires_tests": true,
+          "requires_red_evidence": true,
+          "requires_seeded_evidence": true,
+          "tdd_lineage_required": true
+        },
+        "requirements": [
+          {
+            "id": "AC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          }
+        ],
+        "failure_signatures": [],
+        "spin_count": 0,
+        "worktree": {
+          "path": "/Users/inference1/Projects/LaneShadow-RN/.worktrees/REDHAT-FIX-02",
+          "branch": "task/REDHAT-FIX-02"
+        },
+        "last_commit_sha": "e7728109e7c5ee35a2e7005e3677ecee6eeeedcd"
+      }
+    },
+    "REDHAT-FIX-05": {
+      "id": "REDHAT-FIX-05",
+      "status": "completed",
+      "subject": "REDHAT-FIX-05: Honest goal semantics + gate re-run [convex-implementer]",
+      "description": "# REDHAT-FIX-05 \u2014 Honest goal semantics, real gate re-run, Sprint 10 blocked\n\n> Status: Backlog\n> Proposed By: `convex-planner`\n\n| Field | Value |\n|---|---|\n| TASK_ID | REDHAT-FIX-05 |\n| SPRINT | [Sprint 05 \u2014 Batch acceptance + retirement](./SPRINT.md) |\n| TASK_TYPE | FEATURE |\n| AGENT | implementer=`convex-implementer` \u00b7 reviewer=`convex-reviewer` |\n| ESTIMATE | 120 min |\n| EFFORT | M |\n| PRIORITY | P0 |\n| STATUS | Backlog |\n| PROPOSED_BY | `convex-planner` |\n| TDD_MODE | `red_first` |\n| RED_GREEN_REQUIRED | yes |\n| CAPABILITIES | CAP-GEO-03, CAP-GEO-04, CAP-GEO-05 |\n| DEPENDS_ON | REDHAT-FIX-01, REDHAT-FIX-02, REDHAT-FIX-03, REDHAT-FIX-04 |\n| BLOCKS | Sprint 10 Founder-region Saturday-arc (until accepted catalog exists) |\n\nRUNTIME_COMMANDS:\n- integration: `npx vitest run convex/__tests__/REDHATFIX05-*.integration.test.ts`\n- typecheck: `pnpm type-check`\n- lint: `pnpm exec biome check convex scripts`\n- build: `pnpm convex:dev --once`\n\n> **Command note:** `pnpm test` maps to bare `vitest` (watch mode) and HANGS in an agent shell \u2014 always use `npx vitest run`. vitest has no `--grep`; the single-test filter is `-t '<name>'`.\n\n## OUTCOME\n\nderiveGoalState / sprint-goal-state refuse complete-on-reject; new gate evidence packet has non-identical step-3/4, row-level top-50, coherent rowCount vs riderReadyCount, zero test: contamination in retirement export, and Sprint 10 blocked flag when decision is not accepted.\n\n## BACKGROUND\n\nRed-hat review 2026-07-25T02:13:34Z (NEEDS_REVISION BLOCK). Closes F4, F5, F6, F16, F17. Terminal sprint outcome may remain rejected; honesty requires met:false and Sprint 10 blocked until a future accepted batch.\n\n**Objective:** Make Sprint 05 completion and human-gate evidence honest: only accepted batches complete the goal; gate re-run is un-seeded with real negative control and observable top-50 road review; Sprint 10 is visibly blocked until acceptance exists.\n\n## \ud83d\udeab CRITICAL CONSTRAINTS (Never tier)\n\n- **MUST** refuse to set sprint-goal-state goal:complete / met:true when the recorded batch decision is rejected or escalation_required unresolved\n- **MUST** re-run Human Testing Gate on un-seeded live catalog after FIX-01..04 with unified runId across report read and accept\n- **MUST** capture a real step-4 negative control that is not byte-identical to step-3 (e.g. attempt accept while escalation open \u2192 escalation_required/reject)\n- **MUST** emit row-level top-50 evidence (route IDs, road identity, measured vs claimed length) not aggregate-only\n- **MUST** reconcile top-50 rowCount with coverageReport riderReadyCount (explain shortfall or fail coherence check)\n- **MUST** flag Sprint 10 blocked when no accepted catalog exists\n- **NEVER** mark goal complete on a rejected batch\n- **NEVER** re-display step-3 as step-4 evidence\n- **NEVER** ship aggregate-only top-50 gate logs as human road-oracle proof\n- **NEVER** leave Sprint 10 appearing unblocked without accepted catalog\n- **STRICTLY** completion semantics are fail-closed: rejected/escalated unresolved \u21d2 met:false and goal not complete\n\n## SPECIFICATION\n\n**Objective:** Make Sprint 05 completion and human-gate evidence honest: only accepted batches complete the goal; gate re-run is un-seeded with real negative control and observable top-50 road review; Sprint 10 is visibly blocked until acceptance exists.\n\n**Success state:** deriveGoalState / sprint-goal-state refuse complete-on-reject; new gate evidence packet has non-identical step-3/4, row-level top-50, coherent rowCount vs riderReadyCount, zero test: contamination in retirement export, and Sprint 10 blocked flag when decision is not accepted.\n\n## FIXTURES (shared seed data \u2014 referenced by scenario `start_ref`)\n\n- `redhatfix05-rejected-batch-decision` (seed_method: `public_api`): Acceptance artifact with decision rejected / retirement locked\n  - runId redhatfix05-rejected decision rejected retirementUnlockedAt null\n- `redhatfix05-accepted-batch-decision` (seed_method: `public_api`): Acceptance artifact with decision accepted and retirementUnlockedAt set\n  - runId redhatfix05-accepted decision accepted\n- `redhatfix05-top50-row-export` (seed_method: `cli`): Top-50 manifest with per-row identity fields for gate capture\n  - scripts/top-50-curated-review.ts output with rows[].routeId,name,measuredMiles,claimedMiles\n- `redhatfix05-escalation-open-report` (seed_method: `public_api`): Provenanced completed report with low/zero yield that forces escalation on accept attempt\n  - runId redhatfix05-neg-control with zero-candidate or low reconstruct\n\n## ACCEPTANCE CRITERIA (TDD beads \u2014 RED \u2192 GREEN \u2192 REFACTOR per AC)\n\n### AC-1 [PRIMARY] \u2014 Do not mark goal complete on rejected batch\n\n**Requirement:** GIVEN batch acceptance decision is rejected (or unresolved escalation) WHEN sprint goal state is derived or written THEN goal is not complete, met is false, and status does not claim Completed solely from process-green CI\n\n- TEST_TIER: `integration` \u00b7 VERIFICATION_SERVICE: Convex dev deployment\n- FLOW_REF: ",
+      "owner": "convex-implementer",
+      "blocked_by": [],
+      "metadata": {
+        "source": "red-hat",
+        "sprint_id": "sprint-05-batch-acceptance-retirement",
+        "task_id": "REDHAT-FIX-05",
+        "assignee": "convex-implementer",
+        "priority": "P0",
+        "type": "FEATURE",
+        "file_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/REDHAT-FIX-05-honest-goal-semantics-gate-rerun.md",
+        "wave": 2,
+        "batch_id": "sprint-05-redhat-fix-20260725T023912Z",
+        "phase": "done",
+        "tdd_mode": "red_first",
+        "verification_policy": {
+          "requires_tests": true,
+          "requires_red_evidence": true,
+          "requires_seeded_evidence": true,
+          "tdd_lineage_required": true
+        },
+        "requirements": [
+          {
+            "id": "AC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "AC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-1",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-2",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-3",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          },
+          {
+            "id": "TC-4",
+            "satisfied": true,
+            "evidence": null,
+            "remediation": null
+          }
+        ],
+        "failure_signatures": [],
+        "spin_count": 0,
+        "worktree": {
+          "path": "/Users/inference1/Projects/LaneShadow-RN/.worktrees/REDHAT-FIX-05",
+          "branch": "task/REDHAT-FIX-05"
+        },
+        "last_commit_sha": "3c3a235c59956d59bcdd48629a83d68d818f845e"
+      }
     }
   },
   "meta": {
@@ -422,7 +926,8 @@
     },
     "e2e_framework": "maestro",
     "e2e_coverage_available": true,
-    "phase": "execution",
-    "scenario_gate": "pass"
+    "phase": "redhat-fix",
+    "scenario_gate": "pass",
+    "protected_branch": "main"
   }
 }

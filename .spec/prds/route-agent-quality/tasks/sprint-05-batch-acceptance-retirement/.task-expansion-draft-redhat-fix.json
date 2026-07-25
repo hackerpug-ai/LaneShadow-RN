@@ -1,0 +1,4197 @@
+{
+  "expanded_tasks": [
+    {
+      "task_id": "REDHAT-FIX-01",
+      "title": "Remove the live-branch stubs (isDone:true, totalCostUSD:0 hardcoded regardless of catalog state) and execute a real pnpm tsx scripts/backfill-curated-geometry.ts --all run to completion with totalCostUSD > 0, a non-null cursor transcript, and reconciled terminalStates.unresolved vs isDone; cited convex/curatedGeometry.ts:1330-1344, red-hat findings F2, F9, F10, F11",
+      "task_type": "FEATURE",
+      "tdd_mode": "red_first",
+      "verification_policy": {
+        "requires_tests": true,
+        "requires_red_evidence": true,
+        "requires_seeded_evidence": true
+      },
+      "status": "Backlog",
+      "priority": "P0",
+      "effort": "M",
+      "estimate_minutes": 120,
+      "agent": "convex-implementer",
+      "agent_rationale": "Live coverageReport stubs and full-batch cost/cursor persistence live entirely in Convex + the operator driver; no UI surface.",
+      "reviewer": "convex-reviewer",
+      "proposed_by": "convex-planner",
+      "sprint_id": "sprint-05-batch-acceptance-retirement",
+      "prd_refs": [
+        "UC-REC-04 AC-7",
+        "T-REC-017",
+        "T-REC-019"
+      ],
+      "touches_capabilities": [
+        "CAP-GEO-05"
+      ],
+      "provides": [
+        "real_full_batch_coverage_report",
+        "non_stub_isDone_totalCostUSD",
+        "cursor_transcript_for_gate"
+      ],
+      "consumes": [
+        "CAP-GEO-05 couch-sample PASS",
+        "runFullBatch / backfill --all driver"
+      ],
+      "boundary_contracts": [
+        "coverageReport live branch must not claim isDone=true or totalCostUSD=0 without a real persisted runFullBatch artifact",
+        "isDone must reconcile with terminalStates and continueCursor (unresolved>0 + isDone=true is invalid without explicit batchStopReason)"
+      ],
+      "critical_constraints": {
+        "must": [
+          "MUST derive isDone, continueCursor, and totalCostUSD from persisted full-batch state (batch_acceptance_artifacts coverage_report written by persistCoverageReport / runFullBatch), never hardcode them on the live branch",
+          "MUST execute (or prove via integration against real Convex) a real pnpm tsx scripts/backfill-curated-geometry.ts --all path that yields totalCostUSD > 0 and a non-null cursor transcript when the batch is multi-page or cost-stopped",
+          "MUST reconcile isDone with terminalStates.unresolved and continueCursor: isDone=true only when the batch truly completed (batchStopReason completed and no residual unprocessed work claimed complete)"
+        ],
+        "never": [
+          "NEVER leave isDone:true and totalCostUSD:0 hardcoded on the live coverageReport branch (curatedGeometry.ts:1330-1344)",
+          "NEVER treat a point-in-time catalog scan with unresolved residual as a completed full batch",
+          "NEVER accept re-authored/seeded gate logs as proof of a real --all run"
+        ],
+        "strictly": [
+          "STRICTLY a live unscoped coverageReport without a bound runId must either return source that does not claim completion, or surface the latest real full-batch runId's persisted fields \u2014 never invent completeness"
+        ]
+      },
+      "specification": {
+        "objective": "Eliminate the semantic stubs on the live coverageReport path and prove a real full-batch run produces non-degenerate cost, cursor, and completeness telemetry that operators and founders can trust for acceptance.",
+        "success_state": "coverageReport (persisted by runId and any live path that claims batch completeness) returns real isDone/continueCursor/totalCostUSD from runFullBatch; a real --all execution leaves totalCostUSD > 0, a cursor transcript, and no isDone=true + unresolved residual contradiction; RED then GREEN integration tests prove the stub path is gone."
+      },
+      "fixtures": {
+        "redhatfix01-cost-stop-resume-pool": {
+          "description": "Test-support route pool sized so a small --max-cost stops mid-batch with continueCursor and partial page totals; used to prove non-zero cost and non-null cursor without claiming isDone prematurely",
+          "seed_method": "public_api",
+          "records": [
+            "routeIds test:redhatfix01-cost-01..N with couchGateStatus pass",
+            "runFullBatchWithSeams --max-cost small enough to stop mid-list",
+            "persisted coverage_report runId with totalCostUSD > 0, isDone false, continueCursor non-null"
+          ]
+        },
+        "redhatfix01-completed-batch-report": {
+          "description": "Completed full-batch coverage_report artifact written only via persistCoverageReport from executeFullBatch (not seedS5T1* fixture seeds)",
+          "seed_method": "public_api",
+          "records": [
+            "runId redhatfix01-completed-batch",
+            "isDone true, continueCursor null, totalCostUSD > 0, batchStopReason completed",
+            "terminalStates consistent with processed routes (not unresolved=500 with isDone true)"
+          ]
+        },
+        "redhatfix01-live-scan-without-run": {
+          "description": "Catalog point-in-time scan with no bound full-batch runId \u2014 must not hardcode isDone true / totalCostUSD 0 as a completed batch",
+          "seed_method": "public_api",
+          "records": [
+            "unscoped coverageReport with no runId and no latest completed coverage_report",
+            "or live branch explicitly labeled as scan-not-batch without claiming completeness"
+          ]
+        }
+      },
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "num": 1,
+          "name": "Live coverageReport no longer hardcodes isDone/totalCostUSD",
+          "given": "the live branch of curatedGeometry.coverageReport (no usable persisted runId path) exists at convex/curatedGeometry.ts ~1330-1344",
+          "when": "an operator queries coverageReport without a real completed run binding or with a bound runId",
+          "then": "isDone and totalCostUSD are never the hardcoded pair (true, 0) regardless of catalog state; when a runId is bound, values match the persisted coverage_report from persistCoverageReport; when unbound, the response does not claim a completed batch with zero cost",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX01-live-coverage-no-stubs.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-04",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "hardcoded isDone:true stub remains on live branch",
+                "hardcoded totalCostUSD:0 static return regardless of catalog state",
+                "mock coverageReport always returns isDone:true and totalCostUSD:0",
+                "empty live branch with no real run still claims completed batch"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix01-live-scan-without-run",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Query curatedGeometry:coverageReport with no runId on a catalog that has residual unresolved routes",
+                    "Capture isDone, totalCostUSD, continueCursor, source, terminalStates"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "!(isDone == true && totalCostUSD == 0)",
+                    "source == 'live' || source == 'persisted'",
+                    "terminalStates.unresolved >= 0"
+                  ],
+                  "must_not_observe": [
+                    "isDone == true && totalCostUSD == 0",
+                    "totalCostUSD == 0 with isDone == true as completed batch stub",
+                    "empty coverageReport with no fields"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-2",
+          "num": 2,
+          "name": "Persisted runId report returns real cost and isDone from runFullBatch",
+          "given": "a full-batch was executed via runFullBatch / runFullBatchWithSeams which called persistCoverageReport",
+          "when": "coverageReport is queried with that runId",
+          "then": "source is persisted, totalCostUSD equals the cumulative batch cost (>0 for a cost-bearing page), isDone and continueCursor match the last page of the batch",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX01-persisted-cost-cursor.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-04",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "hardcoded totalCostUSD:0 on persisted runId path",
+                "mock persistCoverageReport that never writes cost",
+                "stub runFullBatch that skips cost accounting",
+                "empty coverage_report with totalCostUSD missing"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "db_query",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix01-cost-stop-resume-pool",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Seed cost-stop pool with couch PASS",
+                    "Invoke runFullBatchWithSeams with small maxCost and unique runId",
+                    "Query coverageReport({runId})",
+                    "Optionally resume with continueCursor and re-query"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "totalCostUSD > 0",
+                    "source == 'persisted'",
+                    "isDone == false",
+                    "continueCursor.length >= 1",
+                    "pageCostUSD > 0 || cumulativeCostUSD > 0"
+                  ],
+                  "must_not_observe": [
+                    "totalCostUSD == 0",
+                    "isDone == true && continueCursor.length >= 1",
+                    "continueCursor == null while isDone == false",
+                    "empty cost fields"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-3",
+          "num": 3,
+          "name": "isDone reconciles with terminalStates.unresolved and batchStopReason",
+          "given": "a coverage report claims isDone true",
+          "when": "the report is inspected for terminalStates and stop reason",
+          "then": "isDone true is only returned when the batch completed under an explicit batchStopReason of completed (or equivalent) and does not mislabel a pure unresolved-catalog scan as done",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX01-isDone-reconcile.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-04",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "hardcoded isDone:true on incomplete batch",
+                "static batchStopReason empty while isDone true",
+                "stub that sets isDone true without completed stop reason",
+                "mock terminalStates.unresolved == 500 with isDone true"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix01-completed-batch-report",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Produce a completed batch report via real persistCoverageReport path",
+                    "Produce a cost-stopped partial report",
+                    "Assert isDone/continueCursor/batchStopReason/terminalStates consistency for both"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "completed.isDone == true",
+                    "completed.continueCursor == null",
+                    "completed.batchStopReason == 'completed'",
+                    "partial.isDone == false",
+                    "partial.continueCursor.length >= 1",
+                    "incomplete_run rejection reason == 'incomplete_run'"
+                  ],
+                  "must_not_observe": [
+                    "isDone == true && continueCursor.length >= 1",
+                    "batchStopReason == null && isDone == true",
+                    "empty batchStopReason on completed report",
+                    "totalCostUSD == 0 forced on completed multi-page batch"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-4",
+          "num": 4,
+          "name": "Real --all operator path leaves a non-null cursor/cost transcript",
+          "given": "Sprint 04 couch gate is PASS on the real deployment",
+          "when": "the operator runs pnpm tsx scripts/backfill-curated-geometry.ts --all (or a cost-capped multi-page equivalent that exercises the same driver)",
+          "then": "stdout/transcript includes totalCostUSD or cumulativeCostUSD > 0 (or pageCostUSD on at least one page), runId, and continueCursor fields; the transcript is not empty of provider/cost signals",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX01-operator-all-transcript.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-04",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "static shell that never calls runFullBatch",
+                "hardcoded totalCostUSD:0 in operator transcript",
+                "mock driver that skips provider cost accounting",
+                "empty transcript with no runId or cost fields"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "stdout",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix01-cost-stop-resume-pool",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Ensure couch gate PASS for the test subject pool",
+                    "Invoke full-batch driver (runFullBatchWithSeams or backfill --all --waterfall with max-cost) against real Convex",
+                    "Capture stdout JSON for totalCostUSD/cumulativeCostUSD/continueCursor/runId/isDone"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "totalCostUSD > 0 || cumulativeCostUSD > 0 || pageCostUSD > 0",
+                    "runId.length >= 1",
+                    "isDone == false",
+                    "continueCursor.length >= 1"
+                  ],
+                  "must_not_observe": [
+                    "totalCostUSD == 0 && isDone == true",
+                    "runId.length == 0",
+                    "empty transcript",
+                    "continueCursor == null while isDone == false"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "num": 1,
+          "statement": "Unscoped or unbound live coverageReport does not return the hardcoded pair isDone true and totalCostUSD 0 as a completed batch",
+          "maps_to_ac": "AC-1",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX01-live-coverage-no-stubs.integration.test.ts -t 'TC-1'",
+          "type": "error"
+        },
+        {
+          "id": "TC-2",
+          "num": 2,
+          "statement": "coverageReport for a runId produced by runFullBatch returns totalCostUSD greater than 0 after a cost-bearing page",
+          "maps_to_ac": "AC-2",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX01-persisted-cost-cursor.integration.test.ts -t 'TC-2'",
+          "type": "happy_path"
+        },
+        {
+          "id": "TC-3",
+          "num": 3,
+          "statement": "Partial batch reports have isDone false and non-null continueCursor; completed reports have isDone true and null continueCursor",
+          "maps_to_ac": "AC-3",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX01-isDone-reconcile.integration.test.ts -t 'TC-3'",
+          "type": "edge"
+        },
+        {
+          "id": "TC-4",
+          "num": 4,
+          "statement": "Operator full-batch driver transcript includes runId and a positive cost field from the real Convex action",
+          "maps_to_ac": "AC-4",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX01-operator-all-transcript.integration.test.ts -t 'TC-4'",
+          "type": "happy_path"
+        }
+      ],
+      "requirements": [
+        {
+          "id": "AC-1",
+          "type": "acceptance_criterion",
+          "description": "GIVEN the live branch of coverageReport WHEN queried without inventing a completed batch THEN isDone/totalCostUSD are never the hardcoded (true, 0) stub pair",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX01-live-coverage-no-stubs.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "hardcoded isDone:true stub remains on live branch",
+                "hardcoded totalCostUSD:0 static return regardless of catalog state",
+                "mock coverageReport always returns isDone:true and totalCostUSD:0",
+                "empty live branch with no real run still claims completed batch"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix01-live-scan-without-run",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Query curatedGeometry:coverageReport with no runId on a catalog that has residual unresolved routes",
+                    "Capture isDone, totalCostUSD, continueCursor, source, terminalStates"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "!(isDone == true && totalCostUSD == 0)",
+                    "source == 'live' || source == 'persisted'",
+                    "terminalStates.unresolved >= 0"
+                  ],
+                  "must_not_observe": [
+                    "isDone == true && totalCostUSD == 0",
+                    "totalCostUSD == 0 with isDone == true as completed batch stub",
+                    "empty coverageReport with no fields"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-1",
+          "type": "test_criterion",
+          "description": "Unscoped or unbound live coverageReport does not return the hardcoded pair isDone true and totalCostUSD 0 as a completed batch",
+          "maps_to_ac": "AC-1",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX01-live-coverage-no-stubs.integration.test.ts -t 'TC-1'"
+        },
+        {
+          "id": "AC-2",
+          "type": "acceptance_criterion",
+          "description": "GIVEN a real runFullBatch persist WHEN coverageReport is queried by runId THEN totalCostUSD and isDone/continueCursor match persisted batch state with totalCostUSD > 0 after cost-bearing work",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX01-persisted-cost-cursor.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "hardcoded totalCostUSD:0 on persisted runId path",
+                "mock persistCoverageReport that never writes cost",
+                "stub runFullBatch that skips cost accounting",
+                "empty coverage_report with totalCostUSD missing"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "db_query",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix01-cost-stop-resume-pool",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Seed cost-stop pool with couch PASS",
+                    "Invoke runFullBatchWithSeams with small maxCost and unique runId",
+                    "Query coverageReport({runId})",
+                    "Optionally resume with continueCursor and re-query"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "totalCostUSD > 0",
+                    "source == 'persisted'",
+                    "isDone == false",
+                    "continueCursor.length >= 1",
+                    "pageCostUSD > 0 || cumulativeCostUSD > 0"
+                  ],
+                  "must_not_observe": [
+                    "totalCostUSD == 0",
+                    "isDone == true && continueCursor.length >= 1",
+                    "continueCursor == null while isDone == false",
+                    "empty cost fields"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-2",
+          "type": "test_criterion",
+          "description": "coverageReport for a runId produced by runFullBatch returns totalCostUSD greater than 0 after a cost-bearing page",
+          "maps_to_ac": "AC-2",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX01-persisted-cost-cursor.integration.test.ts -t 'TC-2'"
+        },
+        {
+          "id": "AC-3",
+          "type": "acceptance_criterion",
+          "description": "GIVEN isDone claims WHEN inspecting terminalStates and batchStopReason THEN completeness is reconciled and unresolved-scan-as-done is impossible",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX01-isDone-reconcile.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "hardcoded isDone:true on incomplete batch",
+                "static batchStopReason empty while isDone true",
+                "stub that sets isDone true without completed stop reason",
+                "mock terminalStates.unresolved == 500 with isDone true"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix01-completed-batch-report",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Produce a completed batch report via real persistCoverageReport path",
+                    "Produce a cost-stopped partial report",
+                    "Assert isDone/continueCursor/batchStopReason/terminalStates consistency for both"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "completed.isDone == true",
+                    "completed.continueCursor == null",
+                    "completed.batchStopReason == 'completed'",
+                    "partial.isDone == false",
+                    "partial.continueCursor.length >= 1",
+                    "incomplete_run rejection reason == 'incomplete_run'"
+                  ],
+                  "must_not_observe": [
+                    "isDone == true && continueCursor.length >= 1",
+                    "batchStopReason == null && isDone == true",
+                    "empty batchStopReason on completed report",
+                    "totalCostUSD == 0 forced on completed multi-page batch"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-3",
+          "type": "test_criterion",
+          "description": "Partial batch reports have isDone false and non-null continueCursor; completed reports have isDone true and null continueCursor",
+          "maps_to_ac": "AC-3",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX01-isDone-reconcile.integration.test.ts -t 'TC-3'"
+        },
+        {
+          "id": "AC-4",
+          "type": "acceptance_criterion",
+          "description": "GIVEN couch PASS WHEN operator full-batch path runs THEN transcript has positive cost and cursor/runId fields from real Convex",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX01-operator-all-transcript.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "static shell that never calls runFullBatch",
+                "hardcoded totalCostUSD:0 in operator transcript",
+                "mock driver that skips provider cost accounting",
+                "empty transcript with no runId or cost fields"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "stdout",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix01-cost-stop-resume-pool",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Ensure couch gate PASS for the test subject pool",
+                    "Invoke full-batch driver (runFullBatchWithSeams or backfill --all --waterfall with max-cost) against real Convex",
+                    "Capture stdout JSON for totalCostUSD/cumulativeCostUSD/continueCursor/runId/isDone"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "totalCostUSD > 0 || cumulativeCostUSD > 0 || pageCostUSD > 0",
+                    "runId.length >= 1",
+                    "isDone == false",
+                    "continueCursor.length >= 1"
+                  ],
+                  "must_not_observe": [
+                    "totalCostUSD == 0 && isDone == true",
+                    "runId.length == 0",
+                    "empty transcript",
+                    "continueCursor == null while isDone == false"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-4",
+          "type": "test_criterion",
+          "description": "Operator full-batch driver transcript includes runId and a positive cost field from the real Convex action",
+          "maps_to_ac": "AC-4",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX01-operator-all-transcript.integration.test.ts -t 'TC-4'"
+        }
+      ],
+      "reading_list": [
+        {
+          "path": "convex/curatedGeometry.ts",
+          "lines": "1330-1344",
+          "focus": "live coverageReport stubs isDone:true totalCostUSD:0"
+        },
+        {
+          "path": "convex/curatedGeometry.ts",
+          "lines": "1145-1192",
+          "focus": "persistCoverageReport real fields"
+        },
+        {
+          "path": "convex/curatedGeometry.ts",
+          "lines": "1198-1231",
+          "focus": "persisted runId branch of coverageReport"
+        },
+        {
+          "path": "convex/waterfallOrchestrator.ts",
+          "lines": "890-1136",
+          "focus": "buildCoverageFromWaterfall + persistCoverageReport + cost/cursor"
+        },
+        {
+          "path": "convex/waterfallOrchestrator.ts",
+          "lines": "1142-1180",
+          "focus": "runFullBatch / runFullBatchWithSeams entrypoints"
+        },
+        {
+          "path": "scripts/backfill-curated-geometry.ts",
+          "lines": "1-80",
+          "focus": "operator --all driver"
+        },
+        {
+          "path": "scripts/geometry-coverage-report.ts",
+          "lines": "1-80",
+          "focus": "operator report reader"
+        },
+        {
+          "path": ".spec/reviews/red-hat-sprint-05-batch-acceptance-retirement-20260725T021334Z.md",
+          "lines": "42-44,79-83",
+          "focus": "F2 F10 F11 findings"
+        },
+        {
+          "path": "convex/_generated/ai/guidelines.md",
+          "focus": "Convex API rules"
+        }
+      ],
+      "guardrails": {
+        "write_allowed": [
+          "convex/curatedGeometry.ts (MODIFY)",
+          "convex/waterfallOrchestrator.ts (MODIFY, only if needed to surface cost/cursor into report)",
+          "scripts/backfill-curated-geometry.ts (MODIFY, minimal driver wiring)",
+          "scripts/geometry-coverage-report.ts (MODIFY, minimal)",
+          "convex/__tests__/REDHATFIX01-*.integration.test.ts (NEW)",
+          "convex/schema.ts (MODIFY only if additive fields for batch completeness provenance)"
+        ],
+        "write_prohibited": [
+          "react-native/**",
+          "re-authoring seeded gate logs as proof",
+          "convex/__tests__/S5T1-*.integration.test.ts (do not weaken existing oracles)",
+          "Marking sprint goal complete without a real batch"
+        ]
+      },
+      "design": {
+        "references": [
+          "SPRINT.md",
+          ".spec/reviews/red-hat-sprint-05-batch-acceptance-retirement-20260725T021334Z.md",
+          "S5-T1-full-all-batch-coverage-report-acceptance-low-yield-escalation.md"
+        ],
+        "interaction_notes": [
+          "Persisted path already correct; fix the live fallback and prove operator --all path writes real cost"
+        ],
+        "pattern": "Derive isDone/totalCostUSD/continueCursor from persistCoverageReport / runFullBatch page state",
+        "pattern_source": "convex/waterfallOrchestrator.ts:executeFullBatch + curatedGeometry.persistCoverageReport",
+        "anti_pattern": "Hardcoding isDone:true and totalCostUSD:0 on the live branch"
+      },
+      "verification_gates": [
+        {
+          "gate": "All Tests Pass",
+          "command": "npx vitest run convex/__tests__/REDHATFIX01-",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Typecheck",
+          "command": "pnpm type-check",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Lint",
+          "command": "pnpm exec biome check convex scripts",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Convex build",
+          "command": "pnpm convex:dev --once",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Operator full batch (evidence)",
+          "command": "pnpm tsx scripts/backfill-curated-geometry.ts --all",
+          "expected": "Transcript with runId, totalCostUSD/cumulativeCostUSD > 0 or multi-page cursor; not isDone+0 cost stub"
+        }
+      ],
+      "coding_standards": [
+        "convex/_generated/ai/guidelines.md",
+        "brain/docs/RED-FIRST-TEST-GATE.md",
+        "brain/docs/kanban/SCENARIO-CONTRACT-V1.md"
+      ],
+      "dependencies": {
+        "depends_on": [],
+        "blocks": [
+          "REDHAT-FIX-02",
+          "REDHAT-FIX-05"
+        ]
+      },
+      "notes": "Closes F2, F9 (undefined 0/0 context for live report honesty), F10, F11. Primary unblocks live acceptance binding and human gate re-run."
+    },
+    {
+      "task_id": "REDHAT-FIX-02",
+      "title": "Fix requestBatchAcceptance to bind the acceptance decision to the SAME live coverageReport (runId) the founder read \u2014 no seed/fixture report may satisfy an acceptance step \u2014 and require non-null operatorIdentity + decision.timestamp (ISO) on the acceptance artifact; delete the seeded s5t4-live-acceptance artifact; add a provenance check tying coverage_report to a real runFullBatch invocation; cited convex/curatedGeometry.ts:1451-1456, red-hat findings F1, F8, F15",
+      "task_type": "FEATURE",
+      "tdd_mode": "red_first",
+      "verification_policy": {
+        "requires_tests": true,
+        "requires_red_evidence": true,
+        "requires_seeded_evidence": true
+      },
+      "status": "Backlog",
+      "priority": "P0",
+      "effort": "M",
+      "estimate_minutes": 120,
+      "agent": "convex-implementer",
+      "agent_rationale": "Acceptance mutation, artifact schema, and provenance checks are Convex-only; founder identity already enforced via requireFounder.",
+      "reviewer": "convex-reviewer",
+      "proposed_by": "convex-planner",
+      "sprint_id": "sprint-05-batch-acceptance-retirement",
+      "prd_refs": [
+        "UC-REC-04 AC-7",
+        "T-REC-017",
+        "S5-T4 AC-1"
+      ],
+      "touches_capabilities": [
+        "CAP-GEO-04",
+        "CAP-GEO-05"
+      ],
+      "provides": [
+        "runId_bound_acceptance_artifact",
+        "operatorIdentity_and_ISO_timestamp_on_decision",
+        "coverage_report_runFullBatch_provenance_gate"
+      ],
+      "consumes": [
+        "real_full_batch_coverage_report (REDHAT-FIX-01)",
+        "detectLowYieldEscalations safety (REDHAT-FIX-04)"
+      ],
+      "boundary_contracts": [
+        "requestBatchAcceptance only accepts coverage_report rows provenance-tied to runFullBatch/persistCoverageReport (not seedS5T1* / fixture seeds)",
+        "acceptance artifact must carry non-null operatorIdentity and decision.timestamp ISO",
+        "founder-read report runId must equal acceptance runId (no cross-report accept)"
+      ],
+      "critical_constraints": {
+        "must": [
+          "MUST bind acceptance to the exact coverage_report runId the founder read; observedRates on the acceptance artifact must equal that report's levers",
+          "MUST persist non-null operatorIdentity (len>=1) and decision.timestamp as ISO-8601 on every acceptance decision artifact",
+          "MUST reject acceptance when the coverage_report lacks runFullBatch provenance (e.g. only seedS5T1LowYieldReport / fixture seed paths)",
+          "MUST delete or tombstone the seeded s5t4-live-acceptance artifact so it cannot satisfy a live gate"
+        ],
+        "never": [
+          "NEVER allow a seed/fixture coverage_report to satisfy a production/live acceptance step",
+          "NEVER persist acceptance without operatorIdentity or ISO timestamp",
+          "NEVER accept when report.isDone is false (existing incomplete_run lock must remain)"
+        ],
+        "strictly": [
+          "STRICTLY provenance is fail-closed: missing provenance fields \u2192 NOT_PROVENANCED / rejection, not silent accept"
+        ]
+      },
+      "specification": {
+        "objective": "Close SEED_SUBSTITUTION by making acceptance auditable: same runId as the founder-read report, attested operator + time, and provenance proving the report came from a real full-batch invocation \u2014 not a seeded fixture.",
+        "success_state": "requestBatchAcceptance refuses fixture-seeded reports; accepts only provenance-tied runFullBatch reports; every decision stores operatorIdentity + ISO timestamp; s5t4-live-acceptance is gone; observed lever counts match the bound report."
+      },
+      "fixtures": {
+        "redhatfix02-real-batch-report": {
+          "description": "coverage_report written via persistCoverageReport from runFullBatch with provenance markers (batchStopReason, totalCostUSD, sourceRunKind=runFullBatch or equivalent)",
+          "seed_method": "public_api",
+          "records": [
+            "runId redhatfix02-real-batch",
+            "artifactKind coverage_report",
+            "isDone true, totalCostUSD > 0, levers with real candidate counts",
+            "provenance: producedBy=runFullBatch|persistCoverageReport"
+          ]
+        },
+        "redhatfix02-seeded-fixture-report": {
+          "description": "coverage_report shaped like s5t1-low-yield-reconstruct / s5t4-live-acceptance (10/10/10 candidates) written via seed helper only",
+          "seed_method": "public_api",
+          "records": [
+            "runId s5t4-live-acceptance or redhatfix02-seeded",
+            "levers candidateCount 10/10/10 from seedS5T1LowYieldReport",
+            "no runFullBatch provenance"
+          ]
+        },
+        "redhatfix02-founder-identity": {
+          "description": "Founder-authenticated caller for requestBatchAcceptance",
+          "seed_method": "public_api",
+          "records": [
+            "devSetupFounderUser with clerkUserId used as operatorIdentity"
+          ]
+        }
+      },
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "num": 1,
+          "name": "Acceptance binds to the same coverage_report runId the founder read",
+          "given": "a persisted coverage_report for runId R with known lever candidateCounts",
+          "when": "the founder calls requestBatchAcceptance({runId: R, decision})",
+          "then": "the acceptance artifact references R and observedRates/levers equal the coverage_report for R (not a different report or live-unscoped scan)",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX02-runId-binding.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-04",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "seed fixture report accepted under a different live scan runId",
+                "hardcoded observedRates unrelated to bound report",
+                "mock requestBatchAcceptance ignoring runId binding",
+                "empty acceptance artifact with decision == null still passes"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "db_query",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix02-real-batch-report",
+                "action": {
+                  "actor": "founder",
+                  "steps": [
+                    "Read coverageReport({runId: R})",
+                    "Call requestBatchAcceptance({runId: R, decision})",
+                    "Query getBatchAcceptance({runId: R}) and compare levers to the report"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "acceptance.runId == R",
+                    "acceptance.observedRates[i].candidateCount == report.levers[i].candidateCount",
+                    "acceptance.decision == 'accepted' || acceptance.decision == 'rejected' || acceptance.decision == 'escalation_required'"
+                  ],
+                  "must_not_observe": [
+                    "acceptance.runId != R",
+                    "observedRates candidateCount == 10 when report candidateCount != 10",
+                    "decision == null",
+                    "empty acceptance artifact"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-2",
+          "num": 2,
+          "name": "operatorIdentity and decision.timestamp ISO are required",
+          "given": "a founder-authenticated acceptance call on a provenance-valid report",
+          "when": "requestBatchAcceptance succeeds for accept, reject, or escalation_required",
+          "then": "the acceptance artifact includes non-null operatorIdentity (length >= 1) and decision.timestamp as a parseable ISO-8601 string",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX02-operator-timestamp.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-04",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "operatorIdentity absent/empty on acceptance artifact",
+                "hardcoded decision.timestamp omitted",
+                "stub accept path that drops identity fields",
+                "empty timestamp string still passes"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix02-founder-identity",
+                "action": {
+                  "actor": "founder",
+                  "steps": [
+                    "Accept or reject a provenance-valid completed report",
+                    "Inspect returned payload and persisted acceptance row for operatorIdentity and decision.timestamp"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "operatorIdentity.length >= 1",
+                    "decision.timestamp matches ISO pattern with 'T'",
+                    "decision.timestamp includes 'Z' || offset"
+                  ],
+                  "must_not_observe": [
+                    "operatorIdentity == null",
+                    "operatorIdentity == ''",
+                    "decision.timestamp == null",
+                    "decision.timestamp == ''",
+                    "empty identity fields"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-3",
+          "num": 3,
+          "name": "Fixture/seed coverage_report cannot satisfy acceptance",
+          "given": "a coverage_report created only via seed helpers (e.g. seedS5T1LowYieldReport / s5t4-live-acceptance shape) without runFullBatch provenance",
+          "when": "requestBatchAcceptance is called for that runId",
+          "then": "the mutation rejects with a provenance error and does not set decision accepted or retirementUnlockedAt",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX02-provenance-reject-seed.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-04",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "seed report accepted without runFullBatch provenance",
+                "mock provenance check always true",
+                "stub that skips provenance and unlocks retirement",
+                "empty provenance fields treated as valid"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix02-seeded-fixture-report",
+                "action": {
+                  "actor": "founder",
+                  "steps": [
+                    "Seed fixture coverage_report without runFullBatch provenance",
+                    "Call requestBatchAcceptance accept",
+                    "Assert rejection and lock state"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "error.code == 'NOT_PROVENANCED' || error.code == 'VALIDATION_ERROR'",
+                    "retirementUnlockedAt == null",
+                    "decision != 'accepted'"
+                  ],
+                  "must_not_observe": [
+                    "decision == 'accepted'",
+                    "retirementUnlockedAt != null",
+                    "empty error (silent success)",
+                    "escalations.length ignored with unlock"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-4",
+          "num": 4,
+          "name": "Delete s5t4-live-acceptance seed artifact and block re-use",
+          "given": "the seeded s5t4-live-acceptance artifact exists or is re-seeded",
+          "when": "cleanup runs and acceptance is attempted against that runId",
+          "then": "the artifact is removed (or provenance-invalid) and cannot unlock retirement",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX02-delete-s5t4-seed.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-04",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "s5t4-live-acceptance seed still accepted",
+                "static seed artifact retained as live acceptance",
+                "mock delete that leaves accept path open",
+                "empty cleanup leaving retirementUnlockedAt set"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "db_query",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix02-seeded-fixture-report",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Ensure s5t4-live-acceptance rows exist (coverage_report and/or acceptance)",
+                    "Run delete/tombstone helper or migration path",
+                    "Query by runId 's5t4-live-acceptance'",
+                    "Attempt requestBatchAcceptance if residual row remains"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "runId == 's5t4-live-acceptance' unlock forbidden",
+                    "retirementUnlockedAt == null",
+                    "decision == null || decision == 'rejected' || provenance reject"
+                  ],
+                  "must_not_observe": [
+                    "decision == 'accepted' for 's5t4-live-acceptance'",
+                    "retirementUnlockedAt != null from seed",
+                    "empty delete with residual unlock",
+                    "seed artifact still satisfies live gate"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "num": 1,
+          "statement": "Acceptance observedRates match the bound coverage_report levers for the same runId",
+          "maps_to_ac": "AC-1",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX02-runId-binding.integration.test.ts -t 'TC-1'",
+          "type": "happy_path"
+        },
+        {
+          "id": "TC-2",
+          "num": 2,
+          "statement": "Acceptance artifact includes non-null operatorIdentity and ISO decision.timestamp",
+          "maps_to_ac": "AC-2",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX02-operator-timestamp.integration.test.ts -t 'TC-2'",
+          "type": "happy_path"
+        },
+        {
+          "id": "TC-3",
+          "num": 3,
+          "statement": "requestBatchAcceptance rejects a seed-only coverage_report lacking runFullBatch provenance",
+          "maps_to_ac": "AC-3",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX02-provenance-reject-seed.integration.test.ts -t 'TC-3'",
+          "type": "error"
+        },
+        {
+          "id": "TC-4",
+          "num": 4,
+          "statement": "s5t4-live-acceptance cannot unlock retirement after cleanup",
+          "maps_to_ac": "AC-4",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX02-delete-s5t4-seed.integration.test.ts -t 'TC-4'",
+          "type": "edge"
+        }
+      ],
+      "requirements": [
+        {
+          "id": "AC-1",
+          "type": "acceptance_criterion",
+          "description": "GIVEN coverage_report runId R WHEN founder accepts THEN acceptance binds to R and observedRates match that report",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX02-runId-binding.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "seed fixture report accepted under a different live scan runId",
+                "hardcoded observedRates unrelated to bound report",
+                "mock requestBatchAcceptance ignoring runId binding",
+                "empty acceptance artifact with decision == null still passes"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "db_query",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix02-real-batch-report",
+                "action": {
+                  "actor": "founder",
+                  "steps": [
+                    "Read coverageReport({runId: R})",
+                    "Call requestBatchAcceptance({runId: R, decision})",
+                    "Query getBatchAcceptance({runId: R}) and compare levers to the report"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "acceptance.runId == R",
+                    "acceptance.observedRates[i].candidateCount == report.levers[i].candidateCount",
+                    "acceptance.decision == 'accepted' || acceptance.decision == 'rejected' || acceptance.decision == 'escalation_required'"
+                  ],
+                  "must_not_observe": [
+                    "acceptance.runId != R",
+                    "observedRates candidateCount == 10 when report candidateCount != 10",
+                    "decision == null",
+                    "empty acceptance artifact"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-1",
+          "type": "test_criterion",
+          "description": "Acceptance observedRates match the bound coverage_report levers for the same runId",
+          "maps_to_ac": "AC-1",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX02-runId-binding.integration.test.ts -t 'TC-1'"
+        },
+        {
+          "id": "AC-2",
+          "type": "acceptance_criterion",
+          "description": "GIVEN founder accept/reject/escalate WHEN artifact is persisted THEN operatorIdentity and ISO decision.timestamp are non-null",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX02-operator-timestamp.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "operatorIdentity absent/empty on acceptance artifact",
+                "hardcoded decision.timestamp omitted",
+                "stub accept path that drops identity fields",
+                "empty timestamp string still passes"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix02-founder-identity",
+                "action": {
+                  "actor": "founder",
+                  "steps": [
+                    "Accept or reject a provenance-valid completed report",
+                    "Inspect returned payload and persisted acceptance row for operatorIdentity and decision.timestamp"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "operatorIdentity.length >= 1",
+                    "decision.timestamp matches ISO pattern with 'T'",
+                    "decision.timestamp includes 'Z' || offset"
+                  ],
+                  "must_not_observe": [
+                    "operatorIdentity == null",
+                    "operatorIdentity == ''",
+                    "decision.timestamp == null",
+                    "decision.timestamp == ''",
+                    "empty identity fields"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-2",
+          "type": "test_criterion",
+          "description": "Acceptance artifact includes non-null operatorIdentity and ISO decision.timestamp",
+          "maps_to_ac": "AC-2",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX02-operator-timestamp.integration.test.ts -t 'TC-2'"
+        },
+        {
+          "id": "AC-3",
+          "type": "acceptance_criterion",
+          "description": "GIVEN seed-only coverage_report WHEN accept is requested THEN provenance check rejects and retirement stays locked",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX02-provenance-reject-seed.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "seed report accepted without runFullBatch provenance",
+                "mock provenance check always true",
+                "stub that skips provenance and unlocks retirement",
+                "empty provenance fields treated as valid"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix02-seeded-fixture-report",
+                "action": {
+                  "actor": "founder",
+                  "steps": [
+                    "Seed fixture coverage_report without runFullBatch provenance",
+                    "Call requestBatchAcceptance accept",
+                    "Assert rejection and lock state"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "error.code == 'NOT_PROVENANCED' || error.code == 'VALIDATION_ERROR'",
+                    "retirementUnlockedAt == null",
+                    "decision != 'accepted'"
+                  ],
+                  "must_not_observe": [
+                    "decision == 'accepted'",
+                    "retirementUnlockedAt != null",
+                    "empty error (silent success)",
+                    "escalations.length ignored with unlock"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-3",
+          "type": "test_criterion",
+          "description": "requestBatchAcceptance rejects a seed-only coverage_report lacking runFullBatch provenance",
+          "maps_to_ac": "AC-3",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX02-provenance-reject-seed.integration.test.ts -t 'TC-3'"
+        },
+        {
+          "id": "AC-4",
+          "type": "acceptance_criterion",
+          "description": "GIVEN s5t4-live-acceptance seed WHEN cleanup/accept attempted THEN artifact is gone or fail-closed and cannot unlock retirement",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX02-delete-s5t4-seed.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "s5t4-live-acceptance seed still accepted",
+                "static seed artifact retained as live acceptance",
+                "mock delete that leaves accept path open",
+                "empty cleanup leaving retirementUnlockedAt set"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "db_query",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix02-seeded-fixture-report",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Ensure s5t4-live-acceptance rows exist (coverage_report and/or acceptance)",
+                    "Run delete/tombstone helper or migration path",
+                    "Query by runId 's5t4-live-acceptance'",
+                    "Attempt requestBatchAcceptance if residual row remains"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "runId == 's5t4-live-acceptance' unlock forbidden",
+                    "retirementUnlockedAt == null",
+                    "decision == null || decision == 'rejected' || provenance reject"
+                  ],
+                  "must_not_observe": [
+                    "decision == 'accepted' for 's5t4-live-acceptance'",
+                    "retirementUnlockedAt != null from seed",
+                    "empty delete with residual unlock",
+                    "seed artifact still satisfies live gate"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-4",
+          "type": "test_criterion",
+          "description": "s5t4-live-acceptance cannot unlock retirement after cleanup",
+          "maps_to_ac": "AC-4",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX02-delete-s5t4-seed.integration.test.ts -t 'TC-4'"
+        }
+      ],
+      "reading_list": [
+        {
+          "path": "convex/curatedGeometry.ts",
+          "lines": "1443-1541",
+          "focus": "requestBatchAcceptance loads coverage_report by runId only; no identity/timestamp/provenance"
+        },
+        {
+          "path": "convex/curatedGeometry.ts",
+          "lines": "1145-1192",
+          "focus": "persistCoverageReport \u2014 attach provenance here"
+        },
+        {
+          "path": "convex/curatedGeometry.ts",
+          "lines": "1910-1960",
+          "focus": "seedS5T1LowYieldReport fixture shape used for s5t4-live-acceptance"
+        },
+        {
+          "path": "convex/schema.ts",
+          "lines": "440-488",
+          "focus": "batch_acceptance_artifacts fields to extend (operatorIdentity, timestamp, provenance)"
+        },
+        {
+          "path": "convex/waterfallOrchestrator.ts",
+          "lines": "1091-1103",
+          "focus": "persistCoverageReport call site for provenance stamping"
+        },
+        {
+          "path": ".spec/reviews/red-hat-sprint-05-batch-acceptance-retirement-20260725T021334Z.md",
+          "lines": "38-39,73-74,94-95",
+          "focus": "F1 F8 F15"
+        }
+      ],
+      "guardrails": {
+        "write_allowed": [
+          "convex/curatedGeometry.ts (MODIFY)",
+          "convex/schema.ts (MODIFY additive fields for operatorIdentity, decisionTimestamp, reportProvenance)",
+          "convex/waterfallOrchestrator.ts (MODIFY stamp provenance on persist)",
+          "convex/__tests__/REDHATFIX02-*.integration.test.ts (NEW)",
+          "scripts/geometry-coverage-report.ts (MODIFY if needed to always print runId)"
+        ],
+        "write_prohibited": [
+          "react-native/**",
+          "re-seeding s5t4-live-acceptance as live gate proof",
+          "Weakening incomplete_run or low-yield locks",
+          "Accepting seed reports by prefix allow-list bypass"
+        ]
+      },
+      "design": {
+        "references": [
+          "S5-T1 task",
+          "S5-T4 AC-1",
+          "red-hat F1/F8/F15"
+        ],
+        "interaction_notes": [
+          "Coordinate with REDHAT-FIX-04 so accept on live zero-candidate data cannot auto-unlock before provenance binds"
+        ],
+        "pattern": "Fail-closed provenance stamp at persistCoverageReport; require founder identity fields on accept",
+        "pattern_source": "requireFounder + batch_acceptance_artifacts upsert",
+        "anti_pattern": "Accept any coverage_report by runId including seed fixtures"
+      },
+      "verification_gates": [
+        {
+          "gate": "All Tests Pass",
+          "command": "npx vitest run convex/__tests__/REDHATFIX02-",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Typecheck",
+          "command": "pnpm type-check",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Lint",
+          "command": "pnpm exec biome check convex scripts",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Convex build",
+          "command": "pnpm convex:dev --once",
+          "expected": "Exit 0"
+        }
+      ],
+      "coding_standards": [
+        "convex/_generated/ai/guidelines.md",
+        "brain/docs/RED-FIRST-TEST-GATE.md",
+        "brain/docs/kanban/SCENARIO-CONTRACT-V1.md"
+      ],
+      "dependencies": {
+        "depends_on": [
+          "REDHAT-FIX-01",
+          "REDHAT-FIX-04"
+        ],
+        "blocks": [
+          "REDHAT-FIX-05"
+        ]
+      },
+      "notes": "Closes F1, F8, F15. Depends on FIX-01 for real reports and FIX-04 so live accept cannot skip escalation."
+    },
+    {
+      "task_id": "REDHAT-FIX-03",
+      "title": "Purge test:/seed: prefixed routeIds from the retirement-candidate export (listRetirementCandidates) using the same scrub already applied to the top-50 surface; cited gate-logs/step-7.log (47/50 rows were test:s4t5-passed-*), red-hat finding F3",
+      "task_type": "FEATURE",
+      "tdd_mode": "red_first",
+      "verification_policy": {
+        "requires_tests": true,
+        "requires_red_evidence": true,
+        "requires_seeded_evidence": true
+      },
+      "status": "Backlog",
+      "priority": "P0",
+      "effort": "S",
+      "estimate_minutes": 60,
+      "agent": "convex-implementer",
+      "agent_rationale": "Reuse isTestSeedRoute from convex/lib/top50Eligibility.ts on the listRetirementCandidates founder surface; Convex query-only change plus tests.",
+      "reviewer": "convex-reviewer",
+      "proposed_by": "convex-planner",
+      "sprint_id": "sprint-05-batch-acceptance-retirement",
+      "prd_refs": [
+        "UC-REC-05",
+        "T-REC-014",
+        "S5-T4 AC-1"
+      ],
+      "touches_capabilities": [
+        "CAP-GEO-04"
+      ],
+      "provides": [
+        "founder_clean_retirement_candidate_export"
+      ],
+      "consumes": [
+        "isTestSeedRoute / top50 GATE-FIX scrub pattern"
+      ],
+      "boundary_contracts": [
+        "Unscoped listRetirementCandidates never returns test: or seed: routeIds",
+        "Prefix-scoped harness path may still include test: rows for isolation (mirror top50 routeIdPrefix behavior)"
+      ],
+      "critical_constraints": {
+        "must": [
+          "MUST filter unscoped listRetirementCandidates with the same isTestSeedRoute (or extended) predicate used by top-50 founder surface",
+          "MUST treat seed: prefix as fixture contamination in addition to test:",
+          "MUST oversample then filter so limit is filled with real candidates when possible"
+        ],
+        "never": [
+          "NEVER return test:s4t5-passed-* (or other test:/seed:) rows on the unscoped founder export",
+          "NEVER break prefix-scoped test isolation used by S5-T2 integration tests"
+        ],
+        "strictly": [
+          "STRICTLY scrub is post-index filter on the founder (unscoped) path only; do not delete production routes"
+        ]
+      },
+      "specification": {
+        "objective": "Apply the top-50 GATE-FIX seed scrub to listRetirementCandidates so the acceptance packet retirement review is not 94% test fixtures.",
+        "success_state": "Unscoped listRetirementCandidates returns zero routeIds starting with test: or seed: even when such rows dominate the review/unresolved indexes; prefix-scoped harness still works."
+      },
+      "fixtures": {
+        "redhatfix03-mixed-retirement-pool": {
+          "description": "Mix of real-looking motorcycleroads:* candidates and dense test:s4t5-passed-* / seed: rows in review/unresolved/failed",
+          "seed_method": "public_api",
+          "records": [
+            "routeId test:s4t5-passed-001..047 geometryStatus review, all-lever failed evidence",
+            "routeId seed:fake-retire-01",
+            "routeId motorcycleroads:real-retire-a eligible",
+            "routeId motorcycleroads:real-retire-b eligible"
+          ]
+        },
+        "redhatfix03-prefix-harness": {
+          "description": "Prefix-scoped export for test isolation must still return test: rows when routeIdPrefix=test:",
+          "seed_method": "public_api",
+          "records": [
+            "routeIdPrefix test:s5t2- or test:redhatfix03-"
+          ]
+        }
+      },
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "num": 1,
+          "name": "Unscoped export purges test: and seed: routeIds",
+          "given": "DB contains eligible retirement candidates with test: and seed: prefixes mixed with real routeIds",
+          "when": "listRetirementCandidates is called without routeIdPrefix",
+          "then": "returned candidates contain zero routeIds starting with test: or seed:",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX03-retirement-seed-scrub.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-05",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "test:s4t5-passed rows returned unscoped",
+                "seed: rows returned unscoped",
+                "stub empty list that skips scrub proof with candidates.length == 0",
+                "mock filter that only drops one prefix and leaves test: rows"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix03-mixed-retirement-pool",
+                "action": {
+                  "actor": "founder",
+                  "steps": [
+                    "Seed mixed pool with 47 test: and 1 seed: and 2 real candidates",
+                    "Call listRetirementCandidates({limit:50}) unscoped",
+                    "Count prefixes in response.candidates"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "candidates with prefix 'test:' count == 0",
+                    "candidates with prefix 'seed:' count == 0",
+                    "contaminationCount == 0",
+                    "realEligibleCount >= 1",
+                    "candidates.length >= 1"
+                  ],
+                  "must_not_observe": [
+                    "candidates with prefix 'test:' count > 0",
+                    "candidates with prefix 'seed:' count > 0",
+                    "routeId == 'test:s4t5-passed-001'",
+                    "candidates.length == 0 when real eligible rows exist",
+                    "empty scrub that drops real rows only"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-2",
+          "num": 2,
+          "name": "Prefix-scoped harness retains test: rows for isolation",
+          "given": "S5-T2 style tests pass routeIdPrefix starting with test:",
+          "when": "listRetirementCandidates is called with that prefix",
+          "then": "test: rows under the prefix are still returned for harness isolation",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX03-prefix-isolation.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-05",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "prefix path also scrubbed empty removing harness rows",
+                "hardcoded unscoped scrub applied when routeIdPrefix present",
+                "stub listRetirementCandidates returns empty for test: prefix",
+                "mock that deletes test routes instead of isolating"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix03-prefix-harness",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "Seed test:redhatfix03-all-failed eligible row",
+                    "Call listRetirementCandidates({routeIdPrefix:'test:redhatfix03-'})"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "candidates includes routeId == 'test:redhatfix03-all-failed'",
+                    "candidates.length >= 1"
+                  ],
+                  "must_not_observe": [
+                    "candidates.length == 0",
+                    "routeId == 'test:redhatfix03-all-failed' missing",
+                    "empty prefix harness export"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-3",
+          "num": 3,
+          "name": "Reuse shared isTestSeedRoute (extended for seed:)",
+          "given": "convex/lib/top50Eligibility.ts exports isTestSeedRoute",
+          "when": "listRetirementCandidates filters unscoped results",
+          "then": "it uses the shared helper (extended to cover seed: prefix), not a divergent ad-hoc filter",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX03-shared-predicate.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-05",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "duplicate divergent filter that misses seed: prefix",
+                "hardcoded only test:s4t5 without seed:",
+                "stub isTestSeedRoute always false",
+                "mock predicate that leaves seed: as production"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix03-mixed-retirement-pool",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "Assert isTestSeedRoute('seed:x') is true after extension",
+                    "Assert unscoped export excludes seed: and test: using that predicate"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "isTestSeedRoute('test:s4t5-passed-001') == true",
+                    "isTestSeedRoute('seed:fake') == true",
+                    "isTestSeedRoute('motorcycleroads:cherohala') == false"
+                  ],
+                  "must_not_observe": [
+                    "isTestSeedRoute('seed:fake') == false",
+                    "isTestSeedRoute('test:s4t5-passed-001') == false",
+                    "empty predicate always returning false"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-4",
+          "num": 4,
+          "name": "Oversample fills limit after scrub",
+          "given": "dense test: fixtures outrank real candidates in the status scan",
+          "when": "unscoped listRetirementCandidates(limit=N) runs",
+          "then": "implementation oversamples then filters so real candidates still fill up to N when available (mirror top50 oversample pattern)",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX03-oversample.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-05",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "take(N) before filter leaves only test rows then empties list",
+                "empty export when real candidates exist deeper",
+                "static limit without oversample",
+                "stub that returns candidates.length == 0 despite real eligible rows"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix03-mixed-retirement-pool",
+                "action": {
+                  "actor": "founder",
+                  "steps": [
+                    "Seed many test: rows first in scan order plus fewer real eligible rows",
+                    "Call listRetirementCandidates({limit:10}) unscoped"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "nonFixtureCandidateCount >= 1",
+                    "candidates with prefix 'test:' count == 0",
+                    "candidates.length >= 1",
+                    "candidates.length <= 10"
+                  ],
+                  "must_not_observe": [
+                    "candidates.length == 0",
+                    "candidates with prefix 'test:' count > 0",
+                    "empty first-page-only scan"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "num": 1,
+          "statement": "Unscoped listRetirementCandidates returns zero candidates with routeId prefix test: or seed:",
+          "maps_to_ac": "AC-1",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX03-retirement-seed-scrub.integration.test.ts -t 'TC-1'",
+          "type": "happy_path"
+        },
+        {
+          "id": "TC-2",
+          "num": 2,
+          "statement": "Prefix-scoped listRetirementCandidates still returns matching test: harness rows",
+          "maps_to_ac": "AC-2",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX03-prefix-isolation.integration.test.ts -t 'TC-2'",
+          "type": "edge"
+        },
+        {
+          "id": "TC-3",
+          "num": 3,
+          "statement": "isTestSeedRoute treats seed: prefix as fixture contamination",
+          "maps_to_ac": "AC-3",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX03-shared-predicate.integration.test.ts -t 'TC-3'",
+          "type": "happy_path"
+        },
+        {
+          "id": "TC-4",
+          "num": 4,
+          "statement": "Unscoped export still surfaces real eligible candidates after oversample-and-filter",
+          "maps_to_ac": "AC-4",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX03-oversample.integration.test.ts -t 'TC-4'",
+          "type": "edge"
+        }
+      ],
+      "requirements": [
+        {
+          "id": "AC-1",
+          "type": "acceptance_criterion",
+          "description": "GIVEN mixed test:/seed:/real retirement candidates WHEN unscoped listRetirementCandidates runs THEN zero test:/seed: rows are returned",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX03-retirement-seed-scrub.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "test:s4t5-passed rows returned unscoped",
+                "seed: rows returned unscoped",
+                "stub empty list that skips scrub proof with candidates.length == 0",
+                "mock filter that only drops one prefix and leaves test: rows"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix03-mixed-retirement-pool",
+                "action": {
+                  "actor": "founder",
+                  "steps": [
+                    "Seed mixed pool with 47 test: and 1 seed: and 2 real candidates",
+                    "Call listRetirementCandidates({limit:50}) unscoped",
+                    "Count prefixes in response.candidates"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "candidates with prefix 'test:' count == 0",
+                    "candidates with prefix 'seed:' count == 0",
+                    "contaminationCount == 0",
+                    "realEligibleCount >= 1",
+                    "candidates.length >= 1"
+                  ],
+                  "must_not_observe": [
+                    "candidates with prefix 'test:' count > 0",
+                    "candidates with prefix 'seed:' count > 0",
+                    "routeId == 'test:s4t5-passed-001'",
+                    "candidates.length == 0 when real eligible rows exist",
+                    "empty scrub that drops real rows only"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-1",
+          "type": "test_criterion",
+          "description": "Unscoped listRetirementCandidates returns zero candidates with routeId prefix test: or seed:",
+          "maps_to_ac": "AC-1",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX03-retirement-seed-scrub.integration.test.ts -t 'TC-1'"
+        },
+        {
+          "id": "AC-2",
+          "type": "acceptance_criterion",
+          "description": "GIVEN routeIdPrefix test: WHEN listRetirementCandidates runs THEN harness test rows remain visible",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX03-prefix-isolation.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "prefix path also scrubbed empty removing harness rows",
+                "hardcoded unscoped scrub applied when routeIdPrefix present",
+                "stub listRetirementCandidates returns empty for test: prefix",
+                "mock that deletes test routes instead of isolating"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix03-prefix-harness",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "Seed test:redhatfix03-all-failed eligible row",
+                    "Call listRetirementCandidates({routeIdPrefix:'test:redhatfix03-'})"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "candidates includes routeId == 'test:redhatfix03-all-failed'",
+                    "candidates.length >= 1"
+                  ],
+                  "must_not_observe": [
+                    "candidates.length == 0",
+                    "routeId == 'test:redhatfix03-all-failed' missing",
+                    "empty prefix harness export"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-2",
+          "type": "test_criterion",
+          "description": "Prefix-scoped listRetirementCandidates still returns matching test: harness rows",
+          "maps_to_ac": "AC-2",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX03-prefix-isolation.integration.test.ts -t 'TC-2'"
+        },
+        {
+          "id": "AC-3",
+          "type": "acceptance_criterion",
+          "description": "GIVEN shared isTestSeedRoute WHEN extended for seed: THEN retirement export uses it consistently",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX03-shared-predicate.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "duplicate divergent filter that misses seed: prefix",
+                "hardcoded only test:s4t5 without seed:",
+                "stub isTestSeedRoute always false",
+                "mock predicate that leaves seed: as production"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix03-mixed-retirement-pool",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "Assert isTestSeedRoute('seed:x') is true after extension",
+                    "Assert unscoped export excludes seed: and test: using that predicate"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "isTestSeedRoute('test:s4t5-passed-001') == true",
+                    "isTestSeedRoute('seed:fake') == true",
+                    "isTestSeedRoute('motorcycleroads:cherohala') == false"
+                  ],
+                  "must_not_observe": [
+                    "isTestSeedRoute('seed:fake') == false",
+                    "isTestSeedRoute('test:s4t5-passed-001') == false",
+                    "empty predicate always returning false"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-3",
+          "type": "test_criterion",
+          "description": "isTestSeedRoute treats seed: prefix as fixture contamination",
+          "maps_to_ac": "AC-3",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX03-shared-predicate.integration.test.ts -t 'TC-3'"
+        },
+        {
+          "id": "AC-4",
+          "type": "acceptance_criterion",
+          "description": "GIVEN dense fixtures WHEN unscoped export runs THEN oversample-and-filter still returns real candidates",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX03-oversample.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "take(N) before filter leaves only test rows then empties list",
+                "empty export when real candidates exist deeper",
+                "static limit without oversample",
+                "stub that returns candidates.length == 0 despite real eligible rows"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix03-mixed-retirement-pool",
+                "action": {
+                  "actor": "founder",
+                  "steps": [
+                    "Seed many test: rows first in scan order plus fewer real eligible rows",
+                    "Call listRetirementCandidates({limit:10}) unscoped"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "nonFixtureCandidateCount >= 1",
+                    "candidates with prefix 'test:' count == 0",
+                    "candidates.length >= 1",
+                    "candidates.length <= 10"
+                  ],
+                  "must_not_observe": [
+                    "candidates.length == 0",
+                    "candidates with prefix 'test:' count > 0",
+                    "empty first-page-only scan"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-4",
+          "type": "test_criterion",
+          "description": "Unscoped export still surfaces real eligible candidates after oversample-and-filter",
+          "maps_to_ac": "AC-4",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX03-oversample.integration.test.ts -t 'TC-4'"
+        }
+      ],
+      "reading_list": [
+        {
+          "path": "convex/curatedGeometry.ts",
+          "lines": "2744-2833",
+          "focus": "listRetirementCandidates \u2014 no seed scrub today"
+        },
+        {
+          "path": "convex/top50Review.ts",
+          "lines": "149-187",
+          "focus": "founder eligibility scrub pattern to mirror"
+        },
+        {
+          "path": "convex/lib/top50Eligibility.ts",
+          "lines": "1-29",
+          "focus": "isTestSeedRoute shared predicate"
+        },
+        {
+          "path": "convex/__tests__/top50Review.seed-exclusion.unit.test.ts",
+          "focus": "existing predicate tests to extend for seed:"
+        },
+        {
+          "path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-7.log",
+          "focus": "47/50 test:s4t5-passed-* contamination evidence"
+        },
+        {
+          "path": ".spec/reviews/red-hat-sprint-05-batch-acceptance-retirement-20260725T021334Z.md",
+          "lines": "46-48",
+          "focus": "F3"
+        }
+      ],
+      "guardrails": {
+        "write_allowed": [
+          "convex/curatedGeometry.ts (MODIFY listRetirementCandidates)",
+          "convex/lib/top50Eligibility.ts (MODIFY extend seed: marker)",
+          "convex/__tests__/REDHATFIX03-*.integration.test.ts (NEW)",
+          "convex/__tests__/top50Review.seed-exclusion.unit.test.ts (MODIFY extend seed: cases)"
+        ],
+        "write_prohibited": [
+          "react-native/**",
+          "Deleting test routes from DB as a substitute for export scrub",
+          "Weakening S5-T2 prefix isolation"
+        ]
+      },
+      "design": {
+        "references": [
+          "top50 GATE-FIX",
+          "red-hat F3",
+          "S5-T2 surface"
+        ],
+        "interaction_notes": [
+          "Independent of FIX-01; required before FIX-05 human gate re-run"
+        ],
+        "pattern": "Oversample index read \u2192 filter !isTestSeedRoute \u2192 take limit (unscoped only)",
+        "pattern_source": "convex/top50Review.ts founder path",
+        "anti_pattern": "Leaving retirement export unscoped while top-50 is scrubbed"
+      },
+      "verification_gates": [
+        {
+          "gate": "All Tests Pass",
+          "command": "npx vitest run convex/__tests__/REDHATFIX03-",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Existing retirement tests",
+          "command": "npx vitest run convex/__tests__/S5T2-",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Typecheck",
+          "command": "pnpm type-check",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Lint",
+          "command": "pnpm exec biome check convex scripts",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Convex build",
+          "command": "pnpm convex:dev --once",
+          "expected": "Exit 0"
+        }
+      ],
+      "coding_standards": [
+        "convex/_generated/ai/guidelines.md",
+        "brain/docs/RED-FIRST-TEST-GATE.md",
+        "brain/docs/kanban/SCENARIO-CONTRACT-V1.md"
+      ],
+      "dependencies": {
+        "depends_on": [],
+        "blocks": [
+          "REDHAT-FIX-05"
+        ]
+      },
+      "notes": "Closes F3. Parallel-safe with FIX-01 and FIX-06."
+    },
+    {
+      "task_id": "REDHAT-FIX-04",
+      "title": "Fix detectLowYieldEscalations so a lever with candidateCount<=0 does not silently skip the floor check \u2014 treat a zero-candidate lever as an escalation/inspection signal instead of a pass-through, closing the live-data auto-unlock path; cited convex/curatedGeometry.ts:1424, red-hat finding F7",
+      "task_type": "FEATURE",
+      "tdd_mode": "red_first",
+      "verification_policy": {
+        "requires_tests": true,
+        "requires_red_evidence": true,
+        "requires_seeded_evidence": true
+      },
+      "status": "Backlog",
+      "priority": "P0",
+      "effort": "M",
+      "estimate_minutes": 90,
+      "agent": "convex-implementer",
+      "agent_rationale": "Pure Convex escalation logic in detectLowYieldEscalations and requestBatchAcceptance; no UI.",
+      "reviewer": "convex-reviewer",
+      "proposed_by": "convex-planner",
+      "sprint_id": "sprint-05-batch-acceptance-retirement",
+      "prd_refs": [
+        "UC-REC-04 AC-7",
+        "T-REC-017"
+      ],
+      "touches_capabilities": [
+        "CAP-GEO-04",
+        "CAP-GEO-05"
+      ],
+      "provides": [
+        "zero_candidate_escalation_signal",
+        "live_path_no_auto_unlock"
+      ],
+      "consumes": [
+        "PRD_YIELD_ASSUMPTIONS escalationFloor"
+      ],
+      "boundary_contracts": [
+        "Levers with non-null escalationFloor and candidateCount<=0 produce escalation_required (inspection signal), not silent pass",
+        "0/0 is not a defined realized rate; reason must not claim '0.0% below floor' without defining undefined rate",
+        "Lever 1 promote with escalationFloor null still skips (unproven assumption)"
+      ],
+      "critical_constraints": {
+        "must": [
+          "MUST remove the silent continue when candidateCount<=0 for levers with non-null escalationFloor",
+          "MUST emit an escalation with an explicit reason code for zero_candidates / undefined_rate inspection",
+          "MUST keep requestBatchAcceptance(decision=accept) returning escalation_required when such escalations exist (retirementUnlockedAt null)"
+        ],
+        "never": [
+          "NEVER treat 0/0 as realizedRate 0.0% mathematically for floor comparison without labeling undefined",
+          "NEVER allow live reconstruct/reroute candidateCount=0 to auto-accept and unlock retirement",
+          "NEVER escalate lever 1 when escalationFloor is null (still unproven assumption)"
+        ],
+        "strictly": [
+          "STRICTLY zero-candidate levers with a floor are fail-closed inspection signals, not success"
+        ]
+      },
+      "specification": {
+        "objective": "Close the live-data auto-unlock path where reconstruct/reroute candidateCount=0 silently skipped floor checks, allowing accept without escalation.",
+        "success_state": "detectLowYieldEscalations escalates zero-candidate floored levers; accept stays locked until founder resolution; reason text does not misstate 0/0 as 0.0%."
+      },
+      "fixtures": {
+        "redhatfix04-zero-candidate-levers": {
+          "description": "Completed coverage_report with promote candidates>0 and reconstruct/reroute candidateCount=0 (live-shaped), escalationFloor 0.4 on levers 2/3",
+          "seed_method": "public_api",
+          "records": [
+            "runId redhatfix04-zero-cand with runFullBatch provenance for accept path tests",
+            "levers: promote candidates>=1; reconstruct candidates=0; reroute candidates=0",
+            "isDone true"
+          ]
+        },
+        "redhatfix04-low-yield-nonzero": {
+          "description": "Existing low-yield reconstruct 1/10 still escalates (regression)",
+          "seed_method": "public_api",
+          "records": [
+            "reconstruct candidates=10 passCount=1 realizedRate=0.1"
+          ]
+        },
+        "redhatfix04-promote-only-floor-null": {
+          "description": "Only promote lever has data; escalationFloor null \u2014 no zero-candidate escalation for promote",
+          "seed_method": "public_api",
+          "records": [
+            "promote candidates=5; reconstruct/reroute 0 still escalate as floored levers"
+          ]
+        }
+      },
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "num": 1,
+          "name": "Zero-candidate floored lever produces escalation",
+          "given": "a completed report where reconstruct and/or reroute have candidateCount=0 and non-null escalationFloor",
+          "when": "detectLowYieldEscalations runs (via requestBatchAcceptance accept)",
+          "then": "escalations include those levers with reason indicating zero_candidates or undefined_rate inspection (not silent skip)",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX04-zero-candidate-escalation.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-04",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "hardcoded candidateCount<=0 continue skip still present",
+                "stub detectLowYieldEscalations that returns escalations.length == 0",
+                "mock requestBatchAcceptance that auto-accepts on zero candidates",
+                "empty escalations with decision == accepted unlock"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix04-zero-candidate-levers",
+                "action": {
+                  "actor": "founder",
+                  "steps": [
+                    "Persist zero-candidate reconstruct/reroute report",
+                    "Call requestBatchAcceptance({decision:'accept'})",
+                    "Inspect escalations array"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "decision == 'escalation_required'",
+                    "escalations.length >= 1",
+                    "escalations includes lever == 'reconstruct' || lever == 'reroute'",
+                    "reason includes 'zero_candidates' || reason includes 'undefined_rate'",
+                    "retirementUnlockedAt == null"
+                  ],
+                  "must_not_observe": [
+                    "decision == 'accepted'",
+                    "escalations.length == 0",
+                    "retirementUnlockedAt != null",
+                    "empty escalations silent pass"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-2",
+          "num": 2,
+          "name": "0/0 is not reported as a defined 0.0% rate below floor",
+          "given": "candidateCount=0 for a floored lever",
+          "when": "escalation reason is generated",
+          "then": "reason does not claim a defined realized rate of 0.0% as the sole mathematical basis; it states zero candidates / undefined rate / inspection required",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX04-undefined-rate-reason.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-04",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "hardcoded reason only says realized rate 0.0% is below floor",
+                "stub that treats 0/0 as defined rate 0 without zero-candidate label",
+                "mock reason builder omitting undefined_rate",
+                "empty reason string"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix04-zero-candidate-levers",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "Trigger escalation for zero-candidate reconstruct",
+                    "Capture escalation.reason and any rate fields"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "reason includes 'zero_candidates' || reason includes 'undefined_rate' || reason includes 'inspection'",
+                    "candidateCount == 0",
+                    "candidates == 0"
+                  ],
+                  "must_not_observe": [
+                    "reason == 'reconstruct realized rate 0.0% is below escalation floor 40%' only",
+                    "candidateCount > 0 falsely",
+                    "empty reason"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-3",
+          "num": 3,
+          "name": "Non-zero low yield still escalates (regression)",
+          "given": "reconstruct 1 PASS / 10 candidates (rate 0.1 < 0.4 floor)",
+          "when": "accept is requested",
+          "then": "escalation_required still fires for low realized rate (existing S5-T1 behavior preserved)",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX04-nonzero-low-yield-regression.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-04",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "regression removing low-yield floor check",
+                "stub that only handles zero-candidate path",
+                "mock accept that unlocks on realizedRate == 0.1",
+                "empty escalations for 1/10 reconstruct"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix04-low-yield-nonzero",
+                "action": {
+                  "actor": "founder",
+                  "steps": [
+                    "Seed low-yield reconstruct report",
+                    "requestBatchAcceptance accept"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "decision == 'escalation_required'",
+                    "escalations[0].lever == 'reconstruct'",
+                    "passCount == 1",
+                    "candidates == 10",
+                    "realizedRate == 0.1",
+                    "retirementUnlockedAt == null"
+                  ],
+                  "must_not_observe": [
+                    "decision == 'accepted'",
+                    "escalations.length == 0",
+                    "retirementUnlockedAt != null",
+                    "empty low-yield regression"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-4",
+          "num": 4,
+          "name": "Promote with null floor does not zero-candidate-escalate",
+          "given": "PRD promote lever has escalationFloor null (unproven)",
+          "when": "promote candidateCount is 0 or >0",
+          "then": "promote is not escalated solely for zero candidates; floored levers 2/3 still escalate when zero",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX04-promote-floor-null.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-04",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "promote escalated despite null escalationFloor stub",
+                "hardcoded all levers always escalate",
+                "mock floor check ignoring escalationFloor == null",
+                "empty promote floor handling"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix04-promote-only-floor-null",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "Build lever rows from PRD_YIELD_ASSUMPTIONS",
+                    "Run detectLowYieldEscalations via accept path"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "promote escalations count == 0",
+                    "escalations for lever == 'promote' count == 0",
+                    "reconstruct escalations count >= 1 || reroute escalations count >= 1"
+                  ],
+                  "must_not_observe": [
+                    "lever == 'promote' in escalations",
+                    "escalations.length == 0 when reconstruct/reroute candidates == 0",
+                    "empty floor-null handling for promote"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "num": 1,
+          "statement": "requestBatchAcceptance returns escalation_required when reconstruct candidateCount is 0 with non-null escalationFloor",
+          "maps_to_ac": "AC-1",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX04-zero-candidate-escalation.integration.test.ts -t 'TC-1'",
+          "type": "happy_path"
+        },
+        {
+          "id": "TC-2",
+          "num": 2,
+          "statement": "Zero-candidate escalation reason labels undefined rate or zero candidates rather than only 0.0% below floor",
+          "maps_to_ac": "AC-2",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX04-undefined-rate-reason.integration.test.ts -t 'TC-2'",
+          "type": "edge"
+        },
+        {
+          "id": "TC-3",
+          "num": 3,
+          "statement": "Low non-zero reconstruct rate still escalates",
+          "maps_to_ac": "AC-3",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX04-nonzero-low-yield-regression.integration.test.ts -t 'TC-3'",
+          "type": "happy_path"
+        },
+        {
+          "id": "TC-4",
+          "num": 4,
+          "statement": "Promote lever with null escalationFloor is not escalated for zero candidates",
+          "maps_to_ac": "AC-4",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX04-promote-floor-null.integration.test.ts -t 'TC-4'",
+          "type": "edge"
+        }
+      ],
+      "requirements": [
+        {
+          "id": "AC-1",
+          "type": "acceptance_criterion",
+          "description": "GIVEN floored lever candidateCount=0 WHEN accept is requested THEN escalation_required and retirement stays locked",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX04-zero-candidate-escalation.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "hardcoded candidateCount<=0 continue skip still present",
+                "stub detectLowYieldEscalations that returns escalations.length == 0",
+                "mock requestBatchAcceptance that auto-accepts on zero candidates",
+                "empty escalations with decision == accepted unlock"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix04-zero-candidate-levers",
+                "action": {
+                  "actor": "founder",
+                  "steps": [
+                    "Persist zero-candidate reconstruct/reroute report",
+                    "Call requestBatchAcceptance({decision:'accept'})",
+                    "Inspect escalations array"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "decision == 'escalation_required'",
+                    "escalations.length >= 1",
+                    "escalations includes lever == 'reconstruct' || lever == 'reroute'",
+                    "reason includes 'zero_candidates' || reason includes 'undefined_rate'",
+                    "retirementUnlockedAt == null"
+                  ],
+                  "must_not_observe": [
+                    "decision == 'accepted'",
+                    "escalations.length == 0",
+                    "retirementUnlockedAt != null",
+                    "empty escalations silent pass"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-1",
+          "type": "test_criterion",
+          "description": "requestBatchAcceptance returns escalation_required when reconstruct candidateCount is 0 with non-null escalationFloor",
+          "maps_to_ac": "AC-1",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX04-zero-candidate-escalation.integration.test.ts -t 'TC-1'"
+        },
+        {
+          "id": "AC-2",
+          "type": "acceptance_criterion",
+          "description": "GIVEN 0/0 WHEN escalation reason is formed THEN undefined/zero-candidate language is used not bare 0.0%",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX04-undefined-rate-reason.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "hardcoded reason only says realized rate 0.0% is below floor",
+                "stub that treats 0/0 as defined rate 0 without zero-candidate label",
+                "mock reason builder omitting undefined_rate",
+                "empty reason string"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix04-zero-candidate-levers",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "Trigger escalation for zero-candidate reconstruct",
+                    "Capture escalation.reason and any rate fields"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "reason includes 'zero_candidates' || reason includes 'undefined_rate' || reason includes 'inspection'",
+                    "candidateCount == 0",
+                    "candidates == 0"
+                  ],
+                  "must_not_observe": [
+                    "reason == 'reconstruct realized rate 0.0% is below escalation floor 40%' only",
+                    "candidateCount > 0 falsely",
+                    "empty reason"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-2",
+          "type": "test_criterion",
+          "description": "Zero-candidate escalation reason labels undefined rate or zero candidates rather than only 0.0% below floor",
+          "maps_to_ac": "AC-2",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX04-undefined-rate-reason.integration.test.ts -t 'TC-2'"
+        },
+        {
+          "id": "AC-3",
+          "type": "acceptance_criterion",
+          "description": "GIVEN non-zero low yield WHEN accept THEN still escalates (regression)",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX04-nonzero-low-yield-regression.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "regression removing low-yield floor check",
+                "stub that only handles zero-candidate path",
+                "mock accept that unlocks on realizedRate == 0.1",
+                "empty escalations for 1/10 reconstruct"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix04-low-yield-nonzero",
+                "action": {
+                  "actor": "founder",
+                  "steps": [
+                    "Seed low-yield reconstruct report",
+                    "requestBatchAcceptance accept"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "decision == 'escalation_required'",
+                    "escalations[0].lever == 'reconstruct'",
+                    "passCount == 1",
+                    "candidates == 10",
+                    "realizedRate == 0.1",
+                    "retirementUnlockedAt == null"
+                  ],
+                  "must_not_observe": [
+                    "decision == 'accepted'",
+                    "escalations.length == 0",
+                    "retirementUnlockedAt != null",
+                    "empty low-yield regression"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-3",
+          "type": "test_criterion",
+          "description": "Low non-zero reconstruct rate still escalates",
+          "maps_to_ac": "AC-3",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX04-nonzero-low-yield-regression.integration.test.ts -t 'TC-3'"
+        },
+        {
+          "id": "AC-4",
+          "type": "acceptance_criterion",
+          "description": "GIVEN promote escalationFloor null WHEN zero or non-zero candidates THEN promote is not zero-candidate-escalated",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX04-promote-floor-null.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "promote escalated despite null escalationFloor stub",
+                "hardcoded all levers always escalate",
+                "mock floor check ignoring escalationFloor == null",
+                "empty promote floor handling"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix04-promote-only-floor-null",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "Build lever rows from PRD_YIELD_ASSUMPTIONS",
+                    "Run detectLowYieldEscalations via accept path"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "promote escalations count == 0",
+                    "escalations for lever == 'promote' count == 0",
+                    "reconstruct escalations count >= 1 || reroute escalations count >= 1"
+                  ],
+                  "must_not_observe": [
+                    "lever == 'promote' in escalations",
+                    "escalations.length == 0 when reconstruct/reroute candidates == 0",
+                    "empty floor-null handling for promote"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-4",
+          "type": "test_criterion",
+          "description": "Promote lever with null escalationFloor is not escalated for zero candidates",
+          "maps_to_ac": "AC-4",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX04-promote-floor-null.integration.test.ts -t 'TC-4'"
+        }
+      ],
+      "reading_list": [
+        {
+          "path": "convex/curatedGeometry.ts",
+          "lines": "1409-1441",
+          "focus": "detectLowYieldEscalations silent skip at candidateCount<=0"
+        },
+        {
+          "path": "convex/curatedGeometry.ts",
+          "lines": "1039-1064",
+          "focus": "PRD_YIELD_ASSUMPTIONS floors"
+        },
+        {
+          "path": "convex/curatedGeometry.ts",
+          "lines": "1488-1506",
+          "focus": "accept path uses escalations to block unlock"
+        },
+        {
+          "path": "convex/__tests__/S5T1-low-yield-escalation.integration.test.ts",
+          "focus": "existing low-yield tests to keep green"
+        },
+        {
+          "path": ".spec/reviews/red-hat-sprint-05-batch-acceptance-retirement-20260725T021334Z.md",
+          "lines": "70-77",
+          "focus": "F7 F9"
+        }
+      ],
+      "guardrails": {
+        "write_allowed": [
+          "convex/curatedGeometry.ts (MODIFY detectLowYieldEscalations + related reason builders)",
+          "convex/__tests__/REDHATFIX04-*.integration.test.ts (NEW)"
+        ],
+        "write_prohibited": [
+          "react-native/**",
+          "Removing low-yield floor entirely",
+          "Auto-accepting zero-candidate levers"
+        ]
+      },
+      "design": {
+        "references": [
+          "S5-T1 AC-3",
+          "red-hat F7/F9"
+        ],
+        "interaction_notes": [
+          "Blocks FIX-02 live accept safety and FIX-05 gate honesty"
+        ],
+        "pattern": "Zero-candidate + non-null floor \u2192 escalation inspection signal; non-zero below floor \u2192 existing rate escalation",
+        "pattern_source": "detectLowYieldEscalations",
+        "anti_pattern": "if (candidateCount <= 0) continue"
+      },
+      "verification_gates": [
+        {
+          "gate": "All Tests Pass",
+          "command": "npx vitest run convex/__tests__/REDHATFIX04-",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "S5T1 low-yield regression",
+          "command": "npx vitest run convex/__tests__/S5T1-low-yield-escalation.integration.test.ts",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Typecheck",
+          "command": "pnpm type-check",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Lint",
+          "command": "pnpm exec biome check convex scripts",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Convex build",
+          "command": "pnpm convex:dev --once",
+          "expected": "Exit 0"
+        }
+      ],
+      "coding_standards": [
+        "convex/_generated/ai/guidelines.md",
+        "brain/docs/RED-FIRST-TEST-GATE.md",
+        "brain/docs/kanban/SCENARIO-CONTRACT-V1.md"
+      ],
+      "dependencies": {
+        "depends_on": [],
+        "blocks": [
+          "REDHAT-FIX-02",
+          "REDHAT-FIX-05"
+        ]
+      },
+      "notes": "Closes F7 and the live-path half of F9. Must land before FIX-02 acceptance binding is proven safe on live-shaped data."
+    },
+    {
+      "task_id": "REDHAT-FIX-05",
+      "title": "Reconcile sprint completion semantics with the real gate outcome: do not mark goal: complete/met: true on a rejected batch decision; re-run the Human Testing Gate against a genuinely un-seeded live catalog with a real negative control at step 4 (mutate and show an actual rejection, not a byte-identical re-display of step 3); capture row-level top-50 evidence (route IDs, road identity, measured-vs-claimed length) so the human road-review oracle is observable, not aggregate-only; reconcile top-50 rowCount vs riderReadyCount; flag Sprint 10 as blocked while no accepted catalog exists; cited SPRINT.md, gate-logs/step-3..7.log, red-hat findings F4, F5, F6, F16, F17",
+      "task_type": "FEATURE",
+      "tdd_mode": "red_first",
+      "verification_policy": {
+        "requires_tests": true,
+        "requires_red_evidence": true,
+        "requires_seeded_evidence": true
+      },
+      "status": "Backlog",
+      "priority": "P0",
+      "effort": "M",
+      "estimate_minutes": 120,
+      "agent": "convex-implementer",
+      "agent_rationale": "Needs gate harness helpers, status reconciliation scripts/JSON contracts, and top-50 row-level evidence fields on Convex/scripts \u2014 not pure process prose.",
+      "reviewer": "convex-reviewer",
+      "proposed_by": "convex-planner",
+      "sprint_id": "sprint-05-batch-acceptance-retirement",
+      "prd_refs": [
+        "UC-REC-04 AC-7",
+        "UC-VER-05 AC-6",
+        "T-REC-017",
+        "T-VER-020",
+        "S5-T4"
+      ],
+      "touches_capabilities": [
+        "CAP-GEO-03",
+        "CAP-GEO-04",
+        "CAP-GEO-05"
+      ],
+      "provides": [
+        "honest_sprint_goal_semantics",
+        "row_level_top50_gate_evidence",
+        "real_step4_negative_control",
+        "sprint10_blocked_flag_without_accepted_catalog"
+      ],
+      "consumes": [
+        "REDHAT-FIX-01 real batch",
+        "REDHAT-FIX-02 runId-bound acceptance",
+        "REDHAT-FIX-03 clean retirement export",
+        "REDHAT-FIX-04 zero-candidate escalation"
+      ],
+      "boundary_contracts": [
+        "goal:complete/met:true only when gate decision is accepted (or explicitly resolved accept after escalation) \u2014 never on rejected",
+        "Human gate step-4 must mutate decision path and capture distinct artifact from step-3",
+        "top-50 evidence includes per-row routeId, name/road identity, measuredMiles, claimedMiles",
+        "Sprint 10 blocked while no accepted catalog (decision !== accepted)"
+      ],
+      "critical_constraints": {
+        "must": [
+          "MUST refuse to set sprint-goal-state goal:complete / met:true when the recorded batch decision is rejected or escalation_required unresolved",
+          "MUST re-run Human Testing Gate on un-seeded live catalog after FIX-01..04 with unified runId across report read and accept",
+          "MUST capture a real step-4 negative control that is not byte-identical to step-3 (e.g. attempt accept while escalation open \u2192 escalation_required/reject)",
+          "MUST emit row-level top-50 evidence (route IDs, road identity, measured vs claimed length) not aggregate-only",
+          "MUST reconcile top-50 rowCount with coverageReport riderReadyCount (explain shortfall or fail coherence check)",
+          "MUST flag Sprint 10 blocked when no accepted catalog exists"
+        ],
+        "never": [
+          "NEVER mark goal complete on a rejected batch",
+          "NEVER re-display step-3 as step-4 evidence",
+          "NEVER ship aggregate-only top-50 gate logs as human road-oracle proof",
+          "NEVER leave Sprint 10 appearing unblocked without accepted catalog"
+        ],
+        "strictly": [
+          "STRICTLY completion semantics are fail-closed: rejected/escalated unresolved \u21d2 met:false and goal not complete"
+        ]
+      },
+      "specification": {
+        "objective": "Make Sprint 05 completion and human-gate evidence honest: only accepted batches complete the goal; gate re-run is un-seeded with real negative control and observable top-50 road review; Sprint 10 is visibly blocked until acceptance exists.",
+        "success_state": "deriveGoalState / sprint-goal-state refuse complete-on-reject; new gate evidence packet has non-identical step-3/4, row-level top-50, coherent rowCount vs riderReadyCount, zero test: contamination in retirement export, and Sprint 10 blocked flag when decision is not accepted."
+      },
+      "fixtures": {
+        "redhatfix05-rejected-batch-decision": {
+          "description": "Acceptance artifact with decision rejected / retirement locked",
+          "seed_method": "public_api",
+          "records": [
+            "runId redhatfix05-rejected decision rejected retirementUnlockedAt null"
+          ]
+        },
+        "redhatfix05-accepted-batch-decision": {
+          "description": "Acceptance artifact with decision accepted and retirementUnlockedAt set",
+          "seed_method": "public_api",
+          "records": [
+            "runId redhatfix05-accepted decision accepted"
+          ]
+        },
+        "redhatfix05-top50-row-export": {
+          "description": "Top-50 manifest with per-row identity fields for gate capture",
+          "seed_method": "cli",
+          "records": [
+            "scripts/top-50-curated-review.ts output with rows[].routeId,name,measuredMiles,claimedMiles"
+          ]
+        },
+        "redhatfix05-escalation-open-report": {
+          "description": "Provenanced completed report with low/zero yield that forces escalation on accept attempt",
+          "seed_method": "public_api",
+          "records": [
+            "runId redhatfix05-neg-control with zero-candidate or low reconstruct"
+          ]
+        }
+      },
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "num": 1,
+          "name": "Do not mark goal complete on rejected batch",
+          "given": "batch acceptance decision is rejected (or unresolved escalation)",
+          "when": "sprint goal state is derived or written",
+          "then": "goal is not complete, met is false, and status does not claim Completed solely from process-green CI",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX05-goal-semantics.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-04",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "goal == 'complete' hardcoded on rejected decision",
+                "met == true stub despite decision == rejected",
+                "static sprint-goal-state ignores acceptance outcome",
+                "empty decision still marks complete"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "file_artifact",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix05-rejected-batch-decision",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Provide rejected acceptance decision as input to goal-state derivation helper",
+                    "Capture derived goal/met/status fields"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "met == false",
+                    "goal != 'complete'",
+                    "decision == 'rejected'"
+                  ],
+                  "must_not_observe": [
+                    "goal == 'complete' && decision == 'rejected'",
+                    "met == true && decision == rejected",
+                    "empty decision with met == true"
+                  ]
+                }
+              },
+              {
+                "start_ref": "redhatfix05-accepted-batch-decision",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Provide accepted decision with complete un-seeded evidence",
+                    "Capture derived goal state"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "decision == 'accepted'",
+                    "met == true only if decision == 'accepted' && gate oracles pass"
+                  ],
+                  "must_not_observe": [
+                    "met == true && decision == null",
+                    "goal == 'complete' without acceptance artifact",
+                    "empty accepted decision still fails complete when other oracles fail"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-2",
+          "num": 2,
+          "name": "Real step-4 negative control distinct from step-3",
+          "given": "a provenanced report that escalates or rejects on accept attempt",
+          "when": "gate step-4 runs (attempt accept / show escalation or rejection)",
+          "then": "step-4 artifact differs from step-3 (not byte-identical) and demonstrates a real negative control mutation",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX05-step4-negative-control.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-04",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "byte-identical step-3 and step-4 static copy",
+                "stub re-display only without accept mutation",
+                "hardcoded step-4 log copied from step-3",
+                "empty negative control with no decision change"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "file_artifact",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix05-escalation-open-report",
+                "action": {
+                  "actor": "founder",
+                  "steps": [
+                    "Capture step-3 comparison artifact (yields vs assumptions)",
+                    "Mutate by calling requestBatchAcceptance accept on open low/zero yield",
+                    "Capture step-4 response (escalation_required or reject)"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "step4_bytes != step3_bytes",
+                    "decision == 'escalation_required' || decision == 'rejected'",
+                    "retirementUnlockedAt == null"
+                  ],
+                  "must_not_observe": [
+                    "step4_bytes == step3_bytes",
+                    "decision == 'accepted'",
+                    "retirementUnlockedAt != null",
+                    "empty step-4 mutation"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-3",
+          "num": 3,
+          "name": "Row-level top-50 evidence and rowCount vs riderReadyCount reconciliation",
+          "given": "unscoped top-50 export and coverageReport for the same catalog state",
+          "when": "gate evidence for steps 5-6 is captured",
+          "then": "each row includes routeId, road identity (name), measuredMiles, claimedMiles; and rowCount is reconciled to riderReadyCount (rowCount <= riderReadyCount after scrub, or explicit coherence failure)",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX05-top50-row-evidence.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-VER-05",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "aggregate-only evidence without row fields",
+                "static top-50 log with only contaminationCount",
+                "mock rowCount == 50 with riderReadyCount == 17 unreconciled",
+                "empty rows array"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "file_artifact",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix05-top50-row-export",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Run top-50 export harness",
+                    "Load coverageReport riderReadyCount",
+                    "Validate each row has identity fields; compute coherence check"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "rows[i].routeId.length >= 1",
+                    "rows[i].name.length >= 1",
+                    "rows[i].measuredMiles >= 0",
+                    "rowCount <= riderReadyCount || coherenceNote.length >= 1",
+                    "test: rows count == 0",
+                    "rowCount >= 1"
+                  ],
+                  "must_not_observe": [
+                    "rows.length == 0",
+                    "rowCount > riderReadyCount without coherenceNote",
+                    "test: rows count > 0",
+                    "empty aggregate-only {contaminationCount:0} without rows"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-4",
+          "num": 4,
+          "name": "Sprint 10 blocked without accepted catalog",
+          "given": "no acceptance artifact with decision accepted for a live provenanced run",
+          "when": "downstream dependency status is computed",
+          "then": "Sprint 10 is flagged blocked with reason no accepted post-batch catalog",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX05-sprint10-blocked.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-04",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "Sprint 10 unblocked hardcoded when decision == rejected",
+                "stub blocked == false without accepted catalog",
+                "static dependency graph ignoring acceptance",
+                "empty accepted catalog still unblocks"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "file_artifact",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix05-rejected-batch-decision",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Derive dependency flags for Sprint 10 from acceptance state",
+                    "Capture blocked flag and reason"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "sprint10.blocked == true",
+                    "reason includes 'no accepted catalog' || reason includes 'rejected'"
+                  ],
+                  "must_not_observe": [
+                    "sprint10.blocked == false",
+                    "decision == 'rejected' && sprint10.blocked == false",
+                    "empty blocked reason"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "num": 1,
+          "statement": "Goal derivation sets met false when acceptance decision is rejected",
+          "maps_to_ac": "AC-1",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX05-goal-semantics.integration.test.ts -t 'TC-1'",
+          "type": "error"
+        },
+        {
+          "id": "TC-2",
+          "num": 2,
+          "statement": "Step-4 accept attempt on open escalation produces a non-identical artifact with escalation_required or rejected",
+          "maps_to_ac": "AC-2",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX05-step4-negative-control.integration.test.ts -t 'TC-2'",
+          "type": "happy_path"
+        },
+        {
+          "id": "TC-3",
+          "num": 3,
+          "statement": "Top-50 gate evidence includes per-row routeId name measuredMiles claimedMiles and passes rowCount vs riderReadyCount coherence",
+          "maps_to_ac": "AC-3",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX05-top50-row-evidence.integration.test.ts -t 'TC-3'",
+          "type": "happy_path"
+        },
+        {
+          "id": "TC-4",
+          "num": 4,
+          "statement": "Sprint 10 blocked flag is true when no accepted catalog exists",
+          "maps_to_ac": "AC-4",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX05-sprint10-blocked.integration.test.ts -t 'TC-4'",
+          "type": "edge"
+        }
+      ],
+      "requirements": [
+        {
+          "id": "AC-1",
+          "type": "acceptance_criterion",
+          "description": "GIVEN rejected batch WHEN goal state is derived THEN goal is not complete and met is false",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX05-goal-semantics.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "goal == 'complete' hardcoded on rejected decision",
+                "met == true stub despite decision == rejected",
+                "static sprint-goal-state ignores acceptance outcome",
+                "empty decision still marks complete"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "file_artifact",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix05-rejected-batch-decision",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Provide rejected acceptance decision as input to goal-state derivation helper",
+                    "Capture derived goal/met/status fields"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "met == false",
+                    "goal != 'complete'",
+                    "decision == 'rejected'"
+                  ],
+                  "must_not_observe": [
+                    "goal == 'complete' && decision == 'rejected'",
+                    "met == true && decision == rejected",
+                    "empty decision with met == true"
+                  ]
+                }
+              },
+              {
+                "start_ref": "redhatfix05-accepted-batch-decision",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Provide accepted decision with complete un-seeded evidence",
+                    "Capture derived goal state"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "decision == 'accepted'",
+                    "met == true only if decision == 'accepted' && gate oracles pass"
+                  ],
+                  "must_not_observe": [
+                    "met == true && decision == null",
+                    "goal == 'complete' without acceptance artifact",
+                    "empty accepted decision still fails complete when other oracles fail"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-1",
+          "type": "test_criterion",
+          "description": "Goal derivation sets met false when acceptance decision is rejected",
+          "maps_to_ac": "AC-1",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX05-goal-semantics.integration.test.ts -t 'TC-1'"
+        },
+        {
+          "id": "AC-2",
+          "type": "acceptance_criterion",
+          "description": "GIVEN step-4 negative control WHEN accept attempted on escalating report THEN artifact differs from step-3 and shows escalation/reject",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX05-step4-negative-control.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "byte-identical step-3 and step-4 static copy",
+                "stub re-display only without accept mutation",
+                "hardcoded step-4 log copied from step-3",
+                "empty negative control with no decision change"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "file_artifact",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix05-escalation-open-report",
+                "action": {
+                  "actor": "founder",
+                  "steps": [
+                    "Capture step-3 comparison artifact (yields vs assumptions)",
+                    "Mutate by calling requestBatchAcceptance accept on open low/zero yield",
+                    "Capture step-4 response (escalation_required or reject)"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "step4_bytes != step3_bytes",
+                    "decision == 'escalation_required' || decision == 'rejected'",
+                    "retirementUnlockedAt == null"
+                  ],
+                  "must_not_observe": [
+                    "step4_bytes == step3_bytes",
+                    "decision == 'accepted'",
+                    "retirementUnlockedAt != null",
+                    "empty step-4 mutation"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-2",
+          "type": "test_criterion",
+          "description": "Step-4 accept attempt on open escalation produces a non-identical artifact with escalation_required or rejected",
+          "maps_to_ac": "AC-2",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX05-step4-negative-control.integration.test.ts -t 'TC-2'"
+        },
+        {
+          "id": "AC-3",
+          "type": "acceptance_criterion",
+          "description": "GIVEN top-50 export WHEN gate evidence is captured THEN row-level fields exist and rowCount reconciles with riderReadyCount",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX05-top50-row-evidence.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "aggregate-only evidence without row fields",
+                "static top-50 log with only contaminationCount",
+                "mock rowCount == 50 with riderReadyCount == 17 unreconciled",
+                "empty rows array"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "file_artifact",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix05-top50-row-export",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Run top-50 export harness",
+                    "Load coverageReport riderReadyCount",
+                    "Validate each row has identity fields; compute coherence check"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "rows[i].routeId.length >= 1",
+                    "rows[i].name.length >= 1",
+                    "rows[i].measuredMiles >= 0",
+                    "rowCount <= riderReadyCount || coherenceNote.length >= 1",
+                    "test: rows count == 0",
+                    "rowCount >= 1"
+                  ],
+                  "must_not_observe": [
+                    "rows.length == 0",
+                    "rowCount > riderReadyCount without coherenceNote",
+                    "test: rows count > 0",
+                    "empty aggregate-only {contaminationCount:0} without rows"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-3",
+          "type": "test_criterion",
+          "description": "Top-50 gate evidence includes per-row routeId name measuredMiles claimedMiles and passes rowCount vs riderReadyCount coherence",
+          "maps_to_ac": "AC-3",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX05-top50-row-evidence.integration.test.ts -t 'TC-3'"
+        },
+        {
+          "id": "AC-4",
+          "type": "acceptance_criterion",
+          "description": "GIVEN no accepted catalog WHEN Sprint 10 dependency is evaluated THEN blocked is true",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX05-sprint10-blocked.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "Sprint 10 unblocked hardcoded when decision == rejected",
+                "stub blocked == false without accepted catalog",
+                "static dependency graph ignoring acceptance",
+                "empty accepted catalog still unblocks"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "file_artifact",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix05-rejected-batch-decision",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Derive dependency flags for Sprint 10 from acceptance state",
+                    "Capture blocked flag and reason"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "sprint10.blocked == true",
+                    "reason includes 'no accepted catalog' || reason includes 'rejected'"
+                  ],
+                  "must_not_observe": [
+                    "sprint10.blocked == false",
+                    "decision == 'rejected' && sprint10.blocked == false",
+                    "empty blocked reason"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-4",
+          "type": "test_criterion",
+          "description": "Sprint 10 blocked flag is true when no accepted catalog exists",
+          "maps_to_ac": "AC-4",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX05-sprint10-blocked.integration.test.ts -t 'TC-4'"
+        }
+      ],
+      "reading_list": [
+        {
+          "path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/SPRINT.md",
+          "lines": "31-48",
+          "focus": "Human Testing Gate steps and accept language"
+        },
+        {
+          "path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/sprint-goal-state.json",
+          "focus": "goal:complete met:true on rejected evidence \u2014 to fix"
+        },
+        {
+          "path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-3.log",
+          "focus": "step-3 acceptance artifact"
+        },
+        {
+          "path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-4.log",
+          "focus": "byte-identical to step-3 (bad negative control)"
+        },
+        {
+          "path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-5.log",
+          "focus": "aggregate-only top-50 evidence"
+        },
+        {
+          "path": "scripts/top-50-curated-review.ts",
+          "focus": "row fields for gate capture"
+        },
+        {
+          "path": "convex/top50Review.ts",
+          "lines": "198-220",
+          "focus": "measured/claimed miles already on rows"
+        },
+        {
+          "path": ".spec/reviews/red-hat-sprint-05-batch-acceptance-retirement-20260725T021334Z.md",
+          "lines": "54-65,97-101",
+          "focus": "F4 F5 F6 F16 F17"
+        }
+      ],
+      "guardrails": {
+        "write_allowed": [
+          "convex/__tests__/REDHATFIX05-*.integration.test.ts (NEW)",
+          "scripts/top-50-curated-review.ts (MODIFY row-level evidence export)",
+          "scripts/geometry-coverage-report.ts (MODIFY if coherence helper needed)",
+          "convex/top50Review.ts (MODIFY only if row evidence fields missing from API)",
+          "convex/curatedGeometry.ts (MODIFY only goal/coherence helpers if server-side)",
+          ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/sprint-goal-state.json (MODIFY via honest re-derive)",
+          ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/SPRINT.md (MODIFY status notes / Sprint 10 blocked)",
+          ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/** (NEW evidence only \u2014 never rewrite old logs as fake pass)",
+          ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-results.json (MODIFY after real re-run)",
+          "scripts/*gate* / tools for deriveGoalState (NEW/MODIFY as needed for semantics)"
+        ],
+        "write_prohibited": [
+          "react-native/**",
+          "Marking goal complete while decision is rejected",
+          "Copying step-3.log to step-4.log",
+          "Re-authoring aggregate-only evidence as row-level without real export"
+        ]
+      },
+      "design": {
+        "references": [
+          "S5-T4",
+          "SPRINT.md Human Testing Gate",
+          "red-hat F4-F6 F16 F17"
+        ],
+        "interaction_notes": [
+          "Run after FIX-01..04; human gate re-execution is part of done-when, not optional"
+        ],
+        "pattern": "Decision-aware goal derivation + non-degenerate gate evidence contracts",
+        "pattern_source": "S5-T4 human gate + sprint-goal-state.json",
+        "anti_pattern": "process-green CI \u21d2 goal complete despite rejected batch"
+      },
+      "verification_gates": [
+        {
+          "gate": "All Tests Pass",
+          "command": "npx vitest run convex/__tests__/REDHATFIX05-",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Typecheck",
+          "command": "pnpm type-check",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Lint",
+          "command": "pnpm exec biome check convex scripts",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Convex build",
+          "command": "pnpm convex:dev --once",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Human gate re-run (un-seeded)",
+          "command": "pnpm tsx scripts/backfill-curated-geometry.ts --all && pnpm tsx scripts/geometry-coverage-report.ts --run-id=<realRunId> && pnpm tsx scripts/top-50-curated-review.ts --render",
+          "expected": "Unified runId; step-4 distinct; row-level top-50; goal met only if accepted"
+        }
+      ],
+      "coding_standards": [
+        "convex/_generated/ai/guidelines.md",
+        "brain/docs/RED-FIRST-TEST-GATE.md",
+        "brain/docs/kanban/SCENARIO-CONTRACT-V1.md"
+      ],
+      "dependencies": {
+        "depends_on": [
+          "REDHAT-FIX-01",
+          "REDHAT-FIX-02",
+          "REDHAT-FIX-03",
+          "REDHAT-FIX-04"
+        ],
+        "blocks": [
+          "Sprint 10 Founder-region Saturday-arc (until accepted catalog exists)"
+        ]
+      },
+      "notes": "Closes F4, F5, F6, F16, F17. Terminal sprint outcome may remain rejected; honesty requires met:false and Sprint 10 blocked until a future accepted batch."
+    },
+    {
+      "task_id": "REDHAT-FIX-06",
+      "title": "Replace the retiredAt: undefined patch idiom with retiredAt: null across unretireRoute and the other 9 call sites (Convex patch does not accept undefined); add pagination/indexing to listRetirementCandidates to stay clear of the 16MB read limit (already WARN at 14.35MB); add an OCC token/guard to unretireRoute against concurrent retire/unretire; cited convex/curatedGeometry.ts:3022, red-hat findings F12, F13, F14",
+      "task_type": "FEATURE",
+      "tdd_mode": "red_first",
+      "verification_policy": {
+        "requires_tests": true,
+        "requires_red_evidence": true,
+        "requires_seeded_evidence": true
+      },
+      "status": "Backlog",
+      "priority": "P1",
+      "effort": "M",
+      "estimate_minutes": 90,
+      "agent": "convex-implementer",
+      "agent_rationale": "Convex patch semantics, query pagination, and OCC-style concurrency on unretireRoute are backend-only.",
+      "reviewer": "convex-reviewer",
+      "proposed_by": "convex-planner",
+      "sprint_id": "sprint-05-batch-acceptance-retirement",
+      "prd_refs": [
+        "UC-REC-05 AC-5",
+        "T-REC-015"
+      ],
+      "touches_capabilities": [
+        "CAP-GEO-04"
+      ],
+      "provides": [
+        "retiredAt_null_clear_idiom",
+        "paginated_listRetirementCandidates",
+        "unretireRoute_OCC_guard"
+      ],
+      "consumes": [
+        "retireRoute / unretireRoute surface",
+        "curated_routes indexes"
+      ],
+      "boundary_contracts": [
+        "Patches never write retiredAt: undefined \u2014 use null",
+        "listRetirementCandidates supports cursor pagination and bounded reads under Convex 16MB limit",
+        "unretireRoute rejects stale concurrent mutations via expected version/token or document _id OCC check"
+      ],
+      "critical_constraints": {
+        "must": [
+          "MUST replace retiredAt: undefined with retiredAt: null at all Convex patch/insert sites listed (curatedGeometry, top50Review, reviewQueue, couchSampleAssembler, curatedGeometryReconstruct, waterfallOrchestrator, couchVerdict, curatedGeometryTestSupport)",
+          "MUST add pagination (cursor/continueCursor or page args) and/or tighter indexing so listRetirementCandidates stays under the 16MB read limit",
+          "MUST add OCC guard on unretireRoute (e.g. expectedRetiredAt or expectedUpdatedAt / document version) so concurrent retire/unretire cannot silent last-write-win"
+        ],
+        "never": [
+          "NEVER leave retiredAt: undefined in production patch paths",
+          "NEVER scan unbounded 800\u00d74 status \u00d7 per-row artifacts without pagination on large catalogs",
+          "NEVER unretire without detecting concurrent retire that changed state since read"
+        ],
+        "strictly": [
+          "STRICTLY follow Convex guidelines: undefined is not a valid Convex value in documents/patches"
+        ]
+      },
+      "specification": {
+        "objective": "Harden retirement mutators and export against Convex value rules, read limits, and concurrent unretire races.",
+        "success_state": "No retiredAt:undefined patches remain in listed files; listRetirementCandidates paginates safely; unretireRoute fails closed on concurrent conflict; integration tests prove all three."
+      },
+      "fixtures": {
+        "redhatfix06-retired-route": {
+          "description": "Eligible route that has been retired with retiredAt set and retirementReason preserved",
+          "seed_method": "public_api",
+          "records": [
+            "routeId test:redhatfix06-retired geometryStatus retired retiredAt timestamp retirementReason all_levers_failed"
+          ]
+        },
+        "redhatfix06-large-candidate-scan": {
+          "description": "Many review/unresolved rows to exercise pagination without exceeding read budget",
+          "seed_method": "public_api",
+          "records": [
+            "N>>200 review/unresolved rows under prefix test:redhatfix06-page-"
+          ]
+        },
+        "redhatfix06-concurrent-retire": {
+          "description": "Two conflicting operations: retire then stale unretire with old expected token",
+          "seed_method": "public_api",
+          "records": [
+            "route eligible \u2192 retire \u2192 unretire with stale expectedRetiredAt"
+          ]
+        }
+      },
+      "acceptance_criteria": [
+        {
+          "id": "AC-1",
+          "num": 1,
+          "name": "retiredAt cleared with null not undefined",
+          "given": "unretireRoute and all other sites that previously patched retiredAt: undefined",
+          "when": "unretire or seed/clear paths run",
+          "then": "documents store retiredAt: null (or field cleared via null-compatible schema), never undefined in patch objects; unretire returns retiredAt null",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX06-retiredAt-null.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-05",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "retiredAt: undefined patch idiom remains",
+                "hardcoded unretire that only returns null without patching",
+                "stub unretire leaving retiredAt timestamp unchanged",
+                "empty patch omitting retiredAt null clear"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "db_query",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix06-retired-route",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Call unretireRoute({routeId})",
+                    "Re-read curated_routes row",
+                    "Grep codebase for retiredAt: undefined remaining"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "stored.retiredAt == null",
+                    "api.retiredAt == null",
+                    "retiredAt: undefined patch sites count == 0"
+                  ],
+                  "must_not_observe": [
+                    "stored.retiredAt != null",
+                    "retiredAt: undefined patch sites count > 0",
+                    "empty unretire with no patch",
+                    "retiredAt still equals pre-unretire timestamp"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-2",
+          "num": 2,
+          "name": "listRetirementCandidates pagination stays under read limit",
+          "given": "a large pool of retirement-scannable rows",
+          "when": "listRetirementCandidates is called with pagination args",
+          "then": "it returns a page with continueCursor (or equivalent) and does not require a single unbounded multi-status 800-row\u00d7artifact join that approaches 16MB",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX06-retirement-pagination.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-05",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "unbounded take 800x4 without cursor still present",
+                "static single page claiming all rows",
+                "stub pagination with continueCursor always null and isDone false",
+                "empty pagination contract"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix06-large-candidate-scan",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "Seed large prefix pool",
+                    "Call listRetirementCandidates with limit and optional cursor",
+                    "If continueCursor present, fetch next page"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "page.length <= 50",
+                    "page.length >= 1",
+                    "continueCursor != null || isDone == true",
+                    "readLimitError count == 0"
+                  ],
+                  "must_not_observe": [
+                    "page.length == 0 when pool size > 0",
+                    "page.length > limit",
+                    "continueCursor == null && isDone == false with remaining rows",
+                    "empty unbounded scan"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-3",
+          "num": 3,
+          "name": "unretireRoute OCC guard against concurrent retire/unretire",
+          "given": "a retired route and an OCC token captured at read time",
+          "when": "a concurrent retire or state change invalidates the token and unretire is called with the stale token",
+          "then": "unretire fails with a concurrency conflict error and does not apply a stale clear",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX06-unretire-occ.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-05",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "last-writer-wins silent success without OCC",
+                "stub unretire ignoring stale expected token",
+                "hardcoded OCC always succeeds",
+                "empty token argument still applies patch"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix06-concurrent-retire",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Retire route; capture expectedRetiredAt or OCC token from getRetirementEvidence",
+                    "Simulate concurrent change (re-retire reason change or intermediate unretire/retire)",
+                    "Call unretireRoute with stale expected token"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "error.code == 'CONCURRENCY_CONFLICT' || error.code == 'OCC_MISMATCH'",
+                    "staleUnretire.applied == false",
+                    "route.retiredAt == expectedRetiredAt"
+                  ],
+                  "must_not_observe": [
+                    "staleUnretire.applied == true",
+                    "error.code == null silent success",
+                    "empty OCC check"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "AC-4",
+          "num": 4,
+          "name": "Happy-path unretire with valid OCC token still works",
+          "given": "a retired route and a fresh OCC token matching current retiredAt",
+          "when": "unretireRoute is called with the valid token",
+          "then": "unretire succeeds, retiredAt null, retirementReason history retained, riderReady recomputed",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX06-unretire-happy.integration.test.ts",
+          "test_tier": "integration",
+          "verification_service": "Convex dev deployment",
+          "unit_test_justified": null,
+          "flow_ref": "UC-REC-05",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "OCC always rejects valid token stub",
+                "hardcoded riderReady == true on unretire",
+                "mock that deletes route instead of preserving history",
+                "empty retirementReason wiped"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "db_query",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix06-retired-route",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Read evidence + token",
+                    "unretireRoute with valid token",
+                    "Query route and dispositions"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "retiredAt == null",
+                    "retirementReason.length >= 1",
+                    "disposition == 'unretire'",
+                    "riderReady == false"
+                  ],
+                  "must_not_observe": [
+                    "retiredAt != null",
+                    "retirementReason.length == 0",
+                    "riderReady == true without qualifying evidence",
+                    "route deleted / empty doc"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "test_criteria": [
+        {
+          "id": "TC-1",
+          "num": 1,
+          "statement": "After unretireRoute the stored retiredAt value is null and source has no retiredAt undefined patches in production paths",
+          "maps_to_ac": "AC-1",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX06-retiredAt-null.integration.test.ts -t 'TC-1'",
+          "type": "happy_path"
+        },
+        {
+          "id": "TC-2",
+          "num": 2,
+          "statement": "listRetirementCandidates returns a bounded page and continueCursor when more candidates exist",
+          "maps_to_ac": "AC-2",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX06-retirement-pagination.integration.test.ts -t 'TC-2'",
+          "type": "edge"
+        },
+        {
+          "id": "TC-3",
+          "num": 3,
+          "statement": "unretireRoute with a stale OCC token fails with a concurrency conflict and does not apply the patch",
+          "maps_to_ac": "AC-3",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX06-unretire-occ.integration.test.ts -t 'TC-3'",
+          "type": "error"
+        },
+        {
+          "id": "TC-4",
+          "num": 4,
+          "statement": "unretireRoute with a valid OCC token clears retirement and preserves retirementReason history",
+          "maps_to_ac": "AC-4",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX06-unretire-happy.integration.test.ts -t 'TC-4'",
+          "type": "happy_path"
+        }
+      ],
+      "requirements": [
+        {
+          "id": "AC-1",
+          "type": "acceptance_criterion",
+          "description": "GIVEN unretire and related clear paths WHEN patching THEN retiredAt is null not undefined across all listed call sites",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX06-retiredAt-null.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "retiredAt: undefined patch idiom remains",
+                "hardcoded unretire that only returns null without patching",
+                "stub unretire leaving retiredAt timestamp unchanged",
+                "empty patch omitting retiredAt null clear"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "db_query",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix06-retired-route",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Call unretireRoute({routeId})",
+                    "Re-read curated_routes row",
+                    "Grep codebase for retiredAt: undefined remaining"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "stored.retiredAt == null",
+                    "api.retiredAt == null",
+                    "retiredAt: undefined patch sites count == 0"
+                  ],
+                  "must_not_observe": [
+                    "stored.retiredAt != null",
+                    "retiredAt: undefined patch sites count > 0",
+                    "empty unretire with no patch",
+                    "retiredAt still equals pre-unretire timestamp"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-1",
+          "type": "test_criterion",
+          "description": "After unretireRoute the stored retiredAt value is null and source has no retiredAt undefined patches in production paths",
+          "maps_to_ac": "AC-1",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX06-retiredAt-null.integration.test.ts -t 'TC-1'"
+        },
+        {
+          "id": "AC-2",
+          "type": "acceptance_criterion",
+          "description": "GIVEN large candidate sets WHEN listRetirementCandidates is paged THEN reads stay bounded under the 16MB limit",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX06-retirement-pagination.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "unbounded take 800x4 without cursor still present",
+                "static single page claiming all rows",
+                "stub pagination with continueCursor always null and isDone false",
+                "empty pagination contract"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix06-large-candidate-scan",
+                "action": {
+                  "actor": "api_client",
+                  "steps": [
+                    "Seed large prefix pool",
+                    "Call listRetirementCandidates with limit and optional cursor",
+                    "If continueCursor present, fetch next page"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "page.length <= 50",
+                    "page.length >= 1",
+                    "continueCursor != null || isDone == true",
+                    "readLimitError count == 0"
+                  ],
+                  "must_not_observe": [
+                    "page.length == 0 when pool size > 0",
+                    "page.length > limit",
+                    "continueCursor == null && isDone == false with remaining rows",
+                    "empty unbounded scan"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-2",
+          "type": "test_criterion",
+          "description": "listRetirementCandidates returns a bounded page and continueCursor when more candidates exist",
+          "maps_to_ac": "AC-2",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX06-retirement-pagination.integration.test.ts -t 'TC-2'"
+        },
+        {
+          "id": "AC-3",
+          "type": "acceptance_criterion",
+          "description": "GIVEN concurrent retire/unretire WHEN unretire uses a stale OCC token THEN it fails closed",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX06-unretire-occ.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "last-writer-wins silent success without OCC",
+                "stub unretire ignoring stale expected token",
+                "hardcoded OCC always succeeds",
+                "empty token argument still applies patch"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "api_response",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix06-concurrent-retire",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Retire route; capture expectedRetiredAt or OCC token from getRetirementEvidence",
+                    "Simulate concurrent change (re-retire reason change or intermediate unretire/retire)",
+                    "Call unretireRoute with stale expected token"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "error.code == 'CONCURRENCY_CONFLICT' || error.code == 'OCC_MISMATCH'",
+                    "staleUnretire.applied == false",
+                    "route.retiredAt == expectedRetiredAt"
+                  ],
+                  "must_not_observe": [
+                    "staleUnretire.applied == true",
+                    "error.code == null silent success",
+                    "empty OCC check"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-3",
+          "type": "test_criterion",
+          "description": "unretireRoute with a stale OCC token fails with a concurrency conflict and does not apply the patch",
+          "maps_to_ac": "AC-3",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX06-unretire-occ.integration.test.ts -t 'TC-3'"
+        },
+        {
+          "id": "AC-4",
+          "type": "acceptance_criterion",
+          "description": "GIVEN valid OCC token WHEN unretireRoute runs THEN retirement clears and history is preserved",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX06-unretire-happy.integration.test.ts",
+          "scenario": {
+            "tier": "visible",
+            "test_tier": "integration",
+            "verification_service": "Convex dev deployment",
+            "topology": "single-node",
+            "negative_control": {
+              "would_fail_if": [
+                "OCC always rejects valid token stub",
+                "hardcoded riderReady == true on unretire",
+                "mock that deletes route instead of preserving history",
+                "empty retirementReason wiped"
+              ]
+            },
+            "evidence": {
+              "artifact_type": "db_query",
+              "required_capture": true
+            },
+            "cases": [
+              {
+                "start_ref": "redhatfix06-retired-route",
+                "action": {
+                  "actor": "operator",
+                  "steps": [
+                    "Read evidence + token",
+                    "unretireRoute with valid token",
+                    "Query route and dispositions"
+                  ]
+                },
+                "end_state": {
+                  "must_observe": [
+                    "retiredAt == null",
+                    "retirementReason.length >= 1",
+                    "disposition == 'unretire'",
+                    "riderReady == false"
+                  ],
+                  "must_not_observe": [
+                    "retiredAt != null",
+                    "retirementReason.length == 0",
+                    "riderReady == true without qualifying evidence",
+                    "route deleted / empty doc"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "TC-4",
+          "type": "test_criterion",
+          "description": "unretireRoute with a valid OCC token clears retirement and preserves retirementReason history",
+          "maps_to_ac": "AC-4",
+          "verify": "npx vitest run convex/__tests__/REDHATFIX06-unretire-happy.integration.test.ts -t 'TC-4'"
+        }
+      ],
+      "reading_list": [
+        {
+          "path": "convex/curatedGeometry.ts",
+          "lines": "2992-3048",
+          "focus": "unretireRoute retiredAt: undefined at :3022"
+        },
+        {
+          "path": "convex/curatedGeometry.ts",
+          "lines": "1669",
+          "focus": "additional retiredAt: undefined site"
+        },
+        {
+          "path": "convex/curatedGeometry.ts",
+          "lines": "2744-2833",
+          "focus": "listRetirementCandidates read amplification"
+        },
+        {
+          "path": "convex/schema.ts",
+          "lines": "197",
+          "focus": "by_geometry_status index; consider additive pagination indexes if needed"
+        },
+        {
+          "path": "convex/top50Review.ts",
+          "lines": "500",
+          "focus": "retiredAt: undefined site"
+        },
+        {
+          "path": "convex/reviewQueue.ts",
+          "lines": "177,459,588",
+          "focus": "retiredAt: undefined sites"
+        },
+        {
+          "path": "convex/couchSampleAssembler.ts",
+          "lines": "321",
+          "focus": "retiredAt: undefined"
+        },
+        {
+          "path": "convex/curatedGeometryReconstruct.ts",
+          "lines": "1060",
+          "focus": "retiredAt: undefined"
+        },
+        {
+          "path": "convex/waterfallOrchestrator.ts",
+          "lines": "198",
+          "focus": "retiredAt: undefined"
+        },
+        {
+          "path": "convex/couchVerdict.ts",
+          "lines": "513",
+          "focus": "retiredAt: undefined"
+        },
+        {
+          "path": "convex/curatedGeometryTestSupport.ts",
+          "lines": "431",
+          "focus": "retiredAt: undefined"
+        },
+        {
+          "path": "convex/_generated/ai/guidelines.md",
+          "focus": "undefined is not a valid Convex value"
+        },
+        {
+          "path": ".spec/reviews/red-hat-sprint-05-batch-acceptance-retirement-20260725T021334Z.md",
+          "lines": "85-92",
+          "focus": "F12 F13 F14"
+        }
+      ],
+      "guardrails": {
+        "write_allowed": [
+          "convex/curatedGeometry.ts (MODIFY unretireRoute, listRetirementCandidates, retiredAt null)",
+          "convex/schema.ts (MODIFY additive pagination/OCC fields if required)",
+          "convex/top50Review.ts (MODIFY retiredAt null)",
+          "convex/reviewQueue.ts (MODIFY retiredAt null)",
+          "convex/couchSampleAssembler.ts (MODIFY retiredAt null)",
+          "convex/curatedGeometryReconstruct.ts (MODIFY retiredAt null)",
+          "convex/waterfallOrchestrator.ts (MODIFY retiredAt null)",
+          "convex/couchVerdict.ts (MODIFY retiredAt null)",
+          "convex/curatedGeometryTestSupport.ts (MODIFY retiredAt null)",
+          "convex/__tests__/REDHATFIX06-*.integration.test.ts (NEW)",
+          "convex/__tests__/S5T2-unretire-reversible.integration.test.ts (MODIFY only if OCC args require test update)"
+        ],
+        "write_prohibited": [
+          "react-native/**",
+          "Hard-deleting retired routes",
+          "Removing confirmation gates on retireRoute"
+        ]
+      },
+      "design": {
+        "references": [
+          "S5-T2 unretire",
+          "Convex guidelines on undefined",
+          "red-hat F12-F14"
+        ],
+        "interaction_notes": [
+          "Can run parallel with FIX-03; coordinate listRetirementCandidates changes if both touch the same function (scrub + pagination) \u2014 land scrub then pagination or do both carefully in sequence"
+        ],
+        "pattern": "null-clear for optional number fields; cursor pagination; expectedRetiredAt OCC check before patch",
+        "pattern_source": "Convex patch + document re-read",
+        "anti_pattern": "retiredAt: undefined; unbounded multi-index scans; last-writer-wins unretire"
+      },
+      "verification_gates": [
+        {
+          "gate": "All Tests Pass",
+          "command": "npx vitest run convex/__tests__/REDHATFIX06-",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "S5T2 unretire regression",
+          "command": "npx vitest run convex/__tests__/S5T2-unretire-reversible.integration.test.ts",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Typecheck",
+          "command": "pnpm type-check",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Lint",
+          "command": "pnpm exec biome check convex scripts",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "Convex build",
+          "command": "pnpm convex:dev --once",
+          "expected": "Exit 0"
+        },
+        {
+          "gate": "No undefined retiredAt patches",
+          "command": "rg -n \"retiredAt:\\s*undefined\" convex --glob '*.ts'",
+          "expected": "Zero matches (or only comments)"
+        }
+      ],
+      "coding_standards": [
+        "convex/_generated/ai/guidelines.md",
+        "brain/docs/RED-FIRST-TEST-GATE.md",
+        "brain/docs/kanban/SCENARIO-CONTRACT-V1.md"
+      ],
+      "dependencies": {
+        "depends_on": [],
+        "blocks": []
+      },
+      "notes": "Closes F12, F13, F14. Parallel with FIX-03; if both edit listRetirementCandidates, implement scrub first (FIX-03) then pagination (this task) or combine carefully without losing either contract."
+    }
+  ],
+  "validation": {
+    "REDHAT-FIX-01": "ok",
+    "REDHAT-FIX-02": "ok",
+    "REDHAT-FIX-03": "ok",
+    "REDHAT-FIX-04": "ok",
+    "REDHAT-FIX-05": "ok",
+    "REDHAT-FIX-06": "ok"
+  }
+}
