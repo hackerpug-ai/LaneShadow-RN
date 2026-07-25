@@ -866,6 +866,19 @@ function encodeContinueCursor(index: number): string {
   return `idx:${index}`
 }
 
+type PriorCoverageSnapshot = {
+  totalCostUSD?: number
+  pageTotals?: Array<Record<string, unknown>>
+  levers?: Array<{
+    provenance?: string
+    candidateCount?: number
+    passCount?: number
+  }>
+  terminalStates?: Record<string, number>
+  provenanceCounts?: Record<string, number>
+  riderReadyCount?: number
+}
+
 function buildCoverageFromWaterfall(
   report: WaterfallReport,
   opts: {
@@ -873,6 +886,10 @@ function buildCoverageFromWaterfall(
     routeIds: string[]
     priorCostUSD?: number
     priorPageTotals?: Array<Record<string, unknown>>
+    priorLevers?: PriorCoverageSnapshot['levers']
+    priorTerminalStates?: Record<string, number>
+    priorProvenanceCounts?: Record<string, number>
+    priorRiderReadyCount?: number
   },
 ) {
   const endIndex = opts.startIndex + report.routes.length
@@ -886,20 +903,38 @@ function buildCoverageFromWaterfall(
       nextIndex = opts.startIndex + costBlockedIdx
     }
   }
-  const continueCursor =
-    !isDone && nextIndex < opts.routeIds.length
-      ? encodeContinueCursor(nextIndex)
-      : encodeContinueCursor(nextIndex)
+  // When the batch is complete, clear the resume cursor; otherwise encode next index.
+  const continueCursor: string | null =
+    isDone || nextIndex >= opts.routeIds.length ? null : encodeContinueCursor(nextIndex)
+
+  // Prior lever counts (from previous resume pages) keyed by provenance.
+  const priorByProv: Record<string, { candidates: number; passCount: number }> = {}
+  for (const row of opts.priorLevers ?? []) {
+    if (!row?.provenance) continue
+    priorByProv[row.provenance] = {
+      candidates: row.candidateCount ?? 0,
+      passCount: row.passCount ?? 0,
+    }
+  }
 
   const leverPass: Record<string, { candidates: number; passCount: number }> = {
-    scraped_promoted: { candidates: 0, passCount: 0 },
-    ai_reconstructed: { candidates: 0, passCount: 0 },
-    name_routed: { candidates: 0, passCount: 0 },
+    scraped_promoted: {
+      candidates: priorByProv.scraped_promoted?.candidates ?? 0,
+      passCount: priorByProv.scraped_promoted?.passCount ?? 0,
+    },
+    ai_reconstructed: {
+      candidates: priorByProv.ai_reconstructed?.candidates ?? 0,
+      passCount: priorByProv.ai_reconstructed?.passCount ?? 0,
+    },
+    name_routed: {
+      candidates: priorByProv.name_routed?.candidates ?? 0,
+      passCount: priorByProv.name_routed?.passCount ?? 0,
+    },
   }
-  // Approximate per-lever candidates from leversRun counts + provenance on recovered
-  leverPass.scraped_promoted.candidates = report.perLeverCounts.lever1
-  leverPass.ai_reconstructed.candidates = report.perLeverCounts.lever2
-  leverPass.name_routed.candidates = report.perLeverCounts.lever3
+  // Merge current page into prior: sum candidateCount/passCount across resume pages.
+  leverPass.scraped_promoted.candidates += report.perLeverCounts.lever1
+  leverPass.ai_reconstructed.candidates += report.perLeverCounts.lever2
+  leverPass.name_routed.candidates += report.perLeverCounts.lever3
   for (const r of report.routes) {
     if (r.provenance === 'scraped_promoted' && r.terminalState === 'recovered' && !r.skipped) {
       leverPass.scraped_promoted.passCount += 1
@@ -929,16 +964,28 @@ function buildCoverageFromWaterfall(
     }
   })
 
-  const provenanceCounts: Record<string, number> = {}
+  // provenanceCounts: sum prior + current page
+  const provenanceCounts: Record<string, number> = {
+    ...(opts.priorProvenanceCounts ?? {}),
+  }
   for (const r of report.routes) {
     if (r.provenance) {
       provenanceCounts[r.provenance] = (provenanceCounts[r.provenance] ?? 0) + 1
     }
   }
 
-  const riderReadyCount = report.routes.filter(
+  const pageRiderReady = report.routes.filter(
     (r) => r.terminalState === 'recovered' && !r.skipped,
   ).length
+  const riderReadyCount = (opts.priorRiderReadyCount ?? 0) + pageRiderReady
+
+  // terminalStates: sum prior + current page counts
+  const terminalStates: Record<string, number> = {
+    ...(opts.priorTerminalStates ?? {}),
+  }
+  for (const [key, value] of Object.entries(report.perStateCounts)) {
+    terminalStates[key] = (terminalStates[key] ?? 0) + (value as number)
+  }
 
   const totalCostUSD = (opts.priorCostUSD ?? 0) + report.totalCostUsd
   const pageTotals = [
@@ -958,7 +1005,7 @@ function buildCoverageFromWaterfall(
     continueCursor,
     totalCostUSD,
     levers,
-    terminalStates: report.perStateCounts,
+    terminalStates,
     provenanceCounts,
     riderReadyCount,
     pageTotals,
@@ -998,20 +1045,26 @@ async function executeFullBatch(
   const remaining = args.routeIds.slice(startIndex)
   const runId = args.runId ?? `full-batch-${Date.now()}`
 
-  // Load prior cumulative cost from persisted report (resume)
+  // Load prior cumulative coverage from persisted report (resume):
+  // cost + pageTotals already merged; also levers / terminalStates /
+  // provenanceCounts / riderReadyCount so yield metrics accumulate.
   let priorCostUSD = 0
   let priorPageTotals: Array<Record<string, unknown>> = []
+  let priorLevers: PriorCoverageSnapshot['levers'] = []
+  let priorTerminalStates: Record<string, number> = {}
+  let priorProvenanceCounts: Record<string, number> = {}
+  let priorRiderReadyCount = 0
   if (args.cursor) {
     const prior = (await ctx.runQuery(api.curatedGeometry.coverageReport, {
       runId,
-    })) as {
-      source?: string
-      totalCostUSD?: number
-      pageTotals?: Array<Record<string, unknown>>
-    }
+    })) as PriorCoverageSnapshot & { source?: string }
     if (prior?.source === 'persisted') {
       priorCostUSD = prior.totalCostUSD ?? 0
       priorPageTotals = prior.pageTotals ?? []
+      priorLevers = prior.levers ?? []
+      priorTerminalStates = prior.terminalStates ?? {}
+      priorProvenanceCounts = prior.provenanceCounts ?? {}
+      priorRiderReadyCount = prior.riderReadyCount ?? 0
     }
   }
 
@@ -1029,6 +1082,10 @@ async function executeFullBatch(
     routeIds: args.routeIds,
     priorCostUSD,
     priorPageTotals,
+    priorLevers,
+    priorTerminalStates,
+    priorProvenanceCounts,
+    priorRiderReadyCount,
   })
 
   await ctx.runMutation(internal.curatedGeometry.persistCoverageReport, {

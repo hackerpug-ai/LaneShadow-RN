@@ -267,6 +267,66 @@ describe('AC-4: resume/cost reconciliation + incomplete-run acceptance block', (
     expect(cumulative).toBeGreaterThanOrEqual(page1Cost - 1e-9)
   })
 
+  it('MUST_OBSERVE: multi-page coverageReport merges levers/terminals/provenance/riderReady (not last-page-only)', () => {
+    const p1 = page1.coverageReport
+    const p2 = page2.coverageReport
+    expect(p1).toBeTruthy()
+    expect(p2).toBeTruthy()
+
+    // Page totals already accumulate; yield metrics must accumulate too.
+    expect((p2.pageTotals ?? []).length).toBeGreaterThanOrEqual(2)
+
+    const reconP1 = (p1.levers ?? []).find((l: any) => l.lever === 'reconstruct')
+    const reconP2 = (p2.levers ?? []).find((l: any) => l.lever === 'reconstruct')
+    expect(reconP1).toBeTruthy()
+    expect(reconP2).toBeTruthy()
+
+    // Page-2-only recovered routes (from this invocation's route list)
+    const page2Recovered = (page2.routes ?? []).filter(
+      (r: any) => r.terminalState === 'recovered' && !r.skipped,
+    ).length
+    const page2Lever2Candidates = page2.perLeverCounts?.lever2 ?? 0
+    const page2Lever2Pass = (page2.routes ?? []).filter(
+      (r: any) =>
+        r.provenance === 'ai_reconstructed' && r.terminalState === 'recovered' && !r.skipped,
+    ).length
+
+    // Cumulative must equal page1 persisted + page2 page-only (not overwrite with page2 alone)
+    expect(reconP2.candidateCount).toBe(reconP1.candidateCount + page2Lever2Candidates)
+    expect(reconP2.passCount).toBe(reconP1.passCount + page2Lever2Pass)
+    expect(reconP2.realizedRate).toBeCloseTo(
+      reconP2.candidateCount > 0 ? reconP2.passCount / reconP2.candidateCount : 0,
+      6,
+    )
+    // Full-pool: cumulative passCount exceeds last-page-only
+    expect(reconP2.passCount).toBeGreaterThan(page2Lever2Pass)
+    expect(reconP2.passCount).toBeGreaterThanOrEqual(reconP1.passCount)
+
+    // riderReadyCount accumulates across resume pages
+    expect(p2.riderReadyCount).toBe((p1.riderReadyCount ?? 0) + page2Recovered)
+    expect(p2.riderReadyCount).toBeGreaterThan(page2Recovered)
+
+    // terminalStates: sum of page1 + page2 per-state counts
+    for (const key of ['recovered', 'queued', 'retirement_eligible', 'cost_blocked', 'skipped']) {
+      const prior = p1.terminalStates?.[key] ?? 0
+      const pageOnly = page2.perStateCounts?.[key] ?? 0
+      expect(p2.terminalStates?.[key] ?? 0).toBe(prior + pageOnly)
+    }
+
+    // provenanceCounts accumulate (at least ai_reconstructed from both pages)
+    const provKey = 'ai_reconstructed'
+    const priorProv = p1.provenanceCounts?.[provKey] ?? 0
+    const page2Prov = (page2.routes ?? []).filter((r: any) => r.provenance === provKey).length
+    expect(p2.provenanceCounts?.[provKey] ?? 0).toBe(priorProv + page2Prov)
+    expect(p2.provenanceCounts?.[provKey] ?? 0).toBeGreaterThan(page2Prov)
+
+    // When batch completes, continueCursor must be null (not idx:N past end)
+    if (p2.isDone === true || page2.isDone === true) {
+      expect(p2.continueCursor).toBeNull()
+      expect(page2.continueCursor).toBeNull()
+    }
+  })
+
   it('MUST_NOT_OBSERVE: acceptance while isDone=false', () => {
     expect(incompleteAccept.decision).not.toBe('accepted')
     expect(incompleteAccept.acceptedAt ?? null).toBeNull()
