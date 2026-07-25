@@ -112,10 +112,12 @@ describe('AC-4: un-retire preserves record and recomputes riderReady from eviden
       { identity: true },
     )
     afterRetire = parseJson(mid.stdout)
+    const expectedRetiredAt = afterRetire?.retiredAtMs
+    expect(expectedRetiredAt, 'OCC token required for unretire').toBeTypeOf('number')
 
     const unretire = runConvexFn(
       'curatedGeometry:unretireRoute',
-      { routeId: UNRETIRE_ID },
+      { routeId: UNRETIRE_ID, expectedRetiredAt },
       { identity: true },
     )
     expect(unretire.ok, `unretire failed: ${unretire.stderr}\n${unretire.stdout}`).toBe(true)

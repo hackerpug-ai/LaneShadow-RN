@@ -1666,7 +1666,7 @@ async function upsertS5Route(
     riderReady: row.riderReady ?? false,
     state: 'California',
     summary: row.summary ?? 'S5-T1 fixture route',
-    retiredAt: undefined,
+    retiredAt: null,
     duplicateOf: row.duplicateOf,
     quarantine: undefined,
     rideWorthiness: {
@@ -2329,8 +2329,8 @@ async function upsertS5T2Route(
     state: 'California',
     geometryStatus: args.geometryStatus,
     riderReady: args.riderReady,
-    retiredAt: args.retiredAt,
-    retirementReason: args.retirementReason,
+    retiredAt: args.retiredAt ?? null,
+    retirementReason: args.retirementReason ?? null,
     rideWorthiness: {
       verdict: args.rideWorthinessVerdict ?? ('not_a_ride' as const),
       reason: args.rideWorthinessVerdict === 'marginal' ? 'marginal classifier' : 'no_rescue',
@@ -2345,8 +2345,8 @@ async function upsertS5T2Route(
     await ctx.db.patch(existing._id, {
       geometryStatus: args.geometryStatus,
       riderReady: args.riderReady,
-      retiredAt: args.retiredAt,
-      retirementReason: args.retirementReason,
+      retiredAt: args.retiredAt ?? null,
+      retirementReason: args.retirementReason ?? null,
       name: args.name,
       lengthMiles,
       rideWorthiness: base.rideWorthiness,
@@ -2539,6 +2539,86 @@ async function seedProductionWaterfallSummary(
     createdAt: now,
   })
 }
+
+/**
+ * REDHAT-FIX-06: seed a large pool of review-status rows for pagination tests.
+ * Lightweight docs (no per-row artifact explosion) under a shared routeId prefix.
+ */
+export const seedRedhatFix06PaginationFixtures = mutation({
+  args: {
+    prefix: v.string(),
+    count: v.number(),
+  },
+  handler: async (ctx, { prefix, count }) => {
+    await requireOperator(ctx)
+    const n = Math.min(Math.max(Math.floor(count), 1), 200)
+    const seeded: string[] = []
+    const nowMs = Date.now()
+    const centroidLat = 34.95
+    const centroidLng = -120.42
+
+    for (let i = 0; i < n; i++) {
+      const routeId = `${prefix}${String(i).padStart(4, '0')}`
+      const existing = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+
+      const base = {
+        name: `REDHAT-FIX-06 page fixture ${i}`,
+        primaryArchetype: 'twisties' as const,
+        secondaryTags: ['test', 'redhatfix06'],
+        oneLiner: 'pagination seed',
+        summary: 'REDHAT-FIX-06 retirement pagination seed',
+        badges: [] as string[],
+        season: 'year_round' as const,
+        contentVersion: 1,
+        seededAt: nowMs,
+        lengthMiles: 41,
+        centroidLat,
+        centroidLng,
+        boundsNeLat: centroidLat + 0.3,
+        boundsNeLng: centroidLng + 0.3,
+        boundsSwLat: centroidLat - 0.3,
+        boundsSwLng: centroidLng - 0.3,
+        location: {
+          type: 'Point' as const,
+          coordinates: [centroidLng, centroidLat] as [number, number],
+        },
+        compositeScore: 80,
+        curvatureScore: 80,
+        scenicScore: 80,
+        technicalScore: 80,
+        trafficScore: 70,
+        remotenessScore: 70,
+        state: 'California',
+        geometryStatus: 'review' as const,
+        riderReady: false,
+        retiredAt: null,
+        rideWorthiness: {
+          verdict: 'not_a_ride' as const,
+          reason: 'pagination seed',
+          model: 'test',
+          evidenceComplete: true,
+          classifiedAt: nowMs,
+        },
+      }
+
+      if (existing) {
+        await ctx.db.patch(existing._id, base)
+      } else {
+        await ctx.db.insert('curated_routes', {
+          routeId,
+          source: 'editorial',
+          ...base,
+        })
+      }
+      seeded.push(routeId)
+    }
+
+    return { prefix, count: seeded.length, seeded: seeded.slice(0, 5) }
+  },
+})
 
 /** Public test-support seed for S5-T2 scenarios. */
 export const seedS5T2RetirementFixtures = mutation({
@@ -2741,46 +2821,140 @@ export const removeLeverTerminalArtifact = mutation({
   },
 })
 
+/**
+ * Cursor-encoded multi-status pagination for retirement candidates.
+ * Encodes {statusIdx, pageCursor} so each call reads a bounded page via
+ * `.paginate()` instead of unbounded take(800)×4 status scans.
+ */
+type RetirementListCursor = {
+  statusIdx: number
+  pageCursor: string | null
+}
+
+function encodeRetirementCursor(c: RetirementListCursor): string {
+  return JSON.stringify(c)
+}
+
+function decodeRetirementCursor(raw: string | null | undefined): RetirementListCursor {
+  if (raw == null || raw === '') {
+    return { statusIdx: 0, pageCursor: null }
+  }
+  try {
+    const parsed = JSON.parse(raw) as Partial<RetirementListCursor>
+    return {
+      statusIdx: typeof parsed.statusIdx === 'number' ? parsed.statusIdx : 0,
+      pageCursor: typeof parsed.pageCursor === 'string' ? parsed.pageCursor : null,
+    }
+  } catch {
+    return { statusIdx: 0, pageCursor: null }
+  }
+}
+
 export const listRetirementCandidates = query({
   args: {
     limit: v.optional(v.number()),
     routeIdPrefix: v.optional(v.string()),
+    cursor: v.optional(v.union(v.string(), v.null())),
   },
-  handler: async (ctx, { limit, routeIdPrefix }) => {
+  handler: async (ctx, { limit, routeIdPrefix, cursor }) => {
     await requireIdentity(ctx)
-    const take = Math.min(limit ?? 50, 200)
+    // Hard cap 50 per page to keep artifact joins under the 16MB read limit.
+    const take = Math.min(Math.max(limit ?? 50, 1), 50)
 
-    // Scan review + unresolved residuals. When a prefix is supplied, expand the
-    // scan window so test/operator filters are not truncated by stale review rows.
     const statuses = ['review', 'unresolved', 'failed', 'retired'] as const
-    const scanPerStatus = routeIdPrefix ? 800 : take * 3
-    let rows: Array<import('./_generated/dataModel').Doc<'curated_routes'>> = []
-    for (const status of statuses) {
-      const batch = await ctx.db
-        .query('curated_routes')
-        .withIndex('by_geometry_status', (q) => q.eq('geometryStatus', status))
-        .take(scanPerStatus)
-      rows = rows.concat(batch)
-    }
+    const statusSet = new Set<string>(statuses)
+    const { statusIdx: startStatusIdx, pageCursor } = decodeRetirementCursor(cursor ?? null)
+    const statusIdx = Math.min(Math.max(startStatusIdx, 0), statuses.length)
 
-    if (routeIdPrefix) {
-      // Exact id short-circuit (operator paste of a full routeId)
+    type RouteDoc = import('./_generated/dataModel').Doc<'curated_routes'>
+    const pageRows: RouteDoc[] = []
+
+    // Exact id short-circuit (operator paste of a full routeId) on first page only.
+    // Point lookup (not .paginate()) — does not violate single-paginated-query rule.
+    if ((cursor == null || cursor === '') && routeIdPrefix) {
       const exact = await ctx.db
         .query('curated_routes')
         .withIndex('by_routeId', (q) => q.eq('routeId', routeIdPrefix))
         .first()
-      if (exact && !rows.some((r) => r.routeId === exact.routeId)) {
-        rows = [exact, ...rows]
+      if (exact && statusSet.has(exact.geometryStatus ?? '')) {
+        pageRows.push(exact)
       }
-      rows = rows.filter((r) => r.routeId.startsWith(routeIdPrefix))
+    }
+
+    let isDone = false
+    let continueCursor: string | null = null
+
+    // Convex allows exactly ONE .paginate() call per function.
+    // - With routeIdPrefix: paginate by_routeId from the prefix (clustered ids), filter status.
+    // - Without prefix: paginate one geometryStatus at a time via encoded cursor.
+    if (routeIdPrefix) {
+      // Prefix mode: single by_routeId range page (ids with the prefix cluster together).
+      const page = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.gte('routeId', routeIdPrefix))
+        .paginate({ cursor: pageCursor, numItems: take })
+
+      let pastPrefix = false
+      for (const row of page.page) {
+        if (!row.routeId.startsWith(routeIdPrefix)) {
+          pastPrefix = true
+          break
+        }
+        if (!statusSet.has(row.geometryStatus ?? '')) continue
+        if (pageRows.some((r) => r.routeId === row.routeId)) continue
+        pageRows.push(row)
+      }
+
+      if (pastPrefix || page.isDone) {
+        continueCursor = null
+        isDone = true
+      } else {
+        continueCursor = encodeRetirementCursor({
+          statusIdx: 0,
+          pageCursor: page.continueCursor,
+        })
+        isDone = false
+      }
+    } else if (statusIdx < statuses.length) {
+      const status = statuses[statusIdx]
+      const page = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_geometry_status', (q) => q.eq('geometryStatus', status))
+        .paginate({ cursor: pageCursor, numItems: take })
+
+      for (const row of page.page) {
+        if (pageRows.some((r) => r.routeId === row.routeId)) continue
+        pageRows.push(row)
+        if (pageRows.length >= take) break
+      }
+
+      if (!page.isDone) {
+        continueCursor = encodeRetirementCursor({
+          statusIdx,
+          pageCursor: page.continueCursor,
+        })
+        isDone = false
+      } else if (statusIdx + 1 < statuses.length) {
+        continueCursor = encodeRetirementCursor({
+          statusIdx: statusIdx + 1,
+          pageCursor: null,
+        })
+        isDone = false
+      } else {
+        continueCursor = null
+        isDone = true
+      }
+    } else {
+      isDone = true
+      continueCursor = null
     }
 
     const candidates = []
-    for (const row of rows.slice(0, take)) {
+    for (const row of pageRows.slice(0, take)) {
       const arts = await ctx.db
         .query('curation_artifacts')
         .withIndex('by_routeId', (q) => q.eq('routeId', row.routeId))
-        .take(100)
+        .take(50)
 
       const geom = await ctx.db
         .query('curated_route_geometry')
@@ -2796,8 +2970,6 @@ export const listRetirementCandidates = query({
         rideWorthinessVerdict: row.rideWorthiness?.verdict ?? null,
       })
 
-      // Only surface rows that have at least some lever evidence OR are eligible
-      // (tests look for specific routeIds; include all scanned with explicit eligible flag)
       let bestCandidateGeometry: string | null = geom?.value ?? geom?.verification?.geometry ?? null
       if (!bestCandidateGeometry) {
         const candidate = arts
@@ -2828,7 +3000,14 @@ export const listRetirementCandidates = query({
     }
 
     const eligibleCandidateCount = candidates.filter((c) => c.eligible).length
-    return { candidates, eligibleCandidateCount, length: candidates.length }
+    return {
+      candidates,
+      page: candidates,
+      eligibleCandidateCount,
+      length: candidates.length,
+      continueCursor,
+      isDone,
+    }
   },
 })
 
@@ -2884,6 +3063,7 @@ export const getRetirementEvidence = query({
       geometryStatus: route.geometryStatus ?? null,
       riderReady: route.riderReady ?? false,
       retiredAt: route.retiredAt != null ? new Date(route.retiredAt).toISOString() : null,
+      retiredAtMs: route.retiredAt ?? null,
       retirementReason: route.retirementReason ?? null,
       retirementReasonHistoryRetained: hasRetireReason,
       verification: geom?.verification
@@ -2978,6 +3158,7 @@ export const retireRoute = mutation({
       disposition: 'retire' as const,
       geometryStatus: 'retired' as const,
       retiredAt: new Date(retiredAt).toISOString(),
+      retiredAtMs: retiredAt,
       retirementReason: trimmed,
       riderReady: false,
       confirmed: true,
@@ -2988,10 +3169,14 @@ export const retireRoute = mutation({
 /**
  * Reversible un-retire: clears exclusion state, preserves route + evidence, recomputes riderReady.
  * Does NOT set riderReady=true without qualifying geometry/classifier evidence.
+ * OCC: expectedRetiredAt must match the current document retiredAt (fail closed on concurrent change).
  */
 export const unretireRoute = mutation({
-  args: { routeId: v.string() },
-  handler: async (ctx, { routeId }) => {
+  args: {
+    routeId: v.string(),
+    expectedRetiredAt: v.number(),
+  },
+  handler: async (ctx, { routeId, expectedRetiredAt }) => {
     await requireOperator(ctx)
 
     const route = await ctx.db
@@ -3002,6 +3187,21 @@ export const unretireRoute = mutation({
       throw new ConvexError({
         code: 'VALIDATION_ERROR',
         message: `Route not found: ${routeId}`,
+      })
+    }
+
+    if (route.geometryStatus !== 'retired' || route.retiredAt == null) {
+      throw new ConvexError({
+        code: 'VALIDATION_ERROR',
+        message: `Route ${routeId} is not retired`,
+      })
+    }
+
+    // OCC guard: reject stale concurrent retire/unretire (no silent last-write-wins).
+    if (route.retiredAt !== expectedRetiredAt) {
+      throw new ConvexError({
+        code: 'CONCURRENCY_CONFLICT',
+        message: `unretireRoute OCC mismatch for ${routeId}: expected retiredAt ${expectedRetiredAt}, actual ${route.retiredAt}`,
       })
     }
 
@@ -3016,10 +3216,11 @@ export const unretireRoute = mutation({
         ? ('generated' as const)
         : ('review' as const)
 
-    // Clear exclusion only; keep retirementReason as historical evidence on the doc
+    // Clear exclusion with null (Convex rejects undefined in documents/patches).
+    // Keep retirementReason as historical evidence on the doc.
     await ctx.db.patch(route._id, {
       geometryStatus: restoreStatus,
-      retiredAt: undefined,
+      retiredAt: null,
       riderReady: false,
     })
 
@@ -3044,6 +3245,7 @@ export const unretireRoute = mutation({
       retiredAt: null,
       riderReady: updated?.riderReady ?? false,
       routeDocId: route._id,
+      applied: true,
     }
   },
 })

@@ -497,7 +497,7 @@ async function upsertTop50Route(
     state: 'California',
     summary: `S5-T3 top-50 fixture ${spec.routeId}`,
     name_lower: spec.name.toLowerCase(),
-    retiredAt: undefined,
+    retiredAt: null,
     duplicateOf: undefined,
     quarantine: undefined,
   }

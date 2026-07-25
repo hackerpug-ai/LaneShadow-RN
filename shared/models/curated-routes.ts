@@ -206,8 +206,9 @@ export const curatedRouteValidator = v.object({
       evidenceComplete: v.optional(v.boolean()),
     }),
   ),
-  retiredAt: v.optional(v.number()),
-  retirementReason: v.optional(v.string()),
+  // null = explicitly cleared (unretire); absent = never retired. Never write undefined.
+  retiredAt: v.optional(v.union(v.number(), v.null())),
+  retirementReason: v.optional(v.union(v.string(), v.null())),
   duplicateOf: v.optional(v.string()),
   quarantine: v.optional(
     v.object({

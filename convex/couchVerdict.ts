@@ -510,7 +510,7 @@ export const seedAllBatchFixtures = internalMutation({
       riderReady: false,
       state: 'California',
       summary: 'S4-T6 --all gate fixture with scrapable polyline for Lever 1.',
-      retiredAt: undefined,
+      retiredAt: null,
       duplicateOf: undefined,
       quarantine: undefined,
     }

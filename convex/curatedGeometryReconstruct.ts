@@ -1057,7 +1057,7 @@ async function upsertLeverTestRoute(
     riderReady: false,
     state: row.state ?? 'California',
     ...(row.highwayNumber != null ? { highwayNumber: row.highwayNumber } : {}),
-    retiredAt: undefined,
+    retiredAt: null,
     duplicateOf: undefined,
     quarantine: undefined,
   }
