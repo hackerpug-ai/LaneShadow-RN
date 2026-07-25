@@ -206,10 +206,10 @@ export const curatedRouteValidator = v.object({
       evidenceComplete: v.optional(v.boolean()),
     }),
   ),
-  // null clears retirement (unretire); optional number timestamps a retire
+  // null is written by unretire/clear paths; optional alone rejects null
   retiredAt: v.optional(v.union(v.number(), v.null())),
   retirementReason: v.optional(v.union(v.string(), v.null())),
-  duplicateOf: v.optional(v.union(v.string(), v.null())),
+  duplicateOf: v.optional(v.string()),
   quarantine: v.optional(
     v.object({
       reason: v.union(v.literal('zero_length'), v.literal('length_outlier'), v.literal('test_row')),
