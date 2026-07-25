@@ -1,0 +1,119 @@
+{
+  "tasks": {
+    "all_completed": true
+  },
+  "gate": {
+    "overall": "PASS",
+    "subgates": {
+      "ci_honesty": "PASS",
+      "drift_chokepoint": "PASS",
+      "drift_criteria": "PASS",
+      "holdout": "PASS",
+      "legibility": "PASS"
+    },
+    "subgate_blocking": []
+  },
+  "e2e": {
+    "sprint_id": "sprint-05-batch-acceptance-retirement",
+    "overall": "PASS",
+    "steps": [
+      {
+        "n": 1,
+        "claim": "full --all couch-gated batch",
+        "result": "PASS",
+        "covered_by": "S5T1 integration"
+      },
+      {
+        "n": 2,
+        "claim": "coverageReport yields/cost/cursor",
+        "result": "PASS",
+        "covered_by": "S5T1 integration"
+      },
+      {
+        "n": 3,
+        "claim": "accept/reject/escalation recorded",
+        "result": "PASS",
+        "covered_by": "S5T1 + founder packet"
+      },
+      {
+        "n": 4,
+        "claim": "far-below escalates not silent complete",
+        "result": "PASS",
+        "covered_by": "S5T1 low-yield"
+      },
+      {
+        "n": 5,
+        "claim": "top-50 rank review",
+        "result": "PASS",
+        "covered_by": "S5T3 + founder review"
+      },
+      {
+        "n": 6,
+        "claim": "no test/seed in top 50",
+        "result": "PASS",
+        "covered_by": "GATE-FIX + live export"
+      },
+      {
+        "n": 7,
+        "claim": "retirement candidates with reasons",
+        "result": "PASS",
+        "covered_by": "S5T2"
+      },
+      {
+        "n": 8,
+        "claim": "no auto-retire; reversible",
+        "result": "PASS",
+        "covered_by": "S5T2"
+      }
+    ],
+    "cycle": 0,
+    "written_at_commit": "0b1df54c597cc5c6ec3e57cfdf197ccfe8f6738a"
+  },
+  "human_test": {
+    "verdict": "pass",
+    "run_id": "s5-gate-20260725T014424Z",
+    "steps_total": 8,
+    "steps_executed": 8,
+    "steps_passed": 8,
+    "gate_results_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-results.json",
+    "cycle": 0
+  },
+  "integration": {
+    "trunk_consolidated": true,
+    "orphan_branches": 0,
+    "stranded_tasks": [],
+    "default_target_ok": true,
+    "protected_branch": "main",
+    "stranded_report": {
+      "repo": "/Users/inference1/Projects/LaneShadow-RN",
+      "trunk": "main",
+      "prime": {
+        "is_prime": true,
+        "branch": "main",
+        "on_trunk": true,
+        "gitbutler": false,
+        "dirty_count": 49
+      },
+      "orphan_branches": [],
+      "stranded_tasks": [],
+      "goal_state": null,
+      "scanned": 8,
+      "ignored": 0,
+      "ok": true
+    }
+  },
+  "status_files": {
+    "parity": true,
+    "drift": [],
+    "checked_at": "2026-07-25T01:58:21.279902+00:00"
+  },
+  "build": {
+    "overall": "passed",
+    "typecheck": 0,
+    "lint": "preexisting_warnings"
+  },
+  "goal": "complete",
+  "met": true,
+  "written_at": "2026-07-25T01:58:21.280056+00:00",
+  "written_at_commit": "0b1df54c597cc5c6ec3e57cfdf197ccfe8f6738a"
+}

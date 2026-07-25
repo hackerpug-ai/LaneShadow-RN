@@ -1,0 +1,10 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "allowed": true,
+  "catalogVersion": "rev-e6dd2bda622c19ac",
+  "manifestHash": "e6dd2bda622c19acf9de2f8f33e507b3fe7626781b49454ff3a5d34a5322fb07",
+  "overallVerdict": "pass",
+  "reason": null,
+  "recordedAt": 1784940081068,
+  "sampleId": "couch-1784940078455"
+}

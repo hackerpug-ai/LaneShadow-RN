@@ -1,0 +1,66 @@
+{
+  "assumptionNote": "PRD per-lever expected yields are assumptions for comparison only \u2014 not committed catalog targets.",
+  "continueCursor": null,
+  "generatedCount": 500,
+  "isDone": true,
+  "levers": [
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "unproven",
+      "candidateCount": 119,
+      "escalationFloor": null,
+      "lever": "promote",
+      "leverNumber": 1,
+      "passCount": 17,
+      "passRate": 0.14285714285714285,
+      "provenance": "scraped_promoted",
+      "realizedRate": 0.14285714285714285
+    },
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "~67%",
+      "candidateCount": 0,
+      "escalationFloor": 0.4,
+      "lever": "reconstruct",
+      "leverNumber": 2,
+      "passCount": 0,
+      "passRate": 0,
+      "provenance": "ai_reconstructed",
+      "realizedRate": 0
+    },
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "~40-55%",
+      "candidateCount": 0,
+      "escalationFloor": 0.4,
+      "lever": "reroute",
+      "leverNumber": 3,
+      "passCount": 0,
+      "passRate": 0,
+      "provenance": "name_routed",
+      "realizedRate": 0
+    }
+  ],
+  "negativeControl": {
+    "notARideRiderReady": false,
+    "shadowRiderReady": false
+  },
+  "provenanceCounts": {
+    "scraped_promoted": 119
+  },
+  "riderReadyCount": 17,
+  "runId": null,
+  "source": "live",
+  "terminalStates": {
+    "cost_blocked": 0,
+    "failed": 1,
+    "generated": 500,
+    "queued": 0,
+    "recovered": 0,
+    "retirement_eligible": 0,
+    "review": 122,
+    "skipped": 0,
+    "unresolved": 500
+  },
+  "totalCostUSD": 0
+}

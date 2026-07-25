@@ -40,7 +40,7 @@ green the whole Saturday Bar (Richness R1/R2, Feel F1–F3, Proof P1–P3 are se
 | 2 | [Mastra spike + z.ai proof + enrichment re-ratification](#sprint-02-mastra-reference-spike) | Turn-two "OK what's scenic" inherits the Ogden center on cloud dev | 8 | — | Completed |
 | 3 | [Catalog hygiene](#sprint-03-catalog-hygiene) | Founder confirms canonical-vs-shadow per duplicate group before merge commits | 4 | — | Completed |
 | 4 | [Trust pipeline](#sprint-04-trust-pipeline) | Founder reviews the ~25 couch-sample lines and records the pass that unlocks the batch | 7 | 1, 3 | Done |
-| 5 | [Batch acceptance + retirement](#sprint-05-batch-acceptance) | Founder accepts the realized rider-ready count against the expected-yield table | 4 | 4 | Planned |
+| 5 | [Batch acceptance + retirement](#sprint-05-batch-acceptance) | Founder accepts the realized rider-ready count against the expected-yield table | 4 | 4 | Completed |
 | 6 | [Rider-ready surface](#sprint-06-rider-ready-surface) | Founder confirms the provenance caption reads as calm context, never a warning | 8 | 4 | Planned |
 | 7 | [Agent rebuild — grounded discovery + honesty](#sprint-07-agent-rebuild-grounding) | "Twisty roads near Ogden" returns only genuinely-near routes with real distances | 10 | 2, 6 | Planned |
 | 8 | [Agent rebuild — intent + persona shaping](#sprint-08-agent-intent-persona) | A dated "Saturday morning" request returns a real weather go/no-go, unasked | 8 | 7 | Planned |
@@ -290,7 +290,7 @@ The eight capability chains (CAP-GEO-01…06, CAP-AGT-01/02) are each owned by �
 
 **Sequence:** 5
 **Timeline:** Phase 3
-**Status:** Planned
+**Status:** Completed
 **Proposed by:** product-manager + convex-planner (lane)
 
 #### Human Testing Gate
