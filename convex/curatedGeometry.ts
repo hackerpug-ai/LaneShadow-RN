@@ -23,7 +23,12 @@ import {
 } from './_generated/server'
 import { reevaluateExistingGeometry } from './curatedGeometryGate'
 import { geospatial } from './geospatialIndex'
-import { requireFounder, requireIdentity, requireOperator } from './guards'
+import {
+  assertTestSubjectOrThrow,
+  requireFounder,
+  requireIdentity,
+  requireOperator,
+} from './guards'
 import { isTestSeedRoute } from './lib/top50Eligibility'
 
 // ---------------------------------------------------------------------------
@@ -1652,7 +1657,14 @@ export const resolveBatchEscalation = mutation({
     rationale: v.string(),
   },
   handler: async (ctx, { runId, decision, rationale }) => {
-    await requireFounder(ctx)
+    const founder = await requireFounder(ctx)
+    const operatorIdentity = founder.clerkUserId
+    if (!operatorIdentity || operatorIdentity.length < 1) {
+      throw new ConvexError({
+        code: 'VALIDATION_ERROR',
+        message: 'operatorIdentity required for escalation resolution',
+      })
+    }
     if (!rationale || rationale.trim().length < 1) {
       throw new ConvexError({
         code: 'INVALID_ARGUMENT',
@@ -1674,7 +1686,32 @@ export const resolveBatchEscalation = mutation({
 
     const now = Date.now()
     const resolvedAt = new Date(now).toISOString()
+    const decisionTimestamp = resolvedAt
     const accepted = decision === 'accept'
+
+    // Accept unlocks retirement — fail-closed provenance required (same gate as clean accept).
+    // Reject does not unlock and may resolve without provenance.
+    if (accepted) {
+      if (runId === S5T4_LIVE_ACCEPTANCE_RUN_ID) {
+        throw new ConvexError({
+          code: 'NOT_PROVENANCED',
+          message: `runId=${runId} is a retired seed artifact and cannot satisfy live acceptance`,
+        })
+      }
+      const report = await ctx.db
+        .query('batch_acceptance_artifacts')
+        .withIndex('by_runId_and_kind', (q) =>
+          q.eq('runId', runId).eq('artifactKind', 'coverage_report'),
+        )
+        .first()
+      if (!report || !isRunFullBatchProvenanced(report)) {
+        throw new ConvexError({
+          code: 'NOT_PROVENANCED',
+          message: `coverage_report runId=${runId} lacks runFullBatch provenance — seed/fixture escalations cannot unlock retirement`,
+        })
+      }
+    }
+
     const resolution = {
       decision: accepted ? 'accepted' : 'rejected',
       rationale: rationale.trim(),
@@ -1688,6 +1725,8 @@ export const resolveBatchEscalation = mutation({
       retirementUnlockedAt: accepted ? now : null,
       resolution,
       reason: `escalation_resolved:${decision}`,
+      operatorIdentity,
+      decisionTimestamp,
       updatedAt: now,
     })
 
@@ -1698,6 +1737,8 @@ export const resolveBatchEscalation = mutation({
       resolvedAt,
       acceptedAt: accepted ? now : null,
       retirementUnlockedAt: accepted ? now : null,
+      operatorIdentity,
+      decisionTimestamp,
     }
   },
 })
@@ -2086,9 +2127,9 @@ const LEVER_COUNT_ARG = v.object({
 
 /**
  * REDHAT-FIX-02: Seed a coverage_report with runFullBatch provenance markers.
- * Public founder-gated helper for tests / operator fixtures that need a
- * provenance-valid report without running the full waterfall (same stamp as
- * persistCoverageReport from runFullBatch).
+ * Test-subject + founder gated — must not be callable by production operators
+ * (would reintroduce SEED_SUBSTITUTION). Live reports must come from
+ * persistCoverageReport / runFullBatch.
  */
 export const seedProvenancedCoverageReport = mutation({
   args: {
@@ -2104,7 +2145,8 @@ export const seedProvenancedCoverageReport = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    await requireFounder(ctx)
+    const founder = await requireFounder(ctx)
+    assertTestSubjectOrThrow(founder.clerkUserId)
     const counts = args.levers ?? {
       scraped_promoted: { candidates: 5, passCount: 3 },
       ai_reconstructed: { candidates: 5, passCount: 3 },
