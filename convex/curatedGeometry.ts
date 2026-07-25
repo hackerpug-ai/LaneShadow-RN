@@ -24,6 +24,7 @@ import {
 import { reevaluateExistingGeometry } from './curatedGeometryGate'
 import { geospatial } from './geospatialIndex'
 import { requireFounder, requireIdentity, requireOperator } from './guards'
+import { isTestSeedRoute } from './lib/top50Eligibility'
 
 // ---------------------------------------------------------------------------
 // Validators (shared with actions/curatedGeometry.ts via re-export)
@@ -2750,18 +2751,26 @@ export const listRetirementCandidates = query({
     await requireIdentity(ctx)
     const take = Math.min(limit ?? 50, 200)
 
-    // Scan review + unresolved residuals. When a prefix is supplied, expand the
-    // scan window so test/operator filters are not truncated by stale review rows.
+    // Scan review + unresolved residuals. Prefix path keeps a wide window for
+    // harness isolation; unscoped founder path oversamples then scrubs test:/seed:.
     const statuses = ['review', 'unresolved', 'failed', 'retired'] as const
-    const scanPerStatus = routeIdPrefix ? 800 : take * 3
-    let rows: Array<import('./_generated/dataModel').Doc<'curated_routes'>> = []
-    for (const status of statuses) {
-      const batch = await ctx.db
-        .query('curated_routes')
-        .withIndex('by_geometry_status', (q) => q.eq('geometryStatus', status))
-        .take(scanPerStatus)
-      rows = rows.concat(batch)
+    // Unscoped: oversample so post-filter can still fill `take` when fixtures dominate.
+    // Prefix: wide scan for operator/test isolation (S5-T2 harness).
+    const scanPerStatus = routeIdPrefix ? 800 : Math.min(Math.max(take * 20, 200), 800)
+
+    const scanStatuses = async (perStatus: number) => {
+      let collected: Array<import('./_generated/dataModel').Doc<'curated_routes'>> = []
+      for (const status of statuses) {
+        const batch = await ctx.db
+          .query('curated_routes')
+          .withIndex('by_geometry_status', (q) => q.eq('geometryStatus', status))
+          .take(perStatus)
+        collected = collected.concat(batch)
+      }
+      return collected
     }
+
+    let rows = await scanStatuses(scanPerStatus)
 
     if (routeIdPrefix) {
       // Exact id short-circuit (operator paste of a full routeId)
@@ -2773,6 +2782,14 @@ export const listRetirementCandidates = query({
         rows = [exact, ...rows]
       }
       rows = rows.filter((r) => r.routeId.startsWith(routeIdPrefix))
+    } else {
+      // Unscoped founder surface — scrub test:/seed: fixtures (REDHAT-FIX-03 / F3)
+      rows = rows.filter((r) => !isTestSeedRoute(r.routeId, r.name))
+      // If dense fixtures under-filled after scrub, re-scan a larger page.
+      if (rows.length < take) {
+        const larger = await scanStatuses(2000)
+        rows = larger.filter((r) => !isTestSeedRoute(r.routeId, r.name))
+      }
     }
 
     const candidates = []
