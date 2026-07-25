@@ -1,6 +1,9 @@
 # REDHAT-FIX-06 — retiredAt null, pagination, OCC on unretireRoute
 
-> Status: Backlog
+> Status: ✅ Completed
+> Commit: 9e6631fa622b893f6bc01ef2d124e24b62c3e2d2
+> Reviewer: convex-reviewer+product-manager
+> Completed: 2026-07-25T03:39:24Z
 > Proposed By: `convex-planner`
 
 | Field | Value |
@@ -254,7 +257,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 Closes F12, F13, F14. Parallel with FIX-03; if both edit listRetirementCandidates, implement scrub first (FIX-03) then pagination (this task) or combine carefully without losing either contract.
 
-<!-- REQUIREMENT-CONTRACT v1 -->
+<!-- REQUIREMENT-CONTRACT v1
+-->
 <!--
 {
   "version": "1",

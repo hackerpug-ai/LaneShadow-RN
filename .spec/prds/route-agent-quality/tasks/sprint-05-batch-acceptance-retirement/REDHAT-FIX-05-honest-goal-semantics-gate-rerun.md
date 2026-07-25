@@ -1,6 +1,9 @@
 # REDHAT-FIX-05 — Honest goal semantics, real gate re-run, Sprint 10 blocked
 
-> Status: Backlog
+> Status: ✅ Completed
+> Commit: 3c3a235c59956d59bcdd48629a83d68d818f845e
+> Reviewer: convex-reviewer+product-manager
+> Completed: 2026-07-25T03:39:25Z
 > Proposed By: `convex-planner`
 
 | Field | Value |
@@ -261,7 +264,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 Closes F4, F5, F6, F16, F17. Terminal sprint outcome may remain rejected; honesty requires met:false and Sprint 10 blocked until a future accepted batch.
 
-<!-- REQUIREMENT-CONTRACT v1 -->
+<!-- REQUIREMENT-CONTRACT v1
+-->
 <!--
 {
   "version": "1",

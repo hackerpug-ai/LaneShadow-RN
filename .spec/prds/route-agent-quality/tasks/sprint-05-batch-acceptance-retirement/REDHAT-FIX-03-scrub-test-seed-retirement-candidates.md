@@ -1,6 +1,9 @@
 # REDHAT-FIX-03 — Scrub test:/seed: rows from listRetirementCandidates export
 
-> Status: Backlog
+> Status: ✅ Completed
+> Commit: d0527f274adeea55e0aea80c7369f1438f8ac46b
+> Reviewer: convex-reviewer+product-manager
+> Completed: 2026-07-25T03:39:23Z
 > Proposed By: `convex-planner`
 
 | Field | Value |
@@ -237,7 +240,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 Closes F3. Parallel-safe with FIX-01 and FIX-06.
 
-<!-- REQUIREMENT-CONTRACT v1 -->
+<!-- REQUIREMENT-CONTRACT v1
+-->
 <!--
 {
   "version": "1",

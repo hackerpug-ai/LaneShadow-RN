@@ -1,6 +1,9 @@
 # REDHAT-FIX-02 — Bind acceptance to live runId with provenance, identity, timestamp
 
-> Status: Backlog
+> Status: ✅ Completed
+> Commit: e7728109e7c5ee35a2e7005e3677ecee6eeeedcd
+> Reviewer: convex-reviewer+product-manager
+> Completed: 2026-07-25T03:39:24Z
 > Proposed By: `convex-planner`
 
 | Field | Value |
@@ -246,7 +249,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 Closes F1, F8, F15. Depends on FIX-01 for real reports and FIX-04 so live accept cannot skip escalation.
 
-<!-- REQUIREMENT-CONTRACT v1 -->
+<!-- REQUIREMENT-CONTRACT v1
+-->
 <!--
 {
   "version": "1",

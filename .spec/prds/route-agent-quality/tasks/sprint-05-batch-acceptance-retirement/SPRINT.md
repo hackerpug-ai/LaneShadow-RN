@@ -18,12 +18,8 @@ planned_from_source_sha: facc807930bd3b207c26cfae5b3650205f294858
 **Sequence:** 5
 **Timeline:** Phase 3
 **Status:** Completed
-<<<<<<< Updated upstream
-> Progress: 0/4 tasks completed · updated 2026-07-25T03:37:34Z
+> Progress: 4/4 tasks completed · updated 2026-07-25T03:39:25Z
 > Status-Note: REDHAT-FIX-01..06 landed; real batch accepted; human gate re-run honest
-=======
-> Progress: 0/4 tasks completed · updated 2026-07-25T02:39:12Z
->>>>>>> Stashed changes
 **Proposed by:** product-manager + convex-planner (lane)
 
 ## Overview
@@ -95,7 +91,7 @@ A real, un-seeded full-batch acceptance packet containing the `coverageReport`, 
 
 ## Blocks
 
-- Sprint 10: **BLOCKED** until an acceptance artifact with `decision === 'accepted'` exists for a live provenanced run. Current state: no accepted catalog (`escalation_required` / rejected batches do not unblock). Capstone (SLC/Ogden Saturday arc) must not start until `deriveSprint10Blocked` returns `{ blocked: false }`.
+- Sprint 10: **UNBLOCKED** — acceptance artifact `decision === 'accepted'` for live provenanced run `s5-redhat-20260725T033521Z` (reportProvenance runFullBatch, totalCostUSD > 0). Capstone may start; `deriveSprint10Blocked` → `{ blocked: false }`.
 
 ## Task Detail Files
 

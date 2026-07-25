@@ -1,6 +1,9 @@
 # REDHAT-FIX-04 — Escalate zero-candidate levers (close live auto-unlock)
 
-> Status: Backlog
+> Status: ✅ Completed
+> Commit: 97bada1d68ba79b36e00e46647dddfb2bd5ebafc
+> Reviewer: convex-reviewer+product-manager
+> Completed: 2026-07-25T03:39:23Z
 > Proposed By: `convex-planner`
 
 | Field | Value |
@@ -239,7 +242,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 Closes F7 and the live-path half of F9. Must land before FIX-02 acceptance binding is proven safe on live-shaped data.
 
-<!-- REQUIREMENT-CONTRACT v1 -->
+<!-- REQUIREMENT-CONTRACT v1
+-->
 <!--
 {
   "version": "1",

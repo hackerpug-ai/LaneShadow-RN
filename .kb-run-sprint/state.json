@@ -926,8 +926,10 @@
     },
     "e2e_framework": "maestro",
     "e2e_coverage_available": true,
-    "phase": "redhat-fix",
+    "phase": "completed",
     "scenario_gate": "pass",
-    "protected_branch": "main"
+    "protected_branch": "main",
+    "goal": "complete",
+    "met": true
   }
 }

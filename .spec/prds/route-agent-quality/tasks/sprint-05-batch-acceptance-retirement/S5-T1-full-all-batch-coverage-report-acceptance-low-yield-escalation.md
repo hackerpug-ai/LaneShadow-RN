@@ -1,6 +1,9 @@
 # S5-T1 — Full `--all` batch, realized-yield coverage report, acceptance, and escalation
 
-> Status: Backlog
+> Status: ✅ Completed
+> Commit: f3d4dc8760c3175e3c39e653541192d7f8356d65
+> Reviewer: convex-reviewer+product-manager
+> Completed: 2026-07-25T03:39:20Z
 > Proposed By: `convex-planner`
 
 | Field | Value |
@@ -182,7 +185,8 @@ Run RED against the current Convex dev deployment before implementation for ever
 - `AGENTS.md`
 - `.spec/prds/route-agent-quality/10-technical-requirements/01-architecture-posture.md`
 
-<!-- REQUIREMENT-CONTRACT v1 -->
+<!-- REQUIREMENT-CONTRACT v1
+-->
 <!--
 {
   "version": "1",

@@ -1,6 +1,9 @@
 # S5-T2 — Fail-closed retirement with explicit Founder confirmation and reversible un-retire
 
-> Status: Backlog
+> Status: ✅ Completed
+> Commit: 338c785c677dca66bd0edabcee95ce9b7df2ed5f
+> Reviewer: convex-reviewer+product-manager
+> Completed: 2026-07-25T03:39:21Z
 > Proposed By: `convex-planner`
 
 | Field | Value |
@@ -181,7 +184,8 @@ RED each integration scenario against the real deployment. Keep candidate eligib
 - `AGENTS.md`
 - `.spec/prds/route-agent-quality/10-technical-requirements/09-capability-chains.md`
 
-<!-- REQUIREMENT-CONTRACT v1 -->
+<!-- REQUIREMENT-CONTRACT v1
+-->
 <!--
 {
   "version": "1",

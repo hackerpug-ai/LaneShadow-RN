@@ -1,6 +1,9 @@
 # REDHAT-FIX-01 — Remove live coverageReport stubs and prove a real `--all` batch
 
-> Status: Backlog
+> Status: ✅ Completed
+> Commit: 78f94db4342e13ff6af4d7ff090dbab89ae9a9dc
+> Reviewer: convex-reviewer+product-manager
+> Completed: 2026-07-25T03:39:22Z
 > Proposed By: `convex-planner`
 
 | Field | Value |
@@ -253,7 +256,8 @@ SCENARIO (validated by `tools/validate-scenario/validate_scenario.py` — exit 0
 
 Closes F2, F9 (undefined 0/0 context for live report honesty), F10, F11. Primary unblocks live acceptance binding and human gate re-run.
 
-<!-- REQUIREMENT-CONTRACT v1 -->
+<!-- REQUIREMENT-CONTRACT v1
+-->
 <!--
 {
   "version": "1",
