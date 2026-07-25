@@ -1420,8 +1420,27 @@ function detectLowYieldEscalations(levers: LeverReportRow[]) {
     reason: string
   }> = []
   for (const lever of levers) {
+    // Promote (lever 1) and any lever with null floor: unproven — do not escalate
     if (lever.escalationFloor == null) continue
-    if (lever.candidateCount <= 0) continue
+
+    // Zero-candidate floored levers are fail-closed inspection signals (not silent pass).
+    // 0/0 is an undefined_rate — never claim a defined 0.0% realized rate below floor alone.
+    if (lever.candidateCount <= 0) {
+      escalations.push({
+        lever: lever.lever,
+        leverNumber: lever.leverNumber,
+        observedRate: lever.realizedRate,
+        realizedRate: lever.realizedRate,
+        passCount: lever.passCount,
+        candidates: lever.candidateCount,
+        candidateCount: lever.candidateCount,
+        assumptionLabel: lever.assumptionLabel,
+        escalationFloor: lever.escalationFloor,
+        reason: `${lever.lever} zero_candidates: undefined_rate — inspection required (no candidates exercised; cannot compare against escalation floor ${(lever.escalationFloor * 100).toFixed(0)}%; assumption ${lever.assumptionLabel})`,
+      })
+      continue
+    }
+
     if (lever.realizedRate < lever.escalationFloor) {
       escalations.push({
         lever: lever.lever,
