@@ -426,4 +426,58 @@ export default defineSchema({
   })
     .index('by_sampleId', ['sampleId'])
     .index('by_activatedAt', ['activatedAt']),
+
+  /**
+   * S5-T1: Full-batch coverage reports + founder acceptance/escalation artifacts.
+   * One logical runId may have coverage_report + acceptance rows; retirement stays
+   * locked until an explicit accept or resolved escalation records retirementUnlockedAt.
+   */
+  batch_acceptance_artifacts: defineTable({
+    runId: v.string(),
+    artifactKind: v.union(v.literal('coverage_report'), v.literal('acceptance')),
+    isDone: v.optional(v.boolean()),
+    continueCursor: v.optional(v.union(v.string(), v.null())),
+    totalCostUSD: v.optional(v.number()),
+    maxCostUSD: v.optional(v.number()),
+    batchStopReason: v.optional(v.union(v.string(), v.null())),
+    riderReadyCount: v.optional(v.number()),
+    levers: v.optional(
+      v.array(
+        v.object({
+          lever: v.string(),
+          leverNumber: v.number(),
+          provenance: v.string(),
+          candidateCount: v.number(),
+          passCount: v.number(),
+          realizedRate: v.number(),
+          passRate: v.number(),
+          assumptionLabel: v.string(),
+          assumptionIsTarget: v.boolean(),
+          escalationFloor: v.union(v.number(), v.null()),
+        }),
+      ),
+    ),
+    terminalStates: v.optional(v.any()),
+    provenanceCounts: v.optional(v.any()),
+    pageTotals: v.optional(v.any()),
+    decision: v.optional(
+      v.union(
+        v.literal('accepted'),
+        v.literal('rejected'),
+        v.literal('escalation_required'),
+        v.null(),
+      ),
+    ),
+    acceptedAt: v.optional(v.union(v.number(), v.null())),
+    retirementUnlockedAt: v.optional(v.union(v.number(), v.null())),
+    escalations: v.optional(v.any()),
+    resolution: v.optional(v.any()),
+    observedRates: v.optional(v.any()),
+    reason: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index('by_runId', ['runId'])
+    .index('by_artifactKind', ['artifactKind'])
+    .index('by_runId_and_kind', ['runId', 'artifactKind']),
 })

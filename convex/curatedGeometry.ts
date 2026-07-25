@@ -12,10 +12,18 @@
  * field stays on the route doc itself.
  */
 
-import { v } from 'convex/values'
+import { ConvexError, v } from 'convex/values'
 import { internal } from './_generated/api'
-import { internalAction, internalMutation, internalQuery } from './_generated/server'
+import {
+  internalAction,
+  internalMutation,
+  internalQuery,
+  mutation,
+  query,
+} from './_generated/server'
 import { reevaluateExistingGeometry } from './curatedGeometryGate'
+import { geospatial } from './geospatialIndex'
+import { requireFounder, requireOperator } from './guards'
 
 // ---------------------------------------------------------------------------
 // Validators (shared with actions/curatedGeometry.ts via re-export)
@@ -1019,5 +1027,1083 @@ export const completeClassifierRun = internalMutation({
       updatedAt: Date.now(),
     })
     return { runId, status: 'completed' as const, processedCount, failedCount, totalEligible }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// S5-T1: coverageReport, batch acceptance, low-yield escalation, fixtures
+// ---------------------------------------------------------------------------
+
+/** PRD expected-yield assumptions — comparison context ONLY, never committed targets. */
+export const PRD_YIELD_ASSUMPTIONS = [
+  {
+    lever: 'promote',
+    leverNumber: 1,
+    provenance: 'scraped_promoted' as const,
+    assumptionLabel: 'unproven',
+    assumptionRate: null as number | null,
+    escalationFloor: null as number | null,
+  },
+  {
+    lever: 'reconstruct',
+    leverNumber: 2,
+    provenance: 'ai_reconstructed' as const,
+    assumptionLabel: '~67%',
+    assumptionRate: 0.67,
+    escalationFloor: 0.4,
+  },
+  {
+    lever: 'reroute',
+    leverNumber: 3,
+    provenance: 'name_routed' as const,
+    assumptionLabel: '~40-55%',
+    assumptionRate: 0.475,
+    escalationFloor: 0.4,
+  },
+] as const
+
+const POLY_41MI_S5 =
+  'oditE~o~}Uk~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@sq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@i~@uq@k~@sq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@sq@k~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@sq@k~@uq@'
+
+type LeverReportRow = {
+  lever: string
+  leverNumber: number
+  provenance: string
+  candidateCount: number
+  passCount: number
+  realizedRate: number
+  passRate: number
+  assumptionLabel: string
+  assumptionIsTarget: boolean
+  escalationFloor: number | null
+}
+
+function emptyTerminalStates() {
+  return {
+    recovered: 0,
+    queued: 0,
+    retirement_eligible: 0,
+    cost_blocked: 0,
+    skipped: 0,
+    generated: 0,
+    review: 0,
+    unresolved: 0,
+    failed: 0,
+  }
+}
+
+function buildLeverRows(
+  counts: Record<string, { candidates: number; passCount: number }>,
+): LeverReportRow[] {
+  return PRD_YIELD_ASSUMPTIONS.map((a) => {
+    const c = counts[a.provenance] ?? { candidates: 0, passCount: 0 }
+    const realizedRate = c.candidates > 0 ? c.passCount / c.candidates : 0
+    return {
+      lever: a.lever,
+      leverNumber: a.leverNumber,
+      provenance: a.provenance,
+      candidateCount: c.candidates,
+      passCount: c.passCount,
+      realizedRate,
+      passRate: realizedRate,
+      assumptionLabel: a.assumptionLabel,
+      assumptionIsTarget: false,
+      escalationFloor: a.escalationFloor,
+    }
+  })
+}
+
+async function upsertBatchArtifact(
+  ctx: { db: import('./_generated/server').MutationCtx['db'] },
+  row: {
+    runId: string
+    artifactKind: 'coverage_report' | 'acceptance'
+    [key: string]: unknown
+  },
+) {
+  const existing = await ctx.db
+    .query('batch_acceptance_artifacts')
+    .withIndex('by_runId_and_kind', (q) =>
+      q.eq('runId', row.runId).eq('artifactKind', row.artifactKind),
+    )
+    .first()
+  const now = Date.now()
+  const doc = {
+    ...row,
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now,
+  }
+  if (existing) {
+    await ctx.db.replace(existing._id, doc as any)
+    return existing._id
+  }
+  return await ctx.db.insert('batch_acceptance_artifacts', doc as any)
+}
+
+/** Persist a coverage report produced by a full-batch run (internal). */
+export const persistCoverageReport = internalMutation({
+  args: {
+    runId: v.string(),
+    isDone: v.boolean(),
+    continueCursor: v.union(v.string(), v.null()),
+    totalCostUSD: v.number(),
+    maxCostUSD: v.optional(v.union(v.number(), v.null())),
+    batchStopReason: v.optional(v.union(v.string(), v.null())),
+    riderReadyCount: v.number(),
+    levers: v.array(
+      v.object({
+        lever: v.string(),
+        leverNumber: v.number(),
+        provenance: v.string(),
+        candidateCount: v.number(),
+        passCount: v.number(),
+        realizedRate: v.number(),
+        passRate: v.number(),
+        assumptionLabel: v.string(),
+        assumptionIsTarget: v.boolean(),
+        escalationFloor: v.union(v.number(), v.null()),
+      }),
+    ),
+    terminalStates: v.any(),
+    provenanceCounts: v.any(),
+    pageTotals: v.optional(v.any()),
+  },
+  handler: async (ctx, args) => {
+    await upsertBatchArtifact(ctx, {
+      runId: args.runId,
+      artifactKind: 'coverage_report',
+      isDone: args.isDone,
+      continueCursor: args.continueCursor,
+      totalCostUSD: args.totalCostUSD,
+      maxCostUSD: args.maxCostUSD ?? null,
+      batchStopReason: args.batchStopReason ?? null,
+      riderReadyCount: args.riderReadyCount,
+      levers: args.levers,
+      terminalStates: args.terminalStates,
+      provenanceCounts: args.provenanceCounts,
+      pageTotals: args.pageTotals,
+      decision: null,
+      acceptedAt: null,
+      retirementUnlockedAt: null,
+    })
+    return { runId: args.runId, persisted: true }
+  },
+})
+
+/**
+ * Live coverage report over the catalog (optionally scoped by routeIdPrefix)
+ * or the persisted report for a runId.
+ */
+export const coverageReport = query({
+  args: {
+    runId: v.optional(v.string()),
+    routeIdPrefix: v.optional(v.string()),
+    routeIds: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    await requireOperator(ctx)
+
+    if (args.runId && !args.routeIds && !args.routeIdPrefix) {
+      const persisted = await ctx.db
+        .query('batch_acceptance_artifacts')
+        .withIndex('by_runId_and_kind', (q) =>
+          q.eq('runId', args.runId!).eq('artifactKind', 'coverage_report'),
+        )
+        .first()
+      if (persisted) {
+        return {
+          runId: persisted.runId,
+          source: 'persisted' as const,
+          isDone: persisted.isDone ?? false,
+          continueCursor: persisted.continueCursor ?? null,
+          totalCostUSD: persisted.totalCostUSD ?? 0,
+          maxCostUSD: persisted.maxCostUSD ?? null,
+          batchStopReason: persisted.batchStopReason ?? null,
+          riderReadyCount: persisted.riderReadyCount ?? 0,
+          levers: persisted.levers ?? [],
+          terminalStates: persisted.terminalStates ?? emptyTerminalStates(),
+          provenanceCounts: persisted.provenanceCounts ?? {},
+          pageTotals: persisted.pageTotals ?? null,
+          assumptionNote:
+            'PRD per-lever expected yields are assumptions for comparison only — not committed catalog targets.',
+        }
+      }
+    }
+
+    const prefix = args.routeIdPrefix
+    const idSet = args.routeIds ? new Set(args.routeIds) : null
+    const leverCounts: Record<string, { candidates: number; passCount: number }> = {
+      scraped_promoted: { candidates: 0, passCount: 0 },
+      ai_reconstructed: { candidates: 0, passCount: 0 },
+      name_routed: { candidates: 0, passCount: 0 },
+    }
+    const terminalStates = emptyTerminalStates()
+    const provenanceCounts: Record<string, number> = {}
+    let riderReadyCount = 0
+    let generatedCount = 0
+    let notARideRiderReady = false
+    let shadowRiderReady = false
+
+    const matchesScope = (routeId: string) => {
+      if (idSet) return idSet.has(routeId)
+      if (prefix) return routeId.startsWith(prefix)
+      return true
+    }
+
+    // Prefer exact routeIds lookup when provided (isolated test pools).
+    if (idSet) {
+      for (const routeId of idSet) {
+        const row = await ctx.db
+          .query('curated_routes')
+          .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+          .first()
+        if (!row) continue
+        const status = (row.geometryStatus ?? 'unresolved') as keyof typeof terminalStates
+        if (status in terminalStates) {
+          terminalStates[status] = (terminalStates[status] ?? 0) + 1
+        }
+        if (row.geometryStatus === 'generated') generatedCount += 1
+        // Gate-derived riderReady only — never infer from geometryStatus alone
+        if (row.riderReady === true) riderReadyCount += 1
+
+        const prov = row.geometryProvenance as string | undefined
+        if (prov) {
+          provenanceCounts[prov] = (provenanceCounts[prov] ?? 0) + 1
+          if (leverCounts[prov]) {
+            leverCounts[prov].candidates += 1
+            const geom = await ctx.db
+              .query('curated_route_geometry')
+              .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+              .first()
+            const pass =
+              row.geometryStatus === 'generated' && geom?.verification?.verdict === 'pass'
+            if (pass) leverCounts[prov].passCount += 1
+          }
+        }
+
+        if (row.routeId.includes('not-a-ride') || row.routeId.includes('not_a_ride')) {
+          if (row.riderReady === true) notARideRiderReady = true
+        }
+        if (row.duplicateOf != null || row.routeId.includes('shadow')) {
+          if (row.riderReady === true) shadowRiderReady = true
+        }
+      }
+    } else {
+      const statuses = ['generated', 'review', 'unresolved', 'failed'] as const
+      for (const status of statuses) {
+        const rows = await ctx.db
+          .query('curated_routes')
+          .withIndex('by_geometry_status', (q) => q.eq('geometryStatus', status))
+          .take(500)
+        for (const row of rows) {
+          if (!matchesScope(row.routeId)) continue
+          terminalStates[status] = (terminalStates[status] ?? 0) + 1
+          if (status === 'generated') generatedCount += 1
+          if (row.riderReady === true) riderReadyCount += 1
+
+          const prov = row.geometryProvenance as string | undefined
+          if (prov) {
+            provenanceCounts[prov] = (provenanceCounts[prov] ?? 0) + 1
+            if (leverCounts[prov]) {
+              leverCounts[prov].candidates += 1
+              const geom = await ctx.db
+                .query('curated_route_geometry')
+                .withIndex('by_routeId', (q) => q.eq('routeId', row.routeId))
+                .first()
+              const pass = status === 'generated' && geom?.verification?.verdict === 'pass'
+              if (pass) leverCounts[prov].passCount += 1
+            }
+          }
+
+          if (row.routeId.includes('not-a-ride') || row.routeId.includes('not_a_ride')) {
+            if (row.riderReady === true) notARideRiderReady = true
+          }
+          if (row.duplicateOf != null || row.routeId.includes('shadow')) {
+            if (row.riderReady === true) shadowRiderReady = true
+          }
+        }
+      }
+    }
+
+    const levers = buildLeverRows(leverCounts)
+    return {
+      source: 'live' as const,
+      runId: args.runId ?? null,
+      isDone: true,
+      continueCursor: null,
+      totalCostUSD: 0,
+      riderReadyCount,
+      generatedCount,
+      levers,
+      terminalStates,
+      provenanceCounts,
+      negativeControl: { notARideRiderReady, shadowRiderReady },
+      assumptionNote:
+        'PRD per-lever expected yields are assumptions for comparison only — not committed catalog targets.',
+    }
+  },
+})
+
+export const getBatchAcceptance = query({
+  args: { runId: v.string() },
+  handler: async (ctx, { runId }) => {
+    await requireOperator(ctx)
+    const row = await ctx.db
+      .query('batch_acceptance_artifacts')
+      .withIndex('by_runId_and_kind', (q) => q.eq('runId', runId).eq('artifactKind', 'acceptance'))
+      .first()
+    if (!row) {
+      return {
+        runId,
+        decision: null,
+        acceptedAt: null,
+        retirementUnlockedAt: null,
+        escalations: [],
+        resolution: null,
+      }
+    }
+    return {
+      runId,
+      decision: row.decision ?? null,
+      acceptedAt: row.acceptedAt ?? null,
+      retirementUnlockedAt: row.retirementUnlockedAt ?? null,
+      escalations: row.escalations ?? [],
+      resolution: row.resolution ?? null,
+      observedRates: row.observedRates ?? null,
+      reason: row.reason ?? null,
+    }
+  },
+})
+
+export const retirementLockStatus = query({
+  args: { runId: v.optional(v.string()) },
+  handler: async (ctx, { runId }) => {
+    await requireOperator(ctx)
+    if (!runId) {
+      // Global: locked unless any acceptance has unlocked retirement
+      const rows = await ctx.db
+        .query('batch_acceptance_artifacts')
+        .withIndex('by_artifactKind', (q) => q.eq('artifactKind', 'acceptance'))
+        .take(50)
+      const unlocked = rows.find((r) => r.retirementUnlockedAt != null)
+      return {
+        locked: !unlocked,
+        retirementUnlockedAt: unlocked?.retirementUnlockedAt ?? null,
+        runId: unlocked?.runId ?? null,
+      }
+    }
+    const row = await ctx.db
+      .query('batch_acceptance_artifacts')
+      .withIndex('by_runId_and_kind', (q) => q.eq('runId', runId).eq('artifactKind', 'acceptance'))
+      .first()
+    return {
+      locked: row?.retirementUnlockedAt == null,
+      retirementUnlockedAt: row?.retirementUnlockedAt ?? null,
+      decision: row?.decision ?? null,
+      runId,
+    }
+  },
+})
+
+function detectLowYieldEscalations(levers: LeverReportRow[]) {
+  const escalations: Array<{
+    lever: string
+    leverNumber: number
+    observedRate: number
+    realizedRate: number
+    passCount: number
+    candidates: number
+    candidateCount: number
+    assumptionLabel: string
+    escalationFloor: number
+    reason: string
+  }> = []
+  for (const lever of levers) {
+    if (lever.escalationFloor == null) continue
+    if (lever.candidateCount <= 0) continue
+    if (lever.realizedRate < lever.escalationFloor) {
+      escalations.push({
+        lever: lever.lever,
+        leverNumber: lever.leverNumber,
+        observedRate: lever.realizedRate,
+        realizedRate: lever.realizedRate,
+        passCount: lever.passCount,
+        candidates: lever.candidateCount,
+        candidateCount: lever.candidateCount,
+        assumptionLabel: lever.assumptionLabel,
+        escalationFloor: lever.escalationFloor,
+        reason: `${lever.lever} realized rate ${(lever.realizedRate * 100).toFixed(1)}% is below escalation floor ${(lever.escalationFloor * 100).toFixed(0)}% (assumption ${lever.assumptionLabel})`,
+      })
+    }
+  }
+  return escalations
+}
+
+export const requestBatchAcceptance = mutation({
+  args: {
+    runId: v.string(),
+    decision: v.union(v.literal('accept'), v.literal('reject')),
+  },
+  handler: async (ctx, { runId, decision }) => {
+    await requireFounder(ctx)
+
+    const report = await ctx.db
+      .query('batch_acceptance_artifacts')
+      .withIndex('by_runId_and_kind', (q) =>
+        q.eq('runId', runId).eq('artifactKind', 'coverage_report'),
+      )
+      .first()
+
+    if (!report) {
+      throw new ConvexError({
+        code: 'NOT_FOUND',
+        message: `No coverage report for runId=${runId}`,
+      })
+    }
+
+    if (report.isDone === false) {
+      const result = {
+        runId,
+        decision: null as null,
+        acceptedAt: null as null,
+        retirementUnlockedAt: null as null,
+        reason: 'incomplete_run: isDone=false — cannot accept a partial batch',
+        rejectionReason: 'incomplete_run',
+        escalations: [] as unknown[],
+      }
+      await upsertBatchArtifact(ctx, {
+        runId,
+        artifactKind: 'acceptance',
+        decision: null,
+        acceptedAt: null,
+        retirementUnlockedAt: null,
+        reason: result.reason,
+        escalations: [],
+        observedRates: report.levers,
+      })
+      return result
+    }
+
+    const levers = (report.levers ?? []) as LeverReportRow[]
+    const escalations = detectLowYieldEscalations(levers)
+
+    if (decision === 'accept' && escalations.length > 0) {
+      const payload = {
+        runId,
+        decision: 'escalation_required' as const,
+        acceptedAt: null as null,
+        retirementUnlockedAt: null as null,
+        escalations,
+        observedRates: levers,
+        reason: escalations.map((e) => e.reason).join('; '),
+      }
+      await upsertBatchArtifact(ctx, {
+        artifactKind: 'acceptance',
+        ...payload,
+      })
+      return payload
+    }
+
+    if (decision === 'reject') {
+      const payload = {
+        runId,
+        decision: 'rejected' as const,
+        acceptedAt: null as null,
+        retirementUnlockedAt: null as null,
+        escalations: [],
+        observedRates: levers,
+        reason: 'founder_rejected',
+      }
+      await upsertBatchArtifact(ctx, {
+        artifactKind: 'acceptance',
+        ...payload,
+      })
+      return payload
+    }
+
+    // Clean accept
+    const now = Date.now()
+    const payload = {
+      runId,
+      decision: 'accepted' as const,
+      acceptedAt: now,
+      retirementUnlockedAt: now,
+      escalations: [],
+      observedRates: levers,
+      reason: 'founder_accepted',
+    }
+    await upsertBatchArtifact(ctx, {
+      artifactKind: 'acceptance',
+      ...payload,
+    })
+    return payload
+  },
+})
+
+export const resolveBatchEscalation = mutation({
+  args: {
+    runId: v.string(),
+    decision: v.union(v.literal('accept'), v.literal('reject')),
+    rationale: v.string(),
+  },
+  handler: async (ctx, { runId, decision, rationale }) => {
+    await requireFounder(ctx)
+    if (!rationale || rationale.trim().length < 1) {
+      throw new ConvexError({
+        code: 'INVALID_ARGUMENT',
+        message: 'rationale is required for founder escalation resolution',
+      })
+    }
+
+    const existing = await ctx.db
+      .query('batch_acceptance_artifacts')
+      .withIndex('by_runId_and_kind', (q) => q.eq('runId', runId).eq('artifactKind', 'acceptance'))
+      .first()
+
+    if (!existing || existing.decision !== 'escalation_required') {
+      throw new ConvexError({
+        code: 'INVALID_STATE',
+        message: `No open escalation for runId=${runId}`,
+      })
+    }
+
+    const now = Date.now()
+    const resolvedAt = new Date(now).toISOString()
+    const accepted = decision === 'accept'
+    const resolution = {
+      decision: accepted ? 'accepted' : 'rejected',
+      rationale: rationale.trim(),
+      resolvedAt,
+      resolvedAtMs: now,
+    }
+
+    await ctx.db.patch(existing._id, {
+      decision: accepted ? 'accepted' : 'rejected',
+      acceptedAt: accepted ? now : null,
+      retirementUnlockedAt: accepted ? now : null,
+      resolution,
+      reason: `escalation_resolved:${decision}`,
+      updatedAt: now,
+    })
+
+    return {
+      runId,
+      decision: resolution.decision,
+      rationale: resolution.rationale,
+      resolvedAt,
+      acceptedAt: accepted ? now : null,
+      retirementUnlockedAt: accepted ? now : null,
+    }
+  },
+})
+
+/** Test-only: patch riderReadyCount on a report without touching lever rates. */
+export const patchBatchReportRiderReadyOnly = mutation({
+  args: {
+    runId: v.string(),
+    riderReadyCount: v.number(),
+  },
+  handler: async (ctx, { runId, riderReadyCount }) => {
+    await requireFounder(ctx)
+    const report = await ctx.db
+      .query('batch_acceptance_artifacts')
+      .withIndex('by_runId_and_kind', (q) =>
+        q.eq('runId', runId).eq('artifactKind', 'coverage_report'),
+      )
+      .first()
+    if (!report) {
+      throw new ConvexError({ code: 'NOT_FOUND', message: `No report for ${runId}` })
+    }
+    await ctx.db.patch(report._id, { riderReadyCount, updatedAt: Date.now() })
+    return { runId, riderReadyCount }
+  },
+})
+
+// ---------- Fixture helpers ----------
+
+async function upsertS5Route(
+  ctx: { db: import('./_generated/server').MutationCtx['db'] },
+  row: {
+    routeId: string
+    name: string
+    geometryStatus: 'generated' | 'unresolved' | 'failed' | 'review'
+    geometryProvenance?: 'scraped_promoted' | 'ai_reconstructed' | 'name_routed'
+    riderReady?: boolean
+    routePolyline?: string
+    summary?: string
+    rideWorthinessVerdict?: 'ride' | 'marginal' | 'not_a_ride'
+    duplicateOf?: string
+    verificationVerdict?: 'pass' | 'review'
+  },
+) {
+  const existing = await ctx.db
+    .query('curated_routes')
+    .withIndex('by_routeId', (q) => q.eq('routeId', row.routeId))
+    .first()
+  const nowMs = Date.now()
+  const centroidLat = 34.95
+  const centroidLng = -120.42
+  const base = {
+    name: row.name,
+    lengthMiles: 41,
+    centroidLat,
+    centroidLng,
+    boundsNeLat: centroidLat + 0.3,
+    boundsNeLng: centroidLng + 0.3,
+    boundsSwLat: centroidLat - 0.3,
+    boundsSwLng: centroidLng - 0.3,
+    location: { type: 'Point' as const, coordinates: [centroidLng, centroidLat] },
+    compositeScore: 85,
+    curvatureScore: 90,
+    scenicScore: 80,
+    technicalScore: 85,
+    trafficScore: 75,
+    remotenessScore: 70,
+    routePolyline: row.routePolyline,
+    geometryStatus: row.geometryStatus,
+    geometryProvenance: row.geometryProvenance,
+    riderReady: row.riderReady ?? false,
+    state: 'California',
+    summary: row.summary ?? 'S5-T1 fixture route',
+    retiredAt: undefined,
+    duplicateOf: row.duplicateOf,
+    quarantine: undefined,
+    rideWorthiness: {
+      verdict: row.rideWorthinessVerdict ?? ('ride' as const),
+      reason: 's5t1 seed',
+      model: 'test',
+      classifiedAt: nowMs,
+    },
+  }
+
+  let docId = existing?._id
+  if (existing) {
+    await ctx.db.patch(existing._id, base)
+  } else {
+    docId = await ctx.db.insert('curated_routes', {
+      routeId: row.routeId,
+      source: 'editorial',
+      primaryArchetype: 'twisties',
+      secondaryTags: ['test', 's5t1'],
+      oneLiner: 'S5-T1 fixture',
+      badges: [],
+      season: 'year_round',
+      contentVersion: 1,
+      seededAt: nowMs,
+      ...base,
+    })
+    try {
+      await geospatial.insert(
+        ctx as any,
+        docId!,
+        { latitude: centroidLat, longitude: centroidLng },
+        { state: 'California', primaryArchetype: 'twisties' },
+        85,
+      )
+    } catch {
+      /* may exist */
+    }
+  }
+
+  if (row.geometryStatus === 'generated' || row.geometryStatus === 'review') {
+    const geomExisting = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q) => q.eq('routeId', row.routeId))
+      .first()
+    const verification = {
+      routeId: row.routeId,
+      verdict: row.verificationVerdict ?? (row.geometryStatus === 'generated' ? 'pass' : 'review'),
+      provenance: row.geometryProvenance,
+      geometry: POLY_41MI_S5,
+      geometryStatus:
+        row.geometryStatus === 'generated' ? ('generated' as const) : ('review' as const),
+      anchorCount: 2,
+      anchors: [] as Array<{
+        lat: number
+        lng: number
+        formatted: string
+        distanceFromCentroid: number
+      }>,
+      pointCount: 50,
+      degenerate: false,
+      ratio: 1.0,
+      claimedMiles: 41,
+      routedMiles: 41,
+    }
+    const geomDoc = {
+      routeId: row.routeId,
+      format: 'polyline' as const,
+      encoding: 'utf-8',
+      precision: 5,
+      value: POLY_41MI_S5,
+      provenance: row.geometryProvenance,
+      verification,
+    }
+    if (geomExisting) {
+      await ctx.db.replace(geomExisting._id, geomDoc)
+    } else {
+      await ctx.db.insert('curated_route_geometry', geomDoc)
+    }
+  }
+
+  // Recompute riderReady from truth for generated pass rows
+  if (docId && row.geometryStatus === 'generated' && row.verificationVerdict !== 'review') {
+    await recomputeRiderReady(ctx as any, docId)
+  } else if (docId) {
+    await ctx.db.patch(docId, { riderReady: row.riderReady ?? false })
+  }
+
+  return { routeId: row.routeId, id: docId }
+}
+
+export const seedS5T1GateBatch = mutation({
+  args: {
+    prefix: v.optional(v.string()),
+    count: v.optional(v.number()),
+    runId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requireFounder(ctx)
+    const prefix = args.prefix ?? 'test:s5t1-gate'
+    const count = args.count ?? 4
+    const routeIds: string[] = []
+    for (let i = 0; i < count; i++) {
+      const routeId = `${prefix}-${String(i).padStart(3, '0')}`
+      await upsertS5Route(ctx, {
+        routeId,
+        name: `S5 Gate ${i}`,
+        geometryStatus: 'unresolved',
+        // No polyline for most so L1 fails and L2 costs — first one has polyline for mix
+        routePolyline: i === 0 ? POLY_41MI_S5 : undefined,
+        summary: 'S5-T1 gate batch cost burn reconstruct candidate.',
+      })
+      routeIds.push(routeId)
+    }
+    return { routeIds, count: routeIds.length, runId: args.runId ?? null }
+  },
+})
+
+export const seedS5T1MixedProvenanceBatch = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireFounder(ctx)
+    const specs: Array<Parameters<typeof upsertS5Route>[1]> = [
+      {
+        routeId: 'test:s5t1-lever1-pass',
+        name: 'Lever1 Pass',
+        geometryStatus: 'generated',
+        geometryProvenance: 'scraped_promoted',
+        verificationVerdict: 'pass',
+        riderReady: true,
+        routePolyline: POLY_41MI_S5,
+      },
+      {
+        routeId: 'test:s5t1-lever1-fail',
+        name: 'Lever1 Fail',
+        geometryStatus: 'review',
+        geometryProvenance: 'scraped_promoted',
+        verificationVerdict: 'review',
+        riderReady: false,
+        routePolyline: POLY_41MI_S5,
+      },
+      {
+        routeId: 'test:s5t1-lever2-pass',
+        name: 'Lever2 Pass',
+        geometryStatus: 'generated',
+        geometryProvenance: 'ai_reconstructed',
+        verificationVerdict: 'pass',
+        riderReady: true,
+      },
+      {
+        routeId: 'test:s5t1-lever2-fail',
+        name: 'Lever2 Fail',
+        geometryStatus: 'review',
+        geometryProvenance: 'ai_reconstructed',
+        verificationVerdict: 'review',
+        riderReady: false,
+      },
+      {
+        routeId: 'test:s5t1-lever3-pass',
+        name: 'Lever3 Pass',
+        geometryStatus: 'generated',
+        geometryProvenance: 'name_routed',
+        verificationVerdict: 'pass',
+        riderReady: true,
+      },
+      {
+        routeId: 'test:s5t1-lever3-fail',
+        name: 'Lever3 Fail',
+        geometryStatus: 'review',
+        geometryProvenance: 'name_routed',
+        verificationVerdict: 'review',
+        riderReady: false,
+      },
+      {
+        routeId: 'test:s5t1-not-a-ride',
+        name: 'Not A Ride Generated',
+        geometryStatus: 'generated',
+        geometryProvenance: 'scraped_promoted',
+        verificationVerdict: 'pass',
+        rideWorthinessVerdict: 'not_a_ride',
+        riderReady: false,
+      },
+      {
+        routeId: 'test:s5t1-shadow-dup',
+        name: 'Shadow Duplicate',
+        geometryStatus: 'generated',
+        geometryProvenance: 'scraped_promoted',
+        verificationVerdict: 'pass',
+        duplicateOf: 'test:s5t1-lever1-pass',
+        riderReady: false,
+      },
+    ]
+
+    for (const spec of specs) {
+      await upsertS5Route(ctx, spec)
+    }
+
+    // Force riderReady via recompute for truth
+    for (const routeId of [
+      'test:s5t1-lever1-pass',
+      'test:s5t1-lever2-pass',
+      'test:s5t1-lever3-pass',
+      'test:s5t1-not-a-ride',
+      'test:s5t1-shadow-dup',
+    ]) {
+      const doc = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      if (doc) await recomputeRiderReady(ctx as any, doc._id)
+    }
+
+    // Count actual ready
+    let ready = 0
+    let generated = 0
+    for (const spec of specs) {
+      const doc = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', spec.routeId))
+        .first()
+      if (doc?.geometryStatus === 'generated') generated += 1
+      if (doc?.riderReady === true) ready += 1
+    }
+
+    return {
+      seeded: specs.map((s) => s.routeId),
+      expectedRiderReadyCount: ready,
+      generatedCount: generated,
+    }
+  },
+})
+
+export const seedS5T1LowYieldReport = mutation({
+  args: {
+    runId: v.string(),
+    reconstruct: v.object({
+      candidates: v.number(),
+      passCount: v.number(),
+    }),
+    riderReadyCount: v.optional(v.number()),
+    isDone: v.optional(v.boolean()),
+    continueCursor: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requireFounder(ctx)
+    const reconRate =
+      args.reconstruct.candidates > 0 ? args.reconstruct.passCount / args.reconstruct.candidates : 0
+    const levers = buildLeverRows({
+      scraped_promoted: { candidates: 10, passCount: 5 },
+      ai_reconstructed: {
+        candidates: args.reconstruct.candidates,
+        passCount: args.reconstruct.passCount,
+      },
+      name_routed: { candidates: 10, passCount: 5 },
+    })
+    // Patch reconstruct rates explicitly
+    const recon = levers.find((l) => l.lever === 'reconstruct')!
+    recon.candidateCount = args.reconstruct.candidates
+    recon.passCount = args.reconstruct.passCount
+    recon.realizedRate = reconRate
+    recon.passRate = reconRate
+
+    await upsertBatchArtifact(ctx, {
+      runId: args.runId,
+      artifactKind: 'coverage_report',
+      isDone: args.isDone ?? true,
+      continueCursor: args.continueCursor ?? null,
+      totalCostUSD: 1.25,
+      maxCostUSD: 10,
+      batchStopReason: args.isDone === false ? 'cost_exceeded' : 'completed',
+      riderReadyCount: args.riderReadyCount ?? args.reconstruct.passCount + 10,
+      levers,
+      terminalStates: {
+        recovered: args.reconstruct.passCount + 10,
+        queued: 5,
+        retirement_eligible: 2,
+        cost_blocked: 0,
+        skipped: 0,
+      },
+      provenanceCounts: {
+        scraped_promoted: 10,
+        ai_reconstructed: args.reconstruct.candidates,
+        name_routed: 10,
+      },
+      decision: null,
+      acceptedAt: null,
+      retirementUnlockedAt: null,
+    })
+
+    // Clear any prior acceptance for this run
+    const prior = await ctx.db
+      .query('batch_acceptance_artifacts')
+      .withIndex('by_runId_and_kind', (q) =>
+        q.eq('runId', args.runId).eq('artifactKind', 'acceptance'),
+      )
+      .first()
+    if (prior) await ctx.db.delete(prior._id)
+
+    return {
+      runId: args.runId,
+      reconstructRate: reconRate,
+      levers,
+      isDone: args.isDone ?? true,
+    }
+  },
+})
+
+export const seedS5T1CostStopPool = mutation({
+  args: {
+    count: v.number(),
+    prefix: v.optional(v.string()),
+    runId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requireFounder(ctx)
+    const prefix = args.prefix ?? 'test:s5t1-cost'
+    const routeIds: string[] = []
+    for (let i = 0; i < args.count; i++) {
+      const routeId = `${prefix}-${String(i).padStart(2, '0')}`
+      await upsertS5Route(ctx, {
+        routeId,
+        name: `S5 Cost ${i}`,
+        geometryStatus: 'unresolved',
+        // No polyline → L1 fails → L2 burns cost
+        summary: 'S5-T1 cost-stop reconstruct candidate corridor.',
+      })
+      routeIds.push(routeId)
+    }
+    return { routeIds, count: routeIds.length, runId: args.runId ?? null }
+  },
+})
+
+export const getS5T1RouteSnapshot = query({
+  args: { routeIds: v.array(v.string()) },
+  handler: async (ctx, { routeIds }) => {
+    await requireOperator(ctx)
+    const routes = []
+    for (const routeId of routeIds) {
+      const doc = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      if (!doc) {
+        routes.push({ routeId, missing: true })
+        continue
+      }
+      const geom = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      routes.push({
+        routeId,
+        geometryStatus: doc.geometryStatus ?? null,
+        geometryProvenance: doc.geometryProvenance ?? null,
+        riderReady: doc.riderReady ?? false,
+        verificationVerdict: geom?.verification?.verdict ?? null,
+        verificationAttemptedAt: geom?._creationTime ?? null,
+      })
+    }
+    return { routes }
+  },
+})
+
+export const teardownS5T1Fixtures = mutation({
+  args: {
+    prefixes: v.optional(v.array(v.string())),
+    runIds: v.optional(v.array(v.string())),
+    routeIds: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    await requireFounder(ctx)
+    const removed: string[] = []
+    const prefixes = args.prefixes ?? ['test:s5t1-']
+    const exact = new Set(args.routeIds ?? [])
+
+    // Exact + known fixture route ids
+    for (const id of [
+      'test:s5t1-lever1-pass',
+      'test:s5t1-lever1-fail',
+      'test:s5t1-lever2-pass',
+      'test:s5t1-lever2-fail',
+      'test:s5t1-lever3-pass',
+      'test:s5t1-lever3-fail',
+      'test:s5t1-not-a-ride',
+      'test:s5t1-shadow-dup',
+    ]) {
+      exact.add(id)
+    }
+
+    const deleteRoute = async (routeId: string) => {
+      const doc = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      if (!doc) return
+      const geom = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      if (geom) await ctx.db.delete(geom._id)
+      // artifacts
+      const arts = await ctx.db
+        .query('curation_artifacts')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .take(50)
+      for (const a of arts) await ctx.db.delete(a._id)
+      try {
+        await geospatial.remove(ctx as any, doc._id)
+      } catch {
+        /* ok */
+      }
+      await ctx.db.delete(doc._id)
+      removed.push(routeId)
+    }
+
+    for (const id of exact) await deleteRoute(id)
+
+    for (const status of ['unresolved', 'generated', 'review', 'failed'] as const) {
+      const rows = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_geometry_status', (q) => q.eq('geometryStatus', status))
+        .take(200)
+      for (const row of rows) {
+        if (prefixes.some((p) => row.routeId.startsWith(p))) {
+          await deleteRoute(row.routeId)
+        }
+      }
+    }
+
+    if (args.runIds) {
+      for (const runId of args.runIds) {
+        const arts = await ctx.db
+          .query('batch_acceptance_artifacts')
+          .withIndex('by_runId', (q) => q.eq('runId', runId))
+          .take(20)
+        for (const a of arts) await ctx.db.delete(a._id)
+      }
+    }
+
+    return { removed, count: removed.length }
   },
 })
