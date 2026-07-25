@@ -479,11 +479,10 @@ async function upsertTop50Route(
     quarantine: undefined,
   }
 
-  let docId = existing?._id
   if (existing) {
     await ctx.db.patch(existing._id, base)
   } else {
-    docId = await ctx.db.insert('curated_routes', {
+    await ctx.db.insert('curated_routes', {
       routeId: spec.routeId,
       source: 'editorial',
       primaryArchetype: 'twisties',
@@ -549,19 +548,9 @@ async function upsertTop50Route(
     await ctx.db.insert('curated_route_geometry', geomDoc)
   }
 
-  if (docId) {
-    try {
-      await geospatial.insert(
-        ctx,
-        docId,
-        { latitude: centroidLat, longitude: centroidLng },
-        { state: 'California', primaryArchetype: 'twisties' },
-        spec.compositeScore,
-      )
-    } catch {
-      /* may already be indexed */
-    }
-  }
+  // Skip geospatial index for top-50 fixtures — ranking uses
+  // by_riderReady_and_composite_score, not geospatial nearest. Avoids
+  // system-ops timeouts when seeding 55 rows in one mutation.
 
   return { routeId: spec.routeId, created: !existing }
 }
@@ -612,30 +601,8 @@ export const teardownTop50Fixtures = internalMutation({
   handler: async (ctx, { prefix }) => {
     const removed: string[] = []
 
-    // Scan by geometry status for fixture rows (prefix match)
-    for (const status of ['generated', 'unresolved', 'review', 'failed'] as const) {
-      const rows = await ctx.db
-        .query('curated_routes')
-        .withIndex('by_geometry_status', (q: any) => q.eq('geometryStatus', status))
-        .take(800)
-      for (const row of rows) {
-        if (!row.routeId.startsWith(prefix)) continue
-        const geom = await ctx.db
-          .query('curated_route_geometry')
-          .withIndex('by_routeId', (q: any) => q.eq('routeId', row.routeId))
-          .first()
-        if (geom) await ctx.db.delete(geom._id)
-        try {
-          await geospatial.remove(ctx, row._id)
-        } catch {
-          /* not indexed */
-        }
-        await ctx.db.delete(row._id)
-        removed.push(row.routeId)
-      }
-    }
-
-    // Also try known ready/nonready ids by index (covers any status miss)
+    // Index-only delete by known seed routeIds — never scan geometry_status
+    // (full catalog scans exceed the 16MB single-execution read limit).
     for (let i = 0; i < 60; i++) {
       for (const kind of ['ready', 'nonready'] as const) {
         const routeId = `${prefix}${kind}-${String(i).padStart(3, '0')}`
@@ -652,10 +619,10 @@ export const teardownTop50Fixtures = internalMutation({
         try {
           await geospatial.remove(ctx, row._id)
         } catch {
-          /* */
+          /* not indexed */
         }
         await ctx.db.delete(row._id)
-        if (!removed.includes(routeId)) removed.push(routeId)
+        removed.push(routeId)
       }
     }
 
