@@ -1327,12 +1327,17 @@ export const coverageReport = query({
     }
 
     const levers = buildLeverRows(leverCounts)
+    // REDHAT-FIX-01: live catalog scan is NOT a completed full batch.
+    // Never invent isDone=true + totalCostUSD=0 completeness — only
+    // persistCoverageReport / runFullBatch may claim batch completion with real cost.
     return {
       source: 'live' as const,
       runId: args.runId ?? null,
-      isDone: true,
+      isDone: false,
       continueCursor: null,
       totalCostUSD: 0,
+      batchStopReason: null,
+      completeness: 'scan_not_batch' as const,
       riderReadyCount,
       generatedCount,
       levers,
@@ -1340,7 +1345,7 @@ export const coverageReport = query({
       provenanceCounts,
       negativeControl: { notARideRiderReady, shadowRiderReady },
       assumptionNote:
-        'PRD per-lever expected yields are assumptions for comparison only — not committed catalog targets.',
+        'PRD per-lever expected yields are assumptions for comparison only — not committed catalog targets. Live scan does not claim full-batch completeness; query with runId for a persisted runFullBatch report.',
     }
   },
 })
