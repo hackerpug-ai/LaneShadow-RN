@@ -121,6 +121,7 @@ import type * as lib_endpointParser from "../lib/endpointParser.js";
 import type * as lib_env from "../lib/env.js";
 import type * as lib_errors_protomaps from "../lib/errors/protomaps.js";
 import type * as lib_logger from "../lib/logger.js";
+import type * as lib_top50Eligibility from "../lib/top50Eligibility.js";
 import type * as migrations_backfillSessionMessageKindStatus from "../migrations/backfillSessionMessageKindStatus.js";
 import type * as migrations_deleteEmptyAssistantMessages from "../migrations/deleteEmptyAssistantMessages.js";
 import type * as queries_osm from "../queries/osm.js";
@@ -255,6 +256,7 @@ declare const fullApi: ApiFromModules<{
   "lib/env": typeof lib_env;
   "lib/errors/protomaps": typeof lib_errors_protomaps;
   "lib/logger": typeof lib_logger;
+  "lib/top50Eligibility": typeof lib_top50Eligibility;
   "migrations/backfillSessionMessageKindStatus": typeof migrations_backfillSessionMessageKindStatus;
   "migrations/deleteEmptyAssistantMessages": typeof migrations_deleteEmptyAssistantMessages;
   "queries/osm": typeof queries_osm;
