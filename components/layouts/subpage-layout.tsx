@@ -84,8 +84,7 @@ export const SubpageLayout = ({
   const headerHeight = size === 'compact' ? 44 : 52
 
   const renderRightActions = () => {
-    const actions =
-      rightActions ?? (rightAction ? [rightAction] : [])
+    const actions = rightActions ?? (rightAction ? [rightAction] : [])
     if (actions.length === 0) {
       return <View style={styles.placeholder} />
     }
@@ -101,8 +100,7 @@ export const SubpageLayout = ({
               styles.backButton,
               {
                 backgroundColor: pressed
-                  ? (semantic.color.surfaceVariant.pressed ??
-                    semantic.color.surfaceVariant.default)
+                  ? (semantic.color.surfaceVariant.pressed ?? semantic.color.surfaceVariant.default)
                   : semantic.color.surfaceVariant.default,
                 borderRadius: semantic.radius.full,
                 borderWidth: 1,

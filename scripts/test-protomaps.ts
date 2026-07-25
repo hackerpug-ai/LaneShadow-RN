@@ -11,6 +11,8 @@
  *   PROTOMAPS_URL="https://your-bucket.r2.dev/us-west.pmtiles" npx tsx scripts/test-protomaps.ts
  */
 
+import { PMTiles } from 'pmtiles'
+
 async function main() {
   // Test PMTiles URL - use environment variable or fallback to sample
   const PMTILES_URL =
@@ -20,9 +22,6 @@ async function main() {
   }
 
   try {
-    // Dynamic import for PMTiles
-    const { PMTiles } = await import('pmtiles')
-
     const pmtiles = new PMTiles(PMTILES_URL)
 
     // Get header to verify connection

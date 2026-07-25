@@ -15,6 +15,7 @@
  * Generated files include a do-not-edit header and input hash for drift detection.
  */
 
+import { execFileSync, execSync } from 'node:child_process'
 import * as crypto from 'node:crypto'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
@@ -1695,7 +1696,6 @@ async function main() {
   const swift = emitSwift(tokens, icons, fonts, inputHash)
   fs.writeFileSync(SWIFT_OUTPUT, `${swift}\n`)
   try {
-    const { execFileSync } = await import('node:child_process')
     execFileSync('swiftformat', [SWIFT_OUTPUT], {
       cwd: ROOT,
       stdio: 'pipe',
@@ -1737,7 +1737,6 @@ async function main() {
 
   // Format TS outputs with biome for consistent style
   try {
-    const { execSync } = await import('node:child_process')
     execSync('pnpm exec biome format --write tokens/platforms/web/', {
       cwd: ROOT,
       stdio: 'pipe',

@@ -3,8 +3,8 @@
  */
 
 import { render, screen } from '@testing-library/react-native'
+import { Text, TouchableOpacity, View } from 'react-native'
 import { describe, expect, it } from 'vitest'
-import { View, Text, TouchableOpacity } from 'react-native'
 
 // Mock convex/react first
 const mockUseQuery = vi.fn()
@@ -41,21 +41,41 @@ vi.mock('react-native-reanimated', () => ({
 
 vi.mock('../../../contexts/auth-context', () => ({
   AuthProvider: ({ children }) => children,
-  useAuth: () => ({ isLoaded: true, isSignedIn: true, user: { id: 'test-user', name: 'Test User', email: 'test@example.com' } }),
+  useAuth: () => ({
+    isLoaded: true,
+    isSignedIn: true,
+    user: { id: 'test-user', name: 'Test User', email: 'test@example.com' },
+  }),
 }))
 
 vi.mock('../../../contexts/theme-context', () => ({
   ThemeProvider: ({ children }) => children,
   useSemanticTheme: () => ({
-    colors: { 
-      text: { primary: '#000', secondary: '#666' }, 
-      surface: { primary: '#fff', secondary: '#f5f5f5', glass: 'rgba(255, 255, 255, 0.72)', background: '#fff' },
+    colors: {
+      text: { primary: '#000', secondary: '#666' },
+      surface: {
+        primary: '#fff',
+        secondary: '#f5f5f5',
+        glass: 'rgba(255, 255, 255, 0.72)',
+        background: '#fff',
+      },
       primary: { default: '#007AFF' },
-      border: { default: '#E5E5E5' }
+      border: { default: '#E5E5E5' },
     },
     space: { sm: 8, md: 16 },
-    typography: { label: { fontSize: 14, fontWeight: '500', lineHeight: 20 }, caption: { fontSize: 12, fontWeight: '400', lineHeight: 16 } },
-    elevation: { [3]: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 } },
+    typography: {
+      label: { fontSize: 14, fontWeight: '500', lineHeight: 20 },
+      caption: { fontSize: 12, fontWeight: '400', lineHeight: 16 },
+    },
+    elevation: {
+      [3]: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+      },
+    },
   }),
   useThemePreference: () => ({ isDark: false }),
 }))
@@ -92,16 +112,13 @@ vi.mock('../../../components/chat/chat-input', () => ({
   ChatInput: ({ onToggleChatMode, hasActiveRoute, suggestions, isIdle, isPlanning, chatMode }) => (
     <View testID="chat-input">
       {/* Send button */}
-      <TouchableOpacity 
-        testID="chat-input-send-button"
-        style={{ width: 42, height: 42 }}
-      >
+      <TouchableOpacity testID="chat-input-send-button" style={{ width: 42, height: 42 }}>
         <Text>Send</Text>
       </TouchableOpacity>
-      
+
       {/* Chat view button */}
       {onToggleChatMode && (
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={onToggleChatMode}
           testID="chat-input-chat-view-button"
           style={{ width: 48, height: 48 }}
@@ -109,7 +126,7 @@ vi.mock('../../../components/chat/chat-input', () => ({
           <Text>Chat</Text>
         </TouchableOpacity>
       )}
-      
+
       {/* Suggestion chips when idle AND no active route */}
       {isIdle && !hasActiveRoute && suggestions.length > 0 && !isPlanning && !chatMode && (
         <View>
@@ -157,7 +174,7 @@ describe('Footer Visibility Integration Tests - Simple', () => {
   it('should render without error', () => {
     // GIVEN
     render(<HomeMapScreen />)
-    
+
     // WHEN
     // THEN - should not throw error
     expect(true).toBe(true)

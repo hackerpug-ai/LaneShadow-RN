@@ -11,6 +11,7 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { ChecksumValidator } from './checksum'
 
 /**
  * Model manifest entry
@@ -247,8 +248,6 @@ export class ModelManifestService {
         return false
       }
 
-      // Import checksum validator
-      const { ChecksumValidator } = await import('./checksum')
       const validator = new ChecksumValidator()
 
       const result = await validator.validate(filePath, localMetadata.checksum)

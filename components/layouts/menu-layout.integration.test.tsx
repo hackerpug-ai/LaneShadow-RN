@@ -158,7 +158,7 @@ vi.mock('react-native-paper', () => {
   const { View, Text: RNText, Pressable } = require('react-native')
   const { createElement } = require('react')
 
-  const Text = ({ children, style, variant }: any) => 
+  const Text = ({ children, style, variant }: any) =>
     createElement(RNText, { style, variant }, children)
 
   return { Text }
@@ -166,25 +166,32 @@ vi.mock('react-native-paper', () => {
 
 // Mock IconSymbol (assuming it's from the project)
 vi.mock('../../../components/ui/icon-symbol', () => ({
-  IconSymbol: ({ name, size, color }: any) => 
-    createElement(View, { 
-      testID: `icon-${name}`, 
-      style: { width: size, height: size, backgroundColor: color } 
+  IconSymbol: ({ name, size, color }: any) =>
+    createElement(View, {
+      testID: `icon-${name}`,
+      style: { width: size, height: size, backgroundColor: color },
     }),
 }))
 
 // Mock SessionContextMenu
 vi.mock('../../../components/ui/session-context-menu', () => ({
-  SessionContextMenu: ({ visible, onDismiss, position, items, testID }: any) => 
-    visible ? 
-      createElement(View, { 
-        testID: testID || 'session-context-menu', 
-        style: { position: 'absolute', left: position.x, top: position.y } 
-      }, 
-        createElement(View, {}, items.map((item: any, i: number) => 
-          createElement(View, { key: i, testID: `context-menu-item-${i}` }, item.label)
-        ))
-      ) : null,
+  SessionContextMenu: ({ visible, onDismiss, position, items, testID }: any) =>
+    visible
+      ? createElement(
+          View,
+          {
+            testID: testID || 'session-context-menu',
+            style: { position: 'absolute', left: position.x, top: position.y },
+          },
+          createElement(
+            View,
+            {},
+            items.map((item: any, i: number) =>
+              createElement(View, { key: i, testID: `context-menu-item-${i}` }, item.label),
+            ),
+          ),
+        )
+      : null,
 }))
 
 // ---------------------------------------------------------------------------
@@ -229,7 +236,7 @@ const defaultProps = {
 describe('MenuLayout Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Reset mocks
     mockUseQuery.mockReturnValue(mockSessions)
     mockUseMutation.mockReturnValue(mockDeleteSession)
@@ -244,22 +251,22 @@ describe('MenuLayout Integration', () => {
 
       // Drawer should be present and open
       expect(getByTestId('menu-layout')).toBeTruthy()
-      
+
       // Check that "Plan a ride" is NOT present
       expect(queryByText('Plan a ride')).toBeNull()
       expect(queryByTestId('drawer-plan-a-ride')).toBeNull()
-      
+
       // Check that "Discover" is NOT present (was likely part of the same section)
       expect(queryByText('Discover')).toBeNull()
     })
 
     it('does not show "Plan a ride" testIDs in drawer items', () => {
       const { queryByTestId } = render(<MenuLayout {...defaultProps} />)
-      
+
       // Verify no testIDs related to "Plan a ride" exist
       expect(queryByTestId('drawer-plan-a-ride')).toBeNull()
       expect(queryByTestId('drawer-discover')).toBeNull()
-      
+
       // Verify other testIDs work normally
       expect(getByTestId('menu-layout')).toBeTruthy()
     })
@@ -271,28 +278,28 @@ describe('MenuLayout Integration', () => {
   describe('AC2: settingsSavedSessionsRemain', () => {
     it('renders Settings item in drawer', () => {
       const { getByText } = render(<MenuLayout {...defaultProps} />)
-      
+
       // Settings should be present
       expect(getByText('Settings')).toBeTruthy()
     })
 
     it('renders Saved item in drawer', () => {
       const { getByText } = render(<MenuLayout {...defaultProps} />)
-      
+
       // Saved should be present
       expect(getByText('Saved')).toBeTruthy()
     })
 
     it('renders Sessions section in drawer', () => {
       const { getByText } = render(<MenuLayout {...defaultProps} />)
-      
+
       // Sessions section title should be present
       expect(getByText('Sessions')).toBeTruthy()
     })
 
     it('renders session items when sessions exist', () => {
       const { getByText } = render(<MenuLayout {...defaultProps} />)
-      
+
       // Individual session titles should be present
       expect(getByText('Morning Ride')).toBeTruthy()
       expect(getByText('Evening Commute')).toBeTruthy()
@@ -300,21 +307,21 @@ describe('MenuLayout Integration', () => {
 
     it('renders "No sessions yet" when sessions array is empty', () => {
       vi.mocked(useQuery).mockReturnValue([])
-      
+
       const { getByText } = render(<MenuLayout {...defaultProps} />)
-      
+
       // Empty state should be shown
       expect(getByText('No sessions yet')).toBeTruthy()
     })
 
     it('renders Sessions section even when no external sections provided', () => {
       const { getByText } = render(
-        <MenuLayout 
-          {...defaultProps} 
+        <MenuLayout
+          {...defaultProps}
           sections={[]} // No external sections
-        />
+        />,
       )
-      
+
       // Should still show Sessions section from internal state
       expect(getByText('Sessions')).toBeTruthy()
     })
@@ -327,15 +334,12 @@ describe('MenuLayout Integration', () => {
     it('calls onMenuOpenChange when menu items are pressed', () => {
       const onMenuOpenChange = vi.fn()
       const { getByText } = render(
-        <MenuLayout 
-          {...defaultProps} 
-          onMenuOpenChange={onMenuOpenChange}
-        />
+        <MenuLayout {...defaultProps} onMenuOpenChange={onMenuOpenChange} />,
       )
 
       // Press Settings item
       fireEvent.press(getByText('Settings'))
-      
+
       // Should call close callback
       expect(onMenuOpenChange).toHaveBeenCalledWith(false)
     })
@@ -343,12 +347,12 @@ describe('MenuLayout Integration', () => {
     it('calls router.push when Settings is pressed', () => {
       const { useRouter } = require('expo-router')
       const mockRouter = useRouter()
-      
+
       const { getByText } = render(<MenuLayout {...defaultProps} />)
-      
+
       // Press Settings item
       fireEvent.press(getByText('Settings'))
-      
+
       // Should navigate to settings
       expect(mockRouter.push).toHaveBeenCalledWith('/(app)/(tabs)/settings')
     })
@@ -356,12 +360,12 @@ describe('MenuLayout Integration', () => {
     it('calls router.push when Saved is pressed', () => {
       const { useRouter } = require('expo-router')
       const mockRouter = useRouter()
-      
+
       const { getByText } = render(<MenuLayout {...defaultProps} />)
-      
+
       // Press Saved item
       fireEvent.press(getByText('Saved'))
-      
+
       // Should navigate to saved routes
       expect(mockRouter.push).toHaveBeenCalledWith('/(app)/(tabs)/saved-routes')
     })
@@ -373,42 +377,42 @@ describe('MenuLayout Integration', () => {
   describe('AC4: sessionContextMenu', () => {
     it('shows context menu on long press of session item', () => {
       const { getByText, getByTestId } = render(<MenuLayout {...defaultProps} />)
-      
+
       // Long press on session item
       fireEvent(getByText('Morning Ride'), 'longPress')
-      
+
       // Context menu should appear
       expect(getByTestId('session-context-menu')).toBeTruthy()
     })
 
     it('calls delete session when context menu delete is pressed', () => {
       mockDeleteSession.mockResolvedValue(undefined)
-      
+
       const { getByText, getByTestId, getByRole } = render(<MenuLayout {...defaultProps} />)
-      
+
       // Long press on session item to show context menu
       fireEvent(getByText('Morning Ride'), 'longPress')
-      
+
       // Press delete button in context menu
       const deleteButton = getByRole('button', { name: 'Delete' })
       fireEvent.press(deleteButton)
-      
+
       // Should call delete with correct session ID
       expect(mockDeleteSession).toHaveBeenCalledWith({ sessionId: 'session-1' })
     })
 
     it('dismisses context menu when dismissed', () => {
       const { getByText, getByTestId, queryByTestId } = render(<MenuLayout {...defaultProps} />)
-      
+
       // Long press on session item to show context menu
       fireEvent(getByText('Morning Ride'), 'longPress')
-      
+
       // Context menu should be visible
       expect(getByTestId('session-context-menu')).toBeTruthy()
-      
+
       // Dismiss context menu
       fireEvent.press(getByTestId('session-context-menu'))
-      
+
       // Context menu should be hidden
       expect(queryByTestId('session-context-menu')).toBeNull()
     })
@@ -420,12 +424,12 @@ describe('MenuLayout Integration', () => {
   describe('AC5: themeIntegration', () => {
     it('uses semantic theme tokens for styling', () => {
       const { getByTestId } = render(<MenuLayout {...defaultProps} />)
-      
+
       const drawer = getByTestId('menu-layout')
-      
+
       // Check that background color uses theme token
       expect(drawer.props.style.backgroundColor).toBe(mockSemanticTheme.color.background.default)
-      
+
       // Check that padding uses theme token
       expect(drawer.props.style.paddingTop).toBe(0) // From safe area mock
     })

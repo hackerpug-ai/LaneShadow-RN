@@ -12,10 +12,6 @@
 // Type-position imports (`let x: import('./m').T`) are a different CST node than the
 // runtime call form `import(...)`, so they are not matched.
 `import($source)` as $imp where {
-    $filename <: not r".*(\.test\.|\.spec\.|__tests__|__mocks__|vitest\.).*",
-    register_diagnostic(
-        span = $imp,
-        message = "Dynamic import() (lazy loading) is banned in production code — use a static top-of-file import. Lazy-loading the Convex generated API hid a wrong-path bug that only tsc caught (vitest's alias masks wrong-depth paths). If you genuinely need deferral, raise it in review.",
-        severity = "error"
-    )
+  $filename <: not r".*(\.test\.|\.spec\.|__tests__|__mocks__|vitest\.).*",
+  register_diagnostic(span=$imp, message="Dynamic import() (lazy loading) is banned in production code — use a static top-of-file import. Lazy-loading the Convex generated API hid a wrong-path bug that only tsc caught (vitest's alias masks wrong-depth paths). If you genuinely need deferral, raise it in review.", severity="error")
 }

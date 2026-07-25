@@ -4,7 +4,7 @@
  * This is a UNIT test (pure logic, no I/O).
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { buildRouteTagText } from './route-tag'
 
 describe('buildRouteTagText', () => {

@@ -6,12 +6,11 @@
  * - Tests real Convex backend behavior, no mocks
  */
 
-import { execSync } from 'child_process'
-import { writeFileSync, mkdirSync, rmSync, existsSync, mkdtempSync } from 'fs'
+import { ChildProcess, execSync, spawn } from 'child_process'
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import { spawn, ChildProcess } from 'child_process'
-import { describe, expect, it, beforeAll, afterAll } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 // Test constants
 // NOTE: The health-check script under test uses `SERVER_DIR = '.'` (project root)
@@ -74,7 +73,9 @@ describe('check-convex-health.mjs - Integration Tests', () => {
         child.on('close', (code) => {
           rmSync(isolatedDir, { recursive: true, force: true })
           expect(code).toBe(1) // Should exit with error code
-          expect(stderr).toMatch(/(convex.*dev|deployment.*not.*configured|failed|convex function-spec failed)/i)
+          expect(stderr).toMatch(
+            /(convex.*dev|deployment.*not.*configured|failed|convex function-spec failed)/i,
+          )
           resolve()
         })
 
@@ -132,21 +133,21 @@ describe('check-convex-health.mjs - Integration Tests', () => {
       if (existsSync(SERVER_DIR)) {
         const child = spawn('node', [HEALTH_CHECK_SCRIPT], {
           cwd: process.cwd(),
-          stdio: 'pipe'
+          stdio: 'pipe',
         })
-        
+
         return new Promise<void>((resolve, reject) => {
           let stdout = ''
           let stderr = ''
-          
+
           child.stdout?.on('data', (data) => {
             stdout += data.toString()
           })
-          
+
           child.stderr?.on('data', (data) => {
             stderr += data.toString()
           })
-          
+
           child.on('close', (code) => {
             if (code === 0) {
               // Success case - convex dev is running
@@ -161,11 +162,11 @@ describe('check-convex-health.mjs - Integration Tests', () => {
             }
             resolve()
           })
-          
+
           child.on('error', (error) => {
             reject(error)
           })
-          
+
           // Timeout after 10 seconds
           setTimeout(() => {
             child.kill()
@@ -189,16 +190,16 @@ describe('check-convex-health.mjs - Integration Tests', () => {
       // Run health check (even if it fails, it should clean up)
       const child = spawn('node', [HEALTH_CHECK_SCRIPT], {
         cwd: process.cwd(),
-        stdio: 'pipe'
+        stdio: 'pipe',
       })
-      
+
       return new Promise<void>((resolve) => {
         child.on('close', () => {
           // Temp file should not exist after execution
           expect(existsSync(TEMP_OUTPUT_FILE)).toBe(false)
           resolve()
         })
-        
+
         // Timeout after 5 seconds
         setTimeout(() => {
           child.kill()
@@ -211,15 +212,15 @@ describe('check-convex-health.mjs - Integration Tests', () => {
       // Try to run a non-existent script
       const child = spawn('node', ['non-existent-script.mjs'], {
         cwd: process.cwd(),
-        stdio: 'pipe'
+        stdio: 'pipe',
       })
-      
+
       return new Promise<void>((resolve) => {
         child.on('close', (code) => {
           expect(code).toBeGreaterThan(0) // Should fail
           resolve()
         })
-        
+
         // Timeout after 2 seconds
         setTimeout(() => {
           child.kill()
