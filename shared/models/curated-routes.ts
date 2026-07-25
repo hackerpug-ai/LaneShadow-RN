@@ -151,7 +151,7 @@ export type CuratedRoute = {
     value?: string
     segments?: string[]
   } | null
-  geometryStatus?: 'generated' | 'unresolved' | 'failed' | 'review' | null
+  geometryStatus?: 'generated' | 'unresolved' | 'failed' | 'review' | 'retired' | null
   geometryProvenance?: 'scraped_promoted' | 'ai_reconstructed' | 'name_routed' | null
   riderReady?: boolean | null
   rideWorthiness?: {
@@ -161,6 +161,7 @@ export type CuratedRoute = {
     classifiedAt: number
   } | null
   retiredAt?: number | null
+  retirementReason?: string | null
   duplicateOf?: string | null
 }
 
@@ -189,6 +190,7 @@ export const curatedRouteValidator = v.object({
       v.literal('unresolved'),
       v.literal('failed'),
       v.literal('review'),
+      v.literal('retired'),
     ),
   ),
   geometryProvenance: v.optional(
@@ -205,6 +207,7 @@ export const curatedRouteValidator = v.object({
     }),
   ),
   retiredAt: v.optional(v.number()),
+  retirementReason: v.optional(v.string()),
   duplicateOf: v.optional(v.string()),
   quarantine: v.optional(
     v.object({
