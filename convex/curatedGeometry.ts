@@ -23,7 +23,7 @@ import {
 } from './_generated/server'
 import { reevaluateExistingGeometry } from './curatedGeometryGate'
 import { geospatial } from './geospatialIndex'
-import { requireFounder, requireOperator } from './guards'
+import { requireFounder, requireIdentity, requireOperator } from './guards'
 
 // ---------------------------------------------------------------------------
 // Validators (shared with actions/curatedGeometry.ts via re-export)
@@ -42,6 +42,7 @@ export const GEOMETRY_STATUS = v.union(
   v.literal('unresolved'),
   v.literal('failed'),
   v.literal('review'),
+  v.literal('retired'),
 )
 
 export const VERIFICATION_VALIDATOR = v.object({
@@ -85,7 +86,7 @@ export type BackfillRouteRow = {
   boundsNeLng: number
   boundsSwLat: number
   boundsSwLng: number
-  geometryStatus: 'generated' | 'unresolved' | 'failed' | 'review' | null
+  geometryStatus: 'generated' | 'unresolved' | 'failed' | 'review' | 'retired' | null
 }
 
 export type BackfillPage = {
@@ -110,7 +111,7 @@ export type GenerateForRouteResult = {
   routeId: string
   name: string
   state: string
-  geometryStatus: 'generated' | 'unresolved' | 'failed' | 'review'
+  geometryStatus: 'generated' | 'unresolved' | 'failed' | 'review' | 'retired'
   coordCount?: number
   error?: string
 }
@@ -1626,7 +1627,7 @@ async function upsertS5Route(
   row: {
     routeId: string
     name: string
-    geometryStatus: 'generated' | 'unresolved' | 'failed' | 'review'
+    geometryStatus: 'generated' | 'unresolved' | 'failed' | 'review' | 'retired'
     geometryProvenance?: 'scraped_promoted' | 'ai_reconstructed' | 'name_routed'
     riderReady?: boolean
     routePolyline?: string
@@ -2105,5 +2106,970 @@ export const teardownS5T1Fixtures = mutation({
     }
 
     return { removed, count: removed.length }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// S5-T2: Fail-closed retirement — eligibility, explicit confirm, reversible un-retire
+// ---------------------------------------------------------------------------
+
+const POLY_SEED =
+  'oditE~o~}Uk~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@sq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@k~@uq@i~@uq@k~@uq@i~@uq@k~@sq@k~@uq@'
+
+type LeverFailureReason = { lever: 1 | 2 | 3; reason: string }
+
+type WaterfallArtifactEvidence = {
+  artifactType: string
+  lever?: number
+  terminalState?: string
+  failedCondition?: string
+  provenance?: string
+  leversRun?: number[]
+}
+
+/**
+ * Extract durable lever-failure evidence from curation_artifacts.
+ *
+ * Two shapes are accepted:
+ * 1. Per-lever seed/legacy rows (`lever` 1|2|3 on waterfall_result)
+ * 2. Production summary from recordTerminalArtifact (no `lever`, has
+ *    terminalState + leversRun covering exhausted waterfall)
+ *
+ * When ANY per-lever rows exist, eligibility is driven by per-lever evidence
+ * only (keeps fail-closed negative control when one lever artifact is removed).
+ * Otherwise fall back to production summary shape.
+ */
+export function extractLeverEvidence(arts: WaterfallArtifactEvidence[]): {
+  leverFailureReasons: LeverFailureReason[]
+  hasPassLever: boolean
+  passLevers: number[]
+} {
+  const failureByLever = new Map<number, string>()
+  const passLevers: number[] = []
+  let sawPerLeverRow = false
+
+  for (const a of arts) {
+    if (a.artifactType !== 'waterfall_result') continue
+    if (a.lever == null || a.lever < 1 || a.lever > 3) continue
+    sawPerLeverRow = true
+
+    // A recovered terminal is a lever PASS
+    if (a.terminalState === 'recovered') {
+      if (!passLevers.includes(a.lever)) passLevers.push(a.lever)
+      continue
+    }
+
+    if (
+      a.terminalState === 'retirement_eligible' ||
+      a.terminalState === 'queued' ||
+      (a.failedCondition != null && a.failedCondition.length > 0)
+    ) {
+      if (!failureByLever.has(a.lever)) {
+        failureByLever.set(a.lever, a.failedCondition ?? 'fail')
+      }
+    }
+  }
+
+  // Prefer per-lever evidence when present (seed / expanded terminal rows)
+  if (sawPerLeverRow) {
+    const leverFailureReasons: LeverFailureReason[] = ([1, 2, 3] as const)
+      .filter((l) => failureByLever.has(l))
+      .map((l) => ({ lever: l, reason: failureByLever.get(l) ?? 'fail' }))
+
+    return {
+      leverFailureReasons,
+      hasPassLever: passLevers.length > 0,
+      passLevers,
+    }
+  }
+
+  // Production summary path: waterfall_result without per-lever field
+  // Prefer the newest all-failed / recovered summary when multiple exist.
+  const summaries = arts
+    .filter(
+      (a) =>
+        a.artifactType === 'waterfall_result' &&
+        (a.lever == null || a.lever < 1 || a.lever > 3) &&
+        Array.isArray(a.leversRun) &&
+        a.leversRun.length > 0,
+    )
+    .slice()
+
+  let hasPassFromSummary = false
+  let bestFailure: {
+    levers: number[]
+    reason: string
+  } | null = null
+
+  for (const a of summaries) {
+    const levers = (a.leversRun ?? []).filter((l) => l === 1 || l === 2 || l === 3)
+    if (a.terminalState === 'recovered') {
+      hasPassFromSummary = true
+      continue
+    }
+    // All-lever residual terminals written by production waterfall
+    if (a.terminalState === 'retirement_eligible' || a.terminalState === 'queued') {
+      const unique = [...new Set(levers)]
+      if (!bestFailure || unique.length > bestFailure.levers.length) {
+        bestFailure = {
+          levers: unique,
+          reason: a.failedCondition ?? 'fail',
+        }
+      }
+    }
+  }
+
+  const leverFailureReasons: LeverFailureReason[] = bestFailure
+    ? ([1, 2, 3] as const)
+        .filter((l) => bestFailure!.levers.includes(l))
+        .map((l) => ({ lever: l, reason: bestFailure!.reason }))
+    : []
+
+  return {
+    leverFailureReasons,
+    hasPassLever: hasPassFromSummary,
+    passLevers: hasPassFromSummary ? [1] : [],
+  }
+}
+
+export function isEligibleForRetirement(args: {
+  leverFailureReasons: LeverFailureReason[]
+  hasPassLever: boolean
+  verificationVerdict: string | null | undefined
+  geometryStatus: string | null | undefined
+  rideWorthinessVerdict: string | null | undefined
+}): boolean {
+  // Gate PASS geometry is never retirement-eligible
+  if (args.verificationVerdict === 'pass') return false
+  if (args.hasPassLever) return false
+  // Fail-closed: require durable terminal failure for ALL three levers
+  if (args.leverFailureReasons.length !== 3) return false
+  const levers = new Set(args.leverFailureReasons.map((r) => r.lever))
+  if (!levers.has(1) || !levers.has(2) || !levers.has(3)) return false
+  // Marginal alone is not eligibility — need all-lever failures (already enforced above).
+  // geometryStatus=review alone is also insufficient (enforced by lever count).
+  void args.geometryStatus
+  void args.rideWorthinessVerdict
+  return true
+}
+
+/**
+ * Shared retirement gate used by curatedGeometry.retireRoute and
+ * reviewQueue.retireDisposition — confirmed + non-empty reason + eligibility.
+ */
+export function assertRetirementConfirmation(args: { confirmed: boolean; reason: string }): string {
+  if (args.confirmed !== true) {
+    throw new ConvexError({
+      code: 'VALIDATION_ERROR',
+      message: 'Retirement requires explicit founder confirmation (confirmed=true)',
+    })
+  }
+  const trimmed = args.reason.trim()
+  if (trimmed.length < 1) {
+    throw new ConvexError({
+      code: 'VALIDATION_ERROR',
+      message: 'Retirement requires a non-empty reason',
+    })
+  }
+  return trimmed
+}
+
+async function upsertS5T2Route(
+  ctx: { db: import('./_generated/server').MutationCtx['db'] },
+  args: {
+    routeId: string
+    name: string
+    geometryStatus: 'generated' | 'unresolved' | 'failed' | 'review' | 'retired'
+    riderReady: boolean
+    lengthMiles?: number
+    rideWorthinessVerdict?: 'ride' | 'marginal' | 'not_a_ride'
+    retiredAt?: number
+    retirementReason?: string
+  },
+) {
+  const nowMs = Date.now()
+  const centroidLat = 34.95
+  const centroidLng = -120.42
+  const lengthMiles = args.lengthMiles ?? 41
+
+  const existing = await ctx.db
+    .query('curated_routes')
+    .withIndex('by_routeId', (q) => q.eq('routeId', args.routeId))
+    .first()
+
+  const base = {
+    routeId: args.routeId,
+    source: 'editorial' as const,
+    name: args.name,
+    primaryArchetype: 'twisties' as const,
+    secondaryTags: ['test', 's5t2'],
+    oneLiner: 'S5-T2 retirement seed',
+    summary: 'S5-T2 retirement seed summary',
+    badges: [] as string[],
+    season: 'year_round' as const,
+    contentVersion: 1,
+    seededAt: nowMs,
+    lengthMiles,
+    centroidLat,
+    centroidLng,
+    boundsNeLat: centroidLat + 0.3,
+    boundsNeLng: centroidLng + 0.3,
+    boundsSwLat: centroidLat - 0.3,
+    boundsSwLng: centroidLng - 0.3,
+    location: {
+      type: 'Point' as const,
+      coordinates: [centroidLng, centroidLat] as [number, number],
+    },
+    compositeScore: 85,
+    curvatureScore: 90,
+    scenicScore: 80,
+    technicalScore: 85,
+    trafficScore: 75,
+    remotenessScore: 70,
+    state: 'California',
+    geometryStatus: args.geometryStatus,
+    riderReady: args.riderReady,
+    retiredAt: args.retiredAt,
+    retirementReason: args.retirementReason,
+    rideWorthiness: {
+      verdict: args.rideWorthinessVerdict ?? ('not_a_ride' as const),
+      reason: args.rideWorthinessVerdict === 'marginal' ? 'marginal classifier' : 'no_rescue',
+      model: 'test',
+      evidenceComplete: true,
+      classifiedAt: nowMs,
+    },
+  }
+
+  let docId = existing?._id
+  if (existing) {
+    await ctx.db.patch(existing._id, {
+      geometryStatus: args.geometryStatus,
+      riderReady: args.riderReady,
+      retiredAt: args.retiredAt,
+      retirementReason: args.retirementReason,
+      name: args.name,
+      lengthMiles,
+      rideWorthiness: base.rideWorthiness,
+    })
+  } else {
+    docId = await ctx.db.insert('curated_routes', base)
+  }
+  return docId!
+}
+
+async function seedLeverFailureArtifacts(
+  ctx: { db: import('./_generated/server').MutationCtx['db'] },
+  routeId: string,
+  reasons: { lever: 1 | 2 | 3; reason: string }[],
+) {
+  const now = Date.now()
+  // Clear prior lever terminal artifacts for idempotent re-seed
+  const existing = await ctx.db
+    .query('curation_artifacts')
+    .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+    .take(100)
+  for (const a of existing) {
+    if (a.artifactType === 'waterfall_result' && a.lever != null) {
+      await ctx.db.delete(a._id)
+    }
+  }
+
+  for (const r of reasons) {
+    await ctx.db.insert('curation_artifacts', {
+      routeId,
+      artifactType: 'waterfall_result',
+      terminalState: 'retirement_eligible',
+      failedCondition: r.reason,
+      lever: r.lever,
+      leversRun: [r.lever],
+      costUsd: 0,
+      attemptedAt: now,
+      createdAt: now,
+    })
+  }
+
+  // Summary terminal artifact (all levers)
+  await ctx.db.insert('curation_artifacts', {
+    routeId,
+    artifactType: 'waterfall_result',
+    terminalState: 'retirement_eligible',
+    leversRun: [1, 2, 3],
+    failedCondition: reasons[reasons.length - 1]?.reason,
+    costUsd: 0,
+    attemptedAt: now,
+    createdAt: now + 1,
+  })
+}
+
+async function seedPassGeometry(
+  ctx: { db: import('./_generated/server').MutationCtx['db'] },
+  routeId: string,
+) {
+  const existingGeom = await ctx.db
+    .query('curated_route_geometry')
+    .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+    .first()
+
+  const geomDoc = {
+    routeId,
+    format: 'polyline' as const,
+    encoding: 'utf-8',
+    precision: 5,
+    value: POLY_SEED,
+    provenance: 'ai_reconstructed' as const,
+    verification: {
+      routeId,
+      verdict: 'pass' as const,
+      provenance: 'ai_reconstructed',
+      geometry: POLY_SEED,
+      geometryStatus: 'generated' as const,
+      anchorCount: 2,
+      anchors: [],
+      pointCount: 80,
+      degenerate: false,
+      ratio: 1.0,
+      claimedMiles: 41,
+      routedMiles: 41,
+    },
+  }
+  if (existingGeom) {
+    await ctx.db.replace(existingGeom._id, geomDoc)
+  } else {
+    await ctx.db.insert('curated_route_geometry', geomDoc)
+  }
+
+  const now = Date.now()
+  await ctx.db.insert('curation_artifacts', {
+    routeId,
+    artifactType: 'waterfall_result',
+    terminalState: 'recovered',
+    provenance: 'ai_reconstructed',
+    lever: 2,
+    leversRun: [1, 2],
+    costUsd: 0.07,
+    attemptedAt: now,
+    createdAt: now,
+  })
+}
+
+async function seedReviewCandidateGeometry(
+  ctx: { db: import('./_generated/server').MutationCtx['db'] },
+  routeId: string,
+  failedCondition: 'ratio' | 'anchors' | 'degenerate' = 'ratio',
+) {
+  const existingGeom = await ctx.db
+    .query('curated_route_geometry')
+    .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+    .first()
+
+  const geomDoc = {
+    routeId,
+    format: 'polyline' as const,
+    encoding: 'utf-8',
+    precision: 5,
+    value: POLY_SEED,
+    provenance: undefined,
+    verification: {
+      routeId,
+      verdict: 'review' as const,
+      failedCondition,
+      geometry: POLY_SEED,
+      geometryStatus: 'review' as const,
+      anchorCount: 2,
+      anchors: [],
+      pointCount: 50,
+      degenerate: false,
+      ratio: 2.0,
+      claimedMiles: 41,
+      routedMiles: 82,
+    },
+  }
+  if (existingGeom) {
+    await ctx.db.replace(existingGeom._id, geomDoc)
+  } else {
+    await ctx.db.insert('curated_route_geometry', geomDoc)
+  }
+
+  const now = Date.now()
+  await ctx.db.insert('curation_artifacts', {
+    routeId,
+    artifactType: 'review_candidate',
+    terminalState: 'queued',
+    failedCondition,
+    bestCandidateGeometry: POLY_SEED,
+    createdAt: now,
+    attemptedAt: now,
+  })
+}
+
+/**
+ * Seed ONLY a production-shaped waterfall_result summary (no per-lever `lever` field).
+ * Mirrors recordTerminalArtifact from waterfallOrchestrator.
+ */
+async function seedProductionWaterfallSummary(
+  ctx: { db: import('./_generated/server').MutationCtx['db'] },
+  args: {
+    routeId: string
+    terminalState: 'retirement_eligible' | 'queued'
+    leversRun: number[]
+    failedCondition?: string
+  },
+) {
+  const now = Date.now()
+  // Clear prior waterfall_result rows for idempotent re-seed
+  const existing = await ctx.db
+    .query('curation_artifacts')
+    .withIndex('by_routeId', (q) => q.eq('routeId', args.routeId))
+    .take(100)
+  for (const a of existing) {
+    if (a.artifactType === 'waterfall_result') {
+      await ctx.db.delete(a._id)
+    }
+  }
+
+  // Production shape: NO `lever` field — only terminalState + leversRun + failedCondition
+  await ctx.db.insert('curation_artifacts', {
+    routeId: args.routeId,
+    artifactType: 'waterfall_result',
+    terminalState: args.terminalState,
+    leversRun: args.leversRun,
+    failedCondition: args.failedCondition ?? 'degenerate',
+    costUsd: 0,
+    attemptedAt: now,
+    createdAt: now,
+  })
+}
+
+/** Public test-support seed for S5-T2 scenarios. */
+export const seedS5T2RetirementFixtures = mutation({
+  args: {
+    scenario: v.union(
+      v.literal('all-levers-failed-vs-pass'),
+      v.literal('founder-confirmation-required'),
+      v.literal('retired-route-surface'),
+      v.literal('retire-unretire-preserves-record'),
+      v.literal('production-summary-all-failed'),
+    ),
+    allFailedRouteId: v.optional(v.string()),
+    passRouteId: v.optional(v.string()),
+    reviewOnlyRouteId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requireOperator(ctx)
+    const allFailedId = args.allFailedRouteId ?? 'test:s5t2-all-failed'
+    const passId = args.passRouteId ?? 'test:s5t2-lever2-pass'
+    const reviewOnlyId = args.reviewOnlyRouteId ?? 'test:s5t2-review-only'
+
+    const failureReasons = [
+      { lever: 1 as const, reason: 'ratio' },
+      { lever: 2 as const, reason: 'anchors' },
+      { lever: 3 as const, reason: 'degenerate' },
+    ]
+
+    // FIX-S5-T2-01: production-shaped summary only (no per-lever seed rows)
+    if (args.scenario === 'production-summary-all-failed') {
+      // allFailedId: summary retirement_eligible + leversRun [1,2,3]
+      await upsertS5T2Route(ctx, {
+        routeId: allFailedId,
+        name: `S5-T2 Prod Summary ${allFailedId}`,
+        geometryStatus: 'review',
+        riderReady: false,
+        rideWorthinessVerdict: 'not_a_ride',
+      })
+      await seedReviewCandidateGeometry(ctx, allFailedId, 'ratio')
+      await seedProductionWaterfallSummary(ctx, {
+        routeId: allFailedId,
+        terminalState: 'retirement_eligible',
+        leversRun: [1, 2, 3],
+        failedCondition: 'degenerate',
+      })
+
+      // passId reused as queued-after-all-levers residual
+      await upsertS5T2Route(ctx, {
+        routeId: passId,
+        name: `S5-T2 Prod Queued ${passId}`,
+        geometryStatus: 'review',
+        riderReady: false,
+        rideWorthinessVerdict: 'not_a_ride',
+      })
+      await seedReviewCandidateGeometry(ctx, passId, 'anchors')
+      await seedProductionWaterfallSummary(ctx, {
+        routeId: passId,
+        terminalState: 'queued',
+        leversRun: [1, 2, 3],
+        failedCondition: 'anchors',
+      })
+
+      // reviewOnlyId reused as partial leversRun (missing lever 3) — not eligible
+      await upsertS5T2Route(ctx, {
+        routeId: reviewOnlyId,
+        name: `S5-T2 Prod Partial ${reviewOnlyId}`,
+        geometryStatus: 'review',
+        riderReady: false,
+        rideWorthinessVerdict: 'marginal',
+      })
+      await seedReviewCandidateGeometry(ctx, reviewOnlyId, 'ratio')
+      await seedProductionWaterfallSummary(ctx, {
+        routeId: reviewOnlyId,
+        terminalState: 'retirement_eligible',
+        leversRun: [1, 2],
+        failedCondition: 'ratio',
+      })
+
+      return {
+        scenario: args.scenario,
+        allFailedRouteId: allFailedId,
+        passRouteId: passId,
+        reviewOnlyRouteId: reviewOnlyId,
+      }
+    }
+
+    // Always seed the all-failed candidate for every scenario
+    await upsertS5T2Route(ctx, {
+      routeId: allFailedId,
+      name: `S5-T2 All Failed ${allFailedId}`,
+      geometryStatus: 'review',
+      riderReady: false,
+      rideWorthinessVerdict: 'not_a_ride',
+    })
+    await seedReviewCandidateGeometry(ctx, allFailedId, 'ratio')
+    await seedLeverFailureArtifacts(ctx, allFailedId, failureReasons)
+
+    if (args.scenario === 'all-levers-failed-vs-pass') {
+      await upsertS5T2Route(ctx, {
+        routeId: passId,
+        name: `S5-T2 Lever2 Pass ${passId}`,
+        geometryStatus: 'generated',
+        riderReady: true,
+        rideWorthinessVerdict: 'ride',
+      })
+      await seedPassGeometry(ctx, passId)
+
+      // Review-only: geometryStatus=review WITHOUT per-lever terminal artifacts
+      await upsertS5T2Route(ctx, {
+        routeId: reviewOnlyId,
+        name: `S5-T2 Review Only ${reviewOnlyId}`,
+        geometryStatus: 'review',
+        riderReady: false,
+        rideWorthinessVerdict: 'marginal',
+      })
+      await seedReviewCandidateGeometry(ctx, reviewOnlyId, 'anchors')
+      // Explicitly do NOT seed lever terminal artifacts
+    }
+
+    return {
+      scenario: args.scenario,
+      allFailedRouteId: allFailedId,
+      passRouteId: args.scenario === 'all-levers-failed-vs-pass' ? passId : null,
+      reviewOnlyRouteId: args.scenario === 'all-levers-failed-vs-pass' ? reviewOnlyId : null,
+    }
+  },
+})
+
+export const teardownS5T2Fixtures = mutation({
+  args: {
+    prefixes: v.optional(v.array(v.string())),
+    routeIds: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, { prefixes, routeIds }) => {
+    await requireOperator(ctx)
+    const prefixList = prefixes ?? ['test:s5t2-']
+    const removed: string[] = []
+    const seen = new Set<string>()
+
+    const deleteRoute = async (routeId: string) => {
+      if (seen.has(routeId)) return
+      const row = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      if (!row) return
+      const geom = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      if (geom) await ctx.db.delete(geom._id)
+      const arts = await ctx.db
+        .query('curation_artifacts')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .take(100)
+      for (const a of arts) await ctx.db.delete(a._id)
+      await ctx.db.delete(row._id)
+      seen.add(routeId)
+      removed.push(routeId)
+    }
+
+    // Prefer exact routeIds (stable under parallel suites)
+    if (routeIds) {
+      for (const id of routeIds) await deleteRoute(id)
+    }
+
+    for (const status of ['unresolved', 'generated', 'review', 'failed', 'retired'] as const) {
+      const rows = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_geometry_status', (q) => q.eq('geometryStatus', status))
+        .take(400)
+      for (const row of rows) {
+        if (!prefixList.some((p) => row.routeId.startsWith(p))) continue
+        await deleteRoute(row.routeId)
+      }
+    }
+
+    return { removed, count: removed.length }
+  },
+})
+
+export const removeLeverTerminalArtifact = mutation({
+  args: {
+    routeId: v.string(),
+    lever: v.union(v.literal(1), v.literal(2), v.literal(3)),
+  },
+  handler: async (ctx, { routeId, lever }) => {
+    await requireOperator(ctx)
+    const arts = await ctx.db
+      .query('curation_artifacts')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .take(100)
+    let removed = 0
+    for (const a of arts) {
+      if (a.artifactType === 'waterfall_result' && a.lever === lever) {
+        await ctx.db.delete(a._id)
+        removed += 1
+      }
+    }
+    return { routeId, lever, removed }
+  },
+})
+
+export const listRetirementCandidates = query({
+  args: {
+    limit: v.optional(v.number()),
+    routeIdPrefix: v.optional(v.string()),
+  },
+  handler: async (ctx, { limit, routeIdPrefix }) => {
+    await requireIdentity(ctx)
+    const take = Math.min(limit ?? 50, 200)
+
+    // Scan review + unresolved residuals. When a prefix is supplied, expand the
+    // scan window so test/operator filters are not truncated by stale review rows.
+    const statuses = ['review', 'unresolved', 'failed', 'retired'] as const
+    const scanPerStatus = routeIdPrefix ? 800 : take * 3
+    let rows: Array<import('./_generated/dataModel').Doc<'curated_routes'>> = []
+    for (const status of statuses) {
+      const batch = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_geometry_status', (q) => q.eq('geometryStatus', status))
+        .take(scanPerStatus)
+      rows = rows.concat(batch)
+    }
+
+    if (routeIdPrefix) {
+      // Exact id short-circuit (operator paste of a full routeId)
+      const exact = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeIdPrefix))
+        .first()
+      if (exact && !rows.some((r) => r.routeId === exact.routeId)) {
+        rows = [exact, ...rows]
+      }
+      rows = rows.filter((r) => r.routeId.startsWith(routeIdPrefix))
+    }
+
+    const candidates = []
+    for (const row of rows.slice(0, take)) {
+      const arts = await ctx.db
+        .query('curation_artifacts')
+        .withIndex('by_routeId', (q) => q.eq('routeId', row.routeId))
+        .take(100)
+
+      const geom = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', row.routeId))
+        .first()
+
+      const evidence = extractLeverEvidence(arts)
+      const eligible = isEligibleForRetirement({
+        leverFailureReasons: evidence.leverFailureReasons,
+        hasPassLever: evidence.hasPassLever,
+        verificationVerdict: geom?.verification?.verdict ?? null,
+        geometryStatus: row.geometryStatus ?? null,
+        rideWorthinessVerdict: row.rideWorthiness?.verdict ?? null,
+      })
+
+      // Only surface rows that have at least some lever evidence OR are eligible
+      // (tests look for specific routeIds; include all scanned with explicit eligible flag)
+      let bestCandidateGeometry: string | null = geom?.value ?? geom?.verification?.geometry ?? null
+      if (!bestCandidateGeometry) {
+        const candidate = arts
+          .filter((a) => a.artifactType === 'review_candidate')
+          .sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0))[0]
+        bestCandidateGeometry = candidate?.bestCandidateGeometry ?? null
+      }
+
+      candidates.push({
+        routeId: row.routeId,
+        name: row.name,
+        geometryStatus: row.geometryStatus ?? null,
+        eligible,
+        leverFailureReasons: evidence.leverFailureReasons,
+        classifierVerdict: row.rideWorthiness?.verdict ?? null,
+        classifier: row.rideWorthiness
+          ? {
+              verdict: row.rideWorthiness.verdict,
+              reason: row.rideWorthiness.reason,
+              model: row.rideWorthiness.model,
+            }
+          : null,
+        bestCandidateGeometry,
+        retiredAt: row.retiredAt ?? null,
+        retirementReason: row.retirementReason ?? null,
+        riderReady: row.riderReady ?? false,
+      })
+    }
+
+    const eligibleCandidateCount = candidates.filter((c) => c.eligible).length
+    return { candidates, eligibleCandidateCount, length: candidates.length }
+  },
+})
+
+export const getRetirementEvidence = query({
+  args: { routeId: v.string() },
+  handler: async (ctx, { routeId }) => {
+    await requireIdentity(ctx)
+    const route = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+    if (!route) {
+      return {
+        routeId,
+        routeDocExists: false,
+        candidateAbsent: true,
+      }
+    }
+
+    const arts = await ctx.db
+      .query('curation_artifacts')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .take(100)
+
+    const geom = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+
+    const evidence = extractLeverEvidence(arts)
+    const eligible = isEligibleForRetirement({
+      leverFailureReasons: evidence.leverFailureReasons,
+      hasPassLever: evidence.hasPassLever,
+      verificationVerdict: geom?.verification?.verdict ?? null,
+      geometryStatus: route.geometryStatus ?? null,
+      rideWorthinessVerdict: route.rideWorthiness?.verdict ?? null,
+    })
+
+    const dispositions = arts
+      .filter((a) => a.artifactType === 'disposition')
+      .sort((a, b) => (a.createdAt ?? 0) - (b.createdAt ?? 0))
+
+    const retireDispositions = dispositions.filter((d) => d.disposition === 'retire')
+    const hasRetireReason =
+      (route.retirementReason != null && route.retirementReason.length > 0) ||
+      retireDispositions.some((d) => (d.reason ?? '').length > 0)
+
+    return {
+      routeId,
+      routeDocId: route._id,
+      routeDocExists: true,
+      sameId: true,
+      geometryStatus: route.geometryStatus ?? null,
+      riderReady: route.riderReady ?? false,
+      retiredAt: route.retiredAt != null ? new Date(route.retiredAt).toISOString() : null,
+      retirementReason: route.retirementReason ?? null,
+      retirementReasonHistoryRetained: hasRetireReason,
+      verification: geom?.verification
+        ? {
+            verdict: geom.verification.verdict,
+            geometryStatus: geom.verification.geometryStatus,
+          }
+        : null,
+      eligible,
+      leverFailureReasons: evidence.leverFailureReasons,
+      leverFailureEvidenceCount: evidence.leverFailureReasons.length,
+      dispositionCount: dispositions.length,
+      dispositionAuditCount: dispositions.length,
+      dispositions,
+      geometryCandidateRetained: geom != null,
+      candidateAbsent: !eligible,
+      classifierVerdict: route.rideWorthiness?.verdict ?? null,
+    }
+  },
+})
+
+/**
+ * Explicit Founder-confirmed retirement. NEVER auto-called from batch/classifier.
+ * Requires confirmed===true and non-empty reason; route must be all-lever-failed eligible.
+ */
+export const retireRoute = mutation({
+  args: {
+    routeId: v.string(),
+    reason: v.string(),
+    confirmed: v.boolean(),
+  },
+  handler: async (ctx, { routeId, reason, confirmed }) => {
+    await requireOperator(ctx)
+    const trimmed = assertRetirementConfirmation({ confirmed, reason })
+
+    const route = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+    if (!route) {
+      throw new ConvexError({
+        code: 'VALIDATION_ERROR',
+        message: `Route not found: ${routeId}`,
+      })
+    }
+
+    const arts = await ctx.db
+      .query('curation_artifacts')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .take(100)
+    const geom = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+
+    const evidence = extractLeverEvidence(arts)
+    const eligible = isEligibleForRetirement({
+      leverFailureReasons: evidence.leverFailureReasons,
+      hasPassLever: evidence.hasPassLever,
+      verificationVerdict: geom?.verification?.verdict ?? null,
+      geometryStatus: route.geometryStatus ?? null,
+      rideWorthinessVerdict: route.rideWorthiness?.verdict ?? null,
+    })
+    if (!eligible) {
+      throw new ConvexError({
+        code: 'VALIDATION_ERROR',
+        message: `Route ${routeId} is not retirement-eligible (requires terminal failures for levers 1/2/3 with no lever PASS)`,
+      })
+    }
+
+    const retiredAt = Date.now()
+    await ctx.db.patch(route._id, {
+      geometryStatus: 'retired',
+      retiredAt,
+      retirementReason: trimmed,
+      riderReady: false,
+    })
+
+    await ctx.db.insert('curation_artifacts', {
+      routeId,
+      artifactType: 'disposition',
+      disposition: 'retire',
+      terminalState: 'retirement_eligible',
+      reason: trimmed,
+      confirmed: true,
+      attemptedAt: retiredAt,
+      createdAt: retiredAt,
+    })
+
+    return {
+      routeId,
+      disposition: 'retire' as const,
+      geometryStatus: 'retired' as const,
+      retiredAt: new Date(retiredAt).toISOString(),
+      retirementReason: trimmed,
+      riderReady: false,
+      confirmed: true,
+    }
+  },
+})
+
+/**
+ * Reversible un-retire: clears exclusion state, preserves route + evidence, recomputes riderReady.
+ * Does NOT set riderReady=true without qualifying geometry/classifier evidence.
+ */
+export const unretireRoute = mutation({
+  args: { routeId: v.string() },
+  handler: async (ctx, { routeId }) => {
+    await requireOperator(ctx)
+
+    const route = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+    if (!route) {
+      throw new ConvexError({
+        code: 'VALIDATION_ERROR',
+        message: `Route not found: ${routeId}`,
+      })
+    }
+
+    const geom = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+
+    // Restore pre-retirement status from verification evidence — never forge generated
+    const restoreStatus =
+      geom?.verification?.verdict === 'pass' && geom.verification.geometryStatus === 'generated'
+        ? ('generated' as const)
+        : ('review' as const)
+
+    // Clear exclusion only; keep retirementReason as historical evidence on the doc
+    await ctx.db.patch(route._id, {
+      geometryStatus: restoreStatus,
+      retiredAt: undefined,
+      riderReady: false,
+    })
+
+    // Recompute from current evidence (will stay false without gate-PASS + other predicates)
+    await recomputeRiderReady(ctx, route._id)
+
+    const now = Date.now()
+    await ctx.db.insert('curation_artifacts', {
+      routeId,
+      artifactType: 'disposition',
+      disposition: 'unretire',
+      reason: route.retirementReason ?? undefined,
+      attemptedAt: now,
+      createdAt: now,
+    })
+
+    const updated = await ctx.db.get(route._id)
+    return {
+      routeId,
+      disposition: 'unretire' as const,
+      geometryStatus: updated?.geometryStatus ?? restoreStatus,
+      retiredAt: null,
+      riderReady: updated?.riderReady ?? false,
+      routeDocId: route._id,
+    }
+  },
+})
+
+/** Operator-gated public recompute for tests / founder tools. */
+export const recomputeRiderReadyPublic = mutation({
+  args: { routeId: v.string() },
+  handler: async (ctx, { routeId }) => {
+    await requireOperator(ctx)
+    const route = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+    if (!route) {
+      throw new ConvexError({
+        code: 'VALIDATION_ERROR',
+        message: `Route not found: ${routeId}`,
+      })
+    }
+    await recomputeRiderReady(ctx, route._id)
+    const updated = await ctx.db.get(route._id)
+    return {
+      routeId,
+      riderReady: updated?.riderReady ?? false,
+      geometryStatus: updated?.geometryStatus ?? null,
+      retiredAt: updated?.retiredAt ?? null,
+    }
   },
 })

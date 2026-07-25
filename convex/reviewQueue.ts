@@ -10,10 +10,15 @@
  *   - disposition audit rows in curation_artifacts
  */
 
-import { v } from 'convex/values'
+import { ConvexError, v } from 'convex/values'
 import { decodePolylineGeometry, haversineMeters } from '../shared/lib/polyline'
 import { api } from './_generated/api'
 import { type ActionCtx, action, mutation, query } from './_generated/server'
+import {
+  assertRetirementConfirmation,
+  extractLeverEvidence,
+  isEligibleForRetirement,
+} from './curatedGeometry'
 import { determineGateVerdict, type GateVerdict, isAnchorInRegion } from './curatedGeometryGate'
 import { assertTestSubjectOrThrow, requireIdentity, requireOperator } from './guards'
 
@@ -476,20 +481,61 @@ export const approveDisposition = mutation({
   },
 })
 
-/** Retire: mark retiredAt, riderReady=false, leave REVIEW (operator only). */
+/**
+ * Retire via REVIEW queue — same gate as curatedGeometry.retireRoute:
+ * confirmed=true + non-empty reason + all-lever-failed eligibility.
+ * Sets geometryStatus=retired, retirementReason, disposition audit.
+ */
 export const retireDisposition = mutation({
-  args: { routeId: v.string() },
-  handler: async (ctx, { routeId }) => {
+  args: {
+    routeId: v.string(),
+    confirmed: v.boolean(),
+    reason: v.string(),
+  },
+  handler: async (ctx, { routeId, confirmed, reason }) => {
     await requireOperator(ctx)
+    const trimmed = assertRetirementConfirmation({ confirmed, reason })
+
     const route = await ctx.db
       .query('curated_routes')
       .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
       .first()
-    if (!route) throw new Error(`Route not found: ${routeId}`)
+    if (!route) {
+      throw new ConvexError({
+        code: 'VALIDATION_ERROR',
+        message: `Route not found: ${routeId}`,
+      })
+    }
+
+    const arts = await ctx.db
+      .query('curation_artifacts')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .take(100)
+    const geom = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+
+    const evidence = extractLeverEvidence(arts)
+    const eligible = isEligibleForRetirement({
+      leverFailureReasons: evidence.leverFailureReasons,
+      hasPassLever: evidence.hasPassLever,
+      verificationVerdict: geom?.verification?.verdict ?? null,
+      geometryStatus: route.geometryStatus ?? null,
+      rideWorthinessVerdict: route.rideWorthiness?.verdict ?? null,
+    })
+    if (!eligible) {
+      throw new ConvexError({
+        code: 'VALIDATION_ERROR',
+        message: `Route ${routeId} is not retirement-eligible (requires terminal failures for levers 1/2/3 with no lever PASS)`,
+      })
+    }
 
     const retiredAt = Date.now()
     await ctx.db.patch(route._id, {
+      geometryStatus: 'retired',
       retiredAt,
+      retirementReason: trimmed,
       riderReady: false,
     })
 
@@ -498,6 +544,8 @@ export const retireDisposition = mutation({
       artifactType: 'disposition',
       disposition: 'retire',
       terminalState: 'retirement_eligible',
+      reason: trimmed,
+      confirmed: true,
       attemptedAt: retiredAt,
       createdAt: retiredAt,
     })
@@ -505,8 +553,11 @@ export const retireDisposition = mutation({
     return {
       routeId,
       disposition: 'retire' as const,
+      geometryStatus: 'retired' as const,
       retiredAt: new Date(retiredAt).toISOString(),
+      retirementReason: trimmed,
       riderReady: false,
+      confirmed: true,
     }
   },
 })

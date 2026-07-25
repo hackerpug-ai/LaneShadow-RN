@@ -97,6 +97,20 @@ describe('AC-6: REVIEW dispositions approve / retry / retire', () => {
       expect(seed.ok, `seed ${routeId} failed: ${seed.stderr}`).toBe(true)
     }
 
+    // FIX-S5-T2-01: retireDisposition requires all-lever-failed eligibility
+    // (production-shaped summary is enough; no need for per-lever seed rows).
+    const eligSeed = runConvexFn(
+      'curatedGeometry:seedS5T2RetirementFixtures',
+      {
+        scenario: 'production-summary-all-failed',
+        allFailedRouteId: RETIRE_ID,
+        passRouteId: 'test:s4t5-disp-retire-unused-queued',
+        reviewOnlyRouteId: 'test:s4t5-disp-retire-unused-partial',
+      },
+      { identity: true },
+    )
+    expect(eligSeed.ok, `eligibility seed for retire failed: ${eligSeed.stderr}`).toBe(true)
+
     // --- approve ---
     const approve = runConvexFn(
       'reviewQueue:approveDisposition',
@@ -145,10 +159,14 @@ describe('AC-6: REVIEW dispositions approve / retry / retire', () => {
     )
     retryQueue = rQueue.ok ? JSON.parse(rQueue.stdout) : null
 
-    // --- retire ---
+    // --- retire (FIX-S5-T2-01: confirmed + non-empty reason required) ---
     const retire = runConvexFn(
       'reviewQueue:retireDisposition',
-      { routeId: RETIRE_ID },
+      {
+        routeId: RETIRE_ID,
+        confirmed: true,
+        reason: 'all levers failed — S4-T5 disposition retire',
+      },
       { identity: true },
     )
     expect(retire.ok, `retire failed: ${retire.stderr}\n${retire.stdout}`).toBe(true)
@@ -184,6 +202,11 @@ describe('AC-6: REVIEW dispositions approve / retry / retire', () => {
     runConvexFn(
       'waterfallOrchestrator:teardownWaterfallFixtures',
       { prefixes: ['test:s4t5-disp'] },
+      { identity: true },
+    )
+    runConvexFn(
+      'curatedGeometry:teardownS5T2Fixtures',
+      { prefixes: ['test:s4t5-disp-retire'] },
       { identity: true },
     )
   })

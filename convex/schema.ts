@@ -314,7 +314,12 @@ export default defineSchema({
     provenance: v.optional(v.string()),
     failedCondition: v.optional(v.string()),
     bestCandidateGeometry: v.optional(v.string()),
-    disposition: v.optional(v.union(v.literal('approve'), v.literal('retry'), v.literal('retire'))),
+    disposition: v.optional(
+      v.union(v.literal('approve'), v.literal('retry'), v.literal('retire'), v.literal('unretire')),
+    ),
+    // S5-T2: founder confirmation reason recorded on retire/unretire dispositions
+    reason: v.optional(v.string()),
+    confirmed: v.optional(v.boolean()),
     lever: v.optional(v.number()),
     leversRun: v.optional(v.array(v.number())),
     costUsd: v.optional(v.number()),

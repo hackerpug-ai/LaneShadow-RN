@@ -72,6 +72,7 @@ export const listCuratedRoutesReturnValidator = v.array(
         v.literal('unresolved'),
         v.literal('failed'),
         v.literal('review'),
+        v.literal('retired'),
       ),
     ),
   }),
@@ -227,7 +228,15 @@ async function listCuratedRoutesHandler(ctx: any, args: any) {
 
     return routes
       .filter(
-        (r): r is NonNullable<typeof r> => r !== null && matchesState(r) && matchesArchetype(r),
+        (r): r is NonNullable<typeof r> =>
+          r !== null &&
+          matchesState(r) &&
+          matchesArchetype(r) &&
+          r.retiredAt == null &&
+          r.geometryStatus !== 'retired' &&
+          r.duplicateOf == null &&
+          r.quarantine == null &&
+          r.riderReady === true,
       )
       .map((r) => buildRouteCard(r))
       .sort((a, b) => b.compositeScore - a.compositeScore)
@@ -268,6 +277,7 @@ async function listCuratedRoutesHandler(ctx: any, args: any) {
           p.route !== null &&
           p.route.riderReady === true &&
           p.route.retiredAt == null &&
+          p.route.geometryStatus !== 'retired' &&
           p.route.duplicateOf == null &&
           p.route.quarantine == null &&
           matchesState(p.route) &&
@@ -299,6 +309,7 @@ async function listCuratedRoutesHandler(ctx: any, args: any) {
         return (
           matchesArchetype(r) &&
           r.retiredAt == null &&
+          r.geometryStatus !== 'retired' &&
           r.duplicateOf == null &&
           r.quarantine == null
         )
@@ -318,7 +329,11 @@ async function listCuratedRoutesHandler(ctx: any, args: any) {
   return topRoutes
     .filter(
       (r: any) =>
-        matchesArchetype(r) && r.retiredAt == null && r.duplicateOf == null && r.quarantine == null,
+        matchesArchetype(r) &&
+        r.retiredAt == null &&
+        r.geometryStatus !== 'retired' &&
+        r.duplicateOf == null &&
+        r.quarantine == null,
     )
     .map((r: any) => buildRouteCard(r))
     .slice(0, effectiveLimit)
@@ -405,6 +420,19 @@ const routeDetailReturnValidator = v.object({
   surface: v.optional(v.string()),
   aadt: v.optional(v.number()),
   pavementIri: v.optional(v.number()),
+  // S5-T2: retired rows remain detail-reachable with status + reason
+  geometryStatus: v.optional(
+    v.union(
+      v.literal('generated'),
+      v.literal('unresolved'),
+      v.literal('failed'),
+      v.literal('review'),
+      v.literal('retired'),
+    ),
+  ),
+  retirementReason: v.optional(v.union(v.string(), v.null())),
+  retiredAt: v.optional(v.union(v.number(), v.null())),
+  riderReady: v.optional(v.boolean()),
 })
 
 /**
@@ -460,6 +488,10 @@ function buildRouteDetail(
     surface: route.surface,
     aadt: route.aadt,
     pavementIri: route.pavementIri,
+    geometryStatus: route.geometryStatus,
+    retirementReason: route.retirementReason ?? null,
+    retiredAt: route.retiredAt ?? null,
+    riderReady: route.riderReady ?? false,
   }
 }
 
