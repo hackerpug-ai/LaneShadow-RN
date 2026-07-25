@@ -480,4 +480,32 @@ export default defineSchema({
     .index('by_runId', ['runId'])
     .index('by_artifactKind', ['artifactKind'])
     .index('by_runId_and_kind', ['runId', 'artifactKind']),
+
+  /**
+   * S5-T3: Independent top-50-by-composite-rank founder review artifacts.
+   * APPEND-ONLY. Independent of couch_verdicts / retirement unlock.
+   * One wrong / duplicate headliner / test-seed marker forces status=fail.
+   */
+  top50_reviews: defineTable({
+    reviewId: v.string(),
+    status: v.union(v.literal('pass'), v.literal('fail')),
+    routeVerdicts: v.array(
+      v.object({
+        routeId: v.string(),
+        verdict: v.union(v.literal('correct'), v.literal('plausible'), v.literal('wrong')),
+        isDuplicate: v.optional(v.boolean()),
+        isTestSeed: v.optional(v.boolean()),
+        reason: v.optional(v.string()),
+      }),
+    ),
+    offendingRouteIds: v.array(v.string()),
+    offendingReasons: v.array(v.string()),
+    reviewedRowCount: v.number(),
+    expectedRowCount: v.number(),
+    contaminationCount: v.number(),
+    recordedAt: v.number(),
+    recordedBy: v.optional(v.string()),
+  })
+    .index('by_reviewId', ['reviewId'])
+    .index('by_recordedAt', ['recordedAt']),
 })

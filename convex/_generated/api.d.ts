@@ -127,6 +127,8 @@ import type * as queries_osm from "../queries/osm.js";
 import type * as reviewQueue from "../reviewQueue.js";
 import type * as seedGeospatialTest from "../seedGeospatialTest.js";
 import type * as semanticSearch from "../semanticSearch.js";
+import type * as testSupport from "../testSupport.js";
+import type * as top50Review from "../top50Review.js";
 import type * as types from "../types.js";
 import type * as users from "../users.js";
 import type * as util_archetypeMap from "../util/archetypeMap.js";
@@ -259,6 +261,8 @@ declare const fullApi: ApiFromModules<{
   reviewQueue: typeof reviewQueue;
   seedGeospatialTest: typeof seedGeospatialTest;
   semanticSearch: typeof semanticSearch;
+  testSupport: typeof testSupport;
+  top50Review: typeof top50Review;
   types: typeof types;
   users: typeof users;
   "util/archetypeMap": typeof util_archetypeMap;
