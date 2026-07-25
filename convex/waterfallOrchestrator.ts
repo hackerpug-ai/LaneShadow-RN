@@ -195,7 +195,7 @@ async function upsertWaterfallRoute(
     riderReady: row.geometryStatus === 'generated',
     state: row.state ?? 'California',
     summary: row.summary ?? 'S4-T5 waterfall test route',
-    retiredAt: undefined,
+    retiredAt: null,
     duplicateOf: undefined,
     quarantine: undefined,
   }

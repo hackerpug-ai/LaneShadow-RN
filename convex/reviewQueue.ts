@@ -174,7 +174,7 @@ export const seedReviewQueueEntry = mutation({
         geometryStatus: 'review',
         geometryProvenance: undefined,
         riderReady: false,
-        retiredAt: undefined,
+        retiredAt: null,
         name: args.name ?? existing.name,
         lengthMiles,
       })
@@ -456,7 +456,7 @@ export const approveDisposition = mutation({
       geometryStatus: 'generated',
       geometryProvenance: provenance,
       riderReady: true,
-      retiredAt: undefined,
+      retiredAt: null,
     })
 
     const now = Date.now()
@@ -585,7 +585,7 @@ export const prepareRetryDisposition = mutation({
       geometryStatus: 'unresolved',
       geometryProvenance: undefined,
       riderReady: false,
-      retiredAt: undefined,
+      retiredAt: null,
     })
 
     // Drop pass geometry if any; keep review geometry as candidate until lever writes

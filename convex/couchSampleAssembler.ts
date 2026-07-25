@@ -318,7 +318,7 @@ async function upsertCouchRoute(
     riderReady: true,
     state: 'California',
     summary: spec.summary,
-    retiredAt: undefined,
+    retiredAt: null,
     duplicateOf: undefined,
     quarantine: undefined,
   }

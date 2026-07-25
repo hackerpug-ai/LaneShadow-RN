@@ -428,7 +428,7 @@ export const restorePoCRouteAllGood = mutation({
         evidenceComplete: true,
         classifiedAt: nowMs,
       },
-      retiredAt: undefined,
+      retiredAt: null,
       duplicateOf: undefined,
       quarantine: undefined,
       geometryStatus: 'generated',
