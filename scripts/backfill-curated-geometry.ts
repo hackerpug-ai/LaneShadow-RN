@@ -296,7 +296,11 @@ function runFullWaterfallBatch(opts: {
   try {
     const result = execSync(cmd, { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'] })
     const report = JSON.parse(result) as {
+      runId?: string
       totalCostUSD?: number
+      totalCostUsd?: number
+      cumulativeCostUSD?: number
+      pageCostUSD?: number
       continueCursor?: string | null
       isDone?: boolean
       batchStopReason?: string | null
@@ -305,24 +309,43 @@ function runFullWaterfallBatch(opts: {
       skipped?: number
     }
 
+    // REDHAT-FIX-01: operator transcript must surface real runId/cost/cursor (no isDone+0 stub).
+    const transcript = {
+      runId: report.runId ?? opts.runId ?? null,
+      totalCostUSD: report.totalCostUSD ?? report.totalCostUsd ?? 0,
+      cumulativeCostUSD: report.cumulativeCostUSD ?? report.totalCostUSD ?? 0,
+      pageCostUSD: report.pageCostUSD ?? report.totalCostUsd ?? report.totalCostUSD ?? 0,
+      continueCursor: report.continueCursor ?? null,
+      isDone: report.isDone ?? false,
+      batchStopReason: report.batchStopReason ?? null,
+      processed: report.processed ?? 0,
+      skipped: report.skipped ?? 0,
+    }
+
     process.stdout.write('\nFull-batch waterfall report:\n')
-    process.stdout.write(`  processed: ${report.processed ?? 0}\n`)
-    process.stdout.write(`  skipped: ${report.skipped ?? 0}\n`)
-    process.stdout.write(`  totalCostUSD: ${report.totalCostUSD ?? 0}\n`)
-    process.stdout.write(`  batchStopReason: ${report.batchStopReason ?? '(none)'}\n`)
-    process.stdout.write(`  isDone: ${String(report.isDone)}\n`)
-    process.stdout.write(`  continueCursor: ${report.continueCursor ?? '(none)'}\n`)
+    process.stdout.write(`  runId: ${transcript.runId ?? '(none)'}\n`)
+    process.stdout.write(`  processed: ${transcript.processed}\n`)
+    process.stdout.write(`  skipped: ${transcript.skipped}\n`)
+    process.stdout.write(`  totalCostUSD: ${transcript.totalCostUSD}\n`)
+    process.stdout.write(`  cumulativeCostUSD: ${transcript.cumulativeCostUSD}\n`)
+    process.stdout.write(`  pageCostUSD: ${transcript.pageCostUSD}\n`)
+    process.stdout.write(`  batchStopReason: ${transcript.batchStopReason ?? '(none)'}\n`)
+    process.stdout.write(`  isDone: ${String(transcript.isDone)}\n`)
+    process.stdout.write(`  continueCursor: ${transcript.continueCursor ?? '(none)'}\n`)
+    process.stdout.write('\nTRANSCRIPT_JSON ')
+    process.stdout.write(JSON.stringify(transcript))
+    process.stdout.write('\n')
 
     const outDir = path.resolve(process.cwd(), '.tmp', 'S5-T1')
     if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true })
     const outPath = path.join(outDir, 'full-batch-report.json')
-    fs.writeFileSync(outPath, JSON.stringify(report, null, 2))
+    fs.writeFileSync(outPath, JSON.stringify({ ...report, transcript }, null, 2))
     process.stdout.write(`\nWrote ${outPath}\n`)
 
-    if (report.continueCursor && !report.isDone) {
+    if (transcript.continueCursor && !transcript.isDone) {
       process.stdout.write(
-        `\nTo resume: --all --waterfall --cursor="${report.continueCursor}"` +
-          (opts.runId ? ` --run-id=${opts.runId}` : '') +
+        `\nTo resume: --all --waterfall --cursor="${transcript.continueCursor}"` +
+          (transcript.runId ? ` --run-id=${transcript.runId}` : '') +
           `\n`,
       )
     }

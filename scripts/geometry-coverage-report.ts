@@ -61,10 +61,28 @@ function main(): void {
   process.stdout.write(`isDone: ${String(report.isDone)}\n`)
   process.stdout.write(`continueCursor: ${String(report.continueCursor ?? '(none)')}\n`)
   process.stdout.write(`totalCostUSD: ${String(report.totalCostUSD ?? 0)}\n`)
+  process.stdout.write(`batchStopReason: ${String(report.batchStopReason ?? '(none)')}\n`)
+  if (report.completeness != null) {
+    process.stdout.write(`completeness: ${String(report.completeness)}\n`)
+  }
   process.stdout.write(`riderReadyCount: ${String(report.riderReadyCount ?? 0)}\n`)
   if (report.assumptionNote) {
     process.stdout.write(`\nNote: ${String(report.assumptionNote)}\n`)
   }
+  // REDHAT-FIX-01: machine-readable transcript for gate / operators
+  process.stdout.write('\nTRANSCRIPT_JSON ')
+  process.stdout.write(
+    JSON.stringify({
+      source: report.source ?? null,
+      runId: report.runId ?? null,
+      isDone: report.isDone ?? false,
+      continueCursor: report.continueCursor ?? null,
+      totalCostUSD: report.totalCostUSD ?? 0,
+      batchStopReason: report.batchStopReason ?? null,
+      completeness: report.completeness ?? null,
+    }),
+  )
+  process.stdout.write('\n')
 
   const levers = (report.levers as Array<Record<string, unknown>>) ?? []
   process.stdout.write('\nPer-lever realized yields (assumptions are NOT targets):\n')
