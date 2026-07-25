@@ -1100,6 +1100,11 @@ async function executeFullBatch(
     terminalStates: coverage.terminalStates,
     provenanceCounts: coverage.provenanceCounts,
     pageTotals: coverage.pageTotals,
+    // REDHAT-FIX-02: stamp runFullBatch provenance so acceptance can bind to live reports
+    reportProvenance: {
+      producedBy: 'runFullBatch',
+      sourceRunKind: 'runFullBatch',
+    },
   })
 
   const routesMutated = report.routes.filter((r) => !r.skipped).length

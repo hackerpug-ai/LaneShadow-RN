@@ -72,15 +72,22 @@ describe('AC-3: low-yield escalation locks acceptance/retirement', () => {
     )
     expect(setup.ok, `setup failed: ${setup.stderr}`).toBe(true)
 
+    // Provenanced low-yield report required so resolve(accept) can unlock after escalation.
+    // Unprovenanced seeds may open escalation but cannot unlock (REDHAT-FIX-02 provenance gate).
     const seed = runConvexFn(
-      'curatedGeometry:seedS5T1LowYieldReport',
+      'curatedGeometry:seedProvenancedCoverageReport',
       {
         runId: RUN_ID,
-        reconstruct: { candidates: 10, passCount: 1 },
+        isDone: true,
+        levers: {
+          scraped_promoted: { candidates: 10, passCount: 5 },
+          ai_reconstructed: { candidates: 10, passCount: 1 },
+          name_routed: { candidates: 10, passCount: 5 },
+        },
       },
       { identity: true },
     )
-    expect(seed.ok, `seed low-yield failed: ${seed.stderr}\n${seed.stdout}`).toBe(true)
+    expect(seed.ok, `seed provenanced low-yield failed: ${seed.stderr}\n${seed.stdout}`).toBe(true)
 
     const accept = runConvexFn(
       'curatedGeometry:requestBatchAcceptance',

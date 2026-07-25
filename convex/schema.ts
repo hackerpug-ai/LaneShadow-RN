@@ -479,6 +479,20 @@ export default defineSchema({
     resolution: v.optional(v.any()),
     observedRates: v.optional(v.any()),
     reason: v.optional(v.string()),
+    /** REDHAT-FIX-02: founder who made the acceptance decision (clerkUserId). */
+    operatorIdentity: v.optional(v.string()),
+    /** REDHAT-FIX-02: ISO-8601 timestamp of the decision (decision.timestamp). */
+    decisionTimestamp: v.optional(v.string()),
+    /**
+     * REDHAT-FIX-02: fail-closed provenance proving the coverage_report came from
+     * a real runFullBatch / persistCoverageReport path (not a seed fixture).
+     */
+    reportProvenance: v.optional(
+      v.object({
+        producedBy: v.string(),
+        sourceRunKind: v.string(),
+      }),
+    ),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

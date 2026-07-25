@@ -23,7 +23,12 @@ import {
 } from './_generated/server'
 import { reevaluateExistingGeometry } from './curatedGeometryGate'
 import { geospatial } from './geospatialIndex'
-import { requireFounder, requireIdentity, requireOperator } from './guards'
+import {
+  assertTestSubjectOrThrow,
+  requireFounder,
+  requireIdentity,
+  requireOperator,
+} from './guards'
 import { isTestSeedRoute } from './lib/top50Eligibility'
 
 // ---------------------------------------------------------------------------
@@ -1142,6 +1147,25 @@ async function upsertBatchArtifact(
   return await ctx.db.insert('batch_acceptance_artifacts', doc as any)
 }
 
+/** Valid runFullBatch provenance markers (fail-closed gate). */
+const RUN_FULL_BATCH_PRODUCERS = new Set(['runFullBatch', 'persistCoverageReport'])
+
+export function isRunFullBatchProvenanced(report: {
+  reportProvenance?: { producedBy?: string; sourceRunKind?: string } | null
+}): boolean {
+  const p = report.reportProvenance
+  if (!p || typeof p !== 'object') return false
+  const producedBy = typeof p.producedBy === 'string' ? p.producedBy : ''
+  const sourceRunKind = typeof p.sourceRunKind === 'string' ? p.sourceRunKind : ''
+  if (producedBy.length < 1 || sourceRunKind.length < 1) return false
+  // Accept either field carrying the runFullBatch family marker
+  return (
+    RUN_FULL_BATCH_PRODUCERS.has(producedBy) ||
+    sourceRunKind === 'runFullBatch' ||
+    RUN_FULL_BATCH_PRODUCERS.has(sourceRunKind)
+  )
+}
+
 /** Persist a coverage report produced by a full-batch run (internal). */
 export const persistCoverageReport = internalMutation({
   args: {
@@ -1169,8 +1193,19 @@ export const persistCoverageReport = internalMutation({
     terminalStates: v.any(),
     provenanceCounts: v.any(),
     pageTotals: v.optional(v.any()),
+    /** Optional override; defaults stamp runFullBatch provenance. */
+    reportProvenance: v.optional(
+      v.object({
+        producedBy: v.string(),
+        sourceRunKind: v.string(),
+      }),
+    ),
   },
   handler: async (ctx, args) => {
+    const reportProvenance = args.reportProvenance ?? {
+      producedBy: 'persistCoverageReport',
+      sourceRunKind: 'runFullBatch',
+    }
     await upsertBatchArtifact(ctx, {
       runId: args.runId,
       artifactKind: 'coverage_report',
@@ -1184,11 +1219,12 @@ export const persistCoverageReport = internalMutation({
       terminalStates: args.terminalStates,
       provenanceCounts: args.provenanceCounts,
       pageTotals: args.pageTotals,
+      reportProvenance,
       decision: null,
       acceptedAt: null,
       retirementUnlockedAt: null,
     })
-    return { runId: args.runId, persisted: true }
+    return { runId: args.runId, persisted: true, reportProvenance }
   },
 })
 
@@ -1226,6 +1262,7 @@ export const coverageReport = query({
           terminalStates: persisted.terminalStates ?? emptyTerminalStates(),
           provenanceCounts: persisted.provenanceCounts ?? {},
           pageTotals: persisted.pageTotals ?? null,
+          reportProvenance: persisted.reportProvenance ?? null,
           assumptionNote:
             'PRD per-lever expected yields are assumptions for comparison only — not committed catalog targets.',
         }
@@ -1367,6 +1404,8 @@ export const getBatchAcceptance = query({
         retirementUnlockedAt: null,
         escalations: [],
         resolution: null,
+        operatorIdentity: null,
+        decisionTimestamp: null,
       }
     }
     return {
@@ -1378,6 +1417,9 @@ export const getBatchAcceptance = query({
       resolution: row.resolution ?? null,
       observedRates: row.observedRates ?? null,
       reason: row.reason ?? null,
+      operatorIdentity: row.operatorIdentity ?? null,
+      // decision.timestamp — ISO-8601 string on the acceptance artifact
+      decisionTimestamp: row.decisionTimestamp ?? null,
     }
   },
 })
@@ -1465,13 +1507,23 @@ function detectLowYieldEscalations(levers: LeverReportRow[]) {
   return escalations
 }
 
+/** Known fixture runId that must never satisfy a live acceptance gate. */
+const S5T4_LIVE_ACCEPTANCE_RUN_ID = 's5t4-live-acceptance'
+
 export const requestBatchAcceptance = mutation({
   args: {
     runId: v.string(),
     decision: v.union(v.literal('accept'), v.literal('reject')),
   },
   handler: async (ctx, { runId, decision }) => {
-    await requireFounder(ctx)
+    const founder = await requireFounder(ctx)
+    const operatorIdentity = founder.clerkUserId
+    if (!operatorIdentity || operatorIdentity.length < 1) {
+      throw new ConvexError({
+        code: 'VALIDATION_ERROR',
+        message: 'operatorIdentity required for batch acceptance',
+      })
+    }
 
     const report = await ctx.db
       .query('batch_acceptance_artifacts')
@@ -1496,6 +1548,8 @@ export const requestBatchAcceptance = mutation({
         reason: 'incomplete_run: isDone=false — cannot accept a partial batch',
         rejectionReason: 'incomplete_run',
         escalations: [] as unknown[],
+        operatorIdentity,
+        decisionTimestamp: null as null,
       }
       await upsertBatchArtifact(ctx, {
         runId,
@@ -1506,14 +1560,26 @@ export const requestBatchAcceptance = mutation({
         reason: result.reason,
         escalations: [],
         observedRates: report.levers,
+        operatorIdentity,
+        decisionTimestamp: null,
       })
       return result
     }
 
     const levers = (report.levers ?? []) as LeverReportRow[]
     const escalations = detectLowYieldEscalations(levers)
+    const decisionTimestamp = new Date().toISOString()
 
     if (decision === 'accept' && escalations.length > 0) {
+      // Low-yield inspection path: lock remains; does not unlock retirement.
+      // Allowed on unprovenanced seeds so escalation unit paths still exercise detectLowYieldEscalations.
+      // Hard-block retired live-seed runId from any accept-family decision.
+      if (runId === S5T4_LIVE_ACCEPTANCE_RUN_ID) {
+        throw new ConvexError({
+          code: 'NOT_PROVENANCED',
+          message: `runId=${runId} is a retired seed artifact and cannot satisfy live acceptance`,
+        })
+      }
       const payload = {
         runId,
         decision: 'escalation_required' as const,
@@ -1522,6 +1588,8 @@ export const requestBatchAcceptance = mutation({
         escalations,
         observedRates: levers,
         reason: escalations.map((e) => e.reason).join('; '),
+        operatorIdentity,
+        decisionTimestamp,
       }
       await upsertBatchArtifact(ctx, {
         artifactKind: 'acceptance',
@@ -1531,6 +1599,7 @@ export const requestBatchAcceptance = mutation({
     }
 
     if (decision === 'reject') {
+      // Reject still requires identity + timestamp; does not unlock retirement.
       const payload = {
         runId,
         decision: 'rejected' as const,
@@ -1539,6 +1608,8 @@ export const requestBatchAcceptance = mutation({
         escalations: [],
         observedRates: levers,
         reason: 'founder_rejected',
+        operatorIdentity,
+        decisionTimestamp,
       }
       await upsertBatchArtifact(ctx, {
         artifactKind: 'acceptance',
@@ -1547,7 +1618,18 @@ export const requestBatchAcceptance = mutation({
       return payload
     }
 
-    // Clean accept
+    // Clean accept unlocks retirement — fail-closed provenance required.
+    const provenanced = isRunFullBatchProvenanced(report)
+    if (!provenanced || runId === S5T4_LIVE_ACCEPTANCE_RUN_ID) {
+      throw new ConvexError({
+        code: 'NOT_PROVENANCED',
+        message:
+          runId === S5T4_LIVE_ACCEPTANCE_RUN_ID
+            ? `runId=${runId} is a retired seed artifact and cannot satisfy live acceptance`
+            : `coverage_report runId=${runId} lacks runFullBatch provenance — seed/fixture reports cannot be accepted`,
+      })
+    }
+
     const now = Date.now()
     const payload = {
       runId,
@@ -1557,6 +1639,8 @@ export const requestBatchAcceptance = mutation({
       escalations: [],
       observedRates: levers,
       reason: 'founder_accepted',
+      operatorIdentity,
+      decisionTimestamp,
     }
     await upsertBatchArtifact(ctx, {
       artifactKind: 'acceptance',
@@ -1573,7 +1657,14 @@ export const resolveBatchEscalation = mutation({
     rationale: v.string(),
   },
   handler: async (ctx, { runId, decision, rationale }) => {
-    await requireFounder(ctx)
+    const founder = await requireFounder(ctx)
+    const operatorIdentity = founder.clerkUserId
+    if (!operatorIdentity || operatorIdentity.length < 1) {
+      throw new ConvexError({
+        code: 'VALIDATION_ERROR',
+        message: 'operatorIdentity required for escalation resolution',
+      })
+    }
     if (!rationale || rationale.trim().length < 1) {
       throw new ConvexError({
         code: 'INVALID_ARGUMENT',
@@ -1595,7 +1686,32 @@ export const resolveBatchEscalation = mutation({
 
     const now = Date.now()
     const resolvedAt = new Date(now).toISOString()
+    const decisionTimestamp = resolvedAt
     const accepted = decision === 'accept'
+
+    // Accept unlocks retirement — fail-closed provenance required (same gate as clean accept).
+    // Reject does not unlock and may resolve without provenance.
+    if (accepted) {
+      if (runId === S5T4_LIVE_ACCEPTANCE_RUN_ID) {
+        throw new ConvexError({
+          code: 'NOT_PROVENANCED',
+          message: `runId=${runId} is a retired seed artifact and cannot satisfy live acceptance`,
+        })
+      }
+      const report = await ctx.db
+        .query('batch_acceptance_artifacts')
+        .withIndex('by_runId_and_kind', (q) =>
+          q.eq('runId', runId).eq('artifactKind', 'coverage_report'),
+        )
+        .first()
+      if (!report || !isRunFullBatchProvenanced(report)) {
+        throw new ConvexError({
+          code: 'NOT_PROVENANCED',
+          message: `coverage_report runId=${runId} lacks runFullBatch provenance — seed/fixture escalations cannot unlock retirement`,
+        })
+      }
+    }
+
     const resolution = {
       decision: accepted ? 'accepted' : 'rejected',
       rationale: rationale.trim(),
@@ -1609,6 +1725,8 @@ export const resolveBatchEscalation = mutation({
       retirementUnlockedAt: accepted ? now : null,
       resolution,
       reason: `escalation_resolved:${decision}`,
+      operatorIdentity,
+      decisionTimestamp,
       updatedAt: now,
     })
 
@@ -1619,6 +1737,8 @@ export const resolveBatchEscalation = mutation({
       resolvedAt,
       acceptedAt: accepted ? now : null,
       retirementUnlockedAt: accepted ? now : null,
+      operatorIdentity,
+      decisionTimestamp,
     }
   },
 })
@@ -1953,6 +2073,7 @@ export const seedS5T1LowYieldReport = mutation({
     recon.realizedRate = reconRate
     recon.passRate = reconRate
 
+    // Intentionally NO reportProvenance — seed/fixture path must fail-closed on clean accept.
     await upsertBatchArtifact(ctx, {
       runId: args.runId,
       artifactKind: 'coverage_report',
@@ -1975,6 +2096,7 @@ export const seedS5T1LowYieldReport = mutation({
         ai_reconstructed: args.reconstruct.candidates,
         name_routed: 10,
       },
+      // reportProvenance intentionally omitted — replace clears any prior stamp
       decision: null,
       acceptedAt: null,
       retirementUnlockedAt: null,
@@ -1995,6 +2117,121 @@ export const seedS5T1LowYieldReport = mutation({
       levers,
       isDone: args.isDone ?? true,
     }
+  },
+})
+
+const LEVER_COUNT_ARG = v.object({
+  candidates: v.number(),
+  passCount: v.number(),
+})
+
+/**
+ * REDHAT-FIX-02: Seed a coverage_report with runFullBatch provenance markers.
+ * Test-subject + founder gated — must not be callable by production operators
+ * (would reintroduce SEED_SUBSTITUTION). Live reports must come from
+ * persistCoverageReport / runFullBatch.
+ */
+export const seedProvenancedCoverageReport = mutation({
+  args: {
+    runId: v.string(),
+    isDone: v.optional(v.boolean()),
+    totalCostUSD: v.optional(v.number()),
+    levers: v.optional(
+      v.object({
+        scraped_promoted: LEVER_COUNT_ARG,
+        ai_reconstructed: LEVER_COUNT_ARG,
+        name_routed: LEVER_COUNT_ARG,
+      }),
+    ),
+  },
+  handler: async (ctx, args) => {
+    const founder = await requireFounder(ctx)
+    assertTestSubjectOrThrow(founder.clerkUserId)
+    const counts = args.levers ?? {
+      scraped_promoted: { candidates: 5, passCount: 3 },
+      ai_reconstructed: { candidates: 5, passCount: 3 },
+      name_routed: { candidates: 5, passCount: 3 },
+    }
+    const levers = buildLeverRows(counts)
+    const reportProvenance = {
+      producedBy: 'persistCoverageReport',
+      sourceRunKind: 'runFullBatch',
+    }
+    const totalCostUSD = args.totalCostUSD ?? 1.5
+    const isDone = args.isDone ?? true
+
+    await upsertBatchArtifact(ctx, {
+      runId: args.runId,
+      artifactKind: 'coverage_report',
+      isDone,
+      continueCursor: null,
+      totalCostUSD,
+      maxCostUSD: 50,
+      batchStopReason: isDone ? 'completed' : 'cost_exceeded',
+      riderReadyCount:
+        counts.scraped_promoted.passCount +
+        counts.ai_reconstructed.passCount +
+        counts.name_routed.passCount,
+      levers,
+      terminalStates: {
+        recovered:
+          counts.scraped_promoted.passCount +
+          counts.ai_reconstructed.passCount +
+          counts.name_routed.passCount,
+        queued: 0,
+        retirement_eligible: 0,
+        cost_blocked: 0,
+        skipped: 0,
+      },
+      provenanceCounts: {
+        scraped_promoted: counts.scraped_promoted.candidates,
+        ai_reconstructed: counts.ai_reconstructed.candidates,
+        name_routed: counts.name_routed.candidates,
+      },
+      reportProvenance,
+      decision: null,
+      acceptedAt: null,
+      retirementUnlockedAt: null,
+    })
+
+    // Clear any prior acceptance for this run
+    const prior = await ctx.db
+      .query('batch_acceptance_artifacts')
+      .withIndex('by_runId_and_kind', (q) =>
+        q.eq('runId', args.runId).eq('artifactKind', 'acceptance'),
+      )
+      .first()
+    if (prior) await ctx.db.delete(prior._id)
+
+    return {
+      runId: args.runId,
+      isDone,
+      totalCostUSD,
+      reportProvenance,
+      levers,
+    }
+  },
+})
+
+/**
+ * REDHAT-FIX-02 AC-4: Delete/tombstone s5t4-live-acceptance seed artifacts so
+ * they cannot satisfy a live acceptance gate.
+ */
+export const deleteS5T4LiveAcceptanceSeed = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireFounder(ctx)
+    const runId = S5T4_LIVE_ACCEPTANCE_RUN_ID
+    const arts = await ctx.db
+      .query('batch_acceptance_artifacts')
+      .withIndex('by_runId', (q) => q.eq('runId', runId))
+      .take(50)
+    let deleted = 0
+    for (const a of arts) {
+      await ctx.db.delete(a._id)
+      deleted += 1
+    }
+    return { runId, deleted, removedCount: deleted }
   },
 })
 
