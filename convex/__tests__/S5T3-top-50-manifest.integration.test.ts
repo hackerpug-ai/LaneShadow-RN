@@ -186,3 +186,84 @@ describe('AC-1: Top-50 manifest is real rank-ordered rider-ready surface', () =>
     )
   })
 })
+
+/**
+ * GATE-FIX: unscoped founder surface must never include test:/seed fixtures.
+ * Seeds high compositeScore test rows that would dominate national rank, then
+ * exports WITHOUT routeIdPrefix (live founder path).
+ */
+describe('GATE-FIX: unscoped top-50 excludes test/seed routes', () => {
+  const CONTAM_PREFIX = 'test:s5t3-contam-'
+  const CONTAM_MARKERS = [
+    'test:s5t3-contam-',
+    'test:couch-contam-',
+    'test:ai-recon-contam-',
+  ] as const
+
+  beforeAll(() => {
+    const setup = runConvexFn(
+      'testSupport:devSetupFounderUser',
+      { clerkUserId: 'test:s5t3-manifest', role: 'founder' },
+      { identity: true },
+    )
+    expect(setup.ok, `devSetupFounderUser failed: ${setup.stderr}`).toBe(true)
+
+    for (const p of CONTAM_MARKERS) {
+      runConvexFn('top50Review:teardownTop50FixturesPublic', { prefix: p }, { identity: true })
+      const seed = runConvexFn(
+        'top50Review:seedTop50FixturesPublic',
+        { prefix: p, readyCount: 5, nonReadyCount: 0, scoreBase: 999 },
+        { identity: true },
+      )
+      expect(seed.ok, `contam seed ${p} failed: ${seed.stderr}\n${seed.stdout}`).toBe(true)
+    }
+  }, 300_000)
+
+  afterAll(() => {
+    for (const p of CONTAM_MARKERS) {
+      runConvexFn('top50Review:teardownTop50FixturesPublic', { prefix: p }, { identity: true })
+    }
+  })
+
+  it('MUST_NOT_OBSERVE: any test: routeId on unscoped founder exportTop50Manifest', () => {
+    const exp = runConvexFn('top50Review:exportTop50Manifest', { limit: 50 }, { identity: true })
+    expect(exp.ok, `exportTop50Manifest failed: ${exp.stderr}\n${exp.stdout}`).toBe(true)
+    const unscoped = parseJson(exp.stdout)
+    expect(unscoped).toBeTruthy()
+    const rows = (unscoped.rows ?? []) as Array<{ routeId: string; name: string }>
+    expect(rows.length).toBeGreaterThan(0)
+
+    const testRows = rows.filter((r) => r.routeId.startsWith('test:'))
+    expect(
+      testRows.map((r) => r.routeId),
+      'founder top-50 must exclude test: seed routes',
+    ).toEqual([])
+
+    for (const row of rows) {
+      expect(row.routeId.startsWith('test:')).toBe(false)
+      expect(row.name ?? '').not.toMatch(/fixture/i)
+      for (const marker of ['test:couch-', 'test:ai-recon', 'test:s5t']) {
+        expect(row.routeId.includes(marker) || row.routeId.startsWith(marker)).toBe(false)
+      }
+    }
+
+    // Explicit negative control: seeded contamination IDs must not appear
+    for (const p of CONTAM_MARKERS) {
+      for (let i = 0; i < 5; i++) {
+        const id = `${p}ready-${String(i).padStart(3, '0')}`
+        expect(rows.some((r) => r.routeId === id)).toBe(false)
+      }
+    }
+
+    // Prefix-scoped harness still returns test fixtures (isolation path intact)
+    const scoped = runConvexFn(
+      'top50Review:exportTop50Manifest',
+      { limit: 5, routeIdPrefix: CONTAM_PREFIX },
+      { identity: true },
+    )
+    expect(scoped.ok).toBe(true)
+    const scopedRows = (parseJson(scoped.stdout)?.rows ?? []) as Array<{ routeId: string }>
+    expect(scopedRows.length).toBeGreaterThan(0)
+    expect(scopedRows.every((r) => r.routeId.startsWith(CONTAM_PREFIX))).toBe(true)
+  })
+})

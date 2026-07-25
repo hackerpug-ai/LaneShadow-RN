@@ -14,6 +14,9 @@ import { internalMutation, mutation, query } from './_generated/server'
 import { buildFixturePolyline } from './couchRouteMapPng'
 import { geospatial } from './geospatialIndex'
 import { requireFounder, requireIdentity, requireOperator } from './guards'
+import { isTestSeedRoute } from './lib/top50Eligibility'
+
+export { isTestSeedRoute } from './lib/top50Eligibility'
 
 export const TOP50_DEFAULT_LIMIT = 50
 export const TOP50_ROUTE_PREFIX = 'test:s5t3-'
@@ -142,35 +145,45 @@ export const exportTop50Manifest = query({
     const limit = Math.min(Math.max(args.limit ?? TOP50_DEFAULT_LIMIT, 1), 100)
     const prefix = args.routeIdPrefix
 
+    // Founder surface (no prefix): drop test/seed fixtures after index read.
+    // Prefix-scoped harness exports keep test: rows for isolation.
+    const passesFounderEligibility = (r: {
+      routeId: string
+      name?: string | null
+      riderReady?: boolean | null
+      retiredAt?: number | null
+      duplicateOf?: string | null
+      quarantine?: unknown
+    }) => {
+      if (!isEligibleReady(r)) return false
+      if (prefix) return r.routeId.startsWith(prefix)
+      // Unscoped founder surface — human gate: no test/seed among top 50
+      return !isTestSeedRoute(r.routeId, r.name)
+    }
+
     // Oversample then filter eligibility so take(N) post-filter still fills limit.
-    const takeN = prefix ? Math.min(limit * 20, 800) : Math.min(limit * 5, 400)
+    // Unscoped path oversamples more: live catalogs often have dense test: fixtures
+    // at the top of the ready index that we discard post-filter.
+    const takeN = prefix ? Math.min(limit * 20, 800) : Math.min(limit * 10, 800)
     const indexed = await ctx.db
       .query('curated_routes')
       .withIndex('by_riderReady_and_composite_score', (q: any) => q.eq('riderReady', true))
       .order('desc')
       .take(takeN)
 
-    const eligible = indexed.filter((r: any) => {
-      if (!isEligibleReady(r)) return false
-      if (prefix && !r.routeId.startsWith(prefix)) return false
-      return true
-    })
+    const eligible = indexed.filter((r: any) => passesFounderEligibility(r))
 
-    // When prefix isolation is used and oversample missed rows (large catalog),
-    // supplement by scanning prefix routeIds via by_routeId for known seed pattern.
-    // Ranking among them still uses stored compositeScore (same index field).
+    // When post-filter underfills (prefix isolation or dense test: fixtures),
+    // re-scan a larger page of the same index. Ranking still uses stored
+    // compositeScore via by_riderReady_and_composite_score — no client re-rank.
     let pool = eligible
-    if (prefix && pool.length < limit) {
-      // Cannot range-query by prefix on by_routeId; seed paths use known counts.
-      // Re-scan a larger page of the ready index for the prefix.
+    if (pool.length < limit) {
       const larger = await ctx.db
         .query('curated_routes')
         .withIndex('by_riderReady_and_composite_score', (q: any) => q.eq('riderReady', true))
         .order('desc')
         .take(2000)
-      pool = larger.filter(
-        (r: any) => isEligibleReady(r) && (!prefix || r.routeId.startsWith(prefix)),
-      )
+      pool = larger.filter((r: any) => passesFounderEligibility(r))
     }
 
     const ordered = sortManifestRows(
@@ -401,14 +414,23 @@ type SeedSpec = {
   routedMiles: number
 }
 
-function buildSeedSpecs(prefix: string, readyCount: number, nonReadyCount: number): SeedSpec[] {
+function buildSeedSpecs(
+  prefix: string,
+  readyCount: number,
+  nonReadyCount: number,
+  /** Default 0.99 (0–1 isolation scale). Use ~999 to dominate national rank in gate tests. */
+  scoreBase?: number,
+): SeedSpec[] {
   const provenances: Provenance[] = ['scraped_promoted', 'ai_reconstructed', 'name_routed']
   const specs: SeedSpec[] = []
+  const base = scoreBase ?? 0.99
+  // Step small enough for 0–1 scale and still descending for large bases.
+  const step = base >= 10 ? 0.1 : 0.01
 
-  // Ready rows: scores 0.99, 0.98, ... descending (0–1 scale so they don't
+  // Ready rows: scores base, base-step, ... descending (0–1 scale so they don't
   // collide with 0–100 catalog rows for isolation when prefix-filtered).
   for (let i = 0; i < readyCount; i++) {
-    const score = Math.round((0.99 - i * 0.01) * 1000) / 1000
+    const score = Math.round((base - i * step) * 1000) / 1000
     specs.push({
       routeId: `${prefix}ready-${String(i).padStart(3, '0')}`,
       name: `S5T3 Ready ${i}`,
@@ -420,9 +442,10 @@ function buildSeedSpecs(prefix: string, readyCount: number, nonReadyCount: numbe
     })
   }
 
-  // Non-ready: first has higher score than any ready (0.995) — must NOT enter manifest
+  // Non-ready: first has higher score than any ready — must NOT enter manifest
   for (let i = 0; i < nonReadyCount; i++) {
-    const score = i === 0 ? 0.995 : Math.round((0.4 - i * 0.01) * 1000) / 1000
+    const highNonReady = base >= 10 ? base + 1 : 0.995
+    const score = i === 0 ? highNonReady : Math.round((base * 0.4 - i * step) * 1000) / 1000
     specs.push({
       routeId: `${prefix}nonready-${String(i).padStart(3, '0')}`,
       name: `S5T3 NonReady ${i}`,
@@ -560,9 +583,10 @@ export const seedTop50Fixtures = internalMutation({
     prefix: v.string(),
     readyCount: v.number(),
     nonReadyCount: v.number(),
+    scoreBase: v.optional(v.number()),
   },
-  handler: async (ctx, { prefix, readyCount, nonReadyCount }) => {
-    const specs = buildSeedSpecs(prefix, readyCount, nonReadyCount)
+  handler: async (ctx, { prefix, readyCount, nonReadyCount, scoreBase }) => {
+    const specs = buildSeedSpecs(prefix, readyCount, nonReadyCount, scoreBase)
     const readyRouteIds: string[] = []
     const nonReadyRouteIds: string[] = []
     for (const spec of specs) {
@@ -585,6 +609,7 @@ export const seedTop50FixturesPublic = mutation({
     prefix: v.string(),
     readyCount: v.optional(v.number()),
     nonReadyCount: v.optional(v.number()),
+    scoreBase: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<any> => {
     await requireFounder(ctx)
@@ -592,6 +617,7 @@ export const seedTop50FixturesPublic = mutation({
       prefix: args.prefix,
       readyCount: args.readyCount ?? 50,
       nonReadyCount: args.nonReadyCount ?? 5,
+      scoreBase: args.scoreBase,
     })
   },
 })
