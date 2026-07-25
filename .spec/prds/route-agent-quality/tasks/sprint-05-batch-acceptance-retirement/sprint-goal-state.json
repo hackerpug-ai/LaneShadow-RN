@@ -112,8 +112,18 @@
     "typecheck": 0,
     "lint": "preexisting_warnings"
   },
-  "goal": "complete",
-  "met": true,
-  "written_at": "2026-07-25T01:58:21.280056+00:00",
-  "written_at_commit": "0b1df54c597cc5c6ec3e57cfdf197ccfe8f6738a"
+  "goal": "blocked",
+  "met": false,
+  "written_at": "2026-07-25T03:28:37.715Z",
+  "written_at_commit": "0b1df54c597cc5c6ec3e57cfdf197ccfe8f6738a",
+  "decision": "escalation_required",
+  "status": "Escalation required unresolved",
+  "reason": "escalation_required unresolved; goal not complete until resolved accept",
+  "sprint10": {
+    "blocked": true,
+    "reason": "no accepted catalog: escalation_required unresolved"
+  },
+  "retirementUnlockedAt": null,
+  "runId": "s5-gate-20260725T014424Z",
+  "written_by": "tools/gate/deriveSprint05GoalState.ts"
 }

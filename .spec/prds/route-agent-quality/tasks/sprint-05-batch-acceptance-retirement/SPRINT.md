@@ -18,8 +18,8 @@ planned_from_source_sha: facc807930bd3b207c26cfae5b3650205f294858
 **Sequence:** 5
 **Timeline:** Phase 3
 **Status:** In Progress
-> Progress: 4/10 tasks completed · updated 2026-07-25T02:13:34Z
-> Status-Note: red-hat review NEEDS_REVISION (BLOCK) — 5 CRITICAL + 8 HIGH findings; acceptance decision computed against a seeded coverageReport, not the live catalog; no real --all batch ran for the gate; retirement-candidate export 94% test/seed rows; goal:complete papered over a rejected batch. See .spec/reviews/red-hat-sprint-05-batch-acceptance-retirement-20260725T021334Z.md
+> Progress: 4/10 tasks completed · updated 2026-07-25T03:28:37Z
+> Status-Note: REDHAT-FIX-05 landed honest goal semantics — `goal:blocked` / `met:false` while batch decision is `escalation_required` (not accepted). **Sprint 10 is BLOCKED** (reason: no accepted catalog). Human gate must be re-run un-seeded with distinct step-4 negative control and row-level top-50 evidence before any future accepted decision can complete the sprint. See `tools/gate/deriveSprint05GoalState.ts` and operator runbook in task notes.
 **Proposed by:** product-manager + convex-planner (lane)
 
 ## Overview
@@ -91,7 +91,7 @@ A real, un-seeded full-batch acceptance packet containing the `coverageReport`, 
 
 ## Blocks
 
-- Sprint 10: accepted post-batch catalog is a prerequisite for the SLC/Ogden Saturday arc.
+- Sprint 10: **BLOCKED** until an acceptance artifact with `decision === 'accepted'` exists for a live provenanced run. Current state: no accepted catalog (`escalation_required` / rejected batches do not unblock). Capstone (SLC/Ogden Saturday arc) must not start until `deriveSprint10Blocked` returns `{ blocked: false }`.
 
 ## Task Detail Files
 
