@@ -7,10 +7,14 @@
  * and optionally renders per-route map PNGs + metadata from geometry.
  * Image bytes stay local — Convex receives only IDs/metadata queries.
  *
+ * REDHAT-FIX-05: also emits row-level gate evidence (routeId, name,
+ * measuredMiles, claimedMiles) and reconciles rowCount vs riderReadyCount.
+ *
  * Usage:
  *   pnpm tsx scripts/top-50-curated-review.ts
  *   pnpm tsx scripts/top-50-curated-review.ts --render
  *   pnpm tsx scripts/top-50-curated-review.ts --render --prefix=test:s5t3- --out=.tmp/top-50-review
+ *   pnpm tsx scripts/top-50-curated-review.ts --rider-ready-count=17 --run-id=<id>
  */
 
 import { execFileSync } from 'node:child_process'
@@ -18,6 +22,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { deflateSync } from 'node:zlib'
 import { renderRouteMapPngBase64 } from '../convex/couchRouteMapPng'
+import { buildTop50GateEvidence } from '../tools/gate/deriveSprint05GoalState'
 
 type ManifestRow = {
   routeId: string
@@ -52,18 +57,26 @@ function parseArgs(argv: string[]): {
   out: string
   identity: string | null
   limit: number
+  riderReadyCount: number | null
+  runId: string | null
 } {
   let render = false
   let prefix: string | null = null
   let out = path.resolve(process.cwd(), '.tmp', 'top-50-review')
   let identity: string | null = null
   let limit = 50
+  let riderReadyCount: number | null = null
+  let runId: string | null = null
   for (const arg of argv.slice(2)) {
     if (arg === '--render') render = true
     else if (arg.startsWith('--prefix=')) prefix = arg.slice('--prefix='.length)
     else if (arg.startsWith('--out=')) out = path.resolve(process.cwd(), arg.slice('--out='.length))
     else if (arg.startsWith('--identity=')) identity = arg.slice('--identity='.length)
     else if (arg.startsWith('--limit=')) limit = Number(arg.slice('--limit='.length)) || 50
+    else if (arg.startsWith('--rider-ready-count=')) {
+      const n = Number(arg.slice('--rider-ready-count='.length))
+      riderReadyCount = Number.isFinite(n) ? n : null
+    } else if (arg.startsWith('--run-id=')) runId = arg.slice('--run-id='.length)
     else if (arg === '--help' || arg === '-h') {
       process.stdout.write(`
 S5-T3 top-50 curated review harness
@@ -72,11 +85,13 @@ Usage:
   pnpm tsx scripts/top-50-curated-review.ts
   pnpm tsx scripts/top-50-curated-review.ts --render
   pnpm tsx scripts/top-50-curated-review.ts --render --prefix=test:s5t3- --out=.tmp/top-50-review
+  pnpm tsx scripts/top-50-curated-review.ts --run-id=<coverageRunId> --out=.tmp/top-50-review
+  pnpm tsx scripts/top-50-curated-review.ts --rider-ready-count=17 --out=.tmp/top-50-review
 `)
       process.exit(0)
     }
   }
-  return { render, prefix, out, identity, limit }
+  return { render, prefix, out, identity, limit, riderReadyCount, runId }
 }
 
 function runConvex(fn: string, args: Record<string, unknown>, identity: string | null): string {
@@ -100,8 +115,27 @@ function safeFileId(routeId: string): string {
   return routeId.replace(/[^a-zA-Z0-9:_-]/g, '_')
 }
 
+function resolveRiderReadyCount(
+  explicit: number | null,
+  runId: string | null,
+  identity: string | null,
+  fallback: number,
+): number {
+  if (explicit != null && Number.isFinite(explicit)) return explicit
+  if (runId) {
+    try {
+      const raw = runConvex('curatedGeometry:coverageReport', { runId }, identity)
+      const report = JSON.parse(raw) as { riderReadyCount?: number }
+      if (typeof report.riderReadyCount === 'number') return report.riderReadyCount
+    } catch {
+      // fall through to fallback
+    }
+  }
+  return fallback
+}
+
 function main(): void {
-  const { render, prefix, out, identity, limit } = parseArgs(process.argv)
+  const { render, prefix, out, identity, limit, riderReadyCount, runId } = parseArgs(process.argv)
   fs.mkdirSync(out, { recursive: true })
 
   const payload: Record<string, unknown> = { limit }
@@ -115,10 +149,39 @@ function main(): void {
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
   process.stdout.write(`Wrote manifest rowCount=${manifest.rowCount} → ${manifestPath}\n`)
 
+  // REDHAT-FIX-05: row-level gate evidence + rowCount vs riderReadyCount coherence
+  const resolvedRiderReady = resolveRiderReadyCount(
+    riderReadyCount,
+    runId,
+    identity,
+    manifest.rowCount,
+  )
+  const gateEvidence = buildTop50GateEvidence({
+    rows: manifest.rows ?? [],
+    riderReadyCount: resolvedRiderReady,
+  })
+  const gateEvidencePath = path.join(out, 'gate-evidence-top50.json')
+  fs.writeFileSync(gateEvidencePath, JSON.stringify(gateEvidence, null, 2))
+  process.stdout.write(
+    `Wrote top-50 gate evidence rowCount=${gateEvidence.rowCount} riderReadyCount=${gateEvidence.riderReadyCount} coherent=${gateEvidence.coherent} testRows=${gateEvidence.testRowsCount} → ${gateEvidencePath}\n`,
+  )
+
   if (!render) {
     process.stdout.write(
-      `${JSON.stringify({ ok: true, rowCount: manifest.rowCount, imageByteCount: 0, mode: 'manifest-only' })}\n`,
+      `${JSON.stringify({
+        ok: gateEvidence.coherent && gateEvidence.testRowsCount === 0,
+        rowCount: gateEvidence.rowCount,
+        riderReadyCount: gateEvidence.riderReadyCount,
+        coherenceNote: gateEvidence.coherenceNote,
+        testRowsCount: gateEvidence.testRowsCount,
+        imageByteCount: 0,
+        mode: 'manifest-only',
+        gateEvidencePath,
+      })}\n`,
     )
+    if (!gateEvidence.coherent || gateEvidence.testRowsCount > 0) {
+      process.exitCode = 1
+    }
     return
   }
 
