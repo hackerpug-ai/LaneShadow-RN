@@ -2118,38 +2118,45 @@ const POLY_SEED =
 
 type LeverFailureReason = { lever: 1 | 2 | 3; reason: string }
 
-function extractLeverEvidence(
-  arts: Array<{
-    artifactType: string
-    lever?: number
-    terminalState?: string
-    failedCondition?: string
-    provenance?: string
-  }>,
-): {
+type WaterfallArtifactEvidence = {
+  artifactType: string
+  lever?: number
+  terminalState?: string
+  failedCondition?: string
+  provenance?: string
+  leversRun?: number[]
+}
+
+/**
+ * Extract durable lever-failure evidence from curation_artifacts.
+ *
+ * Two shapes are accepted:
+ * 1. Per-lever seed/legacy rows (`lever` 1|2|3 on waterfall_result)
+ * 2. Production summary from recordTerminalArtifact (no `lever`, has
+ *    terminalState + leversRun covering exhausted waterfall)
+ *
+ * When ANY per-lever rows exist, eligibility is driven by per-lever evidence
+ * only (keeps fail-closed negative control when one lever artifact is removed).
+ * Otherwise fall back to production summary shape.
+ */
+export function extractLeverEvidence(arts: WaterfallArtifactEvidence[]): {
   leverFailureReasons: LeverFailureReason[]
   hasPassLever: boolean
   passLevers: number[]
 } {
   const failureByLever = new Map<number, string>()
   const passLevers: number[] = []
+  let sawPerLeverRow = false
 
   for (const a of arts) {
     if (a.artifactType !== 'waterfall_result') continue
     if (a.lever == null || a.lever < 1 || a.lever > 3) continue
+    sawPerLeverRow = true
 
-    // A recovered terminal with provenance (or explicit recovered) is a lever PASS
-    if (
-      a.terminalState === 'recovered' ||
-      a.provenance === 'scraped_promoted' ||
-      a.provenance === 'ai_reconstructed' ||
-      a.provenance === 'name_routed'
-    ) {
-      // Only count as pass when recovered — provenance alone on a failure artifact is not a pass
-      if (a.terminalState === 'recovered') {
-        if (!passLevers.includes(a.lever)) passLevers.push(a.lever)
-        continue
-      }
+    // A recovered terminal is a lever PASS
+    if (a.terminalState === 'recovered') {
+      if (!passLevers.includes(a.lever)) passLevers.push(a.lever)
+      continue
     }
 
     if (
@@ -2163,18 +2170,69 @@ function extractLeverEvidence(
     }
   }
 
-  const leverFailureReasons: LeverFailureReason[] = ([1, 2, 3] as const)
-    .filter((l) => failureByLever.has(l))
-    .map((l) => ({ lever: l, reason: failureByLever.get(l) ?? 'fail' }))
+  // Prefer per-lever evidence when present (seed / expanded terminal rows)
+  if (sawPerLeverRow) {
+    const leverFailureReasons: LeverFailureReason[] = ([1, 2, 3] as const)
+      .filter((l) => failureByLever.has(l))
+      .map((l) => ({ lever: l, reason: failureByLever.get(l) ?? 'fail' }))
+
+    return {
+      leverFailureReasons,
+      hasPassLever: passLevers.length > 0,
+      passLevers,
+    }
+  }
+
+  // Production summary path: waterfall_result without per-lever field
+  // Prefer the newest all-failed / recovered summary when multiple exist.
+  const summaries = arts
+    .filter(
+      (a) =>
+        a.artifactType === 'waterfall_result' &&
+        (a.lever == null || a.lever < 1 || a.lever > 3) &&
+        Array.isArray(a.leversRun) &&
+        a.leversRun.length > 0,
+    )
+    .slice()
+
+  let hasPassFromSummary = false
+  let bestFailure: {
+    levers: number[]
+    reason: string
+  } | null = null
+
+  for (const a of summaries) {
+    const levers = (a.leversRun ?? []).filter((l) => l === 1 || l === 2 || l === 3)
+    if (a.terminalState === 'recovered') {
+      hasPassFromSummary = true
+      continue
+    }
+    // All-lever residual terminals written by production waterfall
+    if (a.terminalState === 'retirement_eligible' || a.terminalState === 'queued') {
+      const unique = [...new Set(levers)]
+      if (!bestFailure || unique.length > bestFailure.levers.length) {
+        bestFailure = {
+          levers: unique,
+          reason: a.failedCondition ?? 'fail',
+        }
+      }
+    }
+  }
+
+  const leverFailureReasons: LeverFailureReason[] = bestFailure
+    ? ([1, 2, 3] as const)
+        .filter((l) => bestFailure!.levers.includes(l))
+        .map((l) => ({ lever: l, reason: bestFailure!.reason }))
+    : []
 
   return {
     leverFailureReasons,
-    hasPassLever: passLevers.length > 0,
-    passLevers,
+    hasPassLever: hasPassFromSummary,
+    passLevers: hasPassFromSummary ? [1] : [],
   }
 }
 
-function isEligibleForRetirement(args: {
+export function isEligibleForRetirement(args: {
   leverFailureReasons: LeverFailureReason[]
   hasPassLever: boolean
   verificationVerdict: string | null | undefined
@@ -2193,6 +2251,27 @@ function isEligibleForRetirement(args: {
   void args.geometryStatus
   void args.rideWorthinessVerdict
   return true
+}
+
+/**
+ * Shared retirement gate used by curatedGeometry.retireRoute and
+ * reviewQueue.retireDisposition — confirmed + non-empty reason + eligibility.
+ */
+export function assertRetirementConfirmation(args: { confirmed: boolean; reason: string }): string {
+  if (args.confirmed !== true) {
+    throw new ConvexError({
+      code: 'VALIDATION_ERROR',
+      message: 'Retirement requires explicit founder confirmation (confirmed=true)',
+    })
+  }
+  const trimmed = args.reason.trim()
+  if (trimmed.length < 1) {
+    throw new ConvexError({
+      code: 'VALIDATION_ERROR',
+      message: 'Retirement requires a non-empty reason',
+    })
+  }
+  return trimmed
 }
 
 async function upsertS5T2Route(
@@ -2423,6 +2502,44 @@ async function seedReviewCandidateGeometry(
   })
 }
 
+/**
+ * Seed ONLY a production-shaped waterfall_result summary (no per-lever `lever` field).
+ * Mirrors recordTerminalArtifact from waterfallOrchestrator.
+ */
+async function seedProductionWaterfallSummary(
+  ctx: { db: import('./_generated/server').MutationCtx['db'] },
+  args: {
+    routeId: string
+    terminalState: 'retirement_eligible' | 'queued'
+    leversRun: number[]
+    failedCondition?: string
+  },
+) {
+  const now = Date.now()
+  // Clear prior waterfall_result rows for idempotent re-seed
+  const existing = await ctx.db
+    .query('curation_artifacts')
+    .withIndex('by_routeId', (q) => q.eq('routeId', args.routeId))
+    .take(100)
+  for (const a of existing) {
+    if (a.artifactType === 'waterfall_result') {
+      await ctx.db.delete(a._id)
+    }
+  }
+
+  // Production shape: NO `lever` field — only terminalState + leversRun + failedCondition
+  await ctx.db.insert('curation_artifacts', {
+    routeId: args.routeId,
+    artifactType: 'waterfall_result',
+    terminalState: args.terminalState,
+    leversRun: args.leversRun,
+    failedCondition: args.failedCondition ?? 'degenerate',
+    costUsd: 0,
+    attemptedAt: now,
+    createdAt: now,
+  })
+}
+
 /** Public test-support seed for S5-T2 scenarios. */
 export const seedS5T2RetirementFixtures = mutation({
   args: {
@@ -2431,6 +2548,7 @@ export const seedS5T2RetirementFixtures = mutation({
       v.literal('founder-confirmation-required'),
       v.literal('retired-route-surface'),
       v.literal('retire-unretire-preserves-record'),
+      v.literal('production-summary-all-failed'),
     ),
     allFailedRouteId: v.optional(v.string()),
     passRouteId: v.optional(v.string()),
@@ -2447,6 +2565,64 @@ export const seedS5T2RetirementFixtures = mutation({
       { lever: 2 as const, reason: 'anchors' },
       { lever: 3 as const, reason: 'degenerate' },
     ]
+
+    // FIX-S5-T2-01: production-shaped summary only (no per-lever seed rows)
+    if (args.scenario === 'production-summary-all-failed') {
+      // allFailedId: summary retirement_eligible + leversRun [1,2,3]
+      await upsertS5T2Route(ctx, {
+        routeId: allFailedId,
+        name: `S5-T2 Prod Summary ${allFailedId}`,
+        geometryStatus: 'review',
+        riderReady: false,
+        rideWorthinessVerdict: 'not_a_ride',
+      })
+      await seedReviewCandidateGeometry(ctx, allFailedId, 'ratio')
+      await seedProductionWaterfallSummary(ctx, {
+        routeId: allFailedId,
+        terminalState: 'retirement_eligible',
+        leversRun: [1, 2, 3],
+        failedCondition: 'degenerate',
+      })
+
+      // passId reused as queued-after-all-levers residual
+      await upsertS5T2Route(ctx, {
+        routeId: passId,
+        name: `S5-T2 Prod Queued ${passId}`,
+        geometryStatus: 'review',
+        riderReady: false,
+        rideWorthinessVerdict: 'not_a_ride',
+      })
+      await seedReviewCandidateGeometry(ctx, passId, 'anchors')
+      await seedProductionWaterfallSummary(ctx, {
+        routeId: passId,
+        terminalState: 'queued',
+        leversRun: [1, 2, 3],
+        failedCondition: 'anchors',
+      })
+
+      // reviewOnlyId reused as partial leversRun (missing lever 3) — not eligible
+      await upsertS5T2Route(ctx, {
+        routeId: reviewOnlyId,
+        name: `S5-T2 Prod Partial ${reviewOnlyId}`,
+        geometryStatus: 'review',
+        riderReady: false,
+        rideWorthinessVerdict: 'marginal',
+      })
+      await seedReviewCandidateGeometry(ctx, reviewOnlyId, 'ratio')
+      await seedProductionWaterfallSummary(ctx, {
+        routeId: reviewOnlyId,
+        terminalState: 'retirement_eligible',
+        leversRun: [1, 2],
+        failedCondition: 'ratio',
+      })
+
+      return {
+        scenario: args.scenario,
+        allFailedRouteId: allFailedId,
+        passRouteId: passId,
+        reviewOnlyRouteId: reviewOnlyId,
+      }
+    }
 
     // Always seed the all-failed candidate for every scenario
     await upsertS5T2Route(ctx, {
@@ -2741,20 +2917,7 @@ export const retireRoute = mutation({
   },
   handler: async (ctx, { routeId, reason, confirmed }) => {
     await requireOperator(ctx)
-
-    if (confirmed !== true) {
-      throw new ConvexError({
-        code: 'VALIDATION_ERROR',
-        message: 'Retirement requires explicit founder confirmation (confirmed=true)',
-      })
-    }
-    const trimmed = reason.trim()
-    if (trimmed.length < 1) {
-      throw new ConvexError({
-        code: 'VALIDATION_ERROR',
-        message: 'Retirement requires a non-empty reason',
-      })
-    }
+    const trimmed = assertRetirementConfirmation({ confirmed, reason })
 
     const route = await ctx.db
       .query('curated_routes')
