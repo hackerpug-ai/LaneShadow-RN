@@ -1,1 +1,41 @@
-{"phase":"step-4-negative-control","runId":"s5-redhat-20260725T033521Z","decision":"escalation_required","retirementUnlockedAt":null,"acceptedAt":null,"escalations":[{"assumptionLabel":"~40-55%","candidateCount":1,"candidates":1,"escalationFloor":0.4,"lever":"reroute","leverNumber":3,"observedRate":0,"passCount":0,"realizedRate":0,"reason":"reroute realized rate 0.0% is below escalation floor 40% (assumption ~40-55%)"}],"reason":"reroute realized rate 0.0% is below escalation floor 40% (assumption ~40-55%)","operatorIdentity":"test:s5t4-founder","decisionTimestamp":"2026-07-25T03:36:08.186Z","mutatedFrom":{"phase":"step-3-yield-comparison","priorDecision":null},"capturedAt":"2026-07-25T03:36:09.333Z"}
+{
+  "claim": "far-below yield escalates not silent complete (real L2/L3 candidates, realizedRate 0%)",
+  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
+  "negativeControl": "requestBatchAcceptance(accept) returned escalation_required (not silent accepted) because reconstruct/reroute realized rates 0% below 40% floors with candidateCount=3 each",
+  "requestDecision": "escalation_required",
+  "escalations": [
+    {
+      "assumptionLabel": "~67%",
+      "candidateCount": 3,
+      "candidates": 3,
+      "escalationFloor": 0.4,
+      "lever": "reconstruct",
+      "leverNumber": 2,
+      "observedRate": 0,
+      "passCount": 0,
+      "realizedRate": 0,
+      "reason": "reconstruct realized rate 0.0% is below escalation floor 40% (assumption ~67%)"
+    },
+    {
+      "assumptionLabel": "~40-55%",
+      "candidateCount": 3,
+      "candidates": 3,
+      "escalationFloor": 0.4,
+      "lever": "reroute",
+      "leverNumber": 3,
+      "observedRate": 0,
+      "passCount": 0,
+      "realizedRate": 0,
+      "reason": "reroute realized rate 0.0% is below escalation floor 40% (assumption ~40-55%)"
+    }
+  ],
+  "mustNotObserve": "decision=accepted without open escalation when floors breached",
+  "observed": true,
+  "mutated": true,
+  "phase": "step-4-negative-control",
+  "costBearing": {
+    "processed": 3,
+    "totalCostUSD": 0.21000000000000002
+  },
+  "result": "PASS"
+}

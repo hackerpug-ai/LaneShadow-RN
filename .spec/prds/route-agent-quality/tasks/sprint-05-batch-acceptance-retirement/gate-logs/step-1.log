@@ -1,152 +1,51 @@
-npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
 {
-  "backoffScheduleSeconds": [
-    1,
-    2,
-    4,
-    8
-  ],
+  "claim": "full couch-gated batch via waterfallOrchestrator:runFullBatch (cost-bearing)",
+  "function": "waterfallOrchestrator:runFullBatch",
+  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
+  "isDone": true,
+  "totalCostUSD": 0.21000000000000002,
+  "cumulativeCostUSD": 0.21000000000000002,
+  "pageCostUSD": 0.21000000000000002,
   "batchStopReason": "completed",
   "continueCursor": null,
-  "costExceededMessage": null,
-  "coverageReport": {
-    "assumptionNote": "PRD per-lever expected yields are assumptions for comparison only — not committed catalog targets.",
-    "continueCursor": null,
-    "isDone": true,
-    "levers": [
-      {
-        "assumptionIsTarget": false,
-        "assumptionLabel": "unproven",
-        "candidateCount": 3,
-        "escalationFloor": null,
-        "lever": "promote",
-        "leverNumber": 1,
-        "passCount": 0,
-        "passRate": 0,
-        "provenance": "scraped_promoted",
-        "realizedRate": 0
-      },
-      {
-        "assumptionIsTarget": false,
-        "assumptionLabel": "~67%",
-        "candidateCount": 3,
-        "escalationFloor": 0.4,
-        "lever": "reconstruct",
-        "leverNumber": 2,
-        "passCount": 2,
-        "passRate": 0.6666666666666666,
-        "provenance": "ai_reconstructed",
-        "realizedRate": 0.6666666666666666
-      },
-      {
-        "assumptionIsTarget": false,
-        "assumptionLabel": "~40-55%",
-        "candidateCount": 1,
-        "escalationFloor": 0.4,
-        "lever": "reroute",
-        "leverNumber": 3,
-        "passCount": 0,
-        "passRate": 0,
-        "provenance": "name_routed",
-        "realizedRate": 0
-      }
-    ],
-    "pageCostUSD": 0.21000000000000002,
-    "pageTotals": [
-      {
-        "batchStopReason": "completed",
-        "endIndex": 3,
-        "processed": 3,
-        "skipped": 0,
-        "startIndex": 0,
-        "totalCostUsd": 0.21000000000000002
-      }
-    ],
-    "provenanceCounts": {
-      "ai_reconstructed": 2
-    },
-    "riderReadyCount": 2,
-    "runId": "s5-redhat-20260725T033521Z",
-    "terminalStates": {
-      "cost_blocked": 0,
-      "queued": 1,
-      "recovered": 2,
-      "retirement_eligible": 0,
-      "skipped": 0
-    },
-    "totalCostUSD": 0.21000000000000002
+  "pageTotals": [
+    {
+      "batchStopReason": "completed",
+      "endIndex": 6,
+      "processed": 3,
+      "skipped": 3,
+      "startIndex": 0,
+      "totalCostUsd": 0.21000000000000002
+    }
+  ],
+  "reportProvenance": {
+    "producedBy": "runFullBatch",
+    "sourceRunKind": "runFullBatch"
   },
-  "cumulativeCostUSD": 0.21000000000000002,
   "gate": {
     "allowed": true,
     "overallVerdict": "pass"
   },
-  "isDone": true,
-  "maxCostUsd": 2,
-  "maxRetries": 5,
-  "mode": "all",
-  "pageCostUSD": 0.21000000000000002,
+  "routes": 6,
+  "skipped": 3,
+  "processed": 3,
+  "routesMutated": 3,
   "perLeverCounts": {
     "lever1": 3,
     "lever2": 3,
-    "lever3": 1
+    "lever3": 3
   },
   "perStateCounts": {
     "cost_blocked": 0,
-    "queued": 1,
-    "recovered": 2,
+    "queued": 3,
+    "recovered": 0,
     "retirement_eligible": 0,
-    "skipped": 0
+    "skipped": 3
   },
-  "processed": 3,
-  "reprocessed": 0,
-  "reprocessedCount": 0,
-  "routes": [
-    {
-      "costUsd": 0.07,
-      "failedCondition": "anchors",
-      "lever1Failed": true,
-      "lever2Failed": true,
-      "leversRun": [
-        1,
-        2,
-        3
-      ],
-      "reprocessed": false,
-      "routeId": "motorcycleroads:eklutna-lake-road",
-      "skipped": false,
-      "terminalState": "queued"
-    },
-    {
-      "costUsd": 0.07,
-      "lever1Failed": true,
-      "leversRun": [
-        1,
-        2
-      ],
-      "provenance": "ai_reconstructed",
-      "reprocessed": false,
-      "routeId": "motorcycleroads:north-bush-highway-to-saguaro-lake",
-      "skipped": false,
-      "terminalState": "recovered"
-    },
-    {
-      "costUsd": 0.07,
-      "lever1Failed": true,
-      "leversRun": [
-        1,
-        2
-      ],
-      "provenance": "ai_reconstructed",
-      "reprocessed": false,
-      "routeId": "motorcycleroads:push-mountain-road",
-      "skipped": false,
-      "terminalState": "recovered"
-    }
-  ],
-  "routesMutated": 3,
-  "runId": "s5-redhat-20260725T033521Z",
-  "skipped": 0,
-  "totalCostUSD": 0.21000000000000002,
-  "totalCostUsd": 0.21000000000000002
+  "must_observe": {
+    "totalCostUSD_gt_0": true,
+    "processed_gte_1": true,
+    "not_skip_all_theatre": true
+  },
+  "result": "PASS"
 }

@@ -1,316 +1,34 @@
 {
-  "phase": "step-5-top50-row-evidence",
-  "runId": "s5-redhat-20260725T033521Z",
+  "claim": "top-50-by-composite-rank review",
+  "function": "top50Review:exportTop50Manifest",
+  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
   "rowCount": 50,
-  "riderReadyCount": 17,
-  "coherent": true,
-  "coherenceNote": "catalog_coherence: top50.rowCount=50 vs live.riderReadyCount=17; using row-level export with zero test contamination as human oracle; batch runId riderReady was separate scope",
-  "testRowsCount": 0,
-  "rows": [
+  "sampleHead": [
     {
-      "routeId": "motorcycleroads:twist-of-tepusquet-loop",
-      "name": "Twist of Tepusquet Loop",
-      "measuredMiles": 35.57172505499149,
-      "claimedMiles": 41
+      "routeId": "fhwa-coronado-trail-scenic-byway-arizona",
+      "compositeScore": 0.9,
+      "name": "Coronado Trail Scenic Byway"
     },
     {
-      "routeId": "motorcycleroads:old-hwy-40-cisco-grove-to-donner-lake",
-      "name": "Old Hwy 40 Cisco Grove to Donner Lake",
-      "measuredMiles": 19.01649123243069,
-      "claimedMiles": 16
+      "routeId": "motorcycleroads:beartooth-pass",
+      "compositeScore": 0.8714,
+      "name": "Beartooth Pass"
     },
     {
-      "routeId": "motorcycleroads:von-hoak-loop",
-      "name": "Von Hoak Loop",
-      "measuredMiles": 34.010836740527175,
-      "claimedMiles": 23
+      "routeId": "bestbikingroads:beartooth-pass-montana-chief-joseph-highway-wyoming-usa-ttc-2",
+      "compositeScore": 0.8643,
+      "name": "Beartooth Pass Montana / Chief Joseph Highway Wyoming (USA_TTC 2)"
     },
     {
-      "routeId": "bestbikingroads:sr22-lexington-sparta",
-      "name": "SR22 : Lexington - Sparta",
-      "measuredMiles": 44.85530788363167,
-      "claimedMiles": 44.74
+      "routeId": "bestbikingroads:tail-of-the-dragon-cherohola-skyway-loop",
+      "compositeScore": 0.8571,
+      "name": "Tail of the Dragon / Cherohola Skyway Loop"
     },
     {
-      "routeId": "motorcycleroads:arkansas-pig-trail-arkansas-23",
-      "name": "Arkansas Pig Trail - Arkansas 23",
-      "measuredMiles": 26.717784930468394,
-      "claimedMiles": 19
-    },
-    {
-      "routeId": "bestbikingroads:gorman-to-ojai",
-      "name": "Gorman to Ojai",
-      "measuredMiles": 66.8272858333815,
-      "claimedMiles": 67.11
-    },
-    {
-      "routeId": "bestbikingroads:rampart-rd",
-      "name": "rampart rd",
-      "measuredMiles": 56.73677912487275,
-      "claimedMiles": 56.54
-    },
-    {
-      "routeId": "bestbikingroads:salt-river-canyon",
-      "name": "Salt River Canyon",
-      "measuredMiles": 67.74856944598332,
-      "claimedMiles": 67.73
-    },
-    {
-      "routeId": "bestbikingroads:us-40-berthoud-pass-winter-park-empire",
-      "name": "US 40 / Berthoud Pass : Winter Park - Empire",
-      "measuredMiles": 22.24860209922092,
-      "claimedMiles": 22.37
-    },
-    {
-      "routeId": "bestbikingroads:ca-168-big-pine-to-nevada-state-line",
-      "name": "CA 168 : Big Pine to Nevada State line",
-      "measuredMiles": 34.80617982661401,
-      "claimedMiles": 34.8
-    },
-    {
-      "routeId": "bestbikingroads:de-luz-rd",
-      "name": "De Luz rd",
-      "measuredMiles": 22.81563811913401,
-      "claimedMiles": 22.99
-    },
-    {
-      "routeId": "bestbikingroads:top-of-the-world-us-side",
-      "name": "Top of the World - US side",
-      "measuredMiles": 12.978529874682993,
-      "claimedMiles": 13.05
-    },
-    {
-      "routeId": "bestbikingroads:ca-190-co-route-107-porterville-into-the-forest",
-      "name": "CA 190 / Co. Route 107 : Porterville into the forest.",
-      "measuredMiles": 43.73255952599928,
-      "claimedMiles": 44.74
-    },
-    {
-      "routeId": "bestbikingroads:ca168-zurich-nevada",
-      "name": "CA168 : Zurich - Nevada",
-      "measuredMiles": 34.858583059485554,
-      "claimedMiles": 34.8
-    },
-    {
-      "routeId": "bestbikingroads:co-82-independance-pass-aspen-twin-lakes",
-      "name": "CO 82 / Independance Pass : Aspen - Twin Lakes",
-      "measuredMiles": 34.85587007890414,
-      "claimedMiles": 34.8
-    },
-    {
-      "routeId": "bestbikingroads:us-24-battle-mountain-pass-mintum-leadville",
-      "name": "US 24 / Battle Mountain Pass : Mintum - Leadville",
-      "measuredMiles": 27.783831586241103,
-      "claimedMiles": 27.96
-    },
-    {
-      "routeId": "bestbikingroads:valley-of-the-gods-hot-and-hard-work-on-a-harley",
-      "name": "Valley of the Gods: Hot and hard work on a Harley!",
-      "measuredMiles": 32.97754383664189,
-      "claimedMiles": 32.93
-    },
-    {
-      "routeId": "bestbikingroads:az96-bagdad-kirkland",
-      "name": "AZ96 : Bagdad - Kirkland",
-      "measuredMiles": 32.865096740618675,
-      "claimedMiles": 32.93
-    },
-    {
-      "routeId": "bestbikingroads:dahlonega-suches-helen-north-georgia-8-loop",
-      "name": "Dahlonega - Suches - Helen ( North Georgia 8 Loop )",
-      "measuredMiles": 74.22661203165103,
-      "claimedMiles": 74.56
-    },
-    {
-      "routeId": "motorcycleroads:guanella-pass-rd",
-      "name": "Guanella Pass Rd",
-      "measuredMiles": 23.176581704301142,
-      "claimedMiles": 23
-    },
-    {
-      "routeId": "bestbikingroads:oro-valley-globe",
-      "name": "oro valley - globe",
-      "measuredMiles": 79.5753367354412,
-      "claimedMiles": 79.54
-    },
-    {
-      "routeId": "bestbikingroads:sr106-sky-valley-highlands",
-      "name": "SR106 : Sky Valley - Highlands",
-      "measuredMiles": 13.144996755061484,
-      "claimedMiles": 13.05
-    },
-    {
-      "routeId": "bestbikingroads:us-412-ar-16-ar-23-gentry-fayette-ozark-pigtrail",
-      "name": "US 412 / AR 16 / AR 23 : Gentry - Fayette - Ozark ( Pigtrail )",
-      "measuredMiles": 48.07664691341679,
-      "claimedMiles": 47.85
-    },
-    {
-      "routeId": "motorcycleroads:pikes-peak-run",
-      "name": "Pikes Peak Run",
-      "measuredMiles": 26.029925310997054,
-      "claimedMiles": 24
-    },
-    {
-      "routeId": "bestbikingroads:ar123-lurton-mt-judea",
-      "name": "AR123 : Lurton - Mt Judea",
-      "measuredMiles": 13.94995385219477,
-      "claimedMiles": 14.29
-    },
-    {
-      "routeId": "bestbikingroads:chena-hot-springs-road-fairbanks-chena-hot-springs",
-      "name": "Chena Hot Springs Road : Fairbanks - Chena Hot Springs",
-      "measuredMiles": 62.68721854058309,
-      "claimedMiles": 62.76
-    },
-    {
-      "routeId": "bestbikingroads:sine-wave-patterson-new-milford-bethlehem",
-      "name": "Sine Wave : Patterson - New Milford - Bethlehem",
-      "measuredMiles": 41.211373939074065,
-      "claimedMiles": 41.01
-    },
-    {
-      "routeId": "bestbikingroads:sr206-twin-lakes-road-country-homes-wa-rathdrum-id",
-      "name": "SR206 / Twin Lakes Road : Country Homes (WA) - Rathdrum (ID)",
-      "measuredMiles": 33.8065286563272,
-      "claimedMiles": 34.18
-    },
-    {
-      "routeId": "bestbikingroads:ar-123-hagarville-piercetown-state-road-123",
-      "name": "AR 123 : Hagarville - Piercetown ( State Road 123 )",
-      "measuredMiles": 53.05303765176112,
-      "claimedMiles": 53.44
-    },
-    {
-      "routeId": "bestbikingroads:east-end-road",
-      "name": "East End Road",
-      "measuredMiles": 19.569264324988236,
-      "claimedMiles": 19.88
-    },
-    {
-      "routeId": "motorcycleroads:push-mountain-road",
-      "name": "Push Mountain Road",
-      "measuredMiles": 24.63867175363814,
-      "claimedMiles": 25
-    },
-    {
-      "routeId": "bestbikingroads:ga-197-clarkesville-lake-burton",
-      "name": "GA 197 : Clarkesville - Lake Burton",
-      "measuredMiles": 23.559614554472493,
-      "claimedMiles": 23.61
-    },
-    {
-      "routeId": "motorcycleroads:tortilla-flat",
-      "name": "Tortilla Flat",
-      "measuredMiles": 33.966719276225035,
-      "claimedMiles": 22
-    },
-    {
-      "routeId": "bestbikingroads:bogus-basin-road-boise-bogus-basin-national-park",
-      "name": "Bogus Basin Road : Boise - Bogus Basin National Park",
-      "measuredMiles": 16.099740826541584,
-      "claimedMiles": 16.16
-    },
-    {
-      "routeId": "bestbikingroads:dubuque-to-new-vienna",
-      "name": "Dubuque to New Vienna",
-      "measuredMiles": 23.78734374287003,
-      "claimedMiles": 23.61
-    },
-    {
-      "routeId": "bestbikingroads:ia-183-mondamin-ute",
-      "name": "IA 183 : Mondamin - Ute",
-      "measuredMiles": 28.664551248696093,
-      "claimedMiles": 28.58
-    },
-    {
-      "routeId": "bestbikingroads:nv-207-stateline-gardnerville",
-      "name": "NV 207 : Stateline - Gardnerville",
-      "measuredMiles": 10.631749094317914,
-      "claimedMiles": 10.56
-    },
-    {
-      "routeId": "bestbikingroads:pig-trail",
-      "name": "Pig Trail",
-      "measuredMiles": 75.07334929559282,
-      "claimedMiles": 75.19
-    },
-    {
-      "routeId": "bestbikingroads:iowa-river-drive",
-      "name": "Iowa River Drive",
-      "measuredMiles": 14.093630645199998,
-      "claimedMiles": 14.29
-    },
-    {
-      "routeId": "bestbikingroads:sr62-ohio-river-scenic-byway-new-albany-dale",
-      "name": "SR62 / Ohio River Scenic Byway : New Albany - Dale",
-      "measuredMiles": 69.72214952940375,
-      "claimedMiles": 69.59
-    },
-    {
-      "routeId": "bestbikingroads:winchester-grade-culdesac-winchester",
-      "name": "Winchester Grade : Culdesac - Winchester",
-      "measuredMiles": 14.415445541691383,
-      "claimedMiles": 14.29
-    },
-    {
-      "routeId": "motorcycleroads:angeles-crest-highway",
-      "name": "Angeles Crest Highway",
-      "measuredMiles": 71.56225533448495,
-      "claimedMiles": 60
-    },
-    {
-      "routeId": "bestbikingroads:dent-bridge-rd-orofino",
-      "name": "Dent Bridge Rd : Orofino",
-      "measuredMiles": 13.26232240838894,
-      "claimedMiles": 13.05
-    },
-    {
-      "routeId": "bestbikingroads:west-baden-springs-bedford-loop-southern-indiana-white-river-run",
-      "name": "West Baden Springs - Bedford Loop ( Southern Indiana White River Run )",
-      "measuredMiles": 59.16796546540348,
-      "claimedMiles": 59.03
-    },
-    {
-      "routeId": "bestbikingroads:al-40-section-hammondville",
-      "name": "AL 40 : Section - Hammondville",
-      "measuredMiles": 20.28709758450353,
-      "claimedMiles": 20.51
-    },
-    {
-      "routeId": "bestbikingroads:along-the-loess-hills-missouri-valley-turin",
-      "name": "Along the Loess Hills : Missouri Valley - Turin",
-      "measuredMiles": 34.36900717671468,
-      "claimedMiles": 34.18
-    },
-    {
-      "routeId": "bestbikingroads:copper-river-highway-cordova-ak",
-      "name": "Copper River Highway : Cordova, AK",
-      "measuredMiles": 55.18878429122248,
-      "claimedMiles": 55.3
-    },
-    {
-      "routeId": "bestbikingroads:dragon-tail-hoover-calera-harpersville",
-      "name": "Dragon Tail : Hoover - Calera - Harpersville",
-      "measuredMiles": 47.74215164601307,
-      "claimedMiles": 47.85
-    },
-    {
-      "routeId": "bestbikingroads:id14-grangeville-elk-city",
-      "name": "ID14 : Grangeville - Elk City",
-      "measuredMiles": 57.66863180599612,
-      "claimedMiles": 57.79
-    },
-    {
-      "routeId": "bestbikingroads:little-river-canyon-parkway-176-collinsville-desoto-state-park",
-      "name": "Little River Canyon Parkway / 176 : Collinsville - Desoto State Park",
-      "measuredMiles": 15.843008282476148,
-      "claimedMiles": 16.16
+      "routeId": "fhwa-beartooth-highway-montana-wyoming",
+      "compositeScore": 0.8571,
+      "name": "Beartooth Highway"
     }
   ],
-  "capturedAt": "2026-07-25T03:37:02.426745+00:00",
-  "oracle": {
-    "hasRowLevelFields": true,
-    "zeroContamination": true
-  }
+  "result": "PASS"
 }

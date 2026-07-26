@@ -1,0 +1,36 @@
+{
+  "routeId": "motorcycleroads:lonely-short-cut-missouri-j",
+  "before": {
+    "retiredAt": null,
+    "geometryStatus": "review"
+  },
+  "retire": {
+    "confirmed": true,
+    "disposition": "retire",
+    "geometryStatus": "retired",
+    "retiredAt": "2026-07-26T21:05:36.888Z",
+    "retiredAtMs": 1785099936888,
+    "retirementReason": "REDHAT-FIX-09 step-7 explicit founder-confirmed retirement evidence",
+    "riderReady": false,
+    "routeId": "motorcycleroads:lonely-short-cut-missouri-j"
+  },
+  "mid": {
+    "retiredAt": 1785099936888,
+    "geometryStatus": "retired"
+  },
+  "unretire": {
+    "applied": true,
+    "disposition": "unretire",
+    "geometryStatus": "review",
+    "retiredAt": null,
+    "riderReady": false,
+    "routeDocId": "mx70qv4j94ddrt5kpqq2twnvjs84w29p",
+    "routeId": "motorcycleroads:lonely-short-cut-missouri-j"
+  },
+  "after": {
+    "retiredAt": null,
+    "geometryStatus": "review"
+  },
+  "reversible": true,
+  "autoRetire": false
+}

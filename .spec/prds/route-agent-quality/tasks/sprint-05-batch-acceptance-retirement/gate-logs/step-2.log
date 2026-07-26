@@ -1,74 +1,77 @@
-npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
 {
-  "assumptionNote": "PRD per-lever expected yields are assumptions for comparison only — not committed catalog targets.",
-  "batchStopReason": "completed",
-  "continueCursor": null,
-  "isDone": true,
-  "levers": [
-    {
-      "assumptionIsTarget": false,
-      "assumptionLabel": "unproven",
-      "candidateCount": 3,
-      "escalationFloor": null,
-      "lever": "promote",
-      "leverNumber": 1,
-      "passCount": 0,
-      "passRate": 0,
-      "provenance": "scraped_promoted",
-      "realizedRate": 0
+  "claim": "coverageReport persisted for runId",
+  "function": "curatedGeometry:coverageReport",
+  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
+  "persisted": {
+    "source": "persisted",
+    "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
+    "isDone": true,
+    "totalCostUSD": 0.21000000000000002,
+    "reportProvenance": {
+      "producedBy": "runFullBatch",
+      "sourceRunKind": "runFullBatch"
     },
-    {
-      "assumptionIsTarget": false,
-      "assumptionLabel": "~67%",
-      "candidateCount": 3,
-      "escalationFloor": 0.4,
-      "lever": "reconstruct",
-      "leverNumber": 2,
-      "passCount": 2,
-      "passRate": 0.6666666666666666,
-      "provenance": "ai_reconstructed",
-      "realizedRate": 0.6666666666666666
+    "terminalStates": {
+      "cost_blocked": 0,
+      "queued": 3,
+      "recovered": 0,
+      "retirement_eligible": 0,
+      "skipped": 3
     },
-    {
-      "assumptionIsTarget": false,
-      "assumptionLabel": "~40-55%",
-      "candidateCount": 1,
-      "escalationFloor": 0.4,
-      "lever": "reroute",
-      "leverNumber": 3,
-      "passCount": 0,
-      "passRate": 0,
-      "provenance": "name_routed",
-      "realizedRate": 0
-    }
-  ],
-  "maxCostUSD": 2,
-  "pageTotals": [
-    {
-      "batchStopReason": "completed",
-      "endIndex": 3,
-      "processed": 3,
-      "skipped": 0,
-      "startIndex": 0,
-      "totalCostUsd": 0.21000000000000002
-    }
-  ],
-  "provenanceCounts": {
-    "ai_reconstructed": 2
+    "pageTotals": [
+      {
+        "batchStopReason": "completed",
+        "endIndex": 6,
+        "processed": 3,
+        "skipped": 3,
+        "startIndex": 0,
+        "totalCostUsd": 0.21000000000000002
+      }
+    ],
+    "levers": [
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "unproven",
+        "candidateCount": 3,
+        "escalationFloor": null,
+        "lever": "promote",
+        "leverNumber": 1,
+        "passCount": 0,
+        "passRate": 0,
+        "provenance": "scraped_promoted",
+        "realizedRate": 0
+      },
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "~67%",
+        "candidateCount": 3,
+        "escalationFloor": 0.4,
+        "lever": "reconstruct",
+        "leverNumber": 2,
+        "passCount": 0,
+        "passRate": 0,
+        "provenance": "ai_reconstructed",
+        "realizedRate": 0
+      },
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "~40-55%",
+        "candidateCount": 3,
+        "escalationFloor": 0.4,
+        "lever": "reroute",
+        "leverNumber": 3,
+        "passCount": 0,
+        "passRate": 0,
+        "provenance": "name_routed",
+        "realizedRate": 0
+      }
+    ]
   },
-  "reportProvenance": {
-    "producedBy": "runFullBatch",
-    "sourceRunKind": "runFullBatch"
+  "live_unscoped_source": "live",
+  "must_observe": {
+    "persisted_source": true,
+    "producedBy_runFullBatch": true,
+    "totalCostUSD_gt_0": true
   },
-  "riderReadyCount": 2,
-  "runId": "s5-redhat-20260725T033521Z",
-  "source": "persisted",
-  "terminalStates": {
-    "cost_blocked": 0,
-    "queued": 1,
-    "recovered": 2,
-    "retirement_eligible": 0,
-    "skipped": 0
-  },
-  "totalCostUSD": 0.21000000000000002
+  "result": "PASS"
 }
