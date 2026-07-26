@@ -1,0 +1,105 @@
+@@GATE-META step=step7 cmd_sha=b76ba858cf99e6d32989b8e1201f40d03ed2105bd42ecbd7c591dbf375f52aff@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step7.sh
+{
+  "candidateCount": 10,
+  "sample": [
+    {
+      "routeId": "motorcycleroads:lonely-short-cut-missouri-j",
+      "geometryStatus": "review",
+      "eligible": true,
+      "leverFailureReasons": [
+        {
+          "lever": 1,
+          "reason": "ratio"
+        },
+        {
+          "lever": 2,
+          "reason": "ratio"
+        },
+        {
+          "lever": 3,
+          "reason": "ratio"
+        }
+      ]
+    },
+    {
+      "routeId": "motorcycleroads:old-school-house-on-the-hill-ride",
+      "geometryStatus": "review",
+      "eligible": true,
+      "leverFailureReasons": [
+        {
+          "lever": 1,
+          "reason": "anchors"
+        },
+        {
+          "lever": 2,
+          "reason": "anchors"
+        },
+        {
+          "lever": 3,
+          "reason": "anchors"
+        }
+      ]
+    },
+    {
+      "routeId": "motorcycleroads:peach-float-cruise",
+      "geometryStatus": "review",
+      "eligible": true,
+      "leverFailureReasons": [
+        {
+          "lever": 1,
+          "reason": "anchors"
+        },
+        {
+          "lever": 2,
+          "reason": "anchors"
+        },
+        {
+          "lever": 3,
+          "reason": "anchors"
+        }
+      ]
+    },
+    {
+      "routeId": "motorcycleroads:montana-after-work-stress-reliever-ride",
+      "geometryStatus": "review",
+      "eligible": true,
+      "leverFailureReasons": [
+        {
+          "lever": 1,
+          "reason": "anchors"
+        },
+        {
+          "lever": 2,
+          "reason": "anchors"
+        },
+        {
+          "lever": 3,
+          "reason": "anchors"
+        }
+      ]
+    },
+    {
+      "routeId": "motorcycleroads:desoto-trail",
+      "geometryStatus": "review",
+      "eligible": true,
+      "leverFailureReasons": [
+        {
+          "lever": 1,
+          "reason": "anchors"
+        },
+        {
+          "lever": 2,
+          "reason": "anchors"
+        },
+        {
+          "lever": 3,
+          "reason": "anchors"
+        }
+      ]
+    }
+  ]
+}
+MUST_OBSERVE retirement candidates with reasons
+candidates 10
+@@GATE-EXIT=0@@

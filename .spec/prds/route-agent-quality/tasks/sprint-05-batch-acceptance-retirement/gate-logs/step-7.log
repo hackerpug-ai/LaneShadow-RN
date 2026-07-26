@@ -1,13 +1,10 @@
+@@GATE-META step=step7 cmd_sha=b76ba858cf99e6d32989b8e1201f40d03ed2105bd42ecbd7c591dbf375f52aff@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step7.sh
 {
-  "claim": "retirement candidates with per-route failure reasons",
-  "function": "curatedGeometry:listRetirementCandidates",
-  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
-  "retirementUnlockedAt": 1785100547682,
-  "eligibleCandidateCount": 10,
-  "candidates": [
+  "candidateCount": 10,
+  "sample": [
     {
       "routeId": "motorcycleroads:lonely-short-cut-missouri-j",
-      "name": "Lonely Short Cut - Missouri J",
       "geometryStatus": "review",
       "eligible": true,
       "leverFailureReasons": [
@@ -23,15 +20,10 @@
           "lever": 3,
           "reason": "ratio"
         }
-      ],
-      "retirementReason": "REDHAT-FIX-09 step-7 explicit founder-confirmed retirement evidence",
-      "riderReady": false,
-      "retiredAt": null,
-      "hasBestCandidateGeometry": true
+      ]
     },
     {
       "routeId": "motorcycleroads:old-school-house-on-the-hill-ride",
-      "name": "Old School House On The Hill Ride",
       "geometryStatus": "review",
       "eligible": true,
       "leverFailureReasons": [
@@ -47,15 +39,10 @@
           "lever": 3,
           "reason": "anchors"
         }
-      ],
-      "retirementReason": null,
-      "riderReady": false,
-      "retiredAt": null,
-      "hasBestCandidateGeometry": true
+      ]
     },
     {
       "routeId": "motorcycleroads:peach-float-cruise",
-      "name": "Peach Float Cruise",
       "geometryStatus": "review",
       "eligible": true,
       "leverFailureReasons": [
@@ -71,15 +58,10 @@
           "lever": 3,
           "reason": "anchors"
         }
-      ],
-      "retirementReason": null,
-      "riderReady": false,
-      "retiredAt": null,
-      "hasBestCandidateGeometry": false
+      ]
     },
     {
       "routeId": "motorcycleroads:montana-after-work-stress-reliever-ride",
-      "name": "Montana After Work Stress Reliever Ride",
       "geometryStatus": "review",
       "eligible": true,
       "leverFailureReasons": [
@@ -95,15 +77,10 @@
           "lever": 3,
           "reason": "anchors"
         }
-      ],
-      "retirementReason": null,
-      "riderReady": false,
-      "retiredAt": null,
-      "hasBestCandidateGeometry": true
+      ]
     },
     {
       "routeId": "motorcycleroads:desoto-trail",
-      "name": "Desoto Trail",
       "geometryStatus": "review",
       "eligible": true,
       "leverFailureReasons": [
@@ -119,134 +96,10 @@
           "lever": 3,
           "reason": "anchors"
         }
-      ],
-      "retirementReason": null,
-      "riderReady": false,
-      "retiredAt": null,
-      "hasBestCandidateGeometry": true
-    },
-    {
-      "routeId": "motorcycleroads:hwy-2-sandhills-journey-scenic-byway",
-      "name": "Hwy 2 Sandhills Journey Scenic Byway",
-      "geometryStatus": "review",
-      "eligible": true,
-      "leverFailureReasons": [
-        {
-          "lever": 1,
-          "reason": "anchors"
-        },
-        {
-          "lever": 2,
-          "reason": "anchors"
-        },
-        {
-          "lever": 3,
-          "reason": "anchors"
-        }
-      ],
-      "retirementReason": null,
-      "riderReady": false,
-      "retiredAt": null,
-      "hasBestCandidateGeometry": true
-    },
-    {
-      "routeId": "motorcycleroads:sandhills-loop",
-      "name": "Sandhills Loop",
-      "geometryStatus": "review",
-      "eligible": true,
-      "leverFailureReasons": [
-        {
-          "lever": 1,
-          "reason": "anchors"
-        },
-        {
-          "lever": 2,
-          "reason": "anchors"
-        },
-        {
-          "lever": 3,
-          "reason": "anchors"
-        }
-      ],
-      "retirementReason": null,
-      "riderReady": false,
-      "retiredAt": null,
-      "hasBestCandidateGeometry": true
-    },
-    {
-      "routeId": "motorcycleroads:red-rock-canyon-scenic-loop-drive",
-      "name": "Red Rock Canyon Scenic Loop Drive",
-      "geometryStatus": "review",
-      "eligible": true,
-      "leverFailureReasons": [
-        {
-          "lever": 1,
-          "reason": "anchors"
-        },
-        {
-          "lever": 2,
-          "reason": "anchors"
-        },
-        {
-          "lever": 3,
-          "reason": "anchors"
-        }
-      ],
-      "retirementReason": null,
-      "riderReady": false,
-      "retiredAt": null,
-      "hasBestCandidateGeometry": true
-    },
-    {
-      "routeId": "motorcycleroads:nh153-among-the-lakes",
-      "name": "NH153 Among The Lakes",
-      "geometryStatus": "review",
-      "eligible": true,
-      "leverFailureReasons": [
-        {
-          "lever": 1,
-          "reason": "anchors"
-        },
-        {
-          "lever": 2,
-          "reason": "anchors"
-        },
-        {
-          "lever": 3,
-          "reason": "anchors"
-        }
-      ],
-      "retirementReason": null,
-      "riderReady": false,
-      "retiredAt": null,
-      "hasBestCandidateGeometry": false
-    },
-    {
-      "routeId": "motorcycleroads:mullica-river-loop",
-      "name": "Mullica river loop",
-      "geometryStatus": "review",
-      "eligible": true,
-      "leverFailureReasons": [
-        {
-          "lever": 1,
-          "reason": "anchors"
-        },
-        {
-          "lever": 2,
-          "reason": "anchors"
-        },
-        {
-          "lever": 3,
-          "reason": "anchors"
-        }
-      ],
-      "retirementReason": null,
-      "riderReady": false,
-      "retiredAt": null,
-      "hasBestCandidateGeometry": true
+      ]
     }
-  ],
-  "step7_candidate_row_count": 10,
-  "step7_reason_count": 30,
-  "result": "PASS"
+  ]
 }
+MUST_OBSERVE retirement candidates with reasons
+candidates 10
+@@GATE-EXIT=0@@

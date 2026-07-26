@@ -1,140 +1,125 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
+  "sprint": "sprint-05-batch-acceptance-retirement",
   "sprint_id": "sprint-05-batch-acceptance-retirement",
-  "run_id": "s5-full-batch-redhatfix09-20260726T211438Z",
-  "batch_run_id": "s5-full-batch-redhatfix09-20260726T211438Z",
+  "sprint_identity": {
+    "resolved_sprint_path": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement",
+    "sprint_slug": "sprint-05-batch-acceptance-retirement"
+  },
+  "run_id": "2026-07-26T212757Z",
+  "batch_run_id": "s5-qa-live-20260726T213002Z",
   "verdict": "pass",
-  "runner": "dev-founder-redhatfix09",
-  "ui_driver": "none",
+  "overall": "pass",
   "steps_total": 8,
   "steps_executed": 8,
   "steps_passed": 8,
+  "ui_driver": "none",
+  "runner": "tmux:laneshadow-gate-s05",
+  "exec_surface": "tmux:laneshadow-gate-s05",
+  "qa_session_id": "tmux:laneshadow-gate-s05",
+  "qa_surface_id": null,
+  "provenance": {
+    "harness": "kb-run-human-tests",
+    "executor": "references/exec-step.sh",
+    "evidence_dir": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z",
+    "gate_plan": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-plan.json",
+    "batch_run_id": "s5-qa-live-20260726T213002Z",
+    "produced_at": "2026-07-26T21:32:32.942520+00:00",
+    "cmd_fidelity": "GATE-META cmd_sha per step"
+  },
   "steps": [
     {
       "n": 1,
-      "text": "Run full --all batch under cost CB after couch PASS",
+      "text": "Run the full --all batch under the cost circuit-breaker on the real dev catalog after the couch gate is PASS.",
       "type": "terminal",
+      "method": "real-cli",
       "executed": true,
       "result": "pass",
-      "log": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-1.log",
-      "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-1.log"
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/step1.log",
+      "evidence": "exit=0; step1.log",
+      "duration_ms": null
     },
     {
       "n": 2,
-      "text": "Open coverageReport; read per-lever rates, terminals, cost, rider-ready",
+      "text": "Open coverageReport; read per-lever PASS rates, terminal-state counts, cost telemetry, and rider-ready count.",
       "type": "terminal",
+      "method": "real-cli",
       "executed": true,
       "result": "pass",
-      "log": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-2.log",
-      "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-2.log"
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/step2.log",
+      "evidence": "exit=0; step2.log",
+      "duration_ms": null
     },
     {
       "n": 3,
-      "text": "Compare realized vs expected-yield; record accept/reject/escalation",
+      "text": "Compare realized counts against the PRD expected-yield table; record accept, reject, or an escalation.",
       "type": "terminal",
+      "method": "real-cli",
       "executed": true,
       "result": "pass",
-      "log": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-3.log",
-      "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-3.log"
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/step3.log",
+      "evidence": "exit=0; step3.log",
+      "duration_ms": null
     },
     {
       "n": 4,
-      "text": "Confirm far-below lever escalates rather than silently completing",
+      "text": "Confirm a far-below-estimate lever escalates rather than silently completing.",
       "type": "terminal",
+      "method": "real-cli",
       "executed": true,
       "result": "pass",
-      "log": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-4.log",
-      "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-4.log"
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/step4.log",
+      "evidence": "exit=0; step4.log",
+      "duration_ms": null
     },
     {
       "n": 5,
-      "text": "Review top-50-by-composite-rank for road and length",
+      "text": "Review the top-50-by-composite-rank routes for correct road and plausible length.",
       "type": "terminal",
+      "method": "real-cli",
       "executed": true,
       "result": "pass",
-      "log": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-5.log",
-      "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-5.log"
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/step5.log",
+      "evidence": "exit=0; step5.log",
+      "duration_ms": null
     },
     {
       "n": 6,
-      "text": "Confirm no duplicate headliner or test/seed row in top 50",
+      "text": "Confirm no duplicate headliner or test/seed row appears among the top 50.",
       "type": "terminal",
+      "method": "real-cli",
       "executed": true,
       "result": "pass",
-      "log": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-6.log",
-      "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-6.log"
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/step6.log",
+      "evidence": "exit=0; step6.log",
+      "duration_ms": null
     },
     {
       "n": 7,
-      "text": "Review retirement candidates with their per-route failure reasons",
+      "text": "Review retirement candidates with their per-route failure reasons and all-lever evidence.",
       "type": "terminal",
+      "method": "real-cli",
       "executed": true,
       "result": "pass",
-      "log": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-7.log",
-      "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-7.log"
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/step7.log",
+      "evidence": "exit=0; step7.log",
+      "duration_ms": null
     },
     {
       "n": 8,
-      "text": "Confirm nothing auto-retires; retirements reversible with record",
+      "text": "Confirm nothing auto-retires without explicit Founder-Operator confirmation; verify each committed retirement remains reversible.",
       "type": "terminal",
+      "method": "real-cli",
       "executed": true,
       "result": "pass",
-      "log": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-8.log",
-      "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-8.log"
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/step8.log",
+      "evidence": "exit=0; step8.log",
+      "duration_ms": null
     }
   ],
-  "recorded_at": "2026-07-26T21:17:52.323772Z",
-  "batch_metrics": {
-    "processed": 3,
-    "skipped": 3,
-    "totalCostUSD": 0.21000000000000002,
-    "cumulativeCostUSD": 0.21000000000000002,
-    "pageCostUSD": 0.21000000000000002
-  },
-  "artifacts": {
-    "coverage": ".tmp/S5-T4/coverage-report-accepted.json",
-    "top50": ".tmp/S5-T4/top50-manifest.json",
-    "founder_packet": ".tmp/S5-T4/founder-gate-packet.json",
-    "durable_evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/evidence/REDHAT-FIX-09/",
-    "accept": {
-      "decision": "accepted",
-      "decisionTimestamp": "2026-07-26T21:15:47.682Z",
-      "operatorIdentity": "dev-founder-redhatfix09",
-      "retirementUnlockedAt": 1785100547682,
-      "escalations": [
-        {
-          "assumptionLabel": "~67%",
-          "candidateCount": 3,
-          "candidates": 3,
-          "escalationFloor": 0.4,
-          "lever": "reconstruct",
-          "leverNumber": 2,
-          "observedRate": 0,
-          "passCount": 0,
-          "realizedRate": 0,
-          "reason": "reconstruct realized rate 0.0% is below escalation floor 40% (assumption ~67%)"
-        },
-        {
-          "assumptionLabel": "~40-55%",
-          "candidateCount": 3,
-          "candidates": 3,
-          "escalationFloor": 0.4,
-          "lever": "reroute",
-          "leverNumber": 3,
-          "observedRate": 0,
-          "passCount": 0,
-          "realizedRate": 0,
-          "reason": "reroute realized rate 0.0% is below escalation floor 40% (assumption ~40-55%)"
-        }
-      ],
-      "path": "requestBatchAcceptance(accept) \u2192 escalation_required \u2192 resolveBatchEscalation(accept)"
-    }
-  },
+  "recorded_at": "2026-07-26T21:32:32.942866+00:00",
   "notes": [
-    "Real waterfallOrchestrator:runFullBatch runId=s5-full-batch-redhatfix09-20260726T211438Z processed=3 totalCostUSD=0.21000000000000002 (NOT skip-all theatre)",
-    "step-4: real low-yield escalations (candidateCount=3, realizedRate=0) then founder resolve accept",
-    "top-50 row-level evidence, zero test: contamination after scrub",
-    "retirement candidates row-level; lock unlocked only after provenanced resolve accept",
-    "operatorIdentity=dev-founder-redhatfix09 (requireFounder via users.role=founder)"
+    "Independent QA stage via exec-step.sh + tmux runner",
+    "Cost-bearing runFullBatch s5-qa-live-20260726T213002Z"
   ]
 }

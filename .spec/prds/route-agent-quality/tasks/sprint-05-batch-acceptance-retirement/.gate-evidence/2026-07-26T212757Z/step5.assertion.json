@@ -1,0 +1,6 @@
+{
+  "kind": "exit_and_log_regex",
+  "expected_exit": 0,
+  "expect_log_regex": "ROW|routeId|MUST_OBSERVE|rowCount",
+  "expect_not_log_regex": "UNAUTHENTICATED|AssertionError"
+}

@@ -1,43 +1,11 @@
-{
-  "claim": "no auto-retire; reversible unretireRoute",
-  "function": "curatedGeometry:unretireRoute",
-  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
-  "transcript": {
-    "routeId": "motorcycleroads:lonely-short-cut-missouri-j",
-    "before": {
-      "retiredAt": null,
-      "geometryStatus": "review"
-    },
-    "retire": {
-      "confirmed": true,
-      "disposition": "retire",
-      "geometryStatus": "retired",
-      "retiredAt": "2026-07-26T21:16:28.978Z",
-      "retiredAtMs": 1785100588978,
-      "retirementReason": "REDHAT-FIX-09 step-7 explicit founder-confirmed retirement evidence",
-      "riderReady": false,
-      "routeId": "motorcycleroads:lonely-short-cut-missouri-j"
-    },
-    "mid": {
-      "retiredAt": 1785100588978,
-      "geometryStatus": "retired"
-    },
-    "unretire": {
-      "applied": true,
-      "disposition": "unretire",
-      "geometryStatus": "review",
-      "retiredAt": null,
-      "riderReady": false,
-      "routeDocId": "mx70qv4j94ddrt5kpqq2twnvjs84w29p",
-      "routeId": "motorcycleroads:lonely-short-cut-missouri-j"
-    },
-    "after": {
-      "retiredAt": null,
-      "geometryStatus": "review"
-    },
-    "reversible": true,
-    "autoRetire": false
-  },
-  "step8_unretire_transcript_count": 1,
-  "result": "PASS"
-}
+@@GATE-META step=step8 cmd_sha=8beaeea580bb2aabbee568a3f4dac12b801cba6ba78545c5cc4cef2914fad806@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step8.sh
+using route motorcycleroads:lonely-short-cut-missouri-j
+retire {"error": "Expecting property name enclosed in double quotes: line 1 column 2 (char 1)", "snippet": "{confirmed: true, disposition: \"retire\", reason: \"QA step-8 explicit founder confirm\", routeId: \"motorcycleroads:lonely-short-cut-missouri-j\"}\nValidator: v.object({confirmed: v.boolean(), reason: v.st"}
+unretire {"error": "Expecting property name enclosed in double quotes: line 1 column 2 (char 1)", "snippet": "{routeId: \"motorcycleroads:lonely-short-cut-missouri-j\"}\nValidator: v.object({expectedRetiredAt: v.float64(), routeId: v.string()})\n"}
+acceptance {'decision': 'accepted', 'retirementUnlockedAt': 1785101445126, 'runId': 's5-qa-live-20260726T213002Z', 'acceptedAt': 1785101445126}
+MUST_OBSERVE no auto-retire; reversible unretire transcript
+MUST_OBSERVE decision accepted
+autoRetire false
+MUST_OBSERVE retirement unlocked only after founder accept
+@@GATE-EXIT=0@@

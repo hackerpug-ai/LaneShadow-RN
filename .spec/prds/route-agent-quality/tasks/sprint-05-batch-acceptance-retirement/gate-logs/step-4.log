@@ -1,8 +1,9 @@
+@@GATE-META step=step4 cmd_sha=36b60f51ecbae4bafb29399805193efc61769e912c1e5e410f55ba623ecba033@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step4.sh
 {
-  "claim": "far-below yield escalates not silent complete (real L2/L3 candidates, realizedRate 0%)",
-  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
-  "negativeControl": "requestBatchAcceptance(accept) returned escalation_required (not silent accepted) because reconstruct/reroute realized rates 0% below 40% floors with candidateCount=3 each",
-  "requestDecision": "escalation_required",
+  "acceptedAt": null,
+  "decision": "escalation_required",
+  "decisionTimestamp": "2026-07-26T21:30:43.943Z",
   "escalations": [
     {
       "assumptionLabel": "~67%",
@@ -11,15 +12,15 @@
       "escalationFloor": 0.4,
       "lever": "reconstruct",
       "leverNumber": 2,
-      "observedRate": 0,
-      "passCount": 0,
-      "realizedRate": 0,
-      "reason": "reconstruct realized rate 0.0% is below escalation floor 40% (assumption ~67%)"
+      "observedRate": 0.3333333333333333,
+      "passCount": 1,
+      "realizedRate": 0.3333333333333333,
+      "reason": "reconstruct realized rate 33.3% is below escalation floor 40% (assumption ~67%)"
     },
     {
       "assumptionLabel": "~40-55%",
-      "candidateCount": 3,
-      "candidates": 3,
+      "candidateCount": 2,
+      "candidates": 2,
       "escalationFloor": 0.4,
       "lever": "reroute",
       "leverNumber": 3,
@@ -29,13 +30,57 @@
       "reason": "reroute realized rate 0.0% is below escalation floor 40% (assumption ~40-55%)"
     }
   ],
-  "mustNotObserve": "decision=accepted without open escalation when floors breached",
-  "observed": true,
-  "mutated": true,
-  "phase": "step-4-negative-control",
-  "costBearing": {
-    "processed": 3,
-    "totalCostUSD": 0.21000000000000002
-  },
-  "result": "PASS"
+  "observedRates": [
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "unproven",
+      "candidateCount": 3,
+      "escalationFloor": null,
+      "lever": "promote",
+      "leverNumber": 1,
+      "passCount": 0,
+      "passRate": 0,
+      "provenance": "scraped_promoted",
+      "realizedRate": 0
+    },
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "~67%",
+      "candidateCount": 3,
+      "escalationFloor": 0.4,
+      "lever": "reconstruct",
+      "leverNumber": 2,
+      "passCount": 1,
+      "passRate": 0.3333333333333333,
+      "provenance": "ai_reconstructed",
+      "realizedRate": 0.3333333333333333
+    },
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "~40-55%",
+      "candidateCount": 2,
+      "escalationFloor": 0.4,
+      "lever": "reroute",
+      "leverNumber": 3,
+      "passCount": 0,
+      "passRate": 0,
+      "provenance": "name_routed",
+      "realizedRate": 0
+    }
+  ],
+  "operatorIdentity": "dev-founder-redhatfix09",
+  "reason": "reconstruct realized rate 33.3% is below escalation floor 40% (assumption ~67%); reroute realized rate 0.0% is below esca
+MUST_OBSERVE decision escalation_required
+{
+  "acceptedAt": 1785101445126,
+  "decision": "accepted",
+  "decisionTimestamp": "2026-07-26T21:30:45.126Z",
+  "operatorIdentity": "dev-founder-redhatfix09",
+  "rationale": "Sprint-05 independent QA founder accept after low-yield escalation",
+  "resolvedAt": "2026-07-26T21:30:45.126Z",
+  "retirementUnlockedAt": 1785101445126,
+  "runId": "s5-qa-live-20260726T213002Z"
 }
+MUST_OBSERVE resolved accepted
+MUST_OBSERVE step4 distinct mutation
+@@GATE-EXIT=0@@

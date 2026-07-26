@@ -1,0 +1,12 @@
+@@GATE-META step=step1 cmd_sha=e9c306de25841ed250f4a7b3fdc9d9dc697548c86736e8d917b707ce43f21299@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step1.sh
+seeded ['bestbikingroads:s5qa2-cost-000', 'bestbikingroads:s5qa2-cost-001', 'bestbikingroads:s5qa2-cost-002']
+{
+  "runId": "s5-qa-live-20260726T213002Z",
+  "processed": 3,
+  "totalCostUSD": 0.21000000000000002,
+  "isDone": true,
+  "batchStopReason": "completed"
+}
+MUST_OBSERVE processed>=1 totalCostUSD>0
+@@GATE-EXIT=0@@

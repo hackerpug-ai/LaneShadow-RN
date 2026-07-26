@@ -1,0 +1,125 @@
+@@GATE-META step=step3 cmd_sha=b3a6814b837d2365080891bbe6f9819bc291da08bacc9d1b3ad8024cb740fa50@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step3.sh
+Wrote step-3 comparison → /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/gate-step-logs/step-3.log
+Wrote step-4 negative control → /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/gate-step-logs/step-4.log
+step4_distinct=true decision=null mutated=false
+Wrote summary → /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/gate-step-logs/redhat-fix-05-gate-summary.json
+goal=blocked met=false sprint10.blocked=true
+{
+  "ok": true,
+  "runId": "s5-qa-live-20260726T213002Z",
+  "step3Path": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/gate-step-logs/step-3.log",
+  "step4Path": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/gate-step-logs/step-4.log",
+  "step4_distinct": true,
+  "decision": null,
+  "retirementUnlockedAt": null,
+  "mutated": false,
+  "goal": {
+    "goal": "blocked",
+    "met": false,
+    "decision": null,
+    "status": "No acceptance decision",
+    "reason": "empty decision — never mark met:true without acceptance artifact",
+    "sprint10": {
+      "blocked": true,
+      "reason": "no accepted catalog: missing or empty acceptance decision"
+    },
+    "retirementUnlockedAt": null,
+    "runId": "s5-qa-live-20260726T213002Z",
+    "written_by": "tools/gate/deriveSprint05GoalState.ts",
+    "written_at": "2026-07-26T21:30:42.548Z"
+  },
+  "sprint10": {
+    "blocked": true,
+    "reason": "no accepted catalog: missing or empty acceptance decision"
+  }
+}
+{
+  "phase": "step-3-yield-comparison",
+  "runId": "s5-qa-live-20260726T213002Z",
+  "decision": null,
+  "levers": [
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "unproven",
+      "candidateCount": 3,
+      "escalationFloor": null,
+      "lever": "promote",
+      "leverNumber": 1,
+      "passCount": 0,
+      "passRate": 0,
+      "provenance": "scraped_promoted",
+      "realizedRate": 0
+    },
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "~67%",
+      "candidateCount": 3,
+      "escalationFloor": 0.4,
+      "lever": "reconstruct",
+      "leverNumber": 2,
+      "passCount": 1,
+      "passRate": 0.3333333333333333,
+      "provenance": "ai_reconstructed",
+      "realizedRate": 0.3333333333333333
+    },
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "~40-55%",
+      "candidateCount": 2,
+      "escalationFloor": 0.4,
+      "lever": "reroute",
+      "leverNumber": 3,
+      "passCount": 0,
+      "passRate": 0,
+      "provenance": "name_routed",
+      "realizedRate": 0
+    }
+  ],
+  "riderReadyCount": 1,
+  "isDone": true,
+  "comparison": {
+    "note": "realized yields vs PRD expected-yield assumptions (pre-accept)",
+    "yieldsVsAssumptions": [
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "unproven",
+        "candidateCount": 3,
+        "escalationFloor": null,
+        "lever": "promote",
+        "leverNumber": 1,
+        "passCount": 0,
+        "passRate": 0,
+        "provenance": "scraped_promoted",
+        "realizedRate": 0
+      },
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "~67%",
+        "candidateCount": 3,
+        "escalationFloor": 0.4,
+        "lever": "reconstruct",
+        "leverNumber": 2,
+        "passCount": 1,
+        "passRate": 0.3333333333333333,
+        "provenance": "ai_reconstructed",
+        "realizedRate": 0.3333333333333333
+      },
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "~40-55%",
+        "candidateCount": 2,
+        "escalationFloor": 0.4,
+        "lever": "reroute",
+        "leverNumber": 3,
+        "passCount": 0,
+        "passRate": 0,
+        "provenance": "name_routed",
+        "realizedRate": 0
+      }
+    ]
+  },
+  "capturedAt": "2026-07-26T21:30:41.445Z"
+}
+MUST_OBSERVE step-3 yield comparison present
+@@GATE-EXIT=0@@

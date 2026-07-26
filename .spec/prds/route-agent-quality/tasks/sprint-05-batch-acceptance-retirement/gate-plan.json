@@ -1,0 +1,116 @@
+{
+  "sprint": "sprint-05-batch-acceptance-retirement",
+  "sprint_identity": {
+    "resolved_sprint_path": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement",
+    "sprint_slug": "sprint-05-batch-acceptance-retirement"
+  },
+  "planned_at": "2026-07-26T212757Z",
+  "planned_steps": 8,
+  "qa_stage": "kb-run-human-tests",
+  "steps": [
+    {
+      "n": 1,
+      "text": "Run the full --all batch under the cost circuit-breaker on the real dev catalog after the couch gate is PASS.",
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step1.sh",
+      "assertion": {
+        "kind": "exit_and_log_regex",
+        "expected_exit": 0,
+        "expect_log_regex": "processed|totalCostUSD|MUST_OBSERVE",
+        "expect_not_log_regex": "UNAUTHENTICATED|AssertionError"
+      }
+    },
+    {
+      "n": 2,
+      "text": "Open coverageReport; read per-lever PASS rates, terminal-state counts, cost telemetry, and rider-ready count.",
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step2.sh",
+      "assertion": {
+        "kind": "exit_and_log_regex",
+        "expected_exit": 0,
+        "expect_log_regex": "levers|totalCostUSD|MUST_OBSERVE",
+        "expect_not_log_regex": "UNAUTHENTICATED|AssertionError"
+      }
+    },
+    {
+      "n": 3,
+      "text": "Compare realized counts against the PRD expected-yield table; record accept, reject, or an escalation.",
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step3.sh",
+      "assertion": {
+        "kind": "exit_and_log_regex",
+        "expected_exit": 0,
+        "expect_log_regex": "step-3|yield|MUST_OBSERVE|levers",
+        "expect_not_log_regex": "UNAUTHENTICATED|AssertionError"
+      }
+    },
+    {
+      "n": 4,
+      "text": "Confirm a far-below-estimate lever escalates rather than silently completing.",
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step4.sh",
+      "assertion": {
+        "kind": "exit_and_log_regex",
+        "expected_exit": 0,
+        "expect_log_regex": "escalation_required|accepted|MUST_OBSERVE|decision",
+        "expect_not_log_regex": "UNAUTHENTICATED|AssertionError"
+      }
+    },
+    {
+      "n": 5,
+      "text": "Review the top-50-by-composite-rank routes for correct road and plausible length.",
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step5.sh",
+      "assertion": {
+        "kind": "exit_and_log_regex",
+        "expected_exit": 0,
+        "expect_log_regex": "ROW|routeId|MUST_OBSERVE|rowCount",
+        "expect_not_log_regex": "UNAUTHENTICATED|AssertionError"
+      }
+    },
+    {
+      "n": 6,
+      "text": "Confirm no duplicate headliner or test/seed row appears among the top 50.",
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step6.sh",
+      "assertion": {
+        "kind": "exit_and_log_regex",
+        "expected_exit": 0,
+        "expect_log_regex": "contaminationCount.: 0|MUST_OBSERVE",
+        "expect_not_log_regex": "UNAUTHENTICATED|AssertionError"
+      }
+    },
+    {
+      "n": 7,
+      "text": "Review retirement candidates with their per-route failure reasons and all-lever evidence.",
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step7.sh",
+      "assertion": {
+        "kind": "exit_and_log_regex",
+        "expected_exit": 0,
+        "expect_log_regex": "candidates|leverFailure|MUST_OBSERVE|routeId",
+        "expect_not_log_regex": "UNAUTHENTICATED|AssertionError"
+      }
+    },
+    {
+      "n": 8,
+      "text": "Confirm nothing auto-retires without explicit Founder-Operator confirmation; verify each committed retirement remains reversible.",
+      "type": "terminal",
+      "method": "real-cli",
+      "literal_cmd": "bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step8.sh",
+      "assertion": {
+        "kind": "exit_and_log_regex",
+        "expected_exit": 0,
+        "expect_log_regex": "MUST_OBSERVE|unretire|retire|decision",
+        "expect_not_log_regex": "UNAUTHENTICATED|AssertionError"
+      }
+    }
+  ]
+}

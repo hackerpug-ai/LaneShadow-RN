@@ -1,77 +1,12 @@
+@@GATE-META step=step2 cmd_sha=e4061140192212dd5b5d7f5b233fa15074ab7f6fbfd341d055f23cfea6155c1c@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step2.sh
 {
-  "claim": "coverageReport persisted for runId",
-  "function": "curatedGeometry:coverageReport",
-  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
-  "persisted": {
-    "source": "persisted",
-    "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
-    "isDone": true,
-    "totalCostUSD": 0.21000000000000002,
-    "reportProvenance": {
-      "producedBy": "runFullBatch",
-      "sourceRunKind": "runFullBatch"
-    },
-    "terminalStates": {
-      "cost_blocked": 0,
-      "queued": 3,
-      "recovered": 0,
-      "retirement_eligible": 0,
-      "skipped": 3
-    },
-    "pageTotals": [
-      {
-        "batchStopReason": "completed",
-        "endIndex": 6,
-        "processed": 3,
-        "skipped": 3,
-        "startIndex": 0,
-        "totalCostUsd": 0.21000000000000002
-      }
-    ],
-    "levers": [
-      {
-        "assumptionIsTarget": false,
-        "assumptionLabel": "unproven",
-        "candidateCount": 3,
-        "escalationFloor": null,
-        "lever": "promote",
-        "leverNumber": 1,
-        "passCount": 0,
-        "passRate": 0,
-        "provenance": "scraped_promoted",
-        "realizedRate": 0
-      },
-      {
-        "assumptionIsTarget": false,
-        "assumptionLabel": "~67%",
-        "candidateCount": 3,
-        "escalationFloor": 0.4,
-        "lever": "reconstruct",
-        "leverNumber": 2,
-        "passCount": 0,
-        "passRate": 0,
-        "provenance": "ai_reconstructed",
-        "realizedRate": 0
-      },
-      {
-        "assumptionIsTarget": false,
-        "assumptionLabel": "~40-55%",
-        "candidateCount": 3,
-        "escalationFloor": 0.4,
-        "lever": "reroute",
-        "leverNumber": 3,
-        "passCount": 0,
-        "passRate": 0,
-        "provenance": "name_routed",
-        "realizedRate": 0
-      }
-    ]
-  },
-  "live_unscoped_source": "live",
-  "must_observe": {
-    "persisted_source": true,
-    "producedBy_runFullBatch": true,
-    "totalCostUSD_gt_0": true
-  },
-  "result": "PASS"
+  "runId": "s5-qa-live-20260726T213002Z",
+  "source": "persisted",
+  "totalCostUSD": 0.21000000000000002,
+  "riderReadyCount": 1,
+  "isDone": true
 }
+levers [('promote', 3, 0), ('reconstruct', 3, 0.3333333333333333), ('reroute', 2, 0)]
+MUST_OBSERVE coverageReport levers cost telemetry
+@@GATE-EXIT=0@@

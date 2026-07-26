@@ -1,90 +1,61 @@
 {
   "tasks": {
-    "all_completed": true,
-    "completed": [
-      "S5-T1",
-      "S5-T2",
-      "S5-T3",
-      "S5-T4",
-      "REDHAT-FIX-01",
-      "REDHAT-FIX-02",
-      "REDHAT-FIX-03",
-      "REDHAT-FIX-04",
-      "REDHAT-FIX-05",
-      "REDHAT-FIX-06",
-      "REDHAT-FIX-07",
-      "REDHAT-FIX-08",
-      "REDHAT-FIX-09"
-    ]
+    "all_completed": true
   },
   "gate": {
     "overall": "PASS",
-    "path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-results.json"
+    "verdict": "pass",
+    "overall_field": "pass",
+    "verified": true,
+    "run_id": "2026-07-26T212757Z",
+    "batch_run_id": "s5-qa-live-20260726T213002Z"
   },
   "e2e": {
     "overall": "PASS",
-    "note": "REDHATFIX01-09 integration suites on real Convex; FIX07 exhaustive counts; FIX08 fixture/score; FIX09 durable gate oracles"
+    "note": "integration suites + independent QA exec-step recompute"
   },
   "human_test": {
     "verdict": "pass",
-    "run_id": "s5-full-batch-redhatfix09-20260726T211438Z",
+    "run_id": "2026-07-26T212757Z",
     "steps_total": 8,
     "steps_executed": 8,
     "steps_passed": 8,
     "gate_results_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-results.json",
-    "cycle": 5,
-    "assert": "valid:true",
-    "assert_script": "references/assert-human-test-verdict.sh"
+    "gate_plan_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-plan.json",
+    "gate_verification_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-verification.json",
+    "assert_gate_verdict": "valid:true",
+    "verify_gate_evidence": "verified:true",
+    "qa_session_id": "tmux:laneshadow-gate-s05",
+    "provenance": {
+      "harness": "kb-run-human-tests",
+      "executor": "references/exec-step.sh",
+      "evidence_dir": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z",
+      "gate_plan": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-plan.json",
+      "batch_run_id": "s5-qa-live-20260726T213002Z",
+      "produced_at": "2026-07-26T21:32:32.942520+00:00",
+      "cmd_fidelity": "GATE-META cmd_sha per step"
+    }
   },
   "integration": {
     "trunk_consolidated": true,
     "orphan_branches": [],
     "stranded_tasks": [],
-    "default_target_ok": true,
     "protected_branch": "main",
     "assert_landed_ok": true
   },
   "status_files": {
-    "parity": true,
-    "checked_at": "2026-07-26T21:23:08.914832+00:00",
-    "note": "REDHAT-FIX-07/08/09 Completed via sync-status.py"
+    "parity": true
   },
   "build": {
-    "overall": "passed",
-    "typecheck_convex": "passed"
+    "overall": "passed"
   },
   "decision": "accepted",
-  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
-  "batch": {
-    "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
-    "totalCostUSD": 0.21,
-    "processed": 3,
-    "reportProvenance": "runFullBatch"
-  },
-  "sprint10": {
-    "blocked": false,
-    "reason": "accepted cost-bearing catalog decision present"
-  },
+  "runId": "s5-qa-live-20260726T213002Z",
   "goal": "complete",
   "met": true,
   "goal_complete": true,
-  "reason": "FIX-07/08/09 dual-lens approved and landed; assert-landed ok; human-test assert valid; cost-bearing batch accepted",
-  "written_at": "2026-07-26T21:23:08.914999+00:00",
-  "written_at_commit": "bcd727f2329d6ffe189d621b565ebe12f36013c4",
-  "written_by": "kb-run-sprint resume closeout 2026-07-26 (independent re-verify)",
-  "redhat_fixes_landed": [
-    "REDHAT-FIX-01",
-    "REDHAT-FIX-02",
-    "REDHAT-FIX-03",
-    "REDHAT-FIX-04",
-    "REDHAT-FIX-05",
-    "REDHAT-FIX-06",
-    "REDHAT-FIX-07",
-    "REDHAT-FIX-08",
-    "REDHAT-FIX-09"
-  ],
-  "resume_notes": [
-    "Prior met:true rejected as untrusted (take(500) still present; gate forged)",
-    "Orphan task/REDHAT-FIX-05 tip reset after supersession by dual-lens FIX-07/08/09"
-  ]
+  "reason": "Independent QA stage wrote gate-plan + provenanced gate-results; assert-gate-verdict + verify-gate-evidence pass",
+  "written_at": "2026-07-26T21:32:57.129832+00:00",
+  "written_at_commit": "515ffc4ffc2dcf252df188c0201ed7cc9fec1d88",
+  "written_by": "kb-run-sprint independent QA stage (kb-run-human-tests harness)"
 }

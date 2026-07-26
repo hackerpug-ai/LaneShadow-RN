@@ -1,0 +1,12 @@
+@@GATE-META step=step2 cmd_sha=e4061140192212dd5b5d7f5b233fa15074ab7f6fbfd341d055f23cfea6155c1c@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step2.sh
+{
+  "runId": "s5-qa-live-20260726T213002Z",
+  "source": "persisted",
+  "totalCostUSD": 0.21000000000000002,
+  "riderReadyCount": 1,
+  "isDone": true
+}
+levers [('promote', 3, 0), ('reconstruct', 3, 0.3333333333333333), ('reroute', 2, 0)]
+MUST_OBSERVE coverageReport levers cost telemetry
+@@GATE-EXIT=0@@

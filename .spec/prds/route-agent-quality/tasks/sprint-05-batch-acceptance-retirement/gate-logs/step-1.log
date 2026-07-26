@@ -1,51 +1,12 @@
+@@GATE-META step=step1 cmd_sha=e9c306de25841ed250f4a7b3fdc9d9dc697548c86736e8d917b707ce43f21299@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step1.sh
+seeded ['bestbikingroads:s5qa2-cost-000', 'bestbikingroads:s5qa2-cost-001', 'bestbikingroads:s5qa2-cost-002']
 {
-  "claim": "full couch-gated batch via waterfallOrchestrator:runFullBatch (cost-bearing)",
-  "function": "waterfallOrchestrator:runFullBatch",
-  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
-  "isDone": true,
-  "totalCostUSD": 0.21000000000000002,
-  "cumulativeCostUSD": 0.21000000000000002,
-  "pageCostUSD": 0.21000000000000002,
-  "batchStopReason": "completed",
-  "continueCursor": null,
-  "pageTotals": [
-    {
-      "batchStopReason": "completed",
-      "endIndex": 6,
-      "processed": 3,
-      "skipped": 3,
-      "startIndex": 0,
-      "totalCostUsd": 0.21000000000000002
-    }
-  ],
-  "reportProvenance": {
-    "producedBy": "runFullBatch",
-    "sourceRunKind": "runFullBatch"
-  },
-  "gate": {
-    "allowed": true,
-    "overallVerdict": "pass"
-  },
-  "routes": 6,
-  "skipped": 3,
+  "runId": "s5-qa-live-20260726T213002Z",
   "processed": 3,
-  "routesMutated": 3,
-  "perLeverCounts": {
-    "lever1": 3,
-    "lever2": 3,
-    "lever3": 3
-  },
-  "perStateCounts": {
-    "cost_blocked": 0,
-    "queued": 3,
-    "recovered": 0,
-    "retirement_eligible": 0,
-    "skipped": 3
-  },
-  "must_observe": {
-    "totalCostUSD_gt_0": true,
-    "processed_gte_1": true,
-    "not_skip_all_theatre": true
-  },
-  "result": "PASS"
+  "totalCostUSD": 0.21000000000000002,
+  "isDone": true,
+  "batchStopReason": "completed"
 }
+MUST_OBSERVE processed>=1 totalCostUSD>0
+@@GATE-EXIT=0@@

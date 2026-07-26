@@ -1,11 +1,30 @@
+@@GATE-META step=step6 cmd_sha=204654cd7a182b5d21f8290b92116060e71151ceca3d09b16883d658a250921e@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step6.sh
 {
-  "claim": "no duplicate headliner or test/seed row in top 50",
-  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
   "rowCount": 50,
-  "testSeedRowsCount": 0,
-  "testSeedRows": [],
-  "must_observe": {
-    "test_seed_zero": true
-  },
-  "result": "PASS"
+  "contaminationCount": 0,
+  "sample": [
+    [
+      "fhwa-coronado-trail-scenic-byway-arizona",
+      "Coronado Trail Scenic Byway"
+    ],
+    [
+      "motorcycleroads:beartooth-pass",
+      "Beartooth Pass"
+    ],
+    [
+      "bestbikingroads:beartooth-pass-montana-chief-joseph-highway-wyoming-usa-ttc-2",
+      "Beartooth Pass Montana / Chief Joseph Highway Wyoming (USA_TTC 2)"
+    ],
+    [
+      "bestbikingroads:tail-of-the-dragon-cherohola-skyway-loop",
+      "Tail of the Dragon / Cherohola Skyway Loop"
+    ],
+    [
+      "fhwa-beartooth-highway-montana-wyoming",
+      "Beartooth Highway"
+    ]
+  ]
 }
+MUST_OBSERVE zero test/seed/tepusquet contamination
+@@GATE-EXIT=0@@

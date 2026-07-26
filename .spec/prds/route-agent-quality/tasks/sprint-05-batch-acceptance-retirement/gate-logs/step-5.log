@@ -1,34 +1,13 @@
-{
-  "claim": "top-50-by-composite-rank review",
-  "function": "top50Review:exportTop50Manifest",
-  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
-  "rowCount": 50,
-  "sampleHead": [
-    {
-      "routeId": "fhwa-coronado-trail-scenic-byway-arizona",
-      "compositeScore": 0.9,
-      "name": "Coronado Trail Scenic Byway"
-    },
-    {
-      "routeId": "motorcycleroads:beartooth-pass",
-      "compositeScore": 0.8714,
-      "name": "Beartooth Pass"
-    },
-    {
-      "routeId": "bestbikingroads:beartooth-pass-montana-chief-joseph-highway-wyoming-usa-ttc-2",
-      "compositeScore": 0.8643,
-      "name": "Beartooth Pass Montana / Chief Joseph Highway Wyoming (USA_TTC 2)"
-    },
-    {
-      "routeId": "bestbikingroads:tail-of-the-dragon-cherohola-skyway-loop",
-      "compositeScore": 0.8571,
-      "name": "Tail of the Dragon / Cherohola Skyway Loop"
-    },
-    {
-      "routeId": "fhwa-beartooth-highway-montana-wyoming",
-      "compositeScore": 0.8571,
-      "name": "Beartooth Highway"
-    }
-  ],
-  "result": "PASS"
-}
+@@GATE-META step=step5 cmd_sha=7cbcf046a258e73719a62ca6602267ca448300cbbba095500c4d673fcc7c64dc@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step5.sh
+rowCount 50
+ROW fhwa-coronado-trail-scenic-byway-arizona Coronado Trail Scenic Byway 0.9 94.94637553282713
+ROW motorcycleroads:beartooth-pass Beartooth Pass 0.8714 64.05048032112543
+ROW bestbikingroads:beartooth-pass-montana-chief-joseph-highway-wyoming-usa-ttc-2 Beartooth Pass Montana / Chief Joseph Highway Wyoming (USA_TTC 2) 0.8643 152.0303097613287
+ROW bestbikingroads:tail-of-the-dragon-cherohola-skyway-loop Tail of the Dragon / Cherohola Skyway Loop 0.8571 122.67579652573531
+ROW fhwa-beartooth-highway-montana-wyoming Beartooth Highway 0.8571 59.22241415735643
+ROW bestbikingroads:cherohala-skyway-tailofdragon-marionnc Cherohala Skyway ->TailofDragon-->MarionNC 0.85 300.603203772949
+ROW bestbikingroads:highway-92-colorado-co92-sapinero-crawford-black-mesa Highway 92 Colorado (CO92) Sapinero - Crawford ( Black Mesa ) 0.85 30.947885611434433
+ROW bestbikingroads:nc80-devils-whip-north-carolina-sr-80s NC80 : Devils Whip (North Carolina SR-80S) 0.85 24.564484193222384
+MUST_OBSERVE top-50 row-level evidence
+@@GATE-EXIT=0@@

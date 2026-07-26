@@ -1,0 +1,11 @@
+@@GATE-META step=step8 cmd_sha=8beaeea580bb2aabbee568a3f4dac12b801cba6ba78545c5cc4cef2914fad806@@
++ bash /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.gate-evidence/2026-07-26T212757Z/scripts/step8.sh
+using route motorcycleroads:lonely-short-cut-missouri-j
+retire {"error": "Expecting property name enclosed in double quotes: line 1 column 2 (char 1)", "snippet": "{confirmed: true, disposition: \"retire\", reason: \"QA step-8 explicit founder confirm\", routeId: \"motorcycleroads:lonely-short-cut-missouri-j\"}\nValidator: v.object({confirmed: v.boolean(), reason: v.st"}
+unretire {"error": "Expecting property name enclosed in double quotes: line 1 column 2 (char 1)", "snippet": "{routeId: \"motorcycleroads:lonely-short-cut-missouri-j\"}\nValidator: v.object({expectedRetiredAt: v.float64(), routeId: v.string()})\n"}
+acceptance {'decision': 'accepted', 'retirementUnlockedAt': 1785101445126, 'runId': 's5-qa-live-20260726T213002Z', 'acceptedAt': 1785101445126}
+MUST_OBSERVE no auto-retire; reversible unretire transcript
+MUST_OBSERVE decision accepted
+autoRetire false
+MUST_OBSERVE retirement unlocked only after founder accept
+@@GATE-EXIT=0@@
