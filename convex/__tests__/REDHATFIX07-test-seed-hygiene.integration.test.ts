@@ -1,14 +1,17 @@
 /**
- * REDHAT-FIX-07 AC-3 / TC-3: test:/seed: excluded from unscoped production counts.
+ * REDHAT-FIX-07 AC-3 / TC-3 (+ REDHAT-FIX-08 fixture scrub):
+ * test:/seed: AND known production-prefixed fixtures excluded from unscoped
+ * production counts and top-50 export.
  *
  * TEST_TIER: integration
  * VERIFICATION_SERVICE: Convex dev deployment
- * FLOW_REF: UC-REC-04
- * start_ref: redhatfix07-contamination-pool
+ * FLOW_REF: UC-REC-04 / UC-VER-05
+ * start_ref: redhatfix07-contamination-pool / redhatfix08-test-seed-and-fixture-exclusion
  *
  * Race-safe against sibling REDHATFIX07 files on a shared Convex catalog:
  * - Uses dedicated prefixes only for this AC
  * - Proves scrub via testSeedRowsSkipped + prefix isolation (not fragile global deltas)
+ * - Proves top-50 export excludes tepusquet fixture + test:/seed: rows
  */
 
 import { execFileSync } from 'node:child_process'
@@ -28,6 +31,7 @@ const TEST_IDENTITY = JSON.stringify({
 const TEST_PREFIX = 'test:redhatfix07-cont-'
 const SEED_PREFIX = 'seed:redhatfix07-cont-'
 const REAL_PREFIX = 'motorcycleroads:redhatfix07-real-'
+const FIXTURE_ROUTE_ID = 'motorcycleroads:twist-of-tepusquet-loop'
 
 interface RunResult {
   ok: boolean
@@ -120,15 +124,17 @@ function seedPool(
   }
 }
 
-describe('REDHAT-FIX-07 AC-3: test:/seed: hygiene on unscoped coverage counts', () => {
+describe('REDHAT-FIX-07 AC-3: test:/seed:/fixture hygiene on unscoped coverage + top-50', () => {
   let unscopedReport: any
   let baselineSkipped: number
   let afterTestSkipped: number
   let afterSeedSkipped: number
+  let afterFixtureSkipped: number
   let prefixTestAi: number
   let prefixRealAi: number
   let prefixSeedUnresolved: number
   let realOnlyUnscopedDelta: number
+  let top50Manifest: any
 
   beforeAll(() => {
     mkdirSync(EVIDENCE_DIR, { recursive: true })
@@ -143,6 +149,11 @@ describe('REDHAT-FIX-07 AC-3: test:/seed: hygiene on unscoped coverage counts', 
     purgePrefix(TEST_PREFIX)
     purgePrefix(SEED_PREFIX)
     purgePrefix(REAL_PREFIX)
+    runConvexFn(
+      'curatedGeometry:purgeRoutesByPrefix',
+      { prefix: FIXTURE_ROUTE_ID, limit: 5 },
+      { identity: true },
+    )
 
     const baseQ = runConvexFn('curatedGeometry:coverageReport', {}, { identity: true })
     expect(baseQ.ok, `baseline coverage failed: ${baseQ.stderr}\n${baseQ.stdout}`).toBe(true)
@@ -163,6 +174,30 @@ describe('REDHAT-FIX-07 AC-3: test:/seed: hygiene on unscoped coverage counts', 
     expect(afterSeedQ.ok).toBe(true)
     const afterSeed = parseJson(afterSeedQ.stdout)
     afterSeedSkipped = afterSeed?.testSeedRowsSkipped ?? 0
+
+    // Known production-prefixed fixture (seedPoCRoute id) — must scrub without "fixture" name
+    const fixtureSeed = runConvexFn(
+      'top50Review:seedMixedCompositeScorePublic',
+      {
+        routes: [
+          {
+            routeId: FIXTURE_ROUTE_ID,
+            name: 'Twist of Tepusquet Loop',
+            compositeScore: 99,
+            riderReady: true,
+            provenance: 'ai_reconstructed',
+          },
+        ],
+      },
+      { identity: true },
+    )
+    expect(
+      fixtureSeed.ok,
+      `fixture seed failed: ${fixtureSeed.stderr}\n${fixtureSeed.stdout}`,
+    ).toBe(true)
+    const afterFixtureQ = runConvexFn('curatedGeometry:coverageReport', {}, { identity: true })
+    expect(afterFixtureQ.ok).toBe(true)
+    afterFixtureSkipped = parseJson(afterFixtureQ.stdout)?.testSeedRowsSkipped ?? 0
 
     // 5 real production-like ai_reconstructed — MUST count on unscoped
     seedPool(REAL_PREFIX, 5, 'ai_reconstructed', 'generated')
@@ -193,6 +228,10 @@ describe('REDHAT-FIX-07 AC-3: test:/seed: hygiene on unscoped coverage counts', 
     )
     prefixSeedUnresolved = parseJson(seedPrefQ.stdout)?.terminalStates?.unresolved ?? 0
 
+    const top50Q = runConvexFn('top50Review:exportTop50Manifest', { limit: 50 }, { identity: true })
+    expect(top50Q.ok, `top50 export failed: ${top50Q.stderr}\n${top50Q.stdout}`).toBe(true)
+    top50Manifest = parseJson(top50Q.stdout)
+
     writeFileSync(
       resolve(EVIDENCE_DIR, 'AC-3-test-seed-hygiene.json'),
       JSON.stringify(
@@ -201,11 +240,13 @@ describe('REDHAT-FIX-07 AC-3: test:/seed: hygiene on unscoped coverage counts', 
           baselineSkipped,
           afterTestSkipped,
           afterSeedSkipped,
+          afterFixtureSkipped,
           realOnlyUnscopedDelta,
           prefixTestAi,
           prefixRealAi,
           prefixSeedUnresolved,
           unscopedReport,
+          top50RouteIds: (top50Manifest?.rows ?? []).map((r: any) => r.routeId),
         },
         null,
         2,
@@ -217,9 +258,14 @@ describe('REDHAT-FIX-07 AC-3: test:/seed: hygiene on unscoped coverage counts', 
     purgePrefix(TEST_PREFIX)
     purgePrefix(SEED_PREFIX)
     purgePrefix(REAL_PREFIX)
+    runConvexFn(
+      'curatedGeometry:purgeRoutesByPrefix',
+      { prefix: FIXTURE_ROUTE_ID, limit: 5 },
+      { identity: true },
+    )
   }, 300_000)
 
-  it('TC-3: Unscoped live coverageReport does not count test:/seed:; production rows still count', () => {
+  it('TC-3: Unscoped live coverageReport + top-50 exclude test:/seed:/fixture; production rows still count', () => {
     // Prefix isolation (stable under concurrent sibling suites):
     // harness still counts intentional test:/seed: when scoped.
     expect(prefixTestAi).toBe(40)
@@ -236,6 +282,8 @@ describe('REDHAT-FIX-07 AC-3: test:/seed: hygiene on unscoped coverage counts', 
     // (absolute, not fragile delta — concurrent suites may add/remove other test: rows).
     expect(afterTestSkipped).toBeGreaterThanOrEqual(40)
     expect(afterSeedSkipped).toBeGreaterThanOrEqual(50)
+    // Fixture must also contribute to scrub once isTestSeedRoute knows it
+    expect(afterFixtureSkipped).toBeGreaterThanOrEqual(afterSeedSkipped)
     expect(unscopedReport?.testSeedRowsSkipped).toBeGreaterThanOrEqual(50)
 
     // Production-like rows still contribute to unscoped levers (not zeroed by scrub).
@@ -247,8 +295,18 @@ describe('REDHAT-FIX-07 AC-3: test:/seed: hygiene on unscoped coverage counts', 
     // If test: rows leaked into unscoped levers, delta would typically jump by ~40
     // beyond the 5 reals (and any small concurrent noise). Cap the leak signal.
     expect(realOnlyUnscopedDelta).toBeLessThan(40)
+    // Negative control: fixture must not add +1 to unscoped ai_reconstructed
+    // beyond the 5 reals (would be baseline+6 if fixture leaked alone with reals).
+    expect(realOnlyUnscopedDelta).not.toBe(6)
 
     // baselineSkipped is retained for evidence lineage only
     expect(typeof baselineSkipped).toBe('number')
+
+    // Unscoped top-50 must not include fixture / test: / seed:
+    const rows = top50Manifest?.rows ?? []
+    expect(rows.length).toBeGreaterThan(0)
+    expect(rows.some((r: any) => r.routeId === FIXTURE_ROUTE_ID)).toBe(false)
+    expect(rows.some((r: any) => String(r.routeId).startsWith('test:'))).toBe(false)
+    expect(rows.some((r: any) => String(r.routeId).startsWith('seed:'))).toBe(false)
   })
 })

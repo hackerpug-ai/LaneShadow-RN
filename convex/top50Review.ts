@@ -14,9 +14,9 @@ import { internalMutation, mutation, query } from './_generated/server'
 import { buildFixturePolyline } from './couchRouteMapPng'
 import { geospatial } from './geospatialIndex'
 import { requireFounder, requireIdentity, requireOperator } from './guards'
-import { isTestSeedRoute } from './lib/top50Eligibility'
+import { isTestSeedRoute, normalizeCompositeScore } from './lib/top50Eligibility'
 
-export { isTestSeedRoute } from './lib/top50Eligibility'
+export { isTestSeedRoute, normalizeCompositeScore } from './lib/top50Eligibility'
 
 export const TOP50_DEFAULT_LIMIT = 50
 export const TOP50_ROUTE_PREFIX = 'test:s5t3-'
@@ -118,14 +118,17 @@ function isEligibleReady(row: {
 }
 
 /**
- * Deterministic tie-break: higher compositeScore first; equal → routeId asc.
- * Does NOT re-rank across the index — only stabilizes equal-score ties.
+ * Deterministic ranking: higher *normalized* compositeScore first; equal → routeId asc.
+ * REDHAT-FIX-08: normalize 0–100 integers and 0–1 decimals onto one 0–1 scale so
+ * integer 85 (→0.85) does not outrank true decimal 0.9.
  */
 export function sortManifestRows<T extends { compositeScore: number; routeId: string }>(
   rows: T[],
 ): T[] {
   return [...rows].sort((a, b) => {
-    if (b.compositeScore !== a.compositeScore) return b.compositeScore - a.compositeScore
+    const nb = normalizeCompositeScore(b.compositeScore)
+    const na = normalizeCompositeScore(a.compositeScore)
+    if (nb !== na) return nb - na
     return a.routeId.localeCompare(b.routeId)
   })
 }
@@ -619,6 +622,47 @@ export const seedTop50FixturesPublic = mutation({
       nonReadyCount: args.nonReadyCount ?? 5,
       scoreBase: args.scoreBase,
     })
+  },
+})
+
+/**
+ * REDHAT-FIX-08: seed exact compositeScore values (mixed 0–1 / 0–100) with geometry
+ * so exportTop50Manifest ranking can be proven scale-normalized.
+ */
+export const seedMixedCompositeScorePublic = mutation({
+  args: {
+    routes: v.array(
+      v.object({
+        routeId: v.string(),
+        name: v.string(),
+        compositeScore: v.number(),
+        riderReady: v.boolean(),
+        provenance: v.optional(
+          v.union(
+            v.literal('scraped_promoted'),
+            v.literal('ai_reconstructed'),
+            v.literal('name_routed'),
+          ),
+        ),
+      }),
+    ),
+  },
+  handler: async (ctx, { routes }) => {
+    await requireFounder(ctx)
+    const seeded: string[] = []
+    for (const r of routes) {
+      await upsertTop50Route(ctx, {
+        routeId: r.routeId,
+        name: r.name,
+        compositeScore: r.compositeScore,
+        riderReady: r.riderReady,
+        provenance: r.provenance ?? 'ai_reconstructed',
+        claimedMiles: 40,
+        routedMiles: 40,
+      })
+      seeded.push(r.routeId)
+    }
+    return { seeded, count: seeded.length }
   },
 })
 
