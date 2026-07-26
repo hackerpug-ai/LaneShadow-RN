@@ -136,11 +136,6 @@ export default defineConfig({
     // redirection happens at Node's module loader level via vitest.env.js (see
     // Module._resolveFilename override), which works regardless of pool choice.
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
   },
   resolve: {
     alias: [

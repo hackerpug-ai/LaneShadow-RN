@@ -170,7 +170,7 @@ vi.mock('../../../hooks/use-semantic-theme', () => ({
 // mocked ref, which are no-ops here.
 vi.mock('@gorhom/bottom-sheet', () => {
   const React = require('react')
-  const { View } = require('react-native')
+  const { TextInput, View } = require('react-native')
 
   return {
     BottomSheetModal: React.forwardRef((props: any, ref: any) => {
@@ -187,6 +187,10 @@ vi.mock('@gorhom/bottom-sheet', () => {
     }),
     BottomSheetView: (props: any) => React.createElement(View, props, props.children),
     BottomSheetBackdrop: () => null,
+    // BottomSheetInput (components/ui/bottom-sheet-input.tsx) renders
+    // BottomSheetTextInput from this module. A regular TextInput is a
+    // faithful-enough stand-in for tests.
+    BottomSheetTextInput: TextInput,
   }
 })
 

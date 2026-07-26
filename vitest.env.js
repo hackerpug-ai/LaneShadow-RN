@@ -25,6 +25,21 @@ process.env.NODE_ENV = 'test'
 // Set __DEV__ for React Native/Expo packages
 global.__DEV__ = false
 
+// react-test-renderer (used internally by @testing-library/react-native)
+// branches its rendering mode on this global: when it is NOT exactly `true`,
+// react-test-renderer forces a *concurrent* root regardless of the
+// `unstable_isConcurrent` option RNTL passes in, because it assumes it's
+// running outside of a real React Native test environment. Real React
+// Native's own `react-native/jest/setup.js` sets this flag, which is how
+// RN's Jest preset normally makes react-test-renderer use the synchronous
+// legacy root that RNTL's `act()`/cleanup machinery is built around. This
+// project stubs `react-native` out entirely for tests (see STUB_MAP below),
+// so that setup file never runs and this flag was never set. Setting it
+// here restores the RN-faithful behavior RNTL's config actually expects
+// (see the `concurrentRoot: false` comment below for how that combines to
+// avoid a nasty cross-process `act()` corruption bug we hit).
+global.IS_REACT_NATIVE_TEST_ENVIRONMENT = true
+
 // Set up ExpoGlobal for expo-modules-core
 globalThis.ExpoGlobal = {
   EventEmitter: class EventEmitter {
@@ -143,7 +158,32 @@ Module._resolveFilename = function (request, parent, ...rest) {
 // wrappers (icons, backgrounds) that tests still need to address by testID.
 // Must run inline (not in beforeAll) so module-level `render()` calls pick it up.
 const { configure } = await import('@testing-library/react-native')
-configure({ defaultHidden: true })
+configure({
+  defaultHidden: true,
+  // Force the legacy (synchronous) React Test Renderer root instead of
+  // RNTL v13's default concurrent root. A concurrent root defers each
+  // `render()`/`fireEvent` commit onto React's internal async `act()` queue
+  // (flushed via a macrotask) rather than committing inline inside
+  // `TestRenderer.create()`/`act()`. That queue is a MODULE-LEVEL singleton
+  // on `react`'s shared internals — fine when every test file gets its own
+  // process, but this repo used to run the *entire* suite inside one
+  // forked process (`vitest.config.ts` had `poolOptions.forks.singleFork:
+  // true`), so every test file shared the same React module instance and
+  // therefore the same act queue. Two act() scopes overlapping in time
+  // (easy to hit across hundreds of `await act(async () => {...})` calls
+  // sharing one process) permanently corrupted that singleton — React logs
+  // "You seem to have overlapping act() calls" via console.error, which
+  // this repo's global console.error stub silently swallows — and every
+  // render for the rest of the process then committed nothing, throwing
+  // "Can't access .root on unmounted test renderer" on `.root` access. The
+  // real fix was removing `singleFork: true` so vitest goes back to one
+  // process per test file (see vitest.config.ts); `concurrentRoot: false`
+  // plus `IS_REACT_NATIVE_TEST_ENVIRONMENT` above are kept as defense in
+  // depth, matching real React Native's test behavior and removing the
+  // shared-act-queue mechanism entirely in case single-process test runs
+  // ever come back.
+  concurrentRoot: false,
+})
 
 const loadFirstEnvFile = () => {
   const rootDir = path.resolve(__dirname)
