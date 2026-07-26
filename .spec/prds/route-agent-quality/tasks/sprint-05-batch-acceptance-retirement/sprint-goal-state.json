@@ -67,7 +67,7 @@
       }
     ],
     "cycle": 4,
-    "written_at_commit": "edb660902615c742e25864f12b16bca36eaaafe7",
+    "written_at_commit": "582075cfe19262faa17a828fd5180c4fb8ae9a2c",
     "runId": "s5-full-batch-redhatfix09-20260726T210313Z"
   },
   "human_test": {
@@ -109,7 +109,7 @@
   "goal_complete": true,
   "reason": "Founder accepted via real requestBatchAcceptance\u2192escalation_required\u2192resolveBatchEscalation under dev-founder-redhatfix09; post-FIX-08 exhaustive coverageReport; durable gate evidence committed",
   "written_at": "2026-07-26T21:06:48.602478Z",
-  "written_at_commit": "edb660902615c742e25864f12b16bca36eaaafe7",
+  "written_at_commit": "582075cfe19262faa17a828fd5180c4fb8ae9a2c",
   "written_by": "convex-implementer/REDHAT-FIX-09",
   "redhat_fixes": [
     "REDHAT-FIX-01",
