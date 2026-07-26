@@ -97,12 +97,32 @@ describe('REDHAT-FIX-09 durable founder acceptance gate evidence', () => {
     expect(s1.isDone).toBe(true)
   })
 
+  it('AC-1: step-1 is cost-bearing (processed>=1 and totalCostUSD>0) — rejects skip-all theatre', () => {
+    const s1 = readJson(join(LOGS, 'step-1.log'))
+    const processed = Number(s1.processed ?? 0)
+    const totalCostUSD = Number(s1.totalCostUSD ?? 0)
+    const cumulativeCostUSD = Number(s1.cumulativeCostUSD ?? 0)
+    const pageTotals = (s1.pageTotals as Array<Record<string, unknown>>) ?? []
+    const pageCost = pageTotals.reduce((sum, p) => sum + Number(p.totalCostUsd ?? 0), 0)
+    // Real lever work must have run — processed=0 + cost=0 is FIX-01 degenerate theatre.
+    expect(processed).toBeGreaterThanOrEqual(1)
+    expect(totalCostUSD > 0 || cumulativeCostUSD > 0 || pageCost > 0).toBe(true)
+    expect(processed === 0 && totalCostUSD === 0).toBe(false)
+    const mo = s1.must_observe as Record<string, unknown> | undefined
+    if (mo) {
+      expect(mo.totalCostUSD_gt_0).toBe(true)
+      expect(mo.processed_gte_1).toBe(true)
+      expect(mo.not_skip_all_theatre).toBe(true)
+    }
+  })
+
   it('AC-1: step-2 persisted coverageReport has source=persisted + provenance', () => {
     const s2 = readJson(join(LOGS, 'step-2.log'))
     const persisted = s2.persisted as Record<string, unknown>
     expect(persisted?.source).toBe('persisted')
     const rp = persisted?.reportProvenance as { producedBy?: string }
     expect(rp?.producedBy).toBe('runFullBatch')
+    expect(Number(persisted?.totalCostUSD ?? 0)).toBeGreaterThan(0)
     const mo = s2.must_observe as Record<string, unknown>
     expect(mo?.persisted_source).toBe(true)
     expect(mo?.producedBy_runFullBatch).toBe(true)
@@ -190,11 +210,16 @@ describe('REDHAT-FIX-09 durable founder acceptance gate evidence', () => {
     }
   })
 
-  it('AC-3: sprint-goal-state decision=accepted and written_at_commit resolves (post-commit)', () => {
+  it('AC-3: sprint-goal-state batch decision=accepted; written_at_commit resolves (post-commit)', () => {
     const goal = readJson(GOAL_STATE)
+    // Batch-level decision must be accepted; whole-sprint met/trunk is honest until land.
     expect(goal.decision).toBe('accepted')
-    expect(goal.met).toBe(true)
-    expect(goal.goal).toBe('complete')
+    const batchDecision = goal.batch_decision as Record<string, unknown> | undefined
+    if (batchDecision) {
+      expect(batchDecision.decision).toBe('accepted')
+      expect(Number(batchDecision.processed ?? 0)).toBeGreaterThanOrEqual(1)
+      expect(Number(batchDecision.totalCostUSD ?? 0)).toBeGreaterThan(0)
+    }
     const runId = String(goal.runId ?? '')
     expect(runId).toMatch(/^s5-full-batch-redhatfix09-/)
     expect(runId).not.toBe(REJECTED_RUN_ID)
@@ -211,6 +236,11 @@ describe('REDHAT-FIX-09 durable founder acceptance gate evidence', () => {
       )
       expect(out).toContain(runId)
       expect(out).toContain('"verdict": "pass"')
+      // Theatre guard on committed evidence (0.21 etc. are valid; 0 is not)
+      expect(out).toMatch(/"processed":\s*[1-9]\d*/)
+      const costMatch = out.match(/"totalCostUSD":\s*([0-9.]+)/)
+      expect(costMatch).toBeTruthy()
+      expect(Number(costMatch?.[1] ?? 0)).toBeGreaterThan(0)
     }
   })
 })

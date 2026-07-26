@@ -1,20 +1,21 @@
 {
-  "claim": "full couch-gated batch via waterfallOrchestrator:runFullBatch (scan/membership sample)",
+  "claim": "full couch-gated batch via waterfallOrchestrator:runFullBatch (cost-bearing)",
   "function": "waterfallOrchestrator:runFullBatch",
-  "runId": "s5-full-batch-redhatfix09-20260726T210313Z",
+  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
   "isDone": true,
-  "totalCostUSD": 0,
-  "cumulativeCostUSD": 0,
+  "totalCostUSD": 0.21000000000000002,
+  "cumulativeCostUSD": 0.21000000000000002,
+  "pageCostUSD": 0.21000000000000002,
   "batchStopReason": "completed",
   "continueCursor": null,
   "pageTotals": [
     {
       "batchStopReason": "completed",
-      "endIndex": 30,
-      "processed": 0,
-      "skipped": 30,
+      "endIndex": 6,
+      "processed": 3,
+      "skipped": 3,
       "startIndex": 0,
-      "totalCostUsd": 0
+      "totalCostUsd": 0.21000000000000002
     }
   ],
   "reportProvenance": {
@@ -25,8 +26,26 @@
     "allowed": true,
     "overallVerdict": "pass"
   },
-  "routes": 30,
-  "skipped": 30,
-  "processed": 0,
+  "routes": 6,
+  "skipped": 3,
+  "processed": 3,
+  "routesMutated": 3,
+  "perLeverCounts": {
+    "lever1": 3,
+    "lever2": 3,
+    "lever3": 3
+  },
+  "perStateCounts": {
+    "cost_blocked": 0,
+    "queued": 3,
+    "recovered": 0,
+    "retirement_eligible": 0,
+    "skipped": 3
+  },
+  "must_observe": {
+    "totalCostUSD_gt_0": true,
+    "processed_gte_1": true,
+    "not_skip_all_theatre": true
+  },
   "result": "PASS"
 }

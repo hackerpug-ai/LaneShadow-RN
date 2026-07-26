@@ -1,20 +1,38 @@
 {
-  "claim": "coverageReport yields/cost/cursor/provenance",
+  "claim": "coverageReport persisted for runId",
   "function": "curatedGeometry:coverageReport",
-  "runId": "s5-full-batch-redhatfix09-20260726T210313Z",
+  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
   "persisted": {
     "source": "persisted",
+    "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
     "isDone": true,
-    "totalCostUSD": 0,
+    "totalCostUSD": 0.21000000000000002,
     "reportProvenance": {
       "producedBy": "runFullBatch",
       "sourceRunKind": "runFullBatch"
     },
+    "terminalStates": {
+      "cost_blocked": 0,
+      "queued": 3,
+      "recovered": 0,
+      "retirement_eligible": 0,
+      "skipped": 3
+    },
+    "pageTotals": [
+      {
+        "batchStopReason": "completed",
+        "endIndex": 6,
+        "processed": 3,
+        "skipped": 3,
+        "startIndex": 0,
+        "totalCostUsd": 0.21000000000000002
+      }
+    ],
     "levers": [
       {
         "assumptionIsTarget": false,
         "assumptionLabel": "unproven",
-        "candidateCount": 0,
+        "candidateCount": 3,
         "escalationFloor": null,
         "lever": "promote",
         "leverNumber": 1,
@@ -26,7 +44,7 @@
       {
         "assumptionIsTarget": false,
         "assumptionLabel": "~67%",
-        "candidateCount": 0,
+        "candidateCount": 3,
         "escalationFloor": 0.4,
         "lever": "reconstruct",
         "leverNumber": 2,
@@ -38,7 +56,7 @@
       {
         "assumptionIsTarget": false,
         "assumptionLabel": "~40-55%",
-        "candidateCount": 0,
+        "candidateCount": 3,
         "escalationFloor": 0.4,
         "lever": "reroute",
         "leverNumber": 3,
@@ -47,81 +65,13 @@
         "provenance": "name_routed",
         "realizedRate": 0
       }
-    ],
-    "terminalStates": {
-      "cost_blocked": 0,
-      "queued": 0,
-      "recovered": 0,
-      "retirement_eligible": 0,
-      "skipped": 30
-    },
-    "riderReadyCount": 0
+    ]
   },
-  "live_exhaustive": {
-    "source": "live",
-    "exhaustive": true,
-    "livePathSilentTake500": false,
-    "scrubbedTestSeed": true,
-    "riderReadyCount": 2034,
-    "levers": [
-      {
-        "assumptionIsTarget": false,
-        "assumptionLabel": "unproven",
-        "candidateCount": 1069,
-        "escalationFloor": null,
-        "lever": "promote",
-        "leverNumber": 1,
-        "passCount": 1069,
-        "passRate": 1,
-        "provenance": "scraped_promoted",
-        "realizedRate": 1
-      },
-      {
-        "assumptionIsTarget": false,
-        "assumptionLabel": "~67%",
-        "candidateCount": 1491,
-        "escalationFloor": 0.4,
-        "lever": "reconstruct",
-        "leverNumber": 2,
-        "passCount": 1490,
-        "passRate": 0.9993293091884641,
-        "provenance": "ai_reconstructed",
-        "realizedRate": 0.9993293091884641
-      },
-      {
-        "assumptionIsTarget": false,
-        "assumptionLabel": "~40-55%",
-        "candidateCount": 23,
-        "escalationFloor": 0.4,
-        "lever": "reroute",
-        "leverNumber": 3,
-        "passCount": 23,
-        "passRate": 1,
-        "provenance": "name_routed",
-        "realizedRate": 1
-      }
-    ],
-    "terminalStates": {
-      "cost_blocked": 0,
-      "failed": 0,
-      "generated": 5358,
-      "queued": 0,
-      "recovered": 0,
-      "retirement_eligible": 0,
-      "review": 396,
-      "skipped": 0,
-      "unresolved": 2
-    },
-    "provenanceCounts": {
-      "ai_reconstructed": 1491,
-      "name_routed": 23,
-      "scraped_promoted": 1069
-    }
-  },
+  "live_unscoped_source": "live",
   "must_observe": {
     "persisted_source": true,
     "producedBy_runFullBatch": true,
-    "runId_match": true
+    "totalCostUSD_gt_0": true
   },
   "result": "PASS"
 }

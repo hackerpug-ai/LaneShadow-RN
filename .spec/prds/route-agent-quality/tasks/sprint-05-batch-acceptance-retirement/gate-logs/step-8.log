@@ -1,7 +1,7 @@
 {
   "claim": "no auto-retire; reversible unretireRoute",
   "function": "curatedGeometry:unretireRoute",
-  "runId": "s5-full-batch-redhatfix09-20260726T210313Z",
+  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
   "transcript": {
     "routeId": "motorcycleroads:lonely-short-cut-missouri-j",
     "before": {
@@ -12,14 +12,14 @@
       "confirmed": true,
       "disposition": "retire",
       "geometryStatus": "retired",
-      "retiredAt": "2026-07-26T21:05:36.888Z",
-      "retiredAtMs": 1785099936888,
+      "retiredAt": "2026-07-26T21:16:28.978Z",
+      "retiredAtMs": 1785100588978,
       "retirementReason": "REDHAT-FIX-09 step-7 explicit founder-confirmed retirement evidence",
       "riderReady": false,
       "routeId": "motorcycleroads:lonely-short-cut-missouri-j"
     },
     "mid": {
-      "retiredAt": 1785099936888,
+      "retiredAt": 1785100588978,
       "geometryStatus": "retired"
     },
     "unretire": {

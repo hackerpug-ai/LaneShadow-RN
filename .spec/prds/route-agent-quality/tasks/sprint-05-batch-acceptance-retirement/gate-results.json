@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "sprint_id": "sprint-05-batch-acceptance-retirement",
-  "run_id": "s5-full-batch-redhatfix09-20260726T210313Z",
-  "batch_run_id": "s5-full-batch-redhatfix09-20260726T210313Z",
+  "run_id": "s5-full-batch-redhatfix09-20260726T211438Z",
+  "batch_run_id": "s5-full-batch-redhatfix09-20260726T211438Z",
   "verdict": "pass",
   "runner": "dev-founder-redhatfix09",
   "ui_driver": "none",
@@ -83,7 +83,14 @@
       "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-8.log"
     }
   ],
-  "recorded_at": "2026-07-26T21:06:48.602478Z",
+  "recorded_at": "2026-07-26T21:17:52.323772Z",
+  "batch_metrics": {
+    "processed": 3,
+    "skipped": 3,
+    "totalCostUSD": 0.21000000000000002,
+    "cumulativeCostUSD": 0.21000000000000002,
+    "pageCostUSD": 0.21000000000000002
+  },
   "artifacts": {
     "coverage": ".tmp/S5-T4/coverage-report-accepted.json",
     "top50": ".tmp/S5-T4/top50-manifest.json",
@@ -91,41 +98,41 @@
     "durable_evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/evidence/REDHAT-FIX-09/",
     "accept": {
       "decision": "accepted",
-      "decisionTimestamp": "2026-07-26T21:04:43.871Z",
+      "decisionTimestamp": "2026-07-26T21:15:47.682Z",
       "operatorIdentity": "dev-founder-redhatfix09",
-      "retirementUnlockedAt": 1785099883871,
+      "retirementUnlockedAt": 1785100547682,
       "escalations": [
         {
           "assumptionLabel": "~67%",
-          "candidateCount": 0,
-          "candidates": 0,
+          "candidateCount": 3,
+          "candidates": 3,
           "escalationFloor": 0.4,
           "lever": "reconstruct",
           "leverNumber": 2,
           "observedRate": 0,
           "passCount": 0,
           "realizedRate": 0,
-          "reason": "reconstruct zero_candidates: undefined_rate \u2014 inspection required (no candidates exercised; cannot compare against escalation floor 40%; assumption ~67%)"
+          "reason": "reconstruct realized rate 0.0% is below escalation floor 40% (assumption ~67%)"
         },
         {
           "assumptionLabel": "~40-55%",
-          "candidateCount": 0,
-          "candidates": 0,
+          "candidateCount": 3,
+          "candidates": 3,
           "escalationFloor": 0.4,
           "lever": "reroute",
           "leverNumber": 3,
           "observedRate": 0,
           "passCount": 0,
           "realizedRate": 0,
-          "reason": "reroute zero_candidates: undefined_rate \u2014 inspection required (no candidates exercised; cannot compare against escalation floor 40%; assumption ~40-55%)"
+          "reason": "reroute realized rate 0.0% is below escalation floor 40% (assumption ~40-55%)"
         }
       ],
       "path": "requestBatchAcceptance(accept) \u2192 escalation_required \u2192 resolveBatchEscalation(accept)"
     }
   },
   "notes": [
-    "Real waterfallOrchestrator:runFullBatch with fresh runId and reportProvenance.producedBy=runFullBatch",
-    "step-4 distinct accept attempt \u2192 escalation_required then founder resolve accept",
+    "Real waterfallOrchestrator:runFullBatch runId=s5-full-batch-redhatfix09-20260726T211438Z processed=3 totalCostUSD=0.21000000000000002 (NOT skip-all theatre)",
+    "step-4: real low-yield escalations (candidateCount=3, realizedRate=0) then founder resolve accept",
     "top-50 row-level evidence, zero test: contamination after scrub",
     "retirement candidates row-level; lock unlocked only after provenanced resolve accept",
     "operatorIdentity=dev-founder-redhatfix09 (requireFounder via users.role=founder)"

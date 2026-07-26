@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "all_completed": true
+    "all_completed": false
   },
   "gate": {
     "overall": "PASS",
@@ -19,7 +19,7 @@
     "steps": [
       {
         "n": 1,
-        "claim": "full couch-gated batch via runFullBatch",
+        "claim": "full couch-gated cost-bearing batch via runFullBatch",
         "result": "PASS",
         "covered_by": "REDHAT-FIX-09"
       },
@@ -66,50 +66,57 @@
         "covered_by": "REDHAT-FIX-09 step-8"
       }
     ],
-    "cycle": 4,
-    "written_at_commit": "582075cfe19262faa17a828fd5180c4fb8ae9a2c",
-    "runId": "s5-full-batch-redhatfix09-20260726T210313Z"
+    "cycle": 5,
+    "written_at_commit": "02d26f829767fcf3ef2832826efccedac8921a82",
+    "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
+    "batch_metrics": {
+      "processed": 3,
+      "totalCostUSD": 0.21000000000000002
+    }
   },
   "human_test": {
     "verdict": "pass",
-    "run_id": "s5-full-batch-redhatfix09-20260726T210313Z",
+    "run_id": "s5-full-batch-redhatfix09-20260726T211438Z",
     "steps_total": 8,
     "steps_executed": 8,
     "steps_passed": 8,
     "gate_results_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-results.json",
-    "cycle": 4,
+    "cycle": 5,
     "assert": "valid:true"
   },
   "integration": {
-    "trunk_consolidated": true,
-    "orphan_branches": [],
+    "trunk_consolidated": false,
+    "orphan_branches": [
+      "task/REDHAT-FIX-09"
+    ],
     "stranded_tasks": [],
-    "default_target_ok": true,
+    "default_target_ok": false,
     "protected_branch": "main",
-    "assert_landed_ok": true
+    "assert_landed_ok": false,
+    "note": "Branch not landed; orchestrator re-verifies met() after land"
   },
   "status_files": {
     "parity": true,
     "drift": [],
-    "checked_at": "2026-07-26T21:06:48.602478Z"
+    "checked_at": "2026-07-26T21:17:52.323772Z"
   },
   "build": {
     "overall": "passed"
   },
   "decision": "accepted",
   "status": "accepted",
-  "runId": "s5-full-batch-redhatfix09-20260726T210313Z",
-  "retirementUnlockedAt": 1785099883871,
+  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
+  "retirementUnlockedAt": 1785100547682,
   "sprint10": {
-    "blocked": false,
-    "reason": "Sprint 05 catalog accepted \u2014 Sprint 10 unblocked"
+    "blocked": true,
+    "reason": "Batch decision accepted; sprint land/trunk consolidation pending before Sprint 10 unblock"
   },
-  "goal": "complete",
-  "met": true,
-  "goal_complete": true,
-  "reason": "Founder accepted via real requestBatchAcceptance\u2192escalation_required\u2192resolveBatchEscalation under dev-founder-redhatfix09; post-FIX-08 exhaustive coverageReport; durable gate evidence committed",
-  "written_at": "2026-07-26T21:06:48.602478Z",
-  "written_at_commit": "582075cfe19262faa17a828fd5180c4fb8ae9a2c",
+  "goal": "batch_accepted_land_pending",
+  "met": false,
+  "goal_complete": false,
+  "reason": "Founder accepted cost-bearing runFullBatch runId=s5-full-batch-redhatfix09-20260726T211438Z (processed=3, totalCostUSD=0.21000000000000002) via requestBatchAcceptance\u2192escalation_required\u2192resolveBatchEscalation under dev-founder-redhatfix09. Whole-sprint met/trunk consolidation deferred to orchestrator post-land.",
+  "written_at": "2026-07-26T21:17:52.323772Z",
+  "written_at_commit": "02d26f829767fcf3ef2832826efccedac8921a82",
   "written_by": "convex-implementer/REDHAT-FIX-09",
   "redhat_fixes": [
     "REDHAT-FIX-01",
@@ -122,11 +129,11 @@
     "REDHAT-FIX-08",
     "REDHAT-FIX-09"
   ],
-  "derive": {
-    "goal": "complete",
-    "met": true,
-    "status": "Completed",
-    "written_by": "tools/gate/deriveSprint05GoalState.ts + REDHAT-FIX-09 real run",
-    "written_at": "2026-07-26T21:06:48.602478Z"
+  "batch_decision": {
+    "decision": "accepted",
+    "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
+    "processed": 3,
+    "totalCostUSD": 0.21000000000000002,
+    "path": "requestBatchAcceptance \u2192 escalation_required \u2192 resolveBatchEscalation"
   }
 }

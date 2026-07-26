@@ -1,38 +1,38 @@
 {
   "acceptedAt": null,
   "decision": "escalation_required",
-  "decisionTimestamp": "2026-07-26T21:04:32.105Z",
+  "decisionTimestamp": "2026-07-26T21:15:37.961Z",
   "escalations": [
     {
       "assumptionLabel": "~67%",
-      "candidateCount": 0,
-      "candidates": 0,
+      "candidateCount": 3,
+      "candidates": 3,
       "escalationFloor": 0.4,
       "lever": "reconstruct",
       "leverNumber": 2,
       "observedRate": 0,
       "passCount": 0,
       "realizedRate": 0,
-      "reason": "reconstruct zero_candidates: undefined_rate \u2014 inspection required (no candidates exercised; cannot compare against escalation floor 40%; assumption ~67%)"
+      "reason": "reconstruct realized rate 0.0% is below escalation floor 40% (assumption ~67%)"
     },
     {
       "assumptionLabel": "~40-55%",
-      "candidateCount": 0,
-      "candidates": 0,
+      "candidateCount": 3,
+      "candidates": 3,
       "escalationFloor": 0.4,
       "lever": "reroute",
       "leverNumber": 3,
       "observedRate": 0,
       "passCount": 0,
       "realizedRate": 0,
-      "reason": "reroute zero_candidates: undefined_rate \u2014 inspection required (no candidates exercised; cannot compare against escalation floor 40%; assumption ~40-55%)"
+      "reason": "reroute realized rate 0.0% is below escalation floor 40% (assumption ~40-55%)"
     }
   ],
   "observedRates": [
     {
       "assumptionIsTarget": false,
       "assumptionLabel": "unproven",
-      "candidateCount": 0,
+      "candidateCount": 3,
       "escalationFloor": null,
       "lever": "promote",
       "leverNumber": 1,
@@ -44,7 +44,7 @@
     {
       "assumptionIsTarget": false,
       "assumptionLabel": "~67%",
-      "candidateCount": 0,
+      "candidateCount": 3,
       "escalationFloor": 0.4,
       "lever": "reconstruct",
       "leverNumber": 2,
@@ -56,7 +56,7 @@
     {
       "assumptionIsTarget": false,
       "assumptionLabel": "~40-55%",
-      "candidateCount": 0,
+      "candidateCount": 3,
       "escalationFloor": 0.4,
       "lever": "reroute",
       "leverNumber": 3,
@@ -67,7 +67,7 @@
     }
   ],
   "operatorIdentity": "dev-founder-redhatfix09",
-  "reason": "reconstruct zero_candidates: undefined_rate \u2014 inspection required (no candidates exercised; cannot compare against escalation floor 40%; assumption ~67%); reroute zero_candidates: undefined_rate \u2014 inspection required (no candidates exercised; cannot compare against escalation floor 40%; assumption ~40-55%)",
+  "reason": "reconstruct realized rate 0.0% is below escalation floor 40% (assumption ~67%); reroute realized rate 0.0% is below escalation floor 40% (assumption ~40-55%)",
   "retirementUnlockedAt": null,
-  "runId": "s5-full-batch-redhatfix09-20260726T210313Z"
+  "runId": "s5-full-batch-redhatfix09-20260726T211438Z"
 }

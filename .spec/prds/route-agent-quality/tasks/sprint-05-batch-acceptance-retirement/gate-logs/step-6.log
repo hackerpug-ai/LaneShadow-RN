@@ -1,10 +1,11 @@
 {
   "claim": "no duplicate headliner or test/seed row in top 50",
-  "runId": "s5-full-batch-redhatfix09-20260726T210313Z",
-  "testRowsCount": 0,
-  "testRows": [],
-  "uniqueRouteIds": 50,
+  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
   "rowCount": 50,
-  "scrubbedTestSeed": true,
+  "testSeedRowsCount": 0,
+  "testSeedRows": [],
+  "must_observe": {
+    "test_seed_zero": true
+  },
   "result": "PASS"
 }

@@ -1,0 +1,348 @@
+{
+  "backoffScheduleSeconds": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "batchStopReason": "completed",
+  "continueCursor": null,
+  "costExceededMessage": null,
+  "coverageReport": {
+    "assumptionNote": "PRD per-lever expected yields are assumptions for comparison only — not committed catalog targets.",
+    "continueCursor": null,
+    "isDone": true,
+    "levers": [
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "unproven",
+        "candidateCount": 0,
+        "escalationFloor": null,
+        "lever": "promote",
+        "leverNumber": 1,
+        "passCount": 0,
+        "passRate": 0,
+        "provenance": "scraped_promoted",
+        "realizedRate": 0
+      },
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "~67%",
+        "candidateCount": 0,
+        "escalationFloor": 0.4,
+        "lever": "reconstruct",
+        "leverNumber": 2,
+        "passCount": 0,
+        "passRate": 0,
+        "provenance": "ai_reconstructed",
+        "realizedRate": 0
+      },
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "~40-55%",
+        "candidateCount": 0,
+        "escalationFloor": 0.4,
+        "lever": "reroute",
+        "leverNumber": 3,
+        "passCount": 0,
+        "passRate": 0,
+        "provenance": "name_routed",
+        "realizedRate": 0
+      }
+    ],
+    "pageCostUSD": 0,
+    "pageTotals": [
+      {
+        "batchStopReason": "completed",
+        "endIndex": 30,
+        "processed": 0,
+        "skipped": 30,
+        "startIndex": 0,
+        "totalCostUsd": 0
+      }
+    ],
+    "provenanceCounts": {},
+    "riderReadyCount": 0,
+    "runId": "s5-full-batch-redhatfix09-20260726T210313Z",
+    "terminalStates": {
+      "cost_blocked": 0,
+      "queued": 0,
+      "recovered": 0,
+      "retirement_eligible": 0,
+      "skipped": 30
+    },
+    "totalCostUSD": 0
+  },
+  "cumulativeCostUSD": 0,
+  "gate": {
+    "allowed": true,
+    "overallVerdict": "pass"
+  },
+  "isDone": true,
+  "maxCostUsd": 10,
+  "maxRetries": 5,
+  "mode": "all",
+  "pageCostUSD": 0,
+  "perLeverCounts": {
+    "lever1": 0,
+    "lever2": 0,
+    "lever3": 0
+  },
+  "perStateCounts": {
+    "cost_blocked": 0,
+    "queued": 0,
+    "recovered": 0,
+    "retirement_eligible": 0,
+    "skipped": 30
+  },
+  "processed": 0,
+  "reprocessed": 0,
+  "reprocessedCount": 0,
+  "routes": [
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:1",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:1-88-talimena-scenic-drive-talihina-ok-mena-ar",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:1-hour-country-loop-paris-mt-sterling",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:10-dollar-burger-run-freehold",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:100-acre-wood-rally-stage-1-spectator",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:100-miles-cordova-somerville-whiteville-stanton-arlington",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:100-narrows-dublin",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:104-to-keuka",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:104-tucumcari-las-vegas",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:105-from-sedalia-to-palmer-lake",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:105-miles-run",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:106-summersville-ellington",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:107-and-bow-lake",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:108-newton-haverhill",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:11-123-skiatook-barnsdall-bartlesville",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:117-48-hammondville-al-summerville-ga",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:12-kennewick-wa-lewiston-id-missoula-mt",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:120-cody-thermopolis",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:123-go",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:128-28-heavener-waldron",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:13-strong-sloatsburg-stony-point-cold-spring-carmel-brewster",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:130-snowy-range-route-national-forest-laramie",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:14-grangeville-elk-city-airport",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:14-stagecoach-state-park",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:140-lakeview-or-denio-junction-nv",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:141-jonesboro-crowley-s-ridge",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:1458-pattison-san-felipe-racers-road",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:15-point-of-rocks-harpers-ferry-thurmont",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:153-conway-sanbornville",
+      "skipped": true,
+      "terminalState": "recovered"
+    },
+    {
+      "costUsd": 0,
+      "leversRun": [],
+      "reprocessed": false,
+      "routeId": "bestbikingroads:156-158-157-vegas-mt-charleston",
+      "skipped": true,
+      "terminalState": "recovered"
+    }
+  ],
+  "routesMutated": 0,
+  "runId": "s5-full-batch-redhatfix09-20260726T210313Z",
+  "skipped": 30,
+  "totalCostUSD": 0,
+  "totalCostUsd": 0
+}

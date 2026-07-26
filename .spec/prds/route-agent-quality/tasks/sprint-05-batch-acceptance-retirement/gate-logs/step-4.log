@@ -1,37 +1,41 @@
 {
-  "claim": "far-below / zero_candidates escalates not silent complete",
-  "runId": "s5-full-batch-redhatfix09-20260726T210313Z",
-  "negativeControl": "requestBatchAcceptance(accept) returned escalation_required (not silent accepted) because floored levers had zero_candidates on membership sample",
+  "claim": "far-below yield escalates not silent complete (real L2/L3 candidates, realizedRate 0%)",
+  "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
+  "negativeControl": "requestBatchAcceptance(accept) returned escalation_required (not silent accepted) because reconstruct/reroute realized rates 0% below 40% floors with candidateCount=3 each",
   "requestDecision": "escalation_required",
   "escalations": [
     {
       "assumptionLabel": "~67%",
-      "candidateCount": 0,
-      "candidates": 0,
+      "candidateCount": 3,
+      "candidates": 3,
       "escalationFloor": 0.4,
       "lever": "reconstruct",
       "leverNumber": 2,
       "observedRate": 0,
       "passCount": 0,
       "realizedRate": 0,
-      "reason": "reconstruct zero_candidates: undefined_rate \u2014 inspection required (no candidates exercised; cannot compare against escalation floor 40%; assumption ~67%)"
+      "reason": "reconstruct realized rate 0.0% is below escalation floor 40% (assumption ~67%)"
     },
     {
       "assumptionLabel": "~40-55%",
-      "candidateCount": 0,
-      "candidates": 0,
+      "candidateCount": 3,
+      "candidates": 3,
       "escalationFloor": 0.4,
       "lever": "reroute",
       "leverNumber": 3,
       "observedRate": 0,
       "passCount": 0,
       "realizedRate": 0,
-      "reason": "reroute zero_candidates: undefined_rate \u2014 inspection required (no candidates exercised; cannot compare against escalation floor 40%; assumption ~40-55%)"
+      "reason": "reroute realized rate 0.0% is below escalation floor 40% (assumption ~40-55%)"
     }
   ],
   "mustNotObserve": "decision=accepted without open escalation when floors breached",
   "observed": true,
   "mutated": true,
   "phase": "step-4-negative-control",
+  "costBearing": {
+    "processed": 3,
+    "totalCostUSD": 0.21000000000000002
+  },
   "result": "PASS"
 }

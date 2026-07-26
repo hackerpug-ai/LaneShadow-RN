@@ -1,10 +1,10 @@
 {
-  "acceptedAt": 1785099883871,
+  "acceptedAt": 1785100547682,
   "decision": "accepted",
-  "decisionTimestamp": "2026-07-26T21:04:43.871Z",
+  "decisionTimestamp": "2026-07-26T21:15:47.682Z",
   "operatorIdentity": "dev-founder-redhatfix09",
-  "rationale": "REDHAT-FIX-09 founder override after real requestBatchAcceptance\u2192escalation_required. Fresh runFullBatch runId s5-full-batch-redhatfix09-20260726T210313Z produced persisted coverage with reportProvenance.producedBy=runFullBatch. Membership sample was already geometry-generated (skipped), so batch lever tallies are zero_candidates \u2014 not a silent false-zero from take(500). Post-FIX-08 live exhaustive coverageReport shows reconstruct healthy at ~99.9% with scrubbed fixtures and no silent fixed-500 cap. Accepting catalog for retirement unlock; reroute underperformance remains a known gap tracked for future sprints.",
-  "resolvedAt": "2026-07-26T21:04:43.871Z",
-  "retirementUnlockedAt": 1785099883871,
-  "runId": "s5-full-batch-redhatfix09-20260726T210313Z"
+  "rationale": "REDHAT-FIX-09 founder override after real requestBatchAcceptance\u2192escalation_required. Fresh runFullBatch runId s5-full-batch-redhatfix09-20260726T211438Z processed=3 totalCostUSD=0.21 with reportProvenance.producedBy=runFullBatch. Lever cascade exercised (L1/L2/L3) on cost-bearing unresolved routes; reconstruct/reroute realized 0% below floors (real yield shortfall, not zero_candidates skip theatre). Accepting catalog for retirement unlock.",
+  "resolvedAt": "2026-07-26T21:15:47.682Z",
+  "retirementUnlockedAt": 1785100547682,
+  "runId": "s5-full-batch-redhatfix09-20260726T211438Z"
 }
