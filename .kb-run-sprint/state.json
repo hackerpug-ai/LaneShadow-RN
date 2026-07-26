@@ -913,6 +913,213 @@
         },
         "last_commit_sha": "3c3a235c59956d59bcdd48629a83d68d818f845e"
       }
+    },
+    "REDHAT-FIX-07": {
+      "id": "REDHAT-FIX-07",
+      "status": "completed",
+      "metadata": {
+        "task_id": "REDHAT-FIX-07",
+        "phase": "done",
+        "assignee": "convex-implementer",
+        "file_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/REDHAT-FIX-07-exhaustive-coverage-report-lever-counts.md",
+        "sprint_id": "sprint-05-batch-acceptance-retirement",
+        "type": "FEATURE",
+        "tdd_mode": "red_first",
+        "verification_policy": {
+          "requires_tests": true,
+          "requires_red_evidence": true,
+          "requires_seeded_evidence": true,
+          "tdd_lineage_required": true
+        },
+        "requirements": [
+          {
+            "id": "AC-1",
+            "satisfied": true
+          },
+          {
+            "id": "AC-2",
+            "satisfied": true
+          },
+          {
+            "id": "AC-3",
+            "satisfied": true
+          },
+          {
+            "id": "AC-4",
+            "satisfied": true
+          },
+          {
+            "id": "AC-5",
+            "satisfied": true
+          },
+          {
+            "id": "TC-1",
+            "satisfied": true
+          },
+          {
+            "id": "TC-2",
+            "satisfied": true
+          },
+          {
+            "id": "TC-3",
+            "satisfied": true
+          },
+          {
+            "id": "TC-4",
+            "satisfied": true
+          },
+          {
+            "id": "TC-5",
+            "satisfied": true
+          }
+        ],
+        "branch": "task/REDHAT-FIX-07",
+        "worktree_path": ".worktrees/REDHAT-FIX-07",
+        "dispatch_started_at": "2026-07-26T20:02:42.052039+00:00",
+        "last_commit_sha": "880ffc24b90abd2cbc2026a73f280d44cf33e9c8",
+        "review_lenses": {
+          "product": {
+            "reviewer": "product-manager",
+            "verdict": "APPROVED",
+            "at_commit": "880ffc24b90abd2cbc2026a73f280d44cf33e9c8"
+          },
+          "technical": {
+            "reviewer": "convex-reviewer",
+            "verdict": "APPROVED",
+            "at_commit": "880ffc24b90abd2cbc2026a73f280d44cf33e9c8"
+          }
+        },
+        "last_reviewer": "product-manager+convex-reviewer"
+      }
+    },
+    "REDHAT-FIX-08": {
+      "id": "REDHAT-FIX-08",
+      "status": "completed",
+      "metadata": {
+        "task_id": "REDHAT-FIX-08",
+        "phase": "done",
+        "assignee": "convex-implementer",
+        "file_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/REDHAT-FIX-08-exhaustive-coverage-fixture-scrub-score-normalize.md",
+        "sprint_id": "sprint-05-batch-acceptance-retirement",
+        "type": "FEATURE",
+        "tdd_mode": "red_first",
+        "branch": "task/REDHAT-FIX-08",
+        "worktree_path": ".worktrees/REDHAT-FIX-08",
+        "requirements": [
+          {
+            "id": "AC-1",
+            "satisfied": true
+          },
+          {
+            "id": "AC-2",
+            "satisfied": true
+          },
+          {
+            "id": "AC-3",
+            "satisfied": true
+          },
+          {
+            "id": "AC-4",
+            "satisfied": true
+          },
+          {
+            "id": "AC-5",
+            "satisfied": true
+          },
+          {
+            "id": "TC-1",
+            "satisfied": true
+          },
+          {
+            "id": "TC-2",
+            "satisfied": true
+          },
+          {
+            "id": "TC-3",
+            "satisfied": true
+          },
+          {
+            "id": "TC-4",
+            "satisfied": true
+          },
+          {
+            "id": "TC-5",
+            "satisfied": true
+          }
+        ],
+        "verification_policy": {
+          "requires_tests": true,
+          "requires_red_evidence": true,
+          "requires_seeded_evidence": true,
+          "tdd_lineage_required": true
+        },
+        "dispatch_started_at": "2026-07-26T20:52:04.978217+00:00",
+        "last_commit_sha": "1b352fad21abc9071abe7c4a4a3a001c7005d83b"
+      }
+    },
+    "REDHAT-FIX-09": {
+      "id": "REDHAT-FIX-09",
+      "status": "completed",
+      "metadata": {
+        "task_id": "REDHAT-FIX-09",
+        "phase": "done",
+        "assignee": "convex-implementer",
+        "file_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/REDHAT-FIX-09-real-founder-acceptance-durable-gate-evidence.md",
+        "sprint_id": "sprint-05-batch-acceptance-retirement",
+        "type": "FEATURE",
+        "tdd_mode": "red_first",
+        "branch": "task/REDHAT-FIX-09",
+        "worktree_path": ".worktrees/REDHAT-FIX-09",
+        "requirements": [
+          {
+            "id": "AC-1",
+            "satisfied": true
+          },
+          {
+            "id": "AC-2",
+            "satisfied": true
+          },
+          {
+            "id": "AC-3",
+            "satisfied": true
+          },
+          {
+            "id": "AC-4",
+            "satisfied": true
+          },
+          {
+            "id": "AC-5",
+            "satisfied": true
+          },
+          {
+            "id": "TC-1",
+            "satisfied": true
+          },
+          {
+            "id": "TC-2",
+            "satisfied": true
+          },
+          {
+            "id": "TC-3",
+            "satisfied": true
+          },
+          {
+            "id": "TC-4",
+            "satisfied": true
+          },
+          {
+            "id": "TC-5",
+            "satisfied": true
+          }
+        ],
+        "verification_policy": {
+          "requires_tests": true,
+          "requires_red_evidence": true,
+          "requires_seeded_evidence": true,
+          "tdd_lineage_required": true
+        },
+        "last_commit_sha": "43fadd68d0f6edc1c0097b093366ab8c23f6b673"
+      }
     }
   },
   "meta": {

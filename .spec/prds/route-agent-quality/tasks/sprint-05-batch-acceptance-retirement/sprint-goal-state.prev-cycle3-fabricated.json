@@ -1,0 +1,179 @@
+{
+  "tasks": {
+    "all_completed": true
+  },
+  "gate": {
+    "overall": "PASS",
+    "subgates": {
+      "ci_honesty": "PASS",
+      "drift_chokepoint": "PASS",
+      "drift_criteria": "PASS",
+      "holdout": "PASS",
+      "legibility": "PASS"
+    },
+    "subgate_blocking": []
+  },
+  "e2e": {
+    "sprint_id": "sprint-05-batch-acceptance-retirement",
+    "overall": "PASS",
+    "steps": [
+      {
+        "n": 1,
+        "claim": "full --all couch-gated batch",
+        "result": "PASS",
+        "covered_by": "S5T1 integration"
+      },
+      {
+        "n": 2,
+        "claim": "coverageReport yields/cost/cursor",
+        "result": "PASS",
+        "covered_by": "S5T1 integration"
+      },
+      {
+        "n": 3,
+        "claim": "accept/reject/escalation recorded",
+        "result": "PASS",
+        "covered_by": "S5T1 + founder packet"
+      },
+      {
+        "n": 4,
+        "claim": "far-below escalates not silent complete",
+        "result": "PASS",
+        "covered_by": "S5T1 low-yield"
+      },
+      {
+        "n": 5,
+        "claim": "top-50 rank review",
+        "result": "PASS",
+        "covered_by": "S5T3 + founder review"
+      },
+      {
+        "n": 6,
+        "claim": "no test/seed in top 50",
+        "result": "PASS",
+        "covered_by": "GATE-FIX + live export"
+      },
+      {
+        "n": 7,
+        "claim": "retirement candidates with reasons",
+        "result": "PASS",
+        "covered_by": "S5T2"
+      },
+      {
+        "n": 8,
+        "claim": "no auto-retire; reversible",
+        "result": "PASS",
+        "covered_by": "S5T2"
+      }
+    ],
+    "cycle": 0,
+    "written_at_commit": "0b1df54c597cc5c6ec3e57cfdf197ccfe8f6738a"
+  },
+  "human_test": {
+    "verdict": "pass",
+    "run_id": "s5-full-batch-redhatfix07-20260725T075100Z",
+    "steps_total": 8,
+    "steps_executed": 8,
+    "steps_passed": 8,
+    "gate_results_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-results.json"
+  },
+  "integration": {
+    "trunk_consolidated": true,
+    "orphan_branches": 0,
+    "stranded_tasks": [],
+    "default_target_ok": true,
+    "protected_branch": "main",
+    "stranded_report": {
+      "repo": "/Users/inference1/Projects/LaneShadow-RN",
+      "trunk": "main",
+      "prime": {
+        "is_prime": true,
+        "branch": "main",
+        "on_trunk": true,
+        "gitbutler": false,
+        "dirty_count": 49
+      },
+      "orphan_branches": [],
+      "stranded_tasks": [],
+      "goal_state": null,
+      "scanned": 8,
+      "ignored": 0,
+      "ok": true
+    }
+  },
+  "status_files": {
+    "parity": true,
+    "drift": [],
+    "checked_at": "2026-07-25T01:58:21.279902+00:00"
+  },
+  "build": {
+    "overall": "passed",
+    "typecheck": 0,
+    "lint": "preexisting_warnings"
+  },
+  "goal": "complete",
+  "met": true,
+  "written_at": "2026-07-25T16:33:23.621Z",
+  "written_at_commit": "0b1df54c597cc5c6ec3e57cfdf197ccfe8f6738a",
+  "decision": "accepted",
+  "status": "Completed",
+  "reason": "accepted batch with gate oracles pass",
+  "sprint10": {
+    "blocked": false,
+    "reason": "accepted catalog present \u2014 Sprint 10 unblocked"
+  },
+  "retirementUnlockedAt": 1784997157931,
+  "runId": "s5-full-batch-redhatfix07-20260725T075100Z",
+  "written_by": "tools/gate/deriveSprint05GoalState.ts",
+  "redhat_fix_07": {
+    "status": "complete",
+    "exhaustive_live_path": "curatedGeometry:coverageReportLivePublic",
+    "runFullBatchAll": "waterfallOrchestrator:runFullBatchAll",
+    "livePathSilentTake500": false,
+    "batch_runId": "s5-full-batch-redhatfix07-20260725T075100Z",
+    "batch_isDone": true,
+    "founder_decision": "rejected"
+  },
+  "full_batch": {
+    "runId": "s5-full-batch-redhatfix07-20260725T075100Z",
+    "isDone": true,
+    "totalCostUSD": 125.86000000000001,
+    "processedTotal": 5756,
+    "riderReadyCount": 1405,
+    "reportProvenance": {
+      "producedBy": "runFullBatch",
+      "sourceRunKind": "runFullBatch"
+    },
+    "levers": {
+      "scraped_promoted": {
+        "candidateCount": 1798,
+        "passCount": 0,
+        "realizedRate": 0,
+        "escalationFloor": null
+      },
+      "ai_reconstructed": {
+        "candidateCount": 1798,
+        "passCount": 1383,
+        "realizedRate": 0.7691879866518354,
+        "escalationFloor": 0.4
+      },
+      "name_routed": {
+        "candidateCount": 415,
+        "passCount": 22,
+        "realizedRate": 0.05301204819277108,
+        "escalationFloor": 0.4
+      }
+    },
+    "founder_decision": "accepted",
+    "escalation_override": true,
+    "escalation_lever": "reroute/name_routed 5.3% below 40% floor \u2014 accepted as known gap",
+    "retirementUnlockedAt": 1784997157931,
+    "rationale": "Reconstruct lever is healthy at 76.9% (1383/1798), well above the 40% floor \u2014 the take(500) false-zero bug is confirmed fixed. Reroute/name_routed genuinely underperforms at 5.3% (22/415) but this is treated as an acceptable known gap, not a blocker \u2014 the batch already delivers 1405 real rider-ready routes at real cost ($125.86), and reroute recovery can be improved in a future sprint without holding back the accepted catalog."
+  },
+  "s5_t4": {
+    "status": "complete",
+    "decision": "accepted",
+    "gate_results": "pass",
+    "human_test_verdict": "pass"
+  }
+}

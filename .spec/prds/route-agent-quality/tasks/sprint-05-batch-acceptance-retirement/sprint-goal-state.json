@@ -1,78 +1,29 @@
 {
   "tasks": {
-    "all_completed": false
+    "all_completed": true,
+    "completed": [
+      "S5-T1",
+      "S5-T2",
+      "S5-T3",
+      "S5-T4",
+      "REDHAT-FIX-01",
+      "REDHAT-FIX-02",
+      "REDHAT-FIX-03",
+      "REDHAT-FIX-04",
+      "REDHAT-FIX-05",
+      "REDHAT-FIX-06",
+      "REDHAT-FIX-07",
+      "REDHAT-FIX-08",
+      "REDHAT-FIX-09"
+    ]
   },
   "gate": {
     "overall": "PASS",
-    "subgates": {
-      "ci_honesty": "PASS",
-      "drift_chokepoint": "PASS",
-      "drift_criteria": "PASS",
-      "holdout": "PASS",
-      "legibility": "PASS"
-    },
-    "subgate_blocking": []
+    "path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-results.json"
   },
   "e2e": {
-    "sprint_id": "sprint-05-batch-acceptance-retirement",
     "overall": "PASS",
-    "steps": [
-      {
-        "n": 1,
-        "claim": "full couch-gated cost-bearing batch via runFullBatch",
-        "result": "PASS",
-        "covered_by": "REDHAT-FIX-09"
-      },
-      {
-        "n": 2,
-        "claim": "coverageReport yields/cost/cursor",
-        "result": "PASS",
-        "covered_by": "REDHAT-FIX-08+09"
-      },
-      {
-        "n": 3,
-        "claim": "accept/reject/escalation recorded",
-        "result": "PASS",
-        "covered_by": "REDHAT-FIX-09 SM"
-      },
-      {
-        "n": 4,
-        "claim": "far-below escalates not silent complete",
-        "result": "PASS",
-        "covered_by": "REDHAT-FIX-09 step-4"
-      },
-      {
-        "n": 5,
-        "claim": "top-50 rank review",
-        "result": "PASS",
-        "covered_by": "REDHAT-FIX-08+09"
-      },
-      {
-        "n": 6,
-        "claim": "no test/seed in top 50",
-        "result": "PASS",
-        "covered_by": "REDHAT-FIX-08 hygiene"
-      },
-      {
-        "n": 7,
-        "claim": "retirement candidates with reasons",
-        "result": "PASS",
-        "covered_by": "REDHAT-FIX-09 step-7"
-      },
-      {
-        "n": 8,
-        "claim": "no auto-retire; reversible",
-        "result": "PASS",
-        "covered_by": "REDHAT-FIX-09 step-8"
-      }
-    ],
-    "cycle": 5,
-    "written_at_commit": "ad5b606907883b1323f7ed6302b1410efcf4efa1",
-    "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
-    "batch_metrics": {
-      "processed": 3,
-      "totalCostUSD": 0.21000000000000002
-    }
+    "note": "REDHATFIX01-09 integration suites on real Convex; FIX07 exhaustive counts; FIX08 fixture/score; FIX09 durable gate oracles"
   },
   "human_test": {
     "verdict": "pass",
@@ -82,43 +33,46 @@
     "steps_passed": 8,
     "gate_results_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-results.json",
     "cycle": 5,
-    "assert": "valid:true"
+    "assert": "valid:true",
+    "assert_script": "references/assert-human-test-verdict.sh"
   },
   "integration": {
-    "trunk_consolidated": false,
-    "orphan_branches": [
-      "task/REDHAT-FIX-09"
-    ],
+    "trunk_consolidated": true,
+    "orphan_branches": [],
     "stranded_tasks": [],
-    "default_target_ok": false,
+    "default_target_ok": true,
     "protected_branch": "main",
-    "assert_landed_ok": false,
-    "note": "Branch not landed; orchestrator re-verifies met() after land"
+    "assert_landed_ok": true
   },
   "status_files": {
     "parity": true,
-    "drift": [],
-    "checked_at": "2026-07-26T21:17:52.323772Z"
+    "checked_at": "2026-07-26T21:23:08.914832+00:00",
+    "note": "REDHAT-FIX-07/08/09 Completed via sync-status.py"
   },
   "build": {
-    "overall": "passed"
+    "overall": "passed",
+    "typecheck_convex": "passed"
   },
   "decision": "accepted",
-  "status": "accepted",
   "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
-  "retirementUnlockedAt": 1785100547682,
-  "sprint10": {
-    "blocked": true,
-    "reason": "Batch decision accepted; sprint land/trunk consolidation pending before Sprint 10 unblock"
+  "batch": {
+    "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
+    "totalCostUSD": 0.21,
+    "processed": 3,
+    "reportProvenance": "runFullBatch"
   },
-  "goal": "batch_accepted_land_pending",
-  "met": false,
-  "goal_complete": false,
-  "reason": "Founder accepted cost-bearing runFullBatch runId=s5-full-batch-redhatfix09-20260726T211438Z (processed=3, totalCostUSD=0.21000000000000002) via requestBatchAcceptance\u2192escalation_required\u2192resolveBatchEscalation under dev-founder-redhatfix09. Whole-sprint met/trunk consolidation deferred to orchestrator post-land.",
-  "written_at": "2026-07-26T21:17:52.323772Z",
-  "written_at_commit": "ad5b606907883b1323f7ed6302b1410efcf4efa1",
-  "written_by": "convex-implementer/REDHAT-FIX-09",
-  "redhat_fixes": [
+  "sprint10": {
+    "blocked": false,
+    "reason": "accepted cost-bearing catalog decision present"
+  },
+  "goal": "complete",
+  "met": true,
+  "goal_complete": true,
+  "reason": "FIX-07/08/09 dual-lens approved and landed; assert-landed ok; human-test assert valid; cost-bearing batch accepted",
+  "written_at": "2026-07-26T21:23:08.914999+00:00",
+  "written_at_commit": "29973058af638fa78d4bf7a04a697ad78ee75222",
+  "written_by": "kb-run-sprint resume closeout 2026-07-26 (independent re-verify)",
+  "redhat_fixes_landed": [
     "REDHAT-FIX-01",
     "REDHAT-FIX-02",
     "REDHAT-FIX-03",
@@ -129,11 +83,8 @@
     "REDHAT-FIX-08",
     "REDHAT-FIX-09"
   ],
-  "batch_decision": {
-    "decision": "accepted",
-    "runId": "s5-full-batch-redhatfix09-20260726T211438Z",
-    "processed": 3,
-    "totalCostUSD": 0.21000000000000002,
-    "path": "requestBatchAcceptance \u2192 escalation_required \u2192 resolveBatchEscalation"
-  }
+  "resume_notes": [
+    "Prior met:true rejected as untrusted (take(500) still present; gate forged)",
+    "Orphan task/REDHAT-FIX-05 tip reset after supersession by dual-lens FIX-07/08/09"
+  ]
 }

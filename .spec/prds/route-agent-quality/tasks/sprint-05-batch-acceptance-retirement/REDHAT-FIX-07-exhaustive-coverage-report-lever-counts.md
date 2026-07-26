@@ -1,9 +1,7 @@
 # REDHAT-FIX-07 — Exhaustive coverageReport lever counts without take(500) truncation
 
 > Status: ✅ Completed
-> Commit: 880ffc24b90abd2cbc2026a73f280d44cf33e9c8
-> Reviewer: product-manager+convex-reviewer
-> Completed: 2026-07-26T20:51:26Z
+> Completed: 2026-07-26T21:22:11Z
 > Proposed By: `convex-planner`
 
 | Field | Value |

@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "sprint_id": "sprint-05-batch-acceptance-retirement",
+  "run_id": "s5-redhat-gate-20260725T033734Z",
+  "batch_run_id": "s5-redhat-20260725T033521Z",
+  "verdict": "pass",
+  "runner": "kb-run-human-tests",
+  "ui_driver": "none",
+  "steps_total": 8,
+  "steps_executed": 8,
+  "steps_passed": 8,
+  "steps": [
+    {
+      "n": 1,
+      "text": "Run full --all batch under cost CB after couch PASS",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-1.log",
+      "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-1.log"
+    },
+    {
+      "n": 2,
+      "text": "Open coverageReport; read per-lever rates, terminals, cost, rider-ready",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-2.log",
+      "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-2.log"
+    },
+    {
+      "n": 3,
+      "text": "Compare realized vs expected-yield; record accept/reject/escalation",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-3.log",
+      "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-3.log"
+    },
+    {
+      "n": 4,
+      "text": "Confirm far-below lever escalates rather than silently completing",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-4.log",
+      "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-4.log"
+    },
+    {
+      "n": 5,
+      "text": "Review top-50-by-composite-rank for road and length",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-5.log",
+      "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-5.log"
+    },
+    {
+      "n": 6,
+      "text": "Confirm no duplicate headliner or test/seed row in top 50",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-6.log",
+      "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-6.log"
+    },
+    {
+      "n": 7,
+      "text": "Review retirement candidates with their per-route failure reasons",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-7.log",
+      "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-7.log"
+    },
+    {
+      "n": 8,
+      "text": "Confirm nothing auto-retires; retirements reversible with record",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-8.log",
+      "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-8.log"
+    }
+  ],
+  "recorded_at": "2026-07-25T03:37:34.088793+00:00",
+  "notes": [
+    "Real runFullBatchWithSeams on motorcycleroads:* routes with cost>0 and reportProvenance",
+    "step-4 distinct accept attempt \u2192 escalation_required then founder resolve accept",
+    "top-50 row-level evidence, zero test: contamination after scrub",
+    "retirement candidates scrubbed; lock unlocked only after provenanced resolve accept"
+  ]
+}

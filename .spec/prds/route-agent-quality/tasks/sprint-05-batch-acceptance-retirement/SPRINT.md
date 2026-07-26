@@ -18,8 +18,8 @@ planned_from_source_sha: facc807930bd3b207c26cfae5b3650205f294858
 **Sequence:** 5
 **Timeline:** Phase 3
 **Status:** Completed
-> Progress: 4/4 tasks completed · updated 2026-07-25T03:39:25Z
-> Status-Note: REDHAT-FIX-01..06 landed; real batch accepted; human gate re-run honest
+> Progress: 4/4 tasks completed · updated 2026-07-26T21:23:08Z
+> Status-Note: goal met — FIX-07/08/09 landed; cost-bearing human gate pass; assert-landed ok
 **Proposed by:** product-manager + convex-planner (lane)
 
 ## Overview

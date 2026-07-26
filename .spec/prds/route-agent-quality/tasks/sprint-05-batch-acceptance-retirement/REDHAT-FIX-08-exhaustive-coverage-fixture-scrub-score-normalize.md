@@ -1,6 +1,7 @@
 # REDHAT-FIX-08 — Fix founder live coverageReport truncation + scrub fixture routes + add missing REDHATFIX07 integration suite + normalize top-50 compositeScore sorting
 
-> Status: Backlog
+> Status: ✅ Completed
+> Completed: 2026-07-26T21:22:11Z
 > Proposed By: `convex-planner`
 
 | Field | Value |

@@ -1,6 +1,7 @@
 # REDHAT-FIX-09 — Record a real Founder acceptance with fresh runId + durable committed gate evidence (no fictional functions, real identity, real retirement/unretire transcripts)
 
-> Status: Backlog
+> Status: ✅ Completed
+> Completed: 2026-07-26T21:22:11Z
 > Proposed By: `convex-planner`
 
 | Field | Value |
