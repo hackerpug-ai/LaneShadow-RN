@@ -41,7 +41,7 @@ green the whole Saturday Bar (Richness R1/R2, Feel F1–F3, Proof P1–P3 are se
 | 3 | [Catalog hygiene](#sprint-03-catalog-hygiene) | Founder confirms canonical-vs-shadow per duplicate group before merge commits | 4 | — | Completed |
 | 4 | [Trust pipeline](#sprint-04-trust-pipeline) | Founder reviews the ~25 couch-sample lines and records the pass that unlocks the batch | 7 | 1, 3 | Done |
 | 5 | [Batch acceptance + retirement](#sprint-05-batch-acceptance) | Founder accepts the realized rider-ready count against the expected-yield table | 4 | 4 | Completed |
-| 6 | [Rider-ready surface](#sprint-06-rider-ready-surface) | Founder confirms the provenance caption reads as calm context, never a warning | 8 | 4 | Planned |
+| 6 | [Rider-ready surface](#sprint-06-rider-ready-surface) | Founder confirms the provenance caption reads as calm context, never a warning | 8 | 4 | In Progress |
 | 7 | [Agent rebuild — grounded discovery + honesty](#sprint-07-agent-rebuild-grounding) | "Twisty roads near Ogden" returns only genuinely-near routes with real distances | 10 | 2, 6 | Planned |
 | 8 | [Agent rebuild — intent + persona shaping](#sprint-08-agent-intent-persona) | A dated "Saturday morning" request returns a real weather go/no-go, unasked | 8 | 7 | Planned |
 | 9 | [Agent eval lane + observability + CI](#sprint-09-agent-eval-observability) | Operator runs the cost-capped smoke lane and finds a per-turn trace in LangSmith | 6 | 7 | Planned |
@@ -344,7 +344,7 @@ The eight capability chains (CAP-GEO-01…06, CAP-AGT-01/02) are each owned by �
 
 **Sequence:** 6
 **Timeline:** Phase 3
-**Status:** Planned
+**Status:** In Progress
 **Proposed by:** react-native-ui-planner (lane) + convex-planner (gated queries) + frontend-designer (caption + absence states) + product-manager (gate)
 
 #### Human Testing Gate
@@ -373,7 +373,16 @@ The eight capability chains (CAP-GEO-01…06, CAP-AGT-01/02) are each owned by �
 | S6-T7 | Eyeball the provenance caption on device (light + dark); confirm it reads as context not alert | Founder-Operator | 30 min |
 | S6-T8 | Design handoff — provenance caption calm treatment spec (light + dark tokens) | frontend-designer | 45 min |
 
-**Next Sprint Tasks:** *(populated JIT by kb-sprint-tasks-plan)*
+**Next Sprint Tasks:** *(expanded by kb-sprint-tasks-plan on 2026-07-26 → [`tasks/sprint-06-rider-ready-surface/`](./tasks/sprint-06-rider-ready-surface/); specialist-authored: react-native-ui-planner + convex-planner + frontend-designer + product-manager; avg 105/115; fakeability 0 CRITICAL)*
+
+- S6-T1-riderready-flag-composition-7-inputs-stored-indexed-geospati.md
+- S6-T2-hard-gate-discovery-tool-all-listcuratedroutes-modes-carouse.md
+- S6-T3-honest-thin-region-absence-labeled-national-fallback-fabrica.md
+- S6-T4-provenance-caption-leaf-calm-muted-no-badge-for-ai-reconstru.md
+- S6-T5-saved-routes-reachability-canonical-redirect-approximate-sta.md
+- S6-T6-retarget-curated-route-detail-yaml-provenance-flow-off-the-d.md
+- S6-T7-eyeball-the-provenance-caption-on-device-light-dark-confirm-.md
+- S6-T8-design-handoff-provenance-caption-calm-treatment-spec-light-.md
 
 #### Dependencies
 
