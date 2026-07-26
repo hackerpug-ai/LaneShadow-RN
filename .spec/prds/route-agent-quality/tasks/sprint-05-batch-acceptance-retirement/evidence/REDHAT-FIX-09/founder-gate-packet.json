@@ -1,0 +1,78 @@
+{
+  "task": "S5-T4",
+  "capturedAt": "2026-07-26T21:05:56.506514Z",
+  "runId": "s5-full-batch-redhatfix09-20260726T210313Z",
+  "couchGate": "PASS (pre-batch)",
+  "coverageReport": {
+    "isDone": true,
+    "totalCostUSD": 0,
+    "riderReadyCount": 2034,
+    "levers": [
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "unproven",
+        "candidateCount": 1069,
+        "escalationFloor": null,
+        "lever": "promote",
+        "leverNumber": 1,
+        "passCount": 1069,
+        "passRate": 1,
+        "provenance": "scraped_promoted",
+        "realizedRate": 1
+      },
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "~67%",
+        "candidateCount": 1491,
+        "escalationFloor": 0.4,
+        "lever": "reconstruct",
+        "leverNumber": 2,
+        "passCount": 1490,
+        "passRate": 0.9993293091884641,
+        "provenance": "ai_reconstructed",
+        "realizedRate": 0.9993293091884641
+      },
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "~40-55%",
+        "candidateCount": 23,
+        "escalationFloor": 0.4,
+        "lever": "reroute",
+        "leverNumber": 3,
+        "passCount": 23,
+        "passRate": 1,
+        "provenance": "name_routed",
+        "realizedRate": 1
+      }
+    ],
+    "exhaustive": true,
+    "livePathSilentTake500": false,
+    "scrubbedTestSeed": true,
+    "reportProvenance": {
+      "producedBy": "runFullBatch",
+      "sourceRunKind": "runFullBatch"
+    },
+    "source_persisted": "persisted"
+  },
+  "decision": {
+    "final": "accepted",
+    "path": "requestBatchAcceptance(accept) \u2192 escalation_required \u2192 resolveBatchEscalation(accept)",
+    "retirementUnlockedAt": 1785099883871,
+    "operatorIdentity": "dev-founder-redhatfix09",
+    "decisionTimestamp": "2026-07-26T21:04:43.871Z",
+    "rationale": "REDHAT-FIX-09 founder override after real requestBatchAcceptance\u2192escalation_required. Fresh runFullBatch runId s5-full-batch-redhatfix09-20260726T210313Z produced persisted coverage with reportProvenance.producedBy=runFullBatch. Membership sample was already geometry-generated (skipped), so batch lever tallies are zero_candidates \u2014 not a silent false-zero from take(500). Post-FIX-08 live exhaustive coverageReport shows reconstruct healthy at ~99.9% with scrubbed fixtures and no silent fixed-500 cap. Accepting catalog for retirement unlock; reroute underperformance remains a known gap tracked for future sprints."
+  },
+  "top50": {
+    "rowCount": 50,
+    "riderReadyCount": 2034,
+    "coherenceNote": "rowCount=50 <= riderReadyCount=2034",
+    "testRowsCount": 0
+  },
+  "retirement": {
+    "autoRetire": false,
+    "unlocked": true,
+    "explicitConfirmRequired": true,
+    "sampleRouteId": "motorcycleroads:lonely-short-cut-missouri-j"
+  },
+  "gate": "PASS"
+}

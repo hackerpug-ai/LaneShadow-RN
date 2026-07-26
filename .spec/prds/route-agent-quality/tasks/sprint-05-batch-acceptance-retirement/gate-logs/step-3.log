@@ -1,87 +1,50 @@
 {
-  "phase": "step-3-yield-comparison",
-  "runId": "s5-redhat-20260725T033521Z",
-  "decision": null,
-  "levers": [
-    {
-      "assumptionIsTarget": false,
-      "assumptionLabel": "unproven",
-      "candidateCount": 3,
-      "escalationFloor": null,
-      "lever": "promote",
-      "leverNumber": 1,
-      "passCount": 0,
-      "passRate": 0,
-      "provenance": "scraped_promoted",
-      "realizedRate": 0
-    },
-    {
-      "assumptionIsTarget": false,
-      "assumptionLabel": "~67%",
-      "candidateCount": 3,
-      "escalationFloor": 0.4,
-      "lever": "reconstruct",
-      "leverNumber": 2,
-      "passCount": 2,
-      "passRate": 0.6666666666666666,
-      "provenance": "ai_reconstructed",
-      "realizedRate": 0.6666666666666666
-    },
-    {
-      "assumptionIsTarget": false,
-      "assumptionLabel": "~40-55%",
-      "candidateCount": 1,
-      "escalationFloor": 0.4,
-      "lever": "reroute",
-      "leverNumber": 3,
-      "passCount": 0,
-      "passRate": 0,
-      "provenance": "name_routed",
-      "realizedRate": 0
-    }
-  ],
-  "riderReadyCount": 2,
-  "isDone": true,
-  "comparison": {
-    "note": "realized yields vs PRD expected-yield assumptions (pre-accept)",
-    "yieldsVsAssumptions": [
+  "claim": "accept/reject/escalation recorded via real requestBatchAcceptance \u2192 resolveBatchEscalation",
+  "runId": "s5-full-batch-redhatfix09-20260726T210313Z",
+  "requestBatchAcceptance": {
+    "decision": "escalation_required",
+    "operatorIdentity": "dev-founder-redhatfix09",
+    "decisionTimestamp": "2026-07-26T21:04:32.105Z",
+    "escalations": [
       {
-        "assumptionIsTarget": false,
-        "assumptionLabel": "unproven",
-        "candidateCount": 3,
-        "escalationFloor": null,
-        "lever": "promote",
-        "leverNumber": 1,
-        "passCount": 0,
-        "passRate": 0,
-        "provenance": "scraped_promoted",
-        "realizedRate": 0
-      },
-      {
-        "assumptionIsTarget": false,
         "assumptionLabel": "~67%",
-        "candidateCount": 3,
+        "candidateCount": 0,
+        "candidates": 0,
         "escalationFloor": 0.4,
         "lever": "reconstruct",
         "leverNumber": 2,
-        "passCount": 2,
-        "passRate": 0.6666666666666666,
-        "provenance": "ai_reconstructed",
-        "realizedRate": 0.6666666666666666
+        "observedRate": 0,
+        "passCount": 0,
+        "realizedRate": 0,
+        "reason": "reconstruct zero_candidates: undefined_rate \u2014 inspection required (no candidates exercised; cannot compare against escalation floor 40%; assumption ~67%)"
       },
       {
-        "assumptionIsTarget": false,
         "assumptionLabel": "~40-55%",
-        "candidateCount": 1,
+        "candidateCount": 0,
+        "candidates": 0,
         "escalationFloor": 0.4,
         "lever": "reroute",
         "leverNumber": 3,
+        "observedRate": 0,
         "passCount": 0,
-        "passRate": 0,
-        "provenance": "name_routed",
-        "realizedRate": 0
+        "realizedRate": 0,
+        "reason": "reroute zero_candidates: undefined_rate \u2014 inspection required (no candidates exercised; cannot compare against escalation floor 40%; assumption ~40-55%)"
       }
-    ]
+    ],
+    "retirementUnlockedAt": null
   },
-  "capturedAt": "2026-07-25T03:36:06.823Z"
+  "resolveBatchEscalation": {
+    "decision": "accepted",
+    "operatorIdentity": "dev-founder-redhatfix09",
+    "decisionTimestamp": "2026-07-26T21:04:43.871Z",
+    "retirementUnlockedAt": 1785099883871,
+    "rationale": "REDHAT-FIX-09 founder override after real requestBatchAcceptance\u2192escalation_required. Fresh runFullBatch runId s5-full-batch-redhatfix09-20260726T210313Z produced persisted coverage with reportProvenance.producedBy=runFullBatch. Membership sample was already geometry-generated (skipped), so batch lever tallies are zero_candidates \u2014 not a silent false-zero from take(500). Post-FIX-08 live exhaustive coverageReport shows reconstruct healthy at ~99.9% with scrubbed fixtures and no silent fixed-500 cap. Accepting catalog for retirement unlock; reroute underperformance remains a known gap tracked for future sprints."
+  },
+  "getBatchAcceptance": {
+    "decision": "accepted",
+    "operatorIdentity": "dev-founder-redhatfix09",
+    "decisionTimestamp": "2026-07-26T21:04:43.871Z",
+    "retirementUnlockedAt": 1785099883871
+  },
+  "result": "PASS"
 }

@@ -1,0 +1,102 @@
+{
+  "assumptionNote": "PRD per-lever expected yields are assumptions for comparison only \u2014 not committed catalog targets. Live scan does not claim full-batch completeness; query with runId for a persisted runFullBatch report. Lever counts are exhaustive (REDHAT-FIX-07 multi-query pagination); test:/seed: excluded on unscoped founder path.",
+  "batchStopReason": null,
+  "completeness": "scan_not_batch",
+  "continueCursor": null,
+  "exhaustive": true,
+  "generatedCount": 5358,
+  "isDone": false,
+  "levers": [
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "unproven",
+      "candidateCount": 1069,
+      "escalationFloor": null,
+      "lever": "promote",
+      "leverNumber": 1,
+      "passCount": 1069,
+      "passRate": 1,
+      "provenance": "scraped_promoted",
+      "realizedRate": 1
+    },
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "~67%",
+      "candidateCount": 1491,
+      "escalationFloor": 0.4,
+      "lever": "reconstruct",
+      "leverNumber": 2,
+      "passCount": 1490,
+      "passRate": 0.9993293091884641,
+      "provenance": "ai_reconstructed",
+      "realizedRate": 0.9993293091884641
+    },
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "~40-55%",
+      "candidateCount": 23,
+      "escalationFloor": 0.4,
+      "lever": "reroute",
+      "leverNumber": 3,
+      "passCount": 23,
+      "passRate": 1,
+      "provenance": "name_routed",
+      "realizedRate": 1
+    }
+  ],
+  "livePathSilentTake500": false,
+  "negativeControl": {
+    "notARideRiderReady": false,
+    "shadowRiderReady": true
+  },
+  "provenanceCounts": {
+    "ai_reconstructed": 1491,
+    "name_routed": 23,
+    "scraped_promoted": 1069
+  },
+  "riderReadyCount": 2034,
+  "runId": "s5-full-batch-redhatfix09-20260726T210313Z",
+  "scrubbedTestSeed": true,
+  "source": "live",
+  "terminalStates": {
+    "cost_blocked": 0,
+    "failed": 0,
+    "generated": 5358,
+    "queued": 0,
+    "recovered": 0,
+    "retirement_eligible": 0,
+    "review": 396,
+    "skipped": 0,
+    "unresolved": 2
+  },
+  "testSeedRowsSkipped": 260,
+  "totalCostUSD": 0,
+  "acceptanceRunId": "s5-full-batch-redhatfix09-20260726T210313Z",
+  "persistedBatch": {
+    "source": "persisted",
+    "isDone": true,
+    "totalCostUSD": 0,
+    "reportProvenance": {
+      "producedBy": "runFullBatch",
+      "sourceRunKind": "runFullBatch"
+    },
+    "terminalStates": {
+      "cost_blocked": 0,
+      "queued": 0,
+      "recovered": 0,
+      "retirement_eligible": 0,
+      "skipped": 30
+    },
+    "pageTotals": [
+      {
+        "batchStopReason": "completed",
+        "endIndex": 30,
+        "processed": 0,
+        "skipped": 30,
+        "startIndex": 0,
+        "totalCostUsd": 0
+      }
+    ]
+  },
+  "note": "Live exhaustive catalog counts (REDHAT-FIX-08 multi-query). Acceptance bound to fresh runFullBatch runId with real provenance."
+}

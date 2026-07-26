@@ -1,11 +1,43 @@
-npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
 {
-  "acceptedAt": 1784950595700,
-  "decision": "accepted",
-  "decisionTimestamp": "2026-07-25T03:36:35.700Z",
-  "operatorIdentity": "test:s5t4-founder",
-  "rationale": "Founder resolution after real runFullBatch s5-redhat-20260725T033521Z: reconstruct 2/3 (~67%) met assumption; reroute 0/1 escalated and reviewed; accept catalog with retirement unlocked for explicit per-route confirm only.",
-  "resolvedAt": "2026-07-25T03:36:35.700Z",
-  "retirementUnlockedAt": 1784950595700,
-  "runId": "s5-redhat-20260725T033521Z"
+  "claim": "no auto-retire; reversible unretireRoute",
+  "function": "curatedGeometry:unretireRoute",
+  "runId": "s5-full-batch-redhatfix09-20260726T210313Z",
+  "transcript": {
+    "routeId": "motorcycleroads:lonely-short-cut-missouri-j",
+    "before": {
+      "retiredAt": null,
+      "geometryStatus": "review"
+    },
+    "retire": {
+      "confirmed": true,
+      "disposition": "retire",
+      "geometryStatus": "retired",
+      "retiredAt": "2026-07-26T21:05:36.888Z",
+      "retiredAtMs": 1785099936888,
+      "retirementReason": "REDHAT-FIX-09 step-7 explicit founder-confirmed retirement evidence",
+      "riderReady": false,
+      "routeId": "motorcycleroads:lonely-short-cut-missouri-j"
+    },
+    "mid": {
+      "retiredAt": 1785099936888,
+      "geometryStatus": "retired"
+    },
+    "unretire": {
+      "applied": true,
+      "disposition": "unretire",
+      "geometryStatus": "review",
+      "retiredAt": null,
+      "riderReady": false,
+      "routeDocId": "mx70qv4j94ddrt5kpqq2twnvjs84w29p",
+      "routeId": "motorcycleroads:lonely-short-cut-missouri-j"
+    },
+    "after": {
+      "retiredAt": null,
+      "geometryStatus": "review"
+    },
+    "reversible": true,
+    "autoRetire": false
+  },
+  "step8_unretire_transcript_count": 1,
+  "result": "PASS"
 }

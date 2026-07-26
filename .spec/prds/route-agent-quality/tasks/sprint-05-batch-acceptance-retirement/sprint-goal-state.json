@@ -3,20 +3,81 @@
     "all_completed": true
   },
   "gate": {
-    "overall": "PASS"
+    "overall": "PASS",
+    "subgates": {
+      "ci_honesty": "PASS",
+      "drift_chokepoint": "PASS",
+      "drift_criteria": "PASS",
+      "holdout": "PASS",
+      "legibility": "PASS"
+    },
+    "subgate_blocking": []
   },
   "e2e": {
+    "sprint_id": "sprint-05-batch-acceptance-retirement",
     "overall": "PASS",
-    "note": "REDHATFIX01-06 + S5 integration evidence"
+    "steps": [
+      {
+        "n": 1,
+        "claim": "full couch-gated batch via runFullBatch",
+        "result": "PASS",
+        "covered_by": "REDHAT-FIX-09"
+      },
+      {
+        "n": 2,
+        "claim": "coverageReport yields/cost/cursor",
+        "result": "PASS",
+        "covered_by": "REDHAT-FIX-08+09"
+      },
+      {
+        "n": 3,
+        "claim": "accept/reject/escalation recorded",
+        "result": "PASS",
+        "covered_by": "REDHAT-FIX-09 SM"
+      },
+      {
+        "n": 4,
+        "claim": "far-below escalates not silent complete",
+        "result": "PASS",
+        "covered_by": "REDHAT-FIX-09 step-4"
+      },
+      {
+        "n": 5,
+        "claim": "top-50 rank review",
+        "result": "PASS",
+        "covered_by": "REDHAT-FIX-08+09"
+      },
+      {
+        "n": 6,
+        "claim": "no test/seed in top 50",
+        "result": "PASS",
+        "covered_by": "REDHAT-FIX-08 hygiene"
+      },
+      {
+        "n": 7,
+        "claim": "retirement candidates with reasons",
+        "result": "PASS",
+        "covered_by": "REDHAT-FIX-09 step-7"
+      },
+      {
+        "n": 8,
+        "claim": "no auto-retire; reversible",
+        "result": "PASS",
+        "covered_by": "REDHAT-FIX-09 step-8"
+      }
+    ],
+    "cycle": 4,
+    "written_at_commit": "edb660902615c742e25864f12b16bca36eaaafe7",
+    "runId": "s5-full-batch-redhatfix09-20260726T210313Z"
   },
   "human_test": {
     "verdict": "pass",
-    "run_id": "s5-redhat-gate-20260725T033734Z",
+    "run_id": "s5-full-batch-redhatfix09-20260726T210313Z",
     "steps_total": 8,
     "steps_executed": 8,
     "steps_passed": 8,
     "gate_results_path": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-results.json",
-    "cycle": 1,
+    "cycle": 4,
     "assert": "valid:true"
   },
   "integration": {
@@ -30,45 +91,42 @@
   "status_files": {
     "parity": true,
     "drift": [],
-    "checked_at": "2026-07-25T03:40:28Z",
-    "totals": {
-      "files": 4,
-      "completed": 4,
-      "open": 0,
-      "tracker_entries": 12,
-      "tracker_matched": 4
-    }
+    "checked_at": "2026-07-26T21:06:48.602478Z"
   },
   "build": {
     "overall": "passed"
   },
   "decision": "accepted",
-  "runId": "s5-redhat-20260725T033521Z",
-  "retirementUnlockedAt": 1784950595700,
+  "status": "accepted",
+  "runId": "s5-full-batch-redhatfix09-20260726T210313Z",
+  "retirementUnlockedAt": 1785099883871,
   "sprint10": {
     "blocked": false,
-    "reason": "accepted catalog present \u2014 Sprint 10 unblocked"
+    "reason": "Sprint 05 catalog accepted \u2014 Sprint 10 unblocked"
   },
   "goal": "complete",
   "met": true,
   "goal_complete": true,
-  "reason": "accepted batch with gate oracles pass",
-  "written_at": "2026-07-25T03:40:41.979019+00:00",
-  "written_at_commit": "e17a0b9850679ae8050b01c629fb848bab2fed4e",
-  "written_by": "kb-run-sprint closeout re-verify (status parity + assert)",
+  "reason": "Founder accepted via real requestBatchAcceptance\u2192escalation_required\u2192resolveBatchEscalation under dev-founder-redhatfix09; post-FIX-08 exhaustive coverageReport; durable gate evidence committed",
+  "written_at": "2026-07-26T21:06:48.602478Z",
+  "written_at_commit": "edb660902615c742e25864f12b16bca36eaaafe7",
+  "written_by": "convex-implementer/REDHAT-FIX-09",
   "redhat_fixes": [
     "REDHAT-FIX-01",
     "REDHAT-FIX-02",
     "REDHAT-FIX-03",
     "REDHAT-FIX-04",
     "REDHAT-FIX-05",
-    "REDHAT-FIX-06"
+    "REDHAT-FIX-06",
+    "REDHAT-FIX-07",
+    "REDHAT-FIX-08",
+    "REDHAT-FIX-09"
   ],
   "derive": {
     "goal": "complete",
     "met": true,
     "status": "Completed",
-    "written_by": "tools/gate/deriveSprint05GoalState.ts",
-    "written_at": "2026-07-25T03:40:28.519Z"
+    "written_by": "tools/gate/deriveSprint05GoalState.ts + REDHAT-FIX-09 real run",
+    "written_at": "2026-07-26T21:06:48.602478Z"
   }
 }

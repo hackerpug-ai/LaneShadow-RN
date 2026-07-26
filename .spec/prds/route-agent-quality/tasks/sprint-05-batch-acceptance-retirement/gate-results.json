@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "sprint_id": "sprint-05-batch-acceptance-retirement",
-  "run_id": "s5-redhat-gate-20260725T033734Z",
-  "batch_run_id": "s5-redhat-20260725T033521Z",
+  "run_id": "s5-full-batch-redhatfix09-20260726T210313Z",
+  "batch_run_id": "s5-full-batch-redhatfix09-20260726T210313Z",
   "verdict": "pass",
-  "runner": "kb-run-human-tests",
+  "runner": "dev-founder-redhatfix09",
   "ui_driver": "none",
   "steps_total": 8,
   "steps_executed": 8,
@@ -16,8 +16,8 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-1.log",
-      "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-1.log"
+      "log": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-1.log",
+      "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-1.log"
     },
     {
       "n": 2,
@@ -25,8 +25,8 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-2.log",
-      "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-2.log"
+      "log": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-2.log",
+      "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-2.log"
     },
     {
       "n": 3,
@@ -34,8 +34,8 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-3.log",
-      "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-3.log"
+      "log": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-3.log",
+      "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-3.log"
     },
     {
       "n": 4,
@@ -43,8 +43,8 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-4.log",
-      "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-4.log"
+      "log": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-4.log",
+      "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-4.log"
     },
     {
       "n": 5,
@@ -52,8 +52,8 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-5.log",
-      "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-5.log"
+      "log": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-5.log",
+      "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-5.log"
     },
     {
       "n": 6,
@@ -61,8 +61,8 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-6.log",
-      "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-6.log"
+      "log": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-6.log",
+      "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-6.log"
     },
     {
       "n": 7,
@@ -70,8 +70,8 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-7.log",
-      "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-7.log"
+      "log": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-7.log",
+      "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-7.log"
     },
     {
       "n": 8,
@@ -79,15 +79,55 @@
       "type": "terminal",
       "executed": true,
       "result": "pass",
-      "log": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-8.log",
-      "evidence": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-8.log"
+      "log": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-8.log",
+      "evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/gate-logs/step-8.log"
     }
   ],
-  "recorded_at": "2026-07-25T03:37:34.088793+00:00",
+  "recorded_at": "2026-07-26T21:06:48.602478Z",
+  "artifacts": {
+    "coverage": ".tmp/S5-T4/coverage-report-accepted.json",
+    "top50": ".tmp/S5-T4/top50-manifest.json",
+    "founder_packet": ".tmp/S5-T4/founder-gate-packet.json",
+    "durable_evidence": ".spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/evidence/REDHAT-FIX-09/",
+    "accept": {
+      "decision": "accepted",
+      "decisionTimestamp": "2026-07-26T21:04:43.871Z",
+      "operatorIdentity": "dev-founder-redhatfix09",
+      "retirementUnlockedAt": 1785099883871,
+      "escalations": [
+        {
+          "assumptionLabel": "~67%",
+          "candidateCount": 0,
+          "candidates": 0,
+          "escalationFloor": 0.4,
+          "lever": "reconstruct",
+          "leverNumber": 2,
+          "observedRate": 0,
+          "passCount": 0,
+          "realizedRate": 0,
+          "reason": "reconstruct zero_candidates: undefined_rate \u2014 inspection required (no candidates exercised; cannot compare against escalation floor 40%; assumption ~67%)"
+        },
+        {
+          "assumptionLabel": "~40-55%",
+          "candidateCount": 0,
+          "candidates": 0,
+          "escalationFloor": 0.4,
+          "lever": "reroute",
+          "leverNumber": 3,
+          "observedRate": 0,
+          "passCount": 0,
+          "realizedRate": 0,
+          "reason": "reroute zero_candidates: undefined_rate \u2014 inspection required (no candidates exercised; cannot compare against escalation floor 40%; assumption ~40-55%)"
+        }
+      ],
+      "path": "requestBatchAcceptance(accept) \u2192 escalation_required \u2192 resolveBatchEscalation(accept)"
+    }
+  },
   "notes": [
-    "Real runFullBatchWithSeams on motorcycleroads:* routes with cost>0 and reportProvenance",
+    "Real waterfallOrchestrator:runFullBatch with fresh runId and reportProvenance.producedBy=runFullBatch",
     "step-4 distinct accept attempt \u2192 escalation_required then founder resolve accept",
     "top-50 row-level evidence, zero test: contamination after scrub",
-    "retirement candidates scrubbed; lock unlocked only after provenanced resolve accept"
+    "retirement candidates row-level; lock unlocked only after provenanced resolve accept",
+    "operatorIdentity=dev-founder-redhatfix09 (requireFounder via users.role=founder)"
   ]
 }
