@@ -1055,7 +1055,7 @@ async function executeFullBatch(
   let priorProvenanceCounts: Record<string, number> = {}
   let priorRiderReadyCount = 0
   if (args.cursor) {
-    const prior = (await ctx.runQuery(api.curatedGeometry.coverageReport, {
+    const prior = (await ctx.runQuery(api.curatedGeometry.coverageReportPersisted, {
       runId,
     })) as PriorCoverageSnapshot & { source?: string }
     if (prior?.source === 'persisted') {

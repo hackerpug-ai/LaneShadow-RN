@@ -15,6 +15,7 @@
 import { ConvexError, v } from 'convex/values'
 import { internal } from './_generated/api'
 import {
+  action,
   internalAction,
   internalMutation,
   internalQuery,
@@ -28,6 +29,7 @@ import {
   requireFounder,
   requireIdentity,
   requireOperator,
+  requireOperatorAction,
 } from './guards'
 import { isTestSeedRoute } from './lib/top50Eligibility'
 
@@ -1228,162 +1230,408 @@ export const persistCoverageReport = internalMutation({
   },
 })
 
+type CoverageTallyPage = {
+  leverCounts: Record<string, { candidates: number; passCount: number }>
+  terminalStates: Record<string, number>
+  provenanceCounts: Record<string, number>
+  riderReadyCount: number
+  generatedCount: number
+  notARideRiderReady: boolean
+  shadowRiderReady: boolean
+  lastRouteId: string | null
+  isDone: boolean
+  rowsSeen: number
+  /** Rows matched by isTestSeedRoute and excluded when scrubTestSeed=true */
+  testSeedRowsSkipped: number
+}
+
+function emptyLeverCounts(): Record<string, { candidates: number; passCount: number }> {
+  return {
+    scraped_promoted: { candidates: 0, passCount: 0 },
+    ai_reconstructed: { candidates: 0, passCount: 0 },
+    name_routed: { candidates: 0, passCount: 0 },
+  }
+}
+
+function mergeCoverageTally(into: CoverageTallyPage, page: CoverageTallyPage) {
+  for (const [k, v] of Object.entries(page.leverCounts)) {
+    if (!into.leverCounts[k]) into.leverCounts[k] = { candidates: 0, passCount: 0 }
+    into.leverCounts[k].candidates += v.candidates
+    into.leverCounts[k].passCount += v.passCount
+  }
+  for (const [k, v] of Object.entries(page.terminalStates)) {
+    into.terminalStates[k] = (into.terminalStates[k] ?? 0) + v
+  }
+  for (const [k, v] of Object.entries(page.provenanceCounts)) {
+    into.provenanceCounts[k] = (into.provenanceCounts[k] ?? 0) + v
+  }
+  into.riderReadyCount += page.riderReadyCount
+  into.generatedCount += page.generatedCount
+  into.notARideRiderReady = into.notARideRiderReady || page.notARideRiderReady
+  into.shadowRiderReady = into.shadowRiderReady || page.shadowRiderReady
+  into.lastRouteId = page.lastRouteId ?? into.lastRouteId
+  into.rowsSeen += page.rowsSeen
+  into.testSeedRowsSkipped += page.testSeedRowsSkipped
+  into.isDone = page.isDone
+}
+
 /**
- * Live coverage report over the catalog (optionally scoped by routeIdPrefix)
- * or the persisted report for a runId.
+ * REDHAT-FIX-07: one catalog page of lean coverage tallies (own 16MB budget).
+ * Action coverageReport loops this until isDone — never a silent fixed-500 final source.
  */
-export const coverageReport = query({
+export const coverageReportScanPage = internalQuery({
   args: {
-    runId: v.optional(v.string()),
-    routeIdPrefix: v.optional(v.string()),
-    routeIds: v.optional(v.array(v.string())),
+    startExclusive: v.union(v.string(), v.null()),
+    prefix: v.optional(v.string()),
+    pageSize: v.optional(v.number()),
+    scrubTestSeed: v.boolean(),
   },
-  handler: async (ctx, args) => {
-    await requireOperator(ctx)
-
-    if (args.runId && !args.routeIds && !args.routeIdPrefix) {
-      const persisted = await ctx.db
-        .query('batch_acceptance_artifacts')
-        .withIndex('by_runId_and_kind', (q) =>
-          q.eq('runId', args.runId!).eq('artifactKind', 'coverage_report'),
-        )
-        .first()
-      if (persisted) {
-        return {
-          runId: persisted.runId,
-          source: 'persisted' as const,
-          isDone: persisted.isDone ?? false,
-          continueCursor: persisted.continueCursor ?? null,
-          totalCostUSD: persisted.totalCostUSD ?? 0,
-          maxCostUSD: persisted.maxCostUSD ?? null,
-          batchStopReason: persisted.batchStopReason ?? null,
-          riderReadyCount: persisted.riderReadyCount ?? 0,
-          levers: persisted.levers ?? [],
-          terminalStates: persisted.terminalStates ?? emptyTerminalStates(),
-          provenanceCounts: persisted.provenanceCounts ?? {},
-          pageTotals: persisted.pageTotals ?? null,
-          reportProvenance: persisted.reportProvenance ?? null,
-          assumptionNote:
-            'PRD per-lever expected yields are assumptions for comparison only — not committed catalog targets.',
-        }
-      }
-    }
-
-    const prefix = args.routeIdPrefix
-    const idSet = args.routeIds ? new Set(args.routeIds) : null
-    const leverCounts: Record<string, { candidates: number; passCount: number }> = {
-      scraped_promoted: { candidates: 0, passCount: 0 },
-      ai_reconstructed: { candidates: 0, passCount: 0 },
-      name_routed: { candidates: 0, passCount: 0 },
-    }
-    const terminalStates = emptyTerminalStates()
+  handler: async (ctx, args): Promise<CoverageTallyPage> => {
+    const prefix = args.prefix
+    const pageSize = Math.min(Math.max(args.pageSize ?? 80, 1), 120)
+    const scrubTestSeed = args.scrubTestSeed
+    const leverCounts = emptyLeverCounts()
+    const terminalStates = emptyTerminalStates() as Record<string, number>
     const provenanceCounts: Record<string, number> = {}
     let riderReadyCount = 0
     let generatedCount = 0
     let notARideRiderReady = false
     let shadowRiderReady = false
+    let lastRouteId: string | null = args.startExclusive
+    let rowsSeen = 0
+    let testSeedRowsSkipped = 0
 
-    const matchesScope = (routeId: string) => {
-      if (idSet) return idSet.has(routeId)
-      if (prefix) return routeId.startsWith(prefix)
-      return true
-    }
+    const lowerBound: string | null = args.startExclusive
+    const page =
+      lowerBound == null && !prefix
+        ? await ctx.db.query('curated_routes').withIndex('by_routeId').take(pageSize)
+        : await ctx.db
+            .query('curated_routes')
+            .withIndex('by_routeId', (idx) =>
+              lowerBound == null
+                ? idx.gte('routeId', prefix as string)
+                : idx.gt('routeId', lowerBound),
+            )
+            .take(pageSize)
 
-    // Prefer exact routeIds lookup when provided (isolated test pools).
-    if (idSet) {
-      for (const routeId of idSet) {
-        const row = await ctx.db
-          .query('curated_routes')
-          .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
-          .first()
-        if (!row) continue
-        const status = (row.geometryStatus ?? 'unresolved') as keyof typeof terminalStates
-        if (status in terminalStates) {
-          terminalStates[status] = (terminalStates[status] ?? 0) + 1
-        }
-        if (row.geometryStatus === 'generated') generatedCount += 1
-        // Gate-derived riderReady only — never infer from geometryStatus alone
-        if (row.riderReady === true) riderReadyCount += 1
+    let pastPrefix = false
+    for (const doc of page) {
+      if (prefix && !doc.routeId.startsWith(prefix)) {
+        pastPrefix = true
+        break
+      }
+      lastRouteId = doc.routeId
+      rowsSeen += 1
+      if (scrubTestSeed && isTestSeedRoute(doc.routeId, doc.name)) {
+        testSeedRowsSkipped += 1
+        continue
+      }
 
-        const prov = row.geometryProvenance as string | undefined
-        if (prov) {
-          provenanceCounts[prov] = (provenanceCounts[prov] ?? 0) + 1
-          if (leverCounts[prov]) {
-            leverCounts[prov].candidates += 1
-            const geom = await ctx.db
-              .query('curated_route_geometry')
-              .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
-              .first()
-            const pass =
-              row.geometryStatus === 'generated' && geom?.verification?.verdict === 'pass'
-            if (pass) leverCounts[prov].passCount += 1
-          }
-        }
+      const status = (doc.geometryStatus ?? 'unresolved') as string
+      if (status in terminalStates) {
+        terminalStates[status] = (terminalStates[status] ?? 0) + 1
+      }
+      if (doc.geometryStatus === 'generated') generatedCount += 1
+      if (doc.riderReady === true) riderReadyCount += 1
 
-        if (row.routeId.includes('not-a-ride') || row.routeId.includes('not_a_ride')) {
-          if (row.riderReady === true) notARideRiderReady = true
-        }
-        if (row.duplicateOf != null || row.routeId.includes('shadow')) {
-          if (row.riderReady === true) shadowRiderReady = true
+      const prov = doc.geometryProvenance as string | undefined
+      if (prov) {
+        provenanceCounts[prov] = (provenanceCounts[prov] ?? 0) + 1
+        if (leverCounts[prov]) {
+          leverCounts[prov].candidates += 1
+          // Pass count uses verification verdict when geometry side-table is present.
+          const geom = await ctx.db
+            .query('curated_route_geometry')
+            .withIndex('by_routeId', (q) => q.eq('routeId', doc.routeId))
+            .first()
+          const pass = doc.geometryStatus === 'generated' && geom?.verification?.verdict === 'pass'
+          if (pass) leverCounts[prov].passCount += 1
         }
       }
-    } else {
-      const statuses = ['generated', 'review', 'unresolved', 'failed'] as const
-      for (const status of statuses) {
-        const rows = await ctx.db
-          .query('curated_routes')
-          .withIndex('by_geometry_status', (q) => q.eq('geometryStatus', status))
-          .take(500)
-        for (const row of rows) {
-          if (!matchesScope(row.routeId)) continue
-          terminalStates[status] = (terminalStates[status] ?? 0) + 1
-          if (status === 'generated') generatedCount += 1
-          if (row.riderReady === true) riderReadyCount += 1
-
-          const prov = row.geometryProvenance as string | undefined
-          if (prov) {
-            provenanceCounts[prov] = (provenanceCounts[prov] ?? 0) + 1
-            if (leverCounts[prov]) {
-              leverCounts[prov].candidates += 1
-              const geom = await ctx.db
-                .query('curated_route_geometry')
-                .withIndex('by_routeId', (q) => q.eq('routeId', row.routeId))
-                .first()
-              const pass = status === 'generated' && geom?.verification?.verdict === 'pass'
-              if (pass) leverCounts[prov].passCount += 1
-            }
-          }
-
-          if (row.routeId.includes('not-a-ride') || row.routeId.includes('not_a_ride')) {
-            if (row.riderReady === true) notARideRiderReady = true
-          }
-          if (row.duplicateOf != null || row.routeId.includes('shadow')) {
-            if (row.riderReady === true) shadowRiderReady = true
-          }
-        }
+      if (doc.routeId.includes('not-a-ride') || doc.routeId.includes('not_a_ride')) {
+        if (doc.riderReady === true) notARideRiderReady = true
+      }
+      if (doc.duplicateOf != null || doc.routeId.includes('shadow')) {
+        if (doc.riderReady === true) shadowRiderReady = true
       }
     }
 
-    const levers = buildLeverRows(leverCounts)
-    // REDHAT-FIX-01: live catalog scan is NOT a completed full batch.
-    // Never invent isDone=true + totalCostUSD=0 completeness — only
-    // persistCoverageReport / runFullBatch may claim batch completion with real cost.
+    const isDone = pastPrefix || page.length < pageSize || page.length === 0
     return {
-      source: 'live' as const,
-      runId: args.runId ?? null,
-      isDone: false,
-      continueCursor: null,
-      totalCostUSD: 0,
-      batchStopReason: null,
-      completeness: 'scan_not_batch' as const,
-      riderReadyCount,
-      generatedCount,
-      levers,
+      leverCounts,
       terminalStates,
       provenanceCounts,
-      negativeControl: { notARideRiderReady, shadowRiderReady },
+      riderReadyCount,
+      generatedCount,
+      notARideRiderReady,
+      shadowRiderReady,
+      lastRouteId,
+      isDone,
+      rowsSeen,
+      testSeedRowsSkipped,
+    }
+  },
+})
+
+/** Persisted coverage_report artifact lookup (query-safe for waterfall prior merge). */
+export const coverageReportPersistedLookup = internalQuery({
+  args: { runId: v.string() },
+  handler: async (ctx, { runId }) => {
+    const persisted = await ctx.db
+      .query('batch_acceptance_artifacts')
+      .withIndex('by_runId_and_kind', (q) =>
+        q.eq('runId', runId).eq('artifactKind', 'coverage_report'),
+      )
+      .first()
+    if (!persisted) return null
+    return {
+      runId: persisted.runId,
+      source: 'persisted' as const,
+      isDone: persisted.isDone ?? false,
+      continueCursor: persisted.continueCursor ?? null,
+      totalCostUSD: persisted.totalCostUSD ?? 0,
+      maxCostUSD: persisted.maxCostUSD ?? null,
+      batchStopReason: persisted.batchStopReason ?? null,
+      riderReadyCount: persisted.riderReadyCount ?? 0,
+      levers: persisted.levers ?? [],
+      terminalStates: persisted.terminalStates ?? emptyTerminalStates(),
+      provenanceCounts: persisted.provenanceCounts ?? {},
+      pageTotals: persisted.pageTotals ?? null,
+      reportProvenance: persisted.reportProvenance ?? null,
       assumptionNote:
-        'PRD per-lever expected yields are assumptions for comparison only — not committed catalog targets. Live scan does not claim full-batch completeness; query with runId for a persisted runFullBatch report.',
+        'PRD per-lever expected yields are assumptions for comparison only — not committed catalog targets.',
+    }
+  },
+})
+
+/** Exact routeIds scope — small isolated test pools (single query budget). */
+export const coverageReportByRouteIds = internalQuery({
+  args: {
+    routeIds: v.array(v.string()),
+    scrubTestSeed: v.boolean(),
+  },
+  handler: async (ctx, args): Promise<CoverageTallyPage> => {
+    const leverCounts = emptyLeverCounts()
+    const terminalStates = emptyTerminalStates() as Record<string, number>
+    const provenanceCounts: Record<string, number> = {}
+    let riderReadyCount = 0
+    let generatedCount = 0
+    let notARideRiderReady = false
+    let shadowRiderReady = false
+    let lastRouteId: string | null = null
+    let rowsSeen = 0
+    let testSeedRowsSkipped = 0
+
+    for (const routeId of args.routeIds) {
+      const doc = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      if (!doc) continue
+      lastRouteId = doc.routeId
+      rowsSeen += 1
+      if (args.scrubTestSeed && isTestSeedRoute(doc.routeId, doc.name)) {
+        testSeedRowsSkipped += 1
+        continue
+      }
+
+      const status = (doc.geometryStatus ?? 'unresolved') as string
+      if (status in terminalStates) {
+        terminalStates[status] = (terminalStates[status] ?? 0) + 1
+      }
+      if (doc.geometryStatus === 'generated') generatedCount += 1
+      if (doc.riderReady === true) riderReadyCount += 1
+      const prov = doc.geometryProvenance as string | undefined
+      if (prov) {
+        provenanceCounts[prov] = (provenanceCounts[prov] ?? 0) + 1
+        if (leverCounts[prov]) {
+          leverCounts[prov].candidates += 1
+          const geom = await ctx.db
+            .query('curated_route_geometry')
+            .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+            .first()
+          const pass = doc.geometryStatus === 'generated' && geom?.verification?.verdict === 'pass'
+          if (pass) leverCounts[prov].passCount += 1
+        }
+      }
+      if (doc.routeId.includes('not-a-ride') || doc.routeId.includes('not_a_ride')) {
+        if (doc.riderReady === true) notARideRiderReady = true
+      }
+      if (doc.duplicateOf != null || doc.routeId.includes('shadow')) {
+        if (doc.riderReady === true) shadowRiderReady = true
+      }
+    }
+
+    return {
+      leverCounts,
+      terminalStates,
+      provenanceCounts,
+      riderReadyCount,
+      generatedCount,
+      notARideRiderReady,
+      shadowRiderReady,
+      lastRouteId,
+      isDone: true,
+      rowsSeen,
+      testSeedRowsSkipped,
+    }
+  },
+})
+
+function finalizeLiveCoverageReport(
+  args: { runId?: string; routeIdPrefix?: string },
+  tally: CoverageTallyPage,
+  scrubTestSeed: boolean,
+) {
+  return {
+    source: 'live' as const,
+    runId: args.runId ?? null,
+    isDone: false,
+    continueCursor: null,
+    totalCostUSD: 0,
+    batchStopReason: null,
+    completeness: 'scan_not_batch' as const,
+    exhaustive: true as const,
+    livePathSilentTake500: false as const,
+    scrubbedTestSeed: scrubTestSeed,
+    testSeedRowsSkipped: tally.testSeedRowsSkipped,
+    riderReadyCount: tally.riderReadyCount,
+    generatedCount: tally.generatedCount,
+    levers: buildLeverRows(tally.leverCounts),
+    terminalStates: tally.terminalStates,
+    provenanceCounts: tally.provenanceCounts,
+    negativeControl: {
+      notARideRiderReady: tally.notARideRiderReady,
+      shadowRiderReady: tally.shadowRiderReady,
+    },
+    assumptionNote:
+      'PRD per-lever expected yields are assumptions for comparison only — not committed catalog targets. Live scan does not claim full-batch completeness; query with runId for a persisted runFullBatch report. Lever counts are exhaustive (REDHAT-FIX-07 multi-query pagination); test:/seed: excluded on unscoped founder path.',
+  }
+}
+
+/**
+ * Live coverage report over the catalog (optionally scoped by routeIdPrefix)
+ * or the persisted report for a runId.
+ *
+ * REDHAT-FIX-07: implemented as an ACTION so unscoped/full-catalog scans paginate
+ * across multiple internal query executions (each with its own 16MB read budget).
+ * No silent fixed-500 final source. Public name remains curatedGeometry:coverageReport.
+ */
+export const coverageReport = action({
+  args: {
+    runId: v.optional(v.string()),
+    routeIdPrefix: v.optional(v.string()),
+    routeIds: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args): Promise<Record<string, unknown>> => {
+    await requireOperatorAction(ctx)
+
+    if (args.runId && !args.routeIds && !args.routeIdPrefix) {
+      const persisted: Record<string, unknown> | null = await ctx.runQuery(
+        internal.curatedGeometry.coverageReportPersistedLookup,
+        { runId: args.runId },
+      )
+      if (persisted) return persisted
+    }
+
+    const prefix = args.routeIdPrefix
+    const idSet = args.routeIds
+    // Unscoped founder path scrubs test:/seed:; prefix harness under test:/seed: keeps them.
+    const scrubTestSeed =
+      !idSet &&
+      !(typeof prefix === 'string' && (prefix.startsWith('test:') || prefix.startsWith('seed:')))
+
+    if (idSet && idSet.length > 0) {
+      const page: CoverageTallyPage = await ctx.runQuery(
+        internal.curatedGeometry.coverageReportByRouteIds,
+        { routeIds: idSet, scrubTestSeed },
+      )
+      return finalizeLiveCoverageReport(args, page, scrubTestSeed)
+    }
+
+    // Multi-query pagination: each coverageReportScanPage has its own 16MB budget.
+    const totals: CoverageTallyPage = {
+      leverCounts: emptyLeverCounts(),
+      terminalStates: emptyTerminalStates() as Record<string, number>,
+      provenanceCounts: {},
+      riderReadyCount: 0,
+      generatedCount: 0,
+      notARideRiderReady: false,
+      shadowRiderReady: false,
+      lastRouteId: null,
+      isDone: false,
+      rowsSeen: 0,
+      testSeedRowsSkipped: 0,
+    }
+    let startExclusive: string | null = null
+    let guard = 0
+    const maxPages = 1000 // safety: 80k rows @ pageSize 80
+    while (guard < maxPages) {
+      guard += 1
+      const page: CoverageTallyPage = await ctx.runQuery(
+        internal.curatedGeometry.coverageReportScanPage,
+        {
+          startExclusive,
+          prefix,
+          pageSize: 80,
+          scrubTestSeed,
+        },
+      )
+      mergeCoverageTally(totals, page)
+      if (page.isDone) break
+      if (!page.lastRouteId || page.lastRouteId === startExclusive) break
+      startExclusive = page.lastRouteId
+    }
+
+    return finalizeLiveCoverageReport(args, totals, scrubTestSeed)
+  },
+})
+
+/**
+ * Query-side persisted coverage lookup for waterfall prior-merge (actions may
+ * runQuery this without paying for a live catalog scan).
+ */
+export const coverageReportPersisted = query({
+  args: { runId: v.string() },
+  handler: async (ctx, { runId }) => {
+    await requireOperator(ctx)
+    const persisted = await ctx.db
+      .query('batch_acceptance_artifacts')
+      .withIndex('by_runId_and_kind', (q) =>
+        q.eq('runId', runId).eq('artifactKind', 'coverage_report'),
+      )
+      .first()
+    if (!persisted) {
+      return {
+        runId,
+        source: 'missing' as const,
+        isDone: false,
+        continueCursor: null,
+        totalCostUSD: 0,
+        riderReadyCount: 0,
+        levers: [],
+        terminalStates: emptyTerminalStates(),
+        provenanceCounts: {},
+        pageTotals: null,
+        reportProvenance: null,
+      }
+    }
+    return {
+      runId: persisted.runId,
+      source: 'persisted' as const,
+      isDone: persisted.isDone ?? false,
+      continueCursor: persisted.continueCursor ?? null,
+      totalCostUSD: persisted.totalCostUSD ?? 0,
+      maxCostUSD: persisted.maxCostUSD ?? null,
+      batchStopReason: persisted.batchStopReason ?? null,
+      riderReadyCount: persisted.riderReadyCount ?? 0,
+      levers: persisted.levers ?? [],
+      terminalStates: persisted.terminalStates ?? emptyTerminalStates(),
+      provenanceCounts: persisted.provenanceCounts ?? {},
+      pageTotals: persisted.pageTotals ?? null,
+      reportProvenance: persisted.reportProvenance ?? null,
+      assumptionNote:
+        'PRD per-lever expected yields are assumptions for comparison only — not committed catalog targets.',
     }
   },
 })
@@ -2368,6 +2616,218 @@ export const teardownS5T1Fixtures = mutation({
     }
 
     return { removed, count: removed.length }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// REDHAT-FIX-07: bulk seed + test/seed purge for exhaustive coverage counts
+// ---------------------------------------------------------------------------
+
+/**
+ * Bulk-seed lean catalog rows for N>500 exhaustive coverageReport proof.
+ * Skips geospatial indexing to stay under mutation write budgets at N≈520.
+ * Call in batches (count ≤ 100 recommended) from integration harnesses.
+ */
+export const seedRedhatFix07CoveragePool = mutation({
+  args: {
+    prefix: v.string(),
+    startIndex: v.number(),
+    count: v.number(),
+    geometryStatus: v.union(
+      v.literal('generated'),
+      v.literal('unresolved'),
+      v.literal('failed'),
+      v.literal('review'),
+    ),
+    geometryProvenance: v.optional(
+      v.union(
+        v.literal('scraped_promoted'),
+        v.literal('ai_reconstructed'),
+        v.literal('name_routed'),
+      ),
+    ),
+    riderReady: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    await requireFounder(ctx)
+    const count = Math.min(Math.max(args.count, 0), 100)
+    const startIndex = Math.max(args.startIndex, 0)
+    const routeIds: string[] = []
+    const nowMs = Date.now()
+    const centroidLat = 34.95
+    const centroidLng = -120.42
+
+    for (let i = 0; i < count; i++) {
+      const n = startIndex + i
+      const routeId = `${args.prefix}${String(n).padStart(3, '0')}`
+      const existing = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+        .first()
+      const base = {
+        name: `REDHAT-FIX-07 ${args.geometryProvenance ?? 'none'} ${n}`,
+        lengthMiles: 41,
+        centroidLat,
+        centroidLng,
+        boundsNeLat: centroidLat + 0.3,
+        boundsNeLng: centroidLng + 0.3,
+        boundsSwLat: centroidLat - 0.3,
+        boundsSwLng: centroidLng - 0.3,
+        location: { type: 'Point' as const, coordinates: [centroidLng, centroidLat] },
+        compositeScore: 80 + (n % 10),
+        curvatureScore: 80,
+        scenicScore: 80,
+        technicalScore: 80,
+        trafficScore: 80,
+        remotenessScore: 80,
+        geometryStatus: args.geometryStatus,
+        geometryProvenance: args.geometryProvenance,
+        riderReady: args.riderReady ?? false,
+        state: 'California',
+        summary: 'REDHAT-FIX-07 exhaustive coverage fixture',
+        name_lower: `redhat-fix-07 ${n}`,
+        retiredAt: null,
+      }
+      if (existing) {
+        await ctx.db.patch(existing._id, base)
+      } else {
+        await ctx.db.insert('curated_routes', {
+          routeId,
+          source: 'editorial',
+          primaryArchetype: 'twisties',
+          secondaryTags: ['redhatfix07'],
+          oneLiner: 'REDHAT-FIX-07 fixture',
+          badges: [],
+          season: 'year_round',
+          contentVersion: 1,
+          seededAt: nowMs,
+          rideWorthiness: {
+            verdict: 'ride' as const,
+            reason: 'redhatfix07 seed',
+            model: 'test',
+            classifiedAt: nowMs,
+          },
+          ...base,
+        })
+      }
+      routeIds.push(routeId)
+    }
+
+    return {
+      prefix: args.prefix,
+      startIndex,
+      count: routeIds.length,
+      routeIds,
+      geometryStatus: args.geometryStatus,
+      geometryProvenance: args.geometryProvenance ?? null,
+    }
+  },
+})
+
+/**
+ * Delete routes under a prefix (fixture cleanup). Scans by_routeId from the
+ * prefix so large N>500 pools are fully reachable. Call until more===false.
+ */
+export const purgeRoutesByPrefix = mutation({
+  args: {
+    prefix: v.string(),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    await requireFounder(ctx)
+    const limit = Math.min(Math.max(args.limit ?? 100, 1), 200)
+    const removed: string[] = []
+
+    const page = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.gte('routeId', args.prefix))
+      .take(Math.min(limit * 2, 200))
+
+    for (const row of page) {
+      if (removed.length >= limit) break
+      if (!row.routeId.startsWith(args.prefix)) break
+      const geom = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', row.routeId))
+        .first()
+      if (geom) await ctx.db.delete(geom._id)
+      const arts = await ctx.db
+        .query('curation_artifacts')
+        .withIndex('by_routeId', (q) => q.eq('routeId', row.routeId))
+        .take(20)
+      for (const a of arts) await ctx.db.delete(a._id)
+      try {
+        await geospatial.remove(ctx as any, row._id)
+      } catch {
+        /* ok */
+      }
+      await ctx.db.delete(row._id)
+      removed.push(row.routeId)
+    }
+
+    return { prefix: args.prefix, removed, count: removed.length, more: removed.length >= limit }
+  },
+})
+
+/**
+ * Purge residual test:/seed: contamination from curated_routes (table hygiene).
+ * Scans by_routeId prefix ranges (test: / seed:) so production majority rows
+ * cannot hide contamination behind a status-bucket take cap.
+ * Paginated — call until more===false. Founder-only.
+ */
+export const purgeTestSeedContamination = mutation({
+  args: {
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    await requireFounder(ctx)
+    const limit = Math.min(Math.max(args.limit ?? 100, 1), 200)
+    const removed: string[] = []
+
+    const deleteRouteDoc = async (row: {
+      _id: import('./_generated/dataModel').Id<'curated_routes'>
+      routeId: string
+    }) => {
+      const geom = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', row.routeId))
+        .first()
+      if (geom) await ctx.db.delete(geom._id)
+      const arts = await ctx.db
+        .query('curation_artifacts')
+        .withIndex('by_routeId', (q) => q.eq('routeId', row.routeId))
+        .take(20)
+      for (const a of arts) await ctx.db.delete(a._id)
+      try {
+        await geospatial.remove(ctx as any, row._id)
+      } catch {
+        /* ok */
+      }
+      await ctx.db.delete(row._id)
+      removed.push(row.routeId)
+    }
+
+    // Prefix scans — test: and seed: cluster under by_routeId.
+    for (const prefix of ['test:', 'seed:'] as const) {
+      if (removed.length >= limit) break
+      const page = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.gte('routeId', prefix))
+        .take(Math.min(limit * 2, 200))
+      for (const row of page) {
+        if (removed.length >= limit) break
+        if (!row.routeId.startsWith(prefix)) break
+        if (!isTestSeedRoute(row.routeId, row.name)) continue
+        await deleteRouteDoc(row)
+      }
+    }
+
+    return {
+      removed,
+      count: removed.length,
+      more: removed.length >= limit,
+      note: 'REDHAT-FIX-07 table purge of isTestSeedRoute contamination',
+    }
   },
 })
 
