@@ -1930,6 +1930,52 @@ export const recomputeRiderReadyForRoutePublic = mutation({
   },
 })
 
+/**
+ * S6-T6 / UC-SURF-06 Maestro mid-flow quarantine flip (public_api).
+ *
+ * Sets quarantine on an arbitrary routeId (e.g. cherohala-skyway — same slug the
+ * curated-saved-reachability deep-link uses) then runs the real recompute path so
+ * riderReady becomes false. Fail-closed: throws if riderReady is still true.
+ *
+ * Invoked mid-flow by `.maestro/scripts/mid-flow-quarantine-route.sh` via
+ * `npx convex run` (see curated-saved-reachability.yaml).
+ */
+export const quarantineRouteByRouteIdPublic = mutation({
+  args: {
+    routeId: v.string(),
+    reason: v.optional(
+      v.union(v.literal('zero_length'), v.literal('length_outlier'), v.literal('test_row')),
+    ),
+  },
+  handler: async (ctx, { routeId, reason }) => {
+    await requireIdentity(ctx)
+    const doc = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+    if (!doc) throw new Error(`Route not found: ${routeId}`)
+    await ctx.db.patch(doc._id, {
+      quarantine: {
+        reason: reason ?? 'length_outlier',
+        flaggedAt: Date.now(),
+      },
+    })
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, { id: doc._id })
+    const refreshed = (await ctx.db.get(doc._id)) as Doc<'curated_routes'> | null
+    if (refreshed?.riderReady !== false) {
+      throw new Error(
+        `quarantine flip failed: riderReady=${String(refreshed?.riderReady)} for ${routeId}`,
+      )
+    }
+    return {
+      routeId,
+      riderReady: false as const,
+      quarantine: refreshed?.quarantine ?? null,
+      geometryStatus: refreshed?.geometryStatus ?? null,
+    }
+  },
+})
+
 /** Query recent classifier performance rows (error logs) for AC-4. */
 export const listClassifierPerformanceLogs = query({
   args: {

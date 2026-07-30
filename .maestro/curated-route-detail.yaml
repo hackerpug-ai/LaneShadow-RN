@@ -1,47 +1,64 @@
-# DTL-001: Curated route detail — card tap, no-polyline, pin tap (AC-1/2/3)
+# DTL-001 / S6-T6: Curated route detail — deep-link, no-polyline, pin tap (AC-1/2/3)
 #
 # E2E (real iOS simulator + live Convex dev). Runs in PHASE 3.5 when a
-# simulator is available; not executable in the implementer's env.
+# simulator is available; not executable without a booted sim + Metro.
 #
 # Coverage:
-#   AC-1  tap curated chat card WITH geometry  → detail opens, name + polyline
-#   AC-2  curated route with NO polyline        → no crash, name renders
-#   AC-3  tap curated MAP PIN                   → same detail route opens
+#   AC-1  deep-link WITH geometry  → detail opens, name + polyline
+#         (S6-T6 retarget: dead chat-card testID removed; now stable
+#          openLink laneshadow:///curated-route/{routeId} — same pattern as AC-2
+#          and .maestro/rec-016-cold-boot-recovered-route-plots.yaml:141)
+#   AC-2  curated route with NO polyline → no crash, name renders
+#   AC-3  tap curated MAP PIN            → same detail route opens
+#   AC-4  parity: AC-1 deep-link + AC-3 map-pin both resolve Cherohala Skyway
 #
 # Fixtures (seeded against live Convex dev via public_api):
-#   - Cherohala Skyway  (routeId with routePolyline present)
-#   - Blue Ridge Overlook (routeId with routePolyline = null)
+#   - Cherohala Skyway  (routeId cherohala-skyway with routePolyline present)
+#   - Blue Ridge Overlook (routeId blue-ridge-overlook with routePolyline = null)
 #
-# Prerequisite: the plan tab is mounted with curated discovery routes visible.
+# Selectors (AC-5): only stable universal links (laneshadow:///) and production
+# testIDs grepped in app/** — NEVER the retired chat-card testID family (dead;
+# absent from components/** and app/**).
+#
+# Live env:
+#   - Booted iOS sim with LaneShadow dev client (com.hackerpug.laneshadow)
+#   - Metro on localhost:8081, Convex dev connected
+#   - Seed rider-ready Cherohala + Blue Ridge Overlook via public_api
+#   - Run: maestro test .maestro/curated-route-detail.yaml
+#   - Parity-only: maestro test .maestro/curated-route-detail.yaml --include-tags parity
 
 appId: com.hackerpug.laneshadow
+tags:
+  - curated-route-detail
+  - parity
 ---
-# ─── AC-1: chat card with geometry → detail + polyline ──────────────────────
+# ─── AC-1: deep-link with geometry → detail + polyline ──────────────────────
+# Retarget (S6-T6): entry is the stable universal-link scheme used by AC-2 and
+# rec-016 — NOT a chat-card testID (that surface never shipped a production
+# testID). Intent preserved: enter detail for Cherohala and assert polyline.
 - launchApp:
     clearState: true
 
-# Ensure we land on the plan tab.
-- runFlow: ../.maestro/_common-launch-to-plan.yaml
-  # (common helper waits for the home map + chat input to mount)
+- runFlow: _common-launch-to-plan.yaml
 
-# Wait for a curated chat card backed by a geometry route to be visible,
-# then tap it. The card root carries testID `curated-chat-card-{routeId}`.
-- assertVisible:
-    id: 'curated-chat-card-cherohala-skyway'
-    optional: false
-- tapOn:
-    id: 'curated-chat-card-cherohala-skyway'
+# Enter curated detail via stable deep-link (production linking config).
+- openLink: laneshadow:///curated-route/cherohala-skyway
 
-# THEN: current route path is the curated-route detail.
+# THEN: detail name + map section + polyline probe (same contract as pre-retarget).
+- extendedWaitUntil:
+    visible:
+      id: 'curated-route-detail-name'
+      text: 'Cherohala Skyway'
+    timeout: 60000
 - assertVisible:
     id: 'curated-route-detail-name'
     text: 'Cherohala Skyway'
-# AND: the map section rendered (DESIGN-002 renamed the map section root from
-# curated-route-detail-map → curated-detail-map; the polyline probe is separate).
 - assertVisible:
     id: 'curated-detail-map'
 - assertVisible:
     id: 'curated-route-detail-polyline'
+# AC-4 / TC-6 parity artifact (deep-link entry).
+- takeScreenshot: ac1-deep-link-cherohala-detail
 
 # ─── AC-2: no-polyline route deep-link → no crash, name renders ─────────────
 - launchApp:
@@ -50,25 +67,41 @@ appId: com.hackerpug.laneshadow
 - openLink: laneshadow:///curated-route/blue-ridge-overlook
 # THEN: the screen opens without crashing (no red error box) and the name
 # renders — the map renderer is guarded against null geometry.
+- extendedWaitUntil:
+    visible:
+      id: 'curated-route-detail-name'
+      text: 'Blue Ridge Overlook'
+    timeout: 60000
 - assertVisible:
     id: 'curated-route-detail-name'
     text: 'Blue Ridge Overlook'
 
-# ─── AC-3: map pin tap → same detail route as the card ──────────────────────
+# ─── AC-3: map pin tap → same detail route as deep-link (AC-1) ───────────────
 - launchApp:
     clearState: true
-- runFlow: ../.maestro/_common-launch-to-plan.yaml
+- runFlow: _common-launch-to-plan.yaml
 
 # A curated map pin is rendered on the plan tab carrying testID
-# `curated-map-pin-{routeId}`. Tap it.
+# `curated-map-pin-{routeId}` (app/(app)/(tabs)/index.tsx — production testID).
+- extendedWaitUntil:
+    visible:
+      id: 'curated-map-pin-cherohala-skyway'
+    timeout: 60000
 - assertVisible:
     id: 'curated-map-pin-cherohala-skyway'
 - tapOn:
     id: 'curated-map-pin-cherohala-skyway'
 
-# THEN: same detail target as the chat card (AC-1).
+# THEN: same detail target as the deep-link entry (AC-1 / AC-4 parity).
+- extendedWaitUntil:
+    visible:
+      id: 'curated-route-detail-name'
+      text: 'Cherohala Skyway'
+    timeout: 60000
 - assertVisible:
     id: 'curated-route-detail-name'
     text: 'Cherohala Skyway'
 - assertVisible:
     id: 'curated-detail-map'
+# AC-4 / TC-6 parity artifact (map-pin entry).
+- takeScreenshot: ac3-map-pin-cherohala-detail
