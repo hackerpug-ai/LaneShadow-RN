@@ -3026,3 +3026,465 @@ export const teardownS6T2Fixtures = mutation({
     return { status: 'deleted', count: deleted }
   },
 })
+
+// ---------------------------------------------------------------------------
+// S6-T5 fixtures: saved-route reachability + canonical redirect
+// ---------------------------------------------------------------------------
+
+const S6T5_SAVED_FLIP = 'test:s6t5-saved-flip'
+const S6T5_SAVED_UNRECOVERED = 'test:s6t5-saved-unrecovered'
+const S6T5_CANONICAL = 'test:s6t5-canonical'
+const S6T5_SHADOW = 'test:s6t5-shadow'
+const S6T5_CHAIN_A = 'test:s6t5-chain-A'
+const S6T5_CHAIN_B = 'test:s6t5-chain-B'
+const S6T5_PROGRESSION = 'test:s6t5-progression'
+const S6T5_PROGRESSION_CANONICAL = 'test:s6t5-progression-canonical'
+
+const S6T5_ROUTE_IDS = [
+  S6T5_SAVED_FLIP,
+  S6T5_SAVED_UNRECOVERED,
+  S6T5_CANONICAL,
+  S6T5_SHADOW,
+  S6T5_CHAIN_A,
+  S6T5_CHAIN_B,
+  S6T5_PROGRESSION,
+  S6T5_PROGRESSION_CANONICAL,
+] as const
+
+async function deleteCuratedRouteByRouteId(ctx: any, routeId: string): Promise<boolean> {
+  const doc = await ctx.db
+    .query('curated_routes')
+    .withIndex('by_routeId', (q: any) => q.eq('routeId', routeId))
+    .first()
+  if (!doc) return false
+  await geospatial.remove(ctx, doc._id)
+  const geomRow = await ctx.db
+    .query('curated_route_geometry')
+    .withIndex('by_routeId', (q: any) => q.eq('routeId', routeId))
+    .first()
+  if (geomRow) await ctx.db.delete(geomRow._id)
+  // Remove saved_routes that bookmark this curated doc (by_curated_route index).
+  const saved = await ctx.db
+    .query('saved_routes')
+    .withIndex('by_curated_route', (q: any) => q.eq('curatedRouteRef', doc._id))
+    .collect()
+  for (const row of saved) {
+    await ctx.db.delete(row._id)
+  }
+  await ctx.db.delete(doc._id)
+  return true
+}
+
+async function insertSavedBookmark(
+  ctx: any,
+  identity: { clerkUserId: string },
+  curatedDocId: any,
+  name: string,
+) {
+  const now = Date.now()
+  const savedRouteId = await ctx.db.insert('saved_routes', {
+    ownerType: 'user' as const,
+    ownerId: identity.clerkUserId,
+    createdByUserId: identity.clerkUserId,
+    visibility: 'private' as const,
+    name,
+    curatedRouteRef: curatedDocId,
+    createdAt: now,
+    updatedAt: now,
+  })
+  return savedRouteId
+}
+
+/**
+ * AC-1 fixture: curated route saved by the rider, then driven non-ready via
+ * persistRideWorthiness(verdict='not_a_ride') so riderReady flips false.
+ */
+export const seedS6T5SavedFlipNonReady = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await requireIdentity(ctx)
+    await deleteCuratedRouteByRouteId(ctx, S6T5_SAVED_FLIP)
+
+    const ready = await seedAllSevenReadyRoute(ctx, {
+      routeId: S6T5_SAVED_FLIP,
+      name: 'S6T5 Saved Flip',
+      state: 'California',
+      centroidLat: 35.1,
+      centroidLng: -120.6,
+      compositeScore: 0.88,
+    })
+
+    const savedRouteId = await insertSavedBookmark(
+      ctx,
+      identity,
+      ready.id,
+      'S6T5 bookmark — saved flip',
+    )
+
+    // Real classifier write path (internal) + recompute → riderReady false.
+    await ctx.runMutation(internal.curatedGeometry.persistRideWorthiness, {
+      id: ready.id,
+      rideWorthiness: {
+        verdict: 'not_a_ride' as const,
+        reason: 'S6-T5 AC-1 post-save quarantine flip',
+        model: 'test',
+        classifiedAt: Date.now(),
+        evidenceComplete: true,
+      },
+    })
+
+    const refreshed = (await ctx.db.get(ready.id)) as Doc<'curated_routes'> | null
+    const saved = (await ctx.db.get(savedRouteId)) as Doc<'saved_routes'> | null
+    return {
+      routeId: S6T5_SAVED_FLIP,
+      curatedDocId: ready.id,
+      savedRouteId,
+      curatedRouteRef: saved?.curatedRouteRef ?? null,
+      riderReady: refreshed?.riderReady ?? false,
+      geometryStatus: refreshed?.geometryStatus ?? null,
+      rideWorthiness: refreshed?.rideWorthiness ?? null,
+    }
+  },
+})
+
+/**
+ * AC-2 fixture: saved route with no plottable geometry (geometryStatus unresolved,
+ * no curated_route_geometry row, no in-row routePolyline).
+ */
+export const seedS6T5SavedUnrecovered = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await requireIdentity(ctx)
+    await deleteCuratedRouteByRouteId(ctx, S6T5_SAVED_UNRECOVERED)
+
+    const unrecovered = await seedCentroidOnlyRoute(ctx, {
+      routeId: S6T5_SAVED_UNRECOVERED,
+      name: 'S6T5 Saved Unrecovered',
+      state: 'California',
+      centroidLat: 35.12,
+      centroidLng: -120.62,
+      compositeScore: 0.87,
+    })
+    // Explicitly clear any legacy in-row polyline so resolveDetailRoutePolyline → null.
+    await ctx.db.patch(unrecovered.id, {
+      routePolyline: undefined,
+      geometryStatus: 'unresolved',
+    })
+
+    const savedRouteId = await insertSavedBookmark(
+      ctx,
+      identity,
+      unrecovered.id,
+      'S6T5 bookmark — unrecovered',
+    )
+    const refreshed = (await ctx.db.get(unrecovered.id)) as Doc<'curated_routes'> | null
+    const geomRow = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q: any) => q.eq('routeId', S6T5_SAVED_UNRECOVERED))
+      .first()
+
+    return {
+      routeId: S6T5_SAVED_UNRECOVERED,
+      curatedDocId: unrecovered.id,
+      savedRouteId,
+      curatedRouteRef: unrecovered.id,
+      riderReady: refreshed?.riderReady ?? false,
+      geometryStatus: refreshed?.geometryStatus ?? null,
+      hasGeometryRow: geomRow != null,
+      hasInRowPolyline: refreshed?.routePolyline != null,
+    }
+  },
+})
+
+/**
+ * AC-3 fixture: canonical + shadow (duplicateOf → canonical) + saved bookmark on shadow.
+ * Read-path must redirect detail to canonical WITHOUT mutating saved_routes.curatedRouteRef.
+ */
+export const seedS6T5ShadowOfCanonical = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await requireIdentity(ctx)
+    await deleteCuratedRouteByRouteId(ctx, S6T5_SHADOW)
+    await deleteCuratedRouteByRouteId(ctx, S6T5_CANONICAL)
+
+    const canonical = await seedAllSevenReadyRoute(ctx, {
+      routeId: S6T5_CANONICAL,
+      name: 'S6T5 Canonical',
+      state: 'California',
+      centroidLat: 35.2,
+      centroidLng: -120.7,
+      compositeScore: 0.93,
+    })
+
+    const shadow = await seedAllSevenReadyRoute(ctx, {
+      routeId: S6T5_SHADOW,
+      name: 'S6T5 Shadow',
+      state: 'California',
+      centroidLat: 35.21,
+      centroidLng: -120.71,
+      compositeScore: 0.5,
+    })
+    await ctx.db.patch(shadow.id, {
+      duplicateOf: S6T5_CANONICAL,
+      // Shadow has no usable geometry status for the rider — status may differ.
+      geometryStatus: 'unresolved',
+    })
+    // Drop shadow geometry so a missed redirect cannot accidentally look "ok".
+    const shadowGeom = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q: any) => q.eq('routeId', S6T5_SHADOW))
+      .first()
+    if (shadowGeom) await ctx.db.delete(shadowGeom._id)
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: shadow.id,
+    })
+
+    const savedRouteId = await insertSavedBookmark(
+      ctx,
+      identity,
+      shadow.id,
+      'S6T5 bookmark — shadow of canonical',
+    )
+    const savedBefore = (await ctx.db.get(savedRouteId)) as Doc<'saved_routes'> | null
+    const canonRef = (await ctx.db.get(canonical.id)) as Doc<'curated_routes'> | null
+    const shadowRef = (await ctx.db.get(shadow.id)) as Doc<'curated_routes'> | null
+
+    return {
+      canonicalRouteId: S6T5_CANONICAL,
+      shadowRouteId: S6T5_SHADOW,
+      canonicalDocId: canonical.id,
+      shadowDocId: shadow.id,
+      savedRouteId,
+      curatedRouteRef: savedBefore?.curatedRouteRef ?? null,
+      canonicalGeometryStatus: canonRef?.geometryStatus ?? null,
+      shadowGeometryStatus: shadowRef?.geometryStatus ?? null,
+      shadowDuplicateOf: shadowRef?.duplicateOf ?? null,
+      canonicalRiderReady: canonRef?.riderReady ?? false,
+    }
+  },
+})
+
+/**
+ * AC-3 chain-guard fixture: corrupted A↔B duplicateOf cycle (single-hop max).
+ */
+export const seedS6T5CanonicalChainGuard = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    await deleteCuratedRouteByRouteId(ctx, S6T5_CHAIN_A)
+    await deleteCuratedRouteByRouteId(ctx, S6T5_CHAIN_B)
+
+    const a = await seedAllSevenReadyRoute(ctx, {
+      routeId: S6T5_CHAIN_A,
+      name: 'S6T5 Chain A',
+      state: 'California',
+      centroidLat: 35.3,
+      centroidLng: -120.8,
+      compositeScore: 0.7,
+    })
+    const b = await seedAllSevenReadyRoute(ctx, {
+      routeId: S6T5_CHAIN_B,
+      name: 'S6T5 Chain B',
+      state: 'California',
+      centroidLat: 35.31,
+      centroidLng: -120.81,
+      compositeScore: 0.71,
+    })
+    await ctx.db.patch(a.id, { duplicateOf: S6T5_CHAIN_B })
+    await ctx.db.patch(b.id, { duplicateOf: S6T5_CHAIN_A })
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: a.id,
+    })
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: b.id,
+    })
+
+    return {
+      chainA: S6T5_CHAIN_A,
+      chainB: S6T5_CHAIN_B,
+      aDuplicateOf: S6T5_CHAIN_B,
+      bDuplicateOf: S6T5_CHAIN_A,
+    }
+  },
+})
+
+/**
+ * AC-4 fixture: ready saved route that will progress quarantine → retire → shadow.
+ * Companion canonical used for the final shadow-merge hop.
+ */
+export const seedS6T5StatusProgression = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await requireIdentity(ctx)
+    await deleteCuratedRouteByRouteId(ctx, S6T5_PROGRESSION)
+    await deleteCuratedRouteByRouteId(ctx, S6T5_PROGRESSION_CANONICAL)
+
+    const progression = await seedAllSevenReadyRoute(ctx, {
+      routeId: S6T5_PROGRESSION,
+      name: 'S6T5 Progression',
+      state: 'California',
+      centroidLat: 35.4,
+      centroidLng: -120.9,
+      compositeScore: 0.91,
+    })
+    const canonical = await seedAllSevenReadyRoute(ctx, {
+      routeId: S6T5_PROGRESSION_CANONICAL,
+      name: 'S6T5 Progression Canonical',
+      state: 'California',
+      centroidLat: 35.41,
+      centroidLng: -120.91,
+      compositeScore: 0.94,
+    })
+
+    const savedRouteId = await insertSavedBookmark(
+      ctx,
+      identity,
+      progression.id,
+      'S6T5 bookmark — status progression',
+    )
+    const refreshed = (await ctx.db.get(progression.id)) as Doc<'curated_routes'> | null
+
+    return {
+      routeId: S6T5_PROGRESSION,
+      canonicalRouteId: S6T5_PROGRESSION_CANONICAL,
+      curatedDocId: progression.id,
+      canonicalDocId: canonical.id,
+      savedRouteId,
+      curatedRouteRef: progression.id,
+      riderReady: refreshed?.riderReady ?? false,
+      geometryStatus: refreshed?.geometryStatus ?? null,
+    }
+  },
+})
+
+/** AC-4 stage 1: quarantine length_outlier → riderReady false (real recompute). */
+export const advanceS6T5ProgressionQuarantine = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const route = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q: any) => q.eq('routeId', S6T5_PROGRESSION))
+      .unique()
+    if (!route) throw new Error(`missing ${S6T5_PROGRESSION}`)
+    await ctx.db.patch(route._id, {
+      quarantine: { reason: 'length_outlier', flaggedAt: Date.now() },
+    })
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: route._id,
+    })
+    const refreshed = (await ctx.db.get(route._id)) as Doc<'curated_routes'> | null
+    return {
+      routeId: S6T5_PROGRESSION,
+      stage: 'quarantine',
+      riderReady: refreshed?.riderReady ?? false,
+      quarantine: refreshed?.quarantine ?? null,
+      geometryStatus: refreshed?.geometryStatus ?? null,
+    }
+  },
+})
+
+/**
+ * AC-4 stage 2: retire with honest status fields (geometryStatus retired + reason + retiredAt).
+ * Mirrors retireRoute field writes; used after quarantine so detail stays reachable.
+ */
+export const advanceS6T5ProgressionRetire = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const route = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q: any) => q.eq('routeId', S6T5_PROGRESSION))
+      .unique()
+    if (!route) throw new Error(`missing ${S6T5_PROGRESSION}`)
+    const retiredAt = Date.now()
+    const retirementReason = 'S6-T5 AC-4 founder retirement after quarantine'
+    await ctx.db.patch(route._id, {
+      geometryStatus: 'retired',
+      retiredAt,
+      retirementReason,
+      riderReady: false,
+    })
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: route._id,
+    })
+    const refreshed = (await ctx.db.get(route._id)) as Doc<'curated_routes'> | null
+    return {
+      routeId: S6T5_PROGRESSION,
+      stage: 'retire',
+      riderReady: refreshed?.riderReady ?? false,
+      geometryStatus: refreshed?.geometryStatus ?? null,
+      retiredAt: refreshed?.retiredAt ?? null,
+      retirementReason: refreshed?.retirementReason ?? null,
+    }
+  },
+})
+
+/**
+ * AC-4 stage 3: unretire exclusion then shadow-merge onto progression canonical.
+ * Sets duplicateOf so getCuratedRouteDetail must redirect to the canonical row.
+ */
+export const advanceS6T5ProgressionShadow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const route = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q: any) => q.eq('routeId', S6T5_PROGRESSION))
+      .unique()
+    if (!route) throw new Error(`missing ${S6T5_PROGRESSION}`)
+    await ctx.db.patch(route._id, {
+      retiredAt: null,
+      retirementReason: undefined,
+      geometryStatus: 'unresolved',
+      quarantine: undefined,
+      duplicateOf: S6T5_PROGRESSION_CANONICAL,
+    })
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: route._id,
+    })
+    const refreshed = (await ctx.db.get(route._id)) as Doc<'curated_routes'> | null
+    return {
+      routeId: S6T5_PROGRESSION,
+      stage: 'shadow',
+      duplicateOf: refreshed?.duplicateOf ?? null,
+      riderReady: refreshed?.riderReady ?? false,
+      geometryStatus: refreshed?.geometryStatus ?? null,
+      canonicalRouteId: S6T5_PROGRESSION_CANONICAL,
+    }
+  },
+})
+
+/** Read-back for AC-3 immutability: saved_routes row by id (no mutation). */
+export const getS6T5SavedRouteSnapshot = query({
+  args: { savedRouteId: v.id('saved_routes') },
+  handler: async (ctx, { savedRouteId }) => {
+    await requireIdentity(ctx)
+    const doc = await ctx.db.get(savedRouteId)
+    if (!doc) return null
+    return {
+      _id: doc._id,
+      curatedRouteRef: doc.curatedRouteRef ?? null,
+      name: doc.name,
+      ownerId: doc.ownerId,
+      updatedAt: doc.updatedAt,
+      createdAt: doc.createdAt,
+      deletedAt: doc.deletedAt ?? null,
+    }
+  },
+})
+
+export const teardownS6T5Fixtures = mutation({
+  args: {
+    routeIds: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    await requireIdentity(ctx)
+    const ids = args.routeIds ?? [...S6T5_ROUTE_IDS]
+    let deleted = 0
+    for (const routeId of ids) {
+      if (await deleteCuratedRouteByRouteId(ctx, routeId)) deleted++
+    }
+    return { status: 'deleted', count: deleted }
+  },
+})
