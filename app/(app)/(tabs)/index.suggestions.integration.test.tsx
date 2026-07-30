@@ -278,12 +278,14 @@ describe('DISC-017: Discovery slot behavior', () => {
       routes: [],
       isLoading: false,
       isEmpty: true,
+      fellBackToBest: false,
     })
 
     render(<HomeMapScreen />)
 
     await waitFor(() => {
-      expect(screen.getByText('No nearby routes')).toBeTruthy()
+      // S6-T3: honest thin-region copy replaces legacy "No nearby routes"
+      expect(screen.getByText('no routes near you yet')).toBeTruthy()
       expect(screen.queryByText('Plan a scenic ride')).toBeNull()
       expect(screen.queryByText('Ride to the coast')).toBeNull()
     })

@@ -67,9 +67,14 @@ type ChatInputProps = {
   onSelectRoute?: (routeId: string) => void
 }
 
+/** S6-T3 / SURF-04 — display-only captions (not tappable discovery pills). */
+const HONEST_ABSENCE_LABEL = 'no routes near you yet'
+const FALLBACK_NATIONAL_LABEL = "No routes nearby — here's our top-rated"
+
 /**
  * Suggestion chips — glass-backed pills matching UC-MOL-06 spec.
  * Curated pills (with routeId) render as chip variants with copper accent + road-variant icon.
+ * Display-only captions (honest absence / national fallback) get dedicated testIDs.
  */
 const SuggestionChips = ({
   suggestions,
@@ -95,13 +100,25 @@ const SuggestionChips = ({
         const isCurated = typeof suggestion !== 'string'
         const label = isCurated ? suggestion.label : suggestion
         const routeId = isCurated ? suggestion.routeId : undefined
-        // DISC-017: a non-curated string is the empty-state message ("No nearby
-        // routes"), NOT a tappable prompt. Render it as a display-only, muted
-        // Text so the rider can't accidentally send it as a chat message.
+        // DISC-017 / S6-T3: a non-curated string is a display-only caption
+        // (honest absence or national-fallback label), NOT a tappable prompt.
         if (!isCurated) {
+          const isHonestAbsence = label === HONEST_ABSENCE_LABEL
+          const isFallbackNational = label === FALLBACK_NATIONAL_LABEL
+          const captionTestId = isHonestAbsence
+            ? 'discovery-empty-honest'
+            : isFallbackNational
+              ? 'discovery-fallback-national'
+              : undefined
+          const captionA11yLabel = isHonestAbsence
+            ? 'No routes near you yet'
+            : isFallbackNational
+              ? FALLBACK_NATIONAL_LABEL
+              : label
           return (
             <View
               key={`empty-${index}`}
+              testID={captionTestId}
               style={[
                 styles.chip,
                 {
@@ -111,7 +128,7 @@ const SuggestionChips = ({
                   paddingVertical: semantic.space.sm,
                 },
               ]}
-              accessibilityLabel={label}
+              accessibilityLabel={captionA11yLabel}
               accessibilityRole="text"
             >
               <Text
@@ -285,6 +302,7 @@ export const ChatInput = ({
             (keyboardVisible ? 0 : insets.bottom) + semantic.space.md + extraBottomOffset,
         }}
         testID="chat-input-suggestion-chips"
+        accessibilityLiveRegion="polite"
       >
         {/* Error message */}
         {isError && errorMessage && (

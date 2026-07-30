@@ -340,16 +340,37 @@ const HomeMapScreen = () => {
       : (agentActiveOption?.routeOptionId ?? null)
   const hasAgentRoute = agentDistinctRoutes.length > 0
 
-  // Curated route discovery pills (DISC-011)
+  // Curated route discovery pills (DISC-011 / S6-T3 SURF-04)
+  // Single gate: isLoading / isEmpty / fellBackToBest / routes drive all four
+  // suggestion states (loading | empty-thin | fallback-national | populated).
   const {
     isLoading,
     isEmpty,
+    fellBackToBest,
     routes: curatedDiscoveryRoutes,
   } = useCuratedDiscovery({ sort: 'nearest', limit: 5 })
   const curatedPills = (curatedDiscoveryRoutes ?? []).map((r) => ({
-    label: `${r.name} · ${Math.round(r.distanceMi ?? 0)}mi`,
+    // Omit · Xmi entirely when distance is null/undefined/non-finite — never
+    // fabricate 0mi (S6-T3 AC-3).
+    label:
+      typeof r.distanceMi === 'number' && Number.isFinite(r.distanceMi)
+        ? `${r.name} · ${Math.round(r.distanceMi)}mi`
+        : r.name,
     routeId: r.id,
   }))
+  // Four-state decoder (S6-T3): loading → []; empty-thin → honest caption;
+  // fallback-national → labeled leading chip + pills; else populated pills.
+  const FALLBACK_NATIONAL_LABEL = "No routes nearby — here's our top-rated"
+  const HONEST_ABSENCE_LABEL = 'no routes near you yet'
+  const discoverySuggestions: (string | { label: string; routeId: string })[] = isLoading
+    ? []
+    : isEmpty && !isLoading && !fellBackToBest
+      ? [HONEST_ABSENCE_LABEL]
+      : fellBackToBest && !isEmpty
+        ? [FALLBACK_NATIONAL_LABEL, ...curatedPills]
+        : isEmpty
+          ? [HONEST_ABSENCE_LABEL]
+          : curatedPills
 
   // Hydrate flowState from an explicitly selected active session. Cold app
   // opens intentionally do not pick old sessions, so this cannot surface a
@@ -1754,12 +1775,11 @@ const HomeMapScreen = () => {
           state={flowState}
           isPlanning={isPlanning || isManualPlanning}
           suggestions={
-            // DISC-017: Fix discovery slot to show curated cards only — never generic IDLE_SUGGESTIONS
-            isLoading
-              ? [] // Loading: show nothing
-              : isEmpty
-                ? ['No nearby routes'] // Empty: show "no nearby routes" message
-                : curatedPills // Has routes: show curated pills only
+            // DISC-017 / S6-T3: curated cards only — four-state decoder above
+            // (loading | empty-thin | fallback-national | populated). Never
+            // generic IDLE_SUGGESTIONS; never fabricated 0mi; never silent
+            // national substitution.
+            discoverySuggestions
           }
           testID="chat-input"
           placeholder={

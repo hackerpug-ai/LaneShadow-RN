@@ -36,6 +36,12 @@ export interface UseCuratedDiscoveryResult {
   routes: DiscoveryRoute[] | undefined
   isLoading: boolean
   isEmpty: boolean
+  /**
+   * True when sort:'nearest' could not serve nearby rows and the hook fell
+   * back to sort:'best' (location failure OR empty nearest). Surfaces must
+   * label this so national rows are never presented as nearby (S6-T3 / SURF-04).
+   */
+  fellBackToBest: boolean
 }
 
 /**
@@ -246,5 +252,6 @@ export function useCuratedDiscovery(
     routes,
     isLoading: waitingForNearestCenter || (!nearestNeedsCenter && data === undefined),
     isEmpty: routes !== undefined && routes.length === 0,
+    fellBackToBest,
   }
 }
