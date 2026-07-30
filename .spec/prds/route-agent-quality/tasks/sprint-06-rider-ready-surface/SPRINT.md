@@ -3,7 +3,7 @@ sprint: 6
 slug: sprint-06-rider-ready-surface
 sequence: 6
 timeline: Phase 3
-status: Planned
+status: In Progress
 prd: .spec/prds/route-agent-quality/README.md
 prd_version: 3.1.1
 roadmap: .spec/prds/route-agent-quality/ROADMAP.md
@@ -18,7 +18,8 @@ source_kind: git-head
 
 **Sequence:** 6
 **Timeline:** Phase 3
-**Status:** Planned
+**Status:** In Progress
+> Progress: 0/8 tasks completed · updated 2026-07-30T05:59:11Z
 **Proposed by:** react-native-ui-planner (lane) + convex-planner (gated queries) + frontend-designer (caption + absence states) + product-manager (gate)
 
 ## Overview
