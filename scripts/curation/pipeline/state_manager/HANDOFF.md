@@ -56,7 +56,7 @@ CONVEX_DEPLOYMENT=prod:fantastic-owl-967 npx convex run semanticSearch:getRoutes
 ### Stage 3: Embeddings Complete (INF-006)
 **Commits**:
 - `bddcbc0e epic-03: add 429-aware backoff to extract stage`
-- `cb30aea epic-03: set max_workers=1 for extract stage (z.ai rate limit protection)`
+- `cb30aea epic-03: set max_workers=1 for extract stage (provider rate limit protection)`
 
 - All 5,608 routes embedded with OpenAI text-embedding-3-small
 - Embedding dimensions: 1536 (verified in prod)

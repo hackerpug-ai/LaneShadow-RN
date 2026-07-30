@@ -62,15 +62,10 @@ export const ANTHROPIC_API_KEY = optionalEnv('ANTHROPIC_API_KEY')
 export const MAPBOX_ACCESS_TOKEN = optionalEnv('MAPBOX_ACCESS_TOKEN')
 
 /**
- * z.ai API key for the GLM-5.2 custom AI-SDK v7 provider
- * (convex/actions/agent/lib/zaiProvider.ts, S2-T6/T-AGT-024).
- *
- * NOT yet set on the Convex deployment as of 2026-07-12 (`npx convex env
- * list` shows only ANTHROPIC_API_KEY) — this is a vitest-level spike proof;
- * setting it on the deployment is a follow-up when this tier moves into a
- * deployed Convex action.
+ * OpenRouter API key for the OpenAI-compatible DeepSeek V4 Pro provider
+ * (convex/actions/agent/lib/openrouterProvider.ts).
  */
-export const Z_AI_API_KEY = optionalEnv('Z_AI_API_KEY')
+export const OPENROUTER_API_KEY = optionalEnv('OPENROUTER_API_KEY')
 
 export const isTestEnvironment = process.env.NODE_ENV === 'test'
 
@@ -81,9 +76,9 @@ export const isTestEnvironment = process.env.NODE_ENV === 'test'
  * Use getAgentModel(level) to get the appropriate model for 'high' or 'low' intelligence.
  *
  * Provider-specific API keys:
- * - CEREBRAS_API_KEY: Required for Cerebras models (zai-glm-4.7, qwen-3-235b)
- * - ANTHROPIC_API_KEY: Required for Claude models (legacy, unused in current config)
- * - OPENAI_API_KEY: Required for OpenAI models (legacy, unused in current config)
+ * - OPENROUTER_API_KEY: Required for the ride-worthiness OpenRouter classifier
+ * - ANTHROPIC_API_KEY: Required for structured-output Claude models
+ * - OPENAI_API_KEY: Required for OpenAI model tiers
  */
 
 /**

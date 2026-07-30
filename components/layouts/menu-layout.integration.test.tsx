@@ -9,9 +9,8 @@
  * - AC5: Session context menu works on long press
  */
 
-import { fireEvent, render, waitFor } from '@testing-library/react-native'
+import { fireEvent, render } from '@testing-library/react-native'
 import type React from 'react'
-import { Animated, Pressable, Text as RNText, View } from 'react-native'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ---------------------------------------------------------------------------

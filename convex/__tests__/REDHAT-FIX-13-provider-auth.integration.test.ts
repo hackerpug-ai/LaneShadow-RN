@@ -5,7 +5,7 @@
  *
  * Red-hat review 2026-07-20T205905Z (HIGH): runSampleWaterfall, runAllWaterfall,
  * classifyRoute, and classifyCatalog all used only `requireIdentity`, so any
- * signed-in rider could trigger paid Google/LLM recovery or catalog-wide z.ai
+ * signed-in rider could trigger paid Google/LLM recovery or catalog-wide OpenRouter
  * classification, and a caller could manufacture failed/no-evidence outcomes via
  * the public failRouteIds argument.
  *

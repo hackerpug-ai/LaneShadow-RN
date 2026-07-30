@@ -1,12 +1,12 @@
 /**
- * S2-T8 — Standalone human-run z.ai GLM-5.2 structured-output proof CLI (T-AGT-024).
+ * S2-T8 — Standalone human-run OpenRouter DeepSeek V4 Pro structured-output proof CLI (T-AGT-024).
  *
- * Calls the REAL createZaiProvider / zaiStructuredComplete path. Does NOT mock
- * the provider inside this CLI. Reads Z_AI_API_KEY through the existing env
+ * Calls the REAL createOpenRouterProvider / openrouterStructuredComplete path. Does NOT mock
+ * the provider inside this CLI. Reads OPENROUTER_API_KEY through the existing env
  * loader (convex/lib/env.ts) by loading .env.local into process.env first.
  *
  * Usage:
- *   pnpm tsx scripts/spike/zai-glm-proof.ts [route-description]
+ *   pnpm tsx scripts/spike/openrouter-deepseek-proof.ts [route-description]
  *
  * If no route-description argument is given, a default curated-route
  * description is used (Twist of Tepusquet — the same one used in the
@@ -14,8 +14,8 @@
  *
  * Exit codes:
  *   0 — success: non-empty structured result printed to stdout
- *   1 — missing Z_AI_API_KEY
- *   2 — provider/structured completion failure (typed error from zaiStructuredComplete)
+ *   1 — missing OPENROUTER_API_KEY
+ *   2 — provider/structured completion failure (typed error from openrouterStructuredComplete)
  */
 import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -51,16 +51,19 @@ function loadDotEnvLocal(): void {
 loadDotEnvLocal()
 
 // --- Now require the real provider path (goes through convex/lib/env.ts) -----
-// The 'use node' directive in zaiProvider.ts is a no-op string outside Convex.
-const { zaiStructuredComplete } = require('../../convex/actions/agent/lib/zaiProvider') as {
-  zaiStructuredComplete: (
-    description: string,
-  ) => Promise<
-    | { ok: true; object: { summary: string; confidence: string }; path: string }
-    | { ok: false; reason: string; raw?: string }
-  >
+// The 'use node' directive in openRouterProvider.ts is a no-op string outside Convex.
+const { openrouterStructuredComplete } =
+  require('../../convex/actions/agent/lib/openrouterProvider') as {
+    openrouterStructuredComplete: (
+      description: string,
+    ) => Promise<
+      | { ok: true; object: { summary: string; confidence: string }; path: string }
+      | { ok: false; reason: string; raw?: string }
+    >
+  }
+const { OPENROUTER_API_KEY } = require('../../convex/lib/env') as {
+  OPENROUTER_API_KEY: string | undefined
 }
-const { Z_AI_API_KEY } = require('../../convex/lib/env') as { Z_AI_API_KEY: string | undefined }
 
 const DEFAULT_DESCRIPTION =
   'Highway 101 in Santa Maria, CA. Exit Betteravia Road heading East. ' +
@@ -70,10 +73,10 @@ const DEFAULT_DESCRIPTION =
   'Follow 166 West until you reach highway 101 again.'
 
 async function main(): Promise<void> {
-  if (!Z_AI_API_KEY) {
+  if (!OPENROUTER_API_KEY) {
     // biome-ignore lint/suspicious/noConsole: operator CLI error output
     console.error(
-      'ERROR: Z_AI_API_KEY is not set. Set it in .env.local or export it as an environment variable.',
+      'ERROR: OPENROUTER_API_KEY is not set. Set it in .env.local or export it as an environment variable.',
     )
     process.exit(1)
   }
@@ -87,13 +90,15 @@ async function main(): Promise<void> {
   }
 
   // biome-ignore lint/suspicious/noConsole: operator CLI progress output
-  console.error('Calling z.ai GLM-5.2 via createZaiProvider / zaiStructuredComplete...')
+  console.error(
+    'Calling OpenRouter DeepSeek V4 Pro via createOpenRouterProvider / openrouterStructuredComplete...',
+  )
 
-  const result = await zaiStructuredComplete(description)
+  const result = await openrouterStructuredComplete(description)
 
   if (!result.ok) {
     // biome-ignore lint/suspicious/noConsole: operator CLI error output
-    console.error(`FAIL: z.ai structured completion failed — reason: ${result.reason}`)
+    console.error(`FAIL: OpenRouter structured completion failed — reason: ${result.reason}`)
     if (result.raw) {
       // biome-ignore lint/suspicious/noConsole: operator CLI error output
       console.error(`Raw output (truncated): ${result.raw.slice(0, 500)}`)

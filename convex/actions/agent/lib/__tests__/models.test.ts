@@ -19,10 +19,10 @@ describe('agent model registry', () => {
     test('getAgentModel high calls getModel with mapped provider and model', () => {
       const model = getAgentModel('high')
 
-      expect(getModel).toHaveBeenCalledWith('cerebras', 'zai-glm-4.7')
+      expect(getModel).toHaveBeenCalledWith('openai', 'gpt-4.1')
       expect(model).toMatchObject({
-        __provider: 'cerebras',
-        __model: 'zai-glm-4.7',
+        __provider: 'openai',
+        __model: 'gpt-4.1',
       })
     })
   })
@@ -31,10 +31,10 @@ describe('agent model registry', () => {
     test('getAgentModel low calls getModel with mapped provider and model', () => {
       const model = getAgentModel('low')
 
-      expect(getModel).toHaveBeenCalledWith('cerebras', 'qwen-3-235b-a22b-instruct-2507')
+      expect(getModel).toHaveBeenCalledWith('openai', 'gpt-4o-mini')
       expect(model).toMatchObject({
-        __provider: 'cerebras',
-        __model: 'qwen-3-235b-a22b-instruct-2507',
+        __provider: 'openai',
+        __model: 'gpt-4o-mini',
       })
     })
   })
@@ -48,8 +48,8 @@ describe('agent model registry', () => {
 
       // Should return the exact provider/model tuple
       expect(info).toEqual({
-        provider: 'cerebras',
-        model: 'zai-glm-4.7',
+        provider: 'openai',
+        model: 'gpt-4.1',
       })
     })
 
@@ -58,8 +58,8 @@ describe('agent model registry', () => {
 
       expect(getModel).not.toHaveBeenCalled()
       expect(info).toEqual({
-        provider: 'cerebras',
-        model: 'qwen-3-235b-a22b-instruct-2507',
+        provider: 'openai',
+        model: 'gpt-4o-mini',
       })
     })
   })

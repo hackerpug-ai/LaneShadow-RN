@@ -1,4 +1,4 @@
-"""GLM NLP Pilot - Run Haiku extraction on labeled dataset.
+"""NLP Pilot - Run Haiku extraction on labeled dataset.
 
 This script validates that Claude 3 Haiku can reliably extract road names
 and riding-attribute signals from motorcycle forum/social posts.
@@ -305,7 +305,7 @@ def main() -> int:
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Run GLM NLP Pilot - Haiku accuracy validation"
+        description="Run NLP Pilot - Haiku accuracy validation"
     )
     parser.add_argument(
         "--build-dataset",
@@ -358,7 +358,7 @@ def main() -> int:
         return 0
 
     # Run full pilot
-    logger.info("Starting GLM NLP Pilot...")
+    logger.info("Starting NLP Pilot...")
 
     # Load dataset
     dataset_path = Path(args.dataset_path)

@@ -1780,7 +1780,7 @@ export const seedValidGeometryNotARide = mutation({
       rideWorthiness: {
         verdict: 'not_a_ride',
         reason: 'Classified as non-motorcycle road',
-        model: 'z.ai-glm-5.2',
+        model: 'openrouter/deepseek/deepseek-v4-pro',
         classifiedAt: 1_718_000_000_000,
       },
       scores: { compositeScore: 85 },
@@ -1878,7 +1878,7 @@ export const seedDecorrelationRoute = mutation({
       state: 'California',
       oneLiner: 'Twisty canyon for provider decorrelation check',
       summary:
-        'A classic motorcycle canyon road used to verify the ride-worthiness classifier stamps z.ai GLM-5.2 rather than the anchor extraction gpt-4.1 provider.',
+        'A classic motorcycle canyon road used to verify the ride-worthiness classifier stamps OpenRouter deepseek/deepseek-v4-pro rather than the anchor extraction gpt-4.1 provider.',
       clearRideWorthiness: true,
     })
   },
@@ -1898,7 +1898,7 @@ export const seedMarginalVerdictRoute = mutation({
       rideWorthiness: {
         verdict: 'marginal',
         reason: 'Borderline motorcycle road',
-        model: 'z.ai-glm-5.2',
+        model: 'openrouter/deepseek/deepseek-v4-pro',
         classifiedAt: 1_718_000_000_000,
       },
     })

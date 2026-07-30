@@ -38,7 +38,7 @@ STAGING_FILES = {
     "rider_mag": STAGING_DIR / "rider_mag.jsonl",
 }
 
-# Cost estimate: GLM-4.7-flash ~$0.0001/call (very rough estimate)
+# Cost estimate: DeepSeek V4 Pro-flash ~$0.0001/call (very rough estimate)
 # (This is tracked from actual extractor output, not hardcoded)
 ESTIMATED_COST_PER_CALL_USD = 0.0001
 
@@ -189,11 +189,14 @@ def extract(
     logger.info(f"Extracting {len(rows)} routes (workers={max_workers}, dry_run={dry_run})")
 
     # Initialize client
-    api_key = (
-        os.environ.get("Z_AI_API_KEY")
-        or os.environ.get("ANTHROPIC_API_KEY")
-    )
-    client = ExtractionClient(api_key=api_key)
+    openrouter_api_key = os.environ.get("OPENROUTER_API_KEY")
+    anthropic_api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if openrouter_api_key:
+        client = ExtractionClient(api_key=openrouter_api_key, backend="openrouter")
+    elif anthropic_api_key:
+        client = ExtractionClient(api_key=anthropic_api_key, backend="anthropic")
+    else:
+        client = ExtractionClient()
 
     run_id = None
     if not dry_run:
@@ -241,7 +244,7 @@ def extract(
         if result.get("extraction_status") == "success":
             attrs = result.get("attributes", {})
             model_name = client.model
-            # Rough cost estimate: GLM-4.7-flash pricing
+            # Rough cost estimate: DeepSeek V4 Pro-flash pricing
             # ~600 input + 300 output tokens = ~$0.0001 per call
             cost = ESTIMATED_COST_PER_CALL_USD
             return {
@@ -260,7 +263,7 @@ def extract(
                 "cost_usd": 0.0,
             }
 
-    # Sequential processing (max_workers=1 by default for z.ai rate limit compliance)
+    # Sequential processing (max_workers=1 by default to bound provider load)
     # Use ThreadPoolExecutor only for max_workers > 1
     if max_workers <= 1:
         row_iterator = iter(rows)

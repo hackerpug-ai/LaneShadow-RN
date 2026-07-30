@@ -91,7 +91,7 @@ describe('AC-2: FHWA freeway classified as not_a_ride; geometry still attempted'
     )
     expect(setup.ok, `devSetupFounderUser failed: ${setup.stderr}`).toBe(true)
 
-    console.log('🤖 Classifying freeway via real z.ai GLM-5.2...')
+    console.log('🤖 Classifying freeway via real OpenRouter deepseek/deepseek-v4-pro...')
     const classify = runConvexFn(
       'actions/rideWorthinessClassifier:classifyRoute',
       { routeId: ROUTE_ID },

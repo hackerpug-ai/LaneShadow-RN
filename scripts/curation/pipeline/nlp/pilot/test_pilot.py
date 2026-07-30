@@ -1,4 +1,4 @@
-"""Tests for GLM NLP Pilot - Labeled Dataset + Haiku Accuracy Validation.
+"""Tests for NLP Pilot - Labeled Dataset + Haiku Accuracy Validation.
 
 TDD: One test per acceptance criterion.
 """

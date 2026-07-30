@@ -14,7 +14,10 @@ from scripts.curation.pipeline.extraction.schema import (
     RoadSurface,
     EXTRACTION_SCHEMA_VERSION,
 )
-from scripts.curation.pipeline.extraction.client import ExtractionClient
+from scripts.curation.pipeline.extraction.client import (
+    ExtractionClient,
+    OPENROUTER_BASE_URL,
+)
 from scripts.curation.pipeline.extraction.extractor import (
     extract_single,
     extract_batch,
@@ -155,6 +158,23 @@ class TestExtractionClient:
             client = ExtractionClient()
             assert client.temperature == 0
             assert client.model == "claude-haiku-4-5-20251001"
+
+    def test_init_with_openrouter_backend(self):
+        """OpenRouter uses its endpoint and fully-qualified DeepSeek model id."""
+        with (
+            patch("openai.OpenAI") as mock_openai,
+            patch("scripts.curation.pipeline.extraction.client.instructor.from_openai"),
+        ):
+            client = ExtractionClient(
+                api_key="openrouter-key",
+                backend="openrouter",
+            )
+
+        mock_openai.assert_called_once_with(
+            api_key="openrouter-key",
+            base_url=OPENROUTER_BASE_URL,
+        )
+        assert client.model == "deepseek/deepseek-v4-pro"
 
     def test_init_without_api_key_raises_error(self):
         """Test that missing API key raises ValueError."""

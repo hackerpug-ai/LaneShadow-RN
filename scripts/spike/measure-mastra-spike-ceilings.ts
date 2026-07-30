@@ -31,7 +31,8 @@ import { api } from '../../convex/_generated/api'
 // The baseline api.d.ts does not register spike modules (they were added after
 // the last `convex dev` codegen on the integration branch). Regenerating api.d.ts
 // to include them would expose pre-existing TS errors in unrelated modules
-// (zaiProvider.ts, rideAgentSpike.ts, spikeTools.ts) that are out of scope for
+// (the structured-output provider helper, rideAgentSpike.ts, spikeTools.ts)
+// that are out of scope for
 // DEPENDENCY-FIX-001. The cast below keeps the static import (no dynamic import)
 // while sidestepping the missing type registration at compile time. The runtime
 // reference is identical — the action exists on the deployed cloud-dev instance.

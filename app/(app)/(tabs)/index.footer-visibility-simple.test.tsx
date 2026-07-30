@@ -2,7 +2,7 @@
  * Integration test for DISC-018: Verify/harden the footer open-full-chat button (distinct from send) + suggestion-card visibility keyed to no-active-route
  */
 
-import { render, screen } from '@testing-library/react-native'
+import { render } from '@testing-library/react-native'
 import { Text, TouchableOpacity, View } from 'react-native'
 import { describe, expect, it } from 'vitest'
 
@@ -68,7 +68,7 @@ vi.mock('../../../contexts/theme-context', () => ({
       caption: { fontSize: 12, fontWeight: '400', lineHeight: 16 },
     },
     elevation: {
-      [3]: {
+      3: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,

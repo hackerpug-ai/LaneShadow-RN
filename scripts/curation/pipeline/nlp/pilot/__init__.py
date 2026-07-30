@@ -1,1 +1,1 @@
-"""GLM NLP Pilot - Labeled Dataset + Haiku Accuracy Validation."""
+"""NLP Pilot - Labeled Dataset + Haiku Accuracy Validation."""

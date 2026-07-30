@@ -59,7 +59,6 @@ vi.mock('../../../lib/env', () => ({
   OPENAI_API_KEY: 'test-openai-key',
   GOOGLE_GENERATIVE_AI_API_KEY: 'test-google-ai-key',
   ANTHROPIC_API_KEY: 'test-anthropic-key',
-  CEREBRAS_API_KEY: 'test-cerebras-key',
   GOOGLE_MAPS_API_KEY: 'test-google-key',
   CLERK_WEBHOOK_SECRET: 'test-clerk-webhook-secret',
   CLERK_JWT_ISSUER_DOMAIN: 'test-clerk-jwt-issuer-domain',

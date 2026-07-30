@@ -22,6 +22,7 @@ import type * as actions_agent_lib_endpointParser from "../actions/agent/lib/end
 import type * as actions_agent_lib_enrichmentCache from "../actions/agent/lib/enrichmentCache.js";
 import type * as actions_agent_lib_geo from "../actions/agent/lib/geo.js";
 import type * as actions_agent_lib_models from "../actions/agent/lib/models.js";
+import type * as actions_agent_lib_openrouterProvider from "../actions/agent/lib/openrouterProvider.js";
 import type * as actions_agent_lib_piTools from "../actions/agent/lib/piTools.js";
 import type * as actions_agent_lib_placeAliases from "../actions/agent/lib/placeAliases.js";
 import type * as actions_agent_lib_planRideOrchestrator from "../actions/agent/lib/planRideOrchestrator.js";
@@ -30,7 +31,6 @@ import type * as actions_agent_lib_reliability from "../actions/agent/lib/reliab
 import type * as actions_agent_lib_summarizeForContext from "../actions/agent/lib/summarizeForContext.js";
 import type * as actions_agent_lib_summarizeToolResult from "../actions/agent/lib/summarizeToolResult.js";
 import type * as actions_agent_lib_tracing from "../actions/agent/lib/tracing.js";
-import type * as actions_agent_lib_zaiProvider from "../actions/agent/lib/zaiProvider.js";
 import type * as actions_agent_loopDetector from "../actions/agent/loopDetector.js";
 import type * as actions_agent_planRide from "../actions/agent/planRide.js";
 import type * as actions_agent_providers_geocodingProvider from "../actions/agent/providers/geocodingProvider.js";
@@ -157,6 +157,7 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/lib/enrichmentCache": typeof actions_agent_lib_enrichmentCache;
   "actions/agent/lib/geo": typeof actions_agent_lib_geo;
   "actions/agent/lib/models": typeof actions_agent_lib_models;
+  "actions/agent/lib/openrouterProvider": typeof actions_agent_lib_openrouterProvider;
   "actions/agent/lib/piTools": typeof actions_agent_lib_piTools;
   "actions/agent/lib/placeAliases": typeof actions_agent_lib_placeAliases;
   "actions/agent/lib/planRideOrchestrator": typeof actions_agent_lib_planRideOrchestrator;
@@ -165,7 +166,6 @@ declare const fullApi: ApiFromModules<{
   "actions/agent/lib/summarizeForContext": typeof actions_agent_lib_summarizeForContext;
   "actions/agent/lib/summarizeToolResult": typeof actions_agent_lib_summarizeToolResult;
   "actions/agent/lib/tracing": typeof actions_agent_lib_tracing;
-  "actions/agent/lib/zaiProvider": typeof actions_agent_lib_zaiProvider;
   "actions/agent/loopDetector": typeof actions_agent_loopDetector;
   "actions/agent/planRide": typeof actions_agent_planRide;
   "actions/agent/providers/geocodingProvider": typeof actions_agent_providers_geocodingProvider;

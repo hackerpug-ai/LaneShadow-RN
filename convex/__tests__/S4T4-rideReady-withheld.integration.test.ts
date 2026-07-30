@@ -111,7 +111,7 @@ describe('AC-3: not_a_ride withholds riderReady despite valid geometry', () => {
 
   it('MUST_OBSERVE: rideWorthiness.verdict == not_a_ride (stored evidence)', () => {
     expect(route.rideWorthiness?.verdict).toBe('not_a_ride')
-    expect(route.rideWorthiness?.model).toBe('z.ai-glm-5.2')
+    expect(route.rideWorthiness?.model).toBe('openrouter/deepseek/deepseek-v4-pro')
   })
 
   it('MUST_OBSERVE: riderReady == false (verdict withholds despite valid geometry)', () => {

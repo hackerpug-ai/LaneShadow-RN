@@ -3,10 +3,10 @@
  *
  * GIVEN anchor extraction uses OpenAI gpt-4.1 (models.ts MODEL_MAP.high)
  * WHEN ride-worthiness classifier is invoked
- * THEN provider stamp is z.ai-glm-5.2 (different from anchors)
+ * THEN provider stamp is openrouter/deepseek/deepseek-v4-pro (different from anchors)
  *
  * TEST_TIER: integration
- * VERIFICATION_SERVICE: Convex dev deployment (real z.ai GLM-5.2 vs OpenAI gpt-4.1 anchors)
+ * VERIFICATION_SERVICE: Convex dev deployment (real OpenRouter deepseek/deepseek-v4-pro vs OpenAI gpt-4.1 anchors)
  * FLOW_REF: UC-VER-03
  */
 
@@ -56,7 +56,7 @@ function runConvexFn(
   return execNpx(cmd, opts.timeoutMs ?? 180_000)
 }
 
-describe('AC-6: Cross-provider decorrelation (z.ai vs gpt-4.1 anchors)', () => {
+describe('AC-6: Cross-provider decorrelation (OpenRouter vs gpt-4.1 anchors)', () => {
   let classifyResult: any
   let route: any
   let modelsSource: string
@@ -90,7 +90,7 @@ describe('AC-6: Cross-provider decorrelation (z.ai vs gpt-4.1 anchors)', () => {
     )
     expect(setup.ok, `devSetupFounderUser failed: ${setup.stderr}`).toBe(true)
 
-    console.log('🤖 Classifying with real z.ai GLM-5.2...')
+    console.log('🤖 Classifying with real OpenRouter deepseek/deepseek-v4-pro...')
     const classify = runConvexFn(
       'actions/rideWorthinessClassifier:classifyRoute',
       { routeId: ROUTE_ID },
@@ -135,23 +135,20 @@ describe('AC-6: Cross-provider decorrelation (z.ai vs gpt-4.1 anchors)', () => {
     expect(modelsSource).toMatch(/high:\s*\{\s*provider:\s*'openai',\s*model:\s*'gpt-4\.1'/)
   })
 
-  it('MUST_OBSERVE: classifier source stamps zai-glm-5.2 / z.ai-glm-5.2', () => {
-    expect(classifierSource).toMatch(/zai-glm-5\.2/)
-    expect(classifierSource).toMatch(/z\.ai-glm-5\.2/)
+  it('MUST_OBSERVE: classifier source stamps openrouter/deepseek/deepseek-v4-pro', () => {
+    expect(classifierSource).toMatch(/openrouter\/deepseek\/deepseek-v4-pro/)
   })
 
-  it('MUST_OBSERVE: stored rideWorthiness.model contains z.ai or glm-5.2', () => {
+  it('MUST_OBSERVE: stored rideWorthiness.model contains the OpenRouter DeepSeek model id', () => {
     const model = route.rideWorthiness?.model ?? ''
     expect(model).toBeTruthy()
-    const looksLikeZai =
-      model.includes('z.ai') || model.includes('glm-5.2') || model.includes('zai')
-    expect(looksLikeZai).toBe(true)
+    expect(model).toContain('openrouter/deepseek/deepseek-v4-pro')
   })
 
   it('MUST_OBSERVE: provider stamp differs from anchor gpt-4.1', () => {
     expect(route.rideWorthiness?.model).not.toBe('gpt-4.1')
     expect(classifyResult.model).not.toBe('gpt-4.1')
-    expect(classifyResult.model).toBe('z.ai-glm-5.2')
+    expect(classifyResult.model).toBe('openrouter/deepseek/deepseek-v4-pro')
   })
 
   it('MUST_NOT_OBSERVE: missing provider stamp (decorrelation unverifiable)', () => {

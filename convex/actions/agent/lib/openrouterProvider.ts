@@ -3,7 +3,7 @@
 import { createOpenAICompatible, type OpenAICompatibleProvider } from '@ai-sdk/openai-compatible'
 import { generateText, type LanguageModel, NoObjectGeneratedError, Output } from 'ai'
 import { z } from 'zod'
-import { Z_AI_API_KEY } from '../../../lib/env'
+import { OPENROUTER_API_KEY } from '../../../lib/env'
 
 /**
  * Sprint-02-SPIKE-ONLY proof schema (T-AGT-024). This is explicitly NOT the
@@ -11,38 +11,40 @@ import { Z_AI_API_KEY } from '../../../lib/env'
  * scope. Exported names are deliberately distinct from the real contract so
  * they cannot be mistaken for it.
  */
-export const zaiStructuredProofSchema = z.object({
+export const openrouterStructuredProofSchema = z.object({
   summary: z.string().min(1),
   confidence: z.enum(['high', 'medium', 'low']),
 })
 
-export type ZaiStructuredProof = z.infer<typeof zaiStructuredProofSchema>
+export type OpenRouterStructuredProof = z.infer<typeof openrouterStructuredProofSchema>
 
-const ZAI_BASE_URL = 'https://api.z.ai/api/coding/paas/v4'
-const ZAI_MODEL_ID = 'glm-5.2'
+export const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
+/** OpenRouter model used by all project AI calls. Keep this provider-qualified
+ * model free of ZAI/GLM dependencies so rate limiting there cannot affect us. */
+export const OPENROUTER_MODEL_ID = 'deepseek/deepseek-v4-pro'
 
-export type ZaiProvider = {
+export type OpenRouterProvider = {
   provider: OpenAICompatibleProvider
   baseURL: string
   apiKey: string
 }
 
 /**
- * Constructs the z.ai OpenAI-compatible provider instance. Reads the API key
- * ONLY through `Z_AI_API_KEY` (convex/lib/env.ts) — never a hardcoded
- * literal, never `process.env.Z_AI_API_KEY` directly.
+ * Constructs the OpenRouter OpenAI-compatible provider instance. Reads the
+ * API key ONLY through `OPENROUTER_API_KEY` (convex/lib/env.ts) — never a
+ * hardcoded literal, never `process.env.OPENROUTER_API_KEY` directly.
  *
- * Throws (does not silently no-op) if Z_AI_API_KEY is unset, so a missing
+ * Throws (does not silently no-op) if OPENROUTER_API_KEY is unset, so a missing
  * dependency is a surfaced, clear error rather than a swallowed one.
  */
-export const createZaiProvider = (): ZaiProvider => {
-  if (!Z_AI_API_KEY) {
-    throw new Error('Missing required environment variable: Z_AI_API_KEY')
+export const createOpenRouterProvider = (): OpenRouterProvider => {
+  if (!OPENROUTER_API_KEY) {
+    throw new Error('Missing required environment variable: OPENROUTER_API_KEY')
   }
 
-  const baseURL = ZAI_BASE_URL
-  const apiKey = Z_AI_API_KEY
-  const provider = createOpenAICompatible({ name: 'zai', baseURL, apiKey })
+  const baseURL = OPENROUTER_BASE_URL
+  const apiKey = OPENROUTER_API_KEY
+  const provider = createOpenAICompatible({ name: 'openrouter', baseURL, apiKey })
 
   return { provider, baseURL, apiKey }
 }
@@ -95,7 +97,7 @@ const extractFirstBalancedJsonObject = (text: string): string | undefined => {
   return undefined
 }
 
-export type ParseZaiFallbackResult<T> =
+export type ParseOpenRouterFallbackResult<T> =
   | { ok: true; object: T }
   | { ok: false; reason: 'structured_and_fallback_both_failed' }
 
@@ -108,10 +110,10 @@ export type ParseZaiFallbackResult<T> =
  * Pure function, zero network I/O — safe to unit test directly against
  * captured/malformed/empty text.
  */
-export const parseZaiFallback = <T>(
+export const parseOpenRouterFallback = <T>(
   rawText: string,
   schema: z.ZodType<T>,
-): ParseZaiFallbackResult<T> => {
+): ParseOpenRouterFallbackResult<T> => {
   const extracted = extractFirstBalancedJsonObject(rawText)
   if (extracted === undefined) {
     return { ok: false, reason: 'structured_and_fallback_both_failed' }
@@ -132,7 +134,7 @@ export const parseZaiFallback = <T>(
   return { ok: true, object: validated.data }
 }
 
-export const buildZaiProofPrompt = (description: string): string => {
+export const buildOpenRouterProofPrompt = (description: string): string => {
   return `Summarize this motorcycle route description in one or two sentences, and rate how confident you are that the summary captures the route's key character.
 
 ROUTE DESCRIPTION:
@@ -142,18 +144,18 @@ Respond with a JSON object matching this exact shape (no other text):
 {"summary": "<your one or two sentence summary>", "confidence": "high" | "medium" | "low"}`
 }
 
-export type ZaiPath = 'structured' | 'text-fallback'
+export type OpenRouterPath = 'structured' | 'text-fallback'
 
-export type ZaiStructuredCompleteResult =
-  | { ok: true; object: ZaiStructuredProof; path: ZaiPath }
+export type OpenRouterStructuredCompleteResult =
+  | { ok: true; object: OpenRouterStructuredProof; path: OpenRouterPath }
   | { ok: false; reason: 'structured_and_fallback_both_failed'; raw?: string }
 
-export type ZaiStructuredCompleteOptions = {
+export type OpenRouterStructuredCompleteOptions = {
   model?: LanguageModel
 }
 
 /**
- * Direct AI-SDK v7 completion against the z.ai GLM-5.2 custom
+ * Direct AI-SDK v7 completion against the OpenRouter DeepSeek V4 Pro custom
  * createOpenAICompatible provider, decoupled from Mastra. Uses the same
  * generateText + Output.object structured-output shape proven in
  * anchorExtraction.ts (reads result.output, NOT result.object).
@@ -162,23 +164,23 @@ export type ZaiStructuredCompleteOptions = {
  * JSON-extraction fallback -> typed error. Never silently defaults/coerces a
  * validation failure into a passing shape.
  */
-export const zaiStructuredComplete = async (
+export const openrouterStructuredComplete = async (
   description: string,
-  options?: ZaiStructuredCompleteOptions,
-): Promise<ZaiStructuredCompleteResult> => {
-  const model = options?.model ?? createZaiProvider().provider(ZAI_MODEL_ID)
-  const prompt = buildZaiProofPrompt(description)
+  options?: OpenRouterStructuredCompleteOptions,
+): Promise<OpenRouterStructuredCompleteResult> => {
+  const model = options?.model ?? createOpenRouterProvider().provider(OPENROUTER_MODEL_ID)
+  const prompt = buildOpenRouterProofPrompt(description)
 
   let rawText: string | undefined
 
   try {
     const result = await generateText({
       model,
-      output: Output.object({ schema: zaiStructuredProofSchema }),
+      output: Output.object({ schema: openrouterStructuredProofSchema }),
       prompt,
     })
 
-    const validated = zaiStructuredProofSchema.safeParse(result.output)
+    const validated = openrouterStructuredProofSchema.safeParse(result.output)
     if (validated.success) {
       return { ok: true, object: validated.data, path: 'structured' }
     }
@@ -196,7 +198,7 @@ export const zaiStructuredComplete = async (
     }
   }
 
-  const fallback = parseZaiFallback(rawText ?? '', zaiStructuredProofSchema)
+  const fallback = parseOpenRouterFallback(rawText ?? '', openrouterStructuredProofSchema)
   if (fallback.ok) {
     return { ok: true, object: fallback.object, path: 'text-fallback' }
   }

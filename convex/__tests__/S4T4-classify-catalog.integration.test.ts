@@ -4,10 +4,10 @@
  * GIVEN a catalog of mixed routes (twisties, FHWA freeways, recovered rows)
  * WHEN the ride-worthiness classifier action executes over those routes
  * THEN every route receives a stored rideWorthiness verdict (ride/marginal/not_a_ride)
- *      with reason, model/provider=z.ai-glm-5.2, and timestamp
+ *      with reason, model/provider=openrouter/deepseek/deepseek-v4-pro, and timestamp
  *
  * TEST_TIER: integration
- * VERIFICATION_SERVICE: Convex dev deployment (real classifier + z.ai GLM-5.2)
+ * VERIFICATION_SERVICE: Convex dev deployment (real classifier + OpenRouter deepseek/deepseek-v4-pro)
  * FLOW_REF: UC-VER-03
  */
 
@@ -35,7 +35,7 @@ const TWISTY_ROUTE_IDS = ['test:ver-twisty-1', 'test:ver-twisty-2'] as const
 const FREEWAY_ROUTE_ID = 'test:ver-freeway-fhwa'
 
 const VERDICTS = ['ride', 'marginal', 'not_a_ride'] as const
-const PROVIDER_STAMP = 'z.ai-glm-5.2'
+const PROVIDER_STAMP = 'openrouter/deepseek/deepseek-v4-pro'
 
 interface RunResult {
   ok: boolean
@@ -103,7 +103,9 @@ describe('AC-1: Classifier runs on catalog routes and stores verdict as evidence
     )
     expect(setup.ok, `devSetupFounderUser failed: ${setup.stderr}`).toBe(true)
 
-    console.log('🤖 Running classifyCatalog over mixed routes (real z.ai GLM-5.2)...')
+    console.log(
+      '🤖 Running classifyCatalog over mixed routes (real OpenRouter deepseek/deepseek-v4-pro)...',
+    )
     const classify = runConvexFn(
       'actions/rideWorthinessClassifier:classifyCatalog',
       { routeIds: [...MIXED_ROUTE_IDS] },
@@ -143,7 +145,7 @@ describe('AC-1: Classifier runs on catalog routes and stores verdict as evidence
     )
   }, 60_000)
 
-  it('MUST_OBSERVE: all rideWorthiness.model == z.ai-glm-5.2 (decorrelated provider stamp)', () => {
+  it('MUST_OBSERVE: all rideWorthiness.model == openrouter/deepseek/deepseek-v4-pro (decorrelated provider stamp)', () => {
     for (const routeId of MIXED_ROUTE_IDS) {
       const doc = getRoute(routeId)
       expect(doc.rideWorthiness?.model).toBe(PROVIDER_STAMP)

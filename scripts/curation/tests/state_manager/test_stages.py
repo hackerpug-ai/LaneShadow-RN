@@ -196,7 +196,7 @@ class TestExtractStage:
             patch("scripts.curation.pipeline.state_manager.stages.extract_single") as mock_extract,
         ):
             mock_instance = MagicMock()
-            mock_instance.model = "glm-4.7-flash-mock"
+            mock_instance.model = "deepseek-v4-pro-mock"
             mock_client_cls.return_value = mock_instance
             mock_extract.return_value = _make_mock_extract_result("fhwa:dragon", success=True)
 
@@ -214,6 +214,29 @@ class TestExtractStage:
         assert row["extraction_payload_json"] is not None
         payload = json.loads(row["extraction_payload_json"])
         assert "scenic_score" in payload
+
+    def test_extract_prefers_openrouter_when_configured(self, tmp_db):
+        """The batch extractor retains its preferred gateway on an explicit backend."""
+        self._seed_route(tmp_db, "fhwa:openrouter")
+
+        with (
+            patch.dict("os.environ", {"OPENROUTER_API_KEY": "openrouter-key"}, clear=True),
+            patch("scripts.curation.pipeline.state_manager.stages.ExtractionClient") as mock_client_cls,
+            patch("scripts.curation.pipeline.state_manager.stages.extract_single") as mock_extract,
+        ):
+            mock_instance = MagicMock()
+            mock_instance.model = "deepseek/deepseek-v4-pro"
+            mock_client_cls.return_value = mock_instance
+            mock_extract.return_value = _make_mock_extract_result("fhwa:openrouter", success=True)
+
+            from scripts.curation.pipeline.state_manager.stages import extract
+            stats = extract(tmp_db, limit=1)
+
+        assert stats["succeeded"] == 1
+        mock_client_cls.assert_called_once_with(
+            api_key="openrouter-key",
+            backend="openrouter",
+        )
 
     def test_extract_failure_sets_error_stage(self, tmp_db):
         """Failed extraction sets error_stage='extract' and last_error."""
@@ -331,7 +354,7 @@ class TestPushStage:
             normalized_route_json=json.dumps(normalized),
             ingested_at=now,
             extracted_at=now,
-            extraction_model="glm-4.7-flash",
+            extraction_model="deepseek-v4-pro",
             extraction_cost_usd=0.0001,
             extraction_payload_json=json.dumps(attrs),
         )

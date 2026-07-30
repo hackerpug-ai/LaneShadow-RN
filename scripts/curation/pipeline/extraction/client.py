@@ -1,6 +1,6 @@
 """LLM extraction client for route attribute extraction.
 
-Supports Anthropic Claude Haiku (high throughput) and z.ai (fallback).
+Supports Anthropic Claude Haiku (high throughput) and OpenRouter (fallback).
 Temperature is hardcoded to 0 (Pipeline Principle P4) and cannot be overridden.
 
 Pipeline Principle P5: Deterministic parser between LLM and downstream code.
@@ -9,7 +9,7 @@ Pipeline Principle P5: Deterministic parser between LLM and downstream code.
 import logging
 import os
 import time
-from typing import Optional
+from typing import Literal, Optional
 
 import instructor
 from pydantic import ValidationError
@@ -18,8 +18,9 @@ from scripts.curation.pipeline.extraction.schema import RouteAttributes
 
 logger = logging.getLogger(__name__)
 
-# z.ai OpenAI-compatible endpoint (fallback)
-ZAI_BASE_URL = "https://api.z.ai/api/paas/v4"
+# OpenRouter's OpenAI-compatible endpoint (fallback)
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+ExtractionBackend = Literal["anthropic", "openai", "openrouter"]
 
 
 # System prompt for route attribute extraction
@@ -49,43 +50,58 @@ class ExtractionClient:
     """LLM + Instructor client for route attribute extraction.
 
     Uses Claude Haiku by default (high throughput, ~$0.25/1M input tokens).
-    Falls back to z.ai glm-4.7-flash if no Anthropic key is available.
+    Falls back to OpenRouter's DeepSeek V4 Pro route if no Anthropic or OpenAI
+    key is available.
 
     Pipeline Principle P4: All extraction runs at temperature=0.
     Pipeline Principle P5: Pydantic validation between LLM and downstream code.
     """
 
-    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        model: Optional[str] = None,
+        backend: Optional[ExtractionBackend] = None,
+    ):
         """Initialize the extraction client.
 
         Args:
             api_key: API key. Falls back to ANTHROPIC_API_KEY, then OPENAI_API_KEY,
-                     then Z_AI_API_KEY env vars.
+                     then OPENROUTER_API_KEY env vars.
             model: Model name. Defaults based on which key is found.
+            backend: Explicit backend for ``api_key``. Existing explicit-key
+                callers retain Anthropic as their default when this is omitted.
 
         Raises:
             ValueError: If API key is not provided or found in environment.
         """
-        self._backend = "anthropic"  # default assumption
+        self._backend: ExtractionBackend = backend or "anthropic"
 
         if api_key is None:
-            api_key = os.environ.get("ANTHROPIC_API_KEY")
-            if not api_key:
+            if backend == "anthropic":
+                api_key = os.environ.get("ANTHROPIC_API_KEY")
+            elif backend == "openai":
                 api_key = os.environ.get("OPENAI_API_KEY")
-                if api_key:
-                    self._backend = "openai"
-                else:
-                    api_key = os.environ.get("Z_AI_API_KEY")
+            elif backend == "openrouter":
+                api_key = os.environ.get("OPENROUTER_API_KEY")
+            else:
+                api_key = os.environ.get("ANTHROPIC_API_KEY")
+                if not api_key:
+                    api_key = os.environ.get("OPENAI_API_KEY")
                     if api_key:
-                        self._backend = "zai"
+                        self._backend = "openai"
+                    else:
+                        api_key = os.environ.get("OPENROUTER_API_KEY")
+                        if api_key:
+                            self._backend = "openrouter"
         else:
-            # Explicit key provided — assume Anthropic
-            self._backend = "anthropic"
+            # Explicit keys remain Anthropic by default for backward compatibility.
+            self._backend = backend or "anthropic"
 
         if not api_key:
             raise ValueError(
                 "API key must be provided via api_key parameter, "
-                "ANTHROPIC_API_KEY, OPENAI_API_KEY, or Z_AI_API_KEY environment variable"
+                "ANTHROPIC_API_KEY, OPENAI_API_KEY, or OPENROUTER_API_KEY environment variable"
             )
 
         # Initialize client based on backend
@@ -104,9 +120,9 @@ class ExtractionClient:
         else:
             from openai import OpenAI
 
-            raw_client = OpenAI(api_key=api_key, base_url=ZAI_BASE_URL)
+            raw_client = OpenAI(api_key=api_key, base_url=OPENROUTER_BASE_URL)
             self.client = instructor.from_openai(raw_client)
-            self._model = model or "glm-4.7-flash"
+            self._model = model or "deepseek/deepseek-v4-pro"
 
         # P4: Temperature is hardcoded to 0 - no overrides allowed
         self._temperature = 0
@@ -154,7 +170,7 @@ class ExtractionClient:
                         ],
                     )
                 else:
-                    # OpenAI-compatible (openai or zai)
+                    # OpenAI-compatible (OpenAI or OpenRouter)
                     response = self.client.chat.completions.create(
                         model=self._model,
                         temperature=self._temperature,
@@ -244,11 +260,11 @@ if __name__ == "__main__":
     api_key = (
         os.environ.get("ANTHROPIC_API_KEY")
         or os.environ.get("OPENAI_API_KEY")
-        or os.environ.get("Z_AI_API_KEY")
+        or os.environ.get("OPENROUTER_API_KEY")
     )
     if not api_key:
         logger.error(
-            "No API key found. Set ANTHROPIC_API_KEY, OPENAI_API_KEY or Z_AI_API_KEY "
+            "No API key found. Set ANTHROPIC_API_KEY, OPENAI_API_KEY or OPENROUTER_API_KEY "
             "environment variable before running extraction."
         )
         sys.exit(1)

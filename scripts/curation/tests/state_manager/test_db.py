@@ -120,7 +120,7 @@ class TestUpsertIdempotency:
             source="motorcycleroads",
             raw_staging_json=json.dumps({}),
             extracted_at=now,
-            extraction_model="glm-4.7-flash",
+            extraction_model="deepseek-v4-pro",
             extraction_cost_usd=0.0001,
             extraction_payload_json=json.dumps({"scenic_score": 0.8}),
         )
@@ -130,7 +130,7 @@ class TestUpsertIdempotency:
             ("mr:extract-test",),
         ).fetchone()
         assert row["extracted_at"] == now
-        assert row["extraction_model"] == "glm-4.7-flash"
+        assert row["extraction_model"] == "deepseek-v4-pro"
 
     def test_error_fields_set(self, tmp_db):
         _insert_route(tmp_db, "mr:error-test")

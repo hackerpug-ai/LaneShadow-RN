@@ -17,20 +17,12 @@ export type IntelligenceLevel = 'low' | 'high'
  * Model configuration for the current provider.
  * Change this block to swap providers — nothing else in the codebase changes.
  *
- * Model choices based on benchmark testing in .spec/research/cerebras-vs-haiku/:
- * - high: zai-glm-4.7 (131K ctx, $2.25/$2.75 per 1M) — reasoning-heavy orchestration + generation
- * - low: qwen-3-235b-a22b-instruct-2507 (131K ctx, $0.60/$1.20 per 1M) — 100% tool-match vs llama3.1-8b (38%)
+ * Current model choices:
+ * - high: OpenAI gpt-4.1 — reasoning-heavy orchestration + generation
+ * - low: OpenAI gpt-4o-mini — lower-cost tool-calling path
  */
 const MODEL_MAP: Record<IntelligenceLevel, { provider: 'openai'; model: string }> = {
-  // FIX-001: zai-glm-4.7 (via cerebras provider → Z.ai) is returning HTTP 429
-  // "Insufficient balance" — the Z.ai account is out of credits, so the
-  // orchestrator can't emit tool-calls and route generation fails. Temporarily
-  // route the reasoning-heavy 'high' level to OpenAI gpt-4.1 (has balance,
-  // reliable tool-caller) until the Z.ai account is recharged. Revert this to
-  // { provider: 'cerebras', model: 'zai-glm-4.7' } once Z.ai balance is restored.
   high: { provider: 'openai', model: 'gpt-4.1' },
-  // qwen-3-235b-a22b-instruct-2507: 131K ctx, $0.60/$1.20 per 1M
-  // 100% tool-match in benchmark vs llama3.1-8b (38% — disqualified for format errors)
   low: { provider: 'openai', model: 'gpt-4o-mini' },
 }
 

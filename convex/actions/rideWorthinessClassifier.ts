@@ -2,7 +2,8 @@
  * S4-T4 / UC-VER-03: Cross-provider ride-worthiness classifier.
  *
  * Judges "is this actually a motorcycle ride?" over catalog routes using
- * z.ai GLM-5.2 — a DIFFERENT provider than anchor extraction (OpenAI gpt-4.1)
+ * OpenRouter's DeepSeek V4 Pro — a DIFFERENT provider than anchor extraction
+ * (OpenAI gpt-4.1)
  * so blind spots are decorrelated.
  *
  * Verdicts are stored as at-rest evidence on the route doc (rideWorthiness),
@@ -18,10 +19,14 @@ import { z } from 'zod'
 import { internal } from '../_generated/api'
 import { type ActionCtx, action, internalAction } from '../_generated/server'
 import { assertTestSubjectOrThrow, requireIdentity, requireOperatorAction } from '../guards'
-import { createZaiProvider, parseZaiFallback } from './agent/lib/zaiProvider'
+import {
+  createOpenRouterProvider,
+  OPENROUTER_MODEL_ID,
+  parseOpenRouterFallback,
+} from './agent/lib/openrouterProvider'
 
 /** Stored model/provider stamp proving decorrelation from anchor extraction (gpt-4.1). */
-export const RIDE_WORTHINESS_PROVIDER = 'z.ai-glm-5.2' as const
+export const RIDE_WORTHINESS_PROVIDER = 'openrouter/deepseek/deepseek-v4-pro' as const
 
 /**
  * REDHAT-FIX-11: Determine whether a route's ride-worthiness classification is
@@ -39,12 +44,10 @@ export function determineEvidenceComplete(args: {
 }
 
 /**
- * Verification-gate alias (grep target: zai-glm-5.2). The stored stamp uses
- * the dotted form `z.ai-glm-5.2`; this constant documents the z.ai GLM id.
+ * Verification-gate alias for the exact OpenRouter model id used by the
+ * classifier. The persisted classifier stamp includes the provider prefix.
  */
-export const ZAI_GLM_MODEL_ID = 'zai-glm-5.2' as const
-
-const ZAI_MODEL_ID = 'glm-5.2'
+export const OPENROUTER_CLASSIFIER_MODEL_ID = OPENROUTER_MODEL_ID
 
 const rideWorthinessSchema = z.object({
   verdict: z.enum(['ride', 'marginal', 'not_a_ride']),
@@ -130,8 +133,10 @@ Respond with a JSON object matching this exact shape (no other text):
 {"verdict":"ride"|"marginal"|"not_a_ride","reason":"<one sentence rationale>"}`
 }
 
-async function classifyWithZai(route: RouteForClassification): Promise<RideWorthinessVerdict> {
-  const model = createZaiProvider().provider(ZAI_MODEL_ID)
+async function classifyWithOpenRouter(
+  route: RouteForClassification,
+): Promise<RideWorthinessVerdict> {
+  const model = createOpenRouterProvider().provider(OPENROUTER_CLASSIFIER_MODEL_ID)
   const prompt = buildClassificationPrompt(route)
 
   let rawText: string | undefined
@@ -156,7 +161,7 @@ async function classifyWithZai(route: RouteForClassification): Promise<RideWorth
     }
   }
 
-  const fallback = parseZaiFallback(rawText ?? '', rideWorthinessSchema)
+  const fallback = parseOpenRouterFallback(rawText ?? '', rideWorthinessSchema)
   if (fallback.ok) {
     return fallback.object
   }
@@ -236,7 +241,7 @@ async function classifyAndPersistOne(
       }
     }
 
-    const classified = await classifyWithZai(route)
+    const classified = await classifyWithOpenRouter(route)
     const classifiedAt = Date.now()
     const rideWorthiness = {
       verdict: classified.verdict,
@@ -521,7 +526,7 @@ export const executeClassifyCatalog = async (
 /**
  * REDHAT-FIX-13: production classifier entry. The failRouteIds simulation
  * control is NOT accepted here — a caller cannot manufacture failed/no-evidence
- * processing outcomes. Operator-only so paid z.ai classification cannot be
+ * processing outcomes. Operator-only so paid OpenRouter classification cannot be
  * triggered by an ordinary rider.
  */
 export const classifyCatalog = action({

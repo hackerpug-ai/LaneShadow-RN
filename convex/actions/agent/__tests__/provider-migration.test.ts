@@ -32,11 +32,11 @@ describe('Provider Migration (AI-002+AI-003)', () => {
       expect(envContent).not.toContain('export const AI_MODEL')
     })
 
-    it('should document CEREBRAS_API_KEY in .env.example', () => {
+    it('should document OPENROUTER_API_KEY in .env.example', () => {
       const envExamplePath = join(process.cwd(), '.env.example')
       const envExampleContent = readFileSync(envExamplePath, 'utf-8')
 
-      expect(envExampleContent).toContain('CEREBRAS_API_KEY')
+      expect(envExampleContent).toContain('OPENROUTER_API_KEY')
     })
   })
 
@@ -80,7 +80,7 @@ describe('Provider Migration (AI-002+AI-003)', () => {
       const routingAgentContent = readFileSync(routingAgentPath, 'utf-8')
 
       // Should import getAgentModel
-      expect(routingAgentContent).toContain("from '../lib/models'")
+      expect(routingAgentContent).toMatch(/from ['"]\.\.\/lib\/models(?:\.js)?['"]+/)
       expect(routingAgentContent).toContain('getAgentModel')
 
       // Should not use getModel with hardcoded provider

@@ -3,7 +3,7 @@
 import { generateText, type LanguageModel, NoObjectGeneratedError, Output } from 'ai'
 import { z } from 'zod'
 import { getAgentLanguageModel, getAgentLanguageModelInfo } from './models'
-import { parseZaiFallback } from './zaiProvider'
+import { parseOpenRouterFallback } from './openrouterProvider'
 
 const anchorSchema = z.object({
   query: z.string().min(1),
@@ -223,7 +223,7 @@ export const extractAnchors = async (
   }
 
   // Text-mode JSON fallback ladder — never silently return an empty anchor array.
-  const fallback = parseZaiFallback(rawText ?? '', emitAnchorsSchema)
+  const fallback = parseOpenRouterFallback(rawText ?? '', emitAnchorsSchema)
   if (fallback.ok) {
     return withFinalizedAnchors(route, fallback.object, prompt)
   }
