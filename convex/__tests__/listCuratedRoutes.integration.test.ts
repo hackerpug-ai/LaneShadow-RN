@@ -1,12 +1,12 @@
 /**
- * DATA-005: listCuratedRoutes — integration tests for all 4 browse modes + Clerk gate.
+ * DATA-005 + S6-T2: listCuratedRoutes — integration tests for all 4 browse modes + Clerk gate.
  *
  * listCuratedRoutes is the Clerk-gated public browse query powering discovery.
- * It resolves four ways depending on args:
- *   - Mode 1 (bbox):        geospatial.query(rectangle) ranked by compositeScore
- *   - Mode 2 (nearest):     geospatial.nearest with distanceMi = geo.distance * 0.000621371
- *   - Mode 3 (state):       by_state index probing BOTH NC spelling variants
- *   - Mode 4 (best/default):by_composite_score index, optional archetype filter
+ * S6-T2: every mode reads via by_riderReady_and_composite_score:
+ *   - Mode 1 (bbox):        riderReady index + centroid-in-bbox filter
+ *   - Mode 2 (nearest):     riderReady index + haversine distanceMi (≤20 mi)
+ *   - Mode 3 (state):       riderReady index + state filter (by_state gap closed)
+ *   - Mode 4 (best/default):riderReady index, optional archetype filter
  *
  * ── Verification strategy ────────────────────────────────────────────────────
  * vitest's config mocks `convex/_generated/*`, so we cannot hit Convex through
@@ -14,20 +14,17 @@
  *
  * 1. LOGIC VERIFICATION (always runs)
  *    Imports listCuratedRoutes from ../curatedRoutes.ts and invokes its real
- *    handler directly with a mocked ctx (db + auth) plus a mocked geospatial
- *    index. This exercises every resolution branch and the buildRouteCard
- *    transform against deterministic fixture data.
+ *    handler directly with a mocked ctx (db + auth). This exercises every
+ *    resolution branch and the buildRouteCard transform against fixtures.
  *
  * 2. LIVE GATE VERIFICATION (always runs, network-dependent)
  *    Spawns `npx convex run curatedRoutes:listCuratedRoutes` against the dev
  *    deployment. Admin-key auth bypasses Clerk identity, so requireIdentity
- *    MUST throw — proving the gate is wired in production. This is real
- *    end-to-end evidence for AC-2 that a mocked-ctx test alone cannot give.
+ *    MUST throw — proving the gate is wired in production.
  *
  * 3. CODE INSPECTION (always runs)
  *    Reads ../curatedRoutes.ts and asserts requireIdentity is the first
- *    statement inside the handler — the gate cannot be bypassed by argument
- *    order or short-circuit.
+ *    statement inside the handler.
  */
 
 import { execFileSync } from 'node:child_process'
@@ -35,29 +32,11 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-// --- Mocks: geospatial index (we drive .query / .nearest directly) -----------
-// vi.mock factories are hoisted above imports, so the mock fns must be created
-// inside vi.hoisted() — that runs at the same hoist phase and is safe to reference.
-const geospatialMocks = vi.hoisted(() => ({
-  query: vi.fn(),
-  nearest: vi.fn(),
-}))
-
-vi.mock('../geospatialIndex', () => ({
-  geospatial: {
-    query: geospatialMocks.query,
-    nearest: geospatialMocks.nearest,
-  },
-}))
-
 // Import the SUT. The aliased mock for ./_generated/server returns query({ ... })
 // as a plain config object, so listCuratedRoutes.handler IS the real handler.
 import { listCuratedRoutes } from '../curatedRoutes'
 
-// Local aliases for readability — these resolve to the same vi.fn instances.
-const geospatialQuery = geospatialMocks.query
-const geospatialNearest = geospatialMocks.nearest
-
+const RIDER_READY_INDEX = 'by_riderReady_and_composite_score'
 const PROJECT_ROOT = resolve(__dirname, '..', '..')
 
 // --- Fixtures ----------------------------------------------------------------
@@ -83,9 +62,12 @@ const makeRoute = (overrides: Record<string, any> = {}): Record<string, any> => 
   lengthMiles: 318,
   summary: '318 curves in 11 miles',
   geometryStatus: 'generated',
+  riderReady: true,
+  retiredAt: null,
+  duplicateOf: null,
+  quarantine: null,
   ...overrides,
 })
-
 type FilterCall = { op: 'eq' | 'in'; field: string; value: any }
 type IndexCall = { indexName: string; filterCalls: FilterCall[] }
 
@@ -226,28 +208,25 @@ describe('AC-2: Clerk gate (requireIdentity)', () => {
       await expect(runHandler(ctx, {})).rejects.toThrow(/Authentication required|UNAUTHENTICATED/)
     })
 
-    it('gate is the first statement — no DB or geospatial access on reject', async () => {
+    it('gate is the first statement — no DB access on reject', async () => {
       const ctx = buildCtx({ identity: null })
       await expect(
         runHandler(ctx, { bbox: { north: 36, south: 34, east: -82, west: -84 } }),
       ).rejects.toThrow()
       expect(ctx.db.query).not.toHaveBeenCalled()
       expect(ctx.db.get).not.toHaveBeenCalled()
-      expect(geospatialQuery).not.toHaveBeenCalled()
-      expect(geospatialNearest).not.toHaveBeenCalled()
     })
 
     it('authenticated identity proceeds past the gate (default mode returns rows)', async () => {
       const ctx = buildCtx({
         identity: { subject: 'user_test' },
-        indexData: { by_composite_score: [makeRoute()] },
+        indexData: { [RIDER_READY_INDEX]: [makeRoute()] },
       })
       const result = await runHandler(ctx, {})
       expect(result).toHaveLength(1)
       assertValidCard(result[0])
     })
   })
-
   describe('code inspection (curatedRoutes.ts source)', () => {
     it('requireIdentity is the first statement of the handler', () => {
       const src = readFileSync(resolve(__dirname, '..', 'curatedRoutes.ts'), 'utf-8')
@@ -284,7 +263,7 @@ describe('AC-2: Clerk gate (requireIdentity)', () => {
 // =============================================================================
 
 describe('AC-1: all four browse modes', () => {
-  // --- Mode 1: bbox via geospatial rectangle, ranked by compositeScore --------
+  // --- Mode 1: bbox via riderReady index + centroid-in-rectangle --------------
 
   it('mode1_bbox_returnsInBoxRoutesRankedByCompositeScoreDescWith0to1Scores', async () => {
     const inBoxRoutes = [
@@ -309,27 +288,29 @@ describe('AC-1: all four browse modes', () => {
         centroidLat: 35.2,
         centroidLng: -82.8,
       }),
+      // Outside bbox — must be excluded
+      makeRoute({
+        _id: 'r4',
+        routeId: 'route-out',
+        compositeScore: 0.99,
+        centroidLat: 40.0,
+        centroidLng: -100.0,
+      }),
     ]
-    const getRouteById = new Map(inBoxRoutes.map((r) => [r._id, r]))
-
-    // Geospatial returns in random order; the handler must re-sort by score desc.
-    geospatialQuery.mockResolvedValueOnce({
-      results: [{ key: 'r1' }, { key: 'r2' }, { key: 'r3' }],
+    const indexCalls: IndexCall[] = []
+    const ctx = buildCtx({
+      indexCalls,
+      indexData: { [RIDER_READY_INDEX]: inBoxRoutes },
     })
-
-    const ctx = buildCtx({ getRouteById })
 
     const result = await runHandler(ctx, {
       bbox: { north: 36, south: 34, east: -82, west: -84 },
       limit: 25,
     })
 
-    // THEN: every card in-box, ranked desc by compositeScore, scores 0-1, ≤ limit
     expect(result).toHaveLength(3)
-    expect(geospatialQuery).toHaveBeenCalledTimes(1)
-    const geoCall = geospatialQuery.mock.calls[0]
-    expect(geoCall[1].shape.type).toBe('rectangle')
-    expect(geoCall[1].shape.rectangle).toEqual({ west: -84, east: -82, south: 34, north: 36 })
+    expect(indexCalls.some((c) => c.indexName === RIDER_READY_INDEX)).toBe(true)
+    expect(result.map((r: any) => r.routeId)).not.toContain('route-out')
 
     const scores = result.map((r: any) => r.compositeScore)
     expect(scores).toEqual([0.95, 0.7, 0.4]) // descending
@@ -337,24 +318,42 @@ describe('AC-1: all four browse modes', () => {
     expect(result.length).toBeLessThanOrEqual(25)
   })
 
-  // --- Mode 2: sort='nearest' via geospatial.nearest, distanceMi ascending ---
+  // --- Mode 2: sort='nearest' via riderReady index + haversine -----------------
 
   it('mode2_nearest_populatesDistanceMiAndSortsAscending', async () => {
+    // Center at 35.0, -83.0; place routes within 20mi (MAX_NEAREST)
     const routes = [
-      makeRoute({ _id: 'r1', routeId: 'far', compositeScore: 0.9 }),
-      makeRoute({ _id: 'r2', routeId: 'mid', compositeScore: 0.5 }),
-      makeRoute({ _id: 'r3', routeId: 'near', compositeScore: 0.1 }),
+      makeRoute({
+        _id: 'r1',
+        routeId: 'far',
+        compositeScore: 0.9,
+        centroidLat: 35.2,
+        centroidLng: -83.0,
+      }), // ~13.8 mi
+      makeRoute({
+        _id: 'r2',
+        routeId: 'mid',
+        compositeScore: 0.5,
+        centroidLat: 35.1,
+        centroidLng: -83.0,
+      }), // ~6.9 mi
+      makeRoute({
+        _id: 'r3',
+        routeId: 'near',
+        compositeScore: 0.1,
+        centroidLat: 35.02,
+        centroidLng: -83.0,
+      }), // ~1.4 mi
+      // Beyond 20mi — must be excluded
+      makeRoute({
+        _id: 'r4',
+        routeId: 'too-far',
+        compositeScore: 0.99,
+        centroidLat: 36.0,
+        centroidLng: -83.0,
+      }),
     ]
-    const getRouteById = new Map(routes.map((r) => [r._id, r]))
-
-    // distances in meters — handler converts via * 0.000621371 to miles
-    geospatialNearest.mockResolvedValueOnce([
-      { key: 'r1', distance: 100_000 }, // 62 mi
-      { key: 'r2', distance: 30_000 }, // 18.6 mi
-      { key: 'r3', distance: 5_000 }, // 3.1 mi
-    ])
-
-    const ctx = buildCtx({ getRouteById })
+    const ctx = buildCtx({ indexData: { [RIDER_READY_INDEX]: routes } })
 
     const result = await runHandler(ctx, {
       sort: 'nearest',
@@ -362,21 +361,14 @@ describe('AC-1: all four browse modes', () => {
       limit: 25,
     })
 
-    expect(result).toHaveLength(3)
-    expect(geospatialNearest).toHaveBeenCalledTimes(1)
-    const nearestCall = geospatialNearest.mock.calls[0]
-    expect(nearestCall[1].point).toEqual({ latitude: 35.0, longitude: -83.0 })
-
-    // ascending distance; every card carries distanceMi
     expect(result.map((r: any) => r.routeId)).toEqual(['near', 'mid', 'far'])
+    expect(result.map((r: any) => r.routeId)).not.toContain('too-far')
     for (const card of result) assertValidCard(card, { distanceMiExpected: true })
 
     const dists = result.map((r: any) => r.distanceMi)
     for (let i = 1; i < dists.length; i++) {
       expect(dists[i]).toBeGreaterThanOrEqual(dists[i - 1])
     }
-    // Spot-check the meters→miles conversion factor
-    expect(result[0].distanceMi).toBeCloseTo(5_000 * 0.000621371, 4)
   })
 
   it('mode2_nearest_throwsWhenNoCenterProvided', async () => {
@@ -384,75 +376,43 @@ describe('AC-1: all four browse modes', () => {
     await expect(runHandler(ctx, { sort: 'nearest' })).rejects.toThrow(/Center point required/)
   })
 
-  // --- Mode 3: state-only via by_state, probing BOTH NC variants --------------
+  // --- Mode 3: state-only via riderReady index (by_state gap closed) -----------
 
-  it('mode3_state_probesBothDirtyAndCleanVariantsViaByStateIndex', async () => {
+  it('mode3_state_usesRiderReadyIndexAndNormalizesState', async () => {
     const indexCalls: IndexCall[] = []
-    const cleanVariant = [
-      makeRoute({ _id: 'r1', routeId: 'nc-clean-1', state: 'North Carolina', compositeScore: 0.6 }),
+    const routes = [
+      makeRoute({
+        _id: 'r1',
+        routeId: 'nc-clean-1',
+        state: 'North Carolina',
+        compositeScore: 0.6,
+      }),
+      makeRoute({
+        _id: 'r2',
+        routeId: 'nc-dirty-1',
+        state: 'North-Carolina',
+        compositeScore: 0.8,
+      }),
+      makeRoute({
+        _id: 'r3',
+        routeId: 'ca-only',
+        state: 'California',
+        compositeScore: 0.99,
+      }),
     ]
-    const dirtyVariant = [
-      makeRoute({ _id: 'r2', routeId: 'nc-dirty-1', state: 'North-Carolina', compositeScore: 0.8 }),
-    ]
-    // The handler queries by_state twice (once per variant). Serve different
-    // rows per call by tracking invocation index.
-    let byStateCallCount = 0
     const ctx = buildCtx({
       indexCalls,
-      indexData: {}, // we override query below via mock implementation
-    })
-    // Replace the auto-mock with a per-call dispatch
-    const originalQuery = ctx.db.query
-    ctx.db.query = vi.fn((tableName: string) => {
-      originalQuery(tableName) // preserve call recording on the base mock
-      return {
-        withIndex: vi.fn((indexName: string, filterFn?: (q: any) => any) => {
-          const filterCalls: FilterCall[] = []
-          const trackingQ = {
-            eq: (field: string, value: any) => {
-              filterCalls.push({ op: 'eq', field, value })
-              return trackingQ
-            },
-            in: (field: string, values: any[]) => {
-              filterCalls.push({ op: 'in', field, values })
-              return trackingQ
-            },
-          }
-          if (filterFn) filterFn(trackingQ)
-          indexCalls.push({ indexName, filterCalls })
-          const variantRows =
-            indexName === 'by_state'
-              ? (() => {
-                  byStateCallCount += 1
-                  return byStateCallCount === 1 ? cleanVariant : dirtyVariant
-                })()
-              : []
-          return {
-            take: vi.fn(async (n: number) => variantRows.slice(0, n)),
-            order: vi.fn(() => ({
-              take: vi.fn(async () => variantRows),
-              collect: vi.fn(async () => variantRows),
-            })),
-            collect: vi.fn(async () => variantRows),
-          }
-        }),
-      }
+      indexData: { [RIDER_READY_INDEX]: routes },
     })
 
     const result = await runHandler(ctx, { state: 'North Carolina', limit: 25 })
 
-    // THEN: by_state was probed with BOTH variants
-    const byStateCalls = indexCalls.filter((c) => c.indexName === 'by_state')
-    expect(byStateCalls.length).toBe(2)
-    const probedValues = byStateCalls
-      .flatMap((c) => c.filterCalls.filter((f) => f.field === 'state'))
-      .map((f) => f.value)
-    expect(probedValues).toContain('North Carolina')
-    expect(probedValues).toContain('North-Carolina')
+    // Primary index is riderReady — never by_state
+    expect(indexCalls.every((c) => c.indexName === RIDER_READY_INDEX)).toBe(true)
+    expect(indexCalls.some((c) => c.indexName === 'by_state')).toBe(false)
 
-    // AND: routes from BOTH variants surfaced, deduped, ranked by score desc
+    // NC variants match via normalizeState; CA excluded
     expect(result.map((r: any) => r.routeId).sort()).toEqual(['nc-clean-1', 'nc-dirty-1'])
-    // Both cards have canonical state name regardless of source variant
     for (const card of result) {
       assertValidCard(card)
       expect(card.state).toBe('North Carolina')
@@ -460,13 +420,9 @@ describe('AC-1: all four browse modes', () => {
     expect(result.length).toBeLessThanOrEqual(25)
   })
 
-  // --- Mode 4: best via by_composite_score (default + archetypes filter) ------
+  // --- Mode 4: best via by_riderReady_and_composite_score ----------------------
 
   it('mode4_archetypesOnly_fallsThroughToByCompositeScoreAndFiltersByUiEnum', async () => {
-    // archetypes=['scenic','twisties'] maps to DB archetypes
-    //   scenic → [scenic_byway, coastal]
-    //   twisties → [twisties]
-    // So matching DB archetypes are: scenic_byway, coastal, twisties
     const topRoutes = [
       makeRoute({
         _id: 'r1',
@@ -479,7 +435,7 @@ describe('AC-1: all four browse modes', () => {
         routeId: 'top-mountain',
         primaryArchetype: 'mountain',
         compositeScore: 0.9,
-      }), // filtered out
+      }),
       makeRoute({
         _id: 'r3',
         routeId: 'top-coastal',
@@ -497,15 +453,14 @@ describe('AC-1: all four browse modes', () => {
         routeId: 'top-desert',
         primaryArchetype: 'desert',
         compositeScore: 0.75,
-      }), // filtered out
+      }),
     ]
     const ctx = buildCtx({
-      indexData: { by_composite_score: topRoutes },
+      indexData: { [RIDER_READY_INDEX]: topRoutes },
     })
 
     const result = await runHandler(ctx, { archetypes: ['scenic', 'twisties'], limit: 25 })
 
-    // THEN: only routes mapped through the archetype enum are returned; mountain + desert dropped
     const ids = result.map((r: any) => r.routeId)
     expect(ids).toContain('top-twisties')
     expect(ids).toContain('top-coastal')
@@ -513,7 +468,6 @@ describe('AC-1: all four browse modes', () => {
     expect(ids).not.toContain('top-mountain')
     expect(ids).not.toContain('top-desert')
 
-    // AND: DB archetypes are mapped back to UI enums on the card
     const uiArchetypes = new Set(result.map((r: any) => r.primaryArchetype))
     expect(uiArchetypes).toEqual(new Set(['twisties', 'scenic']))
 
@@ -527,12 +481,11 @@ describe('AC-1: all four browse modes', () => {
       makeRoute({ _id: 'r2', routeId: 'b', compositeScore: 0.5 }),
       makeRoute({ _id: 'r3', routeId: 'c', compositeScore: 0.1 }),
     ]
-    const ctx = buildCtx({ indexData: { by_composite_score: topRoutes } })
+    const ctx = buildCtx({ indexData: { [RIDER_READY_INDEX]: topRoutes } })
     const result = await runHandler(ctx, { limit: 2 })
     expect(result.map((r: any) => r.routeId)).toEqual(['a', 'b'])
     for (const card of result) assertValidCard(card)
   })
-
   // --- Cross-cutting invariants: scores, length clamp, limit cap --------------
 
   it('scoreNormalization_preserves0to1AndCoercesDirty0to100Defensively', async () => {
@@ -545,7 +498,7 @@ describe('AC-1: all four browse modes', () => {
       makeRoute({ _id: 'r3', routeId: 'dirty-70', compositeScore: 70 }), // defensive coercion
       makeRoute({ _id: 'r4', routeId: 'dirty-100', compositeScore: 100 }), // → 1.0
     ]
-    const ctx = buildCtx({ indexData: { by_composite_score: topRoutes } })
+    const ctx = buildCtx({ indexData: { [RIDER_READY_INDEX]: topRoutes } })
     const result = await runHandler(ctx, {})
     const byId = new Map(result.map((r: any) => [r.routeId, r]))
 
@@ -565,7 +518,7 @@ describe('AC-1: all four browse modes', () => {
       makeRoute({ _id: 'r3', routeId: 'junk-neg', lengthMiles: -5 }),
       makeRoute({ _id: 'r4', routeId: 'sane', lengthMiles: 318 }),
     ]
-    const ctx = buildCtx({ indexData: { by_composite_score: topRoutes } })
+    const ctx = buildCtx({ indexData: { [RIDER_READY_INDEX]: topRoutes } })
     const result = await runHandler(ctx, {})
     const byId = new Map(result.map((r: any) => [r.routeId, r]))
 
@@ -584,19 +537,19 @@ describe('AC-1: all four browse modes', () => {
     )
 
     // limit=1000 → effectiveLimit is min(1000, 200) = 200; only 5 rows exist.
-    const ctx = buildCtx({ indexData: { by_composite_score: topRoutes } })
+    const ctx = buildCtx({ indexData: { [RIDER_READY_INDEX]: topRoutes } })
     const result = await runHandler(ctx, { limit: 1000 })
     expect(result).toHaveLength(5)
     expect(result.length).toBeLessThanOrEqual(200)
     for (const card of result) assertValidCard(card)
 
     // No limit supplied → effectiveLimit defaults to 50.
-    const ctx2 = buildCtx({ indexData: { by_composite_score: topRoutes } })
+    const ctx2 = buildCtx({ indexData: { [RIDER_READY_INDEX]: topRoutes } })
     const result2 = await runHandler(ctx2, {})
     expect(result2.length).toBeLessThanOrEqual(50)
 
     // Explicit small limit is honored.
-    const ctx3 = buildCtx({ indexData: { by_composite_score: topRoutes } })
+    const ctx3 = buildCtx({ indexData: { [RIDER_READY_INDEX]: topRoutes } })
     const result3 = await runHandler(ctx3, { limit: 2 })
     expect(result3).toHaveLength(2)
   })
@@ -620,23 +573,31 @@ describe('AC-1: all four browse modes', () => {
         centroidLng: -82.9,
       }),
     ]
-    const bboxById = new Map(bboxRoutes.map((r) => [r._id, r]))
 
     const nearestRoutes = [
-      makeRoute({ _id: 'n1', routeId: 'near-far', compositeScore: 0.7 }),
-      makeRoute({ _id: 'n2', routeId: 'near-close', compositeScore: 0.2 }),
+      makeRoute({
+        _id: 'n1',
+        routeId: 'near-far',
+        compositeScore: 0.7,
+        centroidLat: 35.15,
+        centroidLng: -83.0,
+      }),
+      makeRoute({
+        _id: 'n2',
+        routeId: 'near-close',
+        compositeScore: 0.2,
+        centroidLat: 35.02,
+        centroidLng: -83.0,
+      }),
     ]
-    const nearestById = new Map(nearestRoutes.map((r) => [r._id, r]))
 
-    const stateClean = [
+    const stateRoutes = [
       makeRoute({
         _id: 's1',
         routeId: 'state-clean',
         state: 'North Carolina',
         compositeScore: 0.55,
       }),
-    ]
-    const stateDirty = [
       makeRoute({
         _id: 's2',
         routeId: 'state-dirty',
@@ -661,10 +622,7 @@ describe('AC-1: all four browse modes', () => {
     ]
 
     // ── Mode 1: bbox ───────────────────────────────────────────────────────
-    geospatialQuery.mockResolvedValueOnce({
-      results: [{ key: 'b1' }, { key: 'b2' }],
-    })
-    const ctxBbox = buildCtx({ getRouteById: bboxById })
+    const ctxBbox = buildCtx({ indexData: { [RIDER_READY_INDEX]: bboxRoutes } })
     const bboxResult = await runHandler(ctxBbox, {
       bbox: { north: 36, south: 34, east: -82, west: -84 },
       limit: 25,
@@ -674,61 +632,31 @@ describe('AC-1: all four browse modes', () => {
     for (const card of bboxResult) assertValidCard(card)
 
     // ── Mode 2: nearest ────────────────────────────────────────────────────
-    geospatialNearest.mockResolvedValueOnce([
-      { key: 'n1', distance: 80_000 },
-      { key: 'n2', distance: 10_000 },
-    ])
-    const ctxNear = buildCtx({ getRouteById: nearestById })
+    const ctxNear = buildCtx({ indexData: { [RIDER_READY_INDEX]: nearestRoutes } })
     const nearestResult = await runHandler(ctxNear, {
       sort: 'nearest',
       center: { lat: 35, lng: -83 },
       limit: 25,
     })
-    expect(nearestResult.map((r: any) => r.routeId)).toEqual(['near-close', 'near-far']) // ascending distance
+    expect(nearestResult.map((r: any) => r.routeId)).toEqual(['near-close', 'near-far'])
     for (const card of nearestResult) assertValidCard(card, { distanceMiExpected: true })
 
-    // ── Mode 3: state (BOTH variants probed) ───────────────────────────────
+    // ── Mode 3: state via riderReady index ─────────────────────────────────
     const stateIndexCalls: IndexCall[] = []
-    let stateCallCount = 0
-    const ctxState = buildCtx({ indexCalls: stateIndexCalls })
-    ctxState.db.query = vi.fn(() => ({
-      withIndex: vi.fn((indexName: string, filterFn?: (q: any) => any) => {
-        const filterCalls: FilterCall[] = []
-        const trackingQ = {
-          eq: (field: string, value: any) => {
-            filterCalls.push({ op: 'eq', field, value })
-            return trackingQ
-          },
-          in: (field: string, values: any[]) => {
-            filterCalls.push({ op: 'in', field, values })
-            return trackingQ
-          },
-        }
-        if (filterFn) filterFn(trackingQ)
-        stateIndexCalls.push({ indexName, filterCalls })
-        stateCallCount += 1
-        const rows = stateCallCount === 1 ? stateClean : stateDirty
-        return {
-          take: vi.fn(async (n: number) => rows.slice(0, n)),
-          order: vi.fn(() => ({ take: vi.fn(async () => rows), collect: vi.fn(async () => rows) })),
-          collect: vi.fn(async () => rows),
-        }
-      }),
-    }))
+    const ctxState = buildCtx({
+      indexCalls: stateIndexCalls,
+      indexData: { [RIDER_READY_INDEX]: stateRoutes },
+    })
     const stateResult = await runHandler(ctxState, { state: 'North Carolina', limit: 25 })
-    const stateProbed = stateIndexCalls
-      .filter((c) => c.indexName === 'by_state')
-      .flatMap((c) => c.filterCalls.filter((f) => f.field === 'state'))
-      .map((f) => f.value)
-    expect(stateProbed).toEqual(expect.arrayContaining(['North Carolina', 'North-Carolina']))
+    expect(stateIndexCalls.every((c) => c.indexName === RIDER_READY_INDEX)).toBe(true)
     expect(stateResult.map((r: any) => r.routeId).sort()).toEqual(['state-clean', 'state-dirty'])
     for (const card of stateResult) {
       assertValidCard(card)
-      expect(card.state).toBe('North Carolina') // both normalized to canonical
+      expect(card.state).toBe('North Carolina')
     }
 
-    // ── Mode 4: archetypes-only (falls to by_composite_score + archetype filter)
-    const ctxArch = buildCtx({ indexData: { by_composite_score: archetypeRoutes } })
+    // ── Mode 4: archetypes-only (riderReady index + archetype filter)
+    const ctxArch = buildCtx({ indexData: { [RIDER_READY_INDEX]: archetypeRoutes } })
     const archResult = await runHandler(ctxArch, { archetypes: ['scenic'], limit: 25 })
     const archIds = archResult.map((r: any) => r.routeId)
     expect(archIds).toContain('arch-match') // scenic_byway → scenic

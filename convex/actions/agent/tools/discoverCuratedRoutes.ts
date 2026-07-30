@@ -150,8 +150,8 @@ async function runDiscoverCuratedRoutes(
 
   // Fetch real side-table geometry in ranked batches and stop as soon as we
   // have enough routes with decodable line geometry for the requested result
-  // count. If none of the candidates have generated lines yet, fall back to the
-  // original ranked set below rather than pretending a centroid is a route.
+  // count. SURF hard-gate (S6-T2): never pad with non-plottable / centroid-only
+  // candidates — honest empty/partial is the only allowed thin-supply response.
   const generatedCandidates = candidateRoutes.filter((r: any) => r.geometryStatus === 'generated')
   const geometryByRouteId = new Map<string, any>()
   const plottableRoutes: any[] = []
@@ -180,11 +180,21 @@ async function runDiscoverCuratedRoutes(
     }
   }
 
-  const curatedRoutes =
-    plottableRoutes.length > 0
-      ? plottableRoutes.slice(0, requestedLimit)
-      : candidateRoutes.slice(0, requestedLimit)
+  // No centroid pad: if zero plottable rider-ready routes, return honest chat.
+  if (plottableRoutes.length === 0) {
+    const searchQuery = args.intent.archetypes?.join(', ') || 'routes'
+    const location =
+      args.intent.state || args.intent.center
+        ? `in ${args.intent.state || 'your area'}`
+        : 'near you'
 
+    return {
+      type: 'chat',
+      message: `I couldn't find any ${searchQuery} routes ${location} with plottable geometry. Try a different search or broaden your criteria.`,
+    }
+  }
+
+  const curatedRoutes = plottableRoutes.slice(0, requestedLimit)
   // Persist a route_plans row for the curated routes.
   //
   // REDHAT-FIX-005 / M-3: when the caller supplies a `center` (nearest-sort),
@@ -262,8 +272,9 @@ async function runDiscoverCuratedRoutes(
         },
       },
       map: {
-        // DATA-011: use the name-anchored generated geometry (from the side table) when
-        // present; otherwise fall back to the centroid point (no regression).
+        // S6-T2: curatedRoutes are already plottable (multi-point geometry looked up
+        // above). buildCuratedMapGeometry still has a defensive centroid branch for
+        // unit helpers, but discovery never feeds non-plottable routes here.
         ...buildCuratedMapGeometry(route, geometryByRouteId.get(route.routeId)),
         legs: [], // No detailed legs for curated routes
         overlays: {},
