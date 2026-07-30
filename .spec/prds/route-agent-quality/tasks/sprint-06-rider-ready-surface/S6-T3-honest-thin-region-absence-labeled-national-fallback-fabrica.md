@@ -1,6 +1,9 @@
 # S6-T3 — Honest thin-region absence + labeled national fallback + fabricated-0mi fix (index.tsx:350) + fellBackToBest exposure + a11y announce (SURF-04)
 
-> Status: ⬜ Pending
+> Status: ✅ Completed
+> Commit: e9ff19d062b365aae8e9f83b1068ee152aadb286
+> Reviewer: product-manager+react-native-ui-reviewer
+> Completed: 2026-07-30T08:21:42Z
 > Proposed By: `react-native-ui-planner`
 
 | Field | Value |
