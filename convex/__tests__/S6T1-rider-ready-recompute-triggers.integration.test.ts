@@ -17,7 +17,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 const PROJECT_ROOT = resolve(__dirname, '..', '..')
 const EVIDENCE_DIR = resolve(PROJECT_ROOT, '.tmp/S6-T1/evidence')
-const ROUTE_ID = 'motorcycleroads:twist-of-tepusquet-loop'
+/** Isolated from PoC so parallel AC-1/AC-2 runs cannot teardown this route mid-test. */
+const ROUTE_ID = 'test:s6t1-trigger'
 
 const TEST_IDENTITY = JSON.stringify({
   subject: 's6t1-recompute-triggers-test',
@@ -76,7 +77,7 @@ describe('AC-4: recompute triggers on every upstream change', () => {
 
     const seed = runConvexFn(
       'curatedGeometryTestSupport:seedS6T1AllSevenInputs',
-      {},
+      { routeId: ROUTE_ID, name: 'S6T1 Trigger Route' },
       { identity: true },
     )
     expect(seed.ok, `seed failed: ${seed.stderr}\n${seed.stdout}`).toBe(true)
@@ -85,14 +86,18 @@ describe('AC-4: recompute triggers on every upstream change', () => {
   }, 180_000)
 
   afterAll(() => {
-    runConvexFn('curatedGeometryTestSupport:teardownS6T1Fixtures', {}, { identity: true })
+    runConvexFn(
+      'curatedGeometryTestSupport:teardownS6T1Fixtures',
+      { routeIds: [ROUTE_ID] },
+      { identity: true },
+    )
   })
 
   it('AC-4: classifier flip to not_a_ride triggers recompute → riderReady false same transaction', () => {
     // Restore all-good first so this AC is independent of other case order.
     const restore = runConvexFn(
       'curatedGeometryTestSupport:seedS6T1AllSevenInputs',
-      {},
+      { routeId: ROUTE_ID, name: 'S6T1 Trigger Route' },
       { identity: true },
     )
     expect(restore.ok).toBe(true)
@@ -180,7 +185,7 @@ describe('AC-4: recompute triggers on every upstream change', () => {
     for (const c of cases) {
       const restore = runConvexFn(
         'curatedGeometryTestSupport:seedS6T1AllSevenInputs',
-        {},
+        { routeId: ROUTE_ID, name: 'S6T1 Trigger Route' },
         { identity: true },
       )
       expect(restore.ok, `restore before ${c.source} failed`).toBe(true)

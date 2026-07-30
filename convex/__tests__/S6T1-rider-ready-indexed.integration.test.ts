@@ -99,7 +99,7 @@ describe('AC-2: stored riderReady served via by_riderReady_and_composite_score',
   }, 180_000)
 
   afterAll(() => {
-    runConvexFn('curatedGeometryTestSupport:teardownS6T1Fixtures', {}, { identity: true })
+    // Leave PoC seeded; shared fixture for AC-1/AC-2 under file-parallelism.
   })
 
   it('AC-2 MUST_OBSERVE: index returns riderReady route without recompute at read', () => {

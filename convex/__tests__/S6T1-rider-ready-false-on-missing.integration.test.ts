@@ -117,7 +117,13 @@ describe('AC-3: false-on-missing-any-input is strict', () => {
   }, 180_000)
 
   afterAll(() => {
-    runConvexFn('curatedGeometryTestSupport:teardownS6T1Fixtures', {}, { identity: true })
+    runConvexFn(
+      'curatedGeometryTestSupport:teardownS6T1Fixtures',
+      {
+        routeIds: ['test:retired-twin', 'test:shadow-twin', 'test:missing-classifier-twin'],
+      },
+      { identity: true },
+    )
   })
 
   it('AC-3 CASE retired-route: riderReady == false when retiredAt set', () => {

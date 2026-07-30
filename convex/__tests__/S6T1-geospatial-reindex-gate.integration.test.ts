@@ -129,7 +129,13 @@ describe('AC-5: geospatial re-index migration gate', () => {
   }, 300_000)
 
   afterAll(() => {
-    runConvexFn('curatedGeometryTestSupport:teardownS6T1Fixtures', {}, { identity: true })
+    runConvexFn(
+      'curatedGeometryTestSupport:teardownS6T1Fixtures',
+      {
+        routeIds: ['test:s6t1-geo-0', 'test:s6t1-geo-1', 'test:s6t1-geo-2'],
+      },
+      { identity: true },
+    )
   })
 
   it('AC-5 MUST_OBSERVE: pointCount === riderReadyCount and gateDeployable === true on parity', () => {

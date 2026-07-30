@@ -107,7 +107,7 @@ describe('AC-1: 7-input riderReady composition', () => {
   }, 180_000)
 
   afterAll(() => {
-    runConvexFn('curatedGeometryTestSupport:teardownS6T1Fixtures', {}, { identity: true })
+    // Do not delete shared PoC — AC-2 may still be reading it under file-parallelism.
   })
 
   it('AC-1 MUST_OBSERVE: riderReady == true when all 7 inputs satisfied', () => {

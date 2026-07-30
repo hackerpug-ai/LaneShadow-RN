@@ -527,4 +527,18 @@ export default defineSchema({
   })
     .index('by_reviewId', ['reviewId'])
     .index('by_recordedAt', ['recordedAt']),
+
+  /**
+   * S6-T1 / risk #22: geospatial re-index migration gate evaluations.
+   * Founder query reads gateDeployable / pointCount / riderReadyCount before SURF deploy.
+   */
+  surf_migration_gates: defineTable({
+    gateId: v.string(),
+    pointCount: v.number(),
+    riderReadyCount: v.number(),
+    gateDeployable: v.boolean(),
+    surfGateDeployed: v.boolean(),
+    evaluatedAt: v.number(),
+    routeIdPrefix: v.optional(v.string()),
+  }).index('by_gateId', ['gateId']),
 })
