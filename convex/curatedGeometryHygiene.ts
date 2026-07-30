@@ -422,6 +422,9 @@ export const fetchDedupePage = internalQuery({
 /**
  * Batch-apply duplicateOf shadow flags. Called by dedupeGroups (internalAction)
  * in batches of ≤50 to stay well under the per-transaction write limit.
+ *
+ * S6-T1 MUST: recompute riderReady after every shadow write in the same mutation
+ * so stored flag reflects duplicateOf != null (false-on-missing for SURF).
  */
 export const applyDedupeShadows = internalMutation({
   args: {
@@ -435,6 +438,10 @@ export const applyDedupeShadows = internalMutation({
   handler: async (ctx, args) => {
     for (const s of args.shadows) {
       await ctx.db.patch(s.id, { duplicateOf: s.canonicalRouteId })
+      // Same-mutation recompute: shadow input must flip stored riderReady false.
+      await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+        id: s.id,
+      })
     }
     return { applied: args.shadows.length }
   },

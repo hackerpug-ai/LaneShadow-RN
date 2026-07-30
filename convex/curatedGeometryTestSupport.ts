@@ -2009,3 +2009,550 @@ export const simulateGeometryDrift = mutation({
     return { routeId, drifted: true }
   },
 })
+
+// ---------------------------------------------------------------------------
+// S6-T1 fixtures: 7-input riderReady composition + retired/shadow twins + gate
+// ---------------------------------------------------------------------------
+
+const S6T1_POC_ROUTE_ID = 'motorcycleroads:twist-of-tepusquet-loop'
+const S6T1_RETIRED_ID = 'test:retired-twin'
+const S6T1_SHADOW_ID = 'test:shadow-twin'
+const S6T1_MISSING_CLASSIFIER_ID = 'test:missing-classifier-twin'
+const S6T1_EMPTY_NAME_ID = 'test:empty-name-twin'
+const S6T1_INVALID_SCORE_ID = 'test:invalid-score-twin'
+const S6T1_ZERO_LENGTH_ID = 'test:zero-length-twin'
+const S6T1_MISSING_GEOM_ID = 'test:missing-geom-twin'
+const S6T1_GEO_PREFIX = 'test:s6t1-geo-'
+
+async function upsertGatePassingGeometry(
+  ctx: any,
+  routeId: string,
+  lengthMiles: number,
+  pointCount = 50,
+) {
+  const existingGeom = await ctx.db
+    .query('curated_route_geometry')
+    .withIndex('by_routeId', (q: any) => q.eq('routeId', routeId))
+    .first()
+
+  const geomDoc = {
+    routeId,
+    format: 'polyline' as const,
+    encoding: 'utf-8',
+    precision: 5,
+    value: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+    verification: {
+      routeId,
+      verdict: 'pass' as const,
+      geometryStatus: 'generated' as const,
+      geometry: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+      anchorCount: 2,
+      anchors: [
+        { lat: 34.95, lng: -120.42, formatted: 'Start', distanceFromCentroid: 0 },
+        { lat: 34.96, lng: -120.43, formatted: 'End', distanceFromCentroid: 1 },
+      ],
+      pointCount,
+      degenerate: false,
+      ratio: 1.0,
+      claimedMiles: lengthMiles,
+      routedMiles: lengthMiles,
+    },
+  }
+
+  if (existingGeom) {
+    await ctx.db.replace(existingGeom._id, geomDoc)
+  } else {
+    await ctx.db.insert('curated_route_geometry', geomDoc)
+  }
+}
+
+/**
+ * AC-1 fixture: all 7 riderReady inputs valid.
+ * compositeScore=0.85 (0–1 scale), gate pass, real name, length 41,
+ * classifier ride, not retired, not shadow.
+ *
+ * Optional routeId/name for isolated parallel AC runs (default = PoC route).
+ */
+export const seedS6T1AllSevenInputs = mutation({
+  args: {
+    routeId: v.optional(v.string()),
+    name: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requireIdentity(ctx)
+    const routeId = args.routeId ?? S6T1_POC_ROUTE_ID
+    const name = args.name ?? 'Twist of Tepusquet Loop'
+    const result = await insertTestRoute(ctx, {
+      routeId,
+      name,
+      lengthMiles: 41,
+      geometryStatus: 'generated',
+      scores: { compositeScore: 0.85 },
+      rideWorthiness: {
+        verdict: 'ride',
+        reason: 'S6-T1 all-seven-inputs fixture',
+        model: 'test',
+        classifiedAt: Date.now(),
+      },
+      retiredAt: null,
+      summary: routeId.includes('tepusquet') ? TEPUSQUET_SUMMARY : 'S6-T1 all-seven-inputs fixture',
+    })
+
+    // Explicitly clear retirement/shadow/quarantine so recompute sees nulls
+    await ctx.db.patch(result.id, {
+      retiredAt: null,
+      duplicateOf: undefined,
+      quarantine: undefined,
+      name,
+      compositeScore: 0.85,
+      lengthMiles: 41,
+      geometryStatus: 'generated',
+      rideWorthiness: {
+        verdict: 'ride',
+        reason: 'S6-T1 all-seven-inputs fixture',
+        model: 'test',
+        evidenceComplete: true,
+        classifiedAt: Date.now(),
+      },
+    })
+
+    await upsertGatePassingGeometry(ctx, routeId, 41, 50)
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: result.id,
+    })
+
+    const refreshed = (await ctx.db.get(result.id)) as Doc<'curated_routes'> | null
+    return {
+      routeId,
+      id: result.id,
+      riderReady: refreshed?.riderReady ?? false,
+      name: refreshed?.name,
+      compositeScore: refreshed?.compositeScore,
+      lengthMiles: refreshed?.lengthMiles,
+      rideWorthiness: refreshed?.rideWorthiness ?? null,
+      retiredAt: refreshed?.retiredAt ?? null,
+      duplicateOf: refreshed?.duplicateOf ?? null,
+    }
+  },
+})
+
+/** AC-3: identical to all-7 but retiredAt set (single discriminator). */
+export const seedRetiredTwinRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const result = await insertTestRoute(ctx, {
+      routeId: S6T1_RETIRED_ID,
+      name: 'Retired Twin Loop',
+      lengthMiles: 41,
+      geometryStatus: 'generated',
+      scores: { compositeScore: 0.85 },
+      rideWorthiness: {
+        verdict: 'ride',
+        reason: 'S6-T1 retired twin',
+        model: 'test',
+        classifiedAt: Date.now(),
+      },
+      retiredAt: Date.now(),
+    })
+
+    await upsertGatePassingGeometry(ctx, S6T1_RETIRED_ID, 41, 50)
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: result.id,
+    })
+    const refreshed = (await ctx.db.get(result.id)) as Doc<'curated_routes'> | null
+    return {
+      routeId: S6T1_RETIRED_ID,
+      riderReady: refreshed?.riderReady ?? false,
+      retiredAt: refreshed?.retiredAt ?? null,
+      name: refreshed?.name,
+      compositeScore: refreshed?.compositeScore,
+    }
+  },
+})
+
+/** AC-3: identical to all-7 but duplicateOf set (shadow twin). */
+export const seedShadowTwinRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const result = await insertTestRoute(ctx, {
+      routeId: S6T1_SHADOW_ID,
+      name: 'Shadow Twin Loop',
+      lengthMiles: 41,
+      geometryStatus: 'generated',
+      scores: { compositeScore: 0.85 },
+      rideWorthiness: {
+        verdict: 'ride',
+        reason: 'S6-T1 shadow twin',
+        model: 'test',
+        classifiedAt: Date.now(),
+      },
+      retiredAt: null,
+    })
+
+    await ctx.db.patch(result.id, {
+      duplicateOf: S6T1_POC_ROUTE_ID,
+      retiredAt: null,
+      quarantine: undefined,
+    })
+    await upsertGatePassingGeometry(ctx, S6T1_SHADOW_ID, 41, 50)
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: result.id,
+    })
+    const refreshed = (await ctx.db.get(result.id)) as Doc<'curated_routes'> | null
+    return {
+      routeId: S6T1_SHADOW_ID,
+      riderReady: refreshed?.riderReady ?? false,
+      duplicateOf: refreshed?.duplicateOf ?? null,
+      name: refreshed?.name,
+      compositeScore: refreshed?.compositeScore,
+    }
+  },
+})
+
+/** AC-3/TC-3: all inputs valid except classifier absent → riderReady false. */
+export const seedMissingClassifierTwinRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const result = await insertTestRoute(ctx, {
+      routeId: S6T1_MISSING_CLASSIFIER_ID,
+      name: 'Missing Classifier Twin',
+      lengthMiles: 41,
+      geometryStatus: 'generated',
+      scores: { compositeScore: 0.85 },
+      clearRideWorthiness: true,
+      retiredAt: null,
+    })
+
+    await ctx.db.patch(result.id, {
+      rideWorthiness: undefined,
+      retiredAt: null,
+      duplicateOf: undefined,
+      quarantine: undefined,
+    })
+    await upsertGatePassingGeometry(ctx, S6T1_MISSING_CLASSIFIER_ID, 41, 50)
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: result.id,
+    })
+    const refreshed = (await ctx.db.get(result.id)) as Doc<'curated_routes'> | null
+    return {
+      routeId: S6T1_MISSING_CLASSIFIER_ID,
+      riderReady: refreshed?.riderReady ?? false,
+      rideWorthiness: refreshed?.rideWorthiness ?? null,
+    }
+  },
+})
+
+/** AC-3/TC-3: all inputs valid except empty name → riderReady false. */
+export const seedEmptyNameTwinRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const result = await insertTestRoute(ctx, {
+      routeId: S6T1_EMPTY_NAME_ID,
+      name: 'Empty Name Twin Placeholder',
+      lengthMiles: 41,
+      geometryStatus: 'generated',
+      scores: { compositeScore: 0.85 },
+      rideWorthiness: {
+        verdict: 'ride',
+        reason: 'S6-T1 empty name twin',
+        model: 'test',
+        classifiedAt: Date.now(),
+      },
+      retiredAt: null,
+    })
+
+    await ctx.db.patch(result.id, {
+      name: '   ',
+      name_lower: '',
+      retiredAt: null,
+      duplicateOf: undefined,
+      quarantine: undefined,
+    })
+    await upsertGatePassingGeometry(ctx, S6T1_EMPTY_NAME_ID, 41, 50)
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: result.id,
+    })
+    const refreshed = (await ctx.db.get(result.id)) as Doc<'curated_routes'> | null
+    return {
+      routeId: S6T1_EMPTY_NAME_ID,
+      riderReady: refreshed?.riderReady ?? false,
+      name: refreshed?.name ?? null,
+    }
+  },
+})
+
+/**
+ * AC-3/TC-3: all inputs valid except compositeScore invalid on 0–1 scale
+ * (below 0.5 threshold) → riderReady false.
+ */
+export const seedInvalidCompositeScoreTwinRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const result = await insertTestRoute(ctx, {
+      routeId: S6T1_INVALID_SCORE_ID,
+      name: 'Invalid Score Twin',
+      lengthMiles: 41,
+      geometryStatus: 'generated',
+      scores: { compositeScore: 0.85 },
+      rideWorthiness: {
+        verdict: 'ride',
+        reason: 'S6-T1 invalid score twin',
+        model: 'test',
+        classifiedAt: Date.now(),
+      },
+      retiredAt: null,
+    })
+
+    // 0.1 is on 0–1 scale but fails the ≥0.5 score gate (invalid for riderReady)
+    await ctx.db.patch(result.id, {
+      compositeScore: 0.1,
+      retiredAt: null,
+      duplicateOf: undefined,
+      quarantine: undefined,
+    })
+    await upsertGatePassingGeometry(ctx, S6T1_INVALID_SCORE_ID, 41, 50)
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: result.id,
+    })
+    const refreshed = (await ctx.db.get(result.id)) as Doc<'curated_routes'> | null
+    return {
+      routeId: S6T1_INVALID_SCORE_ID,
+      riderReady: refreshed?.riderReady ?? false,
+      compositeScore: refreshed?.compositeScore ?? null,
+    }
+  },
+})
+
+/** AC-3/TC-3: all inputs valid except lengthMiles <= 0 → riderReady false. */
+export const seedZeroLengthTwinRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const result = await insertTestRoute(ctx, {
+      routeId: S6T1_ZERO_LENGTH_ID,
+      name: 'Zero Length Twin',
+      lengthMiles: 41,
+      geometryStatus: 'generated',
+      scores: { compositeScore: 0.85 },
+      rideWorthiness: {
+        verdict: 'ride',
+        reason: 'S6-T1 zero length twin',
+        model: 'test',
+        classifiedAt: Date.now(),
+      },
+      retiredAt: null,
+    })
+
+    // Clear quarantine so lengthMiles alone is the discriminator (not quarantine).
+    await ctx.db.patch(result.id, {
+      lengthMiles: 0,
+      retiredAt: null,
+      duplicateOf: undefined,
+      quarantine: undefined,
+    })
+    await upsertGatePassingGeometry(ctx, S6T1_ZERO_LENGTH_ID, 41, 50)
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: result.id,
+    })
+    const refreshed = (await ctx.db.get(result.id)) as Doc<'curated_routes'> | null
+    return {
+      routeId: S6T1_ZERO_LENGTH_ID,
+      riderReady: refreshed?.riderReady ?? false,
+      lengthMiles: refreshed?.lengthMiles ?? null,
+      quarantine: refreshed?.quarantine ?? null,
+    }
+  },
+})
+
+/**
+ * AC-3/TC-3: all inputs valid except missing/failing geometry verification
+ * → riderReady false.
+ */
+export const seedMissingGeometryTwinRow = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const result = await insertTestRoute(ctx, {
+      routeId: S6T1_MISSING_GEOM_ID,
+      name: 'Missing Geometry Twin',
+      lengthMiles: 41,
+      geometryStatus: 'generated',
+      scores: { compositeScore: 0.85 },
+      rideWorthiness: {
+        verdict: 'ride',
+        reason: 'S6-T1 missing geom twin',
+        model: 'test',
+        classifiedAt: Date.now(),
+      },
+      retiredAt: null,
+    })
+
+    await ctx.db.patch(result.id, {
+      retiredAt: null,
+      duplicateOf: undefined,
+      quarantine: undefined,
+    })
+    // Intentionally do NOT upsert gate-passing geometry — missing verification
+    // is the single discriminator.
+    const existingGeom = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q: any) => q.eq('routeId', S6T1_MISSING_GEOM_ID))
+      .first()
+    if (existingGeom) {
+      await ctx.db.delete(existingGeom._id)
+    }
+
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: result.id,
+    })
+    const refreshed = (await ctx.db.get(result.id)) as Doc<'curated_routes'> | null
+    const geomAfter = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q: any) => q.eq('routeId', S6T1_MISSING_GEOM_ID))
+      .first()
+    return {
+      routeId: S6T1_MISSING_GEOM_ID,
+      riderReady: refreshed?.riderReady ?? false,
+      hasGeometry: geomAfter != null,
+      geometryVerification: geomAfter?.verification ?? null,
+    }
+  },
+})
+
+/** AC-5: N rider-ready routes with geometry for re-index parity gate. */
+export const seedS6T1GeospatialReindexFixtures = mutation({
+  args: { count: v.optional(v.number()) },
+  handler: async (ctx, { count }) => {
+    await requireIdentity(ctx)
+    const n = count ?? 3
+    const seeded = []
+    for (let i = 0; i < n; i++) {
+      const routeId = `${S6T1_GEO_PREFIX}${i}`
+      const result = await insertTestRoute(ctx, {
+        routeId,
+        name: `S6T1 Geo Fixture ${i}`,
+        lengthMiles: 41,
+        geometryStatus: 'generated',
+        scores: { compositeScore: 0.85 - i * 0.01 },
+        rideWorthiness: {
+          verdict: 'ride',
+          reason: 'S6-T1 geo fixture',
+          model: 'test',
+          classifiedAt: Date.now(),
+        },
+        retiredAt: null,
+        centroidLat: 34.95 + i * 0.02,
+        centroidLng: -120.42 + i * 0.02,
+      })
+      await ctx.db.patch(result.id, {
+        retiredAt: null,
+        duplicateOf: undefined,
+        quarantine: undefined,
+      })
+      await upsertGatePassingGeometry(ctx, routeId, 41, 50)
+      await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+        id: result.id,
+      })
+      const refreshed = (await ctx.db.get(result.id)) as Doc<'curated_routes'> | null
+      seeded.push({
+        routeId,
+        riderReady: refreshed?.riderReady ?? false,
+      })
+    }
+    return { count: n, seeded, routeIdPrefix: S6T1_GEO_PREFIX }
+  },
+})
+
+/**
+ * AC-5 negative control: delete one geometry row while leaving riderReady=true
+ * so pointCount !== riderReadyCount.
+ */
+export const forceS6T1GeospatialDivergence = mutation({
+  args: { routeIdPrefix: v.string() },
+  handler: async (ctx, { routeIdPrefix }) => {
+    await requireIdentity(ctx)
+    const page = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q: any) =>
+        q.gte('routeId', routeIdPrefix).lt('routeId', `${routeIdPrefix}\uffff`),
+      )
+      .take(100)
+    const scoped = page.filter((r) => r.riderReady === true)
+    if (scoped.length === 0) {
+      return { diverged: false, reason: 'no riderReady rows in prefix' }
+    }
+    const victim = scoped[0]
+    const geom = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q: any) => q.eq('routeId', victim.routeId))
+      .first()
+    if (geom) {
+      await ctx.db.delete(geom._id)
+    }
+    // Intentionally do NOT recompute — leave riderReady=true with missing geometry point
+    return {
+      diverged: true,
+      routeId: victim.routeId,
+      riderReady: victim.riderReady ?? false,
+    }
+  },
+})
+
+/** Teardown S6-T1 fixture routeIds. Optional routeIds overrides the default set. */
+export const teardownS6T1Fixtures = mutation({
+  args: {
+    routeIds: v.optional(v.array(v.string())),
+    /** When true, also delete the shared PoC route (default false — avoids parallel races). */
+    includePoC: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    await requireIdentity(ctx)
+    const defaultIds = [
+      S6T1_RETIRED_ID,
+      S6T1_SHADOW_ID,
+      S6T1_MISSING_CLASSIFIER_ID,
+      S6T1_EMPTY_NAME_ID,
+      S6T1_INVALID_SCORE_ID,
+      S6T1_ZERO_LENGTH_ID,
+      S6T1_MISSING_GEOM_ID,
+      'test:s6t1-trigger',
+      ...Array.from({ length: 10 }, (_, i) => `${S6T1_GEO_PREFIX}${i}`),
+    ]
+    const ids = [...(args.routeIds ?? defaultIds)]
+    if (args.includePoC) ids.push(S6T1_POC_ROUTE_ID)
+
+    let deleted = 0
+    for (const routeId of ids) {
+      const doc = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q: any) => q.eq('routeId', routeId))
+        .first()
+      if (!doc) continue
+      await geospatial.remove(ctx, doc._id)
+      const geomRow = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q: any) => q.eq('routeId', routeId))
+        .first()
+      if (geomRow) await ctx.db.delete(geomRow._id)
+      await ctx.db.delete(doc._id)
+      deleted++
+    }
+
+    // Clear gate rows for S6-T1 prefixes
+    const gateIds = ['geospatial_reindex_surf', `geospatial_reindex_surf:${S6T1_GEO_PREFIX}`]
+    for (const gateId of gateIds) {
+      const gate = await ctx.db
+        .query('surf_migration_gates')
+        .withIndex('by_gateId', (q: any) => q.eq('gateId', gateId))
+        .first()
+      if (gate) await ctx.db.delete(gate._id)
+    }
+
+    return { status: 'deleted', count: deleted }
+  },
+})

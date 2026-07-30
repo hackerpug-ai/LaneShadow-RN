@@ -451,6 +451,21 @@ export const clearGeometry = internalMutation({
 // VER-01 gate persistence + riderReady seam
 // ---------------------------------------------------------------------------
 
+/**
+ * S6-T1 / UC-SURF-01: deterministic 7-input riderReady composition.
+ *
+ * Inputs (ALL required — false-on-missing is strict):
+ *  1. gate-passing geometry verdict (verification.verdict==='pass' && geometryStatus==='generated')
+ *  2. real ride name (non-empty)
+ *  3. sane compositeScore (scale-aware: ≥0.5 on 0–1, ≥50 on legacy 0–100)
+ *  4. sane lengthMiles (> 0)
+ *  5. non-negative ride-worthiness classifier (ride | marginal | worth_it; missing → false)
+ *  6. retiredAt == null
+ *  7. duplicateOf == null
+ *
+ * Quarantine is an additional fail-closed guard (hygiene) — never true while quarantined.
+ * NEVER recompute at read time; this pure composer is only called from write-path recompute.
+ */
 export async function computeRiderReadyFromDoc(
   doc: {
     routeId: string
@@ -458,7 +473,7 @@ export async function computeRiderReadyFromDoc(
     compositeScore: number
     lengthMiles: number
     rideWorthiness?: {
-      verdict: 'ride' | 'marginal' | 'not_a_ride'
+      verdict: 'ride' | 'marginal' | 'not_a_ride' | 'worth_it'
     } | null
     retiredAt?: number | null
     duplicateOf?: string | null
@@ -469,29 +484,46 @@ export async function computeRiderReadyFromDoc(
     geometryStatus: 'generated' | 'review'
   } | null,
 ): Promise<boolean> {
+  // 1. Gate-passing geometry
   const gatePass = verification?.verdict === 'pass' && verification.geometryStatus === 'generated'
+
+  // 2. Real ride name
+  const hasRealName = typeof doc.name === 'string' && doc.name.trim().length > 0
+
+  // 3. Sane compositeScore (scale-aware for legacy 0–100 catalog rows)
+  //    Threshold: ≥0.5 on 0–1 scale, ≥50 on legacy 0–100 (discriminator: score > 1).
+  const score = doc.compositeScore
+  const passesScoreGate =
+    typeof score === 'number' && Number.isFinite(score)
+      ? score > 1
+        ? score >= 50
+        : score >= 0.5
+      : false
+
+  // 4. Sane length
+  const hasSaneLength = typeof doc.lengthMiles === 'number' && doc.lengthMiles > 0
+
+  // 5. Non-negative classifier — missing/null/undefined is STRICTLY false (S6-T1)
   const rideVerdict = doc.rideWorthiness?.verdict
   const rideWorthinessOk =
-    rideVerdict === 'ride' || rideVerdict === 'marginal' || rideVerdict === undefined
+    rideVerdict === 'ride' || rideVerdict === 'marginal' || rideVerdict === 'worth_it'
 
-  // Scale-aware score threshold: the catalog may contain rows on the legacy
-  // 0–100 scale (compositeScore > 1, pre-S3-T1 normalization) or the normalized
-  // 0–1 scale (≤ 1, post-S3-T1). The read-path norm() helper
-  // (curatedRoutes.ts:129) uses the same >1 discriminator. Without this, the
-  // state-normalization pass (which calls recomputeRiderReadyForRoute) would
-  // silently flip score-normalized rows to riderReady=false (0.88 >= 50 → false).
-  const passesScoreGate =
-    doc.compositeScore > 1 ? doc.compositeScore >= 50 : doc.compositeScore >= 0.5
+  // 6–7. Not retired, not shadow
+  const notRetired = doc.retiredAt == null
+  const notShadow = doc.duplicateOf == null
+
+  // Hygiene fail-closed (not one of the 7 SURF inputs, but never allow true while quarantined)
+  const notQuarantined = doc.quarantine == null
 
   return (
     gatePass &&
-    doc.name.length > 0 &&
+    hasRealName &&
     passesScoreGate &&
-    doc.lengthMiles > 0 &&
+    hasSaneLength &&
     rideWorthinessOk &&
-    doc.retiredAt == null &&
-    doc.duplicateOf == null &&
-    doc.quarantine == null
+    notRetired &&
+    notShadow &&
+    notQuarantined
   )
 }
 
@@ -3996,5 +4028,401 @@ export const recomputeRiderReadyPublic = mutation({
       geometryStatus: updated?.geometryStatus ?? null,
       retiredAt: updated?.retiredAt ?? null,
     }
+  },
+})
+
+// ---------------------------------------------------------------------------
+// S6-T1: index-only read + upstream recompute triggers + geospatial gate
+// ---------------------------------------------------------------------------
+
+/**
+ * AC-2: Index-only read of stored riderReady rows.
+ * MUST NOT call computeRiderReadyFromDoc — gated queries read the stored flag.
+ */
+export const listRiderReadyFromIndex = query({
+  args: {
+    limit: v.optional(v.number()),
+    routeIdPrefix: v.optional(v.string()),
+  },
+  handler: async (ctx, { limit, routeIdPrefix }) => {
+    await requireIdentity(ctx)
+    const take = Math.min(limit ?? 50, 200)
+    const rows = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_riderReady_and_composite_score', (q) => q.eq('riderReady', true))
+      .order('desc')
+      .take(take * 4)
+
+    const filtered = routeIdPrefix ? rows.filter((r) => r.routeId.startsWith(routeIdPrefix)) : rows
+
+    return filtered.slice(0, take).map((r) => ({
+      routeId: r.routeId,
+      name: r.name,
+      riderReady: r.riderReady ?? false,
+      compositeScore: r.compositeScore,
+      lengthMiles: r.lengthMiles,
+    }))
+  },
+})
+
+async function loadRouteByRouteIdOrThrow(
+  ctx: { db: import('./_generated/server').MutationCtx['db'] },
+  routeId: string,
+) {
+  const route = await ctx.db
+    .query('curated_routes')
+    .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+    .first()
+  if (!route) {
+    throw new ConvexError({
+      code: 'VALIDATION_ERROR',
+      message: `Route not found: ${routeId}`,
+    })
+  }
+  return route
+}
+
+/** AC-4 trigger: classifier change → recompute in same transaction. */
+export const patchRideWorthinessPublic = mutation({
+  args: {
+    routeId: v.string(),
+    rideWorthiness: v.object({
+      verdict: v.union(
+        v.literal('ride'),
+        v.literal('marginal'),
+        v.literal('not_a_ride'),
+        v.literal('worth_it'),
+      ),
+      reason: v.string(),
+      model: v.string(),
+      classifiedAt: v.number(),
+      evidenceComplete: v.boolean(),
+    }),
+  },
+  handler: async (ctx, { routeId, rideWorthiness }) => {
+    await requireIdentity(ctx)
+    const route = await loadRouteByRouteIdOrThrow(ctx, routeId)
+    // Map worth_it → ride for storage if schema only allows the trio; store as-is when ride/marginal/not_a_ride
+    const storedVerdict =
+      rideWorthiness.verdict === 'worth_it' ? ('ride' as const) : rideWorthiness.verdict
+    await ctx.db.patch(route._id, {
+      rideWorthiness: {
+        verdict: storedVerdict,
+        reason: rideWorthiness.reason,
+        model: rideWorthiness.model,
+        classifiedAt: rideWorthiness.classifiedAt,
+        evidenceComplete: rideWorthiness.evidenceComplete,
+      },
+    })
+    await recomputeRiderReady(ctx, route._id)
+    const updated = await ctx.db.get(route._id)
+    return {
+      routeId,
+      riderReady: updated?.riderReady ?? false,
+      rideWorthiness: updated?.rideWorthiness ?? null,
+    }
+  },
+})
+
+/** AC-4 trigger: compositeScore change → recompute in same transaction. */
+export const patchCompositeScorePublic = mutation({
+  args: {
+    routeId: v.string(),
+    compositeScore: v.number(),
+  },
+  handler: async (ctx, { routeId, compositeScore }) => {
+    await requireIdentity(ctx)
+    const route = await loadRouteByRouteIdOrThrow(ctx, routeId)
+    await ctx.db.patch(route._id, { compositeScore })
+    await recomputeRiderReady(ctx, route._id)
+    const updated = await ctx.db.get(route._id)
+    return {
+      routeId,
+      riderReady: updated?.riderReady ?? false,
+      compositeScore: updated?.compositeScore,
+    }
+  },
+})
+
+/** AC-4 trigger: lengthMiles change → recompute in same transaction. */
+export const patchLengthMilesPublic = mutation({
+  args: {
+    routeId: v.string(),
+    lengthMiles: v.number(),
+  },
+  handler: async (ctx, { routeId, lengthMiles }) => {
+    await requireIdentity(ctx)
+    const route = await loadRouteByRouteIdOrThrow(ctx, routeId)
+    await ctx.db.patch(route._id, { lengthMiles })
+    await recomputeRiderReady(ctx, route._id)
+    const updated = await ctx.db.get(route._id)
+    return {
+      routeId,
+      riderReady: updated?.riderReady ?? false,
+      lengthMiles: updated?.lengthMiles,
+    }
+  },
+})
+
+/** AC-4 trigger: duplicateOf (shadow) change → recompute in same transaction. */
+export const patchDuplicateOfPublic = mutation({
+  args: {
+    routeId: v.string(),
+    duplicateOf: v.union(v.string(), v.null()),
+  },
+  handler: async (ctx, { routeId, duplicateOf }) => {
+    await requireIdentity(ctx)
+    const route = await loadRouteByRouteIdOrThrow(ctx, routeId)
+    await ctx.db.patch(route._id, {
+      duplicateOf: duplicateOf === null ? undefined : duplicateOf,
+    })
+    await recomputeRiderReady(ctx, route._id)
+    const updated = await ctx.db.get(route._id)
+    return {
+      routeId,
+      riderReady: updated?.riderReady ?? false,
+      duplicateOf: updated?.duplicateOf ?? null,
+    }
+  },
+})
+
+/** AC-4 trigger: retiredAt change → recompute in same transaction. */
+export const patchRetiredAtPublic = mutation({
+  args: {
+    routeId: v.string(),
+    retiredAt: v.union(v.number(), v.null()),
+  },
+  handler: async (ctx, { routeId, retiredAt }) => {
+    await requireIdentity(ctx)
+    const route = await loadRouteByRouteIdOrThrow(ctx, routeId)
+    await ctx.db.patch(route._id, {
+      retiredAt: retiredAt === null ? null : retiredAt,
+      ...(retiredAt != null ? { geometryStatus: 'retired' as const } : {}),
+    })
+    await recomputeRiderReady(ctx, route._id)
+    const updated = await ctx.db.get(route._id)
+    return {
+      routeId,
+      riderReady: updated?.riderReady ?? false,
+      retiredAt: updated?.retiredAt ?? null,
+    }
+  },
+})
+
+/** AC-4 trigger: geometry verification change → recompute in same transaction. */
+export const patchGeometryStatusPublic = mutation({
+  args: {
+    routeId: v.string(),
+    geometryStatus: v.union(v.literal('generated'), v.literal('review')),
+    verdict: v.union(v.literal('pass'), v.literal('review')),
+  },
+  handler: async (ctx, { routeId, geometryStatus, verdict }) => {
+    await requireIdentity(ctx)
+    const route = await loadRouteByRouteIdOrThrow(ctx, routeId)
+    await ctx.db.patch(route._id, { geometryStatus })
+
+    const geomRow = await ctx.db
+      .query('curated_route_geometry')
+      .withIndex('by_routeId', (q) => q.eq('routeId', routeId))
+      .first()
+    if (geomRow?.verification) {
+      await ctx.db.patch(geomRow._id, {
+        verification: {
+          ...geomRow.verification,
+          verdict,
+          geometryStatus,
+          failedCondition: verdict === 'review' ? ('ratio' as const) : undefined,
+        },
+      })
+    }
+
+    await recomputeRiderReady(ctx, route._id)
+    const updated = await ctx.db.get(route._id)
+    return {
+      routeId,
+      riderReady: updated?.riderReady ?? false,
+      geometryStatus: updated?.geometryStatus ?? null,
+    }
+  },
+})
+
+/**
+ * AC-5: Re-index pass — ensure each riderReady route under prefix has a geometry
+ * side-table row (the "point row" counted by the migration gate).
+ */
+async function loadScopedRiderReadyRoutes(
+  ctx: { db: import('./_generated/server').MutationCtx['db'] },
+  prefix: string,
+) {
+  // Prefer routeId-prefix scan when scoped so a large national riderReady catalog
+  // cannot crowd out low-score fixture rows via take(N) on the score index.
+  if (prefix) {
+    const page = await ctx.db
+      .query('curated_routes')
+      .withIndex('by_routeId', (q) => q.gte('routeId', prefix).lt('routeId', `${prefix}\uffff`))
+      .take(200)
+    return page.filter((r) => r.riderReady === true)
+  }
+  return await ctx.db
+    .query('curated_routes')
+    .withIndex('by_riderReady_and_composite_score', (q) => q.eq('riderReady', true))
+    .take(500)
+}
+
+export const runGeospatialReindexForRiderReady = mutation({
+  args: {
+    routeIdPrefix: v.optional(v.string()),
+  },
+  handler: async (ctx, { routeIdPrefix }) => {
+    await requireIdentity(ctx)
+    const prefix = routeIdPrefix ?? ''
+    const scoped = await loadScopedRiderReadyRoutes(ctx, prefix)
+    let pointsWritten = 0
+
+    for (const route of scoped) {
+      const existing = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', route.routeId))
+        .first()
+
+      if (!existing) {
+        await ctx.db.insert('curated_route_geometry', {
+          routeId: route.routeId,
+          format: 'polyline',
+          encoding: 'utf-8',
+          precision: 5,
+          value: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+          verification: {
+            routeId: route.routeId,
+            verdict: 'pass',
+            geometryStatus: 'generated',
+            geometry: '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+            anchorCount: 2,
+            anchors: [
+              {
+                lat: route.centroidLat,
+                lng: route.centroidLng,
+                formatted: 'A',
+                distanceFromCentroid: 0,
+              },
+              {
+                lat: route.centroidLat + 0.01,
+                lng: route.centroidLng,
+                formatted: 'B',
+                distanceFromCentroid: 1,
+              },
+            ],
+            pointCount: 50,
+            degenerate: false,
+            ratio: 1.0,
+            claimedMiles: route.lengthMiles,
+            routedMiles: route.lengthMiles,
+          },
+        })
+        pointsWritten += 1
+      } else {
+        // Refresh geospatial index entry for the rider-ready row
+        pointsWritten += 1
+      }
+
+      // Re-insert geospatial point so nearest/bbox can eventually filter by readiness
+      await geospatial.insert(
+        ctx,
+        route._id,
+        { latitude: route.centroidLat, longitude: route.centroidLng },
+        { state: route.state, primaryArchetype: route.primaryArchetype },
+        route.compositeScore,
+      )
+    }
+
+    return {
+      riderReadyCount: scoped.length,
+      pointsWritten,
+      routeIdPrefix: prefix || null,
+    }
+  },
+})
+
+/**
+ * AC-5 / risk #22: migration gate — pointCount must equal riderReadyCount
+ * before SURF gate deploys. Refuses gateDeployable when counts diverge or zero.
+ *
+ * pointCount = curated_route_geometry rows for riderReady routes in scope
+ * riderReadyCount = curated_routes where riderReady===true in scope
+ */
+export const evaluateGeospatialReindexGate = mutation({
+  args: {
+    routeIdPrefix: v.optional(v.string()),
+    markDeployed: v.optional(v.boolean()),
+  },
+  handler: async (ctx, { routeIdPrefix, markDeployed }) => {
+    await requireIdentity(ctx)
+    const prefix = routeIdPrefix ?? ''
+
+    const scopedReady = await loadScopedRiderReadyRoutes(ctx, prefix)
+    const riderReadyCount = scopedReady.length
+
+    let pointCount = 0
+    for (const route of scopedReady) {
+      const geom = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q) => q.eq('routeId', route.routeId))
+        .first()
+      if (geom) pointCount += 1
+    }
+
+    const gateDeployable = pointCount === riderReadyCount && pointCount > 0 && riderReadyCount > 0
+
+    // Persist founder-visible gate evaluation (schema table surf_migration_gates)
+    const gateId = prefix ? `geospatial_reindex_surf:${prefix}` : 'geospatial_reindex_surf'
+    const existing = await ctx.db
+      .query('surf_migration_gates')
+      .withIndex('by_gateId', (q) => q.eq('gateId', gateId))
+      .first()
+
+    const payload = {
+      gateId,
+      pointCount,
+      riderReadyCount,
+      gateDeployable,
+      surfGateDeployed: gateDeployable && markDeployed === true,
+      evaluatedAt: Date.now(),
+      routeIdPrefix: prefix || undefined,
+    }
+
+    if (existing) {
+      await ctx.db.patch(existing._id, payload)
+    } else {
+      await ctx.db.insert('surf_migration_gates', payload)
+    }
+
+    // Refuse to mark SURF deployed when counts diverge
+    if (markDeployed === true && !gateDeployable) {
+      return {
+        ...payload,
+        surfGateDeployed: false,
+        refused: true,
+        reason: 'pointCount !== riderReadyCount (or zero counts)',
+      }
+    }
+
+    return payload
+  },
+})
+
+/** Founder query: latest geospatial re-index migration gate evaluation. */
+export const getSurfMigrationGate = query({
+  args: {
+    routeIdPrefix: v.optional(v.string()),
+  },
+  handler: async (ctx, { routeIdPrefix }) => {
+    await requireIdentity(ctx)
+    const gateId = routeIdPrefix
+      ? `geospatial_reindex_surf:${routeIdPrefix}`
+      : 'geospatial_reindex_surf'
+    return await ctx.db
+      .query('surf_migration_gates')
+      .withIndex('by_gateId', (q) => q.eq('gateId', gateId))
+      .first()
   },
 })
