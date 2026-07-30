@@ -19,7 +19,7 @@ source_kind: git-head
 **Sequence:** 6
 **Timeline:** Phase 3
 **Status:** In Progress
-> Progress: 5/8 tasks completed · updated 2026-07-30T08:21:42Z
+> Progress: 6/8 tasks completed · updated 2026-07-30T08:49:45Z
 **Proposed by:** react-native-ui-planner (lane) + convex-planner (gated queries) + frontend-designer (caption + absence states) + product-manager (gate)
 
 ## Overview

@@ -1,6 +1,9 @@
 # S6-T6 — Retarget curated-route-detail.yaml provenance flow off the dead AC-1 testID to deep-link/map-pin; thin-region + saved-reachability Maestro flows
 
-> Status: ⬜ Pending
+> Status: ✅ Completed
+> Commit: d1be0a3f19a2e0247ba0a8b12c4d6b3663c59784
+> Reviewer: product-manager+react-native-ui-reviewer
+> Completed: 2026-07-30T08:49:45Z
 > Proposed By: `react-native-ui-planner`
 
 | Field | Value |
