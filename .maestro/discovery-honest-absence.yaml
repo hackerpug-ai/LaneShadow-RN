@@ -155,18 +155,22 @@ tags:
     id: "discovery-empty-honest"
 - assertVisible: "no routes near you yet"
 
-# Zero populated curated pills (route-backed chips).
+# MUST_NOT_OBSERVE: fabricated nearest-distance "0mi" (hard oracles — not optional).
+# Covers bare "0mi" and chip/caption forms with a middle-dot separator.
+- assertNotVisible: "0mi"
+- assertNotVisible: " · 0mi"
+- assertNotVisible: "· 0mi"
+
+# Zero populated curated pills (route-backed chips). Hard fail if any pill mounts.
 - assertNotVisible:
     id: "discovery-suggestion-pill-.*"
-    optional: true
 
 # Legacy string retired by S6-T3 must not reappear.
 - assertNotVisible: "No nearby routes"
 
-# Thin-region absence is NOT an error state.
+# Thin-region absence is NOT an error state (hard negative oracle).
 - assertNotVisible:
     id: "chat-error-message"
-    optional: true
 
 # Screenshot artifact (AC-2 / MUST_OBSERVE).
 - takeScreenshot: 01-thin-region-honest-absence-caption

@@ -18,27 +18,22 @@
 #     unsave out-of-band if the Convex bookmark already exists)
 #
 # MID-FLOW QUARANTINE (public_api — required between save and reopen):
-#   After screenshot `mid-flow-before-quarantine-flip`, the harness MUST flip
-#   riderReady → false for the saved route. Preferred operator commands on
-#   live Convex dev (pick one that matches the seeded routeId):
+#   After screenshot `mid-flow-before-quarantine-flip`, the flow itself flips
+#   riderReady → false for routeId `cherohala-skyway` via Maestro runScript:
 #
-#   # A) S6-T5 progression fixture (if seedS6T5StatusProgression was used):
-#   npx convex run curatedGeometryTestSupport:advanceS6T5ProgressionQuarantine '{}' \
-#     --identity '{"subject":"<operator>","issuer":"https://laneshadow.test"}'
+#     .maestro/scripts/mid-flow-quarantine-route.js
+#       → bash mid-flow-quarantine-route.sh
+#         → npx convex run curatedGeometryTestSupport:quarantineRouteByRouteIdPublic
+#              '{"routeId":"cherohala-skyway","reason":"length_outlier"}'
+#              --identity '{"subject":"s6t6-maestro-saved-reachability",
+#                           "issuer":"https://laneshadow.test"}'
 #
-#   # B) Cherohala / Wasatch (production slug) — operator patches quarantine
-#   #    then recomputes riderReady, e.g. via Convex dashboard data editor:
-#   #      quarantine: { reason: "length_outlier", flaggedAt: <now> }
-#   #    then:
-#   npx convex run curatedGeometryTestSupport:recomputeRiderReadyForRoutePublic \
-#     '{"routeId":"cherohala-skyway"}' \
-#     --identity '{"subject":"<operator>","issuer":"https://laneshadow.test"}'
+#   routeId is ALIGNED: deep-link slug, mutation arg, and evidence filename all
+#   use `cherohala-skyway`. Fail-closed: runScript throws if riderReady is not
+#   false (no wait-only / operator-pause-only path).
 #
-#   Live harness recipe (split around the flip):
-#     1) Run this flow under continuous observation OR pause after
-#        mid-flow-before-quarantine-flip
-#     2) Apply public_api quarantine + recompute (riderReady must be false)
-#     3) Resume reopen section (Saved → detail)
+#   Manual operator equivalent:
+#     ROUTE_ID=cherohala-skyway bash .maestro/scripts/mid-flow-quarantine-route.sh
 #
 #   A run that never flips riderReady is DEGENERATE_ONLY (AC-3 negative control).
 #
@@ -196,12 +191,16 @@ tags:
 
 - takeScreenshot: mid-flow-before-quarantine-flip
 
-# ── MID-FLOW OPERATOR HOOK (public_api) ─────────────────────────────────────
-# Harness MUST quarantine cherohala-skyway (or the seeded routeId) here so
-# riderReady becomes false before the Saved reopen. See file header for the
-# exact npx convex run commands. Wait window allows continuous/harness inject.
-- waitForAnimationToEnd:
-    timeout: 5000
+# ── MID-FLOW public_api quarantine flip (FAIL-CLOSED) ───────────────────────
+# Real state change on Convex: quarantine cherohala-skyway → riderReady false.
+# runScript throws if exit≠0 or riderReady is not false (no wait-only path).
+- runScript:
+    file: scripts/mid-flow-quarantine-route.js
+    env:
+      ROUTE_ID: cherohala-skyway
+# Fail-closed harness oracles: only true after public_api returns riderReady:false.
+- assertTrue: ${output.quarantineConfirmed}
+- assertTrue: ${output.routeRiderReadyIsFalse}
 - takeScreenshot: mid-flow-after-quarantine-flip
 
 # ── Reopen from Saved library (must still resolve) ──────────────────────────
