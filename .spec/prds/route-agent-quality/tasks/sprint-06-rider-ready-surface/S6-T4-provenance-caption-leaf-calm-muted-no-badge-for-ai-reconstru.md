@@ -1,6 +1,9 @@
 # S6-T4 — Provenance caption leaf (calm, muted, no badge) for ai_reconstructed + name_routed only + getCuratedRouteDetail geometryProvenance projection (SURF-05)
 
-> Status: ⬜ Pending
+> Status: ✅ Completed
+> Commit: 0b781995ebd4ad33e258e5794ed3c5321cfd7eaf
+> Reviewer: product-manager+react-native-ui-reviewer
+> Completed: 2026-07-30T07:45:31Z
 > Proposed By: `frontend-designer`
 
 | Field | Value |

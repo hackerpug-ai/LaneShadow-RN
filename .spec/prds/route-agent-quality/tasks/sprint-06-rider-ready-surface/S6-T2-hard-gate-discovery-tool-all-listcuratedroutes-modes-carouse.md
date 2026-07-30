@@ -1,6 +1,9 @@
 # S6-T2 — Hard-gate discovery tool + all listCuratedRoutes modes + carousel; remove centroid fallback (SURF-02, SURF-03)
 
-> Status: ⬜ Pending
+> Status: ✅ Completed
+> Commit: dc1f882bb05fe952950208dd4258b03291feb1e1
+> Reviewer: product-manager+convex-reviewer
+> Completed: 2026-07-30T07:48:15Z
 > Proposed By: `convex-planner`
 
 | Field | Value |
