@@ -965,4 +965,98 @@ describe('useCuratedDiscovery', () => {
       expect(callArgs[1]).toHaveProperty('archetypes', testArchetypes)
     })
   })
+
+  // S6-T3 TC-6: fellBackToBest must be exposed on the result object
+  describe('fellBackToBest exposure (S6-T3 TC-6)', () => {
+    it('exposes fellBackToBest boolean on return object', async () => {
+      mockUseQuery.mockReturnValue(mockSingleRoute)
+
+      const { result } = renderHook(() =>
+        useCuratedDiscovery({
+          sort: 'nearest',
+          center: mockCurrentLocation,
+          limit: 5,
+        }),
+      )
+
+      await waitFor(() => {
+        expect(result.current.routes).toBeDefined()
+      })
+
+      expect(result.current).toHaveProperty('fellBackToBest')
+      expect(typeof result.current.fellBackToBest).toBe('boolean')
+    })
+
+    it('latches fellBackToBest true on empty-nearest path', async () => {
+      mockUseCurrentLocation.mockReturnValue({
+        location: mockCurrentLocation,
+        loading: false,
+        error: null,
+      })
+
+      let callCount = 0
+      mockUseQuery.mockImplementation(() => {
+        callCount++
+        if (callCount === 1) return [] // nearest empty
+        return mockCuratedRoutesBestOrdered // best fallback rows
+      })
+
+      const { result } = renderHook(() =>
+        useCuratedDiscovery({
+          sort: 'nearest',
+          limit: 5,
+        }),
+      )
+
+      await waitFor(() => {
+        expect(result.current.routes?.length).toBeGreaterThan(0)
+        expect(result.current.fellBackToBest).toBe(true)
+      })
+    })
+
+    it('latches fellBackToBest true on location-failure path', async () => {
+      mockUseCurrentLocation.mockReturnValue({
+        location: null,
+        loading: false,
+        error: 'Location unavailable',
+      })
+      mockUseQuery.mockReturnValue(mockCuratedRoutesBestOrdered)
+
+      const { result } = renderHook(() =>
+        useCuratedDiscovery({
+          sort: 'nearest',
+          limit: 5,
+        }),
+      )
+
+      await waitFor(() => {
+        expect(result.current.routes).toBeDefined()
+      })
+
+      expect(result.current.fellBackToBest).toBe(true)
+    })
+
+    it('latches fellBackToBest false on populated-nearest path', async () => {
+      mockUseCurrentLocation.mockReturnValue({
+        location: mockCurrentLocation,
+        loading: false,
+        error: null,
+      })
+      mockUseQuery.mockReturnValue(mockCuratedRoutesNearestOrdered)
+
+      const { result } = renderHook(() =>
+        useCuratedDiscovery({
+          sort: 'nearest',
+          limit: 5,
+        }),
+      )
+
+      await waitFor(() => {
+        expect(result.current.routes?.length).toBeGreaterThan(0)
+      })
+
+      expect(result.current.fellBackToBest).toBe(false)
+      expect(result.current.isEmpty).toBe(false)
+    })
+  })
 })
