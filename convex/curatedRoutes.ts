@@ -472,6 +472,12 @@ export const getCuratedRouteDetail = query({
   // null = honest not-found (S1-T3 AC-4). Do NOT throw ConvexError NOT_FOUND:
   // convex/react useQuery rethrows during render, which RN LogBox surfaces as a
   // full-screen "Render Error" even when an ErrorBoundary paints fallback UI.
+  //
+  // S6-T5 / UC-SURF-06: gate-INDEPENDENT. NEVER filter or throw on riderReady —
+  // suggestions are gated; the rider's saved library is not. Shadow rows
+  // (duplicateOf set) redirect once to the canonical row; a second hop is a
+  // data-integrity fault and returns null (no infinite redirect loop).
+  // saved_routes.curatedRouteRef is never mutated here (read-path only).
   returns: v.union(routeDetailReturnValidator, v.null()),
   handler: async (ctx, args) => {
     // Clerk gate — MUST run before any DB read (AC-5: unauthenticated → UNAUTHENTICATED).
@@ -480,7 +486,7 @@ export const getCuratedRouteDetail = query({
     // Resolve via the by_routeId index (caller never needs the internal _id).
     // Side-table join is on-demand (single route) — browse list still omits geometry
     // to stay under the DATA-011 16MB read limit.
-    const route = await ctx.db
+    let route = await ctx.db
       .query('curated_routes')
       .withIndex('by_routeId', (q) => q.eq('routeId', args.routeId))
       .unique()
@@ -489,9 +495,25 @@ export const getCuratedRouteDetail = query({
       return null
     }
 
+    // S6-T5 AC-3: single-hop canonical redirect for duplicate-shadow rows.
+    // STRICT: redirect at most ONCE — if the canonical also has duplicateOf set,
+    // refuse (data integrity fault) rather than walk a chain.
+    const shadowOf = route.duplicateOf
+    if (shadowOf) {
+      const canonical = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q) => q.eq('routeId', shadowOf))
+        .unique()
+      if (!canonical || canonical.duplicateOf) {
+        return null
+      }
+      route = canonical
+    }
+
+    // Geometry join uses the *resolved* routeId (canonical after redirect).
     const geomRow = await ctx.db
       .query('curated_route_geometry')
-      .withIndex('by_routeId', (q) => q.eq('routeId', args.routeId))
+      .withIndex('by_routeId', (q) => q.eq('routeId', route.routeId))
       .first()
 
     return buildRouteDetail(route, geomRow)
