@@ -2,8 +2,9 @@
  * S6-T2 TC-1 / AC-1: discoverCuratedRoutes never invokes centroid slice fallback.
  *
  * GIVEN a mixed catalog (rider-ready with geometry + centroid-only rows)
- * WHEN list + discovery geometry path composes a response
- * THEN no single-point centroid polyline is returned; slice fallback is deleted.
+ * WHEN executeDiscoverCuratedRoutes (via runLiveDiscoverySmoke) composes a response
+ * THEN every option geometry decodes to >=2 points; centroid-only routeIds absent;
+ *      source has no encodeCentroidToPolyline in the response path.
  *
  * TEST_TIER: integration
  * VERIFICATION_SERVICE: convex-test-deployment
@@ -71,8 +72,7 @@ function parseJson(stdout: string): any {
 
 describe('TC-1: discoverCuratedRoutes never uses centroid slice fallback', () => {
   let seed: any
-  let listed: any[]
-  let geometryRows: any[]
+  let discovery: any
 
   beforeAll(() => {
     mkdirSync(EVIDENCE_DIR, { recursive: true })
@@ -86,27 +86,23 @@ describe('TC-1: discoverCuratedRoutes never uses centroid slice fallback', () =>
     expect(seedRes.ok, `seed failed: ${seedRes.stderr}\n${seedRes.stdout}`).toBe(true)
     seed = parseJson(seedRes.stdout)
 
-    const listRes = runConvexFn(
-      'curatedRoutes:listCuratedRoutesInternal',
-      { state: 'California', sort: 'best', limit: 50 },
-      {},
+    // Execute the real discovery path (executeDiscoverCuratedRoutes) against the mixed catalog.
+    const discRes = runConvexFn(
+      'actions/agent/tools/discoverCuratedRoutesLiveTest:runLiveDiscoverySmoke',
+      {
+        clerkUserId: `s6t2-tc1-${Date.now()}`,
+        archetypes: ['twisties'],
+        state: 'California',
+        sort: 'best',
+        limit: 20,
+      },
     )
-    expect(listRes.ok, `list failed: ${listRes.stderr}\n${listRes.stdout}`).toBe(true)
-    listed = parseJson(listRes.stdout) ?? []
-
-    const readyIds = (seed?.readyIds ?? []).filter((id: string) =>
-      listed.some((r: any) => r.routeId === id),
-    )
-    const geomRes = runConvexFn(
-      'curatedGeometry:getGeometryForRoutes',
-      { routeIds: readyIds.length > 0 ? readyIds : (seed?.readyIds ?? []) },
-      {},
-    )
-    geometryRows = parseJson(geomRes.stdout) ?? []
+    expect(discRes.ok, `discovery failed: ${discRes.stderr}\n${discRes.stdout}`).toBe(true)
+    discovery = parseJson(discRes.stdout)
 
     writeFileSync(
       resolve(EVIDENCE_DIR, 'TC-1-discovery-no-centroid.json'),
-      JSON.stringify({ seed, listedCount: listed.length, geometryRows }, null, 2),
+      JSON.stringify({ seed, discovery }, null, 2),
     )
   }, 180_000)
 
@@ -114,45 +110,56 @@ describe('TC-1: discoverCuratedRoutes never uses centroid slice fallback', () =>
     runConvexFn('curatedGeometryTestSupport:teardownS6T2Fixtures', {}, { identity: true })
   })
 
-  it('TC-1: no candidateRoutes.slice centroid fallback; returned geometries decode to >=2 points', () => {
+  it('TC-1: executeDiscoverCuratedRoutes returns multi-point geometries only; no centroid-only routeIds', () => {
     const source = readFileSync(
       resolve(PROJECT_ROOT, 'convex/actions/agent/tools/discoverCuratedRoutes.ts'),
       'utf-8',
     )
 
-    // Slice fallback must be gone (the exact pad-to-limit path)
+    // Slice fallback and centroid encode must be gone from discovery composition
     expect(source).not.toMatch(/candidateRoutes\.slice\s*\(\s*0\s*,\s*requestedLimit\s*\)/)
+    expect(source).not.toMatch(/encodeCentroidToPolyline/)
 
-    // Centroid-only fixture routeIds must NOT appear in browse/list results
-    for (const id of seed.centroidOnlyIds ?? []) {
+    expect(discovery).toBeTruthy()
+    expect(discovery.type).toBe('routes')
+    expect(discovery.status).toBe('completed')
+    expect(discovery.optionsCount).toBeGreaterThanOrEqual(1)
+    expect(Array.isArray(discovery.optionGeometries)).toBe(true)
+    expect(discovery.optionGeometries.length).toBe(discovery.optionsCount)
+
+    const centroidOnlyIds: string[] = seed.centroidOnlyIds ?? []
+    const readyIds: string[] = seed.readyIds ?? []
+    const optionRouteIds: string[] = discovery.optionGeometries.map((g: any) => g.routeId)
+
+    // Centroid-only fixture routeIds must NOT appear in discovery options
+    for (const id of centroidOnlyIds) {
       expect(
-        listed.find((r: any) => r.routeId === id),
-        `centroid-only ${id} must not appear in gated list`,
-      ).toBeUndefined()
+        optionRouteIds.includes(id),
+        `centroid-only ${id} must not appear in discovery options`,
+      ).toBe(false)
+      expect(
+        discovery.optionIds?.includes(`curated-${id}`),
+        `centroid-only optionId curated-${id} must not appear`,
+      ).toBe(false)
     }
 
-    // At least one rider-ready fixture is returned
-    const readyHits = listed.filter((r: any) => (seed.readyIds ?? []).includes(r.routeId))
-    expect(readyHits.length).toBeGreaterThanOrEqual(1)
+    // At least one rider-ready fixture must surface (high compositeScore fixtures)
+    const readyHits = optionRouteIds.filter((id: string) => readyIds.includes(id))
+    expect(
+      readyHits.length,
+      `expected >=1 ready fixture in discovery options; got ${optionRouteIds.join(',')}`,
+    ).toBeGreaterThanOrEqual(1)
 
-    // Geometry for ready routes decodes to >= 2 points
-    expect(geometryRows.length).toBeGreaterThanOrEqual(1)
-    for (const g of geometryRows) {
-      const precision = g.precision ?? 5
-      if (g.format === 'multipolyline' && Array.isArray(g.segments)) {
-        const hasLine = g.segments.some(
-          (seg: string) => polyline.decode(seg, precision).length >= 2,
-        )
-        expect(hasLine, `multipolyline ${g.routeId} must have a segment with >=2 points`).toBe(true)
-      } else if (g.value) {
-        const decoded = polyline.decode(g.value, precision)
-        expect(
-          decoded.length,
-          `polyline ${g.routeId} must decode to >=2 points`,
-        ).toBeGreaterThanOrEqual(2)
-      } else {
-        throw new Error(`geometry for ${g.routeId} has neither value nor segments`)
-      }
+    // Every option geometry must decode to >= 2 points (no 1-point centroid)
+    for (const g of discovery.optionGeometries) {
+      expect(
+        g.pointCount,
+        `option ${g.routeId} must decode to >=2 points (got ${g.pointCount})`,
+      ).toBeGreaterThanOrEqual(2)
+
+      // Independent re-decode of the stored polyline value
+      const decoded = polyline.decode(g.geometryValue, g.precision ?? 5)
+      expect(decoded.length, `re-decode ${g.routeId} must be >=2 points`).toBeGreaterThanOrEqual(2)
     }
   })
 })

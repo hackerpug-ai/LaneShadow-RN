@@ -95,6 +95,9 @@ describe('TC-5: thin-region honest empty/partial — never pad to limit', () => 
     )
     onlyNonReadySeed = parseJson(onlyRes.stdout)
 
+    // Re-seed immediately before list (guards score window + parallel teardown races)
+    runConvexFn('curatedGeometryTestSupport:seedS6T2ThinRegion', {}, { identity: true })
+
     const wyRes = runConvexFn('curatedRoutes:listCuratedRoutesInternal', {
       state: 'Wyoming',
       sort: 'best',

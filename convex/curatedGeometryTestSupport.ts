@@ -2698,7 +2698,7 @@ export const seedS6T2MixedCatalog = mutation({
         state: 'California',
         centroidLat: 34.95,
         centroidLng: -120.42,
-        compositeScore: 0.88,
+        compositeScore: 0.997,
       }),
       await seedAllSevenReadyRoute(ctx, {
         routeId: S6T2_RIDER_READY_2,
@@ -2706,7 +2706,7 @@ export const seedS6T2MixedCatalog = mutation({
         state: 'California',
         centroidLat: 34.96,
         centroidLng: -120.41,
-        compositeScore: 0.86,
+        compositeScore: 0.996,
       }),
     ]
     const centroidOnly = [
@@ -2758,7 +2758,7 @@ export const seedS6T2StateWithShadows = mutation({
         state: 'California',
         centroidLat: 35.0,
         centroidLng: -120.5,
-        compositeScore: 0.87,
+        compositeScore: 0.995,
       }),
       await seedAllSevenReadyRoute(ctx, {
         routeId: S6T2_CA_READY_2,
@@ -2766,7 +2766,7 @@ export const seedS6T2StateWithShadows = mutation({
         state: 'California',
         centroidLat: 35.01,
         centroidLng: -120.49,
-        compositeScore: 0.84,
+        compositeScore: 0.994,
       }),
     ]
 
@@ -2912,6 +2912,8 @@ export const seedS6T2ThinRegion = mutation({
   args: {},
   handler: async (ctx) => {
     await requireIdentity(ctx)
+    // Scores near 1.0 so fixtures survive Mode-3 top-N window (filteredTake)
+    // before state filter — catalog has hundreds of higher-scored ready rows.
     const ready = [
       await seedAllSevenReadyRoute(ctx, {
         routeId: S6T2_WY_READY_1,
@@ -2919,7 +2921,7 @@ export const seedS6T2ThinRegion = mutation({
         state: 'Wyoming',
         centroidLat: 43.0,
         centroidLng: -107.5,
-        compositeScore: 0.82,
+        compositeScore: 0.999,
       }),
       await seedAllSevenReadyRoute(ctx, {
         routeId: S6T2_WY_READY_2,
@@ -2927,7 +2929,7 @@ export const seedS6T2ThinRegion = mutation({
         state: 'Wyoming',
         centroidLat: 43.05,
         centroidLng: -107.45,
-        compositeScore: 0.8,
+        compositeScore: 0.998,
       }),
     ]
     const nonReady = []

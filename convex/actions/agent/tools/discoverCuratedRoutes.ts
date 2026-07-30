@@ -273,8 +273,7 @@ async function runDiscoverCuratedRoutes(
       },
       map: {
         // S6-T2: curatedRoutes are already plottable (multi-point geometry looked up
-        // above). buildCuratedMapGeometry still has a defensive centroid branch for
-        // unit helpers, but discovery never feeds non-plottable routes here.
+        // above). buildCuratedMapGeometry is fail-closed — never encodes a 1-point centroid.
         ...buildCuratedMapGeometry(route, geometryByRouteId.get(route.routeId)),
         legs: [], // No detailed legs for curated routes
         overlays: {},
@@ -301,17 +300,11 @@ async function runDiscoverCuratedRoutes(
   return { type: 'routes', routePlanId }
 }
 
-// Helper function to encode centroid as polyline (single point fallback)
-export function encodeCentroidToPolyline(lat: number, lng: number): string {
-  return polyline.encode([[lat, lng]])
-}
-
 /**
- * DATA-011: build the map geometry + bounds for a curated route option.
- * Prefers the name-anchored generated geometry from the curated_route_geometry side table
- * (`g`, passed in by the caller); decodes it to derive real bounds. Falls back to the
- * centroid point + ±0.5° bounds when no generated geometry exists (unresolved/un-backfilled)
- * — never a fake line.
+ * DATA-011 / S6-T2: build map geometry + bounds for a curated route option.
+ * Requires multi-point generated geometry from the curated_route_geometry side table.
+ * Fail-closed: never encodes a 1-point centroid polyline into the discovery response.
+ * Callers (runDiscoverCuratedRoutes) must pre-filter via hasRenderableCuratedGeometry.
  */
 export function buildCuratedMapGeometry(
   route: any,
@@ -403,21 +396,14 @@ export function buildCuratedMapGeometry(
       }
     }
   }
-  const precision = 5
-  return {
-    overviewGeometry: {
-      format: 'polyline',
-      encoding: 'polyline',
-      precision,
-      value: encodeCentroidToPolyline(route.centroidLat, route.centroidLng),
-    },
-    bounds: {
-      north: route.centroidLat + 0.5,
-      south: route.centroidLat - 0.5,
-      east: route.centroidLng + 0.5,
-      west: route.centroidLng - 0.5,
-    },
-  }
+
+  // S6-T2: no centroid slice/fallback in the discovery response path.
+  // Upstream hasRenderableCuratedGeometry already excludes non-plottable rows;
+  // reaching here is a programming error, not a soft fallback.
+  const routeId = typeof route?.routeId === 'string' ? route.routeId : 'unknown'
+  throw new Error(
+    `buildCuratedMapGeometry: multi-point geometry required for route ${routeId}; centroid fallback removed (S6-T2)`,
+  )
 }
 
 export async function executeDiscoverCuratedRoutes(

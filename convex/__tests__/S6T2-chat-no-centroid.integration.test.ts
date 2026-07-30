@@ -2,9 +2,8 @@
  * S6-T2 TC-2 / AC-2: Chat/discovery response path produces no centroid-only card.
  *
  * GIVEN mixed catalog with rider-ready + non-rider-ready rows
- * WHEN discovery composes options for returned routes
- * THEN every suggested route is rider-ready and has multi-point geometry;
- *      non-rider-ready / centroid-only ids never appear.
+ * WHEN executeDiscoverCuratedRoutes (via runLiveDiscoverySmoke) composes options
+ * THEN every option is multi-point geometry; centroid-only / non-ready ids never appear.
  *
  * TEST_TIER: integration
  */
@@ -71,8 +70,8 @@ function parseJson(stdout: string): any {
 
 describe('TC-2: chat/discovery cards never include centroid-only routes', () => {
   let seed: any
+  let discovery: any
   let listed: any[]
-  let geometryByRouteId: Map<string, any>
 
   beforeAll(() => {
     mkdirSync(EVIDENCE_DIR, { recursive: true })
@@ -85,6 +84,7 @@ describe('TC-2: chat/discovery cards never include centroid-only routes', () => 
     expect(seedRes.ok, `seed failed: ${seedRes.stderr}\n${seedRes.stdout}`).toBe(true)
     seed = parseJson(seedRes.stdout)
 
+    // Independent gated list (chat cards inherit the same riderReady surface)
     const listRes = runConvexFn('curatedRoutes:listCuratedRoutesInternal', {
       state: 'California',
       sort: 'best',
@@ -93,18 +93,27 @@ describe('TC-2: chat/discovery cards never include centroid-only routes', () => 
     expect(listRes.ok, `list failed: ${listRes.stderr}\n${listRes.stdout}`).toBe(true)
     listed = parseJson(listRes.stdout) ?? []
 
-    const routeIds = listed.map((r: any) => r.routeId)
-    const geomRes = runConvexFn('curatedGeometry:getGeometryForRoutes', { routeIds })
-    const geometryRows = parseJson(geomRes.stdout) ?? []
-    geometryByRouteId = new Map(geometryRows.map((g: any) => [g.routeId, g]))
+    // Execute real discovery path against mixed catalog
+    const discRes = runConvexFn(
+      'actions/agent/tools/discoverCuratedRoutesLiveTest:runLiveDiscoverySmoke',
+      {
+        clerkUserId: `s6t2-tc2-${Date.now()}`,
+        archetypes: ['twisties'],
+        state: 'California',
+        sort: 'best',
+        limit: 20,
+      },
+    )
+    expect(discRes.ok, `discovery failed: ${discRes.stderr}\n${discRes.stdout}`).toBe(true)
+    discovery = parseJson(discRes.stdout)
 
     writeFileSync(
       resolve(EVIDENCE_DIR, 'TC-2-chat-no-centroid.json'),
       JSON.stringify(
         {
           seed,
-          listedIds: routeIds,
-          geometryCount: geometryRows.length,
+          listedIds: listed.map((r: any) => r.routeId),
+          discovery,
         },
         null,
         2,
@@ -116,26 +125,24 @@ describe('TC-2: chat/discovery cards never include centroid-only routes', () => 
     runConvexFn('curatedGeometryTestSupport:teardownS6T2Fixtures', {}, { identity: true })
   })
 
-  it('TC-2: every listed route is rider-ready; centroid-only ids excluded; geometry >=2 pts', () => {
-    // Static: discovery composition must not pad with candidateRoutes.slice
+  it('TC-2: discovery options are multi-point; centroid-only ids excluded from chat cards', () => {
     const source = readFileSync(
       resolve(PROJECT_ROOT, 'convex/actions/agent/tools/discoverCuratedRoutes.ts'),
       'utf-8',
     )
     expect(source).not.toMatch(/candidateRoutes\.slice\s*\(\s*0\s*,\s*requestedLimit\s*\)/)
+    expect(source).not.toMatch(/encodeCentroidToPolyline/)
 
-    expect(listed.length).toBeGreaterThanOrEqual(1)
-    expect(listed.length).toBeLessThanOrEqual(50)
+    expect(discovery).toBeTruthy()
+    expect(discovery.type).toBe('routes')
+    expect(discovery.optionsCount).toBeGreaterThanOrEqual(1)
+    expect(discovery.optionGeometries?.length).toBe(discovery.optionsCount)
 
-    for (const id of seed.centroidOnlyIds ?? []) {
-      expect(listed.find((r: any) => r.routeId === id)).toBeUndefined()
-    }
+    const centroidOnlyIds: string[] = seed.centroidOnlyIds ?? []
+    const readyIds: string[] = seed.readyIds ?? []
+    const optionRouteIds: string[] = (discovery.optionGeometries ?? []).map((g: any) => g.routeId)
 
-    // Ready fixtures must appear when gated
-    const readyHits = listed.filter((r: any) => (seed.readyIds ?? []).includes(r.routeId))
-    expect(readyHits.length).toBeGreaterThanOrEqual(1)
-
-    // Confirm seed ready rows are riderReady true via re-read
+    // Seed honesty
     for (const ready of seed.ready ?? []) {
       expect(ready.riderReady).toBe(true)
     }
@@ -143,12 +150,26 @@ describe('TC-2: chat/discovery cards never include centroid-only routes', () => 
       expect(c.riderReady).toBe(false)
     }
 
-    // Every returned ready fixture has multi-point geometry (chat card contract)
-    for (const hit of readyHits) {
-      const g = geometryByRouteId.get(hit.routeId)
-      expect(g, `geometry required for ${hit.routeId}`).toBeDefined()
-      const precision = g.precision ?? 5
-      const decoded = g.value ? polyline.decode(g.value, precision) : []
+    // Centroid-only never in gated list or discovery options
+    for (const id of centroidOnlyIds) {
+      expect(listed.find((r: any) => r.routeId === id)).toBeUndefined()
+      expect(optionRouteIds.includes(id)).toBe(false)
+    }
+
+    // Ready fixtures appear in gated list and discovery
+    const listReadyHits = listed.filter((r: any) => readyIds.includes(r.routeId))
+    expect(listReadyHits.length).toBeGreaterThanOrEqual(1)
+
+    const discReadyHits = optionRouteIds.filter((id: string) => readyIds.includes(id))
+    expect(
+      discReadyHits.length,
+      `expected ready fixtures in discovery; got ${optionRouteIds.join(',')}`,
+    ).toBeGreaterThanOrEqual(1)
+
+    // Every discovery option geometry is multi-point (chat card contract)
+    for (const g of discovery.optionGeometries ?? []) {
+      expect(g.pointCount).toBeGreaterThanOrEqual(2)
+      const decoded = polyline.decode(g.geometryValue, g.precision ?? 5)
       expect(decoded.length).toBeGreaterThanOrEqual(2)
     }
   })
