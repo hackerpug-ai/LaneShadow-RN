@@ -38,6 +38,7 @@ import { useLocalSearchParams } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { ProvenanceCaption } from '../../../components/curated-route/provenance-caption'
 import { SubpageLayout } from '../../../components/layouts/subpage-layout'
 import { ErrorBoundary } from '../../../components/logging/error-boundary'
 import {
@@ -444,6 +445,9 @@ const PolylineGuardedBody = ({ id }: { id: string }) => {
               </Text>
             )}
           </View>
+
+          {/* 2b. Provenance caption — calm muted Text for inferred lines only (S6-T4) */}
+          <ProvenanceCaption geometryProvenance={detail.geometryProvenance} />
 
           {/* 3. Scores — compose DESIGN-001's ScoreDimensionBarSection */}
           <View testID="curated-detail-scores">

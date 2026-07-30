@@ -433,6 +433,11 @@ const routeDetailReturnValidator = v.object({
   retirementReason: v.optional(v.union(v.string(), v.null())),
   retiredAt: v.optional(v.union(v.number(), v.null())),
   riderReady: v.optional(v.boolean()),
+  // S6-T4 / UC-SURF-05: project geometryProvenance so the detail caption can
+  // branch on ai_reconstructed / name_routed. Projection-only (no schema change).
+  geometryProvenance: v.optional(
+    v.union(v.literal('scraped_promoted'), v.literal('ai_reconstructed'), v.literal('name_routed')),
+  ),
 })
 
 /**
@@ -451,7 +456,11 @@ function resolveDetailRoutePolyline(
   return route.routePolyline ?? null
 }
 
-function buildRouteDetail(
+/**
+ * Lean detail projection used by getCuratedRouteDetail.
+ * Exported for S6-T4 projection unit tests (geometryProvenance must not drop).
+ */
+export function buildRouteDetail(
   route: Doc<'curated_routes'>,
   geomRow: Doc<'curated_route_geometry'> | null = null,
 ) {
@@ -492,6 +501,8 @@ function buildRouteDetail(
     retirementReason: route.retirementReason ?? null,
     retiredAt: route.retiredAt ?? null,
     riderReady: route.riderReady ?? false,
+    // S6-T4: surface rest geometryProvenance for the calm detail caption leaf.
+    geometryProvenance: route.geometryProvenance,
   }
 }
 
