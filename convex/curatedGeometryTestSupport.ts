@@ -2556,3 +2556,473 @@ export const teardownS6T1Fixtures = mutation({
     return { status: 'deleted', count: deleted }
   },
 })
+
+// ---------------------------------------------------------------------------
+// S6-T2 fixtures: mixed catalog, state shadows, excluded trio, thin region
+// ---------------------------------------------------------------------------
+
+const S6T2_PREFIX = 'test:s6t2-'
+const S6T2_RIDER_READY_1 = 'test:s6t2-rider-ready-1'
+const S6T2_RIDER_READY_2 = 'test:s6t2-rider-ready-2'
+const S6T2_CENTROID_1 = 'test:s6t2-centroid-only-1'
+const S6T2_CENTROID_2 = 'test:s6t2-centroid-only-2'
+const S6T2_CENTROID_3 = 'test:s6t2-centroid-only-3'
+const S6T2_CA_READY_1 = 'test:s6t2-ca-rider-ready-1'
+const S6T2_CA_READY_2 = 'test:s6t2-ca-rider-ready-2'
+const S6T2_CA_QUARANTINED = 'test:s6t2-ca-quarantined'
+const S6T2_CA_RETIRED = 'test:s6t2-ca-retired'
+const S6T2_CA_SHADOW = 'test:s6t2-ca-shadow'
+const S6T2_EXCL_QUARANTINED = 'test:s6t2-quarantined'
+const S6T2_EXCL_SHADOW = 'test:s6t2-shadow'
+const S6T2_EXCL_RETIRED = 'test:s6t2-retired'
+const S6T2_WY_READY_1 = 'test:s6t2-wy-rider-ready-1'
+const S6T2_WY_READY_2 = 'test:s6t2-wy-rider-ready-2'
+
+async function seedAllSevenReadyRoute(
+  ctx: any,
+  row: {
+    routeId: string
+    name: string
+    state: string
+    centroidLat: number
+    centroidLng: number
+    compositeScore?: number
+  },
+) {
+  const result = await insertTestRoute(ctx, {
+    routeId: row.routeId,
+    name: row.name,
+    state: row.state,
+    lengthMiles: 41,
+    centroidLat: row.centroidLat,
+    centroidLng: row.centroidLng,
+    geometryStatus: 'generated',
+    scores: { compositeScore: row.compositeScore ?? 0.85 },
+    rideWorthiness: {
+      verdict: 'ride',
+      reason: 'S6-T2 rider-ready fixture',
+      model: 'test',
+      classifiedAt: Date.now(),
+    },
+    retiredAt: null,
+  })
+  await ctx.db.patch(result.id, {
+    retiredAt: null,
+    duplicateOf: undefined,
+    quarantine: undefined,
+    name: row.name,
+    compositeScore: row.compositeScore ?? 0.85,
+    lengthMiles: 41,
+    geometryStatus: 'generated',
+    state: row.state,
+  })
+  await upsertGatePassingGeometry(ctx, row.routeId, 41, 50)
+  await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+    id: result.id,
+  })
+  const refreshed = (await ctx.db.get(result.id)) as Doc<'curated_routes'> | null
+  return {
+    routeId: row.routeId,
+    id: result.id,
+    riderReady: refreshed?.riderReady ?? false,
+    state: refreshed?.state,
+    compositeScore: refreshed?.compositeScore,
+  }
+}
+
+/** Centroid-only: no geometry side-table row → recompute yields riderReady=false. */
+async function seedCentroidOnlyRoute(
+  ctx: any,
+  row: {
+    routeId: string
+    name: string
+    state: string
+    centroidLat: number
+    centroidLng: number
+    compositeScore?: number
+  },
+) {
+  const result = await insertTestRoute(ctx, {
+    routeId: row.routeId,
+    name: row.name,
+    state: row.state,
+    lengthMiles: 41,
+    centroidLat: row.centroidLat,
+    centroidLng: row.centroidLng,
+    geometryStatus: 'unresolved',
+    scores: { compositeScore: row.compositeScore ?? 0.9 },
+    rideWorthiness: {
+      verdict: 'ride',
+      reason: 'S6-T2 centroid-only fixture',
+      model: 'test',
+      classifiedAt: Date.now(),
+    },
+    retiredAt: null,
+  })
+  const existingGeom = await ctx.db
+    .query('curated_route_geometry')
+    .withIndex('by_routeId', (q: any) => q.eq('routeId', row.routeId))
+    .first()
+  if (existingGeom) await ctx.db.delete(existingGeom._id)
+
+  await ctx.db.patch(result.id, {
+    geometryStatus: 'unresolved',
+    retiredAt: null,
+    duplicateOf: undefined,
+    quarantine: undefined,
+    compositeScore: row.compositeScore ?? 0.9,
+  })
+  await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+    id: result.id,
+  })
+  const refreshed = (await ctx.db.get(result.id)) as Doc<'curated_routes'> | null
+  return {
+    routeId: row.routeId,
+    id: result.id,
+    riderReady: refreshed?.riderReady ?? false,
+    geometryStatus: refreshed?.geometryStatus,
+  }
+}
+
+/**
+ * AC-1/AC-2 mixed catalog: 2 rider-ready (generated geometry) + 3 centroid-only.
+ */
+export const seedS6T2MixedCatalog = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const ready = [
+      await seedAllSevenReadyRoute(ctx, {
+        routeId: S6T2_RIDER_READY_1,
+        name: 'S6T2 Rider Ready One',
+        state: 'California',
+        centroidLat: 34.95,
+        centroidLng: -120.42,
+        compositeScore: 0.997,
+      }),
+      await seedAllSevenReadyRoute(ctx, {
+        routeId: S6T2_RIDER_READY_2,
+        name: 'S6T2 Rider Ready Two',
+        state: 'California',
+        centroidLat: 34.96,
+        centroidLng: -120.41,
+        compositeScore: 0.996,
+      }),
+    ]
+    const centroidOnly = [
+      await seedCentroidOnlyRoute(ctx, {
+        routeId: S6T2_CENTROID_1,
+        name: 'S6T2 Centroid Only One',
+        state: 'California',
+        centroidLat: 34.94,
+        centroidLng: -120.43,
+        compositeScore: 0.99,
+      }),
+      await seedCentroidOnlyRoute(ctx, {
+        routeId: S6T2_CENTROID_2,
+        name: 'S6T2 Centroid Only Two',
+        state: 'California',
+        centroidLat: 34.93,
+        centroidLng: -120.44,
+        compositeScore: 0.97,
+      }),
+      await seedCentroidOnlyRoute(ctx, {
+        routeId: S6T2_CENTROID_3,
+        name: 'S6T2 Centroid Only Three',
+        state: 'California',
+        centroidLat: 34.92,
+        centroidLng: -120.45,
+        compositeScore: 0.95,
+      }),
+    ]
+    return {
+      ready,
+      centroidOnly,
+      readyIds: ready.map((r) => r.routeId),
+      centroidOnlyIds: centroidOnly.map((r) => r.routeId),
+    }
+  },
+})
+
+/**
+ * AC-3 state-with-non-rider-ready-shadow: 2 CA ready + quarantined/retired/shadow + centroid gap.
+ */
+export const seedS6T2StateWithShadows = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const ready = [
+      await seedAllSevenReadyRoute(ctx, {
+        routeId: S6T2_CA_READY_1,
+        name: 'S6T2 CA Ready One',
+        state: 'California',
+        centroidLat: 35.0,
+        centroidLng: -120.5,
+        compositeScore: 0.995,
+      }),
+      await seedAllSevenReadyRoute(ctx, {
+        routeId: S6T2_CA_READY_2,
+        name: 'S6T2 CA Ready Two',
+        state: 'California',
+        centroidLat: 35.01,
+        centroidLng: -120.49,
+        compositeScore: 0.994,
+      }),
+    ]
+
+    const quarantined = await seedAllSevenReadyRoute(ctx, {
+      routeId: S6T2_CA_QUARANTINED,
+      name: 'S6T2 CA Quarantined',
+      state: 'California',
+      centroidLat: 35.02,
+      centroidLng: -120.48,
+      compositeScore: 0.91,
+    })
+    await ctx.db.patch(quarantined.id, {
+      quarantine: { reason: 'length_outlier', flaggedAt: Date.now() },
+    })
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: quarantined.id,
+    })
+    const qRef = (await ctx.db.get(quarantined.id)) as Doc<'curated_routes'> | null
+
+    const retired = await seedAllSevenReadyRoute(ctx, {
+      routeId: S6T2_CA_RETIRED,
+      name: 'S6T2 CA Retired',
+      state: 'California',
+      centroidLat: 35.03,
+      centroidLng: -120.47,
+      compositeScore: 0.9,
+    })
+    await ctx.db.patch(retired.id, { retiredAt: Date.now() })
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: retired.id,
+    })
+    const rRef = (await ctx.db.get(retired.id)) as Doc<'curated_routes'> | null
+
+    const shadow = await seedAllSevenReadyRoute(ctx, {
+      routeId: S6T2_CA_SHADOW,
+      name: 'S6T2 CA Shadow',
+      state: 'California',
+      centroidLat: 35.04,
+      centroidLng: -120.46,
+      compositeScore: 0.89,
+    })
+    await ctx.db.patch(shadow.id, { duplicateOf: S6T2_CA_READY_1 })
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: shadow.id,
+    })
+    const sRef = (await ctx.db.get(shadow.id)) as Doc<'curated_routes'> | null
+
+    const centroidGap = await seedCentroidOnlyRoute(ctx, {
+      routeId: `${S6T2_PREFIX}ca-centroid-gap`,
+      name: 'S6T2 CA Centroid Gap',
+      state: 'California',
+      centroidLat: 35.05,
+      centroidLng: -120.45,
+      compositeScore: 0.98,
+    })
+
+    return {
+      ready,
+      nonReady: [
+        { ...quarantined, riderReady: qRef?.riderReady ?? false, kind: 'quarantined' },
+        { ...retired, riderReady: rRef?.riderReady ?? false, kind: 'retired' },
+        { ...shadow, riderReady: sRef?.riderReady ?? false, kind: 'shadow' },
+        { ...centroidGap, kind: 'centroid-only' },
+      ],
+      readyIds: ready.map((r) => r.routeId),
+      nonReadyIds: [
+        S6T2_CA_QUARANTINED,
+        S6T2_CA_RETIRED,
+        S6T2_CA_SHADOW,
+        `${S6T2_PREFIX}ca-centroid-gap`,
+      ],
+    }
+  },
+})
+
+/** AC-4/TC-4 excluded trio: quarantined + shadow + retired with otherwise valid geometry. */
+export const seedS6T2ExcludedTrio = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+
+    const quarantined = await seedAllSevenReadyRoute(ctx, {
+      routeId: S6T2_EXCL_QUARANTINED,
+      name: 'S6T2 Excluded Quarantined',
+      state: 'California',
+      centroidLat: 36.0,
+      centroidLng: -121.0,
+      compositeScore: 0.92,
+    })
+    await ctx.db.patch(quarantined.id, {
+      quarantine: { reason: 'length_outlier', flaggedAt: Date.now() },
+    })
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: quarantined.id,
+    })
+
+    const shadow = await seedAllSevenReadyRoute(ctx, {
+      routeId: S6T2_EXCL_SHADOW,
+      name: 'S6T2 Excluded Shadow',
+      state: 'California',
+      centroidLat: 36.01,
+      centroidLng: -121.01,
+      compositeScore: 0.91,
+    })
+    await ctx.db.patch(shadow.id, { duplicateOf: S6T2_RIDER_READY_1 })
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: shadow.id,
+    })
+
+    const retired = await seedAllSevenReadyRoute(ctx, {
+      routeId: S6T2_EXCL_RETIRED,
+      name: 'S6T2 Excluded Retired',
+      state: 'California',
+      centroidLat: 36.02,
+      centroidLng: -121.02,
+      compositeScore: 0.9,
+    })
+    await ctx.db.patch(retired.id, { retiredAt: Date.now() })
+    await ctx.runMutation(internal.curatedGeometry.recomputeRiderReadyForRoute, {
+      id: retired.id,
+    })
+
+    const rows = []
+    for (const id of [quarantined.id, shadow.id, retired.id]) {
+      const doc = (await ctx.db.get(id)) as Doc<'curated_routes'> | null
+      rows.push({
+        routeId: doc?.routeId,
+        riderReady: doc?.riderReady ?? false,
+        retiredAt: doc?.retiredAt ?? null,
+        duplicateOf: doc?.duplicateOf ?? null,
+        quarantine: doc?.quarantine ?? null,
+      })
+    }
+    return {
+      rows,
+      excludedIds: [S6T2_EXCL_QUARANTINED, S6T2_EXCL_SHADOW, S6T2_EXCL_RETIRED],
+    }
+  },
+})
+
+/** AC-5 thin region: 2 WY rider-ready + 5 WY non-ready (centroid-only). */
+export const seedS6T2ThinRegion = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    // Scores near 1.0 so fixtures survive Mode-3 top-N window (filteredTake)
+    // before state filter — catalog has hundreds of higher-scored ready rows.
+    const ready = [
+      await seedAllSevenReadyRoute(ctx, {
+        routeId: S6T2_WY_READY_1,
+        name: 'S6T2 WY Ready One',
+        state: 'Wyoming',
+        centroidLat: 43.0,
+        centroidLng: -107.5,
+        compositeScore: 0.999,
+      }),
+      await seedAllSevenReadyRoute(ctx, {
+        routeId: S6T2_WY_READY_2,
+        name: 'S6T2 WY Ready Two',
+        state: 'Wyoming',
+        centroidLat: 43.05,
+        centroidLng: -107.45,
+        compositeScore: 0.998,
+      }),
+    ]
+    const nonReady = []
+    for (let i = 1; i <= 5; i++) {
+      nonReady.push(
+        await seedCentroidOnlyRoute(ctx, {
+          routeId: `${S6T2_PREFIX}wy-non-ready-${i}`,
+          name: `S6T2 WY Non Ready ${i}`,
+          state: 'Wyoming',
+          centroidLat: 43.1 + i * 0.01,
+          centroidLng: -107.4 - i * 0.01,
+          compositeScore: 0.99 - i * 0.01,
+        }),
+      )
+    }
+    return {
+      ready,
+      nonReady,
+      readyIds: ready.map((r) => r.routeId),
+      nonReadyIds: nonReady.map((r) => r.routeId),
+    }
+  },
+})
+
+/** Pure non-ready thin region for empty-result honest absence. */
+export const seedS6T2ThinRegionOnlyNonReady = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireIdentity(ctx)
+    const nonReady = []
+    for (let i = 1; i <= 5; i++) {
+      nonReady.push(
+        await seedCentroidOnlyRoute(ctx, {
+          routeId: `${S6T2_PREFIX}thin-only-non-${i}`,
+          name: `S6T2 Thin Only Non ${i}`,
+          state: 'Wyoming',
+          centroidLat: 44.0 + i * 0.01,
+          centroidLng: -108.0 - i * 0.01,
+          compositeScore: 0.99,
+        }),
+      )
+    }
+    return {
+      nonReady,
+      nonReadyIds: nonReady.map((r) => r.routeId),
+      readyIds: [] as string[],
+    }
+  },
+})
+
+export const teardownS6T2Fixtures = mutation({
+  args: {
+    routeIds: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    await requireIdentity(ctx)
+    const defaultIds = [
+      S6T2_RIDER_READY_1,
+      S6T2_RIDER_READY_2,
+      S6T2_CENTROID_1,
+      S6T2_CENTROID_2,
+      S6T2_CENTROID_3,
+      S6T2_CA_READY_1,
+      S6T2_CA_READY_2,
+      S6T2_CA_QUARANTINED,
+      S6T2_CA_RETIRED,
+      S6T2_CA_SHADOW,
+      `${S6T2_PREFIX}ca-centroid-gap`,
+      S6T2_EXCL_QUARANTINED,
+      S6T2_EXCL_SHADOW,
+      S6T2_EXCL_RETIRED,
+      S6T2_WY_READY_1,
+      S6T2_WY_READY_2,
+      ...Array.from({ length: 5 }, (_, i) => `${S6T2_PREFIX}wy-non-ready-${i + 1}`),
+      ...Array.from({ length: 5 }, (_, i) => `${S6T2_PREFIX}thin-only-non-${i + 1}`),
+    ]
+    const ids = args.routeIds ?? defaultIds
+    let deleted = 0
+    for (const routeId of ids) {
+      const doc = await ctx.db
+        .query('curated_routes')
+        .withIndex('by_routeId', (q: any) => q.eq('routeId', routeId))
+        .first()
+      if (!doc) continue
+      await geospatial.remove(ctx, doc._id)
+      const geomRow = await ctx.db
+        .query('curated_route_geometry')
+        .withIndex('by_routeId', (q: any) => q.eq('routeId', routeId))
+        .first()
+      if (geomRow) await ctx.db.delete(geomRow._id)
+      await ctx.db.delete(doc._id)
+      deleted++
+    }
+    return { status: 'deleted', count: deleted }
+  },
+})

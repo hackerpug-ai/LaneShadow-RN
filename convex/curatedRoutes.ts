@@ -11,7 +11,7 @@
 import { v } from 'convex/values'
 import type { Doc } from './_generated/dataModel'
 import { internalQuery, query } from './_generated/server'
-import { geospatial } from './geospatialIndex'
+import { haversineDistance } from './curatedGeometryGate'
 import { requireIdentity } from './guards'
 import {
   type ParseRouteNameResult,
@@ -24,7 +24,7 @@ import {
   type UiArchetype,
   uiArchetypeToDbSet,
 } from './util/archetypeMap'
-import { clampLength, normalizeState, stateVariants } from './util/dataNormalization'
+import { clampLength, normalizeState } from './util/dataNormalization'
 
 export type { ParseRouteNameResult }
 /** Deterministic A-to-B / highway-ref parser (Lever 3). Named export for CAP-GEO-06. */
@@ -167,27 +167,49 @@ function buildRouteCard(route: any, distanceMi?: number) {
   }
 }
 
-function buildGeoFilter(stateValues?: string[], dbArchetypeSet?: Set<string>) {
-  if (stateValues && stateValues.length > 0) {
-    return (q: any) =>
-      stateValues.length === 1 ? q.eq('state', stateValues[0]) : q.in('state', stateValues)
-  }
-
-  if (dbArchetypeSet && dbArchetypeSet.size > 0) {
-    return (q: any) => q.in('primaryArchetype', [...dbArchetypeSet])
-  }
-
-  return undefined
-}
-
 function stateCodeForName(name: string): string {
   return STATE_CODES[name] ?? name.slice(0, 2).toUpperCase()
+}
+
+/**
+ * SURF hard-gate (S6-T2): every browse mode reads exclusively via
+ * by_riderReady_and_composite_score. Status flags (retired/shadow/quarantine)
+ * are excluded by stored riderReady=false on those rows; defense-in-depth
+ * filters remain for geometryStatus/retiredAt/duplicateOf/quarantine.
+ * NEVER reintroduce a read-time .filter(r => r.riderReady) as the primary gate.
+ */
+async function queryRiderReadyRoutes(ctx: any, take: number) {
+  return ctx.db
+    .query('curated_routes')
+    .withIndex('by_riderReady_and_composite_score', (q: any) => q.eq('riderReady', true))
+    .order('desc')
+    .take(take)
+}
+
+function isSurfaceEligible(route: any): boolean {
+  return (
+    route.retiredAt == null &&
+    route.geometryStatus !== 'retired' &&
+    route.duplicateOf == null &&
+    route.quarantine == null
+  )
+}
+
+function inBbox(
+  route: any,
+  bbox: { north: number; south: number; east: number; west: number },
+): boolean {
+  return (
+    route.centroidLat <= bbox.north &&
+    route.centroidLat >= bbox.south &&
+    route.centroidLng <= bbox.east &&
+    route.centroidLng >= bbox.west
+  )
 }
 
 async function listCuratedRoutesHandler(ctx: any, args: any) {
   const effectiveLimit = Math.min(args.limit ?? 50, 200)
   const sort = args.sort ?? 'best'
-  const stateValues = args.state ? stateVariants(args.state) : undefined
   const normalizedState = args.state ? normalizeState(args.state) : undefined
 
   let dbArchetypeSet: Set<string> | undefined
@@ -200,50 +222,33 @@ async function listCuratedRoutesHandler(ctx: any, args: any) {
     }
   }
 
-  const geoFilter = buildGeoFilter(stateValues, dbArchetypeSet)
-
   const matchesArchetype = (route: any) =>
     !dbArchetypeSet || dbArchetypeSet.has(route.primaryArchetype)
 
   const matchesState = (route: any) =>
     !normalizedState || normalizeState(route.state) === normalizedState
 
-  // Mode 1: bbox query (geospatial rectangle), ranked by score.
+  // Window size when post-filtering by state/archetype/bbox/distance.
+  // Index already gates riderReady=true — never pad with non-ready rows.
+  const filteredTake = Math.min(
+    Math.max(effectiveLimit * 20, effectiveLimit),
+    dbArchetypeSet || normalizedState || args.bbox || sort === 'nearest' ? 2000 : effectiveLimit,
+  )
+
+  // Mode 1: bbox — riderReady index + centroid-in-rectangle filter, ranked by score.
   if (args.bbox && sort !== 'nearest') {
-    const geoResults = await (geospatial as any).query(ctx, {
-      shape: {
-        type: 'rectangle',
-        rectangle: {
-          west: args.bbox.west,
-          east: args.bbox.east,
-          south: args.bbox.south,
-          north: args.bbox.north,
-        },
-      },
-      filter: geoFilter,
-      limit: effectiveLimit * 2,
-    })
-
-    const routes = await Promise.all(geoResults.results.map((r: any) => ctx.db.get(r.key as any)))
-
-    return routes
+    const ready = await queryRiderReadyRoutes(ctx, filteredTake)
+    return ready
       .filter(
-        (r): r is NonNullable<typeof r> =>
-          r !== null &&
-          matchesState(r) &&
-          matchesArchetype(r) &&
-          r.retiredAt == null &&
-          r.geometryStatus !== 'retired' &&
-          r.duplicateOf == null &&
-          r.quarantine == null &&
-          r.riderReady === true,
+        (r: any) =>
+          isSurfaceEligible(r) && matchesState(r) && matchesArchetype(r) && inBbox(r, args.bbox),
       )
-      .map((r) => buildRouteCard(r))
-      .sort((a, b) => b.compositeScore - a.compositeScore)
+      .map((r: any) => buildRouteCard(r))
+      .sort((a: any, b: any) => b.compositeScore - a.compositeScore)
       .slice(0, effectiveLimit)
   }
 
-  // Mode 2: nearest query (geospatial nearest)
+  // Mode 2: nearest — riderReady index + haversine distance, capped at 20 mi.
   if (sort === 'nearest') {
     const center =
       args.center ??
@@ -258,83 +263,39 @@ async function listCuratedRoutesHandler(ctx: any, args: any) {
       throw new Error('Center point required for sort=nearest')
     }
 
-    const nearestResults = await (geospatial as any).nearest(ctx, {
-      point: { latitude: center.lat, longitude: center.lng },
-      limit: effectiveLimit * 3,
-      filter: geoFilter,
-    })
-
-    const pairs = await Promise.all(
-      nearestResults.map(async (r: any) => ({
-        geo: r,
-        route: await ctx.db.get(r.key as any),
-      })),
-    )
-
-    return pairs
-      .filter(
-        (p) =>
-          p.route !== null &&
-          p.route.riderReady === true &&
-          p.route.retiredAt == null &&
-          p.route.geometryStatus !== 'retired' &&
-          p.route.duplicateOf == null &&
-          p.route.quarantine == null &&
-          matchesState(p.route) &&
-          matchesArchetype(p.route),
-      )
-      .map((p) => buildRouteCard(p.route, p.geo.distance * 0.000621371))
-      .filter((route) => isWithinNearestCuratedRouteDistance(route.distanceMi))
-      .sort((a, b) => (a.distanceMi ?? 0) - (b.distanceMi ?? 0))
-      .slice(0, effectiveLimit)
-  }
-
-  // Mode 3: state-only query (by_state index, both spelling variants)
-  if (args.state && !args.bbox) {
-    const all: any[] = []
-
-    for (const variant of stateValues ?? []) {
-      const batch = await ctx.db
-        .query('curated_routes')
-        .withIndex('by_state', (q: any) => q.eq('state', variant))
-        .take(effectiveLimit * 2)
-      all.push(...batch)
-    }
-
-    const seen = new Set<string>()
-    return all
-      .filter((r) => {
-        if (seen.has(r._id)) return false
-        seen.add(r._id)
-        return (
-          matchesArchetype(r) &&
-          r.retiredAt == null &&
-          r.geometryStatus !== 'retired' &&
-          r.duplicateOf == null &&
-          r.quarantine == null
+    const ready = await queryRiderReadyRoutes(ctx, filteredTake)
+    return ready
+      .filter((r: any) => isSurfaceEligible(r) && matchesState(r) && matchesArchetype(r))
+      .map((r: any) => {
+        const distanceMi = haversineDistance(
+          { lat: center.lat, lng: center.lng },
+          { lat: r.centroidLat, lng: r.centroidLng },
         )
+        return buildRouteCard(r, distanceMi)
       })
-      .map((r) => buildRouteCard(r))
-      .sort((a, b) => b.compositeScore - a.compositeScore)
+      .filter((route: any) => isWithinNearestCuratedRouteDistance(route.distanceMi))
+      .sort((a: any, b: any) => (a.distanceMi ?? 0) - (b.distanceMi ?? 0))
       .slice(0, effectiveLimit)
   }
 
-  // Mode 4: national best — riderReady-gated via by_riderReady_and_composite_score index.
-  const topRoutes = await ctx.db
-    .query('curated_routes')
-    .withIndex('by_riderReady_and_composite_score', (q: any) => q.eq('riderReady', true))
-    .order('desc')
-    .take(dbArchetypeSet ? Math.min(effectiveLimit * 10, 800) : effectiveLimit)
+  // Mode 3: state-only — riderReady index + state filter (closes by_state gap).
+  if (args.state && !args.bbox) {
+    const ready = await queryRiderReadyRoutes(ctx, filteredTake)
+    return ready
+      .filter((r: any) => isSurfaceEligible(r) && matchesState(r) && matchesArchetype(r))
+      .map((r: any) => buildRouteCard(r))
+      .sort((a: any, b: any) => b.compositeScore - a.compositeScore)
+      .slice(0, effectiveLimit)
+  }
+
+  // Mode 4: national best — riderReady-gated via by_riderReady_and_composite_score.
+  const topRoutes = await queryRiderReadyRoutes(
+    ctx,
+    dbArchetypeSet ? Math.min(effectiveLimit * 10, 800) : effectiveLimit,
+  )
 
   return topRoutes
-    .filter(
-      (r: any) =>
-        matchesArchetype(r) &&
-        r.retiredAt == null &&
-        r.geometryStatus !== 'retired' &&
-        r.duplicateOf == null &&
-        r.quarantine == null,
-    )
+    .filter((r: any) => matchesArchetype(r) && isSurfaceEligible(r))
     .map((r: any) => buildRouteCard(r))
     .slice(0, effectiveLimit)
 }

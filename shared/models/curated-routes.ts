@@ -173,7 +173,7 @@ export const curatedRouteValidator = v.object({
 
   // ========================================================================
   // DATA-011: generated per-route line geometry (name-anchored backfill).
-  // Optional — rows without it fall back to the centroid in discoverCuratedRoutes.
+  // Optional — rows without multi-point geometry are excluded from discoverCuratedRoutes (S6-T2).
   // ========================================================================
   routeGeometry: v.optional(
     v.object({

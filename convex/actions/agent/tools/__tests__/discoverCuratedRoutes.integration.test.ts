@@ -125,6 +125,27 @@ const FIXTURE_NC_SCENIC_ROUTES = [
 const FIXTURE_ROUTE_PLAN_ID = 'route_plans:k7m2g3v4q8s5j6t1n9w2e3r4' as any
 const MOCK_PLANNING_SESSION_ID = 'planning_sessions:abc123' as any
 
+/** Multi-point polyline geometry for plottable fixture routes (S6-T2: no centroid pad). */
+const FIXTURE_DEFAULT_GEOMETRY_ROWS = FIXTURE_NC_SCENIC_ROUTES.filter(
+  (r) => r.geometryStatus === 'generated',
+).map((r, i) => ({
+  routeId: r.routeId,
+  format: 'polyline' as const,
+  encoding: 'polyline',
+  precision: 5,
+  value: polyline.encode([
+    [r.centroidLat - 0.05, r.centroidLng - 0.05],
+    [r.centroidLat, r.centroidLng],
+    [r.centroidLat + 0.05, r.centroidLng + 0.05 + i * 0.001],
+  ] as [number, number][]),
+  segments: null,
+}))
+
+/** Routes discovery can actually return: generated + multi-point side-table geometry. */
+const FIXTURE_PLOTTABLE_ROUTES = FIXTURE_NC_SCENIC_ROUTES.filter(
+  (r) => r.geometryStatus === 'generated',
+)
+
 // ---------------------------------------------------------------------------
 // Fake AgentContext — records every runQuery / runMutation call
 // ---------------------------------------------------------------------------
@@ -140,7 +161,7 @@ function buildMockCtx(opts: { curatedRoutes?: any[]; geometryRows?: any[]; allow
   const queries: CapturedQuery[] = []
   const mutations: CapturedMutation[] = []
   const curatedRoutes = opts.curatedRoutes ?? FIXTURE_NC_SCENIC_ROUTES
-  const geometryRows = opts.geometryRows ?? []
+  const geometryRows = opts.geometryRows ?? FIXTURE_DEFAULT_GEOMETRY_ROWS
   const allowed = opts.allowed ?? true
 
   /**
@@ -309,22 +330,22 @@ describe('DATA-008 AC-1: fixtured intent drives a route_plans row whose options 
     const options = updateCall!.args.result?.options
     expect(Array.isArray(options), 'options must be an array').toBe(true)
 
-    // THEN: option count matches the listCuratedRoutes result count (1..5)
-    expect(options.length).toBe(FIXTURE_NC_SCENIC_ROUTES.length)
+    // THEN: option count matches plottable generated routes only (S6-T2: no pad)
+    expect(options.length).toBe(FIXTURE_PLOTTABLE_ROUTES.length)
     expect(options.length).toBeLessThanOrEqual(5)
+    expect(options.length).toBeLessThan(FIXTURE_NC_SCENIC_ROUTES.length) // pending excluded
 
-    // THEN: option routeOptionId set === 'curated-' + queried route ids (same set)
-    const expectedIds = FIXTURE_NC_SCENIC_ROUTES.map((r) => `curated-${r.routeId}`).sort()
+    // THEN: option routeOptionId set === 'curated-' + plottable route ids
+    const expectedIds = FIXTURE_PLOTTABLE_ROUTES.map((r) => `curated-${r.routeId}`).sort()
     const actualIds = options.map((o: any) => o.routeOptionId).sort()
     expect(actualIds).toEqual(expectedIds)
 
-    // THEN: option labels match the queried route names (label set corresponds)
-    const expectedLabels = FIXTURE_NC_SCENIC_ROUTES.map((r) => r.name).sort()
+    // THEN: option labels match the plottable route names
+    const expectedLabels = FIXTURE_PLOTTABLE_ROUTES.map((r) => r.name).sort()
     const actualLabels = options.map((o: any) => o.label).sort()
     expect(actualLabels).toEqual(expectedLabels)
 
-    // THEN: route geometry matches the RN map contract. A raw encoded string
-    // crashes decodePolylineGeometry because it expects { value, precision }.
+    // THEN: route geometry matches the RN map contract and decodes to >=2 points.
     for (const option of options) {
       expect(option.map.overviewGeometry).toMatchObject({
         format: 'polyline',
@@ -333,6 +354,11 @@ describe('DATA-008 AC-1: fixtured intent drives a route_plans row whose options 
       })
       expect(typeof option.map.overviewGeometry.value).toBe('string')
       expect(option.map.overviewGeometry.value.length).toBeGreaterThan(0)
+      const decoded = polyline.decode(
+        option.map.overviewGeometry.value,
+        option.map.overviewGeometry.precision,
+      ) as [number, number][]
+      expect(decoded.length).toBeGreaterThanOrEqual(2)
     }
 
     // Negative controls (would fail if the tool degraded to a chat no-op)
