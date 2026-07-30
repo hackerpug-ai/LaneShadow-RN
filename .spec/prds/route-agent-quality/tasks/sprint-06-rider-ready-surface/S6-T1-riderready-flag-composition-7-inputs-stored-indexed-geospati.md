@@ -1,6 +1,9 @@
 # S6-T1 — riderReady flag composition (7 inputs) stored + indexed + geospatial re-index migration gate + recompute triggers (SURF-01)
 
-> Status: ⬜ Pending
+> Status: ✅ Completed
+> Commit: 6a78b978c38fa623cb7ba889994f7ee7a782854c
+> Reviewer: product-manager+convex-reviewer
+> Completed: 2026-07-30T06:38:27Z
 > Proposed By: `convex-planner`
 
 | Field | Value |

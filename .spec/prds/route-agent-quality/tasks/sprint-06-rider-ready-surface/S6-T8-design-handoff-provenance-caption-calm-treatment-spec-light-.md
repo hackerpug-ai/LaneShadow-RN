@@ -1,6 +1,9 @@
 # S6-T8 — Design handoff — provenance caption calm treatment spec (light + dark tokens)
 
-> Status: ⬜ Pending
+> Status: ✅ Completed
+> Commit: 837e2475367a249ccfeb13f01a0f3f9c6b2b7ab7
+> Reviewer: product-manager+react-native-ui-reviewer
+> Completed: 2026-07-30T06:26:25Z
 > Proposed By: `frontend-designer`
 
 | Field | Value |
