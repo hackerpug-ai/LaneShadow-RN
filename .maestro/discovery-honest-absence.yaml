@@ -1,0 +1,172 @@
+# S6-T6 / UC-SURF-04 / TC-7 — Honest thin-region absence (S6-T3 surface)
+#
+# E2E (real iOS simulator + live Convex dev). Human-surface proof that nearest
+# discovery in a thin-coverage region shows the literal caption
+# "no routes near you yet" (testID discovery-empty-honest) rather than
+# fabricated "0mi" pills or the legacy "No nearby routes" string.
+#
+# Cross-task dependency: S6-T3 owns the production surface
+# (app/(app)/(tabs)/index.tsx + components/chat/chat-input.tsx). This flow
+# drives the REAL HomeMapScreen — never a stubbed discovery surface.
+#
+# SEED (public_api, before run):
+#   - Rider-ready routes ONLY outside the nearest radius of the simulated
+#     location (e.g. all routes in NC/SC). Optional helper:
+#     npx convex run curatedGeometryTestSupport:seedS6T2ThinRegionOnlyNonReady
+#     (or equivalent seed that leaves SLC empty of rider-ready nearest hits)
+#   - CLERK_TEST_EMAIL / CLERK_TEST_PASSWORD available for e2e-test-login-button
+#
+# LOCATION PRECONDITION (mirrors discovery-full-gate.yaml cold-boot notes):
+#   clearKeychain:true resets the iOS location permission grant. Pre-grant:
+#     xcrun simctl privacy booted grant location-always com.hackerpug.laneshadow
+#   Simulate thin-region (Salt Lake City — far from NC/SC fixtures):
+#     xcrun simctl location booted set 40.76,-111.89
+#
+# DO NOT use _common-launch-to-plan.yaml here — clearKeychain flows must own
+# their location-grant race (discovery-full-gate.yaml:28-32). Cold-boot sequence
+# inlined from rec-016-cold-boot-recovered-route-plots.yaml.
+#
+# Live env:
+#   maestro test .maestro/discovery-honest-absence.yaml
+#
+# MUST_OBSERVE: discovery-empty-honest + "no routes near you yet"
+# MUST_NOT_OBSERVE: "0mi", "No nearby routes", discovery-suggestion-pill-*,
+#                   chat-error-message
+
+appId: com.hackerpug.laneshadow
+tags:
+  - discovery-honest-absence
+  - surf-04
+---
+- stopApp
+
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+# ── Cold-boot: Expo dev-client launcher (rec-016 pattern) ───────────────────
+- extendedWaitUntil:
+    visible:
+      text: "DEVELOPMENT SERVERS|Login with Email|Plan|Saved|chat|laneshadow|Where|Route"
+    timeout: 180000
+
+- runFlow:
+    when:
+      visible: { text: "DEVELOPMENT SERVERS" }
+    commands:
+      - tapOn:
+          text: ".*localhost:8081.*"
+
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|.*developer menu.*|Reload|Go home|Toggle performance monitor|Toggle element inspector|Open JS debugger|Close|Continue"
+    timeout: 240000
+
+# FIRST-RUN RACE FIX: dedicated Continue window on clearState cold boots.
+- extendedWaitUntil:
+    visible:
+      text: "Continue"
+    timeout: 30000
+    optional: true
+
+- runFlow:
+    when:
+      visible: { text: "Continue" }
+    commands:
+      - tapOn: { text: "Continue" }
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: { text: "Continue" }
+    commands:
+      - tapOn: { text: "Continue" }
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: { text: "Close" }
+    commands:
+      - tapOn: { text: "Close" }
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: { text: "Reload" }
+    commands:
+      - tapOn: { text: "Reload" }
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: { text: "Go home|Toggle performance monitor" }
+    commands:
+      - tapOn:
+          point: "50%,7%"
+      - waitForAnimationToEnd
+
+# ── Auth: E2E test login (EXPO_PUBLIC_E2E=1) ─────────────────────────────────
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|Plan|Saved|Where|Route"
+    timeout: 180000
+
+- runFlow:
+    when:
+      visible: { text: "Continue" }
+    commands:
+      - tapOn: { text: "Continue" }
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: { text: "Close" }
+    commands:
+      - tapOn: { text: "Close" }
+
+- runFlow:
+    when:
+      visible: { text: "Login with Email" }
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: "e2e-test-login-button"
+          timeout: 60000
+      - tapOn: { id: "e2e-test-login-button" }
+
+# Home map + chat input mounted.
+- extendedWaitUntil:
+    visible:
+      id: "chat-input"
+    timeout: 180000
+
+# Wait for the suggestion-chip row to mount (empty or populated).
+- extendedWaitUntil:
+    visible:
+      id: "chat-input-suggestion-chips"
+    timeout: 60000
+
+# ── ASSERT: honest thin-region absence (S6-T3) ──────────────────────────────
+# testID discovery-empty-honest carries literal "no routes near you yet".
+- extendedWaitUntil:
+    visible:
+      id: "discovery-empty-honest"
+    timeout: 60000
+- assertVisible:
+    id: "discovery-empty-honest"
+- assertVisible: "no routes near you yet"
+
+# Zero populated curated pills (route-backed chips).
+- assertNotVisible:
+    id: "discovery-suggestion-pill-.*"
+    optional: true
+
+# Legacy string retired by S6-T3 must not reappear.
+- assertNotVisible: "No nearby routes"
+
+# Thin-region absence is NOT an error state.
+- assertNotVisible:
+    id: "chat-error-message"
+    optional: true
+
+# Screenshot artifact (AC-2 / MUST_OBSERVE).
+- takeScreenshot: 01-thin-region-honest-absence-caption

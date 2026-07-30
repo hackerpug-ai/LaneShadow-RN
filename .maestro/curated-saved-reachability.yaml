@@ -1,0 +1,249 @@
+# S6-T6 / UC-SURF-06 — Saved curated route remains reachable after quarantine
+#
+# E2E (real iOS simulator + live Convex dev). Proves the rider-ready gate
+# filters SUGGESTIONS only — never the rider's own saved library.
+#
+# Flow:
+#   1. Cold-boot + E2E login
+#   2. Deep-link to a rider-ready curated route and tap Save
+#   3. MID-FLOW: operator / harness flips that route to non-ready (quarantine)
+#      via public_api (REQUIRED — DEGENERATE_ONLY if skipped)
+#   4. Navigate to Saved, reopen the bookmark
+#   5. Assert detail still resolves (name + map; no error / NOT_FOUND / block)
+#
+# SEED (public_api, before run):
+#   - Rider-ready curated route with slug e.g. cherohala-skyway (polyline ok)
+#   - Test rider account (CLERK_TEST_EMAIL / CLERK_TEST_PASSWORD) with no
+#     prior saved bookmark for that route (clearState clears local session;
+#     unsave out-of-band if the Convex bookmark already exists)
+#
+# MID-FLOW QUARANTINE (public_api — required between save and reopen):
+#   After screenshot `mid-flow-before-quarantine-flip`, the harness MUST flip
+#   riderReady → false for the saved route. Preferred operator commands on
+#   live Convex dev (pick one that matches the seeded routeId):
+#
+#   # A) S6-T5 progression fixture (if seedS6T5StatusProgression was used):
+#   npx convex run curatedGeometryTestSupport:advanceS6T5ProgressionQuarantine '{}' \
+#     --identity '{"subject":"<operator>","issuer":"https://laneshadow.test"}'
+#
+#   # B) Cherohala / Wasatch (production slug) — operator patches quarantine
+#   #    then recomputes riderReady, e.g. via Convex dashboard data editor:
+#   #      quarantine: { reason: "length_outlier", flaggedAt: <now> }
+#   #    then:
+#   npx convex run curatedGeometryTestSupport:recomputeRiderReadyForRoutePublic \
+#     '{"routeId":"cherohala-skyway"}' \
+#     --identity '{"subject":"<operator>","issuer":"https://laneshadow.test"}'
+#
+#   Live harness recipe (split around the flip):
+#     1) Run this flow under continuous observation OR pause after
+#        mid-flow-before-quarantine-flip
+#     2) Apply public_api quarantine + recompute (riderReady must be false)
+#     3) Resume reopen section (Saved → detail)
+#
+#   A run that never flips riderReady is DEGENERATE_ONLY (AC-3 negative control).
+#
+# Selectors: stable deep-links + production testIDs only
+#   (curated-route-detail-name, curated-detail-map, save-curated-button,
+#    saved-routes-list, e2e-test-login-button).
+#
+# Live env:
+#   maestro test .maestro/curated-saved-reachability.yaml
+#
+# MUST_OBSERVE (post-quarantine reopen):
+#   curated-route-detail-name with route literal, curated-detail-map,
+#   screenshot saved-route-still-resolves-after-quarantine
+# MUST_NOT_OBSERVE:
+#   Render Error / ConvexError / NOT_FOUND, empty Saved list, blocked affordance
+
+appId: com.hackerpug.laneshadow
+tags:
+  - curated-saved-reachability
+  - surf-06
+---
+- stopApp
+
+- launchApp:
+    clearState: true
+    clearKeychain: true
+
+# ── Cold-boot auth (rec-016 pattern — clearKeychain owns location race) ─────
+- extendedWaitUntil:
+    visible:
+      text: "DEVELOPMENT SERVERS|Login with Email|Plan|Saved|chat|laneshadow|Where|Route"
+    timeout: 180000
+
+- runFlow:
+    when:
+      visible: { text: "DEVELOPMENT SERVERS" }
+    commands:
+      - tapOn:
+          text: ".*localhost:8081.*"
+
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|.*developer menu.*|Reload|Go home|Toggle performance monitor|Toggle element inspector|Open JS debugger|Close|Continue"
+    timeout: 240000
+
+- extendedWaitUntil:
+    visible:
+      text: "Continue"
+    timeout: 30000
+    optional: true
+
+- runFlow:
+    when:
+      visible: { text: "Continue" }
+    commands:
+      - tapOn: { text: "Continue" }
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: { text: "Continue" }
+    commands:
+      - tapOn: { text: "Continue" }
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: { text: "Close" }
+    commands:
+      - tapOn: { text: "Close" }
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: { text: "Reload" }
+    commands:
+      - tapOn: { text: "Reload" }
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: { text: "Go home|Toggle performance monitor" }
+    commands:
+      - tapOn:
+          point: "50%,7%"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Login with Email|Plan|Saved|Where|Route"
+    timeout: 180000
+
+- runFlow:
+    when:
+      visible: { text: "Continue" }
+    commands:
+      - tapOn: { text: "Continue" }
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: { text: "Close" }
+    commands:
+      - tapOn: { text: "Close" }
+
+- runFlow:
+    when:
+      visible: { text: "Login with Email" }
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: "e2e-test-login-button"
+          timeout: 60000
+      - tapOn: { id: "e2e-test-login-button" }
+
+- extendedWaitUntil:
+    visible:
+      id: "chat-input"
+    timeout: 180000
+
+# ── Save a rider-ready curated route via deep-link entry ────────────────────
+- openLink: laneshadow:///curated-route/cherohala-skyway
+
+- extendedWaitUntil:
+    visible:
+      id: "curated-route-detail-name"
+      text: "Cherohala Skyway"
+    timeout: 60000
+- assertVisible:
+    id: "curated-route-detail-name"
+    text: "Cherohala Skyway"
+
+# Scroll to reveal action row (save control may sit below the fold).
+- swipe:
+    direction: UP
+    duration: 400
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- extendedWaitUntil:
+    visible:
+      id: "save-curated-button"
+    timeout: 15000
+- tapOn:
+    id: "save-curated-button"
+
+# Control flips to Saved (in place — no navigation away).
+- extendedWaitUntil:
+    visible:
+      id: "save-curated-button"
+      text: ".*Saved.*"
+    timeout: 20000
+- assertVisible:
+    id: "curated-route-detail-name"
+    text: "Cherohala Skyway"
+
+- takeScreenshot: mid-flow-before-quarantine-flip
+
+# ── MID-FLOW OPERATOR HOOK (public_api) ─────────────────────────────────────
+# Harness MUST quarantine cherohala-skyway (or the seeded routeId) here so
+# riderReady becomes false before the Saved reopen. See file header for the
+# exact npx convex run commands. Wait window allows continuous/harness inject.
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: mid-flow-after-quarantine-flip
+
+# ── Reopen from Saved library (must still resolve) ──────────────────────────
+- openLink: laneshadow:///saved-routes
+
+- extendedWaitUntil:
+    visible:
+      id: "saved-routes-list"
+    timeout: 30000
+- assertVisible:
+    id: "saved-routes-list"
+
+# Saved list must still show the route (gate must NOT empty the library).
+- assertVisible: "Cherohala Skyway"
+- assertNotVisible: "No saved routes"
+- assertNotVisible: "You have no saved routes"
+
+# Open the saved bookmark → curated detail via getCuratedRouteDetail.
+- tapOn: "Cherohala Skyway"
+
+- extendedWaitUntil:
+    visible:
+      id: "curated-route-detail-name"
+      text: "Cherohala Skyway"
+    timeout: 60000
+- assertVisible:
+    id: "curated-route-detail-name"
+    text: "Cherohala Skyway"
+- assertVisible:
+    id: "curated-detail-map"
+
+# Negative: no crash / not-found / blocked surfaces after quarantine flip.
+- assertNotVisible:
+    id: "curated-route-detail-fallback"
+    optional: true
+- assertNotVisible:
+    id: "route-detail-not-found"
+    optional: true
+- assertNotVisible: "Render Error"
+- assertNotVisible: "ConvexError"
+- assertNotVisible: "NOT_FOUND"
+- assertNotVisible: "route unavailable"
+- assertNotVisible: "blocked"
+
+- takeScreenshot: saved-route-still-resolves-after-quarantine
