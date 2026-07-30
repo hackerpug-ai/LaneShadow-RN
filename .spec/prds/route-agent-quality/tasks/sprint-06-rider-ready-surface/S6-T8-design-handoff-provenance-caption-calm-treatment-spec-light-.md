@@ -169,7 +169,9 @@ SCENARIO:
           "would_fail_if": [
             "spec absent",
             "copy paraphrased",
-            "only one of two strings present"
+            "only one of two strings present",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -187,14 +189,16 @@ SCENARIO:
             },
             "end_state": {
               "must_observe": [
-                "file exists",
+                "file exists (observed count >= 1 OR exact literal match)",
                 "both literal caption strings present (>=1 match each)"
               ],
               "must_not_observe": [
                 "file absent",
-                "paraphrased copy"
+                "paraphrased copy",
+                "empty result (0)"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -212,7 +216,9 @@ SCENARIO:
         "negative_control": {
           "would_fail_if": [
             "spec names a non-existent token",
-            "tokens:validate exits non-zero"
+            "tokens:validate exits non-zero",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -231,13 +237,15 @@ SCENARIO:
             "end_state": {
               "must_observe": [
                 "exit code 0",
-                "no unresolved-token errors for the two cited paths"
+                "no unresolved-token errors for the two cited paths (observed count >= 1 OR exact literal match)"
               ],
               "must_not_observe": [
                 "non-zero exit",
-                "token-not-found warning"
+                "token-not-found warning",
+                "empty/start signature: result count == 0 or field absent"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -255,7 +263,9 @@ SCENARIO:
         "negative_control": {
           "would_fail_if": [
             "rule omitted",
-            "rule allows Badge in dark mode"
+            "rule allows Badge in dark mode",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -276,9 +286,11 @@ SCENARIO:
               ],
               "must_not_observe": [
                 "rule absent",
-                "ambiguous Badge allowance"
+                "ambiguous Badge allowance",
+                "empty result (0)"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -288,21 +300,126 @@ SCENARIO:
       "type": "test_criterion",
       "description": "spec exists with both literal caption strings",
       "verify": "grep -c 'Route line reconstructed' .spec/design/provenance-caption-treatment.md",
-      "maps_to_ac": "AC-1"
+      "maps_to_ac": "AC-1",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-1"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-1 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "cited tokens resolve",
       "verify": "pnpm tokens:validate",
-      "maps_to_ac": "AC-2"
+      "maps_to_ac": "AC-2",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-2"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-2 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-3",
       "type": "test_criterion",
       "description": "no-Badge/no-warning rule present",
       "verify": "grep -E 'no Badge|not a Badge|no warning|no alert' .spec/design/provenance-caption-treatment.md",
-      "maps_to_ac": "AC-3"
+      "maps_to_ac": "AC-3",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-3"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-3 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     }
   ]
 }

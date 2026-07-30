@@ -201,7 +201,8 @@ SCENARIO:
           "would_fail_if": [
             "computeRiderReadyFromDoc hardcodes true regardless of inputs",
             "any one of the 7 inputs is skipped",
-            "geometry verification row is mocked null"
+            "geometry verification row is mocked null",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -226,9 +227,11 @@ SCENARIO:
               ],
               "must_not_observe": [
                 "riderReady == false",
-                "riderReady == null or absent"
+                "riderReady == null or absent",
+                "empty result (0)"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -247,7 +250,9 @@ SCENARIO:
           "would_fail_if": [
             "query calls computeRiderReadyFromDoc inline (recompute at read)",
             "index is not used (full table scan + filter)",
-            "riderReady field missing from doc"
+            "riderReady field missing from doc",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -273,7 +278,8 @@ SCENARIO:
                 "returned.length === 0",
                 "returned[0].riderReady === false"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -292,7 +298,8 @@ SCENARIO:
           "would_fail_if": [
             "composer short-circuits on the first input and skips the rest",
             "composer returns true when retiredAt != null",
-            "composer returns true when duplicateOf != null"
+            "composer returns true when duplicateOf != null",
+            "mocked/stubbed empty response still passes (test is fakeable)"
           ]
         },
         "evidence": {
@@ -315,9 +322,11 @@ SCENARIO:
               ],
               "must_not_observe": [
                 "riderReady == true",
-                "riderReady == null"
+                "riderReady == null",
+                "empty/start signature: result count == 0 or field absent"
               ]
-            }
+            },
+            "seed_method": "public_api"
           },
           {
             "start_ref": "duplicate-shadow",
@@ -334,9 +343,11 @@ SCENARIO:
                 "riderReady == false"
               ],
               "must_not_observe": [
-                "riderReady == true"
+                "riderReady == true",
+                "empty/start signature: result count == 0 or field absent"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -355,7 +366,9 @@ SCENARIO:
           "would_fail_if": [
             "the classifier-update mutation omits recomputeRiderReady",
             "recompute is deferred/batched and not in the same transaction",
-            "trigger list misses one of the 6 change sources"
+            "trigger list misses one of the 6 change sources",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -379,9 +392,11 @@ SCENARIO:
               ],
               "must_not_observe": [
                 "riderReady == true (trigger missed)",
-                "riderReady == null"
+                "riderReady == null",
+                "empty/start signature: result count == 0 or field absent"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -400,7 +415,8 @@ SCENARIO:
           "would_fail_if": [
             "gate is a stub that always returns parity",
             "gate reads only one side of the count",
-            "gate runs before re-index completes (race)"
+            "gate runs before re-index completes (race)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -427,7 +443,8 @@ SCENARIO:
                 "pointCount === 0",
                 "riderReadyCount === 0"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -437,35 +454,210 @@ SCENARIO:
       "type": "test_criterion",
       "description": "computeRiderReadyFromDoc returns true iff all 7 inputs are present and valid",
       "verify": "pnpm test -- convex/__tests__/S6T1-rider-ready-composition.integration.test.ts -t 'TC-1'",
-      "maps_to_ac": "AC-1"
+      "maps_to_ac": "AC-1",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-1"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-1 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "Gated queries return the route from by_riderReady_and_composite_score without recompute",
       "verify": "pnpm test -- convex/__tests__/S6T1-rider-ready-indexed.integration.test.ts -t 'TC-2'",
-      "maps_to_ac": "AC-2"
+      "maps_to_ac": "AC-2",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-2"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-2 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-3",
       "type": "test_criterion",
       "description": "Any one missing input forces riderReady=false (retiredAt/duplicateOf/classifier/name/score/length/geometry)",
       "verify": "pnpm test -- convex/__tests__/S6T1-rider-ready-false-on-missing.integration.test.ts -t 'TC-3'",
-      "maps_to_ac": "AC-3"
+      "maps_to_ac": "AC-3",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-3"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-3 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-4",
       "type": "test_criterion",
       "description": "Each of the 6 change sources triggers recomputeRiderReady in the same transaction",
       "verify": "pnpm test -- convex/__tests__/S6T1-rider-ready-recompute-triggers.integration.test.ts -t 'TC-4'",
-      "maps_to_ac": "AC-4"
+      "maps_to_ac": "AC-4",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-4"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-4 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-5",
       "type": "test_criterion",
       "description": "Geospatial re-index gate returns gateDeployable=true iff pointCount === riderReadyCount",
       "verify": "pnpm test -- convex/__tests__/S6T1-geospatial-reindex-gate.integration.test.ts -t 'TC-5'",
-      "maps_to_ac": "AC-5"
+      "maps_to_ac": "AC-5",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-5"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-5 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     }
   ]
 }

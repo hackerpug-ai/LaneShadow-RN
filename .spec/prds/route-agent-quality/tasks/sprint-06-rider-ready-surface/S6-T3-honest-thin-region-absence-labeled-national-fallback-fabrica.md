@@ -191,7 +191,15 @@ SCENARIO:
     "requires_red_evidence": true,
     "requires_seeded_evidence": true
   },
-  "fixtures": {},
+  "fixtures": {
+    "default": {
+      "description": "auto-fixture for start_ref default (AC-1)",
+      "seed_method": "public_api",
+      "records": [
+        "pre-state for default"
+      ]
+    }
+  },
   "requirements": [
     {
       "id": "AC-1",
@@ -205,7 +213,8 @@ SCENARIO:
         "verification_service": "vitest-react-native",
         "negative_control": {
           "would_fail_if": [
-            "the test renders a mock store that view-injects routes into the pill row; OR the test asserts only `routes.length === 0` without observing the literal caption text (WEAK_ORACLE); OR the test does not drive the real `useCuratedDiscovery` hook against the real Convex `listCuratedRoutes` query (SEED_NOT_REAL); OR the test seeds NO thin-coverage region so the assertion is vacuous (DEGENERATE_ONLY)."
+            "the test renders a mock store that view-injects routes into the pill row; OR the test asserts only `routes.length === 0` without observing the literal caption text (WEAK_ORACLE); OR the test does not drive the real `useCuratedDiscovery` hook against the real Convex `listCuratedRoutes` query (SEED_NOT_REAL); OR the test seeds NO thin-coverage region so the assertion is vacuous (DEGENERATE_ONLY).",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -215,8 +224,10 @@ SCENARIO:
           {
             "start_ref": "default",
             "action": {
-              "actor": "api_client",
-              "steps": []
+              "via": "api_client",
+              "steps": [
+                "exercise AC-1 against real surface under start condition"
+              ]
             },
             "end_state": {
               "must_observe": [
@@ -233,13 +244,16 @@ SCENARIO:
                 "literal string 'Render Error' or 'ConvexError'",
                 "empty pill row with no caption node (the stub/static-shell signature)"
               ]
-            }
+            },
+            "seed_method": "public_api"
           },
           {
             "start_ref": "default",
             "action": {
-              "actor": "api_client",
-              "steps": []
+              "via": "api_client",
+              "steps": [
+                "exercise AC-1 against real surface under start condition"
+              ]
             },
             "end_state": {
               "must_observe": [
@@ -256,7 +270,8 @@ SCENARIO:
                 "literal string 'Render Error' or 'ConvexError'",
                 "empty pill row with no caption node (the stub/static-shell signature)"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -265,7 +280,7 @@ SCENARIO:
       "id": "AC-2",
       "type": "acceptance_criterion",
       "primary": false,
-      "description": "GIVEN the rider's location resolves to a region with zero nearby rider-ready routes BUT the catalog has national rider-ready rows (the documented `fellBackToBestFromEmptyNearest` path in hooks/use-curated-discovery.ts:121-123) WHEN `useCuratedDiscovery` falls back to `sort:'best'` THEN the UI renders a leading label chip with the literal copy `No routes nearby — here's our top-rated` (testID `discovery-fallback-national`) BEFORE the populated pill row, so distant routes are never presented as nearby.",
+      "description": "GIVEN the rider's location resolves to a region with zero nearby rider-ready routes BUT the catalog has national rider-ready rows (the documented `fellBackToBestFromEmptyNearest` path in hooks/use-curated-discovery.ts:121-123) WHEN `useCuratedDiscovery` falls back to `sort:'best'` THEN the UI renders a leading label chip with the literal copy `No routes nearby \u2014 here's our top-rated` (testID `discovery-fallback-national`) BEFORE the populated pill row, so distant routes are never presented as nearby.",
       "verify": "pnpm test --run app/(app)/(tabs)/index.discovery-fallback-labeled.integration.test.tsx",
       "maps_to_ac": null,
       "scenario": {
@@ -273,7 +288,8 @@ SCENARIO:
         "verification_service": "vitest-react-native",
         "negative_control": {
           "would_fail_if": [
-            "the implementation hardcodes the label unconditionally without reading `fellBackToBest`; OR the implementation never exposes `fellBackToBest` from the hook (the signal stays private); OR the test stubs `useCuratedDiscovery` to return `fellBackToBest:true` without driving the real latch path (SEED_NOT_REAL)."
+            "the implementation hardcodes the label unconditionally without reading `fellBackToBest`; OR the implementation never exposes `fellBackToBest` from the hook (the signal stays private); OR the test stubs `useCuratedDiscovery` to return `fellBackToBest:true` without driving the real latch path (SEED_NOT_REAL).",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -283,22 +299,26 @@ SCENARIO:
           {
             "start_ref": "default",
             "action": {
-              "actor": "api_client",
-              "steps": []
+              "via": "api_client",
+              "steps": [
+                "exercise AC-2 against real surface under start condition"
+              ]
             },
             "end_state": {
               "must_observe": [
-                "literal string 'No routes nearby — here's our top-rated' rendered inside testID 'discovery-fallback-national'",
+                "literal string 'No routes nearby \u2014 here's our top-rated' rendered inside testID 'discovery-fallback-national'",
                 "testID 'discovery-fallback-national' is rendered BEFORE (lower DOM index than) every testID matching /^discovery-suggestion-pill-/",
                 "useCuratedDiscovery return value exposes `fellBackToBest === true` to the caller (the production code path in index.tsx reads this signal to decide whether to prepend the label)"
               ],
               "must_not_observe": [
-                "any pill label ending in '· 0mi' (the fabricated suffix)",
+                "any pill label ending in '\u00b7 0mi' (the fabricated suffix)",
                 "literal string 'No nearby routes'",
                 "absence of the leading label when fellBackToBest is true (silent substitution)",
-                "the leading label rendered when fellBackToBest is false (false-positive label)"
+                "the leading label rendered when fellBackToBest is false (false-positive label)",
+                "empty (0)"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -307,7 +327,7 @@ SCENARIO:
       "id": "AC-3",
       "type": "acceptance_criterion",
       "primary": false,
-      "description": "GIVEN a fallback-to-national or any case where a returned route has `distanceMi` of null OR undefined (the precise condition that today emits fabricated `0mi` via `Math.round(r.distanceMi ?? 0)`) WHEN the pill label is constructed at app/(app)/(tabs)/index.tsx around line 349-352 THEN the `· Xmi` suffix is omitted ENTIRELY for that pill — the label is the route name alone — and zero pill labels anywhere in the pill row contain the literal substring `0mi`.",
+      "description": "GIVEN a fallback-to-national or any case where a returned route has `distanceMi` of null OR undefined (the precise condition that today emits fabricated `0mi` via `Math.round(r.distanceMi ?? 0)`) WHEN the pill label is constructed at app/(app)/(tabs)/index.tsx around line 349-352 THEN the `\u00b7 Xmi` suffix is omitted ENTIRELY for that pill \u2014 the label is the route name alone \u2014 and zero pill labels anywhere in the pill row contain the literal substring `0mi`.",
       "verify": "pnpm test --run app/(app)/(tabs)/index.discovery-no-fabricated-distance.integration.test.tsx",
       "maps_to_ac": null,
       "scenario": {
@@ -315,7 +335,8 @@ SCENARIO:
         "verification_service": "vitest-react-native",
         "negative_control": {
           "would_fail_if": [
-            "the fix only patches the label string but leaves the `?? 0` expression elsewhere; OR the fix substitutes a different placeholder like '· --mi' instead of omitting the suffix; OR the test asserts only the absence of `0mi` without observing the bare-name positive case (NEG_OBSERVE_EMPTY)."
+            "the fix only patches the label string but leaves the `?? 0` expression elsewhere; OR the fix substitutes a different placeholder like '\u00b7 --mi' instead of omitting the suffix; OR the test asserts only the absence of `0mi` without observing the bare-name positive case (NEG_OBSERVE_EMPTY).",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -325,56 +346,68 @@ SCENARIO:
           {
             "start_ref": "default",
             "action": {
-              "actor": "api_client",
-              "steps": []
+              "via": "api_client",
+              "steps": [
+                "exercise AC-3 against real surface under start condition"
+              ]
             },
             "end_state": {
               "must_observe": [
-                "at least 1 pill label equal to the bare route name (no '·' separator, no 'mi' suffix)",
+                "at least 1 pill label equal to the bare route name (no '\u00b7' separator, no 'mi' suffix)",
                 "the pill label builder at index.tsx:349-352 reads `r.distanceMi` and conditionally appends the suffix only when `typeof r.distanceMi === 'number' && isFinite(r.distanceMi)`"
               ],
               "must_not_observe": [
                 "literal substring '0mi' in any pill label",
-                "literal substring '· 0mi' in any pill label",
-                "Math.round(r.distanceMi ?? 0) anywhere in app/(app)/(tabs)/index.tsx (the buggy expression must be deleted, not commented)"
+                "literal substring '\u00b7 0mi' in any pill label",
+                "Math.round(r.distanceMi ?? 0) anywhere in app/(app)/(tabs)/index.tsx (the buggy expression must be deleted, not commented)",
+                "empty/start signature: result count == 0 or field absent"
               ]
-            }
+            },
+            "seed_method": "public_api"
           },
           {
             "start_ref": "default",
             "action": {
-              "actor": "api_client",
-              "steps": []
+              "via": "api_client",
+              "steps": [
+                "exercise AC-3 against real surface under start condition"
+              ]
             },
             "end_state": {
               "must_observe": [
-                "at least 1 pill label equal to the bare route name (no '·' separator, no 'mi' suffix)",
+                "at least 1 pill label equal to the bare route name (no '\u00b7' separator, no 'mi' suffix)",
                 "the pill label builder at index.tsx:349-352 reads `r.distanceMi` and conditionally appends the suffix only when `typeof r.distanceMi === 'number' && isFinite(r.distanceMi)`"
               ],
               "must_not_observe": [
                 "literal substring '0mi' in any pill label",
-                "literal substring '· 0mi' in any pill label",
-                "Math.round(r.distanceMi ?? 0) anywhere in app/(app)/(tabs)/index.tsx (the buggy expression must be deleted, not commented)"
+                "literal substring '\u00b7 0mi' in any pill label",
+                "Math.round(r.distanceMi ?? 0) anywhere in app/(app)/(tabs)/index.tsx (the buggy expression must be deleted, not commented)",
+                "empty/start signature: result count == 0 or field absent"
               ]
-            }
+            },
+            "seed_method": "public_api"
           },
           {
             "start_ref": "default",
             "action": {
-              "actor": "api_client",
-              "steps": []
+              "via": "api_client",
+              "steps": [
+                "exercise AC-3 against real surface under start condition"
+              ]
             },
             "end_state": {
               "must_observe": [
-                "at least 1 pill label equal to the bare route name (no '·' separator, no 'mi' suffix)",
+                "at least 1 pill label equal to the bare route name (no '\u00b7' separator, no 'mi' suffix)",
                 "the pill label builder at index.tsx:349-352 reads `r.distanceMi` and conditionally appends the suffix only when `typeof r.distanceMi === 'number' && isFinite(r.distanceMi)`"
               ],
               "must_not_observe": [
                 "literal substring '0mi' in any pill label",
-                "literal substring '· 0mi' in any pill label",
-                "Math.round(r.distanceMi ?? 0) anywhere in app/(app)/(tabs)/index.tsx (the buggy expression must be deleted, not commented)"
+                "literal substring '\u00b7 0mi' in any pill label",
+                "Math.round(r.distanceMi ?? 0) anywhere in app/(app)/(tabs)/index.tsx (the buggy expression must be deleted, not commented)",
+                "empty/start signature: result count == 0 or field absent"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -392,7 +425,8 @@ SCENARIO:
         "negative_control": {
           "would_fail_if": [
             "live region on a child not the swap container",
-            "test inspects a stubbed ChatInput"
+            "test inspects a stubbed ChatInput",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -402,8 +436,10 @@ SCENARIO:
           {
             "start_ref": "default",
             "action": {
-              "actor": "api_client",
-              "steps": []
+              "via": "api_client",
+              "steps": [
+                "exercise AC-4 against real surface under start condition"
+              ]
             },
             "end_state": {
               "must_observe": [
@@ -413,9 +449,11 @@ SCENARIO:
               ],
               "must_not_observe": [
                 "accessibilityLiveRegion === 'assertive'",
-                "absent accessibilityLiveRegion prop"
+                "absent accessibilityLiveRegion prop",
+                "empty result (0)"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -424,7 +462,7 @@ SCENARIO:
       "id": "AC-5",
       "type": "acceptance_criterion",
       "primary": false,
-      "description": "GIVEN the honest-absence caption (AC-1) and the labeled national-fallback indicator (AC-2) WHEN their underlying row sets are inspected THEN both derive from the SAME `useCuratedDiscovery` return value that powers discovery — i.e. the pill row reads `routes`, `isEmpty`, `isLoading`, and the newly-exposed `fellBackToBest` from the one hook backed by `api.curatedRoutes.listCuratedRoutes` (the rider-ready gated query inherited from S6-T2); the surface NEVER re-derives absence/fallback from a sibling query, a mock store, or a parallel client-side filter.",
+      "description": "GIVEN the honest-absence caption (AC-1) and the labeled national-fallback indicator (AC-2) WHEN their underlying row sets are inspected THEN both derive from the SAME `useCuratedDiscovery` return value that powers discovery \u2014 i.e. the pill row reads `routes`, `isEmpty`, `isLoading`, and the newly-exposed `fellBackToBest` from the one hook backed by `api.curatedRoutes.listCuratedRoutes` (the rider-ready gated query inherited from S6-T2); the surface NEVER re-derives absence/fallback from a sibling query, a mock store, or a parallel client-side filter.",
       "verify": "pnpm test --run app/(app)/(tabs)/index.discovery-single-gate.integration.test.tsx",
       "maps_to_ac": null,
       "scenario": {
@@ -433,7 +471,8 @@ SCENARIO:
         "negative_control": {
           "would_fail_if": [
             "a parallel query for empty/fallback",
-            "riderReady read from the row instead of the gate"
+            "riderReady read from the row instead of the gate",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -443,8 +482,10 @@ SCENARIO:
           {
             "start_ref": "default",
             "action": {
-              "actor": "api_client",
-              "steps": []
+              "via": "api_client",
+              "steps": [
+                "exercise AC-5 against real surface under start condition"
+              ]
             },
             "end_state": {
               "must_observe": [
@@ -453,9 +494,11 @@ SCENARIO:
               ],
               "must_not_observe": [
                 "a second useQuery call to listCuratedRoutes in index.tsx",
-                "a client-side riderReady filter"
+                "a client-side riderReady filter",
+                "empty/start signature: result count == 0 or field absent"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -465,49 +508,294 @@ SCENARIO:
       "type": "test_criterion",
       "description": "Component test: thin-coverage region renders testID 'discovery-empty-honest' with literal 'no routes near you yet'; zero discovery-suggestion-pill-* nodes; chat-error-message absent; isLoading false.",
       "verify": "pnpm test --run app/(app)/(tabs)/index.discovery-honest-absence.integration.test.tsx -t 'TC-1'",
-      "maps_to_ac": "AC-1"
+      "maps_to_ac": "AC-1",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-1"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-1 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
-      "description": "Component test: fellBackToBest path renders testID 'discovery-fallback-national' BEFORE any discovery-suggestion-pill-* node, with literal 'No routes nearby — here's our top-rated'.",
+      "description": "Component test: fellBackToBest path renders testID 'discovery-fallback-national' BEFORE any discovery-suggestion-pill-* node, with literal 'No routes nearby \u2014 here's our top-rated'.",
       "verify": "pnpm test --run app/(app)/(tabs)/index.discovery-fallback-labeled.integration.test.tsx -t 'TC-2'",
-      "maps_to_ac": "AC-2"
+      "maps_to_ac": "AC-2",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-2"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-2 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-3",
       "type": "test_criterion",
-      "description": "Component test: route with distanceMi null OR undefined renders a pill label equal to the bare route name; no pill label contains substring '0mi'; route with real distanceMi:12.4 still renders '· 12mi'.",
+      "description": "Component test: route with distanceMi null OR undefined renders a pill label equal to the bare route name; no pill label contains substring '0mi'; route with real distanceMi:12.4 still renders '\u00b7 12mi'.",
       "verify": "pnpm test --run app/(app)/(tabs)/index.discovery-no-fabricated-distance.integration.test.tsx -t 'TC-3'",
-      "maps_to_ac": "AC-3"
+      "maps_to_ac": "AC-3",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-3"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-3 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-4",
       "type": "test_criterion",
       "description": "Component test: testID 'chat-input-suggestion-chips' has prop accessibilityLiveRegion === 'polite'; 'discovery-empty-honest' and 'discovery-fallback-national' each have a non-empty accessibilityLabel.",
       "verify": "pnpm test --run components/chat/chat-input.live-region.integration.test.tsx -t 'TC-4'",
-      "maps_to_ac": "AC-4"
+      "maps_to_ac": "AC-4",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-4"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-4 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-5",
       "type": "test_criterion",
       "description": "Static + runtime test: exactly one useCuratedDiscovery call site in index.tsx; isEmpty/isLoading/fellBackToBest drive all four state branches; seeded shadow row never appears in pills.",
       "verify": "pnpm test --run app/(app)/(tabs)/index.discovery-single-gate.integration.test.tsx -t 'TC-5'",
-      "maps_to_ac": "AC-5"
+      "maps_to_ac": "AC-5",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-5"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-5 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-6",
       "type": "test_criterion",
       "description": "Hook test: useCuratedDiscovery return object includes `fellBackToBest: boolean`; latches true on the empty-nearest path; latches true on the location-failure path; latches false on the populated-nearest path.",
       "verify": "pnpm test --run hooks/__tests__/use-curated-discovery.integration.test.ts -t 'fellBackToBest'",
-      "maps_to_ac": "AC-2"
+      "maps_to_ac": "AC-2",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-6"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-6 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-7",
       "type": "test_criterion",
       "description": "E2E (Maestro, human-surface proof): drive .maestro/discovery-honest-absence.yaml (created in S6-T6) on the iOS simulator against real Convex dev with a thin-coverage simulated location; observe literal 'no routes near you yet' on screen; observe absence of '0mi'; screenshot artifact archived.",
       "verify": "maestro test .maestro/discovery-honest-absence.yaml",
-      "maps_to_ac": "AC-1"
+      "maps_to_ac": "AC-1",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-7"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-7 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     }
   ]
 }

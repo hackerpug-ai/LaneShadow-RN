@@ -194,7 +194,8 @@ SCENARIO:
           "would_fail_if": [
             "caption hardcoded regardless of provenance",
             "projection returns geometryProvenance=null",
-            "static shell without projection"
+            "static shell without projection",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -219,9 +220,11 @@ SCENARIO:
               "must_not_observe": [
                 "no caption node",
                 "warning badge",
-                "alert color"
+                "alert color",
+                "empty (0)"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -240,7 +243,9 @@ SCENARIO:
           "would_fail_if": [
             "copy shared between the two values",
             "copy paraphrased",
-            "projection drops name_routed"
+            "projection drops name_routed",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -265,9 +270,11 @@ SCENARIO:
               "must_not_observe": [
                 "no caption node",
                 "warning badge",
-                "ai_reconstructed copy"
+                "ai_reconstructed copy",
+                "empty (0)"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -288,7 +295,8 @@ SCENARIO:
             "testID always present with empty text",
             "copy shown for scraped_promoted",
             "empty/blank detail screen accepted as passing the absence check (the start signature)",
-            "detail screen fails to render the route name (degenerate satisfier: blank shell)"
+            "detail screen fails to render the route name (degenerate satisfier: blank shell)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -315,7 +323,8 @@ SCENARIO:
                 "any node with testID 'curated-detail-provenance'",
                 "empty/blank detail screen (the start signature)"
               ]
-            }
+            },
+            "seed_method": "public_api"
           },
           {
             "start_ref": "seeded-pre-provenance",
@@ -337,7 +346,8 @@ SCENARIO:
                 "any node with testID 'curated-detail-provenance'",
                 "empty/blank detail screen (the start signature)"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -357,7 +367,9 @@ SCENARIO:
             "caption implemented as Badge",
             "uses semantic warning/alert color",
             "uses a prominent size/weight",
-            "caption node type is anything other than 'Text'"
+            "caption node type is anything other than 'Text'",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -384,9 +396,11 @@ SCENARIO:
               "must_not_observe": [
                 "Badge component",
                 "warning/alert color",
-                "bold/large weight"
+                "bold/large weight",
+                "empty/start signature: result count == 0 or field absent"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -396,28 +410,168 @@ SCENARIO:
       "type": "test_criterion",
       "description": "ai_reconstructed renders exact literal copy via testID curated-detail-provenance",
       "verify": "pnpm test -- 'app/(app)/curated-route/provenance-caption.test.tsx' -t AC-1",
-      "maps_to_ac": "AC-1"
+      "maps_to_ac": "AC-1",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-1"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-1 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "name_routed renders exact literal copy via testID curated-detail-provenance",
       "verify": "pnpm test -- 'app/(app)/curated-route/provenance-caption.test.tsx' -t AC-2",
-      "maps_to_ac": "AC-2"
+      "maps_to_ac": "AC-2",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-2"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-2 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-3",
       "type": "test_criterion",
       "description": "scraped_promoted and pre-provenance rows render no caption node",
       "verify": "pnpm test -- 'app/(app)/curated-route/provenance-caption.test.tsx' -t AC-3",
-      "maps_to_ac": "AC-3"
+      "maps_to_ac": "AC-3",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-3"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-3 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-4",
       "type": "test_criterion",
       "description": "caption is plain muted Text, not Badge, not warning color",
       "verify": "pnpm test -- 'app/(app)/curated-route/provenance-caption.test.tsx' -t AC-4",
-      "maps_to_ac": "AC-4"
+      "maps_to_ac": "AC-4",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-4"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-4 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     }
   ]
 }

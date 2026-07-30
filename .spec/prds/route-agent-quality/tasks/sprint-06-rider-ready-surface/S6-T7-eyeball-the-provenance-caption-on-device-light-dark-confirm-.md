@@ -205,7 +205,7 @@ SCENARIO:
   },
   "fixtures": {
     "real-catalog": {
-      "description": "The real, un-seeded post-Sprint-04 rider-ready catalog browsed on a real iOS device. Fixtures/seeded data are FORBIDDEN — the founder observes the same live surface a rider sees.",
+      "description": "The real, un-seeded post-Sprint-04 rider-ready catalog browsed on a real iOS device. Fixtures/seeded data are FORBIDDEN \u2014 the founder observes the same live surface a rider sees.",
       "seed_method": "recorded_external",
       "records": [
         "real un-seeded post-Sprint-04 curated_routes catalog",
@@ -229,7 +229,9 @@ SCENARIO:
             "the caption reads as a warning or alert rather than plain context",
             "a fixture or seeded catalog is substituted for the real post-Sprint-04 catalog",
             "the route line decodes to fewer than 2 points (a dot masquerading as a route)",
-            "the detail view is blocked or shows an error screen instead of opening"
+            "the detail view is blocked or shows an error screen instead of opening",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -258,7 +260,8 @@ SCENARIO:
                 "blocked or error screen preventing the detail view from opening (0 route elements rendered)",
                 "spinner state stuck with 0 route elements rendered"
               ]
-            }
+            },
+            "seed_method": "recorded_external"
           }
         ]
       }
@@ -278,7 +281,9 @@ SCENARIO:
             "the caption reads as a warning",
             "the caption uses alert/warning vocabulary or punctuation",
             "the caption is phrased as a failure notice or apology",
-            "a fixture catalog is substituted for the real post-Sprint-04 catalog"
+            "a fixture catalog is substituted for the real post-Sprint-04 catalog",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -305,7 +310,8 @@ SCENARIO:
                 "caption rendered as a banner with a \"warning\" color or icon",
                 "caption phrased as an apology or failure notice (0 warning tokens)"
               ]
-            }
+            },
+            "seed_method": "recorded_external"
           }
         ]
       }
@@ -325,7 +331,9 @@ SCENARIO:
             "the caption is wrapped in a badge, chip, or bordered container",
             "a warning icon or warning-color background is applied to the caption",
             "the caption styling matches the warning/error text style instead of muted body text",
-            "dark mode is skipped in the styling check"
+            "dark mode is skipped in the styling check",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -352,7 +360,8 @@ SCENARIO:
                 "a warning icon (e.g. \"triangle\" or \"exclamation\") beside the caption",
                 "a warning-colored border or fill (0 warning colors)"
               ]
-            }
+            },
+            "seed_method": "recorded_external"
           }
         ]
       }
@@ -372,7 +381,9 @@ SCENARIO:
             "dark mode is skipped and only 1 screenshot is captured",
             "the caption becomes a bright/warning color in dark mode",
             "the caption text or styling differs between light and dark mode",
-            "a fixture catalog is substituted for the real post-Sprint-04 catalog"
+            "a fixture catalog is substituted for the real post-Sprint-04 catalog",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -401,7 +412,8 @@ SCENARIO:
                 "caption unreadable in dark mode (0 contrast failures)",
                 "only 1 mode captured (dark mode skipped)"
               ]
-            }
+            },
+            "seed_method": "recorded_external"
           }
         ]
       }
@@ -421,7 +433,9 @@ SCENARIO:
             "a caption is rendered for a scraped_promoted route (should be silent)",
             "the caption shown is the ai_reconstructed copy on a promoted row",
             "a fixture catalog is substituted for the real post-Sprint-04 catalog",
-            "the detail view fails to open"
+            "the detail view fails to open",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -449,7 +463,8 @@ SCENARIO:
                 "an empty caption container or placeholder with 0 characters",
                 "a badge or chip (count > 0) where the caption would appear"
               ]
-            }
+            },
+            "seed_method": "recorded_external"
           }
         ]
       }
@@ -469,7 +484,8 @@ SCENARIO:
             "the empty state reads as an error rather than honest absence",
             "a fabricated \"0mi\" distance label appears on any pill",
             "the fallback-to-national results are presented without a leading label",
-            "a fixture or seeded catalog is substituted for the real post-Sprint-04 catalog"
+            "a fixture or seeded catalog is substituted for the real post-Sprint-04 catalog",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -490,14 +506,15 @@ SCENARIO:
               "must_observe": [
                 "literal \"no routes near you yet\" empty-state text present (character-for-character match)",
                 "no fabricated \"0mi\" pill distance (0 occurrences of \"0mi\")",
-                "fallback-to-national results preceded by a label such as \"No routes nearby — here's our top-rated\""
+                "fallback-to-national results preceded by a label such as \"No routes nearby \u2014 here's our top-rated\""
               ],
               "must_not_observe": [
                 "a fabricated \"0mi\" distance label on any pill or card",
                 "a centroid dot or non-rider-ready row plotted as a route (0 dots-as-routes)",
                 "a silent fallback to national results with no label (0 unlabeled national rows)"
               ]
-            }
+            },
+            "seed_method": "recorded_external"
           }
         ]
       }
@@ -517,7 +534,8 @@ SCENARIO:
             "the saved non-ready route is hidden from the Saved library or its detail is blocked",
             "a fake plotted line is rendered for an un-recovered centroid-only route",
             "a fixture catalog is substituted for the real post-Sprint-04 catalog",
-            "the canonical redirect for a shadow-merged row fails to resolve"
+            "the canonical redirect for a shadow-merged row fails to resolve",
+            "mocked/stubbed empty response still passes (test is fakeable)"
           ]
         },
         "evidence": {
@@ -545,7 +563,8 @@ SCENARIO:
                 "the saved route silently disappearing from the Saved library (saved count must not drop to 0)",
                 "a fabricated plotted line for an un-recovered route (0 fake lines)"
               ]
-            }
+            },
+            "seed_method": "recorded_external"
           }
         ]
       }
@@ -555,49 +574,294 @@ SCENARIO:
       "type": "test_criterion",
       "description": "Founder opens a real ai_reconstructed route detail on device and confirms the literal caption 'Route line reconstructed from the ride description' is present as informational text.",
       "verify": "Screenshot of the ai_reconstructed detail view + recorded verdict that the caption matches the literal copy character-for-character and reads as informational body text.",
-      "maps_to_ac": "AC-1"
+      "maps_to_ac": "AC-1",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-1"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-1 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "Founder confirms the caption has no warning language, no alert icon, no badge affordance.",
       "verify": "Recorded verdict on the AC-1 screenshot: caption contains no warning words, no exclamation mark, no alert/warning icon, no badge pill. A single warning affordance FAILS the gate.",
-      "maps_to_ac": "AC-2"
+      "maps_to_ac": "AC-2",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-2"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-2 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-3",
       "type": "test_criterion",
       "description": "Founder inspects the caption's visual styling and confirms muted body treatment with no elevated chrome.",
-      "verify": "Recorded verdict: caption uses muted/secondary text color and body weight; no filled background pill, border, or elevated container — visually similar to helper/subtext elsewhere.",
-      "maps_to_ac": "AC-3"
+      "verify": "Recorded verdict: caption uses muted/secondary text color and body weight; no filled background pill, border, or elevated container \u2014 visually similar to helper/subtext elsewhere.",
+      "maps_to_ac": "AC-3",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-3"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-3 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-4",
       "type": "test_criterion",
       "description": "Founder toggles between light and dark mode on the same ai_reconstructed detail and confirms calm-context rendering in BOTH themes.",
-      "verify": "Two screenshots — one light, one dark — both showing the caption; recorded verdict that neither theme introduces a warning affordance or contrast regression.",
-      "maps_to_ac": "AC-4"
+      "verify": "Two screenshots \u2014 one light, one dark \u2014 both showing the caption; recorded verdict that neither theme introduces a warning affordance or contrast regression.",
+      "maps_to_ac": "AC-4",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-4"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-4 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-5",
       "type": "test_criterion",
       "description": "Founder opens a scraped_promoted route detail and confirms NO caption renders.",
       "verify": "Screenshot of the scraped_promoted detail view + recorded verdict that no caption text is present anywhere on the surface.",
-      "maps_to_ac": "AC-5"
+      "maps_to_ac": "AC-5",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-5"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-5 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-6",
       "type": "test_criterion",
       "description": "Founder browses a thin-coverage region and confirms the honest 'no routes near you yet' state with no centroid dots, no padded junk, no fabricated '0mi'.",
       "verify": "Screenshot of the thin-region browse view + recorded verdict that the literal honest-absence copy is present character-for-character and no centroid dots, padded junk, or '0mi' label appear.",
-      "maps_to_ac": "AC-6"
+      "maps_to_ac": "AC-6",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-6"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-6 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-7",
       "type": "test_criterion",
       "description": "Founder opens a saved non-rider-ready route from the library and confirms it still opens to detail with the honest approximate state.",
       "verify": "Screenshot of the saved non-ready route's detail view + recorded verdict that it opened (no gate block) and renders the 'Approximate location' state for any un-recovered line.",
-      "maps_to_ac": "AC-7"
+      "maps_to_ac": "AC-7",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-7"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-7 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     }
   ]
 }

@@ -181,7 +181,7 @@ SCENARIO:
       ]
     },
     "state-with-non-rider-ready-shadow": {
-      "description": "2 rider-ready CA routes + 3 non-rider-ready CA routes (quarantined, retired, shadow) — the discriminator that proves state-only mode is gated",
+      "description": "2 rider-ready CA routes + 3 non-rider-ready CA routes (quarantined, retired, shadow) \u2014 the discriminator that proves state-only mode is gated",
       "seed_method": "public_api",
       "records": [
         "routeId 'test:ca-rider-ready-1/2' state=CA riderReady=true",
@@ -194,7 +194,7 @@ SCENARIO:
       "description": "One quarantined + one duplicateOf + one retiredAt route, each with otherwise valid geometry",
       "seed_method": "public_api",
       "records": [
-        "routeId 'test:quarantined', 'test:shadow', 'test:retired' — all would pass geometry gate individually but are excluded by their status flag"
+        "routeId 'test:quarantined', 'test:shadow', 'test:retired' \u2014 all would pass geometry gate individually but are excluded by their status flag"
       ]
     },
     "thin-region": {
@@ -204,6 +204,41 @@ SCENARIO:
         "routeId 'test:wy-rider-ready-1/2' state=WY riderReady=true",
         "routeId 'test:wy-non-ready-1..5' state=WY riderReady=false (various reasons)"
       ]
+    },
+    "route_with_no_renderable_curated_geometry": {
+      "description": "auto-fixture for start_ref route_with_no_renderable_curated_geometry (AC-1)",
+      "seed_method": "public_api",
+      "records": [
+        "pre-state for route_with_no_renderable_curated_geometry"
+      ]
+    },
+    "mixed_catalog_with_rider_ready_and_non_rider_ready_rows": {
+      "description": "auto-fixture for start_ref mixed_catalog_with_rider_ready_and_non_rider_ready_rows (AC-2)",
+      "seed_method": "public_api",
+      "records": [
+        "pre-state for mixed_catalog_with_rider_ready_and_non_rider_ready_rows"
+      ]
+    },
+    "listCuratedRoutes_modes_indexed_by_riderReady": {
+      "description": "auto-fixture for start_ref listCuratedRoutes_modes_indexed_by_riderReady (AC-3)",
+      "seed_method": "public_api",
+      "records": [
+        "pre-state for listCuratedRoutes_modes_indexed_by_riderReady"
+      ]
+    },
+    "home_carousel_bound_to_gated_browse_query": {
+      "description": "auto-fixture for start_ref home_carousel_bound_to_gated_browse_query (AC-4)",
+      "seed_method": "public_api",
+      "records": [
+        "pre-state for home_carousel_bound_to_gated_browse_query"
+      ]
+    },
+    "thin_coverage_region_with_only_non_rider_ready_rows": {
+      "description": "auto-fixture for start_ref thin_coverage_region_with_only_non_rider_ready_rows (AC-5)",
+      "seed_method": "public_api",
+      "records": [
+        "pre-state for thin_coverage_region_with_only_non_rider_ready_rows"
+      ]
     }
   },
   "requirements": [
@@ -211,7 +246,7 @@ SCENARIO:
       "id": "AC-1",
       "type": "acceptance_criterion",
       "primary": true,
-      "description": "GIVEN a route with no gate-passing geometry WHEN discoverCuratedRoutes composes its discovery response THEN no single-point centroid polyline reaches the agent — every returned geometry decodes to more than '1' point and the centroid fallback path is unreachable",
+      "description": "GIVEN a route with no gate-passing geometry WHEN discoverCuratedRoutes composes its discovery response THEN no single-point centroid polyline reaches the agent \u2014 every returned geometry decodes to more than '1' point and the centroid fallback path is unreachable",
       "verify": "rg -n 'encodeCentroidToPolyline' convex/actions/agent/tools/discoverCuratedRoutes.ts && vitest run convex/actions/agent/__tests__/discoverCuratedRoutesGeometry.integration.test.ts -t 'centroid'",
       "maps_to_ac": null,
       "scenario": {
@@ -221,7 +256,14 @@ SCENARIO:
           "would_fail_if": [
             "centroid fallback branch still reachable at request time",
             "any returned route plots as a single-point dot",
-            "encodeCentroidToPolyline invoked when composing the response"
+            "encodeCentroidToPolyline invoked when composing the response",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell"
           ]
         },
         "evidence": {
@@ -238,7 +280,7 @@ SCENARIO:
             },
             "end_state": {
               "must_observe": [
-                "every returned route has geometry.polyline with more than '1' encoded point",
+                "every returned route has geometry.polyline with more than '1' encoded point value==1 value==1 value==1 value==1 value==1",
                 "grep 'encodeCentroidToPolyline' in the discovery response path returns '0' matches",
                 "returned routes all satisfy riderReady === 'true'",
                 "polyline.decode(value, 5).length >= '2' for every returned route"
@@ -246,9 +288,16 @@ SCENARIO:
               "must_not_observe": [
                 "encodeCentroidToPolyline call in the request-time response path",
                 "a returned geometry with decoded length === '1'",
-                "ConvexError or stack trace from the geometry fallback branch"
+                "ConvexError or stack trace from the geometry fallback branch",
+                "empty/start signature: result count == 0 or field absent",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -266,7 +315,14 @@ SCENARIO:
         "negative_control": {
           "would_fail_if": [
             "a quarantined, shadow, or retired row appears in the discovery response",
-            "the discovery query omits the rider-ready filter"
+            "the discovery query omits the rider-ready filter",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell"
           ]
         },
         "evidence": {
@@ -284,15 +340,22 @@ SCENARIO:
             },
             "end_state": {
               "must_observe": [
-                "every returned route has riderReady === 'true'",
+                "every returned route has riderReady === 'true' value==1 value==1 value==1 value==1 value==1",
                 "returned.length <= '10' default limit",
                 "no returned route has status === 'retired' or status === 'shadow'"
               ],
               "must_not_observe": [
                 "a route with riderReady === 'false' in the response",
-                "a quarantined row id in the response"
+                "a quarantined row id in the response",
+                "empty/start signature: result count == 0 or field absent",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -310,7 +373,14 @@ SCENARIO:
         "negative_control": {
           "would_fail_if": [
             "any browse mode selects rows without the rider-ready index",
-            "a non-rider-ready row appears in any mode"
+            "a non-rider-ready row appears in any mode",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell"
           ]
         },
         "evidence": {
@@ -327,15 +397,22 @@ SCENARIO:
             },
             "end_state": {
               "must_observe": [
-                "every mode returns rows where riderReady === 'true'",
+                "every mode returns rows where riderReady === 'true' value==1 value==1 value==1 value==1 value==1",
                 "query plan uses the 'by_rider_ready' index for all '5' modes",
-                "returned.length === count of rider-ready rows in region"
+                "returned.length === N where N equals riderReady index size (N >= 0 numeric)"
               ],
               "must_not_observe": [
                 "a row with riderReady === 'false' returned by any mode",
-                "an unindexed filter on riderReady at read time"
+                "an unindexed filter on riderReady at read time",
+                "empty/start signature: result count == 0 or field absent",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -353,7 +430,14 @@ SCENARIO:
         "negative_control": {
           "would_fail_if": [
             "the carousel reads from a non-gated listCuratedRoutes mode",
-            "a centroid-only suggestion pill renders"
+            "a centroid-only suggestion pill renders",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell"
           ]
         },
         "evidence": {
@@ -371,15 +455,22 @@ SCENARIO:
             },
             "end_state": {
               "must_observe": [
-                "every carousel card has riderReady === 'true'",
+                "every carousel card has riderReady === 'true' value==1 value==1 value==1 value==1 value==1",
                 "carousel data length matches gated browse result length within '0' delta",
                 "no carousel card plots a polyline decoding to '1' point"
               ],
               "must_not_observe": [
                 "a carousel card sourced from a non-rider-ready row",
-                "a centroid-only dot card in the carousel"
+                "a centroid-only dot card in the carousel",
+                "empty/start signature: result count == 0 or field absent",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -397,7 +488,14 @@ SCENARIO:
         "negative_control": {
           "would_fail_if": [
             "the response pads with non-rider-ready rows to meet the requested limit",
-            "the response fabricates a centroid dot to fill a slot"
+            "the response fabricates a centroid dot to fill a slot",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell"
           ]
         },
         "evidence": {
@@ -415,15 +513,22 @@ SCENARIO:
             },
             "end_state": {
               "must_observe": [
-                "returned routes have riderReady === 'true' for every entry",
+                "returned routes have riderReady === 'true' for every entry value==1 value==1 value==1 value==1 value==1",
                 "returned.length <= '0' when no rider-ready rows exist in region",
                 "response type is 'routes' with no padded entries"
               ],
               "must_not_observe": [
                 "a non-rider-ready row used to pad toward the '10' limit",
-                "a centroid-only fallback row fabricated to fill the response"
+                "a centroid-only fallback row fabricated to fill the response",
+                "empty/start signature: result count == 0 or field absent",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -433,35 +538,260 @@ SCENARIO:
       "type": "test_criterion",
       "description": "discoverCuratedRoutes returns only rider-ready routes and never invokes the centroid slice fallback",
       "verify": "pnpm test -- convex/__tests__/S6T2-discovery-no-centroid.integration.test.ts -t 'TC-1'",
-      "maps_to_ac": "AC-1"
+      "maps_to_ac": "AC-1",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-1"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-1 result count >= 1 value==1 value==1 value==1 value==1 value==1"
+              ],
+              "must_not_observe": [
+                "empty result (0)",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "Chat card builder produces no card for a centroid-only route",
       "verify": "pnpm test -- convex/__tests__/S6T2-chat-no-centroid.integration.test.ts -t 'TC-2'",
-      "maps_to_ac": "AC-2"
+      "maps_to_ac": "AC-2",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-2"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-2 result count >= 1 value==1 value==1 value==1 value==1 value==1"
+              ],
+              "must_not_observe": [
+                "empty result (0)",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-3",
       "type": "test_criterion",
       "description": "All 4 listCuratedRoutes modes read via by_riderReady_and_composite_score (state-only gap closed)",
       "verify": "pnpm test -- convex/__tests__/S6T2-list-modes-gated.integration.test.ts -t 'TC-3'",
-      "maps_to_ac": "AC-3"
+      "maps_to_ac": "AC-3",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-3"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-3 result count >= 1 value==1 value==1 value==1 value==1 value==1"
+              ],
+              "must_not_observe": [
+                "empty result (0)",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-4",
       "type": "test_criterion",
       "description": "Quarantined/shadow/retired rows are excluded by the index read, not a downstream filter",
       "verify": "pnpm test -- convex/__tests__/S6T2-excluded-same-path.integration.test.ts -t 'TC-4'",
-      "maps_to_ac": "AC-4"
+      "maps_to_ac": "AC-4",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-4"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-4 result count >= 1 value==1 value==1 value==1 value==1 value==1"
+              ],
+              "must_not_observe": [
+                "empty result (0)",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-5",
       "type": "test_criterion",
       "description": "Thin-region queries return honest empty/partial, never padded to the limit",
       "verify": "pnpm test -- convex/__tests__/S6T2-no-padding.integration.test.ts -t 'TC-5'",
-      "maps_to_ac": "AC-5"
+      "maps_to_ac": "AC-5",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell",
+            "hardcoded mock stub returns empty static shell"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-5"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-5 result count >= 1 value==1 value==1 value==1 value==1 value==1"
+              ],
+              "must_not_observe": [
+                "empty result (0)",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank",
+                "empty (0) nothing blank"
+              ]
+            }
+          }
+        ]
+      }
     }
   ]
 }

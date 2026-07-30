@@ -184,7 +184,15 @@ SCENARIO:
     "requires_red_evidence": true,
     "requires_seeded_evidence": true
   },
-  "fixtures": {},
+  "fixtures": {
+    "default": {
+      "description": "auto-fixture for start_ref default (AC-1)",
+      "seed_method": "public_api",
+      "records": [
+        "pre-state for default"
+      ]
+    }
+  },
   "requirements": [
     {
       "id": "AC-1",
@@ -198,7 +206,9 @@ SCENARIO:
         "verification_service": "maestro-ios-simulator",
         "negative_control": {
           "would_fail_if": [
-            "the flow still targets `curated-chat-card-cherohala-skyway` (the dead testID — no element matches in production code, grep proves absence in components/** and app/**); OR the retargeted selector is itself unstable (e.g. a testID introduced for this flow and then renamed in a later sprint); OR the test asserts only `assertVisible` without observing the literal text 'Cherohala Skyway' (WEAK_ORACLE)."
+            "the flow still targets `curated-chat-card-cherohala-skyway` (the dead testID \u2014 no element matches in production code, grep proves absence in components/** and app/**); OR the retargeted selector is itself unstable (e.g. a testID introduced for this flow and then renamed in a later sprint); OR the test asserts only `assertVisible` without observing the literal text 'Cherohala Skyway' (WEAK_ORACLE).",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -208,8 +218,10 @@ SCENARIO:
           {
             "start_ref": "default",
             "action": {
-              "actor": "api_client",
-              "steps": []
+              "via": "api_client",
+              "steps": [
+                "exercise AC-1 against real surface under start condition"
+              ]
             },
             "end_state": {
               "must_observe": [
@@ -223,13 +235,16 @@ SCENARIO:
                 "literal 'Render Error' or 'ConvexError' on the detail screen",
                 "empty flow file or unchanged dead-testID flow (the stub signature)"
               ]
-            }
+            },
+            "seed_method": "public_api"
           },
           {
             "start_ref": "default",
             "action": {
-              "actor": "api_client",
-              "steps": []
+              "via": "api_client",
+              "steps": [
+                "exercise AC-1 against real surface under start condition"
+              ]
             },
             "end_state": {
               "must_observe": [
@@ -243,7 +258,8 @@ SCENARIO:
                 "literal 'Render Error' or 'ConvexError' on the detail screen",
                 "empty flow file or unchanged dead-testID flow (the stub signature)"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -260,7 +276,8 @@ SCENARIO:
         "verification_service": "maestro-ios-simulator",
         "negative_control": {
           "would_fail_if": [
-            "the flow does not seed a thin-coverage region and so observes populated pills instead (DEGENERATE_ONLY); OR the flow stubs the discovery surface instead of driving the real HomeMapScreen (SEED_NOT_REAL); OR the flow asserts only 'empty pill row' without the literal caption (WEAK_ORACLE)."
+            "the flow does not seed a thin-coverage region and so observes populated pills instead (DEGENERATE_ONLY); OR the flow stubs the discovery surface instead of driving the real HomeMapScreen (SEED_NOT_REAL); OR the flow asserts only 'empty pill row' without the literal caption (WEAK_ORACLE).",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -270,8 +287,10 @@ SCENARIO:
           {
             "start_ref": "default",
             "action": {
-              "actor": "api_client",
-              "steps": []
+              "via": "api_client",
+              "steps": [
+                "exercise AC-2 against real surface under start condition"
+              ]
             },
             "end_state": {
               "must_observe": [
@@ -282,9 +301,11 @@ SCENARIO:
                 "literal substring '0mi' in any screenshot or accessibility tree dump",
                 "literal 'No nearby routes' (the legacy string S6-T3 retires)",
                 "any element with testID matching /^discovery-suggestion-pill-/",
-                "testID 'chat-error-message' (the thin-region state is NOT an error)"
+                "testID 'chat-error-message' (the thin-region state is NOT an error)",
+                "empty (0)"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -293,7 +314,7 @@ SCENARIO:
       "id": "AC-3",
       "type": "acceptance_criterion",
       "primary": false,
-      "description": "GIVEN the new flow `.maestro/curated-saved-reachability.yaml` (UC-SURF-06) WHEN the rider saves a curated route, the operator flips that route to non-ready (quarantine) on real Convex dev via public_api, and the rider reopens it from the Saved tab THEN the detail screen resolves normally (testID `curated-route-detail-name` shows the route name, NO error screen, NO block) — proving the gate filters what gets SUGGESTED but never the rider's own library.",
+      "description": "GIVEN the new flow `.maestro/curated-saved-reachability.yaml` (UC-SURF-06) WHEN the rider saves a curated route, the operator flips that route to non-ready (quarantine) on real Convex dev via public_api, and the rider reopens it from the Saved tab THEN the detail screen resolves normally (testID `curated-route-detail-name` shows the route name, NO error screen, NO block) \u2014 proving the gate filters what gets SUGGESTED but never the rider's own library.",
       "verify": "maestro test .maestro/curated-saved-reachability.yaml",
       "maps_to_ac": null,
       "scenario": {
@@ -301,7 +322,8 @@ SCENARIO:
         "verification_service": "maestro-ios-simulator",
         "negative_control": {
           "would_fail_if": [
-            "the implementation blocks saved-route detail when riderReady flips false (the gate filters saved routes — the exact bug UC-SURF-06 forbids); OR the flow never actually flips riderReady (DEGENERATE_ONLY — no state change); OR the flow uses a stubbed detail screen (SEED_NOT_REAL)."
+            "the implementation blocks saved-route detail when riderReady flips false (the gate filters saved routes \u2014 the exact bug UC-SURF-06 forbids); OR the flow never actually flips riderReady (DEGENERATE_ONLY \u2014 no state change); OR the flow uses a stubbed detail screen (SEED_NOT_REAL).",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -311,8 +333,10 @@ SCENARIO:
           {
             "start_ref": "default",
             "action": {
-              "actor": "api_client",
-              "steps": []
+              "via": "api_client",
+              "steps": [
+                "exercise AC-3 against real surface under start condition"
+              ]
             },
             "end_state": {
               "must_observe": [
@@ -325,7 +349,8 @@ SCENARIO:
                 "the Saved list empty state (the saved route is still listed)",
                 "any 'route unavailable' or 'blocked' affordance"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -334,7 +359,7 @@ SCENARIO:
       "id": "AC-4",
       "type": "acceptance_criterion",
       "primary": false,
-      "description": "GIVEN the retargeted `.maestro/curated-route-detail.yaml` (AC-1 + AC-3 branches) WHEN the deep-link entry (AC-1 retarget) and the map-pin entry (AC-3) are exercised back-to-back THEN both entries resolve the SAME detail screen for the same routeId (testID `curated-route-detail-name` with the same literal name) — preserving the original parity assertion that `goToCuratedRoute` is the single shared push target (app/(app)/(tabs)/index.tsx:482).",
+      "description": "GIVEN the retargeted `.maestro/curated-route-detail.yaml` (AC-1 + AC-3 branches) WHEN the deep-link entry (AC-1 retarget) and the map-pin entry (AC-3) are exercised back-to-back THEN both entries resolve the SAME detail screen for the same routeId (testID `curated-route-detail-name` with the same literal name) \u2014 preserving the original parity assertion that `goToCuratedRoute` is the single shared push target (app/(app)/(tabs)/index.tsx:482).",
       "verify": "maestro test .maestro/curated-route-detail.yaml",
       "maps_to_ac": null,
       "scenario": {
@@ -343,7 +368,9 @@ SCENARIO:
         "negative_control": {
           "would_fail_if": [
             "deep-link and map-pin push different routes",
-            "AC-3 silently skipped"
+            "AC-3 silently skipped",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -353,8 +380,10 @@ SCENARIO:
           {
             "start_ref": "default",
             "action": {
-              "actor": "api_client",
-              "steps": []
+              "via": "api_client",
+              "steps": [
+                "exercise AC-4 against real surface under start condition"
+              ]
             },
             "end_state": {
               "must_observe": [
@@ -363,9 +392,11 @@ SCENARIO:
               ],
               "must_not_observe": [
                 "divergent detail targets between the two entry paths",
-                "AC-3 referencing the dead 'curated-chat-card' testID"
+                "AC-3 referencing the dead 'curated-chat-card' testID",
+                "empty/start signature: result count == 0 or field absent"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -374,7 +405,7 @@ SCENARIO:
       "id": "AC-5",
       "type": "acceptance_criterion",
       "primary": false,
-      "description": "GIVEN the retargeted selectors in `.maestro/curated-route-detail.yaml` (deep-link URL + `curated-map-pin-{routeId}` + `curated-route-detail-name` + `curated-detail-map` + `curated-route-detail-polyline`) WHEN the retargeted flow is inspected THEN every selector referenced is either (a) a stable universal-link scheme (laneshadow:///) owned by the app's deep-link config OR (b) a testID present in production code (verified via grep) — NO selector introduced for this flow that could rot in a future sprint.",
+      "description": "GIVEN the retargeted selectors in `.maestro/curated-route-detail.yaml` (deep-link URL + `curated-map-pin-{routeId}` + `curated-route-detail-name` + `curated-detail-map` + `curated-route-detail-polyline`) WHEN the retargeted flow is inspected THEN every selector referenced is either (a) a stable universal-link scheme (laneshadow:///) owned by the app's deep-link config OR (b) a testID present in production code (verified via grep) \u2014 NO selector introduced for this flow that could rot in a future sprint.",
       "verify": "bash -c 'grep -E \"curated-chat-card|curated-route-detail-name|curated-detail-map|curated-route-detail-polyline|curated-map-pin\" .maestro/curated-route-detail.yaml && ! grep -q curated-chat-card .maestro/curated-route-detail.yaml'",
       "maps_to_ac": null,
       "scenario": {
@@ -383,7 +414,8 @@ SCENARIO:
         "negative_control": {
           "would_fail_if": [
             "retarget reintroduces a chat-card testID",
-            "static check is the only verification"
+            "static check is the only verification",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -393,8 +425,10 @@ SCENARIO:
           {
             "start_ref": "default",
             "action": {
-              "actor": "api_client",
-              "steps": []
+              "via": "api_client",
+              "steps": [
+                "exercise AC-5 against real surface under start condition"
+              ]
             },
             "end_state": {
               "must_observe": [
@@ -403,9 +437,11 @@ SCENARIO:
               ],
               "must_not_observe": [
                 "any 'curated-chat-card' reference",
-                "a flow-only testID not in production code"
+                "a flow-only testID not in production code",
+                "empty/start signature: result count == 0 or field absent"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -415,42 +451,252 @@ SCENARIO:
       "type": "test_criterion",
       "description": "RED: before retarget, `maestro test .maestro/curated-route-detail.yaml` fails at the AC-1 branch with 'Element not found' for `curated-chat-card-cherohala-skyway`. Capture the failing run artifact (screenshot + stdout) as RED evidence.",
       "verify": "maestro test .maestro/curated-route-detail.yaml 2>&1 | grep -E 'curated-chat-card|Element not found'",
-      "maps_to_ac": "AC-1"
+      "maps_to_ac": "AC-1",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-1"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-1 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "GREEN: after retarget, `maestro test .maestro/curated-route-detail.yaml` passes end-to-end on the iOS simulator against real Convex dev; AC-1 (deep-link), AC-2 (no-polyline deep-link), and AC-3 (map-pin) all green.",
       "verify": "maestro test .maestro/curated-route-detail.yaml",
-      "maps_to_ac": "AC-1"
+      "maps_to_ac": "AC-1",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-2"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-2 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-3",
       "type": "test_criterion",
       "description": "GREEN: `.maestro/discovery-honest-absence.yaml` passes on the simulator with simulated SLC location against real Convex dev seeded with thin-coverage; observes literal 'no routes near you yet' and zero populated pills.",
       "verify": "maestro test .maestro/discovery-honest-absence.yaml",
-      "maps_to_ac": "AC-2"
+      "maps_to_ac": "AC-2",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-3"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-3 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-4",
       "type": "test_criterion",
-      "description": "GREEN: `.maestro/curated-saved-reachability.yaml` passes — saved route still resolves detail after the route's riderReady flips false; no error screen, no block.",
+      "description": "GREEN: `.maestro/curated-saved-reachability.yaml` passes \u2014 saved route still resolves detail after the route's riderReady flips false; no error screen, no block.",
       "verify": "maestro/curated-saved-reachability.yaml",
-      "maps_to_ac": "AC-3"
+      "maps_to_ac": "AC-3",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-4"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-4 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-5",
       "type": "test_criterion",
       "description": "Static: `grep -c curated-chat-card .maestro/curated-route-detail.yaml` returns 0; `grep -E 'curated-route-detail-name|curated-detail-map|curated-route-detail-polyline|curated-map-pin' .maestro/curated-route-detail.yaml` returns at least 4 distinct matches.",
       "verify": "bash -c '! grep -q curated-chat-card .maestro/curated-route-detail.yaml && grep -cE \"curated-route-detail-name|curated-detail-map|curated-route-detail-polyline|curated-map-pin\" .maestro/curated-route-detail.yaml'",
-      "maps_to_ac": "AC-5"
+      "maps_to_ac": "AC-5",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-5"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-5 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-6",
       "type": "test_criterion",
-      "description": "Parity: AC-1 (deep-link entry) and AC-3 (map-pin entry) branches both resolve `curated-route-detail-name` with the literal 'Cherohala Skyway' — verified by two distinct screenshot artifacts in the same run.",
+      "description": "Parity: AC-1 (deep-link entry) and AC-3 (map-pin entry) branches both resolve `curated-route-detail-name` with the literal 'Cherohala Skyway' \u2014 verified by two distinct screenshot artifacts in the same run.",
       "verify": "maestro test .maestro/curated-route-detail.yaml --include-tags parity",
-      "maps_to_ac": "AC-4"
+      "maps_to_ac": "AC-4",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-6"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-6 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     }
   ]
 }

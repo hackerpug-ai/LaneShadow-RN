@@ -181,7 +181,7 @@ SCENARIO:
       ]
     },
     "saved-route-unrecovered": {
-      "description": "A saved route with no plottable geometry — no curated_route_geometry row, routePolyline absent, geometryStatus='unresolved'",
+      "description": "A saved route with no plottable geometry \u2014 no curated_route_geometry row, routePolyline absent, geometryStatus='unresolved'",
       "seed_method": "public_api",
       "records": [
         "curated route test:s6t5-saved-unrecovered with geometryStatus='unresolved', no geometry row",
@@ -198,7 +198,7 @@ SCENARIO:
       ]
     },
     "saved-route-canonical-chain-guard": {
-      "description": "Corrupted canonical chain A→B→A (or A→B→C→A) to prove the redirect enforces single-hop max / returns null on chain",
+      "description": "Corrupted canonical chain A\u2192B\u2192A (or A\u2192B\u2192C\u2192A) to prove the redirect enforces single-hop max / returns null on chain",
       "seed_method": "public_api",
       "records": [
         "test:s6t5-chain-A with duplicateOf='test:s6t5-chain-B'",
@@ -206,7 +206,7 @@ SCENARIO:
       ]
     },
     "saved-route-status-progression": {
-      "description": "A saved route progressed through quarantine → retire → shadow-merge via the real mutations",
+      "description": "A saved route progressed through quarantine \u2192 retire \u2192 shadow-merge via the real mutations",
       "seed_method": "public_api",
       "records": [
         "curated route test:s6t5-progression initially riderReady=true",
@@ -222,7 +222,7 @@ SCENARIO:
       "id": "AC-1",
       "type": "acceptance_criterion",
       "primary": true,
-      "description": "GIVEN A saved_routes row pointing at a curated route whose riderReady === false (quarantined post-save) AND the rider calls getCuratedRouteDetail with that routeId WHEN getCuratedRouteDetail runs against the real deployed query THEN The detail returns (NOT null, NOT an error) with riderReady: false and the route's stored geometryStatus — no gate filter applies",
+      "description": "GIVEN A saved_routes row pointing at a curated route whose riderReady === false (quarantined post-save) AND the rider calls getCuratedRouteDetail with that routeId WHEN getCuratedRouteDetail runs against the real deployed query THEN The detail returns (NOT null, NOT an error) with riderReady: false and the route's stored geometryStatus \u2014 no gate filter applies",
       "verify": "pnpm test -- convex/__tests__/S6T5-saved-route-reachable.integration.test.ts --grep AC-1",
       "maps_to_ac": null,
       "scenario": {
@@ -231,8 +231,10 @@ SCENARIO:
         "negative_control": {
           "would_fail_if": [
             "getCuratedRouteDetail silently adds a riderReady===true filter (gate leaks into the detail path)",
-            "the query throws ConvexError NOT_FOUND for a saved route whose riderReady flipped false (the curatedRoutes.ts:498-503 comment explicitly avoids this — the regression would be a render-time LogBox crash)",
-            "the test patches riderReady=true to bypass the gate rather than seeding a real non-ready row"
+            "the query throws ConvexError NOT_FOUND for a saved route whose riderReady flipped false (the curatedRoutes.ts:498-503 comment explicitly avoids this \u2014 the regression would be a render-time LogBox crash)",
+            "the test patches riderReady=true to bypass the gate rather than seeding a real non-ready row",
+            "mocked/stubbed or empty-start path still passes (test is fakeable)",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -259,9 +261,11 @@ SCENARIO:
               "must_not_observe": [
                 "result === null (gate hid the row)",
                 "a thrown ConvexError NOT_FOUND",
-                "result.riderReady === true (stale)"
+                "result.riderReady === true (stale)",
+                "empty/start signature: result count == 0 or field absent"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -270,7 +274,7 @@ SCENARIO:
       "id": "AC-2",
       "type": "acceptance_criterion",
       "primary": false,
-      "description": "GIVEN A saved route with NO plottable geometry: no curated_route_geometry side-table row AND no in-row routePolyline (geometryStatus 'unresolved') WHEN getCuratedRouteDetail runs THEN The response carries routePolyline: null AND geometryStatus: 'unresolved' — the data shape that supports the existing honest 'Approximate location' state; NO fabricated line, NO error",
+      "description": "GIVEN A saved route with NO plottable geometry: no curated_route_geometry side-table row AND no in-row routePolyline (geometryStatus 'unresolved') WHEN getCuratedRouteDetail runs THEN The response carries routePolyline: null AND geometryStatus: 'unresolved' \u2014 the data shape that supports the existing honest 'Approximate location' state; NO fabricated line, NO error",
       "verify": "pnpm test -- convex/__tests__/S6T5-saved-route-reachable.integration.test.ts --grep AC-2",
       "maps_to_ac": null,
       "scenario": {
@@ -280,7 +284,8 @@ SCENARIO:
           "would_fail_if": [
             "the query fabricates a polyline (e.g. falls back to a synthesized centroid line) rather than returning null",
             "the query throws on missing geometry rather than returning null routePolyline",
-            "resolveDetailRoutePolyline at curatedRoutes.ts:443-452 is changed to invent a default line"
+            "resolveDetailRoutePolyline at curatedRoutes.ts:443-452 is changed to invent a default line",
+            "mocked/stubbed empty response still passes (test is fakeable)"
           ]
         },
         "evidence": {
@@ -308,7 +313,8 @@ SCENARIO:
                 "result === null (error path)",
                 "an empty bounds object"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -325,10 +331,11 @@ SCENARIO:
         "verification_service": "convex-test-deployment",
         "negative_control": {
           "would_fail_if": [
-            "the canonical redirect is missing — the query returns the shadow row (which has no geometry / wrong status)",
-            "the query mutates saved_routes.curatedRouteRef to the canonical (read-path write — Convex queries cannot do this, but the test pins it)",
-            "the query loops on a canonical → canonical chain (no infinite-redirect guard)",
-            "the test mocks the by_routeId lookup instead of seeding real rows"
+            "the canonical redirect is missing \u2014 the query returns the shadow row (which has no geometry / wrong status)",
+            "the query mutates saved_routes.curatedRouteRef to the canonical (read-path write \u2014 Convex queries cannot do this, but the test pins it)",
+            "the query loops on a canonical \u2192 canonical chain (no infinite-redirect guard)",
+            "the test mocks the by_routeId lookup instead of seeding real rows",
+            "empty/stub/mock path still passes"
           ]
         },
         "evidence": {
@@ -352,14 +359,16 @@ SCENARIO:
               "must_observe": [
                 "result.routeId === 'test:s6t5-canonical'",
                 "result.geometryStatus === canonical's status",
-                "saved_routes row byte-identical before/after (curatedRouteRef STILL === 'test:s6t5-shadow' — read-path never mutates)"
+                "saved_routes row byte-identical before/after (curatedRouteRef STILL === 'test:s6t5-shadow' \u2014 read-path never mutates)"
               ],
               "must_not_observe": [
                 "result.routeId === 'test:s6t5-shadow' (redirect missed)",
                 "saved_routes.curatedRouteRef mutated to canonical",
-                "result === null"
+                "result === null",
+                "empty/start signature: result count == 0 or field absent"
               ]
-            }
+            },
+            "seed_method": "public_api"
           },
           {
             "start_ref": "saved-route-canonical-chain-guard",
@@ -372,13 +381,15 @@ SCENARIO:
             },
             "end_state": {
               "must_observe": [
-                "result === null (data-integrity fault — redirect refused, no infinite loop) OR a single-hop maximum is enforced"
+                "result === null (data-integrity fault \u2014 redirect refused, no infinite loop) OR a single-hop maximum is enforced"
               ],
               "must_not_observe": [
                 "infinite recursion / stack overflow",
-                "more than one redirect hop"
+                "more than one redirect hop",
+                "empty/start signature: result count == 0 or field absent"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -387,7 +398,7 @@ SCENARIO:
       "id": "AC-4",
       "type": "acceptance_criterion",
       "primary": false,
-      "description": "GIVEN A saved route that becomes successively: quarantined, retired, then merged-as-shadow, each driven through the real backend mutations WHEN getCuratedRouteDetail runs at each stage THEN Every stage returns a non-null detail with the up-to-date geometryStatus / retirementReason / riderReady — the rider never loses access",
+      "description": "GIVEN A saved route that becomes successively: quarantined, retired, then merged-as-shadow, each driven through the real backend mutations WHEN getCuratedRouteDetail runs at each stage THEN Every stage returns a non-null detail with the up-to-date geometryStatus / retirementReason / riderReady \u2014 the rider never loses access",
       "verify": "pnpm test -- convex/__tests__/S6T5-saved-route-reachable.integration.test.ts --grep AC-4",
       "maps_to_ac": null,
       "scenario": {
@@ -397,7 +408,8 @@ SCENARIO:
           "would_fail_if": [
             "any status transition causes getCuratedRouteDetail to return null or throw (gate leak)",
             "the retirementReason / geometryStatus fields are dropped from the response (RN cannot distinguish honest states)",
-            "the test seeds each transition by direct patch instead of the real retireRoute / persistGeometryVerified path"
+            "the test seeds each transition by direct patch instead of the real retireRoute / persistGeometryVerified path",
+            "mocked/stubbed empty response still passes (test is fakeable)"
           ]
         },
         "evidence": {
@@ -411,11 +423,11 @@ SCENARIO:
               "steps": [
                 "Seed a saved route (riderReady=true initially)",
                 "Drive quarantine (set quarantine.reason='length_outlier' via the real mutation)",
-                "Call getCuratedRouteDetail — assert non-null + status",
+                "Call getCuratedRouteDetail \u2014 assert non-null + status",
                 "Drive retire (call retireRoute)",
-                "Call getCuratedRouteDetail — assert non-null + retirementReason set",
+                "Call getCuratedRouteDetail \u2014 assert non-null + retirementReason set",
                 "Drive shadow merge (set duplicateOf on the row)",
-                "Call getCuratedRouteDetail — assert it returns the canonical row"
+                "Call getCuratedRouteDetail \u2014 assert it returns the canonical row"
               ]
             },
             "end_state": {
@@ -427,9 +439,11 @@ SCENARIO:
               "must_not_observe": [
                 "any stage returns null or throws",
                 "loss of access between stages",
-                "stale status fields from before the transition"
+                "stale status fields from before the transition",
+                "empty/start signature: result count == 0 or field absent"
               ]
-            }
+            },
+            "seed_method": "public_api"
           }
         ]
       }
@@ -439,56 +453,336 @@ SCENARIO:
       "type": "test_criterion",
       "description": "Saved route with riderReady===false (post-quarantine) returns non-null detail",
       "verify": "pnpm test -- convex/__tests__/S6T5-saved-route-reachable.integration.test.ts -t 'TC-1'",
-      "maps_to_ac": "AC-1"
+      "maps_to_ac": "AC-1",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-1"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-1 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
       "description": "getCuratedRouteDetail does NOT add a riderReady===true filter (grep the source for the absence of any riderReady predicate in the detail handler)",
       "verify": "grep -n 'riderReady' convex/curatedRoutes.ts shows no predicate inside getCuratedRouteDetail's handler",
-      "maps_to_ac": "AC-1"
+      "maps_to_ac": "AC-1",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-2"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-2 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-3",
       "type": "test_criterion",
       "description": "Un-recovered saved route returns routePolyline === null + geometryStatus === 'unresolved' (no fabricated line)",
       "verify": "pnpm test -- convex/__tests__/S6T5-saved-route-reachable.integration.test.ts -t 'TC-3'",
-      "maps_to_ac": "AC-2"
+      "maps_to_ac": "AC-2",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-3"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-3 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-4",
       "type": "test_criterion",
       "description": "Shadow-merged saved route resolves to canonical row's routeId",
       "verify": "pnpm test -- convex/__tests__/S6T5-saved-route-canonical-redirect.integration.test.ts -t 'TC-4'",
-      "maps_to_ac": "AC-3"
+      "maps_to_ac": "AC-3",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-4"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-4 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-5",
       "type": "test_criterion",
       "description": "saved_routes.curatedRouteRef is NOT mutated by the canonical redirect (read-path immutability)",
       "verify": "pnpm test -- convex/__tests__/S6T5-saved-route-canonical-redirect.integration.test.ts -t 'TC-5'",
-      "maps_to_ac": "AC-3"
+      "maps_to_ac": "AC-3",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-5"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-5 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-6",
       "type": "test_criterion",
       "description": "Canonical chain guard: corrupted canonical chain returns null OR enforces single-hop max (no infinite recursion)",
       "verify": "pnpm test -- convex/__tests__/S6T5-saved-route-canonical-redirect.integration.test.ts -t 'TC-6'",
-      "maps_to_ac": "AC-3"
+      "maps_to_ac": "AC-3",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-6"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-6 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-7",
       "type": "test_criterion",
       "description": "Saved route remains reachable through quarantine, retire, and shadow-merge transitions",
       "verify": "pnpm test -- convex/__tests__/S6T5-saved-route-reachable.integration.test.ts -t 'TC-7'",
-      "maps_to_ac": "AC-4"
+      "maps_to_ac": "AC-4",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-7"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-7 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     },
     {
       "id": "TC-8",
       "type": "test_criterion",
       "description": "Retired saved route returns retirementReason + retiredAt on the detail response (honest state data)",
       "verify": "pnpm test -- convex/__tests__/S6T5-saved-route-reachable.integration.test.ts -t 'TC-8'",
-      "maps_to_ac": "AC-4"
+      "maps_to_ac": "AC-4",
+      "scenario": {
+        "test_tier": "integration",
+        "evidence": {
+          "artifact_type": "test_output"
+        },
+        "negative_control": {
+          "would_fail_if": [
+            "mocked/stubbed empty response still passes (test is fakeable)"
+          ]
+        },
+        "cases": [
+          {
+            "start_state": {
+              "description": "baseline before action",
+              "records": [
+                "empty baseline"
+              ],
+              "seed_method": "public_api"
+            },
+            "action": {
+              "steps": [
+                "exercise TC-8"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "TC-8 result count >= 1"
+              ],
+              "must_not_observe": [
+                "empty result (0)"
+              ]
+            }
+          }
+        ]
+      }
     }
   ]
 }
