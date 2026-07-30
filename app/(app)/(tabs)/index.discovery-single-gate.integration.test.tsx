@@ -304,8 +304,40 @@ describe('S6-T3 AC-5: Single discovery gate', () => {
     // No client-side riderReady filter in the surface
     expect(source).not.toMatch(/riderReady/)
 
-    // Runtime: gate returns only rider-ready; shadow never appears
-    // (hook is the gate — surface just renders what the hook returns)
+    // Non-vacuous shadow oracle:
+    // Seed shadow/retired noise into the generic useQuery mock (what a sibling
+    // unfiltered listCuratedRoutes / client re-include path would see). The
+    // single gate returns ONLY exact rider-ready ids — surface must render
+    // precisely those ids and never re-include the shadow row from useQuery.
+    const GATE_ROUTE_IDS = ['rider-ready-1', 'rider-ready-2'] as const
+    const SHADOW_ID = 'shadow-retired'
+    const SHADOW_NAME = 'Shadow Retired Quarantine Route'
+
+    mocks.useQuery.mockReturnValue([
+      {
+        id: SHADOW_ID,
+        name: SHADOW_NAME,
+        riderReady: false,
+        status: 'retired',
+        lat: 35.1,
+        lng: -84.1,
+      },
+      {
+        id: 'rider-ready-1',
+        name: 'Cherohala Skyway',
+        riderReady: true,
+        lat: 35.3,
+        lng: -84.0,
+      },
+      {
+        id: 'unlisted-from-gate',
+        name: 'Should Not Appear From Query',
+        riderReady: true,
+        lat: 36.0,
+        lng: -85.0,
+      },
+    ])
+
     mocks.useCuratedDiscovery.mockReturnValue({
       routes: [
         {
@@ -317,9 +349,15 @@ describe('S6-T3 AC-5: Single discovery gate', () => {
           score: 0.95,
           distanceMi: undefined,
         },
-        // Shadow/quarantined rows must already be excluded by the gate —
-        // if the surface re-filtered, we'd see different behavior. We assert
-        // the surface only renders what the single hook returns.
+        {
+          id: 'rider-ready-2',
+          name: 'Tail of the Dragon',
+          lat: 35.5,
+          lng: -83.9,
+          archetype: 'twisties' as const,
+          score: 0.9,
+          distanceMi: 42,
+        },
       ],
       isLoading: false,
       isEmpty: false,
@@ -330,12 +368,26 @@ describe('S6-T3 AC-5: Single discovery gate', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('discovery-suggestion-pill-rider-ready-1')).toBeTruthy()
+      expect(screen.getByTestId('discovery-suggestion-pill-rider-ready-2')).toBeTruthy()
     })
 
-    expect(screen.queryByTestId('discovery-suggestion-pill-shadow-retired')).toBeNull()
+    // Exact gate output only — not useQuery union (proves no second filter/path)
+    const pillNodes = screen.getAllByTestId(/^discovery-suggestion-pill-/)
+    const renderedPillIds = pillNodes.map((n) => n.props.testID as string).sort()
+    expect(renderedPillIds).toEqual(
+      GATE_ROUTE_IDS.map((id) => `discovery-suggestion-pill-${id}`).sort(),
+    )
+
+    // Shadow seeded in useQuery noise is excluded (non-vacuous: it IS present
+    // in the mock catalog but never re-included by the surface)
+    expect(screen.queryByTestId(`discovery-suggestion-pill-${SHADOW_ID}`)).toBeNull()
+    expect(screen.queryByText(SHADOW_NAME)).toBeNull()
+    expect(screen.queryByText(/Should Not Appear From Query/i)).toBeNull()
     expect(screen.queryByText(/shadow|retired|quarantine/i)).toBeNull()
 
-    // Single hook call at runtime
+    // Single hook call at runtime (one gate powers labels + pills)
     expect(mocks.useCuratedDiscovery).toHaveBeenCalledTimes(1)
+    // useQuery may be used for unrelated data — but must not feed discovery pills
+    expect(mocks.useQuery).toHaveBeenCalled()
   })
 })
