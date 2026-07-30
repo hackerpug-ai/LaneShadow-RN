@@ -5,6 +5,10 @@
  * WHEN recomputeRiderReadyForRoute runs
  * THEN stored riderReady === false
  *
+ * One-discriminator cases prove false-on-missing is strict (not short-circuit only).
+ * Covers: classifier, retiredAt, duplicateOf, empty name, invalid score,
+ * lengthMiles<=0, missing geometry.
+ *
  * TEST_TIER: integration
  * VERIFICATION_SERVICE: convex-test-deployment
  * FLOW_REF: UC-SURF-01
@@ -22,6 +26,16 @@ const TEST_IDENTITY = JSON.stringify({
   subject: 's6t1-false-missing-test',
   issuer: 'https://laneshadow.test',
 })
+
+const FIXTURE_ROUTE_IDS = [
+  'test:retired-twin',
+  'test:shadow-twin',
+  'test:missing-classifier-twin',
+  'test:empty-name-twin',
+  'test:invalid-score-twin',
+  'test:zero-length-twin',
+  'test:missing-geom-twin',
+]
 
 interface RunResult {
   ok: boolean
@@ -69,59 +83,57 @@ function parseJson(stdout: string): any {
   }
 }
 
+function seedOrThrow(fn: string): any {
+  const result = runConvexFn(fn, {}, { identity: true })
+  expect(result.ok, `${fn} failed: ${result.stderr}\n${result.stdout}`).toBe(true)
+  const body = parseJson(result.stdout)
+  expect(body, `${fn} returned non-JSON`).toBeTruthy()
+  return body
+}
+
 describe('AC-3: false-on-missing-any-input is strict', () => {
   let retired: any
   let shadow: any
   let missingClassifier: any
+  let emptyName: any
+  let invalidScore: any
+  let zeroLength: any
+  let missingGeom: any
 
   beforeAll(() => {
     mkdirSync(EVIDENCE_DIR, { recursive: true })
 
-    const retiredSeed = runConvexFn(
-      'curatedGeometryTestSupport:seedRetiredTwinRow',
-      {},
-      { identity: true },
-    )
-    expect(
-      retiredSeed.ok,
-      `seedRetiredTwinRow failed: ${retiredSeed.stderr}\n${retiredSeed.stdout}`,
-    ).toBe(true)
-    retired = parseJson(retiredSeed.stdout)
-
-    const shadowSeed = runConvexFn(
-      'curatedGeometryTestSupport:seedShadowTwinRow',
-      {},
-      { identity: true },
-    )
-    expect(
-      shadowSeed.ok,
-      `seedShadowTwinRow failed: ${shadowSeed.stderr}\n${shadowSeed.stdout}`,
-    ).toBe(true)
-    shadow = parseJson(shadowSeed.stdout)
-
-    const missingSeed = runConvexFn(
-      'curatedGeometryTestSupport:seedMissingClassifierTwinRow',
-      {},
-      { identity: true },
-    )
-    expect(
-      missingSeed.ok,
-      `seedMissingClassifierTwinRow failed: ${missingSeed.stderr}\n${missingSeed.stdout}`,
-    ).toBe(true)
-    missingClassifier = parseJson(missingSeed.stdout)
+    retired = seedOrThrow('curatedGeometryTestSupport:seedRetiredTwinRow')
+    shadow = seedOrThrow('curatedGeometryTestSupport:seedShadowTwinRow')
+    missingClassifier = seedOrThrow('curatedGeometryTestSupport:seedMissingClassifierTwinRow')
+    emptyName = seedOrThrow('curatedGeometryTestSupport:seedEmptyNameTwinRow')
+    invalidScore = seedOrThrow('curatedGeometryTestSupport:seedInvalidCompositeScoreTwinRow')
+    zeroLength = seedOrThrow('curatedGeometryTestSupport:seedZeroLengthTwinRow')
+    missingGeom = seedOrThrow('curatedGeometryTestSupport:seedMissingGeometryTwinRow')
 
     writeFileSync(
       resolve(EVIDENCE_DIR, 'AC-3-false-on-missing.json'),
-      JSON.stringify({ ac: 'AC-3', retired, shadow, missingClassifier }, null, 2),
+      JSON.stringify(
+        {
+          ac: 'AC-3',
+          retired,
+          shadow,
+          missingClassifier,
+          emptyName,
+          invalidScore,
+          zeroLength,
+          missingGeom,
+        },
+        null,
+        2,
+      ),
     )
-  }, 180_000)
+  }, 300_000)
 
   afterAll(() => {
     runConvexFn(
       'curatedGeometryTestSupport:teardownS6T1Fixtures',
-      {
-        routeIds: ['test:retired-twin', 'test:shadow-twin', 'test:missing-classifier-twin'],
-      },
+      { routeIds: FIXTURE_ROUTE_IDS },
       { identity: true },
     )
   })
@@ -140,9 +152,74 @@ describe('AC-3: false-on-missing-any-input is strict', () => {
     expect(shadow.routeId).toBe('test:shadow-twin')
   })
 
-  it('TC-3: any one missing input forces riderReady=false (classifier absent)', () => {
+  it('TC-3 discriminator classifier absent: stored riderReady=false', () => {
     expect(missingClassifier).toBeTruthy()
     expect(missingClassifier.riderReady).toBe(false)
     expect(missingClassifier.rideWorthiness == null).toBe(true)
+  })
+
+  it('TC-3 discriminator empty name: stored riderReady=false', () => {
+    expect(emptyName).toBeTruthy()
+    expect(emptyName.riderReady).toBe(false)
+    expect(typeof emptyName.name === 'string' ? emptyName.name.trim().length === 0 : true).toBe(
+      true,
+    )
+    expect(emptyName.routeId).toBe('test:empty-name-twin')
+  })
+
+  it('TC-3 discriminator invalid compositeScore: stored riderReady=false', () => {
+    expect(invalidScore).toBeTruthy()
+    expect(invalidScore.riderReady).toBe(false)
+    expect(invalidScore.compositeScore).toBe(0.1)
+    expect(invalidScore.routeId).toBe('test:invalid-score-twin')
+  })
+
+  it('TC-3 discriminator lengthMiles<=0: stored riderReady=false', () => {
+    expect(zeroLength).toBeTruthy()
+    expect(zeroLength.riderReady).toBe(false)
+    expect(zeroLength.lengthMiles).toBe(0)
+    expect(zeroLength.routeId).toBe('test:zero-length-twin')
+  })
+
+  it('TC-3 discriminator missing/failing geometry: stored riderReady=false', () => {
+    expect(missingGeom).toBeTruthy()
+    expect(missingGeom.riderReady).toBe(false)
+    expect(missingGeom.hasGeometry).toBe(false)
+    expect(missingGeom.geometryVerification).toBeNull()
+    expect(missingGeom.routeId).toBe('test:missing-geom-twin')
+  })
+
+  it('TC-3: any one missing input forces riderReady=false (all 7 discriminators)', () => {
+    const cases = [
+      { name: 'retiredAt', body: retired },
+      { name: 'duplicateOf', body: shadow },
+      { name: 'classifier', body: missingClassifier },
+      { name: 'emptyName', body: emptyName },
+      { name: 'invalidScore', body: invalidScore },
+      { name: 'zeroLength', body: zeroLength },
+      { name: 'missingGeometry', body: missingGeom },
+    ]
+
+    for (const c of cases) {
+      expect(c.body?.riderReady, `${c.name} must store riderReady=false`).toBe(false)
+      expect(c.body?.riderReady, `${c.name} must not be null/undefined`).not.toBeNull()
+      expect(c.body?.riderReady, `${c.name} must not be true`).not.toBe(true)
+    }
+
+    writeFileSync(
+      resolve(EVIDENCE_DIR, 'TC-3-seven-discriminators.json'),
+      JSON.stringify(
+        {
+          tc: 'TC-3',
+          cases: cases.map((c) => ({
+            discriminator: c.name,
+            routeId: c.body?.routeId,
+            riderReady: c.body?.riderReady,
+          })),
+        },
+        null,
+        2,
+      ),
+    )
   })
 })
