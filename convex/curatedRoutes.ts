@@ -456,7 +456,11 @@ function resolveDetailRoutePolyline(
   return route.routePolyline ?? null
 }
 
-function buildRouteDetail(
+/**
+ * Lean detail projection used by getCuratedRouteDetail.
+ * Exported for S6-T4 projection unit tests (geometryProvenance must not drop).
+ */
+export function buildRouteDetail(
   route: Doc<'curated_routes'>,
   geomRow: Doc<'curated_route_geometry'> | null = null,
 ) {
