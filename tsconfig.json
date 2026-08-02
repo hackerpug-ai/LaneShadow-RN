@@ -35,6 +35,7 @@
     "shared/lib/storage/**",
     "simple-*.test.*",
     "test-syntax-simple.ts",
-    "stories/**"
+    "stories/**",
+    "rogueone.config.ts"
   ]
 }

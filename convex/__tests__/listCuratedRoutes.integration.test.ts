@@ -376,6 +376,107 @@ describe('AC-1: all four browse modes', () => {
     await expect(runHandler(ctx, { sort: 'nearest' })).rejects.toThrow(/Center point required/)
   })
 
+  /**
+   * Geography-first: a small nearest limit must not score-window-starve regional
+   * rider-ready routes that rank outside a fixed national composite-score take.
+   * Reproduces the SF Muir Woods bug (national ranks ~1072/1152, app limit 20 →
+   * former filteredTake 400 dropped both routes before the 20-mi distance filter).
+   */
+  it('mode2_nearest_doesNotScoreWindowStarveRegionalRoutesAtSmallLimit', async () => {
+    const SF = { lat: 37.7749, lng: -122.4194 }
+    // 500 nationally higher-scoring routes far outside the 20-mi radius (e.g. NC)
+    const farHighScore = Array.from({ length: 500 }, (_, i) =>
+      makeRoute({
+        _id: `far-${i}`,
+        routeId: `far-high-${i}`,
+        name: `Far National ${i}`,
+        state: 'North Carolina',
+        compositeScore: 0.99 - i * 0.0001,
+        centroidLat: 35.5,
+        centroidLng: -83.0,
+      }),
+    )
+    // Two lower-score routes within 20 mi of SF (centroid distance)
+    const nearLowScore = [
+      makeRoute({
+        _id: 'muir',
+        routeId: 'bestbikingroads:sf-muir-woods',
+        name: 'sf Muir Woods',
+        state: 'California',
+        compositeScore: 0.6357,
+        centroidLat: 37.904255,
+        centroidLng: -122.5946952,
+      }),
+      makeRoute({
+        _id: 'rafael',
+        routeId: 'motorcycleroads:san-rafael-loop',
+        name: 'San Rafael Loop',
+        state: 'California',
+        compositeScore: 0.6429,
+        centroidLat: 37.99832696666667,
+        centroidLng: -122.60164163333333,
+      }),
+    ]
+    // Score-desc order: far routes first (as the composite-score index would serve)
+    const indexRows = [...farHighScore, ...nearLowScore]
+    const ctx = buildCtx({ indexData: { [RIDER_READY_INDEX]: indexRows } })
+
+    // App chain: home limit 5 → hook over-fetch 20
+    const result = await runHandler(ctx, {
+      sort: 'nearest',
+      center: SF,
+      limit: 20,
+    })
+
+    const names = result.map((r: any) => r.name)
+    expect(result.length).toBeGreaterThanOrEqual(2)
+    expect(names).toEqual(expect.arrayContaining(['sf Muir Woods', 'San Rafael Loop']))
+    expect(result.map((r: any) => r.routeId)).not.toContain('far-high-0')
+    for (const card of result) {
+      assertValidCard(card, { distanceMiExpected: true })
+      expect(card.distanceMi).toBeLessThanOrEqual(20)
+    }
+    // Distance-ascending order
+    const dists = result.map((r: any) => r.distanceMi as number)
+    for (let i = 1; i < dists.length; i++) {
+      expect(dists[i]).toBeGreaterThanOrEqual(dists[i - 1])
+    }
+  })
+
+  it('mode1_bbox_doesNotScoreWindowStarveRegionalRoutesAtSmallLimit', async () => {
+    const farHighScore = Array.from({ length: 500 }, (_, i) =>
+      makeRoute({
+        _id: `far-bb-${i}`,
+        routeId: `far-bb-${i}`,
+        name: `Far Bbox ${i}`,
+        compositeScore: 0.99 - i * 0.0001,
+        centroidLat: 35.5,
+        centroidLng: -83.0,
+      }),
+    )
+    const inBoxLowScore = [
+      makeRoute({
+        _id: 'in-box',
+        routeId: 'bay-in-box',
+        name: 'Bay In Box',
+        compositeScore: 0.4,
+        centroidLat: 37.8,
+        centroidLng: -122.4,
+      }),
+    ]
+    const ctx = buildCtx({
+      indexData: { [RIDER_READY_INDEX]: [...farHighScore, ...inBoxLowScore] },
+    })
+
+    const result = await runHandler(ctx, {
+      bbox: { north: 38.5, south: 37.0, east: -121.5, west: -123.0 },
+      limit: 20,
+    })
+
+    expect(result.map((r: any) => r.routeId)).toContain('bay-in-box')
+    expect(result.map((r: any) => r.routeId)).not.toContain('far-bb-0')
+  })
+
   // --- Mode 3: state-only via riderReady index (by_state gap closed) -----------
 
   it('mode3_state_usesRiderReadyIndexAndNormalizesState', async () => {
@@ -685,4 +786,71 @@ describe('AC-1: all four browse modes', () => {
     for (const card of stateResult) expect(card.distanceMi).toBeUndefined()
     for (const card of archResult) expect(card.distanceMi).toBeUndefined()
   })
+})
+
+// =============================================================================
+// Live SF nearest (shipped internal list path — same handler as public list)
+// =============================================================================
+
+/**
+ * Run listCuratedRoutesInternal against the live dev deployment.
+ * Internal query skips Clerk; exercises the same listCuratedRoutesHandler as the app.
+ */
+const tryRunConvexInternal = (args: object): { ok: boolean; stdout: string; stderr: string } => {
+  try {
+    const stdout = execFileSync(
+      'npx',
+      ['convex', 'run', 'curatedRoutes:listCuratedRoutesInternal', JSON.stringify(args)],
+      {
+        cwd: PROJECT_ROOT,
+        encoding: 'utf-8',
+        timeout: 60000,
+        stdio: ['pipe', 'pipe', 'pipe'],
+      },
+    )
+    return { ok: true, stdout, stderr: '' }
+  } catch (err: any) {
+    return {
+      ok: false,
+      stdout: typeof err.stdout === 'string' ? err.stdout : '',
+      stderr: typeof err.stderr === 'string' ? err.stderr : '',
+    }
+  }
+}
+
+describe('live SF nearest at app limit (geography-first)', () => {
+  it('limit20_includesMuirWoodsAndSanRafaelLoopWhenPresent', () => {
+    const res = tryRunConvexInternal({
+      center: { lat: 37.7749, lng: -122.4194 },
+      sort: 'nearest',
+      limit: 20,
+    })
+    expect(res.ok, `convex run failed: ${res.stderr}\n${res.stdout}`).toBe(true)
+
+    let rows: any[]
+    try {
+      rows = JSON.parse(res.stdout)
+    } catch {
+      throw new Error(`expected JSON array from listCuratedRoutesInternal, got: ${res.stdout}`)
+    }
+    expect(Array.isArray(rows)).toBe(true)
+
+    // When the catalog still has these rider-ready Bay Area rows, they must surface
+    // at the app's real nearest limit (20) — not only at artificially high limits.
+    const names = rows.map((r: any) => String(r.name ?? ''))
+    const hasMuir = names.some((n: string) => /muir woods/i.test(n))
+    const hasRafael = names.some((n: string) => /san rafael loop/i.test(n))
+
+    // Fail closed if empty under SF center — that is the bug we fixed.
+    expect(rows.length, `SF nearest limit 20 returned empty: ${res.stdout}`).toBeGreaterThanOrEqual(
+      2,
+    )
+    expect(hasMuir, `missing Muir Woods in ${names.join(', ')}`).toBe(true)
+    expect(hasRafael, `missing San Rafael Loop in ${names.join(', ')}`).toBe(true)
+
+    for (const card of rows) {
+      expect(typeof card.distanceMi).toBe('number')
+      expect(card.distanceMi).toBeLessThanOrEqual(20)
+    }
+  }, 90_000)
 })

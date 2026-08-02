@@ -144,6 +144,15 @@ export const MAX_NEAREST_CURATED_ROUTE_DISTANCE_MI = 20
 export const isWithinNearestCuratedRouteDistance = (distanceMi: number | undefined): boolean =>
   (distanceMi ?? Number.POSITIVE_INFINITY) <= MAX_NEAREST_CURATED_ROUTE_DISTANCE_MI
 
+/**
+ * Geographic browse modes (nearest / bbox) must scan the rider-ready index until
+ * geography is satisfied — never a fixed national composite-score take window.
+ * Score-ordered top-N then geo-filter starves regional routes that rank outside
+ * that window (e.g. SF Muir Woods at national rank ~1152 with limit-derived take 400).
+ * Cap covers the full rider-ready catalog while staying inside Convex read limits.
+ */
+export const RIDER_READY_GEO_SCAN_CAP = 10_000
+
 function buildRouteCard(route: any, distanceMi?: number) {
   return {
     routeId: route.routeId,
@@ -184,6 +193,11 @@ async function queryRiderReadyRoutes(ctx: any, take: number) {
     .withIndex('by_riderReady_and_composite_score', (q: any) => q.eq('riderReady', true))
     .order('desc')
     .take(take)
+}
+
+/** Full rider-ready scan for geographic modes — geography is first-class, not a post-filter on a national score window. */
+async function queryRiderReadyRoutesForGeography(ctx: any) {
+  return queryRiderReadyRoutes(ctx, RIDER_READY_GEO_SCAN_CAP)
 }
 
 function isSurfaceEligible(route: any): boolean {
@@ -228,16 +242,17 @@ async function listCuratedRoutesHandler(ctx: any, args: any) {
   const matchesState = (route: any) =>
     !normalizedState || normalizeState(route.state) === normalizedState
 
-  // Window size when post-filtering by state/archetype/bbox/distance.
+  // Window size when post-filtering by state/archetype on non-geographic modes.
   // Index already gates riderReady=true — never pad with non-ready rows.
+  // Geographic modes (nearest / bbox) intentionally do NOT use this score window.
   const filteredTake = Math.min(
     Math.max(effectiveLimit * 20, effectiveLimit),
-    dbArchetypeSet || normalizedState || args.bbox || sort === 'nearest' ? 2000 : effectiveLimit,
+    dbArchetypeSet || normalizedState ? 2000 : effectiveLimit,
   )
 
-  // Mode 1: bbox — riderReady index + centroid-in-rectangle filter, ranked by score.
+  // Mode 1: bbox — geography-first riderReady scan + centroid-in-rectangle, ranked by score.
   if (args.bbox && sort !== 'nearest') {
-    const ready = await queryRiderReadyRoutes(ctx, filteredTake)
+    const ready = await queryRiderReadyRoutesForGeography(ctx)
     return ready
       .filter(
         (r: any) =>
@@ -248,7 +263,7 @@ async function listCuratedRoutesHandler(ctx: any, args: any) {
       .slice(0, effectiveLimit)
   }
 
-  // Mode 2: nearest — riderReady index + haversine distance, capped at 20 mi.
+  // Mode 2: nearest — geography-first riderReady scan + centroid haversine, capped at 20 mi.
   if (sort === 'nearest') {
     const center =
       args.center ??
@@ -263,7 +278,7 @@ async function listCuratedRoutesHandler(ctx: any, args: any) {
       throw new Error('Center point required for sort=nearest')
     }
 
-    const ready = await queryRiderReadyRoutes(ctx, filteredTake)
+    const ready = await queryRiderReadyRoutesForGeography(ctx)
     return ready
       .filter((r: any) => isSurfaceEligible(r) && matchesState(r) && matchesArchetype(r))
       .map((r: any) => {
