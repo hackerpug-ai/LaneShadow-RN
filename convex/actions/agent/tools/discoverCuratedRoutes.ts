@@ -4,7 +4,7 @@ import polyline from '@mapbox/polyline'
 import type { ToolCall } from '@mariozechner/pi-ai'
 import { validateToolCall } from '@mariozechner/pi-ai'
 import { v } from 'convex/values'
-import { api, internal } from '../../../_generated/api'
+import { internal } from '../../../_generated/api'
 import { uiArchetypeToDbSet } from '../../../util/archetypeMap'
 import type { AgentContext } from '../ridePlanningAgent'
 
@@ -131,8 +131,14 @@ async function runDiscoverCuratedRoutes(
     queryArgs.archetypes = args.intent.archetypes!
   }
 
-  // Call the curated routes API (lean — no in-row geometry; DATA-011 16MB-read fix)
-  const candidateRoutes = await ctx.runQuery(api.curatedRoutes.listCuratedRoutes, queryArgs)
+  // Internal query (same handler as public listCuratedRoutes, no second
+  // requireIdentity). Entry auth is already enforced by sendMessage /
+  // agent requireIdentity; re-entering the public gate re-threw
+  // UNAUTHENTICATED on residual identity races. Internal is not client-callable.
+  const candidateRoutes = await ctx.runQuery(
+    internal.curatedRoutes.listCuratedRoutesInternal,
+    queryArgs,
+  )
 
   if (candidateRoutes.length === 0) {
     // No matches found - return conversational response

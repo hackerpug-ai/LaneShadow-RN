@@ -171,7 +171,7 @@ function buildMockCtx(opts: { curatedRoutes?: any[]; geometryRows?: any[]; allow
    * actually sends (the engine outcome), not by an opaque ref path.
    *
    *   planUsage.checkUsageInternal       → { clerkUserId }
-   *   curatedRoutes.listCuratedRoutes    → { limit, sort, state?, archetypes? }
+   *   curatedRoutes.listCuratedRoutesInternal → { limit, sort, state?, archetypes? }
    *   curatedGeometry.getGeometryForRoutes → { routeIds }
    *   routePlans.createForAgentInternal  → { clerkUserId, planningSessionId, planInput, ... }
    *   routePlans.updatePlanStatus        → { routePlanId, status, result }
@@ -181,7 +181,7 @@ function buildMockCtx(opts: { curatedRoutes?: any[]; geometryRows?: any[]; allow
     if ('routeIds' in args) return 'curatedGeometry.getGeometryForRoutes'
     if ('planInput' in args) return 'routePlans.createForAgentInternal'
     if ('status' in args && 'result' in args) return 'routePlans.updatePlanStatus'
-    if ('sort' in args && 'limit' in args) return 'curatedRoutes.listCuratedRoutes'
+    if ('sort' in args && 'limit' in args) return 'curatedRoutes.listCuratedRoutesInternal'
     if ('clerkUserId' in args && !('planningSessionId' in args)) {
       return 'planUsage.checkUsageInternal'
     }
@@ -200,8 +200,8 @@ function buildMockCtx(opts: { curatedRoutes?: any[]; geometryRows?: any[]; allow
       if (name === 'planUsage.checkUsageInternal') {
         return { allowed, limit: 100 }
       }
-      // listCuratedRoutes — return the fixture
-      if (name === 'curatedRoutes.listCuratedRoutes') {
+      // listCuratedRoutesInternal — return the fixture
+      if (name === 'curatedRoutes.listCuratedRoutesInternal') {
         return curatedRoutes
       }
       // geometry side-table lookup
@@ -301,9 +301,9 @@ describe('DATA-008 AC-1: fixtured intent drives a route_plans row whose options 
     expect(typeof result.routePlanId).toBe('string')
     expect(result.routePlanId.length).toBeGreaterThan(0)
 
-    // THEN: listCuratedRoutes was actually called (engine drove the query, not a stub)
-    const listCall = queries.find((q) => q.name === 'curatedRoutes.listCuratedRoutes')
-    expect(listCall, 'listCuratedRoutes must be invoked by the tool').toBeDefined()
+    // THEN: listCuratedRoutesInternal was actually called (engine drove the query, not a stub)
+    const listCall = queries.find((q) => q.name === 'curatedRoutes.listCuratedRoutesInternal')
+    expect(listCall, 'listCuratedRoutesInternal must be invoked by the tool').toBeDefined()
     // queryArgs built from intent: limit, sort, state, archetypes
     expect(listCall!.args).toMatchObject({
       limit: CURATED_ROUTE_DISCOVERY_CANDIDATE_LIMIT,

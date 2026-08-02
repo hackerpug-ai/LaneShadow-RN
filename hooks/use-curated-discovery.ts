@@ -1,8 +1,8 @@
-import { useQuery } from 'convex/react'
 import type { Infer } from 'convex/values'
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../convex/_generated/api'
 import type { listCuratedRoutesReturnValidator } from '../convex/curatedRoutes'
+import { useAuthQuery } from './use-auth-query'
 import { useCurrentLocation } from './use-current-location'
 
 export type DiscoveryArchetype =
@@ -42,6 +42,13 @@ export interface UseCuratedDiscoveryResult {
    * label this so national rows are never presented as nearby (S6-T3 / SURF-04).
    */
   fellBackToBest: boolean
+  /**
+   * Convex auth finished without a JWT — do not treat as empty catalog;
+   * surface sign-in recovery instead of a silent UNAUTHENTICATED throw.
+   */
+  authRequired: boolean
+  /** Convex auth token still resolving (non-blank loading affordance). */
+  authLoading: boolean
 }
 
 /**
@@ -63,11 +70,15 @@ export interface UseCuratedDiscoveryResult {
  * The import is `import type`, so it is erased at build time — no server module
  * is pulled into the RN bundle.
  *
- * LIMIT — the annotation on `useQuery` below is NOT checked by this. The
+ * LIMIT — the annotation on `useAuthQuery` below is NOT checked by this. The
  * generated Convex api degrades this query's `FunctionReturnType` to `any`, and
  * `any` satisfies any annotation, so a wrong annotation there would still
  * compile. The safety here comes from deriving the type, never from the act of
  * annotating. Do not read that annotation as a verified server contract.
+ *
+ * Auth: listCuratedRoutes requires requireIdentity. We gate via useAuthQuery
+ * (useConvexAuth) so the query is skipped while JWT is loading / missing —
+ * otherwise Convex throws UNAUTHENTICATED while Clerk already shows signed-in.
  */
 type CuratedRouteListRow = Pick<
   Infer<typeof listCuratedRoutesReturnValidator>[number],
@@ -169,14 +180,15 @@ export function useCuratedDiscovery(
     nearestNeedsCenter,
   ])
 
-  // Annotated (not cast): useQuery's inferred type is `any` here, so this
-  // annotation is what gives the filter/map callbacks below a type. It is NOT
-  // itself a contract check — `any` would accept any annotation written here.
-  // The server bond lives in CuratedRouteListRow's derivation above.
-  const data: CuratedRouteListRow[] | undefined = useQuery(
-    api.curatedRoutes.listCuratedRoutes,
-    queryArgs,
-  )
+  // Annotated (not cast): useAuthQuery's data is typed here for filter/map
+  // callbacks. Server bond lives in CuratedRouteListRow's derivation above.
+  // Auth skip is mandatory — public listCuratedRoutes calls requireIdentity.
+  const {
+    data,
+    isLoading: authQueryLoading,
+    authRequired,
+    authLoading,
+  } = useAuthQuery<CuratedRouteListRow[]>(api.curatedRoutes.listCuratedRoutes, queryArgs)
 
   const routes = useMemo(() => {
     if (waitingForNearestCenter) return undefined
@@ -250,8 +262,13 @@ export function useCuratedDiscovery(
 
   return {
     routes,
-    isLoading: waitingForNearestCenter || (!nearestNeedsCenter && data === undefined),
-    isEmpty: routes !== undefined && routes.length === 0,
+    isLoading:
+      authLoading ||
+      waitingForNearestCenter ||
+      (!authRequired && !nearestNeedsCenter && authQueryLoading),
+    isEmpty: !authRequired && routes !== undefined && routes.length === 0,
     fellBackToBest,
+    authRequired,
+    authLoading,
   }
 }
