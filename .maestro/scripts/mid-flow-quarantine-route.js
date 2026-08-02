@@ -21,9 +21,10 @@ var routeId =
 var cwd = System.getProperty('user.dir')
 var scriptPath = cwd + '/.maestro/scripts/mid-flow-quarantine-route.sh'
 var scriptFile = new File(scriptPath)
+// Declared at module root (Biome noInnerDeclarations); Rhino has no let/const.
+var alt = new File(cwd + '/scripts/mid-flow-quarantine-route.sh')
 if (!scriptFile.exists()) {
   // Fallback when Maestro launches with CWD = .maestro/
-  var alt = new File(cwd + '/scripts/mid-flow-quarantine-route.sh')
   if (alt.exists()) {
     scriptPath = alt.getAbsolutePath()
     cwd = new File(cwd).getParent()
@@ -43,10 +44,11 @@ if (deployment != null && String(deployment).length > 0) {
 var proc = pb.start()
 var reader = new BufferedReader(new InputStreamReader(proc.getInputStream()))
 var lines = []
-var line
-while ((line = reader.readLine()) != null) {
+var line = reader.readLine()
+while (line != null) {
   lines.push(String(line))
   console.log(line)
+  line = reader.readLine()
 }
 var code = proc.waitFor()
 var stdout = lines.join('\n')

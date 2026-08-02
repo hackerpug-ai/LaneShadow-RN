@@ -1,10 +1,5 @@
 {
-  "backoffScheduleSeconds": [
-    1,
-    2,
-    4,
-    8
-  ],
+  "backoffScheduleSeconds": [1, 2, 4, 8],
   "batchStopReason": "completed",
   "continueCursor": null,
   "costExceededMessage": null,

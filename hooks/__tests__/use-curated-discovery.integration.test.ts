@@ -35,6 +35,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('convex/react', () => ({
   ConvexProvider: ({ children }: any) => React.createElement('div', { children }),
   useQuery: vi.fn(),
+  useConvexAuth: vi.fn(() => ({ isLoading: false, isAuthenticated: true })),
 }))
 
 vi.mock('../use-current-location', () => ({
@@ -45,13 +46,14 @@ vi.mock('../use-current-location', () => ({
 // Imports (after mocks)
 // =========================================================================
 
-import { useQuery } from 'convex/react'
+import { useConvexAuth, useQuery } from 'convex/react'
 import type { DiscoveryArchetype } from '../use-curated-discovery'
 import { useCuratedDiscovery } from '../use-curated-discovery'
 import { useCurrentLocation } from '../use-current-location'
 
 // Get mocked functions
 const mockUseQuery = vi.mocked(useQuery)
+const mockUseConvexAuth = vi.mocked(useConvexAuth)
 const mockUseCurrentLocation = vi.mocked(useCurrentLocation)
 
 // =========================================================================
@@ -142,6 +144,7 @@ const mockCurrentLocation = { lat: 35.5951, lng: -82.5515 } // Asheville, NC
  */
 const setupMocks = () => {
   mockUseQuery.mockReturnValue(mockSingleRoute)
+  mockUseConvexAuth.mockReturnValue({ isLoading: false, isAuthenticated: true })
   mockUseCurrentLocation.mockReturnValue({
     location: mockCurrentLocation,
     loading: false,
@@ -157,6 +160,35 @@ describe('useCuratedDiscovery', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     setupMocks()
+  })
+
+  describe('auth gate (listCuratedRoutes requireIdentity)', () => {
+    it('skips listCuratedRoutes while Convex auth is loading', async () => {
+      mockUseConvexAuth.mockReturnValue({ isLoading: true, isAuthenticated: false })
+      mockUseQuery.mockReturnValue(undefined)
+
+      const { result } = renderHook(() => useCuratedDiscovery())
+
+      expect(mockUseQuery).toHaveBeenCalled()
+      const lastCall = mockUseQuery.mock.calls[mockUseQuery.mock.calls.length - 1]
+      expect(lastCall[1]).toBe('skip')
+      expect(result.current.authLoading).toBe(true)
+      expect(result.current.authRequired).toBe(false)
+      expect(result.current.isLoading).toBe(true)
+      expect(result.current.isEmpty).toBe(false)
+    })
+
+    it('surfaces authRequired when Convex auth finished unauthenticated', async () => {
+      mockUseConvexAuth.mockReturnValue({ isLoading: false, isAuthenticated: false })
+      mockUseQuery.mockReturnValue(undefined)
+
+      const { result } = renderHook(() => useCuratedDiscovery())
+
+      const lastCall = mockUseQuery.mock.calls[mockUseQuery.mock.calls.length - 1]
+      expect(lastCall[1]).toBe('skip')
+      expect(result.current.authRequired).toBe(true)
+      expect(result.current.isEmpty).toBe(false)
+    })
   })
 
   describe('AC-1 (PRIMARY): Hook returns correct row shape', () => {

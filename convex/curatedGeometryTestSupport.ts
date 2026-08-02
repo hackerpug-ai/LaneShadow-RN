@@ -589,16 +589,52 @@ export const getTestRoute = query({
   },
 })
 
-/** Seed 3 editorial rows with out-of-scale (0–100) composite + dimension scores. */
+/**
+ * Deterministic centroid jitter from a seed string so concurrent hygiene seeds
+ * do not all write the same geospatial `pointsByFilterKey` cell (OCC storms).
+ * Pure — exported for unit tests.
+ */
+export function hygieneCentroidForSeed(seed: string): { lat: number; lng: number } {
+  let h = 2166136261
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  // Keep within a small CA corridor around the legacy default (34.95, -120.42)
+  const lat = 34.9 + ((h >>> 0) % 1000) / 10000
+  const lng = -120.5 + ((h >>> 8) % 1000) / 10000
+  return { lat, lng }
+}
+
+/**
+ * Seed 3 editorial rows with out-of-scale (0–100) composite + dimension scores.
+ *
+ * Always runId-namespaced (optional arg; auto-generated if omitted) so concurrent
+ * test/hygiene callers do not collide on fixed routeIds or the same geospatial
+ * filter-key document (see OCC on pointsByFilterKey). Prefer
+ * seedEditorialScoreRowsNamespaced when the caller already has a runId.
+ */
 export const seedEditorialScoreRows = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: { runId: v.optional(v.string()) },
+  handler: async (ctx, args) => {
     await requireIdentity(ctx)
-    return [
-      await insertTestRoute(ctx, {
-        routeId: 'test:hyg-score-90',
-        name: 'Hygiene Score 90',
-        lengthMiles: 41,
+    const runId =
+      args.runId ?? `auto-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
+    const rows: Array<{
+      routeId: string
+      name: string
+      scores: {
+        compositeScore: number
+        curvatureScore: number
+        scenicScore: number
+        technicalScore: number
+        trafficScore: number
+        remotenessScore: number
+      }
+    }> = [
+      {
+        routeId: `test:hyg:${runId}:score-90`,
+        name: `Hygiene Score 90 (${runId})`,
         scores: {
           compositeScore: 90,
           curvatureScore: 88,
@@ -607,11 +643,10 @@ export const seedEditorialScoreRows = mutation({
           trafficScore: 76,
           remotenessScore: 70,
         },
-      }),
-      await insertTestRoute(ctx, {
-        routeId: 'test:hyg-score-72',
-        name: 'Hygiene Score 72',
-        lengthMiles: 41,
+      },
+      {
+        routeId: `test:hyg:${runId}:score-72`,
+        name: `Hygiene Score 72 (${runId})`,
         scores: {
           compositeScore: 72,
           curvatureScore: 70,
@@ -620,11 +655,10 @@ export const seedEditorialScoreRows = mutation({
           trafficScore: 55,
           remotenessScore: 50,
         },
-      }),
-      await insertTestRoute(ctx, {
-        routeId: 'test:hyg-score-85',
-        name: 'Hygiene Score 85',
-        lengthMiles: 41,
+      },
+      {
+        routeId: `test:hyg:${runId}:score-85`,
+        name: `Hygiene Score 85 (${runId})`,
         scores: {
           compositeScore: 85,
           curvatureScore: 82,
@@ -633,8 +667,21 @@ export const seedEditorialScoreRows = mutation({
           trafficScore: 70,
           remotenessScore: 65,
         },
-      }),
+      },
     ]
+    return Promise.all(
+      rows.map(async (row) => {
+        const { lat, lng } = hygieneCentroidForSeed(row.routeId)
+        return insertTestRoute(ctx, {
+          routeId: row.routeId,
+          name: row.name,
+          lengthMiles: 41,
+          centroidLat: lat,
+          centroidLng: lng,
+          scores: row.scores,
+        })
+      }),
+    )
   },
 })
 
