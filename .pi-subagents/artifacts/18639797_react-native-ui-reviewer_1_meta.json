@@ -1,0 +1,93 @@
+{
+  "runId": "18639797",
+  "agent": "react-native-ui-reviewer",
+  "task": "Read-only independent red-team review of Sprint 04 at /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline at post-remediation HEAD 9a1b9596. Compare against prior report .spec/reviews/red-hat-sprint-04-trust-pipeline-20260720T205905Z.md. Re-check every prior CRITICAL/HIGH finding and FIX-12..15. Inspect actual React Native/Expo and integration code/tests. Do not accept stale sprint sentinel, agent self-report, passing tests, or generated evidence bundle as proof of founder/live-provider gate. Do not write files. Return severity-ranked findings with exact file:line, per-prior-finding dispositions, and commands examined. Distinguish tests from true live-provider proof.",
+  "exitCode": 1,
+  "usage": {
+    "input": 0,
+    "output": 0,
+    "cacheRead": 0,
+    "cacheWrite": 0,
+    "cost": 0,
+    "turns": 0
+  },
+  "model": "local-router/implementer",
+  "attemptedModels": ["local-router/implementer"],
+  "modelAttempts": [
+    {
+      "model": "local-router/implementer",
+      "success": false,
+      "exitCode": 1,
+      "error": "Error: Model \"local-router/implementer\" not found. Use --list-models to see available models.",
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "cost": 0,
+        "turns": 0
+      }
+    }
+  ],
+  "durationMs": 1043,
+  "toolCount": 0,
+  "error": "Error: Model \"local-router/implementer\" not found. Use --list-models to see available models.",
+  "acceptance": {
+    "status": "rejected",
+    "explicit": true,
+    "effectiveAcceptance": {
+      "level": "checked",
+      "explicit": true,
+      "inferredReason": ["read-only/reviewer-style agent"],
+      "criteria": [
+        {
+          "id": "criterion-1",
+          "must": "Return concrete findings with file paths and severity when applicable",
+          "evidence": [
+            "changed-files",
+            "tests-added",
+            "commands-run",
+            "residual-risks",
+            "no-staged-files"
+          ],
+          "severity": "required"
+        }
+      ],
+      "evidence": [
+        "changed-files",
+        "tests-added",
+        "commands-run",
+        "residual-risks",
+        "no-staged-files"
+      ],
+      "verify": [],
+      "stopRules": []
+    },
+    "inferredReason": ["read-only/reviewer-style agent"],
+    "criteria": [
+      {
+        "id": "criterion-1",
+        "must": "Return concrete findings with file paths and severity when applicable",
+        "evidence": [
+          "changed-files",
+          "tests-added",
+          "commands-run",
+          "residual-risks",
+          "no-staged-files"
+        ],
+        "severity": "required"
+      }
+    ],
+    "runtimeChecks": [
+      {
+        "id": "attestation",
+        "status": "failed",
+        "message": "Structured acceptance report not found."
+      }
+    ],
+    "verifyRuns": [],
+    "childReportParseError": "Structured acceptance report not found."
+  },
+  "transcriptPath": "/Users/inference1/Projects/LaneShadow-RN/.pi-subagents/artifacts/18639797_react-native-ui-reviewer_1_transcript.jsonl",
+  "timestamp": 1784585958974
+}

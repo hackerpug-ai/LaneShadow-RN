@@ -1,0 +1,6 @@
+Run the mandatory fresh QA gate for Sprint 6 using the kb-run-human-tests procedure against the absolute sprint directory /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-06-rider-ready-surface. Read SPRINT.md, the human testing gate, and the existing Founder-Operator omission record before acting. Produce the real gate-plan.json, execute every human-test step that is actually runnable with the designated real driver, and produce agent-owned gate-results.json, gate-verification.json, and GATE-RESULTS.md from raw evidence. S6-T7 is explicitly omitted: do not claim a real-device pass, fixture pass, or substitute automation for it; if the omission makes the gate non-passable, emit the procedure's honest blocked/omitted outcome with the exact reason and sentinel. Do not hand-write a pass and do not fix product code. Continue until the QA artifacts and verification outcome are durable.
+
+
+LANDING NOTE (review/qa stage): you never merge, push, or move any checkout to another branch, and
+you do not modify product code. Your verdict does not land work — the run stage merges the reviewed
+commit to the base branch after you approve. Cite the exact SHA you reviewed so the land is auditable.

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "sprint_id": "sprint-06-rider-ready-surface",
+  "task_id": "S6-T7",
+  "decision": "omitted",
+  "decided_by": "Founder-Operator",
+  "decided_at": "2026-07-31T00:00:00Z",
+  "scope": "The real-device provenance-caption human gate is intentionally omitted from Sprint 6 closeout.",
+  "not_a_pass": true,
+  "evidence_policy": "No real-device pass is claimed; simulator and automation artifacts remain invalid for this requirement.",
+  "remaining_implementation_evidence": [
+    "S6-T3 automated honest-absence coverage",
+    "S6-T4 automated provenance-caption coverage",
+    "S6-T5 automated saved-route reachability coverage",
+    "S6-T6 curated-route-detail flow coverage",
+    "S6-T8 design handoff coverage"
+  ]
+}

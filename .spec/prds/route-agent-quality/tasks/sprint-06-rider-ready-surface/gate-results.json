@@ -1,0 +1,148 @@
+{
+  "sprint": "sprint-06-rider-ready-surface",
+  "sprint_identity": {
+    "resolved_sprint_path": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-06-rider-ready-surface",
+    "sprint_slug": "sprint-06-rider-ready-surface"
+  },
+  "run_id": "2026-08-01T04:21:54Z",
+  "verdict": "blocked",
+  "blocked_reason": "real-device-human-gate-omitted-by-founder-operator",
+  "steps_total": 7,
+  "steps_executed": 0,
+  "steps_passed": 0,
+  "ui_driver": "none",
+  "exec_surface": "cmux:9BAF60C7-C963-460D-9E8B-8E5FF6401FDB",
+  "qa_surface_id": "9BAF60C7-C963-460D-9E8B-8E5FF6401FDB",
+  "founder_operator_omission": {
+    "task_id": "S6-T7",
+    "decision": "omitted",
+    "decided_by": "Founder-Operator",
+    "decided_at": "2026-07-31T00:00:00Z",
+    "not_a_pass": true,
+    "record": ".spec/orchestrate/orch-route-agent-quality-s06-rider-ready-surface-20260730T055327Z-codex-omission.json",
+    "red_hat_finding": "S6-F5 (MEDIUM)",
+    "disposition": "accepted_scope_waiver",
+    "evidence_policy": "No real-device pass is claimed; simulator and automation artifacts remain invalid for this requirement."
+  },
+  "gate_prerequisites_unmet": [
+    "No real physical iOS device connected (xcrun instruments -s devices shows only simulators)",
+    "App not built/installed on a physical device (no Expo EAS build or dev-client binary available)",
+    "Convex dev not running (live post-Sprint-04 rider-ready catalog unavailable)",
+    "No Maestro gate flows exist for the 7-step human gate (project has zero .e2e/maestro/**/*.yaml files)",
+    "references/ scripts (exec-step.sh, run-maestro-step.sh, verify-gate-evidence.sh) not present in the project"
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "text": "Open a detail view for an ai_reconstructed route on device.",
+      "type": "native-ui",
+      "executed": false,
+      "result": "manual",
+      "evidence": "No real iOS device connected. Step requires founder to open the LaneShadow app on a real device against the live post-Sprint-04 catalog, locate an ai_reconstructed route, and tap to open its detail view.",
+      "failure": {
+        "expected": "Real-device screenshot of an ai_reconstructed detail view showing route name, reconstructed line (≥2 points), and literal caption 'Route line reconstructed from the ride description' (exact character match).",
+        "actual": "No device connected. xcrun xctrace list devices shows zero physical devices. Simulator-only environment.",
+        "evidence_pointer": "xcrun xctrace list devices 2>&1: 0 physical devices; xcrun simctl list devices available: 11 simulators only",
+        "root_cause_hypothesis": "HYPOTHESIS: This is a pre-planned gate requiring a physical device. The Founder-Operator explicitly omitted S6-T7 (the formal device-test task) and accepted this as a scope waiver per the omission record.",
+        "remedy_suggestion": "HYPOTHESIS: Schedule a real-device calm-caption check per the red-hat follow-up note — 'before Sprint 07's agent rebuild depends on this surface' (forward schedule item, not S6 gate re-open).",
+        "remedy_file_guess": "HYPOTHESIS: N/A — this is a human observation requirement, not a code defect."
+      }
+    },
+    {
+      "n": 2,
+      "text": "Confirm the caption reads as plain informational text.",
+      "type": "native-ui",
+      "executed": false,
+      "result": "manual",
+      "evidence": "No real device for human-judgment calm-vs-warning assessment. The procedure S6-T7 task file declares: 'the founder's first-impression gut-check IS the signal.'",
+      "failure": {
+        "expected": "Founder-Operator human-judgment verdict that caption reads as calm informational context: declarative tone, no exclamation, no warning words ('warning', 'error', 'approximate'), no alert icon, no apology/failure notice phrasing.",
+        "actual": "No device. This specific judgment (calm vs warning) is the precise human gate that S6-T7 was chartered to exercise. Red-hat S6-F5 records: 'Real-device calm-vs-warning judgment gap after FO omission.'",
+        "evidence_pointer": "SPRINT.md line 62: 'Omission (2026-07-31): The Founder-Operator explicitly omitted S6-T7 from this sprint's required closeout.'; S6-T7 task file: 'This is a documented scope waiver, not a device-test pass.'",
+        "root_cause_hypothesis": "HYPOTHESIS: The subjective calm-vs-warning judgment is irreducible to automation. The skill procedure (edge cases table) states subjective steps with assertion.kind 'manual' can NEVER contribute to a machine pass.",
+        "remedy_suggestion": "HYPOTHESIS: The FO must perform a real-device session. The red-hat review §Pre-Sprint-07 recommends scheduling this before Sprint 07's agent rebuild.",
+        "remedy_file_guess": "HYPOTHESIS: N/A — human observation gate."
+      }
+    },
+    {
+      "n": 3,
+      "text": "Confirm muted styling with no badge or warning affordance.",
+      "type": "native-ui",
+      "executed": false,
+      "result": "manual",
+      "evidence": "No device for visual styling inspection. Requires real-device assessment of text color (muted/secondary vs primary), font weight (body/subtitle vs title), badge/chip presence, border, and warning-color background.",
+      "failure": {
+        "expected": "Caption uses muted text color (≥1 shade lighter than primary), body/subtitle weight, 0 badges, 0 icons, 0 warning borders, 0 warning-colored backgrounds.",
+        "actual": "No device available for visual inspection. S6-T8 design handoff specified light+dark token mappings, but visual verification on a real device has not been performed.",
+        "evidence_pointer": "SPRINT.md lines 58-62: gate sentence + omission record; S6-T4 task file (provenance caption leaf calm/muted/no-badge); S6-T8 task file (design handoff tokens).",
+        "root_cause_hypothesis": "HYPOTHESIS: The design tokens have been implemented (S6-T4, S6-T8) but the device-level visual verification — confirming the tokens render as intended across device pixel densities, color profiles, and True Tone/display-zoom settings — has not been performed.",
+        "remedy_suggestion": "HYPOTHESIS: Same as step 2 — real-device caption verification session. Automated Maestro screenshot diffs are explicitly invalid per FO omission record.",
+        "remedy_file_guess": "HYPOTHESIS: N/A — visual verification gate."
+      }
+    },
+    {
+      "n": 4,
+      "text": "Check the caption in both light and dark mode.",
+      "type": "native-ui",
+      "executed": false,
+      "result": "manual",
+      "evidence": "No device. Requires toggling iOS appearance (Settings > Display & Brightness > Dark), re-opening the same ai_reconstructed route detail, and capturing two screenshots (light + dark) with human comparison.",
+      "failure": {
+        "expected": "Two screenshots (1 light + 1 dark) of the same ai_reconstructed detail. Caption remains muted and readable in both; identical copy across modes; no warning hue in either theme; no contrast regression. 2 screenshots total (not 1).",
+        "actual": "No device. S6-T7 specifies: 'dark mode is skipped' → gate FAILS. S6-T8 design handoff specifies light+dark token pairs but the dual-theme device verification has not occurred.",
+        "evidence_pointer": "SPRINT.md step 4: 'Check the caption in both light and dark mode'; S6-T7 AC-4: '2 screenshots captured: 1 light + 1 dark'; S6-T7 constraints: 'Never skip the dark-mode check.'",
+        "root_cause_hypothesis": "HYPOTHESIS: Even if S6-T8's light+dark token definitions are syntactically correct (pnpm tokens:validate exits 0 per S6-F6), the dual-theme visual verification at native device context is the one thing that can catch theme-switch rendering bugs (color profile mismatch, system override bypass, dynamic-type interaction).",
+        "remedy_suggestion": "HYPOTHESIS: Schedule a real-device dual-theme check as part of the forward-schedule pre-Sprint-07 caption verification.",
+        "remedy_file_guess": "HYPOTHESIS: N/A — visual verification gate."
+      }
+    },
+    {
+      "n": 5,
+      "text": "Confirm a scraped_promoted route shows no caption.",
+      "type": "native-ui",
+      "executed": false,
+      "result": "manual",
+      "evidence": "No device. Requires locating a scraped_promoted route on the real catalog and visually confirming zero caption nodes on the detail surface. S6-T7 constraint: 'provenance silence for scraped lines is absolute.'",
+      "failure": {
+        "expected": "scraped_promoted detail view opens with route name visible; caption node count == 0; no text containing 'reconstructed' or 'routed' displayed anywhere on the surface.",
+        "actual": "No device. S6-T4 implemented conditional caption rendering (only for ai_reconstructed + name_routed), but device-level verification against the real catalog has not been performed.",
+        "evidence_pointer": "SPRINT.md step 5; S6-T7 AC-5 'no caption text containing reconstructed or routed displayed'; S6-T7 constraints: 'If any scraped_promoted route shows ANY caption text, the gate FAILS.'",
+        "root_cause_hypothesis": "HYPOTHESIS: The conditional rendering logic (S6-T4) is likely correct per static review, but edge cases like a misclassified provenance value or a race between flag update and render could cause a caption to appear on a promoted row in live operation.",
+        "remedy_suggestion": "HYPOTHESIS: Verify on real device. This is one of the 7 human gate steps; schedule with the forward-schedule device caption check.",
+        "remedy_file_guess": "HYPOTHESIS: react-native/src/screens/CuratedRouteDetail.tsx (provenance caption conditional render)."
+      }
+    },
+    {
+      "n": 6,
+      "text": "Browse a thin region; confirm the honest 'no routes near you yet' state.",
+      "type": "native-ui",
+      "executed": false,
+      "result": "manual",
+      "evidence": "No device. Requires setting device location to a thin-coverage region (0 nearby rider-ready routes), browsing discovery, and human confirmation of the literal 'no routes near you yet' copy (character-for-character match), absence of '0mi' pills, and labeled fallback-to-national. Requires live Convex backend with real catalog.",
+      "failure": {
+        "expected": "Literal 'no routes near you yet' text present (character-for-character match); 0 occurrences of '0mi'; fallback-to-national results preceded by a label such as 'No routes nearby — here's our top-rated'; 0 centroid dots plotted as routes.",
+        "actual": "No device + no running Convex backend. S6-T3 implemented the four-state decoder (isEmpty/isLoading/fellBackToBest) but red-hat S6-F1 identified a dead branch in the final isEmpty arm. Honest-absence text rendering verified via code review only.",
+        "evidence_pointer": "SPRINT.md step 6; S6-T7 AC-6; red-hat S6-F1 (MEDIUM) 'four-state decoder dead branch'; S6-T3 task file (honest-thin-region implementation).",
+        "root_cause_hypothesis": "HYPOTHESIS: The honest-absence surface (S6-T3) has a dead code branch (S6-F1) in the four-state decoder that could theoretically produce a different empty state than expected. Device test needed to confirm the correct branch fires.",
+        "remedy_suggestion": "HYPOTHESIS: REDHAT-FOLLOW-S6-F1 addresses the dead branch. The real-device verification of the honest-absence state should be part of the forward-schedule pre-Sprint-07 device check.",
+        "remedy_file_guess": "HYPOTHESIS: react-native/src/screens/index.tsx (four-state discovery decoder, circa line 350)."
+      }
+    },
+    {
+      "n": 7,
+      "text": "Confirm a saved non-ready route still opens its detail.",
+      "type": "native-ui",
+      "executed": false,
+      "result": "manual",
+      "evidence": "No device. Requires having a saved non-rider-ready route (quarantined, shadow-merged, or gate-excluded) in the founder's real Saved library on the live catalog, tapping it, and confirming the detail view opens with the honest 'Approximate location' state. Also requires verifying the saved count does not drop.",
+      "failure": {
+        "expected": "Saved non-ready route detail view opens with route name visible (≥1 character); 0 blocked/error/gate-hidden affordances; un-recovered line shows honest 'Approximate location' state (not a fake plotted line); saved route count does not drop.",
+        "actual": "No device + no running Convex backend. S6-T5 implemented canonical redirect + approximate-state detail reachability. Red-hat S6-F2 identified silent null-return on double-duplicateOf data-integrity fault. S6-T6 wrote a Maestro saved-reachability flow but red-hat S6-F3 identified a CLERK_TEST_EMAIL pre-condition gap. Neither artifact has been exercised on a real device.",
+        "evidence_pointer": "SPRINT.md step 7; S6-T7 AC-7; red-hat S6-F2 (MEDIUM) canonical redirect integrity fault; red-hat S6-F3 (MEDIUM) Maestro env pre-condition; S6-T5 task file (saved-routes reachability).",
+        "root_cause_hypothesis": "HYPOTHESIS: The canonical redirect (S6-T5) is code-reviewed but not integration-tested against a real catalog with actual shadow-merged rows. The null-return on data-integrity fault (S6-F2) could produce a blank/not-found instead of the detail view.",
+        "remedy_suggestion": "HYPOTHESIS: REDHAT-FOLLOW-S6-F2 (honest detail empty-state when canonical redirect hits integrity fault) is scheduled for Sprint 07. The saved-route reachability device verification should be part of the forward-schedule pre-Sprint-07 device check.",
+        "remedy_file_guess": "HYPOTHESIS: convex/getCuratedRouteDetail.ts (canonical redirect resolution); react-native/src/screens/CuratedRouteDetail.tsx (detail reachability rendering)."
+      }
+    }
+  ]
+}

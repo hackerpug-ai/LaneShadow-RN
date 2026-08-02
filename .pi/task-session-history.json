@@ -1,0 +1,50 @@
+[
+  {
+    "id": "mrsdrc0f-f10c",
+    "agentType": "product-manager",
+    "description": "Expand Sprint 05 product tasks",
+    "sessionName": "task-mrsdrc0f-f10c",
+    "startedAt": 1784500896407,
+    "piDir": "/Users/inference1/Projects/LaneShadow-RN/.pi",
+    "dir": "/Users/inference1/Projects/LaneShadow-RN/.pi/artifacts/tasks",
+    "status": "failed",
+    "background": true,
+    "completedAt": 1784500896713
+  },
+  {
+    "id": "mrsdrc07-6363",
+    "agentType": "convex-planner",
+    "description": "Expand Sprint 05 Convex tasks",
+    "sessionName": "task-mrsdrc07-6363",
+    "startedAt": 1784500896558,
+    "piDir": "/Users/inference1/Projects/LaneShadow-RN/.pi",
+    "dir": "/Users/inference1/Projects/LaneShadow-RN/.pi/artifacts/tasks",
+    "status": "failed",
+    "background": true,
+    "completedAt": 1784500896715
+  },
+  {
+    "id": "mrzh72q9-4f0c",
+    "agentType": "convex-reviewer",
+    "description": "Audit gate step coverage",
+    "sessionName": "task-mrzh72q9-4f0c",
+    "startedAt": 1784929932952,
+    "piDir": "/Users/inference1/Projects/LaneShadow-RN/.pi",
+    "dir": "/Users/inference1/Projects/LaneShadow-RN/.pi/artifacts/tasks",
+    "status": "failed",
+    "background": true,
+    "completedAt": 1784929933124
+  },
+  {
+    "id": "ms0qnpdz-94c6",
+    "agentType": "convex-planner",
+    "description": "Expand REDHAT-FIX-08/09",
+    "sessionName": "task-ms0qnpdz-94c6",
+    "startedAt": 1785006291546,
+    "piDir": "/Users/inference1/Projects/LaneShadow-RN/.pi",
+    "dir": "/Users/inference1/Projects/LaneShadow-RN/.pi/artifacts/tasks",
+    "status": "failed",
+    "background": true,
+    "completedAt": 1785006291781
+  }
+]

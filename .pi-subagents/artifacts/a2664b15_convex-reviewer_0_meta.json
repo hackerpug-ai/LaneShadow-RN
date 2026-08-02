@@ -1,0 +1,131 @@
+{
+  "runId": "a2664b15",
+  "agent": "convex-reviewer",
+  "task": "ADVERSARIAL REMEDIATION VERIFICATION — read-only. Do NOT modify any file.\n\nContext: Sprint 04 \"trust pipeline\" of a React-Native + Convex route-quality app. Two prior red-hat reviews found the gate closeout was FORGED (deterministic test seam injected into the live waterfall, forgeable couch verdicts, ungated fixtures, approval that bypassed the canonical gate). 11 REDHAT-FIX remediation tasks were implemented. Your job: independently and adversarially verify whether each is GENUINELY resolved in the current code, or whether a residual forgeability/bypass/stub remains.\n\nRepo: /Users/inference1/Projects/LaneShadow-RN (cwd). HEAD commit: b2499228. Read convex/_generated/ai/guidelines.md first for Convex correctness rules.\n\nThe 11 REDHAT-FIX spec files (each cites the exact code locations to inspect) live in:\n.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/REDHAT-FIX-01-*.md through REDHAT-FIX-11-*.md\n\nFor EACH of the 11 fixes, inspect the cited code at HEAD and verdict it:\n- RESOLVED — the forgeability/bypass is genuinely closed, with the specific code evidence (file:line).\n- PARTIAL — partially closed; name exactly what remains exploitable.\n- NOT-RESOLVED — the original exploit still works; show the exact call path.\n\nScrutinize hardest (these are the trust-critical ones) and try to construct a concrete exploit for each:\n- FIX-01: can a production closeout identity (e.g. subject 's4-human-gate' or a real Clerk user) still inject lever2FixedGeometry / simulateRateLimitFailures / skipSleep into runSampleWaterfall or retryDisposition? Check convex/waterfallOrchestrator.ts (runSampleWaterfall handler), convex/reviewQueue.ts (retryDisposition), convex/guards.ts (assertTestSubjectOrThrow + TEST_SUBJECT_PREFIXES). Is the test-prefix gate bypassable (e.g. a real user whose subject happens to start with 'dev-' or 'test:')? Are there OTHER entry points to the deterministic seam (reconstructForRouteWithFixedGeometry) not gated?\n- FIX-03/04/10: can recordCouchVerdict still forge a PASS without a real immutable sample manifest? Check convex/couchVerdict.ts + convex/couchSampleAssembler.ts. Can membership be spoofed (missing/extra/duplicate routes)? Is the manifest hash truly immutable/bound? Can a non-founder record a pass?\n- FIX-05: can approveDisposition still forge verdict='pass'/riderReady=true on gate-FAILING geometry? Check convex/reviewQueue.ts (evaluateApprovalCandidate + approveDisposition). Does it truly re-run the canonical gate?\n- FIX-06: are requireFounder/requireOperator real server-owned role checks (not client-supplied)? Check convex/guards.ts. Is there any operational mutation still using a weaker requireIdentity?\n- FIX-08: are ALL fixture/cleanup seams (seedWaterfallFixtures, seedReviewQueueEntry, seedCostBurnRoutes, teardown*, couchSampleAssembler fixtures) gated to operator/founder or test-prefix? Can an authenticated non-operator manufacture or erase trust evidence?\n- FIX-02/09/11: weaker priority, but check classifyCatalog pagination/checkpoint completeness, waterfall durable terminal-state/fail-closed cost, and freeway rescue-first evidence.\n\nALSO hunt for any NEW issue you find (not in the original 11) that would let trust evidence be forged, bypassed, or manufactured.\n\nOutput: a per-fix verdict table (FIX | verdict | evidence file:line | residual exploit if any), then a short list of any NEW findings, then an overall statement: are the 11 REDHAT-FIX items genuinely resolved at HEAD, yes or no (with caveats)? Be skeptical and concrete — do not trust test-pass counts or commit messages; read the actual code paths.",
+  "exitCode": 0,
+  "usage": {
+    "input": 149579,
+    "output": 14708,
+    "cacheRead": 3335936,
+    "cacheWrite": 0,
+    "cost": 0.08995559300000004,
+    "turns": 26
+  },
+  "model": "deepseek/deepseek-v4-pro",
+  "attemptedModels": ["deepseek/deepseek-v4-pro"],
+  "modelAttempts": [
+    {
+      "model": "deepseek/deepseek-v4-pro",
+      "success": true,
+      "exitCode": 0,
+      "usage": {
+        "input": 149579,
+        "output": 14708,
+        "cacheRead": 3335936,
+        "cacheWrite": 0,
+        "cost": 0.08995559300000004,
+        "turns": 26
+      }
+    }
+  ],
+  "durationMs": 266682,
+  "toolCount": 52,
+  "acceptance": {
+    "status": "attested",
+    "explicit": false,
+    "effectiveAcceptance": {
+      "level": "attested",
+      "explicit": false,
+      "inferredReason": ["read-only/reviewer-style agent"],
+      "criteria": [
+        {
+          "id": "criterion-1",
+          "must": "Return concrete findings with file paths and severity when applicable",
+          "evidence": ["review-findings", "residual-risks"],
+          "severity": "required"
+        }
+      ],
+      "evidence": ["review-findings", "residual-risks"],
+      "verify": [],
+      "stopRules": []
+    },
+    "inferredReason": ["read-only/reviewer-style agent"],
+    "criteria": [
+      {
+        "id": "criterion-1",
+        "must": "Return concrete findings with file paths and severity when applicable",
+        "evidence": ["review-findings", "residual-risks"],
+        "severity": "required"
+      }
+    ],
+    "runtimeChecks": [],
+    "verifyRuns": [],
+    "childReport": {
+      "criteriaSatisfied": [
+        {
+          "id": "criterion-1",
+          "status": "satisfied",
+          "evidence": "Review findings with concrete file paths and severities provided for all 11 REDHAT-FIX items plus 4 new findings. Each verdict cites file:line evidence."
+        }
+      ],
+      "changedFiles": [],
+      "testsAddedOrUpdated": [],
+      "commandsRun": [
+        {
+          "command": "grep for reconstructForRouteWithFixedGeometry across convex/",
+          "result": "passed",
+          "summary": "Found 2 definitions: internalAction in convex/actions/ (correct) AND public action in convex/curatedGeometryReconstruct.ts:42 (bypass vector)"
+        },
+        {
+          "command": "grep for route_terminal_state, classifier_runs, geometry_attempt across convex/",
+          "result": "passed",
+          "summary": "None found — these spec-required tables/artifactTypes are missing from schema.ts"
+        },
+        {
+          "command": "grep for evidenceComplete, rescueFirstHonored across convex/",
+          "result": "passed",
+          "summary": "None found — rideWorthiness has no evidence-complete marker"
+        },
+        {
+          "command": "grep for couchGateStatus and runAllWaterfall guards",
+          "result": "passed",
+          "summary": "Both use requireIdentity only — not requireOperator per FIX-06 spec"
+        }
+      ],
+      "validationOutput": [
+        "FIX-01: NOT-RESOLVED — public reconstructForRouteWithFixedGeometry (curatedGeometryReconstruct.ts:42) uses only requireIdentity, bypassing assertTestSubjectOrThrow gate in runSampleWaterfall",
+        "FIX-02: PARTIAL — pagination works but no classifier_runs table, no durable checkpointing, no scheduler.runAfter continuation",
+        "FIX-03: RESOLVED — manifest-bound verdict with operator auth, append-only, manifestHash binding",
+        "FIX-04: RESOLVED — exact membership validation with missing/extra/duplicate rejection",
+        "FIX-05: RESOLVED — canonical re-gate with inRegionAnchorCount, preserved provenance",
+        "FIX-06: PARTIAL — requireOperator exists but couchGateStatus and runAllWaterfall use only requireIdentity",
+        "FIX-07: RESOLVED — inRegionAnchorCount passed through all lever call sites, anchor check precedes quarantine",
+        "FIX-08: PARTIAL — most seams locked but seedLever1Fixtures/seedLever3Fixtures/teardownLeverTestRoutes still public with requireIdentity",
+        "FIX-09: PARTIAL — L3 dueling-state fixed, cost-on-fail added, but no route_terminal_state table, no cost_blocked pause",
+        "FIX-10: RESOLVED — server-derived manifestHash, gate-pass check, frozen immutability",
+        "FIX-11: PARTIAL — freeway check exists but no geometry_attempt artifactType, no evidenceComplete marker, no coverage total"
+      ],
+      "residualRisks": [
+        "N1 (CRITICAL): Public reconstructForRouteWithFixedGeometry at curatedGeometryReconstruct.ts:42 allows any authenticated user to inject deterministic Lever 2 geometry with ai_reconstructed provenance, completely bypassing the test-subject gate",
+        "N2 (HIGH): seedLever1Fixtures, seedLever3Fixtures, teardownLeverTestRoutes at curatedGeometryReconstruct.ts:1109-1175 are public mutations with only requireIdentity — any authenticated user can manufacture or erase test evidence",
+        "N3 (MEDIUM): dev- prefix in TEST_SUBJECT_PREFIXES could match real Clerk development users, creating a time-bomb bypass of assertTestSubjectOrThrow",
+        "N4 (MEDIUM): Cost circuit-breaker drops routes with no terminal state — silently unrecoverable"
+      ],
+      "noStagedFiles": true,
+      "diffSummary": "Read-only adversarial review of HEAD commit b2499228 across convex/guards.ts, convex/waterfallOrchestrator.ts, convex/couchVerdict.ts, convex/couchSampleAssembler.ts, convex/reviewQueue.ts, convex/curatedGeometryGate.ts, convex/actions/rideWorthinessClassifier.ts, convex/schema.ts, convex/curatedGeometryReconstruct.ts, convex/actions/curatedGeometryReconstruct.ts",
+      "reviewFindings": [
+        "blocker: convex/curatedGeometryReconstruct.ts:42 — public reconstructForRouteWithFixedGeometry action with only requireIdentity bypasses FIX-01 test-subject gate",
+        "blocker: convex/curatedGeometryReconstruct.ts:59 — public reconstructForRouteWithFixedAnchors with only requireIdentity",
+        "blocker: convex/curatedGeometryReconstruct.ts:74 — public reconstructForRouteWithMixedAnchors with only requireIdentity",
+        "warning: convex/couchVerdict.ts:205 — couchGateStatus uses requireIdentity, not requireOperator per FIX-06 spec",
+        "warning: convex/couchVerdict.ts:334 — runAllWaterfall uses requireIdentity, not requireOperator per FIX-06 spec",
+        "warning: convex/curatedGeometryReconstruct.ts:1109-1175 — seedLever1Fixtures/seedLever3Fixtures/teardownLeverTestRoutes still public requireIdentity (missed by FIX-08)",
+        "warning: convex/schema.ts — missing classifier_runs table (FIX-02), route_terminal_state table (FIX-09), geometry_attempt artifactType (FIX-11)",
+        "warning: convex/waterfallOrchestrator.ts:554-560 — cost circuit-breaker drops routes with no terminal state (FIX-09 incomplete)"
+      ],
+      "manualNotes": "Overall: NOT genuinely resolved at HEAD. 5 items RESOLVED, 5 items PARTIAL, 1 item (FIX-01, the closeout) NOT-RESOLVED due to a direct public-API bypass. The reconstructForRouteWithFixedGeometry public action at convex/curatedGeometryReconstruct.ts:42 must be gated with assertTestSubjectOrThrow (or better, converted to internalAction with a test-only wrapper) to close the primary exploit chain."
+    }
+  },
+  "transcriptPath": "/Users/inference1/Projects/LaneShadow-RN/.pi-subagents/artifacts/a2664b15_convex-reviewer_0_transcript.jsonl",
+  "timestamp": 1784575098025
+}

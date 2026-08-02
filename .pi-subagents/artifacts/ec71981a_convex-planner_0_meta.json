@@ -1,0 +1,145 @@
+{
+  "runId": "ec71981a",
+  "agent": "convex-planner",
+  "task": "You are the project's designated implementation planning specialist (convex-planner). Expand TWO task stubs from Sprint 05 into full TASK-TEMPLATE v5.1 definitions with REQUIREMENT-CONTRACT v1.\n\nIMPORTANT: Return your output as a single ```json code block. Do NOT write files (except your tool may read). DO NOT implement code. Only expand the task definitions.\n\nEvery task you propose MUST set `proposed_by`: `convex-planner` in its JSON (Proposed By tripwire).\n\nWorking directory: /Users/inference1/Projects/LaneShadow-RN\n\n## SPRINT CONTEXT\n- Title: Sprint 05: Batch acceptance + retirement\n- Sequence: 5\n- Sprint folder: /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement\n- Gate: The Founder-Operator accepts the full batch's realized rider-ready count against the expected-yield table on the real catalog.\n- Capability Coverage: CAP-GEO-04, CAP-GEO-05 (consumed), CAP-GEO-03 (consumed)\n- Sprint ID: sprint-05-batch-acceptance-retirement\n\n## TASK STUBS (exactly these two)\n\n### REDHAT-FIX-08 (150 min, convex-implementer)\nActually remove `.take(500)` from the unscoped live `coverageReport` path — the FOUNDER'S REAL query path, `convex/curatedGeometry.ts:1330-1365` — with an exhaustive paginate-to-completion scan or an indexed aggregate keyed by `geometryProvenance` (no fixed row cap, no separate fictional `coverageReportLivePublic` function — fix the function the founder actually calls). Also exclude `test:`/`seed:` AND fixture routes (e.g. `curatedGeometryTestSupport.ts:226`'s `tepusquet` `seedPoCRoute`) from this same unscoped scan by extending `isTestSeedRoute` (`top50Eligibility.ts:34-44`) beyond prefix-matching to catch known fixture routeIds. Write the 5 real `REDHATFIX07-*.integration.test.ts` files the prior task cited but never created, with assertions that fail on a `.take(500)` regression (N>500 rows in one status bucket must still be exhaustively counted). Fix `sortManifestRows` (`top50Review.ts:124`) to normalize `compositeScore` onto one scale before sorting — integer (`85`) and decimal (`0.85`) scores are currently mixed, so integer rows always outrank decimal rows regardless of true quality. Verify via `rg -n \"\\.take\\(500\\)\" convex/curatedGeometry.ts` returning zero matches in the unscoped path; cited red-hat findings F1, F2, F7, F12, F13, F14, G1\n\n### REDHAT-FIX-09 (180 min, convex-implementer)\nRecord a REAL founder acceptance, not a fabricated one. Run a FRESH real `runFullBatch` (new `runId` — prior `s5-full-batch-redhatfix07-20260725T075100Z` was already rejected once; `resolveBatchEscalation` requires prior state `escalation_required`, so a rejected artifact can never legitimately become accepted). Use REAL entry points `waterfallOrchestrator:runFullBatch` and `curatedGeometry:coverageReport` (NOT fictional `runFullBatchAll` / `coverageReportLivePublic`). Real authenticated founder identity for requestBatchAcceptance/resolveBatchEscalation (not seed-shaped `s4t5-redhatfix07-operator`). Legitimate state machine: requestBatchAcceptance(accept) → escalation_required → resolveBatchEscalation(accept, rationale). Commit gate-results.json + 8 gate-logs + sprint-goal-state.json at real SHA with written_at_commit that git show can resolve. Populate .tmp/S5-T4/{coverage-report-accepted,top50-manifest,founder-gate-packet}.json for real. Real step-7 row-level retirement candidates + step-8 unretireRoute transcript. Honest cycle counter. Depends on REDHAT-FIX-08. Findings F3-F6, F8-F11, F15-F18, G2-G4.\n\n## MUST READ (use Read tool)\n1. /Users/inference1/Projects/LaneShadow-RN/.spec/reviews/red-hat-sprint-05-batch-acceptance-retirement-20260725T164517Z.md\n2. /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/REDHAT-FIX-07-exhaustive-coverage-report-lever-counts.md\n3. /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.task-expansion-draft-redhat-fix-07.json  ← MATCH THIS JSON SCHEMA EXACTLY for field names/structure\n4. Code hotspots: convex/curatedGeometry.ts (coverageReport ~1235-1380, take(500) ~1336), convex/lib/top50Eligibility.ts, convex/top50Review.ts sortManifestRows ~124, convex/curatedGeometryTestSupport.ts ~226, convex/guards.ts ~125, resolveBatchEscalation in curatedGeometry.ts\n5. /Users/inference1/Projects/brain/docs/kanban/SCENARIO-CONTRACT-V1.md (first 120 lines ok)\n6. PRD: .spec/prds/route-agent-quality/05-uc-rec.md (skim)\n\n## VERIFICATION COMMANDS (exact)\n- npx vitest run convex/__tests__/<file>.integration.test.ts  (NOT pnpm test)\n- pnpm type-check\n- pnpm exec biome check convex scripts\n- pnpm tsx scripts/backfill-curated-geometry.ts --all\n- rg -n \"\\\\.take\\\\(500\\\\)\" convex/curatedGeometry.ts\n- rg \"runFullBatchAll|coverageReportLivePublic\" convex/ scripts/ .spec/\n\n## REQUIRED PER TASK\nFull expanded task matching FIX-07 draft keys including:\ntask_id, title, task_type FEATURE, tdd_mode red_first, verification_policy, status Backlog, priority P0, effort M, estimate_minutes, agent convex-implementer, agent_rationale, reviewer convex-reviewer, proposed_by convex-planner, sprint_id, prd_refs, touches_capabilities, provides, consumes, boundary_contracts, critical_constraints{must,never,strictly}, specification{objective,success_state,background}, fixtures with seed_method public_api, acceptance_criteria 4+ with full scenario objects, test_criteria 4+, requirements flattened, reading_list, guardrails, design, verification_gates, coding_standards, dependencies, notes, resolution_source\n\nPRIMARY ACs: test_tier integration, verification_service \"Convex dev deployment\", flow_ref UC-REC-04/05 or UC-VER-05.\n\nScenarios must be non-fakeable: concrete must_observe, must_not_observe, negative_control.would_fail_if, fixtures public_api.\n\nFIX-08 = code (take500 removal, fixture scrub, REDHATFIX07 tests, score normalize).\nFIX-09 depends_on REDHAT-FIX-08 = honest gate evidence + real founder accept path.\n\n## OUTPUT FORMAT\nReturn EXACTLY one JSON object:\n{\n  \"expanded_tasks\": [ /* REDHAT-FIX-08, REDHAT-FIX-09 */ ]\n}\n\nBe as thorough as FIX-07 (5 ACs each preferred). No prose outside the json fence.\n\n---\n**Output:**\nWrite your findings to exactly this path: /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/.task-expansion-draft-redhat-fix-08-09.json\nThis path is authoritative for this run.\nIgnore any other output filename or output path mentioned elsewhere, including output destinations in the base agent prompt, system prompt, or task instructions.",
+  "exitCode": 1,
+  "usage": {
+    "input": 179943,
+    "output": 49100,
+    "cacheRead": 4106368,
+    "cacheWrite": 0,
+    "cost": 1.7209146499999997,
+    "turns": 48
+  },
+  "model": "openai/gpt-5.2",
+  "attemptedModels": ["openai/gpt-5.2"],
+  "modelAttempts": [
+    {
+      "model": "openai/gpt-5.2",
+      "success": false,
+      "exitCode": 1,
+      "error": "Agent 'convex-planner' requested unavailable child tools: question.\nThe `tools` field is a strict allowlist; it does not load extension code.\nFor extension tools, add the provider path to `subagentOnlyExtensions` (child-only), `extensions`, or as a path-like entry in `tools`, while keeping each registered tool name in `tools`.\nFor MCP tools, verify the MCP adapter configuration and selected tool names. For builtin tools, verify the name against the installed Pi version.",
+      "usage": {
+        "input": 179943,
+        "output": 49100,
+        "cacheRead": 4106368,
+        "cacheWrite": 0,
+        "cost": 1.7209146499999997,
+        "turns": 48
+      }
+    }
+  ],
+  "durationMs": 672985,
+  "toolCount": 62,
+  "error": "Agent 'convex-planner' requested unavailable child tools: question.\nThe `tools` field is a strict allowlist; it does not load extension code.\nFor extension tools, add the provider path to `subagentOnlyExtensions` (child-only), `extensions`, or as a path-like entry in `tools`, while keeping each registered tool name in `tools`.\nFor MCP tools, verify the MCP adapter configuration and selected tool names. For builtin tools, verify the name against the installed Pi version.",
+  "acceptance": {
+    "status": "rejected",
+    "explicit": false,
+    "effectiveAcceptance": {
+      "level": "checked",
+      "explicit": false,
+      "inferredReason": ["write-capable worker/task"],
+      "criteria": [
+        {
+          "id": "criterion-1",
+          "must": "Implement the requested change without widening scope",
+          "evidence": [
+            "changed-files",
+            "tests-added",
+            "commands-run",
+            "residual-risks",
+            "no-staged-files"
+          ],
+          "severity": "required"
+        }
+      ],
+      "evidence": [
+        "changed-files",
+        "tests-added",
+        "commands-run",
+        "residual-risks",
+        "no-staged-files"
+      ],
+      "verify": [],
+      "stopRules": []
+    },
+    "inferredReason": ["write-capable worker/task"],
+    "criteria": [
+      {
+        "id": "criterion-1",
+        "must": "Implement the requested change without widening scope",
+        "evidence": [
+          "changed-files",
+          "tests-added",
+          "commands-run",
+          "residual-risks",
+          "no-staged-files"
+        ],
+        "severity": "required"
+      }
+    ],
+    "runtimeChecks": [
+      {
+        "id": "criterion:criterion-1",
+        "status": "passed",
+        "message": "Required criterion 'criterion-1' satisfied."
+      },
+      {
+        "id": "evidence:changed-files",
+        "status": "not-applicable",
+        "message": "changed-files evidence explicitly reported as not applicable."
+      },
+      {
+        "id": "evidence:tests-added",
+        "status": "not-applicable",
+        "message": "tests-added evidence explicitly reported as not applicable."
+      },
+      {
+        "id": "evidence:commands-run",
+        "status": "failed",
+        "message": "commands-run evidence missing from child report."
+      },
+      {
+        "id": "evidence:residual-risks",
+        "status": "passed",
+        "message": "residual-risks evidence present."
+      },
+      {
+        "id": "evidence:no-staged-files",
+        "status": "passed",
+        "message": "no-staged-files evidence present."
+      },
+      {
+        "id": "no-staged-files",
+        "status": "passed",
+        "message": "No staged files detected."
+      }
+    ],
+    "verifyRuns": [],
+    "childReport": {
+      "criteriaSatisfied": [
+        {
+          "id": "criterion-1",
+          "status": "satisfied",
+          "evidence": "Produced two expanded task definitions (REDHAT-FIX-08, REDHAT-FIX-09) without adding extra tasks; each includes the required FIX-07-matching field structure (verification_policy, fixtures seed_method public_api, 5+ ACs with non-fakeable scenarios + negative controls, 4+ test_criteria, flattened requirements, reading_list, guardrails, design, verification_gates, coding_standards, dependencies) and sets proposed_by='convex-planner'."
+        }
+      ],
+      "changedFiles": [],
+      "testsAddedOrUpdated": [],
+      "commandsRun": [],
+      "validationOutput": [],
+      "residualRisks": [
+        "FIX-09 verification commands include placeholders (<NEW_RUN_ID>, <FOUNDER_ID>, <WRITTEN_AT_COMMIT>) that must be concretized during execution; this is inherent to planning output.",
+        "Some integration assertions for top-50 ordering and fixture exclusion assume the seeded fixture is eligible to appear; implementer may need minimal seed helpers to ensure eligibility in the integration environment."
+      ],
+      "noStagedFiles": true,
+      "diffSummary": "Planning-only: expanded Sprint 05 task stubs REDHAT-FIX-08 and REDHAT-FIX-09 into full TASK-TEMPLATE v5.1 JSON definitions with REQUIREMENT-CONTRACT v1-compatible scenarios and gates.",
+      "reviewFindings": [
+        "no blockers in planning output; execution risk is primarily around obtaining full-batch routeIds membership for runFullBatch in FIX-09 if not already available"
+      ],
+      "manualNotes": ""
+    }
+  },
+  "transcriptPath": "/Users/inference1/Projects/LaneShadow-RN/.pi-subagents/artifacts/ec71981a_convex-planner_0_transcript.jsonl",
+  "timestamp": 1785007573552
+}

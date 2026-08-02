@@ -1,0 +1,87 @@
+{
+  "phase": "step-3-yield-comparison",
+  "runId": "s5-qa-live-20260726T213002Z",
+  "decision": null,
+  "levers": [
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "unproven",
+      "candidateCount": 3,
+      "escalationFloor": null,
+      "lever": "promote",
+      "leverNumber": 1,
+      "passCount": 0,
+      "passRate": 0,
+      "provenance": "scraped_promoted",
+      "realizedRate": 0
+    },
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "~67%",
+      "candidateCount": 3,
+      "escalationFloor": 0.4,
+      "lever": "reconstruct",
+      "leverNumber": 2,
+      "passCount": 1,
+      "passRate": 0.3333333333333333,
+      "provenance": "ai_reconstructed",
+      "realizedRate": 0.3333333333333333
+    },
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "~40-55%",
+      "candidateCount": 2,
+      "escalationFloor": 0.4,
+      "lever": "reroute",
+      "leverNumber": 3,
+      "passCount": 0,
+      "passRate": 0,
+      "provenance": "name_routed",
+      "realizedRate": 0
+    }
+  ],
+  "riderReadyCount": 1,
+  "isDone": true,
+  "comparison": {
+    "note": "realized yields vs PRD expected-yield assumptions (pre-accept)",
+    "yieldsVsAssumptions": [
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "unproven",
+        "candidateCount": 3,
+        "escalationFloor": null,
+        "lever": "promote",
+        "leverNumber": 1,
+        "passCount": 0,
+        "passRate": 0,
+        "provenance": "scraped_promoted",
+        "realizedRate": 0
+      },
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "~67%",
+        "candidateCount": 3,
+        "escalationFloor": 0.4,
+        "lever": "reconstruct",
+        "leverNumber": 2,
+        "passCount": 1,
+        "passRate": 0.3333333333333333,
+        "provenance": "ai_reconstructed",
+        "realizedRate": 0.3333333333333333
+      },
+      {
+        "assumptionIsTarget": false,
+        "assumptionLabel": "~40-55%",
+        "candidateCount": 2,
+        "escalationFloor": 0.4,
+        "lever": "reroute",
+        "leverNumber": 3,
+        "passCount": 0,
+        "passRate": 0,
+        "provenance": "name_routed",
+        "realizedRate": 0
+      }
+    ]
+  },
+  "capturedAt": "2026-07-26T21:30:41.445Z"
+}

@@ -1,0 +1,12 @@
+{
+  "count": 3,
+  "geometryProvenance": "name_routed",
+  "geometryStatus": "unresolved",
+  "prefix": "bestbikingroads:s5qa-cost-",
+  "routeIds": [
+    "bestbikingroads:s5qa-cost-000",
+    "bestbikingroads:s5qa-cost-001",
+    "bestbikingroads:s5qa-cost-002"
+  ],
+  "startIndex": 0
+}

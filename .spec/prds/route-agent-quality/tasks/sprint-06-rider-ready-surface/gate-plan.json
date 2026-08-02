@@ -1,0 +1,158 @@
+{
+  "sprint": "sprint-06-rider-ready-surface",
+  "sprint_identity": {
+    "resolved_sprint_path": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-06-rider-ready-surface",
+    "sprint_slug": "sprint-06-rider-ready-surface"
+  },
+  "planned_at": "2026-08-01T04:21:54Z",
+  "planned_steps": 7,
+  "steps": [
+    {
+      "n": 1,
+      "text": "Open a detail view for an ai_reconstructed route on device.",
+      "type": "native-ui",
+      "method": "manual",
+      "literal_cmd": null,
+      "native": {
+        "driver": "maestro-ios",
+        "runner": null,
+        "flow": null,
+        "action_id": "open-ai-reconstructed-detail",
+        "action_count": 1,
+        "expected_device_name": "real-iOS-device",
+        "expected_app_id": "com.laneshadow.app",
+        "evidence_file": null
+      },
+      "assertion": {
+        "kind": "manual",
+        "reason": "Requires Founder-Operator on a real iOS device against the real un-seeded post-Sprint-04 rider-ready catalog. Caption copy, route line rendering, and calm-context judgment are human observations. Simulator/automation evidence is explicitly invalid per the FO omission record."
+      }
+    },
+    {
+      "n": 2,
+      "text": "Confirm the caption reads as plain informational text.",
+      "type": "native-ui",
+      "method": "manual",
+      "literal_cmd": null,
+      "native": {
+        "driver": "maestro-ios",
+        "runner": null,
+        "flow": null,
+        "action_id": "confirm-caption-informational",
+        "action_count": 1,
+        "expected_device_name": "real-iOS-device",
+        "expected_app_id": "com.laneshadow.app",
+        "evidence_file": null
+      },
+      "assertion": {
+        "kind": "manual",
+        "reason": "Subjective human judgment: caption tone (calm-context vs warning); requires the founder's first-impression gut-check on a real device. No machine-verifiable assertion."
+      }
+    },
+    {
+      "n": 3,
+      "text": "Confirm muted styling with no badge or warning affordance.",
+      "type": "native-ui",
+      "method": "manual",
+      "literal_cmd": null,
+      "native": {
+        "driver": "maestro-ios",
+        "runner": null,
+        "flow": null,
+        "action_id": "confirm-caption-muted-styling",
+        "action_count": 1,
+        "expected_device_name": "real-iOS-device",
+        "expected_app_id": "com.laneshadow.app",
+        "evidence_file": null
+      },
+      "assertion": {
+        "kind": "manual",
+        "reason": "Requires real-device visual inspection of text color, weight, badge/chip presence, border, and warning affordance. Simulator rendering may differ from device."
+      }
+    },
+    {
+      "n": 4,
+      "text": "Check the caption in both light and dark mode.",
+      "type": "native-ui",
+      "method": "manual",
+      "literal_cmd": null,
+      "native": {
+        "driver": "maestro-ios",
+        "runner": null,
+        "flow": null,
+        "action_id": "check-caption-both-themes",
+        "action_count": 1,
+        "expected_device_name": "real-iOS-device",
+        "expected_app_id": "com.laneshadow.app",
+        "evidence_file": null
+      },
+      "assertion": {
+        "kind": "manual",
+        "reason": "Requires iOS appearance toggle (Settings > Display & Brightness > Dark) and re-opening the detail view. Two screenshots required (light + dark). Simulator theme switching may not perfectly match device behavior."
+      }
+    },
+    {
+      "n": 5,
+      "text": "Confirm a scraped_promoted route shows no caption.",
+      "type": "native-ui",
+      "method": "manual",
+      "literal_cmd": null,
+      "native": {
+        "driver": "maestro-ios",
+        "runner": null,
+        "flow": null,
+        "action_id": "confirm-scraped-promoted-no-caption",
+        "action_count": 1,
+        "expected_device_name": "real-iOS-device",
+        "expected_app_id": "com.laneshadow.app",
+        "evidence_file": null
+      },
+      "assertion": {
+        "kind": "manual",
+        "reason": "Requires locating a scraped_promoted route on the real catalog and confirming zero caption nodes on the detail surface. Human visual confirmation required."
+      }
+    },
+    {
+      "n": 6,
+      "text": "Browse a thin region; confirm the honest 'no routes near you yet' state.",
+      "type": "native-ui",
+      "method": "manual",
+      "literal_cmd": null,
+      "native": {
+        "driver": "maestro-ios",
+        "runner": null,
+        "flow": null,
+        "action_id": "thin-region-honest-absence",
+        "action_count": 1,
+        "expected_device_name": "real-iOS-device",
+        "expected_app_id": "com.laneshadow.app",
+        "evidence_file": null
+      },
+      "assertion": {
+        "kind": "manual",
+        "reason": "Requires setting device location to a thin-coverage region (0 nearby rider-ready routes), browsing discovery, and human confirmation of the literal 'no routes near you yet' copy, absence of '0mi' pills, and labeled fallback-to-national. Requires real catalog Convex backend."
+      }
+    },
+    {
+      "n": 7,
+      "text": "Confirm a saved non-ready route still opens its detail.",
+      "type": "native-ui",
+      "method": "manual",
+      "literal_cmd": null,
+      "native": {
+        "driver": "maestro-ios",
+        "runner": null,
+        "flow": null,
+        "action_id": "saved-non-ready-route-detail",
+        "action_count": 1,
+        "expected_device_name": "real-iOS-device",
+        "expected_app_id": "com.laneshadow.app",
+        "evidence_file": null
+      },
+      "assertion": {
+        "kind": "manual",
+        "reason": "Requires having a saved non-rider-ready route in the founder's real Saved library, tapping it, and confirming the detail view opens with the honest 'Approximate location' state. Gate-independent reachability is a visual confirmation on a real device."
+      }
+    }
+  ]
+}

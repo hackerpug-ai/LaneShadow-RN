@@ -1,0 +1,75 @@
+{
+  "runId": "d3077a9d",
+  "agent": "product-manager",
+  "task": "You are the product planning specialist for LaneShadow-RN. This is READ-ONLY planning; do not edit files. Expand ONLY Sprint 05: Batch acceptance + retirement from /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/ROADMAP.md into implementation-ready task definitions for S5-T1 through S5-T4. Read the PRD index and relevant REC/VER use cases and e2e criteria, especially realized-yield acceptance, escalation, retirement eligibility/explicit founder confirmation/reversible unretire, and independent top-50 review. Return exactly one ```json block, no prose, with {\"expanded_tasks\":[...]} and full TASK-TEMPLATE-compatible objects. Every task MUST include proposed_by:\"product-manager\"; ACs must have stable AC-N ids, GWT requirements, scenarios with shared fixture start_ref, concrete must_observe/must_not_observe, negative_control and evidence; TCs stable TC-N; requirements[] flattened; exact verification gates and guardrails. Keep product scope honest: expected-yield table is an estimate, founder accepts realized count, far-below lever yields escalate, couch PASS unlocks --all, no auto-retirement, records preserved. No file edits.",
+  "exitCode": 1,
+  "usage": {
+    "input": 0,
+    "output": 0,
+    "cacheRead": 0,
+    "cacheWrite": 0,
+    "cost": 0,
+    "turns": 0
+  },
+  "model": "local-router/reviewer",
+  "attemptedModels": ["local-router/reviewer"],
+  "modelAttempts": [
+    {
+      "model": "local-router/reviewer",
+      "success": false,
+      "exitCode": 1,
+      "error": "Error: Model \"local-router/reviewer\" not found. Use --list-models to see available models.",
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "cost": 0,
+        "turns": 0
+      }
+    }
+  ],
+  "durationMs": 1270,
+  "toolCount": 0,
+  "error": "Error: Model \"local-router/reviewer\" not found. Use --list-models to see available models.",
+  "acceptance": {
+    "status": "rejected",
+    "explicit": false,
+    "effectiveAcceptance": {
+      "level": "attested",
+      "explicit": false,
+      "inferredReason": ["read-only task wording"],
+      "criteria": [
+        {
+          "id": "criterion-1",
+          "must": "Return concrete findings with file paths and severity when applicable",
+          "evidence": ["review-findings", "residual-risks"],
+          "severity": "required"
+        }
+      ],
+      "evidence": ["review-findings", "residual-risks"],
+      "verify": [],
+      "stopRules": []
+    },
+    "inferredReason": ["read-only task wording"],
+    "criteria": [
+      {
+        "id": "criterion-1",
+        "must": "Return concrete findings with file paths and severity when applicable",
+        "evidence": ["review-findings", "residual-risks"],
+        "severity": "required"
+      }
+    ],
+    "runtimeChecks": [
+      {
+        "id": "attestation",
+        "status": "failed",
+        "message": "Structured acceptance report not found."
+      }
+    ],
+    "verifyRuns": [],
+    "childReportParseError": "Structured acceptance report not found."
+  },
+  "transcriptPath": "/Users/inference1/Projects/LaneShadow-RN/.pi-subagents/artifacts/d3077a9d_product-manager_1_transcript.jsonl",
+  "timestamp": 1784500877469
+}

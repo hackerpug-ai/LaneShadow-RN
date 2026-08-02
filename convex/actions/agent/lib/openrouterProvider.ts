@@ -20,7 +20,7 @@ export type OpenRouterStructuredProof = z.infer<typeof openrouterStructuredProof
 
 export const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
 /** OpenRouter model used by all project AI calls. Keep this provider-qualified
- * model free of ZAI/GLM dependencies so rate limiting there cannot affect us. */
+ * model free of legacy provider dependencies so rate limiting elsewhere cannot affect us. */
 export const OPENROUTER_MODEL_ID = 'deepseek/deepseek-v4-pro'
 
 export type OpenRouterProvider = {

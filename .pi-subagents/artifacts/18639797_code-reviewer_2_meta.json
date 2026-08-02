@@ -1,0 +1,93 @@
+{
+  "runId": "18639797",
+  "agent": "code-reviewer",
+  "task": "Read-only adversarial review of Sprint 04 at /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline at post-remediation HEAD 9a1b9596. Read previous report .spec/reviews/red-hat-sprint-04-trust-pipeline-20260720T205905Z.md. Re-check every previous CRITICAL/HIGH finding and claimed FIX-12..15. Trace the founder/live-provider gate from specifications to production script/workflow and prove or disprove a real authenticated provider call; sentinels/self-report/tests/generated evidence are not proof. Inspect git history, actual implementation, tests. No edits. Return concrete severity-ranked file:line findings, each old critical/high disposition, commands checked.",
+  "exitCode": 1,
+  "usage": {
+    "input": 0,
+    "output": 0,
+    "cacheRead": 0,
+    "cacheWrite": 0,
+    "cost": 0,
+    "turns": 0
+  },
+  "model": "local-router/implementer",
+  "attemptedModels": ["local-router/implementer"],
+  "modelAttempts": [
+    {
+      "model": "local-router/implementer",
+      "success": false,
+      "exitCode": 1,
+      "error": "Error: Model \"local-router/implementer\" not found. Use --list-models to see available models.",
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "cost": 0,
+        "turns": 0
+      }
+    }
+  ],
+  "durationMs": 1067,
+  "toolCount": 0,
+  "error": "Error: Model \"local-router/implementer\" not found. Use --list-models to see available models.",
+  "acceptance": {
+    "status": "rejected",
+    "explicit": true,
+    "effectiveAcceptance": {
+      "level": "checked",
+      "explicit": true,
+      "inferredReason": ["read-only/reviewer-style agent"],
+      "criteria": [
+        {
+          "id": "criterion-1",
+          "must": "Return concrete findings with file paths and severity when applicable",
+          "evidence": [
+            "changed-files",
+            "tests-added",
+            "commands-run",
+            "residual-risks",
+            "no-staged-files"
+          ],
+          "severity": "required"
+        }
+      ],
+      "evidence": [
+        "changed-files",
+        "tests-added",
+        "commands-run",
+        "residual-risks",
+        "no-staged-files"
+      ],
+      "verify": [],
+      "stopRules": []
+    },
+    "inferredReason": ["read-only/reviewer-style agent"],
+    "criteria": [
+      {
+        "id": "criterion-1",
+        "must": "Return concrete findings with file paths and severity when applicable",
+        "evidence": [
+          "changed-files",
+          "tests-added",
+          "commands-run",
+          "residual-risks",
+          "no-staged-files"
+        ],
+        "severity": "required"
+      }
+    ],
+    "runtimeChecks": [
+      {
+        "id": "attestation",
+        "status": "failed",
+        "message": "Structured acceptance report not found."
+      }
+    ],
+    "verifyRuns": [],
+    "childReportParseError": "Structured acceptance report not found."
+  },
+  "transcriptPath": "/Users/inference1/Projects/LaneShadow-RN/.pi-subagents/artifacts/18639797_code-reviewer_2_transcript.jsonl",
+  "timestamp": 1784585958999
+}

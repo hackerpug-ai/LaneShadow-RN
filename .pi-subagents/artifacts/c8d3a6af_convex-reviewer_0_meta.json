@@ -1,0 +1,75 @@
+{
+  "runId": "c8d3a6af",
+  "agent": "convex-reviewer",
+  "task": "Fresh independent adversarial red-hat review of Sprint 04 Trust Pipeline at CURRENT HEAD 41eca15c (read-only; do not modify files). Focus FIX-26 command-authority closure and regressions FIX-17..25. Read target SPRINT.md, REDHAT-FIX-26 task, prior report .spec/reviews/red-hat-sprint-04-trust-pipeline-20260721T185814Z.md, tools/gate/deriveGoalState.ts, relevant tests. Reproduce full matrix using real code: Unicode whitespace NBSP/U+2007/U+202F/U+2028, ZW U+200B/U+FEFF, Cyrillic/Latin homoglyphs in interpreter and each part of .gate-evidence/script path, arbitrary non-ASCII bytes/characters, exact ASCII plan acceptance, plus prior FIX-24/25 attacks. Hunt bypasses—especially ways to make enforcement not recognize a Unicode-polluted gate script. Reconfirm FIX-17..25. Run focused Vitest/typecheck as practical. Deliver mandatory AC verdict table with file:line + commands/output and only evidence-backed CRITICAL/HIGH/MEDIUM/LOW findings. No edits.",
+  "exitCode": 1,
+  "usage": {
+    "input": 0,
+    "output": 0,
+    "cacheRead": 0,
+    "cacheWrite": 0,
+    "cost": 0,
+    "turns": 0
+  },
+  "model": "local-router/implementer",
+  "attemptedModels": ["local-router/implementer"],
+  "modelAttempts": [
+    {
+      "model": "local-router/implementer",
+      "success": false,
+      "exitCode": 1,
+      "error": "Error: Model \"local-router/implementer\" not found. Use --list-models to see available models.",
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "cost": 0,
+        "turns": 0
+      }
+    }
+  ],
+  "durationMs": 1001,
+  "toolCount": 0,
+  "error": "Error: Model \"local-router/implementer\" not found. Use --list-models to see available models.",
+  "acceptance": {
+    "status": "rejected",
+    "explicit": false,
+    "effectiveAcceptance": {
+      "level": "attested",
+      "explicit": false,
+      "inferredReason": ["read-only/reviewer-style agent"],
+      "criteria": [
+        {
+          "id": "criterion-1",
+          "must": "Return concrete findings with file paths and severity when applicable",
+          "evidence": ["review-findings", "residual-risks"],
+          "severity": "required"
+        }
+      ],
+      "evidence": ["review-findings", "residual-risks"],
+      "verify": [],
+      "stopRules": []
+    },
+    "inferredReason": ["read-only/reviewer-style agent"],
+    "criteria": [
+      {
+        "id": "criterion-1",
+        "must": "Return concrete findings with file paths and severity when applicable",
+        "evidence": ["review-findings", "residual-risks"],
+        "severity": "required"
+      }
+    ],
+    "runtimeChecks": [
+      {
+        "id": "attestation",
+        "status": "failed",
+        "message": "Structured acceptance report not found."
+      }
+    ],
+    "verifyRuns": [],
+    "childReportParseError": "Structured acceptance report not found."
+  },
+  "transcriptPath": "/Users/inference1/Projects/LaneShadow-RN/.pi-subagents/artifacts/c8d3a6af_convex-reviewer_0_transcript.jsonl",
+  "timestamp": 1784661754074
+}

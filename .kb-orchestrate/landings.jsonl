@@ -1,0 +1,12 @@
+{"task_branch":"task/REDHAT-FIX-21","main_tip":"ff6f7e45ff849b95a87663e8745eb333031840a5","commit_sha":"cae1489e47334ce9fc5ae66891923f35f33f9249","merged_at":"2026-07-21T17:39:43Z"}
+{"task_branch":"task/REDHAT-FIX-22","main_tip":"91a05d9f0904fa55b288684e67d710ac0fec5667","commit_sha":"152ed63c1404ee8ed3aa40d265e428db1e7f7488","merged_at":"2026-07-21T17:48:27Z"}
+{"task_branch":"task/REDHAT-FIX-23","main_tip":"8aefdf8dcd758d87b3fe7e78903ba90bbe5fb09f","commit_sha":"c2799eb5a78c500dd19089f9f30e5b58ab999831","merged_at":"2026-07-21T18:15:33Z"}
+{"task_branch":"task/REDHAT-FIX-24","main_tip":"dc062785f43d414dfb79198c547f83327b576245","commit_sha":"26943758b4ed5c015cc162eab92ff3eebbc3d76b","merged_at":"2026-07-21T18:22:44Z"}
+{"task":"REDHAT-FIX-25","landed_at":"2026-07-21T18:49:21Z","commit":"57138cde013c58127f53482e4f50d04e7a8afbe2","green":"2d966c39420876efa4a964365cd1f5f5ef4c6256"}
+{"task":"REDHAT-FIX-25","landed_at":"2026-07-21T18:49:57Z","merge_commit":"3f7a85c309cd79c14d27db873ef53d64813789f6","green":"2d966c39420876efa4a964365cd1f5f5ef4c6256"}
+{"task_branch":"task/REDHAT-FIX-26","main_tip":"31c92d2464e4406ebe3d6fad13654209132f1875","commit_sha":"96a012fae1d372cc2daa432bcbc1bd80525755cd","merged_at":"2026-07-21T19:16:38Z"}
+{"task":"REDHAT-FIX-26","landed_at":"2026-07-21T19:16:52Z","merge_commit":"23d687a1bc2b32429e277f3c0a802e7e064ef07e","green":"96a012fae1d372cc2daa432bcbc1bd80525755cd","red":"4807c025031b9759447664c569aa1c988abfffcf"}
+{"task": "REDHAT-FIX-27", "landed_at": "2026-07-23T04:59:32Z", "merge_commit": "5821eff8719b3a85ae4926a298ee7571bc040b4a", "green": "320b3762c3bb88bd59730ba251b77f9d61d9217a", "red": "092914efb25f045284206c0dd421d3ae89b17357"}
+{"task_branch":"task/REDHAT-FIX-07","main_tip":"e3f6fa8e79fcf0216899d7b811cfc23e91e538f5","commit_sha":"880ffc24b90abd2cbc2026a73f280d44cf33e9c8","merged_at":"2026-07-26T20:51:17Z"}
+{"task_branch":"task/REDHAT-FIX-08","main_tip":"11e5f40fb8015f3a021ac273531c2fb7ffac672e","commit_sha":"1b352fad21abc9071abe7c4a4a3a001c7005d83b","merged_at":"2026-07-26T21:00:57Z"}
+{"task_branch":"task/REDHAT-FIX-09","main_tip":"11e5f40fb8015f3a021ac273531c2fb7ffac672e","commit_sha":"43fadd68d0f6edc1c0097b093366ab8c23f6b673","merged_at":"2026-07-26T21:22:11Z"}

@@ -1,0 +1,75 @@
+{
+  "runId": "0d5d9170",
+  "agent": "code-reviewer",
+  "task": "Perform a read-only independent red-team/stub review of Sprint 04 located at /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline. Goal: identify spec-to-code gaps, fake/weak tests or evidence, incorrect terminal-state/cost/retry semantics, unsafe assumptions, and mismatches in gate documentation. Do NOT edit source or task files. Cite exact file:line. Read every S4-T*.md acceptance criteria relevant to findings, inspect implementation and gate evidence. Return a concise structured response: AC coverage verdicts, findings tagged severity (Critical/High/Medium/Low) and confidence (High/Medium/Low), human gate pre-check observations, risks/contradictions, and suggested fixes. Do not create a report file.",
+  "exitCode": 1,
+  "usage": {
+    "input": 0,
+    "output": 0,
+    "cacheRead": 0,
+    "cacheWrite": 0,
+    "cost": 0,
+    "turns": 0
+  },
+  "model": "local-router/implementer",
+  "attemptedModels": ["local-router/implementer"],
+  "modelAttempts": [
+    {
+      "model": "local-router/implementer",
+      "success": false,
+      "exitCode": 1,
+      "error": "Error: Model \"local-router/implementer\" not found. Use --list-models to see available models.",
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "cost": 0,
+        "turns": 0
+      }
+    }
+  ],
+  "durationMs": 2020,
+  "toolCount": 0,
+  "error": "Error: Model \"local-router/implementer\" not found. Use --list-models to see available models.",
+  "acceptance": {
+    "status": "rejected",
+    "explicit": false,
+    "effectiveAcceptance": {
+      "level": "attested",
+      "explicit": false,
+      "inferredReason": ["read-only/reviewer-style agent"],
+      "criteria": [
+        {
+          "id": "criterion-1",
+          "must": "Return concrete findings with file paths and severity when applicable",
+          "evidence": ["review-findings", "residual-risks"],
+          "severity": "required"
+        }
+      ],
+      "evidence": ["review-findings", "residual-risks"],
+      "verify": [],
+      "stopRules": []
+    },
+    "inferredReason": ["read-only/reviewer-style agent"],
+    "criteria": [
+      {
+        "id": "criterion-1",
+        "must": "Return concrete findings with file paths and severity when applicable",
+        "evidence": ["review-findings", "residual-risks"],
+        "severity": "required"
+      }
+    ],
+    "runtimeChecks": [
+      {
+        "id": "attestation",
+        "status": "failed",
+        "message": "Structured acceptance report not found."
+      }
+    ],
+    "verifyRuns": [],
+    "childReportParseError": "Structured acceptance report not found."
+  },
+  "transcriptPath": "/Users/inference1/Projects/LaneShadow-RN/.pi-subagents/artifacts/0d5d9170_code-reviewer_1_transcript.jsonl",
+  "timestamp": 1784563258856
+}

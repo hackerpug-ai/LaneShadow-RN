@@ -1,0 +1,6 @@
+Run /review-red-hat /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-06-rider-ready-surface --codebase /Users/inference1/Projects/LaneShadow-RN --skip-confirm. Review the current Sprint 6 implementation against every task acceptance criterion and the current SPRINT.md. S6-T7 has an explicit Founder-Operator scope omission recorded in the durable omission artifact; treat that as omitted scope, never as a real-device pass, while still reporting any unverified completion claims honestly. Produce a fresh red-hat report and continue until the report is written.
+
+
+LANDING NOTE (review/qa stage): you never merge, push, or move any checkout to another branch, and
+you do not modify product code. Your verdict does not land work — the run stage merges the reviewed
+commit to the base branch after you approve. Cite the exact SHA you reviewed so the land is auditable.

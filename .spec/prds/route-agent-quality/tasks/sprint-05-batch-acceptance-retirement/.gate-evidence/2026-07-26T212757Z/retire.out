@@ -1,0 +1,7 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+✖ Failed to run function "curatedGeometry:retireRoute":
+Error: [Request ID: 385a3b1e054701b3] Server Error
+ArgumentValidationError: Object contains extra field `disposition` that is not in the validator.
+
+Object: {confirmed: true, disposition: "retire", reason: "QA step-8 explicit founder confirm", routeId: "motorcycleroads:lonely-short-cut-missouri-j"}
+Validator: v.object({confirmed: v.boolean(), reason: v.string(), routeId: v.string()})

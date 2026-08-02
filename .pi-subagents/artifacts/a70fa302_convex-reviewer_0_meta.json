@@ -1,0 +1,75 @@
+{
+  "runId": "a70fa302",
+  "agent": "convex-reviewer",
+  "task": "Perform a READ-ONLY adversarial red-hat review of Sprint 04 at /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline. Goal: identify implementation gaps, stubs, AC failures, and human-gate weaknesses. Non-goals: do not edit any file, do not run destructive commands, and do not write the final report. Required reading: /Users/inference1/Projects/LaneShadow-RN/convex/_generated/ai/guidelines.md, SPRINT.md and all seven S4-T*.md files; inspect relevant Convex code/tests/evidence and the gate artifacts. Every substantive claim must cite file:line. First deliver an AC verdict table covering each task AC (pass/fail/partial); then human-test gate assessment; then findings grouped with severity (Critical/High/Medium/Low) and confidence. Treat claimed completion and existing gate artifacts as evidence to validate, not proof. Stop with concise structured findings for a parent-written consolidated report. Verification: use repo inspection and focused non-mutating checks only.\n\n---\n**Output:**\nWrite your findings to exactly this path: /Users/inference1/Projects/LaneShadow-RN/.pi-subagents/artifacts/outputs/a70fa302/.pi-subagents/redhat-convex-s4.md\nThis path is authoritative for this run.\nIgnore any other output filename or output path mentioned elsewhere, including output destinations in the base agent prompt, system prompt, or task instructions.",
+  "exitCode": 1,
+  "usage": {
+    "input": 0,
+    "output": 0,
+    "cacheRead": 0,
+    "cacheWrite": 0,
+    "cost": 0,
+    "turns": 0
+  },
+  "model": "local-router/implementer",
+  "attemptedModels": ["local-router/implementer"],
+  "modelAttempts": [
+    {
+      "model": "local-router/implementer",
+      "success": false,
+      "exitCode": 1,
+      "error": "Error: Model \"local-router/implementer\" not found. Use --list-models to see available models.",
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "cost": 0,
+        "turns": 0
+      }
+    }
+  ],
+  "durationMs": 1112,
+  "toolCount": 0,
+  "error": "Error: Model \"local-router/implementer\" not found. Use --list-models to see available models.",
+  "acceptance": {
+    "status": "rejected",
+    "explicit": false,
+    "effectiveAcceptance": {
+      "level": "attested",
+      "explicit": false,
+      "inferredReason": ["read-only/reviewer-style agent"],
+      "criteria": [
+        {
+          "id": "criterion-1",
+          "must": "Return concrete findings with file paths and severity when applicable",
+          "evidence": ["review-findings", "residual-risks"],
+          "severity": "required"
+        }
+      ],
+      "evidence": ["review-findings", "residual-risks"],
+      "verify": [],
+      "stopRules": []
+    },
+    "inferredReason": ["read-only/reviewer-style agent"],
+    "criteria": [
+      {
+        "id": "criterion-1",
+        "must": "Return concrete findings with file paths and severity when applicable",
+        "evidence": ["review-findings", "residual-risks"],
+        "severity": "required"
+      }
+    ],
+    "runtimeChecks": [
+      {
+        "id": "attestation",
+        "status": "failed",
+        "message": "Structured acceptance report not found."
+      }
+    ],
+    "verifyRuns": [],
+    "childReportParseError": "Structured acceptance report not found."
+  },
+  "transcriptPath": "/Users/inference1/Projects/LaneShadow-RN/.pi-subagents/artifacts/a70fa302_convex-reviewer_0_transcript.jsonl",
+  "timestamp": 1784502465040
+}

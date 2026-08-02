@@ -1,0 +1,75 @@
+{
+  "runId": "29a303bd",
+  "agent": "planner",
+  "task": "Read-only specialist planning proposal. Inspect /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/ROADMAP.md Sprint 05 and relevant PRD/code. Return only a JSON code block with expanded_tasks for S5-T1..S5-T4; set proposed_by to \"convex-planner\" for backend tasks and \"product-manager\" for founder task. Include stable AC/TC IDs, scenarios, fixtures, exact verification commands, guardrails, capabilities, and flattened requirements. Do not edit files.",
+  "exitCode": 1,
+  "usage": {
+    "input": 0,
+    "output": 0,
+    "cacheRead": 0,
+    "cacheWrite": 0,
+    "cost": 0,
+    "turns": 0
+  },
+  "model": "local-router/reviewer",
+  "attemptedModels": ["local-router/reviewer"],
+  "modelAttempts": [
+    {
+      "model": "local-router/reviewer",
+      "success": false,
+      "exitCode": 1,
+      "error": "Error: Model \"local-router/reviewer\" not found. Use --list-models to see available models.",
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "cost": 0,
+        "turns": 0
+      }
+    }
+  ],
+  "durationMs": 963,
+  "toolCount": 0,
+  "error": "Error: Model \"local-router/reviewer\" not found. Use --list-models to see available models.",
+  "acceptance": {
+    "status": "rejected",
+    "explicit": false,
+    "effectiveAcceptance": {
+      "level": "attested",
+      "explicit": false,
+      "inferredReason": ["read-only task wording"],
+      "criteria": [
+        {
+          "id": "criterion-1",
+          "must": "Return concrete findings with file paths and severity when applicable",
+          "evidence": ["review-findings", "residual-risks"],
+          "severity": "required"
+        }
+      ],
+      "evidence": ["review-findings", "residual-risks"],
+      "verify": [],
+      "stopRules": []
+    },
+    "inferredReason": ["read-only task wording"],
+    "criteria": [
+      {
+        "id": "criterion-1",
+        "must": "Return concrete findings with file paths and severity when applicable",
+        "evidence": ["review-findings", "residual-risks"],
+        "severity": "required"
+      }
+    ],
+    "runtimeChecks": [
+      {
+        "id": "attestation",
+        "status": "failed",
+        "message": "Structured acceptance report not found."
+      }
+    ],
+    "verifyRuns": [],
+    "childReportParseError": "Structured acceptance report not found."
+  },
+  "transcriptPath": "/Users/inference1/Projects/LaneShadow-RN/.pi-subagents/artifacts/29a303bd_planner_0_transcript.jsonl",
+  "timestamp": 1784500940090
+}

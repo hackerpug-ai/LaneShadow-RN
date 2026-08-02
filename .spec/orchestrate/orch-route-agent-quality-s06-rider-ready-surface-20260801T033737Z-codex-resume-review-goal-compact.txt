@@ -1,0 +1,6 @@
+Independently review the implemented Sprint 6 rider-ready surface in /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-06-rider-ready-surface. Read SPRINT.md, all S6 task files, current source/tests, and write a fresh red-hat report at /Users/inference1/Projects/LaneShadow-RN/.spec/reviews/red-hat-sprint-06-rider-ready-surface-20260801T0356Z.md. S6-T7 is explicitly omitted by the Founder-Operator; never claim a real-device pass, and report missing QA evidence honestly. Use tools and continue until the report exists.
+
+
+LANDING NOTE (review/qa stage): you never merge, push, or move any checkout to another branch, and
+you do not modify product code. Your verdict does not land work — the run stage merges the reviewed
+commit to the base branch after you approve. Cite the exact SHA you reviewed so the land is auditable.

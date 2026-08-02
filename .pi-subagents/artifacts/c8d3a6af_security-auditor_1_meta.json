@@ -1,0 +1,75 @@
+{
+  "runId": "c8d3a6af",
+  "agent": "security-auditor",
+  "task": "Fresh independent security/red-team review at CURRENT HEAD 41eca15c (read-only; do not modify). Objective: decide whether FIX-26 genuinely closes command-authority. Treat every command/repro_cmd entry as untrusted. Inspect tools/gate/deriveGoalState.ts and gate-plan loading. Build adversarial variants that obscure recognition: Cyrillic/fullwidth substitutions in `.gate-evidence`, `scripts`, `.sh`, timestamp; Unicode punctuation; zero-width inserted in markers; Unicode controls; bytes/UTF-16 edge cases; ASCII-only exact plan control. Determine whether any non-ASCII command can avoid OFF_PLAN_SCRIPT while being processed as a gate step. Inspect interactions with canonicalizeScriptPath, mentionsTimestampShapedScript, namesGateEvidenceScript, extract run IDs. Report reproducible evidence file:line and severity; no edits.",
+  "exitCode": 1,
+  "usage": {
+    "input": 0,
+    "output": 0,
+    "cacheRead": 0,
+    "cacheWrite": 0,
+    "cost": 0,
+    "turns": 0
+  },
+  "model": "local-router/implementer",
+  "attemptedModels": ["local-router/implementer"],
+  "modelAttempts": [
+    {
+      "model": "local-router/implementer",
+      "success": false,
+      "exitCode": 1,
+      "error": "Error: Model \"local-router/implementer\" not found. Use --list-models to see available models.",
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "cost": 0,
+        "turns": 0
+      }
+    }
+  ],
+  "durationMs": 1011,
+  "toolCount": 0,
+  "error": "Error: Model \"local-router/implementer\" not found. Use --list-models to see available models.",
+  "acceptance": {
+    "status": "rejected",
+    "explicit": false,
+    "effectiveAcceptance": {
+      "level": "attested",
+      "explicit": false,
+      "inferredReason": ["read-only task wording"],
+      "criteria": [
+        {
+          "id": "criterion-1",
+          "must": "Return concrete findings with file paths and severity when applicable",
+          "evidence": ["review-findings", "residual-risks"],
+          "severity": "required"
+        }
+      ],
+      "evidence": ["review-findings", "residual-risks"],
+      "verify": [],
+      "stopRules": []
+    },
+    "inferredReason": ["read-only task wording"],
+    "criteria": [
+      {
+        "id": "criterion-1",
+        "must": "Return concrete findings with file paths and severity when applicable",
+        "evidence": ["review-findings", "residual-risks"],
+        "severity": "required"
+      }
+    ],
+    "runtimeChecks": [
+      {
+        "id": "attestation",
+        "status": "failed",
+        "message": "Structured acceptance report not found."
+      }
+    ],
+    "verifyRuns": [],
+    "childReportParseError": "Structured acceptance report not found."
+  },
+  "transcriptPath": "/Users/inference1/Projects/LaneShadow-RN/.pi-subagents/artifacts/c8d3a6af_security-auditor_1_transcript.jsonl",
+  "timestamp": 1784661754089
+}

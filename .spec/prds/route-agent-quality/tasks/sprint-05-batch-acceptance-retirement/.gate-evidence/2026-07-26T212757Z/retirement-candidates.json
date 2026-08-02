@@ -1,0 +1,185 @@
+{
+  "page": [
+    {
+      "routeId": "motorcycleroads:lonely-short-cut-missouri-j",
+      "leverFailureReasons": [
+        {
+          "lever": 1,
+          "reason": "ratio"
+        },
+        {
+          "lever": 2,
+          "reason": "ratio"
+        },
+        {
+          "lever": 3,
+          "reason": "ratio"
+        }
+      ],
+      "geometryStatus": "review"
+    },
+    {
+      "routeId": "motorcycleroads:old-school-house-on-the-hill-ride",
+      "leverFailureReasons": [
+        {
+          "lever": 1,
+          "reason": "anchors"
+        },
+        {
+          "lever": 2,
+          "reason": "anchors"
+        },
+        {
+          "lever": 3,
+          "reason": "anchors"
+        }
+      ],
+      "geometryStatus": "review"
+    },
+    {
+      "routeId": "motorcycleroads:peach-float-cruise",
+      "leverFailureReasons": [
+        {
+          "lever": 1,
+          "reason": "anchors"
+        },
+        {
+          "lever": 2,
+          "reason": "anchors"
+        },
+        {
+          "lever": 3,
+          "reason": "anchors"
+        }
+      ],
+      "geometryStatus": "review"
+    },
+    {
+      "routeId": "motorcycleroads:montana-after-work-stress-reliever-ride",
+      "leverFailureReasons": [
+        {
+          "lever": 1,
+          "reason": "anchors"
+        },
+        {
+          "lever": 2,
+          "reason": "anchors"
+        },
+        {
+          "lever": 3,
+          "reason": "anchors"
+        }
+      ],
+      "geometryStatus": "review"
+    },
+    {
+      "routeId": "motorcycleroads:desoto-trail",
+      "leverFailureReasons": [
+        {
+          "lever": 1,
+          "reason": "anchors"
+        },
+        {
+          "lever": 2,
+          "reason": "anchors"
+        },
+        {
+          "lever": 3,
+          "reason": "anchors"
+        }
+      ],
+      "geometryStatus": "review"
+    },
+    {
+      "routeId": "motorcycleroads:hwy-2-sandhills-journey-scenic-byway",
+      "leverFailureReasons": [
+        {
+          "lever": 1,
+          "reason": "anchors"
+        },
+        {
+          "lever": 2,
+          "reason": "anchors"
+        },
+        {
+          "lever": 3,
+          "reason": "anchors"
+        }
+      ],
+      "geometryStatus": "review"
+    },
+    {
+      "routeId": "motorcycleroads:sandhills-loop",
+      "leverFailureReasons": [
+        {
+          "lever": 1,
+          "reason": "anchors"
+        },
+        {
+          "lever": 2,
+          "reason": "anchors"
+        },
+        {
+          "lever": 3,
+          "reason": "anchors"
+        }
+      ],
+      "geometryStatus": "review"
+    },
+    {
+      "routeId": "motorcycleroads:red-rock-canyon-scenic-loop-drive",
+      "leverFailureReasons": [
+        {
+          "lever": 1,
+          "reason": "anchors"
+        },
+        {
+          "lever": 2,
+          "reason": "anchors"
+        },
+        {
+          "lever": 3,
+          "reason": "anchors"
+        }
+      ],
+      "geometryStatus": "review"
+    },
+    {
+      "routeId": "motorcycleroads:nh153-among-the-lakes",
+      "leverFailureReasons": [
+        {
+          "lever": 1,
+          "reason": "anchors"
+        },
+        {
+          "lever": 2,
+          "reason": "anchors"
+        },
+        {
+          "lever": 3,
+          "reason": "anchors"
+        }
+      ],
+      "geometryStatus": "review"
+    },
+    {
+      "routeId": "motorcycleroads:mullica-river-loop",
+      "leverFailureReasons": [
+        {
+          "lever": 1,
+          "reason": "anchors"
+        },
+        {
+          "lever": 2,
+          "reason": "anchors"
+        },
+        {
+          "lever": 3,
+          "reason": "anchors"
+        }
+      ],
+      "geometryStatus": "review"
+    }
+  ],
+  "candidateCount": 10
+}

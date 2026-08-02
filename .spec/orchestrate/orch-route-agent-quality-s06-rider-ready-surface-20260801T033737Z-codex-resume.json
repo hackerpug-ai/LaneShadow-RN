@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "run_id": "orch-route-agent-quality-s06-rider-ready-surface-20260801T033737Z-codex-resume",
+  "project": "/Users/inference1/Projects/LaneShadow-RN",
+  "sprint": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-06-rider-ready-surface",
+  "implement_skill": "kb-run-sprint",
+  "cycle": 1,
+  "max_cycles": 3,
+  "max_recover": 2,
+  "status": "blocked",
+  "updated_at": "2026-08-01T04:27:35Z",
+  "close_authority": false,
+  "workspace": "workspace:1",
+  "stage_config": {
+    "run": {"harness": "grok", "model": "grok-composer-2.5-fast@medium", "source": "context"},
+    "review": {"harness": "opencode", "model": "openrouter/deepseek/deepseek-v4-pro@high", "source": "default"},
+    "plan": {"harness": "grok", "model": "grok-4.5@medium", "source": "context"},
+    "qa": {"harness": "opencode", "model": "openrouter/deepseek/deepseek-v4-pro@high", "source": "default"}
+  },
+  "surfaces": [],
+  "block_reason": "QA gate is internally verified but blocked: the Founder-Operator explicitly omitted the required real-device S6-T7 human gate; no simulator or automation substitute is valid"
+}

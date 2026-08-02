@@ -1,0 +1,15 @@
+Plan remediation for the fresh independent Sprint 6 red-hat review at /Users/inference1/Projects/LaneShadow-RN/.spec/reviews/red-hat-sprint-06-rider-ready-surface-20260801T0356Z.md. Read the sprint SPRINT.md, all S6 task files, the review report, and the current repository state. Treat S6-T7 as an explicit Founder-Operator omission: do not create a fake device-pass task or claim it passed. Convert every review finding that must be addressed before the sprint can satisfy the orchestration gates into first-class remediation task rows in SPRINT.md and task files under the sprint directory, preserving the report's exact finding IDs and severity. Include the missing validation/evidence findings (tokens validation, full test/e2e evidence, and the omitted device gate) only when they are real gate obligations; distinguish follow-up UX/configuration findings from blockers and record any justified accepted scope waiver explicitly. Use the repository's existing task-file conventions and ensure each created task has an unambiguous acceptance criterion and verification command. Do not implement fixes yourself. Continue until the plan artifacts are written and summarize the task IDs and rationale.
+
+
+LANDING CONTRACT (non-negotiable — a task is DONE only when its reviewed commit is an ancestor of the
+base branch — the trunk kb-orchestrate merges to, default `main`, configurable via `shared.base-branch`):
+- Committed is NOT done. Reviewed is NOT done. Done = landed on the base branch.
+- Do ALL branch work in isolated worktrees. The repo's PRIMARY checkout stays on the base branch at
+  all times — never `git checkout`/`switch` it onto any other branch.
+- The moment a task's review is APPROVED, merge it into the base branch via kb-orchestrate
+  `references/merge-to-main.sh` (flock-serialized; orchestrator-only — subagents never merge).
+- Unreviewed work is NEVER merged. Route it through review first; if review cannot happen, list the
+  branch explicitly as STRANDED in your final summary — never leave it silently.
+- Before declaring your goal complete, run
+  `~/Projects/brain/tools/landing/assert-landed.sh <project-dir>` — it must exit 0 (zero stranded
+  tasks, zero orphan sprint branches). If it exits 1, landing IS your remaining work.

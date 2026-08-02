@@ -1,0 +1,8 @@
+{"detail": {"kind": "sprint", "parent": "prd-20260719T223039Z-6c889e03", "project": "/Users/inference1/Projects/LaneShadow-RN", "scope_ref": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline"}, "event": "init", "run_id": "orch-route-agent-quality-s04-trust-pipeline-20260719T223915Z-parent-6c889e03", "ts": 1784501240}
+{"detail": {"field": "binding.surface_id", "value": "D0E349E4-B2F1-4458-B0BB-2BA6A96D6666"}, "event": "set", "run_id": "orch-route-agent-quality-s04-trust-pipeline-20260719T223915Z-parent-6c889e03", "ts": 1784501269}
+{"detail": {"field": "binding.harness_pid", "value": ""}, "event": "set", "run_id": "orch-route-agent-quality-s04-trust-pipeline-20260719T223915Z-parent-6c889e03", "ts": 1784501270}
+{"detail": {"field": "binding.harness_pid", "value": 1601}, "event": "set", "run_id": "orch-route-agent-quality-s04-trust-pipeline-20260719T223915Z-parent-6c889e03", "ts": 1784502401}
+{"detail": {"field": "binding.harness_pid", "value": 67267}, "event": "set", "run_id": "orch-route-agent-quality-s04-trust-pipeline-20260719T223915Z-parent-6c889e03", "ts": 1784502988}
+{"detail": {"field": "status", "value": "blocked"}, "event": "set", "run_id": "orch-route-agent-quality-s04-trust-pipeline-20260719T223915Z-parent-6c889e03", "ts": 1784503374}
+{"detail": {"field": "block.class", "value": "contract"}, "event": "set", "run_id": "orch-route-agent-quality-s04-trust-pipeline-20260719T223915Z-parent-6c889e03", "ts": 1784503374}
+{"detail": {"field": "block.reason", "value": "stage-model-capacity"}, "event": "set", "run_id": "orch-route-agent-quality-s04-trust-pipeline-20260719T223915Z-parent-6c889e03", "ts": 1784503374}

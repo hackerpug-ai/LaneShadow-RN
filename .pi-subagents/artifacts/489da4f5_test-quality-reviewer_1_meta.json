@@ -1,0 +1,107 @@
+{
+  "runId": "489da4f5",
+  "agent": "test-quality-reviewer",
+  "task": "Read-only test-reality audit in /Users/inference1/Projects/LaneShadow-RN of REDHAT-FIX-27 plus relevant REDHAT-FIX-17..26 regression suites. Assess whether tests would catch reintroduction of conditional non-ASCII reject and marker-obfuscation variants (Cyrillic е/һ, U+200B/U+FEFF, full-width dot/slash, paths,args,arbitrary Unicode) and whether exact ASCII planned command is unique accepted representation. Hunt weak oracle/mutation/fixture gaps and any new severity finding. Do not treat S4-T7 human BLOCKED as a defect. No edits. Return evidence and clear verdict.",
+  "exitCode": 0,
+  "usage": {
+    "input": 74038,
+    "output": 6806,
+    "cacheRead": 444416,
+    "cacheWrite": 0,
+    "cost": 0.398289,
+    "turns": 10
+  },
+  "model": "openai-codex/gpt-5.6-terra",
+  "attemptedModels": ["openai-codex/gpt-5.6-terra"],
+  "modelAttempts": [
+    {
+      "model": "openai-codex/gpt-5.6-terra",
+      "success": true,
+      "exitCode": 0,
+      "usage": {
+        "input": 74038,
+        "output": 6806,
+        "cacheRead": 444416,
+        "cacheWrite": 0,
+        "cost": 0.398289,
+        "turns": 10
+      }
+    }
+  ],
+  "durationMs": 284546,
+  "toolCount": 17,
+  "acceptance": {
+    "status": "attested",
+    "explicit": false,
+    "effectiveAcceptance": {
+      "level": "attested",
+      "explicit": false,
+      "inferredReason": ["read-only/reviewer-style agent"],
+      "criteria": [
+        {
+          "id": "criterion-1",
+          "must": "Return concrete findings with file paths and severity when applicable",
+          "evidence": ["review-findings", "residual-risks"],
+          "severity": "required"
+        }
+      ],
+      "evidence": ["review-findings", "residual-risks"],
+      "verify": [],
+      "stopRules": []
+    },
+    "inferredReason": ["read-only/reviewer-style agent"],
+    "criteria": [
+      {
+        "id": "criterion-1",
+        "must": "Return concrete findings with file paths and severity when applicable",
+        "evidence": ["review-findings", "residual-risks"],
+        "severity": "required"
+      }
+    ],
+    "runtimeChecks": [],
+    "verifyRuns": [],
+    "childReport": {
+      "criteriaSatisfied": [
+        {
+          "id": "criterion-1",
+          "status": "satisfied",
+          "evidence": "Mutation probes killed conditional non-ASCII, disabled ASCII detector, exact-command rejection, and accept-any-normalized-command regressions; no new severity finding."
+        }
+      ],
+      "changedFiles": [],
+      "testsAddedOrUpdated": [],
+      "commandsRun": [
+        {
+          "command": "./node_modules/.bin/vitest run convex/__tests__/REDHAT-FIX-27-unconditional-non-ascii-reject.integration.test.ts",
+          "result": "passed",
+          "summary": "5/5 REDHAT-FIX-27 tests passed."
+        },
+        {
+          "command": "./node_modules/.bin/vitest run convex/__tests__/REDHAT-FIX-17-latest-verdict-revokes-pass.integration.test.ts",
+          "result": "passed",
+          "summary": "4/4 FIX-17 tests passed standalone."
+        },
+        {
+          "command": "./node_modules/.bin/vitest run convex/__tests__/REDHAT-FIX-{17..26}*.integration.test.ts",
+          "result": "failed",
+          "summary": "FIX-17 had two batch-only failures; FIX-18..26 passed."
+        }
+      ],
+      "validationOutput": [
+        "All REDHAT-FIX-27 AC probes were killed.",
+        "No audit edits made; disposable worktrees removed."
+      ],
+      "residualRisks": [
+        "FIX-17 exhibited batch-only shared-state/isolation instability but passed standalone."
+      ],
+      "noStagedFiles": true,
+      "diffSummary": "Read-only audit; no files changed.",
+      "reviewFindings": [
+        "no blockers: REDHAT-FIX-27 oracle detects conditional non-ASCII regressions and loss of exact ASCII command equality."
+      ],
+      "manualNotes": "Primary checkout was already dirty with unrelated orchestration/generated artifacts; audit introduced no primary-tree changes."
+    }
+  },
+  "transcriptPath": "/Users/inference1/Projects/LaneShadow-RN/.pi-subagents/artifacts/489da4f5_test-quality-reviewer_1_transcript.jsonl",
+  "timestamp": 1784785035976
+}

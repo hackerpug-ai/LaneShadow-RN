@@ -1,0 +1,75 @@
+{
+  "runId": "6c3d6ffa",
+  "agent": "security-reviewer",
+  "task": "READ-ONLY security red-team review at /Users/inference1/Projects/LaneShadow-RN HEAD a39c5850f4e8e8813013f0f0d403ed16ada3b112. Analyze REDHAT-FIX-12 anti-forgery goal-state harness and rebuilt gate scripts for trust-boundary bypasses: attacker-controlled evidence, reuse/staleness, shell injection, identity/authorization spoofing, HEAD/commit validation, and any way to falsely emit completion. Also confirm legacy-manifest missing routeHashes is truly fail-closed in FIX-16. Inspect code and tests; do not edit. Do not accept generated artifacts/tests as proof of human founder/live-provider execution. Return evidence-cited CRITICAL/HIGH/MEDIUM/LOW findings or clean verdict.",
+  "exitCode": 1,
+  "usage": {
+    "input": 0,
+    "output": 0,
+    "cacheRead": 0,
+    "cacheWrite": 0,
+    "cost": 0,
+    "turns": 0
+  },
+  "model": "local-router/implementer",
+  "attemptedModels": ["local-router/implementer"],
+  "modelAttempts": [
+    {
+      "model": "local-router/implementer",
+      "success": false,
+      "exitCode": 1,
+      "error": "Error: Model \"local-router/implementer\" not found. Use --list-models to see available models.",
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "cost": 0,
+        "turns": 0
+      }
+    }
+  ],
+  "durationMs": 1554,
+  "toolCount": 0,
+  "error": "Error: Model \"local-router/implementer\" not found. Use --list-models to see available models.",
+  "acceptance": {
+    "status": "rejected",
+    "explicit": false,
+    "effectiveAcceptance": {
+      "level": "attested",
+      "explicit": false,
+      "inferredReason": ["read-only/reviewer-style agent"],
+      "criteria": [
+        {
+          "id": "criterion-1",
+          "must": "Return concrete findings with file paths and severity when applicable",
+          "evidence": ["review-findings", "residual-risks"],
+          "severity": "required"
+        }
+      ],
+      "evidence": ["review-findings", "residual-risks"],
+      "verify": [],
+      "stopRules": []
+    },
+    "inferredReason": ["read-only/reviewer-style agent"],
+    "criteria": [
+      {
+        "id": "criterion-1",
+        "must": "Return concrete findings with file paths and severity when applicable",
+        "evidence": ["review-findings", "residual-risks"],
+        "severity": "required"
+      }
+    ],
+    "runtimeChecks": [
+      {
+        "id": "attestation",
+        "status": "failed",
+        "message": "Structured acceptance report not found."
+      }
+    ],
+    "verifyRuns": [],
+    "childReportParseError": "Structured acceptance report not found."
+  },
+  "transcriptPath": "/Users/inference1/Projects/LaneShadow-RN/.pi-subagents/artifacts/6c3d6ffa_security-reviewer_2_transcript.jsonl",
+  "timestamp": 1784590527920
+}

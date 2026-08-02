@@ -123,3 +123,12 @@ Ask the agent directly with natural language. Examples:
 
 All plans stored in `.spec/prd/`. See `.spec/PRD.md` for overview.
 This fork preserves all original plans from the main LaneShadow repo.
+
+<!-- kb-skills-config begin -->
+```yaml
+kb-orchestrate:
+  stage-models:
+    run: grok:grok-composer-2.5-fast@medium
+    plan: grok:grok-4.5@medium
+```
+<!-- kb-skills-config end -->

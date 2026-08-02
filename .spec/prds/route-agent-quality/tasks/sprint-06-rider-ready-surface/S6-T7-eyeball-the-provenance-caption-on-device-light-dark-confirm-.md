@@ -1,6 +1,11 @@
 # S6-T7 — Eyeball the provenance caption on device (light + dark); confirm it reads as context not alert
 
-> Status: ⬜ Pending
+> Status: ✅ Completed
+> Reviewer: Founder-Operator
+> Completed: 2026-08-01T04:27:27Z
+> Omission: Explicitly omitted by the Founder-Operator on 2026-07-31. This real-device human gate is waived for this sprint; no device pass is claimed.
+> Red-hat finding: **S6-F5 (MEDIUM)** — accepted scope waiver for Sprint 06 closeout; subjective calm-vs-warning judgment remains unverified. Do **not** fabricate device evidence. Forward schedule before Sprint 07 depends on this surface (not an S6 gate re-open).
+> Omission record: `.spec/orchestrate/orch-route-agent-quality-s06-rider-ready-surface-20260730T055327Z-codex-omission.json`
 > Proposed By: `product-manager`
 
 | Field | Value |
@@ -25,6 +30,10 @@ RUNTIME_COMMANDS:
 
 ## BACKGROUND
 On a real device running the post-Sprint-06 build against the REAL un-seeded post-Sprint-04 rider-ready catalog, the Founder-Operator performs the 7-step human gate from SPRINT.md: open an ai_reconstructed route detail and confirm the provenance caption reads as plain informational text with muted styling and no badge in BOTH light and dark; confirm a scraped_promoted route shows no caption; browse a thin region and confirm the honest 'no routes near you yet' state; confirm a saved non-ready route still opens its detail. Each step records a pass/fail verdict with a real screenshot.
+
+## Omission record
+
+This requirement was explicitly omitted by the Founder-Operator on 2026-07-31. The omission is a scope decision, not a human-test pass: the real-device screenshots and verdicts are intentionally not required for this sprint closeout. Automated implementation evidence remains owned by S6-T3, S6-T4, S6-T5, S6-T6, and S6-T8.
 
 ## 🚫 CRITICAL CONSTRAINTS (Never tier)
 - **MUST** Run every step on the REAL un-seeded post-Sprint-04 rider-ready catalog — the live catalog a real rider would browse. The 'seed' is the catalog itself.

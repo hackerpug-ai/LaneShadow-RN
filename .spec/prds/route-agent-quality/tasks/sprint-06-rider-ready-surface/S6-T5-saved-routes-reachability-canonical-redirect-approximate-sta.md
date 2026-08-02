@@ -1,6 +1,7 @@
 # S6-T5 — Saved-routes reachability: canonical redirect, approximate state, never gate-hidden (SURF-06)
 
-> Status: ⬜ Pending
+> Status: ✅ Completed
+> Commit: 504022ec
 > Proposed By: `convex-planner`
 
 | Field | Value |
@@ -159,7 +160,8 @@ SCENARIO:
 - Depends on: S6-T2
 - Blocks: S6-T3, S6-T4
 
-<!-- REQUIREMENT-CONTRACT v1 -->
+<!-- REQUIREMENT-CONTRACT v1
+-->
 <!--
 {
   "version": "1",

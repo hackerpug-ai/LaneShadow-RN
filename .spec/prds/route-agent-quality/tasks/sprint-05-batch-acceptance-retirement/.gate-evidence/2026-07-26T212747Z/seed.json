@@ -1,0 +1,13 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+{
+  "count": 3,
+  "geometryProvenance": "name_routed",
+  "geometryStatus": "unresolved",
+  "prefix": "bestbikingroads:s5qa-cost-",
+  "routeIds": [
+    "bestbikingroads:s5qa-cost-000",
+    "bestbikingroads:s5qa-cost-001",
+    "bestbikingroads:s5qa-cost-002"
+  ],
+  "startIndex": 0
+}

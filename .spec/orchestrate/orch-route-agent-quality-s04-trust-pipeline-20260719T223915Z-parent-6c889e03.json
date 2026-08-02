@@ -1,0 +1,370 @@
+{
+  "active_stage": "plan",
+  "audit_log": "/Users/inference1/.config/brain/kb-orchestrate-state/orch-route-agent-quality-s04-trust-pipeline-20260719T223915Z-parent-6c889e03-audit.jsonl",
+  "audit_mirror": "/Users/inference1/Projects/LaneShadow-RN/.spec/orchestrate/orch-route-agent-quality-s04-trust-pipeline-20260719T223915Z-parent-6c889e03-audit.jsonl",
+  "block_class": "contract",
+  "block_reason": "stage-model-capacity",
+  "close_authority": "prd-20260719T223039Z-6c889e03",
+  "close_request": null,
+  "conductor_surface_id": "C08C52C3-101C-4974-9959-6949E80697FF",
+  "conductor_surface_ref": "surface:34",
+  "created_at": "2026-07-19T22:39:15Z",
+  "current_stage": "plan",
+  "cycle": [
+    "implement",
+    "review",
+    "plan",
+    "qa"
+  ],
+  "cycle_number": 1,
+  "implement_skill": "kb-run-sprint",
+  "invocation": "/kb-orchestrate /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline --parent-run-id prd-20260719T223039Z-6c889e03 --close-authority prd-20260719T223039Z-6c889e03 --roadmap /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/ROADMAP.md",
+  "last_block": {
+    "class": "contract",
+    "reason": "stage-model-capacity",
+    "detail": "[goal:blocked class=contract reason=stage-model-capacity] Sprint 04 conductor blocked. Exact invariant: remediation plan stage must run in its own cmux surface on resolved primary plan tier grok:grok-4.5@high, but Grok reports weekly limit left 0% / purchase credits; plan failover_allowed=false, so the conductor may not fail over to another plan model. No REDHAT-FIX task expansion or awaiting-close handshake can be truthfully claimed. Human action: authorize an explicit plan-model override or restore Grok capacity, then re-invoke this exact child run. Evidence: surface 4FDAE6CA-6732-4EC1-8F2F-8E7B7497D999, no remediation artifacts, review .spec/reviews/red-hat-sprint-04-2026-07-19T23-11-00Z.md.",
+    "at": "2026-07-19T23:22:53Z"
+  },
+  "main_sha_before_run": "facc807930bd3b207c26cfae5b3650205f294858",
+  "max_cycles": 0,
+  "max_recover": 2,
+  "mirror_path": "/Users/inference1/Projects/LaneShadow-RN/.spec/orchestrate/orch-route-agent-quality-s04-trust-pipeline-20260719T223915Z-parent-6c889e03.json",
+  "parent_run_id": "prd-20260719T223039Z-6c889e03",
+  "project": "/Users/inference1/Projects/LaneShadow-RN",
+  "qa_surface_id": null,
+  "recovery_trajectory": [
+    {
+      "at": "2026-07-19T22:47:49Z",
+      "event": "run-surface-failover",
+      "from_model": "grok:grok-4.5@high",
+      "from_surface": "07BD1C02-5EDE-4C8F-A5B6-C40242D8B41A",
+      "native_session_id": "019f7c89-3328-7432-a69d-65db5032bc56",
+      "reason": "402 Payment Required: Grok Build usage balance exhausted",
+      "to_model": "pi:xai-auth/grok-4.5@high",
+      "to_surface": "D0E349E4-B2F1-4458-B0BB-2BA6A96D6666",
+      "trigger": "block-transient"
+    }
+  ],
+  "roadmap": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/ROADMAP.md",
+  "roadmap_sha256": "b3cf8a4b315218d683bc6c92e8bb6399e80503d7918ae868db66c79fb1a59103",
+  "run_id": "orch-route-agent-quality-s04-trust-pipeline-20260719T223915Z-parent-6c889e03",
+  "schema_version": 1,
+  "sprint": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
+  "stages": {
+    "plan": {
+      "chain": [
+        {
+          "account": "grok-acct-2",
+          "harness": "grok",
+          "model": "grok-4.5@high",
+          "provider": "",
+          "reasoning_effort": "high",
+          "tier": 1
+        },
+        {
+          "account": "grok-acct-1",
+          "harness": "pi",
+          "model": "xai-auth/grok-4.5@high",
+          "provider": "xai-auth",
+          "reasoning_effort": "high",
+          "tier": 2
+        },
+        {
+          "account": "",
+          "harness": "claude-code",
+          "model": "sonnet-5@high",
+          "provider": "",
+          "reasoning_effort": "high",
+          "tier": 3
+        },
+        {
+          "account": "",
+          "harness": "pi",
+          "model": "zai/glm-5.2@high",
+          "provider": "zai",
+          "reasoning_effort": "high",
+          "tier": 4
+        }
+      ],
+      "failover_allowed": false,
+      "harness": "grok",
+      "model": "grok-4.5@high",
+      "provider": "",
+      "source": "default"
+    },
+    "qa": {
+      "chain": [
+        {
+          "account": "",
+          "harness": "opencode",
+          "model": "zai-coding-plan/glm-5.2@high",
+          "provider": "zai-coding-plan",
+          "reasoning_effort": "high",
+          "tier": 1
+        }
+      ],
+      "failover_allowed": false,
+      "harness": "opencode",
+      "model": "zai-coding-plan/glm-5.2@high",
+      "provider": "",
+      "source": "default"
+    },
+    "review": {
+      "chain": [
+        {
+          "account": "",
+          "harness": "pi",
+          "model": "openai-codex/gpt-5.6-terra@high",
+          "provider": "openai-codex",
+          "reasoning_effort": "high",
+          "tier": 1
+        },
+        {
+          "account": "",
+          "harness": "pi",
+          "model": "zai/glm-5.2@high",
+          "provider": "zai",
+          "reasoning_effort": "high",
+          "tier": 2
+        }
+      ],
+      "failover_allowed": false,
+      "harness": "pi",
+      "model": "openai-codex/gpt-5.6-terra@high",
+      "provider": "",
+      "source": "default"
+    },
+    "run": {
+      "chain": [
+        {
+          "account": "grok-acct-2",
+          "harness": "grok",
+          "model": "grok-4.5@high",
+          "provider": "",
+          "reasoning_effort": "high",
+          "tier": 1
+        },
+        {
+          "account": "grok-acct-1",
+          "harness": "pi",
+          "model": "xai-auth/grok-4.5@high",
+          "provider": "xai-auth",
+          "reasoning_effort": "high",
+          "tier": 2
+        },
+        {
+          "account": "",
+          "harness": "opencode",
+          "model": "zai-coding-plan/glm-5.2@high",
+          "provider": "zai-coding-plan",
+          "reasoning_effort": "high",
+          "tier": 3
+        }
+      ],
+      "failover_allowed": true,
+      "harness": "grok",
+      "model": "grok-4.5@high",
+      "provider": "",
+      "source": "default"
+    }
+  },
+  "stall_window": 1800,
+  "stall_window_seconds": 600,
+  "status": "blocked",
+  "status_sync": {
+    "last_synced_at": "2026-07-19T22:39:30Z",
+    "snapshot_sha256": "804a885797292ee7813eafc48cff29a9d9f2839735771e0b1a583d3f05043876",
+    "tracker_parity": "unknown"
+  },
+  "surfaces": [
+    {
+      "active": false,
+      "base_prompt_excerpt": "complete /goal",
+      "base_prompt_sha256": "",
+      "baseline_count": 0,
+      "blocked_grep": "",
+      "commands_or_skills": [
+        "/goal"
+      ],
+      "created_at": null,
+      "cwd": "",
+      "cycle": 0,
+      "driver": "human",
+      "focused": true,
+      "goal": {
+        "text": "complete /goal",
+        "verification": {
+          "kind": "none",
+          "signal": "",
+          "status": "needs-human"
+        }
+      },
+      "harness": "claude-code",
+      "is_self": false,
+      "last_observed_ts": "2026-07-19T22:39:15Z",
+      "last_verdict_artifact": null,
+      "model": "claude-sonnet-5",
+      "nudge_count": 0,
+      "origin": "adopted",
+      "provider": "anthropic",
+      "reaped": false,
+      "recover_count": 0,
+      "role": "adopted",
+      "session_id": "1ef515bc-b087-4a68-88bd-4aa595780013",
+      "spawned_at": null,
+      "spawner": null,
+      "sprint": "",
+      "state_label": "human",
+      "status": "needs-human",
+      "surface_id": "BC1FC6FA-3933-437B-866A-9E05CAAF253E",
+      "surface_ref": "surface:20",
+      "verdict_grep": "",
+      "verdict_kind": "none",
+      "watch_glob": ""
+    },
+    {
+      "active": true,
+      "base_prompt_excerpt": "",
+      "base_prompt_sha256": "",
+      "baseline_count": 0,
+      "blocked_grep": "",
+      "commands_or_skills": [],
+      "created_at": null,
+      "cwd": "/Users/inference1/Projects/LaneShadow-RN",
+      "cycle": 0,
+      "driver": "orch-self",
+      "focused": false,
+      "goal": {
+        "text": "Conduct Sprint 04 under parent authority until awaiting-close",
+        "verification": {
+          "kind": "none",
+          "signal": "",
+          "status": "needs-human"
+        }
+      },
+      "harness": "unknown",
+      "is_self": true,
+      "last_observed_ts": "2026-07-19T22:39:15Z",
+      "last_verdict_artifact": null,
+      "model": "unknown",
+      "nudge_count": 0,
+      "origin": "adopted",
+      "provider": "unknown",
+      "reaped": false,
+      "recover_count": 0,
+      "role": "orch-self",
+      "session_id": "",
+      "spawned_at": null,
+      "spawner": null,
+      "sprint": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
+      "state_label": "cyc0",
+      "status": "self",
+      "surface_id": "C08C52C3-101C-4974-9959-6949E80697FF",
+      "surface_ref": "surface:34",
+      "verdict_grep": "",
+      "verdict_kind": "none",
+      "watch_glob": ""
+    },
+    {
+      "active": false,
+      "base_prompt_excerpt": "unknown",
+      "base_prompt_sha256": "",
+      "baseline_count": 0,
+      "blocked_grep": "",
+      "command_display": "pi       ",
+      "commands_or_skills": [],
+      "created_at": "2026-07-19T22:47:49Z",
+      "cwd": "/Users/inference1/Projects/LaneShadow-RN",
+      "cycle": 0,
+      "driver": "orch",
+      "focused": false,
+      "goal": {
+        "text": "Continue /kb-run-sprint /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline until GATE-GOAL: ACHIEVED",
+        "verification": {
+          "kind": "sentinel_grep",
+          "signal": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/sprint-goal-state.json:met:true",
+          "status": "derived"
+        }
+      },
+      "harness": "unknown",
+      "is_self": false,
+      "last_observed_ts": "2026-07-19T22:47:49Z",
+      "last_verdict_artifact": null,
+      "model": "unknown",
+      "nudge_count": 0,
+      "origin": "spawned",
+      "pid": "90383",
+      "provider": "unknown",
+      "reaped": false,
+      "recover_count": 1,
+      "role": "run",
+      "session_id": "",
+      "spawned_at": "2026-07-19T22:47:49Z",
+      "spawner": "spawn-stage.sh",
+      "sprint": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
+      "state_label": "run-complete-reviewing",
+      "status": "running",
+      "surface_id": "D0E349E4-B2F1-4458-B0BB-2BA6A96D6666",
+      "surface_ref": "surface:40",
+      "title": "\ud83c\udfc3 RUN s04 \u00b7 running \u00b7 grok-4.5@high",
+      "tty": "ttys012",
+      "verdict_grep": "",
+      "verdict_kind": "none",
+      "watch_glob": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/sprint-goal-state.json",
+      "workspace_id": "B3E6DCCC-9A70-4AF6-BD41-C999CF1415B9",
+      "workspace_ref": "workspace:4"
+    },
+    {
+      "active": true,
+      "base_prompt_excerpt": "",
+      "base_prompt_sha256": "",
+      "baseline_count": 0,
+      "blocked_grep": "",
+      "commands_or_skills": [
+        "/kb-sprint-tasks-plan"
+      ],
+      "created_at": "2026-07-19T23:16:52Z",
+      "cwd": "/Users/inference1/Projects/LaneShadow-RN",
+      "cycle": 1,
+      "driver": "orch",
+      "focused": false,
+      "goal": {
+        "text": "Run /kb-sprint-tasks-plan --sprint-folder /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline --only REDHAT-FIX-01 REDHAT-FIX-02 REDHAT-FIX-03 REDHAT-FIX-04 REDHAT-FIX-05 REDHAT-FIX-06 REDHAT-FIX-07 until all remediation task files are written.",
+        "verification": {
+          "kind": "artifact_exists",
+          "signal": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/REDHAT-FIX-*.md",
+          "status": "derived"
+        }
+      },
+      "harness": "grok",
+      "is_self": false,
+      "last_observed_ts": "2026-07-19T23:22:53Z",
+      "last_verdict_artifact": null,
+      "model": "grok-4.5@high",
+      "nudge_count": 0,
+      "origin": "spawned",
+      "provider": "xai",
+      "reaped": false,
+      "recover_count": 0,
+      "role": "plan",
+      "session_id": "",
+      "snapshot_sha256": "c6cd11f482533944545f5b7d704a1b5e21c3c56ebbc26b4c5440e1c13db1cfc1",
+      "spawned_at": "2026-07-19T23:16:52Z",
+      "spawner": "spawn-stage.sh",
+      "sprint": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
+      "state_label": "BLOCKED",
+      "status": "blocked",
+      "surface_id": "4FDAE6CA-6732-4EC1-8F2F-8E7B7497D999",
+      "surface_ref": "surface:45",
+      "verdict_grep": "",
+      "verdict_kind": "count_gt",
+      "watch_glob": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/REDHAT-FIX-*.md"
+    }
+  ],
+  "target": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
+  "terminal_cleanup_ready": false,
+  "tick_seconds": 300,
+  "updated_at": "2026-07-19T23:22:53Z",
+  "workspace": "B3E6DCCC-9A70-4AF6-BD41-C999CF1415B9",
+  "block_invariant": "plan stage failover_allowed=false while resolved primary grok:grok-4.5@high is weekly-limit exhausted"
+}

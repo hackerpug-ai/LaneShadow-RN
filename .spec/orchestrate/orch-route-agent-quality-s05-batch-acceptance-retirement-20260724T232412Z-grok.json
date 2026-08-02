@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "run_id": "orch-route-agent-quality-s05-batch-acceptance-retirement-20260724T232412Z-grok",
+  "project": "/Users/inference1/Projects/LaneShadow-RN",
+  "sprint": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement",
+  "implement_skill": "kb-run-sprint",
+  "cycle": 2,
+  "max_cycles": 3,
+  "max_recover": 2,
+  "status": "running",
+  "updated_at": "2026-07-25T20:10:27Z",
+  "close_authority": true,
+  "workspace": "workspace:1",
+  "stage_config": {
+    "run": {
+      "harness": "grok",
+      "model": "grok-4.5@high",
+      "source": "default"
+    },
+    "review": {
+      "harness": "opencode",
+      "model": "zai-coding-plan/glm-5.2@high",
+      "source": "override"
+    },
+    "plan": {
+      "harness": "grok",
+      "model": "grok-4.5@high",
+      "source": "default"
+    },
+    "qa": {
+      "harness": "opencode",
+      "model": "zai-coding-plan/glm-5.2@high",
+      "source": "default"
+    }
+  },
+  "surfaces": [
+    {
+      "surface_ref": "surface:310",
+      "surface_id": "3B72764D-2F7A-4ECF-AA69-3A0F0D04C1E1",
+      "origin": "spawned",
+      "spawner": "spawn-stage.sh",
+      "driver": "orch",
+      "role": "run",
+      "sprint": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement",
+      "target": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement",
+      "cwd": "/Users/inference1/Projects/LaneShadow-RN",
+      "harness": "grok",
+      "model": "grok-4.5@high",
+      "provider": "xai",
+      "session_id": "",
+      "commands_or_skills": [
+        "/kb-run-sprint"
+      ],
+      "base_prompt_excerpt": "Run /kb-run-sprint /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement until GATE-GOAL: ACHIEVED",
+      "base_prompt_sha256": "",
+      "goal": {
+        "text": "Run /kb-run-sprint /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement until GATE-GOAL: ACHIEVED",
+        "verification": {
+          "kind": "sentinel_grep",
+          "signal": "sprint-goal-state.json:goal:complete",
+          "status": "derived"
+        }
+      },
+      "active": true,
+      "status": "running",
+      "cycle": 0,
+      "state_label": "remediating REDHAT-FIX-08/09 (last cycle)",
+      "last_verdict_artifact": null,
+      "last_observed_ts": "2026-07-25T20:10:27Z",
+      "nudge_count": 0,
+      "recover_count": 0,
+      "watch_glob": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-05-batch-acceptance-retirement/sprint-goal-state.json",
+      "verdict_kind": "grep",
+      "verdict_grep": "\"goal\":[[:space:]]*\"complete\"",
+      "blocked_grep": "\"goal\":[[:space:]]*\"blocked\"",
+      "baseline_count": 0,
+      "title": "🏃 RUN s05 · running · grok-4.5@high",
+      "tty": "ttys011",
+      "pid": "90479",
+      "focused": false
+    }
+  ],
+  "block_reason": null
+}

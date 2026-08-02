@@ -1,0 +1,73 @@
+{
+  "assumptionNote": "PRD per-lever expected yields are assumptions for comparison only \u2014 not committed catalog targets.",
+  "batchStopReason": "completed",
+  "continueCursor": null,
+  "isDone": true,
+  "levers": [
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "unproven",
+      "candidateCount": 3,
+      "escalationFloor": null,
+      "lever": "promote",
+      "leverNumber": 1,
+      "passCount": 0,
+      "passRate": 0,
+      "provenance": "scraped_promoted",
+      "realizedRate": 0
+    },
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "~67%",
+      "candidateCount": 3,
+      "escalationFloor": 0.4,
+      "lever": "reconstruct",
+      "leverNumber": 2,
+      "passCount": 1,
+      "passRate": 0.3333333333333333,
+      "provenance": "ai_reconstructed",
+      "realizedRate": 0.3333333333333333
+    },
+    {
+      "assumptionIsTarget": false,
+      "assumptionLabel": "~40-55%",
+      "candidateCount": 2,
+      "escalationFloor": 0.4,
+      "lever": "reroute",
+      "leverNumber": 3,
+      "passCount": 0,
+      "passRate": 0,
+      "provenance": "name_routed",
+      "realizedRate": 0
+    }
+  ],
+  "maxCostUSD": 2,
+  "pageTotals": [
+    {
+      "batchStopReason": "completed",
+      "endIndex": 3,
+      "processed": 3,
+      "skipped": 0,
+      "startIndex": 0,
+      "totalCostUsd": 0.21000000000000002
+    }
+  ],
+  "provenanceCounts": {
+    "ai_reconstructed": 1
+  },
+  "reportProvenance": {
+    "producedBy": "runFullBatch",
+    "sourceRunKind": "runFullBatch"
+  },
+  "riderReadyCount": 1,
+  "runId": "s5-qa-live-20260726T213002Z",
+  "source": "persisted",
+  "terminalStates": {
+    "cost_blocked": 0,
+    "queued": 2,
+    "recovered": 1,
+    "retirement_eligible": 0,
+    "skipped": 0
+  },
+  "totalCostUSD": 0.21000000000000002
+}

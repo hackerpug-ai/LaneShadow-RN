@@ -1,0 +1,95 @@
+{
+  "sprint": "sprint-04-trust-pipeline",
+  "sprint_identity": {
+    "resolved_sprint_path": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline",
+    "sprint_slug": "sprint-04-trust-pipeline"
+  },
+  "run_id": "2026-07-21T152805Z",
+  "rerun_at": "2026-07-21T17:23:25Z",
+  "verdict": "blocked",
+  "blocked_reason": "steps 3,4,5,7 require Founder-Operator (S4-T7) human review of a REAL ~25-route couch sample; machine cannot pass a human visual review",
+  "steps_total": 8,
+  "steps_executed": 4,
+  "steps_passed": 4,
+  "steps_blocked_human": 4,
+  "ui_driver": "none",
+  "exec_surface": "agent-direct",
+  "runner": "conductor-honest-rerun-current-head",
+  "head_commit": "272928927f226a175fc38a4849a5cc6d17c81031",
+  "supersedes": {
+    "run_id": "2026-07-21T152805Z",
+    "prior_head": "8f91f7d0dd3d07dda80f9b4d2cdf2e90acd05908",
+    "prior_verdict": "blocked",
+    "reason": "Re-ran automatable steps 1,2,6,8 at current HEAD after conductor resume; human steps remain unresolved"
+  },
+  "steps": [
+    {
+      "n": 1,
+      "text": "Run the lever waterfall as a --sample batch on real Google + LLM APIs.",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "evidence": "production runSampleWaterfall (NO seam) under operator identity on 3 real catalog routes; 1 processed, 2 skipped already-terminal; cost ~0.07",
+      "log": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step1-real-provider-waterfall.json"
+    },
+    {
+      "n": 2,
+      "text": "Confirm each processed route ends in exactly one terminal state.",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "evidence": "3/3 routes have terminalState; states=['queued', 'recovered']",
+      "log": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step2-terminal-states.json"
+    },
+    {
+      "n": 3,
+      "text": "Open the ~25-route couch sample rendered as map PNGs.",
+      "type": "human",
+      "executed": false,
+      "result": "blocked",
+      "evidence": "BLOCKED (human+data): real ~25-route non-test: catalog sample not curated; founder must review REAL recovered lines rendered as PNGs"
+    },
+    {
+      "n": 4,
+      "text": "Record true, off, or wrong for each sampled route.",
+      "type": "human",
+      "executed": false,
+      "result": "blocked",
+      "evidence": "BLOCKED (human): Founder-Operator judgment (S4-T7). A machine verdict would be a forgery."
+    },
+    {
+      "n": 5,
+      "text": "Record an overall pass or fail verdict.",
+      "type": "human",
+      "executed": false,
+      "result": "blocked",
+      "evidence": "BLOCKED (human): Founder-Operator judgment (S4-T7). Not executed."
+    },
+    {
+      "n": 6,
+      "text": "Confirm a single wrong verdict forces the gate red.",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "evidence": "recordCouchVerdict with overallVerdict=pass + one wrong \u2192 WRONG_FORCES_FAIL on couch-1784654446923",
+      "log": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step6-wrong-forces-fail.json"
+    },
+    {
+      "n": 7,
+      "text": "Disposition three REVIEW-queue items: approve, retry, retire.",
+      "type": "human",
+      "executed": false,
+      "result": "blocked",
+      "evidence": "BLOCKED (human): disposition decisions are Founder-Operator judgment."
+    },
+    {
+      "n": 8,
+      "text": "Confirm the driver refuses --all until the couch verdict passes.",
+      "type": "terminal",
+      "executed": true,
+      "result": "pass",
+      "evidence": "couchGateStatus.allowed=false; runAllWaterfall refused; reason=Couch gate blocked: no active manifest (no operator activation exists)",
+      "log": ".spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline/.gate-evidence/2026-07-21T152805Z/step8-all-refused.json"
+    }
+  ]
+}

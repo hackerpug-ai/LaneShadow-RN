@@ -1,0 +1,134 @@
+{
+  "runId": "489da4f5",
+  "agent": "convex-reviewer",
+  "task": "Read-only independent red-team review of current /Users/inference1/Projects/LaneShadow-RN focused on REDHAT-FIX-27 command-authority closure and regression FIX-17..26. Reproduce/check full non-ASCII evasion matrix: Cyrillic е inside .gate-evidence/evidence markers, Cyrillic һ in .sh, ZWSP U+200B/U+FEFF, full-width ．/／, script path, args, arbitrary non-ASCII code unit; exact ASCII plan command must be sole accept on off-plan axis. Search for any NEW severity issue / next seam. Human S4-T7 external BLOCKED is correct and not a code defect. No edits. Run focused tests where possible. Return AC verdict table with file:line evidence, commands/results, findings severity/confidence.",
+  "exitCode": 1,
+  "usage": {
+    "input": 99332,
+    "output": 6615,
+    "cacheRead": 349696,
+    "cacheWrite": 0,
+    "cost": 0.434979,
+    "turns": 7
+  },
+  "model": "openai-codex/gpt-5.6-terra",
+  "attemptedModels": ["openai-codex/gpt-5.6-terra"],
+  "modelAttempts": [
+    {
+      "model": "openai-codex/gpt-5.6-terra",
+      "success": false,
+      "exitCode": 1,
+      "error": "Agent 'convex-reviewer' requested unavailable child tools: task.\nThe `tools` field is a strict allowlist; it does not load extension code.\nFor extension tools, add the provider path to `subagentOnlyExtensions` (child-only), `extensions`, or as a path-like entry in `tools`, while keeping each registered tool name in `tools`.\nFor MCP tools, verify the MCP adapter configuration and selected tool names. For builtin tools, verify the name against the installed Pi version.",
+      "usage": {
+        "input": 99332,
+        "output": 6615,
+        "cacheRead": 349696,
+        "cacheWrite": 0,
+        "cost": 0.434979,
+        "turns": 7
+      }
+    }
+  ],
+  "durationMs": 256273,
+  "toolCount": 23,
+  "error": "Agent 'convex-reviewer' requested unavailable child tools: task.\nThe `tools` field is a strict allowlist; it does not load extension code.\nFor extension tools, add the provider path to `subagentOnlyExtensions` (child-only), `extensions`, or as a path-like entry in `tools`, while keeping each registered tool name in `tools`.\nFor MCP tools, verify the MCP adapter configuration and selected tool names. For builtin tools, verify the name against the installed Pi version.",
+  "acceptance": {
+    "status": "attested",
+    "explicit": false,
+    "effectiveAcceptance": {
+      "level": "attested",
+      "explicit": false,
+      "inferredReason": ["read-only/reviewer-style agent"],
+      "criteria": [
+        {
+          "id": "criterion-1",
+          "must": "Return concrete findings with file paths and severity when applicable",
+          "evidence": ["review-findings", "residual-risks"],
+          "severity": "required"
+        }
+      ],
+      "evidence": ["review-findings", "residual-risks"],
+      "verify": [],
+      "stopRules": []
+    },
+    "inferredReason": ["read-only/reviewer-style agent"],
+    "criteria": [
+      {
+        "id": "criterion-1",
+        "must": "Return concrete findings with file paths and severity when applicable",
+        "evidence": ["review-findings", "residual-risks"],
+        "severity": "required"
+      }
+    ],
+    "runtimeChecks": [],
+    "verifyRuns": [],
+    "childReport": {
+      "criteriaSatisfied": [
+        {
+          "id": "criterion-1",
+          "status": "satisfied",
+          "evidence": "Concrete HIGH and MEDIUM findings are reported with file:line evidence and reproduced command outputs."
+        }
+      ],
+      "changedFiles": [],
+      "testsAddedOrUpdated": [],
+      "commandsRun": [
+        {
+          "command": "npx vitest run convex/__tests__/REDHAT-FIX-27-unconditional-non-ascii-reject.integration.test.ts convex/__tests__/REDHAT-FIX-26-strict-ascii-byte-exact-command.integration.test.ts",
+          "result": "passed",
+          "summary": "10/10 tests passed."
+        },
+        {
+          "command": "npx vitest run convex/__tests__/REDHAT-FIX-{17..27}-*.integration.test.ts",
+          "result": "failed",
+          "summary": "52/53 tests passed; FIX-19 AC-1 failed under shared-state execution."
+        },
+        {
+          "command": "npx vitest run convex/__tests__/REDHAT-FIX-19-strict-manifest-binding.integration.test.ts",
+          "result": "failed",
+          "summary": "3/4 tests passed; isolated run instead failed FIX-19 AC-3, confirming instability."
+        },
+        {
+          "command": "npx tsc --noEmit -p convex/tsconfig.json && pnpm exec biome check tools/gate/deriveGoalState.ts convex/__tests__/REDHAT-FIX-27-unconditional-non-ascii-reject.integration.test.ts",
+          "result": "passed",
+          "summary": "TypeScript and focused Biome checks passed."
+        },
+        {
+          "command": "validate_scenario REDHAT-FIX-27 requirement contract",
+          "result": "passed",
+          "summary": "5 scenarios; zero violations."
+        },
+        {
+          "command": "manual tsx non-ASCII/full-command authority matrix",
+          "result": "passed",
+          "summary": "All requested non-ASCII vectors rejected; extra-space, surrounding-space, and arbitrary ASCII commands were accepted."
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed",
+          "summary": "No whitespace errors."
+        }
+      ],
+      "validationOutput": [
+        "FIX-27 and FIX-26 focused suites passed.",
+        "All Unicode evasion vectors returned OFF_PLAN_SCRIPT.",
+        "Authority seam reproduced: arbitrary ASCII commands and space-normalized plan aliases return ACCEPTED."
+      ],
+      "residualRisks": [
+        "ASCII command authority is not closed: non-plan commands can be attested without OFF_PLAN_SCRIPT.",
+        "Raw command representation is not byte-exact because ASCII-space variants normalize to the plan command.",
+        "FIX-19 integration coverage is dependent on mutable shared dev deployment state."
+      ],
+      "noStagedFiles": true,
+      "diffSummary": "Read-only review; no project files edited.",
+      "reviewFindings": [
+        "high: tools/gate/deriveGoalState.ts:787-803 - arbitrary ASCII commands bypass the timestamp-shaped exact-command branch.",
+        "high: tools/gate/deriveGoalState.ts:578 - trim/split normalization accepts non-identical ASCII command representations.",
+        "medium: convex/__tests__/REDHAT-FIX-19-strict-manifest-binding.integration.test.ts:45-62,279-281 - shared deployment test is non-deterministic."
+      ],
+      "manualNotes": "Human S4-T7 external BLOCKED was treated as correct and not reported as a defect. No edits were made."
+    }
+  },
+  "transcriptPath": "/Users/inference1/Projects/LaneShadow-RN/.pi-subagents/artifacts/489da4f5_convex-reviewer_0_transcript.jsonl",
+  "timestamp": 1784785007701
+}

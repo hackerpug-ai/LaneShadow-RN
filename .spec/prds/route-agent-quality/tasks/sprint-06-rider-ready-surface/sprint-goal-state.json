@@ -1,0 +1,102 @@
+{
+  "goal": "complete",
+  "summary": "Sprint 6 implementation complete with Founder-Operator S6-T7 real-device requirement explicitly omitted (not a pass). Independent red-hat 20260801T0356Z: APPROVE WITH FINDINGS — zero gate-blocking remediations. Three non-blocking follow-ups chartered (S6-F1, S6-F2, S6-F3). S6-F4 advisory accepted; S6-F5 waiver accepted; S6-F6 tokens:validate evidence gap closed at plan time (exit 0).",
+  "tasks": {
+    "all_completed": true,
+    "completed": 7,
+    "total": 8,
+    "omitted": ["S6-T7"],
+    "implementation_complete": ["S6-T1", "S6-T2", "S6-T3", "S6-T4", "S6-T5", "S6-T6", "S6-T8"]
+  },
+  "omission": {
+    "task_id": "S6-T7",
+    "decision": "omitted",
+    "decided_by": "Founder-Operator",
+    "decided_at": "2026-07-31T00:00:00Z",
+    "not_a_pass": true,
+    "finding_id": "S6-F5",
+    "severity": "MEDIUM",
+    "record": ".spec/orchestrate/orch-route-agent-quality-s06-rider-ready-surface-20260730T055327Z-codex-omission.json"
+  },
+  "human_test": {
+    "required": false,
+    "verdict": "omitted",
+    "reason": "S6-T7 was explicitly omitted; no physical-device evidence is claimed."
+  },
+  "gate": {
+    "overall": "OMITTED",
+    "verdict": "omitted",
+    "verified": true,
+    "basis": "Founder-Operator scope decision recorded in the omission artifact."
+  },
+  "red_hat": {
+    "review_id": "red-hat-sprint-06-rider-ready-surface-20260801T0356Z",
+    "report": ".spec/reviews/red-hat-sprint-06-rider-ready-surface-20260801T0356Z.md",
+    "sha_reviewed": "7f989406eb9cb304b721b9ce7841246fd07a608c",
+    "verdict": "APPROVE WITH FINDINGS",
+    "gate_blocking_findings": [],
+    "findings_disposition": {
+      "S6-F1": {
+        "severity": "MEDIUM",
+        "gate_blocking": false,
+        "disposition": "follow_up",
+        "task_id": "REDHAT-FOLLOW-S6-F1"
+      },
+      "S6-F2": {
+        "severity": "MEDIUM",
+        "gate_blocking": false,
+        "disposition": "follow_up_sprint_07",
+        "task_id": "REDHAT-FOLLOW-S6-F2"
+      },
+      "S6-F3": {
+        "severity": "MEDIUM",
+        "gate_blocking": false,
+        "disposition": "follow_up",
+        "task_id": "REDHAT-FOLLOW-S6-F3"
+      },
+      "S6-F4": {
+        "severity": "LOW",
+        "gate_blocking": false,
+        "disposition": "accepted_advisory",
+        "task_id": null
+      },
+      "S6-F5": {
+        "severity": "MEDIUM",
+        "gate_blocking": false,
+        "disposition": "accepted_scope_waiver",
+        "task_id": "S6-T7",
+        "not_a_pass": true
+      },
+      "S6-F6": {
+        "severity": "MEDIUM",
+        "gate_blocking": false,
+        "disposition": "evidence_gap_closed_at_plan_time",
+        "task_id": null,
+        "note": "pnpm tokens:validate exits 0 on plan-time tree; S6-T8 AC-2 tokens resolve"
+      }
+    },
+    "gate_blocking_redhat_fix_tasks": [],
+    "non_blocking_follow_up_tasks": [
+      "REDHAT-FOLLOW-S6-F1",
+      "REDHAT-FOLLOW-S6-F2",
+      "REDHAT-FOLLOW-S6-F3"
+    ],
+    "explicit_non_obligations": [
+      "full pnpm test suite (timeout / Convex dep)",
+      "maestro e2e flows (require iOS sim + Convex dev)",
+      "pnpm convex:dev --once",
+      "real-device S6-T7 human gate (FO omission)"
+    ],
+    "remediation_planned_at": "2026-08-01"
+  },
+  "integration": {
+    "trunk_consolidated": true,
+    "orphan_branches": [],
+    "stranded_tasks": [],
+    "protected_branch": "main",
+    "assert_landed_ok": true
+  },
+  "status_files": {
+    "parity": true
+  }
+}

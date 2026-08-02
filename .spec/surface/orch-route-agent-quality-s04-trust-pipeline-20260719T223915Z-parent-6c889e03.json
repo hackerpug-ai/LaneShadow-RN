@@ -1,0 +1,43 @@
+{
+  "binding": {
+    "harness": "pi",
+    "harness_pid": 67267,
+    "model": "xai-auth/grok-4.5@high",
+    "substrate": null,
+    "surface_id": "D0E349E4-B2F1-4458-B0BB-2BA6A96D6666",
+    "worktree": null
+  },
+  "block": {
+    "attempt": 0,
+    "class": "contract",
+    "reason": "stage-model-capacity"
+  },
+  "charter": {
+    "path": "sprint-cycle"
+  },
+  "created_at": 1784501240,
+  "detection": {
+    "blocked_grep": null,
+    "verdict_grep": null,
+    "verdict_kind": null,
+    "watch_glob": null
+  },
+  "done_bit": {
+    "authorized": false,
+    "authorized_by": null,
+    "evidence_hash": null,
+    "requested": false
+  },
+  "evidence_dir": "/Users/inference1/Projects/LaneShadow-RN/.spec/surface/orch-route-agent-quality-s04-trust-pipeline-20260719T223915Z-parent-6c889e03",
+  "node": {
+    "close_authority": "prd-20260719T223039Z-6c889e03",
+    "depth": 0,
+    "kind": "sprint",
+    "parent_run_id": "prd-20260719T223039Z-6c889e03",
+    "scope_ref": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline"
+  },
+  "project": "/Users/inference1/Projects/LaneShadow-RN",
+  "run_id": "orch-route-agent-quality-s04-trust-pipeline-20260719T223915Z-parent-6c889e03",
+  "schema": "surface/v1",
+  "status": "blocked"
+}

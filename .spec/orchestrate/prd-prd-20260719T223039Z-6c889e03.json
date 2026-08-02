@@ -1,0 +1,124 @@
+{
+  "adoption": {
+    "classification": null,
+    "last_classified_at": null,
+    "ledger_path": null,
+    "pending_decisions": []
+  },
+  "audit": "/Users/inference1/.config/brain/kb-run-prd-state/prd-20260719T223039Z-6c889e03-audit.jsonl",
+  "audit_mirror": "/Users/inference1/Projects/LaneShadow-RN/.spec/orchestrate/prd-prd-20260719T223039Z-6c889e03-audit.jsonl",
+  "block_governor": {
+    "attempt": 0,
+    "class": "transient",
+    "fingerprint": "623945b1c2fc74fdd3213269e4ccd835b6eee72adc2f5630af4c7ffae94fcf82",
+    "first_seen_at": "2026-07-19T23:23:18Z",
+    "fresh_conductor_used": false,
+    "last_progress_sha256": "d78d88220d7196aacc45380007e4bfdfb5262fe2ed03280081f52b7c25dfca38",
+    "last_seen_at": "2026-07-19T23:23:18Z",
+    "last_unblock_applied_at": null,
+    "last_unblock_packet": null,
+    "last_unblock_route": "WAIT_CHILD_RECOVERY",
+    "max_unblock": 0,
+    "reason": "model-overloaded",
+    "trajectory": []
+  },
+  "cleanup": {
+    "child_surfaces_remaining": [],
+    "conductor_cleanup": "pending",
+    "last_result": null
+  },
+  "closeout": {
+    "authorization": null,
+    "evaluation": null,
+    "request": null,
+    "verified_at": null
+  },
+  "conductor_watch": {
+    "anchor_epoch": 1784500239,
+    "first_conductor_deadline_seconds": 600,
+    "lookahead_attempts": 1,
+    "planning_surface_id": "DACEBC12-8DD0-48F5-A9FD-CA991317C3C4"
+  },
+  "created_at": "2026-07-19T22:30:39Z",
+  "current_sprint": {
+    "child_registry": "/Users/inference1/.config/brain/kb-orchestrate-state/orch-route-agent-quality-s04-trust-pipeline-20260719T223915Z-parent-6c889e03.json",
+    "child_run_id": "orch-route-agent-quality-s04-trust-pipeline-20260719T223915Z-parent-6c889e03",
+    "close_request": null,
+    "conductor_harness": "pi",
+    "conductor_model": "openai-codex/gpt-5.6-luna",
+    "conductor_reasoning_effort": "high",
+    "conductor_surface_id": "C08C52C3-101C-4974-9959-6949E80697FF",
+    "name": "Sprint 04: Trust pipeline",
+    "number": 4,
+    "path": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/tasks/sprint-04-trust-pipeline"
+  },
+  "cycles": {
+    "qa": 0,
+    "replan": 0,
+    "steer": 1,
+    "unblock": 0
+  },
+  "goal": {
+    "active": true,
+    "command": "/goal kt /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/ROADMAP.md",
+    "scope_ok": true
+  },
+  "home_workspace_id": "B3E6DCCC-9A70-4AF6-BD41-C999CF1415B9",
+  "home_workspace_resolved_from": "parent-surface",
+  "invocation_display": "/kb-run-prd /Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/ROADMAP.md",
+  "kind": "kb-run-prd-state",
+  "lock": {
+    "directory": "/Users/inference1/.config/brain/kb-run-prd-state/7faceb0b1666e48c382e5c6ca8fb232bde71659558a2187921ca4f39eaeadeb6.lock",
+    "key": "7faceb0b1666e48c382e5c6ca8fb232bde71659558a2187921ca4f39eaeadeb6"
+  },
+  "lookahead_sprint": null,
+  "mirror": "/Users/inference1/Projects/LaneShadow-RN/.spec/orchestrate/prd-prd-20260719T223039Z-6c889e03.json",
+  "orchestrator_runtime": {
+    "chain": [
+      {
+        "arming_mode": "goal-native-pi",
+        "harness": "pi",
+        "model": "openai-codex/gpt-5.6-luna",
+        "reasoning_effort": "high",
+        "tier": 1
+      },
+      {
+        "arming_mode": "goal-native-pi",
+        "harness": "pi",
+        "model": "zai/glm-5.2",
+        "reasoning_effort": "high",
+        "tier": 2
+      }
+    ],
+    "chain_evidence_dir": null,
+    "fallback_evidence": null,
+    "selected": null
+  },
+  "parent_session_id": "1ef515bc-b087-4a68-88bd-4aa595780013",
+  "parent_surface_id": "BC1FC6FA-3933-437B-866A-9E05CAAF253E",
+  "project": "/Users/inference1/Projects/LaneShadow-RN",
+  "resume": {
+    "accepted_at": null,
+    "adoption_request": null,
+    "mode": "fresh",
+    "phase": null,
+    "resume_source": null,
+    "source_run_id": null
+  },
+  "roadmap": "/Users/inference1/Projects/LaneShadow-RN/.spec/prds/route-agent-quality/ROADMAP.md",
+  "roadmap_sha256": "6f0f10b0e45d153bd984734eb791361428015f76cc286dddc7ffd51951ba91c5",
+  "run_id": "prd-20260719T223039Z-6c889e03",
+  "schema_version": 1,
+  "specialist_override_display": "",
+  "specialist_override_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "state": "/Users/inference1/.config/brain/kb-run-prd-state/prd-20260719T223039Z-6c889e03.json",
+  "status": "running",
+  "status_sync": {
+    "last_synced_at": null,
+    "pending_transaction": null,
+    "snapshot": null,
+    "snapshot_sha256": null,
+    "tracker_parity": "unknown"
+  },
+  "updated_at": "2026-07-19T23:23:30Z"
+}

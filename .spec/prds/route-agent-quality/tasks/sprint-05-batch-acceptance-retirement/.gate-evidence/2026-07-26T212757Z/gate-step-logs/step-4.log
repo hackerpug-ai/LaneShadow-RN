@@ -1,0 +1,1 @@
+{"phase":"step-4-negative-control","runId":"s5-qa-live-20260726T213002Z","decision":null,"retirementUnlockedAt":null,"acceptedAt":null,"escalations":[],"reason":null,"operatorIdentity":null,"decisionTimestamp":null,"mutatedFrom":{"phase":"step-3-yield-comparison","priorDecision":null},"capturedAt":"2026-07-26T21:30:42.548Z"}
