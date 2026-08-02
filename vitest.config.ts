@@ -109,16 +109,33 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./vitest.env.js'],
     include: ['**/*.test.ts', '**/*.test.tsx'],
+    // These are picomatch globs matched against paths relative to the project
+    // root. A bare directory name like 'node_modules/' does NOT match nested
+    // paths, so overriding `exclude` without '**/node_modules/**' silently
+    // re-enabled every dependency's own test files — including those inside the
+    // node_modules of stale orchestrator worktrees. An unfiltered run did not
+    // finish in 9 minutes; with these patterns it is ~5 minutes over 394 files.
     exclude: [
-      'node_modules/',
-      'e2e/',
-      '.expo/',
-      'android/',
-      'ios/',
-      'convex/_generated/',
-      'dist/',
-      'build/',
-      '.claude/worktrees/**',
+      '**/node_modules/**',
+      // Covers .claude/worktrees, .kb-run-sprint/worktrees, .kb-orchestrate/worktrees —
+      // each holds a full checkout whose tests would otherwise run as duplicates.
+      '**/worktrees/**',
+      // Preserved WIP snapshots (.tmp/<task>-wip-preserve-*/{main,worktree}/) are
+      // whole-repo copies for the same reason.
+      '.tmp/**',
+      // Standalone `pnpm tsx` scripts (shebang + main() + process.exit()), not
+      // vitest specs — all 40 match *.test.ts but define no describe/it. Calling
+      // process.exit() inside a tinypool worker kills the pool
+      // (ERR_IPC_CHANNEL_CLOSED), which aborted the whole run before it could
+      // print a summary. Run them with their own runner, not vitest.
+      'scripts/design-review/__tests__/**',
+      'e2e/**',
+      '.expo/**',
+      'android/**',
+      'ios/**',
+      'convex/_generated/**',
+      'dist/**',
+      'build/**',
     ],
     coverage: {
       provider: 'v8',
